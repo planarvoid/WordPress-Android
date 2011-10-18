@@ -53,7 +53,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         ((TextView) uploadLayout.findViewById(R.id.txt_private_message_upload_message))
                 .setText(activity.getString(R.string.private_message_upload_message, mUser.getDisplayName()));
 
-        uploadLayout.findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+        uploadLayout.findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // reset

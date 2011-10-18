@@ -23,5 +23,11 @@
     <string name='private_message_btn_send'>
         Send
     </string>
+    <string name='btn_next'>
+        Next
+    </string>
+    <string name='btn_back'>
+        Back
+    </string>
 
 </resources>

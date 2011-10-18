@@ -140,6 +140,7 @@ public class CreateController {
             }
         });
 
+        ((Button) vg.findViewById(R.id.btn_save)).setText(c.getString(mRecording == null ? R.string.btn_save : R.string.btn_next));
         vg.findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (mRecording == null){
@@ -297,8 +298,6 @@ public class CreateController {
      private boolean shouldReactToPath(String path){
         long userIdFromPath = userIdFromPath = getPrivateUserIdFromPath(path);
         return ((userIdFromPath == -1 && mPrivateUser == null) || (mPrivateUser != null && userIdFromPath == mPrivateUser.id));
-
-
     }
 
     public void onSaveInstanceState(Bundle state) {
