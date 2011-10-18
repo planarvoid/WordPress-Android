@@ -49,7 +49,7 @@ public class CreateController {
 
     private ScActivity mActivity;
     private ICloudCreateService mCreateService;
-    private Uri mRecordingUri;
+    private Recording mRecording;
     private User mPrivateUser;
 
     private TextView txtInstructions, txtRecordStatus, mChrono;
@@ -83,14 +83,21 @@ public class CreateController {
     public static int PCM_REC_BITS_PER_SAMPLE = 16;
     public static int PCM_REC_MAX_FILE_SIZE = -1;
 
-    public CreateController(ScActivity c, ViewGroup vg, Intent intent) {
-        this(c,vg,intent, null);
+    public CreateController(ScActivity c, ViewGroup vg, Uri recordingUri) {
+        this(c,vg,recordingUri, null);
     }
 
-    public CreateController(ScActivity c, ViewGroup vg, Intent intent, User privateUser) {
+    public CreateController(ScActivity c, ViewGroup vg, Uri recordingUri, User privateUser) {
+        this(c, vg, recordingUri == null ? null : Recording.fromUri(recordingUri, c.getContentResolver()), privateUser);
+        if (recordingUri != null && mRecording == null){
+            mActivity.showToast(R.string.error_getting_recording);
+        }
+    }
+
+    public CreateController(ScActivity c, ViewGroup vg, Recording recording, User privateUser) {
 
         mActivity = c;
-        mRecordingUri = intent != null ? intent.getData() : null;
+        mRecording = recording;
         mPrivateUser = privateUser;
 
         btn_rec_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_states);
@@ -122,32 +129,20 @@ public class CreateController {
             }
         });
 
-        ((Button) vg.findViewById(R.id.btn_reset)).setText(c.getString(mRecordingUri == null ? R.string.reset : R.string.delete));
+        ((Button) vg.findViewById(R.id.btn_reset)).setText(c.getString(mRecording == null ? R.string.reset : R.string.delete));
         vg.findViewById(R.id.btn_reset).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mRecordingUri == null)
+                if (mRecording == null)
                     mActivity.showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
                 else {
-                    new AlertDialog.Builder(mActivity)
-                            .setTitle(R.string.dialog_confirm_delete_recording_title)
-                            .setMessage(R.string.dialog_confirm_delete_recording_message)
-                            .setPositiveButton(mActivity.getString(R.string.btn_yes),
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                            Recording recording = Recording.fromUri(mRecordingUri, mActivity.getContentResolver());
-                                            if (recording != null) recording.delete(mActivity.getContentResolver());
-                                        }
-                                    })
-                            .setNegativeButton(mActivity.getString(R.string.btn_no), null)
-                            .create()
-                            .show();
+                    mActivity.showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
                 }
             }
         });
 
         vg.findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mRecordingUri == null){
+                if (mRecording == null){
                     Recording r = new Recording(mRecordFile);
                     r.audio_profile = mAudioProfile;
                     r.user_id = mActivity.getCurrentUserId();
@@ -164,17 +159,13 @@ public class CreateController {
                     }
 
                     Uri newRecordingUri = mActivity.getContentResolver().insert(DatabaseHelper.Content.RECORDINGS, r.buildContentValues());
-                    mRecordingUri = null;
-                    mRecordFile = null;
-                    mCurrentState = CreateState.IDLE_RECORD;
-
                     if (mCreateListener != null){
-                        mCreateListener.onSave(newRecordingUri);
+                        mCreateListener.onSave(newRecordingUri, mRecording);
                     }
                 } else {
                     //start for result, because if an upload starts, finish, playback should not longer be possible
                     if (mCreateListener != null){
-                        mCreateListener.onSave(mRecordingUri);
+                        mCreateListener.onSave(mRecording.toUri(), mRecording);
                     }
                 }
             }
@@ -194,6 +185,13 @@ public class CreateController {
         updateUi(false);
     }
 
+    public void reset() {
+        mRecordFile = null;
+        mRecording = null;
+        mCurrentState = CreateState.IDLE_RECORD;
+        updateUi(true);
+    }
+
     public void setInstructionsText(String s){
         txtInstructions.setText(s);
     }
@@ -208,8 +206,8 @@ public class CreateController {
         mCreateListener = listener;
     }
 
-    public void setRecordingUri(Uri recordingUri){
-        mRecordingUri = recordingUri;
+    public void setRecording(Recording recording){
+        mRecording = recording;
         configureState();
     }
 
@@ -220,24 +218,14 @@ public class CreateController {
         try {
 
             long recordingId = 0;
-            if (mRecordingUri != null) {
-                recordingId = Long.valueOf(mRecordingUri.getLastPathSegment());
-                Cursor cursor = mActivity.getContentResolver().query(mRecordingUri,
-                        new String[]{DatabaseHelper.Recordings.ID, DatabaseHelper.Recordings.AUDIO_PATH, DatabaseHelper.Recordings.AUDIO_PROFILE, DatabaseHelper.Recordings.DURATION},
-                        null, null, null);
-
-                if (cursor != null && cursor.moveToFirst()) {
-                    setRecordFile(new File(cursor.getString(cursor.getColumnIndex(DatabaseHelper.Recordings.AUDIO_PATH))));
-                    mAudioProfile = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.Recordings.AUDIO_PROFILE));
-                    mDuration = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.Recordings.DURATION));
-                    cursor.close();
-                } else {
-                    mActivity.showToast(R.string.error_getting_recording);
-                }
+            if (mRecording != null) {
+                recordingId = mRecording.id;
+                setRecordFile(mRecording.audio_path);
+                mAudioProfile = mRecording.audio_profile;
+                mDuration = mRecording.duration;
             }
 
-            if (mCreateService.isRecording() && mRecordingUri == null){
-
+            if (mCreateService.isRecording() && mRecording == null){
                 if (shouldReactToRecording()) {
                     mCurrentState = CreateState.RECORD;
                     setRecordFile(new File(mCreateService.getRecordingPath()));
@@ -856,9 +844,7 @@ public class CreateController {
                     (mCurrentState == CreateState.IDLE_PLAYBACK || mCurrentState == CreateState.PLAYBACK)) {
                 // this will happen if recording starts from somewhere else. just reset as the player will have to be reloaded anyway
                 stopPlayback();
-                mRecordFile = null;
-                mCurrentState = CreateState.IDLE_RECORD;
-                updateUi(true);
+                reset();
 
             } else if (action.equals(CloudCreateService.RECORD_ERROR)) {
                 onRecordingError();
@@ -914,21 +900,35 @@ public class CreateController {
                                 mActivity.getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 CloudUtils.deleteFile(mRecordFile);
-                                mRecordFile = null;
-                                mCurrentState = CreateState.IDLE_RECORD;
-                                updateUi(true);
                                 mActivity.removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
+                                if (mCreateListener != null) mCreateListener.onCancel();
                             }
                         }).setNegativeButton(mActivity.getString(R.string.btn_no), null)
                         .create();
+
+            case Consts.Dialogs.DIALOG_DELETE_RECORDING:
+             return new AlertDialog.Builder(mActivity)
+                            .setTitle(R.string.dialog_confirm_delete_recording_title)
+                            .setMessage(R.string.dialog_confirm_delete_recording_message)
+                            .setPositiveButton(mActivity.getString(R.string.btn_yes),
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            if (mRecording != null) mRecording.delete(mActivity.getContentResolver());
+                                            if (mCreateListener != null) mCreateListener.onDelete();
+                                        }
+                                    })
+                            .setNegativeButton(mActivity.getString(R.string.btn_no), null)
+                            .create();
+
             default:
                 return null;
         }
     }
 
     public interface CreateListener {
-        void onSave(Uri recording);
+        void onSave(Uri recordingUri, Recording recording);
         void onCancel();
+        void onDelete();
     }
 
 

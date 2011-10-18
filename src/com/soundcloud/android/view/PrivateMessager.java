@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -12,6 +13,7 @@ import android.widget.ViewFlipper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.LocationPicker;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScUpload;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -38,7 +40,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         addView(mViewFlipper,new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 
         ViewGroup createLayout = (ViewGroup) activity.getLayoutInflater().inflate(R.layout.sc_create, null);
-        mCreateController = new CreateController(activity, createLayout, null, mUser);
+        mCreateController = new CreateController(activity, createLayout, mRecording, mUser);
         mCreateController.setInstructionsText(activity.getString(R.string.private_message_title));
         mCreateController.setListener(this);
         mViewFlipper.addView(createLayout);
@@ -55,6 +57,8 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
             @Override
             public void onClick(View v) {
                 // reset
+                mapToRecording(mRecording);
+                saveRecording(mRecording);
                 flipToCreate();
             }
         });
@@ -134,17 +138,6 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         return mCreateController.onCreateDialog(which);
     }
 
-    @Override
-    public void onSave(Uri recording) {
-
-        mRecording = Recording.fromUri(recording,mActivity.getContentResolver());
-        mRecordingMetadata.setRecording(mRecording);
-        mViewFlipper.setInAnimation(AnimUtils.inFromBottomAnimation());
-        mViewFlipper.setOutAnimation(AnimUtils.outToTopAnimation());
-        mViewFlipper.showNext();
-        mCreateController.updateUi(false);
-    }
-
     private void mapFromRecording(final Recording recording) {
         mRecordingMetadata.mapFromRecording(recording);
     }
@@ -154,9 +147,23 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     }
 
     @Override
-    public void onCancel() {
-        // ignore
+    public void onSave(Uri recordingUri, Recording recording) {
+        mRecording = recording;
+        mRecordingMetadata.setRecording(mRecording, true);
+        mViewFlipper.setInAnimation(AnimUtils.inFromBottomAnimation());
+        mViewFlipper.setOutAnimation(AnimUtils.outToTopAnimation());
+        mViewFlipper.showNext();
+        mCreateController.updateUi(false);
+    }
 
+    @Override
+    public void onCancel() {
+        mCreateController.reset();
+    }
+
+    @Override
+    public void onDelete() {
+        mCreateController.reset();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent result) {
@@ -180,17 +187,6 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
                             result.getDoubleExtra("latitude", 0));
                 }
                 break;
-        }
-    }
-
-    public void setRecording(Uri recordingUri, boolean edit) {
-        mRecording = Recording.fromUri(recordingUri, mActivity.getContentResolver());
-        mCreateController.setRecordingUri(recordingUri);
-        if (edit) {
-            mRecordingMetadata.setRecording(mRecording, true);
-            mViewFlipper.setDisplayedChild(1);
-        } else {
-            mViewFlipper.setDisplayedChild(0);
         }
     }
 }

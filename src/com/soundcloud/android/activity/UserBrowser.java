@@ -160,9 +160,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 } else {
                     loadYou();
                 }
-                if (intent.hasExtra("recordingUri")) {
+                /*if (intent.hasExtra("recordingUri")) {
                     mMessager.setRecording(Uri.parse(intent.getStringExtra("recordingUri")), intent.getBooleanExtra("edit", false));
-                }
+                }*/
             } else {
                 loadYou();
             }

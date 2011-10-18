@@ -38,7 +38,9 @@ public final class Consts {
         int DIALOG_CANCEL_UPLOAD = 3;
         int DIALOG_RESET_RECORDING = 5;
         int DIALOG_UNSAVED_RECORDING = 6;
-        int DIALOG_LOGOUT = 7;
+        int DIALOG_DELETE_RECORDING = 7;
+        int DIALOG_LOGOUT = 8;
+
     }
 
     public interface OptionsMenu {
