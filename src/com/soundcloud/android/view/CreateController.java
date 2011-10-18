@@ -217,7 +217,6 @@ public class CreateController {
     }
 
     private void configureState(){
-        Log.i("asdf","Configure State");
         if (mCreateService == null) return;
 
         boolean takeAction = false;
@@ -484,8 +483,6 @@ public class CreateController {
         } else {
             mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "." + mAudioProfile);
         }
-        Log.i("asdf","Record File is " + mRecordFile.getAbsolutePath());
-
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;
             updateUi(true);
@@ -587,7 +584,6 @@ public class CreateController {
     private void loadPlaybackTrack() {
         try {
             if (mCreateService != null && mRecordFile != null) {
-                Log.i("asdf","Playback file is " + mRecordFile.getAbsolutePath());
                 // might be loaded and paused already
                 if (TextUtils.isEmpty(mCreateService.getPlaybackPath()) ||
                     !mCreateService.getPlaybackPath().contentEquals(mRecordFile.getAbsolutePath())) {
@@ -856,10 +852,8 @@ public class CreateController {
                 onRecordingError();
             } else if (action.equals(CloudCreateService.PLAYBACK_COMPLETE) || action.equals(CloudCreateService.PLAYBACK_ERROR)) {
                 if (shouldReactToPath(intent.getStringExtra("path"))) {
-                    Log.i("asdf","Doing playback complete");
                     onPlaybackComplete();
                 } else if (mCurrentState == CreateState.IDLE_STANDBY_PLAY) {
-                    Log.i("asdf","Configure State call");
                     configureState();
                 }
             }
