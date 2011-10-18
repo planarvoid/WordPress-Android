@@ -74,7 +74,10 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
                     mActivity.startUpload(mRecording);
                     mRecording = null;
                     mRecordingMetadata.setRecording(null);
+                    mCreateController.reset();
                     flipToCreate();
+
+                    // TODO no creating more messages until current done uploading
                 }
             }
         });

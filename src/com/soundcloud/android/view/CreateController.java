@@ -150,6 +150,7 @@ public class CreateController {
                     if (mPrivateUser != null){
                         SoundCloudDB.writeUser(mActivity.getContentResolver(),mPrivateUser, SoundCloudDB.WriteState.all,mActivity.getCurrentUserId());
                         r.private_user_id = mPrivateUser.id;
+                        r.is_private = true;
                     }
 
                     try { // set duration because ogg files report incorrect
@@ -160,6 +161,9 @@ public class CreateController {
                     }
 
                     Uri newRecordingUri = mActivity.getContentResolver().insert(DatabaseHelper.Content.RECORDINGS, r.buildContentValues());
+                    mRecording = r;
+                    mRecording.id = Long.parseLong(newRecordingUri.getLastPathSegment());
+
                     if (mCreateListener != null){
                         mCreateListener.onSave(newRecordingUri, mRecording);
                     }
@@ -213,6 +217,7 @@ public class CreateController {
     }
 
     private void configureState(){
+        Log.i("asdf","Configure State");
         if (mCreateService == null) return;
 
         boolean takeAction = false;
@@ -296,6 +301,7 @@ public class CreateController {
     }
 
      private boolean shouldReactToPath(String path){
+         if (TextUtils.isEmpty(path)) return false;
         long userIdFromPath = userIdFromPath = getPrivateUserIdFromPath(path);
         return ((userIdFromPath == -1 && mPrivateUser == null) || (mPrivateUser != null && userIdFromPath == mPrivateUser.id));
     }
@@ -478,7 +484,7 @@ public class CreateController {
         } else {
             mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "." + mAudioProfile);
         }
-
+        Log.i("asdf","Record File is " + mRecordFile.getAbsolutePath());
 
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;
@@ -581,6 +587,7 @@ public class CreateController {
     private void loadPlaybackTrack() {
         try {
             if (mCreateService != null && mRecordFile != null) {
+                Log.i("asdf","Playback file is " + mRecordFile.getAbsolutePath());
                 // might be loaded and paused already
                 if (TextUtils.isEmpty(mCreateService.getPlaybackPath()) ||
                     !mCreateService.getPlaybackPath().contentEquals(mRecordFile.getAbsolutePath())) {
@@ -849,8 +856,10 @@ public class CreateController {
                 onRecordingError();
             } else if (action.equals(CloudCreateService.PLAYBACK_COMPLETE) || action.equals(CloudCreateService.PLAYBACK_ERROR)) {
                 if (shouldReactToPath(intent.getStringExtra("path"))) {
+                    Log.i("asdf","Doing playback complete");
                     onPlaybackComplete();
                 } else if (mCurrentState == CreateState.IDLE_STANDBY_PLAY) {
+                    Log.i("asdf","Configure State call");
                     configureState();
                 }
             }
