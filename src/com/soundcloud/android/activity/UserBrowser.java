@@ -634,7 +634,15 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         if (recording.upload_status == Upload.UploadStatus.UPLOADING)
             safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
         else {
-            showRecordingDialog(recording);
+            if (recording.private_user_id <= 0) {
+                startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
+            } else {
+                startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
+                        .putExtra("edit", false)
+                        .putExtra("recordingUri", recording.toUri().toString())
+                        .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
+            }
+            //showRecordingDialog(recording);
         }
     }
 
