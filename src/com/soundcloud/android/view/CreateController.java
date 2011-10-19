@@ -443,8 +443,14 @@ public class CreateController {
     }
 
     private void startRecording() {
-        mActivity.trackPage(Consts.Tracking.RECORD_RECORDING);
-        mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, "start");
+        if (mPrivateUser == null){
+            mActivity.trackPage(Consts.Tracking.RECORD_RECORDING);
+            mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, "start");
+        } else {
+            mActivity.trackPage(Consts.Tracking.AUDIO_MESSAGE_RECORDING);
+            mActivity.trackEvent(Consts.Tracking.Categories.AUDIO_MESSAGE, "start");
+        }
+
 
         mActivity.pause(true);
 
@@ -560,8 +566,13 @@ public class CreateController {
     };
 
     private void stopRecording() {
-        mActivity.trackPage(Consts.Tracking.RECORD_COMPLETE);
-        mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, "stop");
+         if (mPrivateUser == null){
+             mActivity.trackPage(Consts.Tracking.RECORD_COMPLETE);
+             mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, "stop");
+         } else {
+             mActivity.trackPage(Consts.Tracking.AUDIO_MESSAGE_COMPLETE);
+             mActivity.trackEvent(Consts.Tracking.Categories.AUDIO_MESSAGE, "stop");
+         }
 
         if (mActivity.getApp().getRecordListener() == recListener) {
             mActivity.getApp().setRecordListener(null);

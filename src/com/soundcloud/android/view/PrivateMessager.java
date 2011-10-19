@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.LocationPicker;
 import com.soundcloud.android.activity.ScActivity;
@@ -68,8 +69,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
             public void onClick(View v) {
                 if (mRecording != null) {
                     mapToRecording(mRecording);
-                    //trackPage(mRecording.pageTrack());
-                    //trackEvent(Consts.Tracking.Categories.SHARE, mRecording.is_private ? "private" : "public");
+                    mActivity.trackEvent(Consts.Tracking.Categories.AUDIO_MESSAGE, "send");
                     saveRecording(mRecording);
                     mActivity.startUpload(mRecording);
                     mRecording = null;
