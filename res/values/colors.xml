@@ -19,10 +19,6 @@
     <color name="playerControlBackgroundDark">#FFc8c8c8</color>
 
 	<color name="playerControlAlphaBackground">#AAE2E2E2</color>
-	<color name="lightGrayBackground">#FFEEEEEE</color>
-	<color name="lightGrayAlphaBackground">#AAEEEEEE</color>
-	<color name="playerArtworkBackground">#FF666666</color>
-    <color name="commentPanelBg">#EAFFFFFF</color>
 	<color name="createBackground">#FF333333</color>
 	<color name="progressDarkAlphaBackground">#AA000000</color>
 	
@@ -61,23 +57,10 @@
 	<color name="horizontalRule">#FFcccccc</color>
     <color name="verticalPipe">#FFcccccc</color>
 
-	<drawable name="screen_background_light">#ffffffff</drawable>
-
-	<drawable name="screen_background_dark">#ff1a1a1a</drawable>
-	<drawable name="status_bar_closed_default_background">#ff000000</drawable>
-	<drawable name="status_bar_opened_default_background">#ff000000</drawable>
-	<drawable name="search_bar_default_color">#ff000000</drawable>
-	<drawable name="safe_mode_background">#60000000</drawable>
 	<color name="white">#ffffffff</color>
 	<color name="black">#ff000000</color>
 	<color name="transparent">#00000000</color>
 	<color name="background_dark">#ff1a1a1a</color>
-
-
-	<drawable name="input_method_fullscreen_background">#ffffffff</drawable>
-
-	<!-- For date picker widget -->
-	<drawable name="selected_day_background">#ff0092f4</drawable>
 
 	<!-- For settings framework -->
 	<color name="darker_gray">#aaa</color>
