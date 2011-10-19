@@ -12,50 +12,6 @@
         <item>100</item>
     </string-array>
 
-    <string-array name="pref_default_track_sorting">
-        <item>@string/menu_sort_by_upload_date</item>
-        <item>@string/menu_sort_by_hotness</item>
-    </string-array>
-
-    <string-array name="pref_default_track_sorting_values">
-        <item>created_at</item>
-        <item>hotness</item>
-    </string-array>
-
-    <string-array name="pref_default_user_sorting">
-        <item>@string/menu_sort_by_user_name</item>
-        <item>@string/menu_sort_by_track_count</item>
-        <item>@string/menu_sort_by_follower_count</item>
-    </string-array>
-
-    <string-array name="pref_default_user_sorting_values">
-        <item>username</item>
-        <item>track_count</item>
-        <item>follower_count</item>
-    </string-array>
-
-    <string-array name="pref_default_track_search_sorting">
-        <item>@string/menu_sort_by_upload_date</item>
-        <item>@string/menu_sort_by_hotness</item>
-    </string-array>
-
-    <string-array name="pref_default_track_search_sorting_values">
-        <item>created_at</item>
-        <item>hotness</item>
-    </string-array>
-
-    <string-array name="pref_default_user_search_sorting">
-        <item>@string/menu_sort_by_user_name</item>
-        <item>@string/menu_sort_by_track_count</item>
-        <item>@string/menu_sort_by_follower_count</item>
-    </string-array>
-
-    <string-array name="pref_default_user_search_sorting_values">
-        <item>username</item>
-        <item>track_count</item>
-        <item>follower_count</item>
-    </string-array>
-
     <string-array name="pref_record_quality_entries">
         <item>@string/low</item>
         <item>@string/high</item>
