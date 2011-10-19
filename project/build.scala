@@ -4,7 +4,7 @@ import AndroidKeys._
 
 object General {
   val settings = Defaults.defaultSettings ++ Seq (
-    version := "1.4.3-SNAPSHOT",
+    version := "1.4.5-SNAPSHOT",
     organization := "com.soundcloud"
   )
 
@@ -46,7 +46,8 @@ object AndroidBuild extends Build {
     "com.pivotallabs" % "robolectric" % "1.0-RC5-SNAPSHOT" % "test" classifier "jar-with-dependencies",
     "junit" % "junit-dep" % "4.9b2" % "test",
     "org.mockito" % "mockito-core" % "1.8.5" % "test",
-    "org.hamcrest" % "hamcrest-core" % "1.1" % "test"
+    "org.hamcrest" % "hamcrest-core" % "1.1" % "test",
+    "com.github.xian" % "great-expectations" % "0.10" % "test"
   )
 
   val repos = Seq(
