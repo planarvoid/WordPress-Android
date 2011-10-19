@@ -49,7 +49,6 @@ public abstract class LazyRow extends FrameLayout {
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
         mCurrentPosition = position;
-
         if (TextUtils.isEmpty(getIconRemoteUri())){
             mImageLoader.unbind(getRowIcon());
             mIcon.setImageDrawable(null);

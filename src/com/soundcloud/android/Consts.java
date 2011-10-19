@@ -112,6 +112,7 @@ public final class Consts {
     }
 
     public interface Tracking {
+        String LABEL_DOMAIN_PREFIX = "http://soundcloud.com/";
         interface Categories {
             String AUTH      = "auth";
             String CONNECT   = "connect";
@@ -133,6 +134,7 @@ public final class Consts {
         String STREAM   = "/incoming";
         String ACTIVITY = "/activity";
         String RECORD   = "/record";
+        String PLAYER   = "/player";
         @Deprecated String RECORD_RECORDING = "/record/recording";
         @Deprecated String RECORD_COMPLETE  = "/record/complete";
         @Deprecated String SHARE_PUBLIC     = "/record/share/public";

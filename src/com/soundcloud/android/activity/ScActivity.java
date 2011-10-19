@@ -230,8 +230,10 @@ public abstract class ScActivity extends Activity {
 
         mIsForeground = true;
 
-        for (final ScListView l : mLists) {
-            l.onResume();
+        if (mLists != null) {
+            for (final ScListView l : mLists) {
+                l.onResume();
+            }
         }
 
         Account account = getApp().getAccount();

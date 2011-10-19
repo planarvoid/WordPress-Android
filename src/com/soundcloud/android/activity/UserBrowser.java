@@ -241,6 +241,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private void loadYou() {
         setUser(getApp().getLoggedInUser());
+        if (mUser == null) {
+            mUser = new User();
+        }
         build();
     }
 

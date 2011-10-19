@@ -150,6 +150,7 @@ public class Dashboard extends ScActivity {
                                         PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit()
                                                 .putBoolean(EXCLUSIVE_ONLY_KEY, which == 1).commit();
                                         mListView.getWrapper().setRequest(getIncomingRequest());
+                                        mListView.getWrapper().clearRefreshTask();
                                         mListView.getWrapper().reset();
                                         mListView.setLastUpdated(0);
                                         mListView.invalidateViews();

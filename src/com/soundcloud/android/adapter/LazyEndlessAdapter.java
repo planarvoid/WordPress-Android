@@ -238,7 +238,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     @Override
     public int getCount() {
-        if (mAllowInitialLoading && mRefreshTask == null && (mKeepOnAppending.get() || getWrappedAdapter().getCount() == 0)) {
+        if (mAllowInitialLoading && CloudUtils.isTaskFinished(mRefreshTask) && (mKeepOnAppending.get() || getWrappedAdapter().getCount() == 0)) {
             return super.getCount() + 1;
         } else {
             return super.getCount();
@@ -288,7 +288,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     protected boolean canShowEmptyView(){
-       return mRefreshTask == null && super.getCount() == 0 && !mKeepOnAppending.get();
+       return CloudUtils.isTaskFinished(mRefreshTask) && super.getCount() == 0 && !mKeepOnAppending.get();
     }
 
     protected int getPageSize() {
@@ -345,7 +345,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         }
 
         applyEmptyText();
-        mRefreshTask = null;
         notifyDataSetChanged();
 
         if (mListView != null) {
@@ -415,7 +414,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mNextHref = "";
         mKeepOnAppending.set(keepAppending);
         clearAppendTask();
-        clearRefreshTask();
+//        clearRefreshTask();
          if (notifyChange) notifyDataSetChanged();
     }
 
@@ -432,7 +431,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mPendingView = null;
     }
 
-    private void clearRefreshTask() {
+    public void clearRefreshTask() {
         if (mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
         mRefreshTask = null;
     }

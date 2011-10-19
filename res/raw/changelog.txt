@@ -1,7 +1,17 @@
-$ 27
-  % v current
-  _ 2011-09-xx
+$ 29
+  % v 1.4.6
+  _ 2011-09-30
   ! New stuff
+    * Set frequency of updates
+
+$ 28
+  % v 1.4.5
+  _ 2011-09-30
+  ! Maintenance release
+    * Fixed a seek clearing bug
+    * Fixed a waveform display bug
+    * Fixed error message for playing an unstreamable track
+    - Added Playback Tracking to Playback Service
     - Added support for soundcloud:users/tracks URIs
     - Don't use localised weekdays in upload titles (Sounds from Montag)
     - Fix filename extensions (https://www.pivotaltracker.com/story/show/18962163)

@@ -16,6 +16,7 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
 import com.soundcloud.android.service.beta.WifiMonitor;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -23,6 +24,7 @@ import com.soundcloud.api.Token;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.accounts.Account;
@@ -50,7 +52,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=4d60f01a",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=e5e813c2",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
@@ -114,7 +116,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             Connections.initialize(this, "connections-"+getCurrentUserId());
 
             if (ContentResolver.getIsSyncable(account, ScContentProvider.AUTHORITY) < 1) {
-                ScContentProvider.enableSyncing(account);
+                ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
             }
         }
 
@@ -262,7 +264,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 
-        ScContentProvider.enableSyncing(account);
+        ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
         return created;
     }
 
@@ -344,6 +346,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (mTracker != null) {
             mTracker.setCustomVar(slot, name, value, scope);
         }
+    }
+
+    public void trackEvent(String category, String action, String label) {
+        trackEvent(category, action, label, 0);
     }
 
     public void trackEvent(String category, String action, String label, int value) {
@@ -462,6 +468,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public void setDefaultContentType(String contentType) {
         mCloudApi.setDefaultContentType(contentType);
+    }
+
+    @Override
+    public HttpClient getHttpClient() {
+        return mCloudApi.getHttpClient();
+    }
+
+    @Override
+    public String resolveStreamUrl(String uri) throws IOException {
+        return mCloudApi.resolveStreamUrl(uri);
     }
 
     public static interface RecordListener {

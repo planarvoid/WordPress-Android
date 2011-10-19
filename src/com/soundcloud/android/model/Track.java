@@ -174,6 +174,10 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         return sharing.contentEquals("public");
     }
 
+    public String getTrackEventLabel() {
+        return Consts.Tracking.LABEL_DOMAIN_PREFIX + (user == null ? user_id : user.permalink) + "/" + permalink;
+    }
+
     public static class CreatedWith {
         @JsonView(Views.Full.class) public long id;
         @JsonView(Views.Full.class) public String name;

@@ -1,10 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.soundcloud</groupId>
     <artifactId>soundcloud-android</artifactId>
     <packaging>apk</packaging>
-    <version>1.4.4</version>
+    <description>soundcloud-android</description>
+    <version>1.4.5-SNAPSHOT</version>
+    <name>soundcloud-android</name>
+    <organization>
+        <name>com.soundcloud</name>
+    </organization>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>tests/src</testSourceDirectory>
@@ -48,7 +53,7 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>install</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
@@ -144,67 +149,7 @@
         <dependency>
             <groupId>org.acra</groupId>
             <artifactId>acra</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.8.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.8.5</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>libGoogleAnalytics</artifactId>
-            <version>1.3</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.5</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.commonsware</groupId>
-            <artifactId>CWAC-AdapterWrapper</artifactId>
-            <version>0.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.0.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>android</artifactId>
-            <version>2.3.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20090211</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>filecache</artifactId>
-            <version>r153</version>
+            <version>4.3.0-filter-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -214,28 +159,10 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-            <version>1.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.xiph</groupId>
-            <artifactId>libvorbis</artifactId>
-            <version>1.0.0-beta</version>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.8.5</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit-dep</artifactId>
-            <version>4.9b2</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.soundcloud</groupId>
@@ -244,33 +171,121 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>filecache</artifactId>
+            <version>r153</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>libGoogleAnalytics</artifactId>
+            <version>1.3</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.commonsware</groupId>
+            <artifactId>CWAC-AdapterWrapper</artifactId>
+            <version>0.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xiph</groupId>
+            <artifactId>libvorbis</artifactId>
+            <version>1.0.0-beta</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <version>2.3.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.0.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20090211</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.pivotallabs</groupId>
             <artifactId>robolectric</artifactId>
             <version>1.0-RC5-SNAPSHOT</version>
             <scope>test</scope>
             <classifier>jar-with-dependencies</classifier>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit-dep</artifactId>
+            <version>4.9b2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.8.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.xian</groupId>
+            <artifactId>great-expectations</artifactId>
+            <version>0.10</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <repositories>
-        <repository>
-            <id>acrareleaserepository</id>
-            <name>acra release repository</name>
-            <url>http://acra.googlecode.com/svn/repository/releases/</url>
-        </repository>
         <repository>
             <id>scintrepo</id>
             <name>sc int repo</name>
             <url>http://files.int.s-cloud.net/maven/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>acrareleaserepository</id>
+            <name>acra release repository</name>
+            <url>http://acra.googlecode.com/svn/repository/releases/</url>
+            <layout>default</layout>
         </repository>
         <repository>
             <id>sonatypesnapshots</id>
             <name>sonatype snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <layout>default</layout>
         </repository>
         <repository>
             <id>ScalaToolsMaven2Repository</id>
             <name>Scala-Tools Maven2 Repository</name>
             <url>http://scala-tools.org/repo-releases/</url>
+            <layout>default</layout>
         </repository>
     </repositories>
 </project>
