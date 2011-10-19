@@ -49,31 +49,6 @@ public abstract class LazyRow extends FrameLayout {
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
         mCurrentPosition = position;
-
-        // TODO : should not need a null check here, revisit this to see why npe occurs
-        if (position == mAdapter.submenuIndex && (findViewById(R.id.row_submenu) != null || findViewById(R.id.stub_submenu) != null)) {
-            if (findViewById(R.id.row_submenu) != null) {
-                findViewById(R.id.row_submenu).setVisibility(View.VISIBLE);
-            } else {
-                findViewById(R.id.stub_submenu).setVisibility(View.VISIBLE);
-                initSubmenu();
-            }
-
-            onSubmenu();
-
-            if (position == mAdapter.animateSubmenuIndex){
-                mAdapter.animateSubmenuIndex = -1;
-                Animation inFromRight = AnimUtils.inFromRightAnimation();
-                findViewById(R.id.row_submenu).startAnimation(inFromRight);
-            }
-
-        } else {
-            onNoSubmenu();
-            if (findViewById(R.id.row_submenu) != null) {
-                findViewById(R.id.row_submenu).setVisibility(View.GONE);
-            }
-        }
-
         if (TextUtils.isEmpty(getIconRemoteUri())){
             mImageLoader.unbind(getRowIcon());
             mIcon.setImageDrawable(null);
@@ -85,15 +60,6 @@ public abstract class LazyRow extends FrameLayout {
         } else {
             mImageLoader.unbind(getRowIcon());
         }
-    }
-
-    protected void initSubmenu() {
-    }
-
-    protected void onSubmenu() {
-    }
-
-    protected void onNoSubmenu() {
     }
 
     public ImageView getRowIcon() {

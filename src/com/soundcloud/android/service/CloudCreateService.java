@@ -11,6 +11,7 @@ import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Upload;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.OggEncoderTask;
@@ -20,6 +21,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
+import com.soundcloud.android.view.CreateController;
 import com.soundcloud.api.CloudAPI;
 
 import android.app.Notification;
@@ -51,6 +53,7 @@ import java.util.HashMap;
 public class CloudCreateService extends Service {
     private static final String TAG = "CloudUploaderService";
 
+    public static final String RECORD_STARTED      = "com.soundcloud.android.recordstarted";
     public static final String RECORD_ERROR      = "com.soundcloud.android.recorderror";
     public static final String UPLOAD_STARTED    = "com.sound.android.fileuploadstarted";
     public static final String UPLOAD_PROGRESS    = "com.sound.android.fileuploadprogress";
@@ -60,47 +63,25 @@ public class CloudCreateService extends Service {
     public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_ERROR    = "com.soundcloud.android.playbackerror";
 
-
     private static WakeLock mWakeLock;
-
     private CloudRecorder mRecorder;
-
-    private File mRecordFile;
-
+    private File mRecordFile, mPlaybackFile;
     private boolean mRecording = false;
-
     private OggEncoderTask<Params, ?> mOggTask;
     private ImageResizeTask mResizeTask;
     private UploadTask mUploadTask;
-
     private PendingIntent mRecordPendingIntent;
-
     private RemoteViews mUploadNotificationView;
-
-    private Notification mRecordNotification;
-    private Notification mUploadNotification;
-
-    private String mRecordEventTitle;
-    private String mRecordEventMessage;
-
+    private Notification mRecordNotification, mUploadNotification;
+    private String mRecordEventTitle, mRecordEventMessage, mPlaybackTitle;
     private NotificationManager nm;
-
     private int mServiceStartId = -1;
-
     private long mRecordStartTime;
-
     private int frameCount;
-
     private MediaPlayer mPlayer;
-    private File mPlaybackFile;
-
     private Uri mPlaybackLocal;
-
-    private String mPlaybackTitle;
-
     private Upload mCurrentUpload;
     private HashMap<Long,Upload> mUploadMap;
-
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -197,6 +178,8 @@ public class CloudCreateService extends Service {
         mRecordFile = new File(path);
         frameCount = 0;
 
+        sendBroadcast(new Intent(RECORD_STARTED));
+
         mRecorder = new CloudRecorder(mode, MediaRecorder.AudioSource.MIC);
         mRecorder.setRecordService(CloudCreateService.this);
         mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
@@ -220,9 +203,20 @@ public class CloudCreateService extends Service {
             }
         };
 
-        Intent i = (new Intent(Actions.RECORD))
+        final long messageRecipient = CreateController.getPrivateUserIdFromPath(path);
+
+        Intent i;
+        if (messageRecipient != -1) {
+            i = (new Intent(Actions.MESSAGE))
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            i.putExtra("recipient",messageRecipient);
+        } else {
+            i = (new Intent(Actions.RECORD))
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        }
+
 
         mRecordPendingIntent = PendingIntent.getActivity(
                 getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -246,7 +240,7 @@ public class CloudCreateService extends Service {
     }
 
     public String getRecordingPath() {
-        return mRecordFile.getAbsolutePath();
+        return mRecordFile == null ? "" : mRecordFile.getAbsolutePath();
     }
 
     public void onRecordError(){
@@ -761,14 +755,20 @@ public class CloudCreateService extends Service {
 
     private MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
         public void onCompletion(MediaPlayer mp) {
-            sendBroadcast(new Intent(PLAYBACK_COMPLETE));
+            if (mPlaybackFile == null) return;
+            Intent i = new Intent(PLAYBACK_COMPLETE);
+            i.putExtra("path",mPlaybackFile.getAbsolutePath());
+            sendBroadcast(i);
             onPlaybackComplete();
         }
     };
 
     private MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
         public boolean onError(MediaPlayer mp, int what, int extra) {
-            sendBroadcast(new Intent(PLAYBACK_ERROR));
+            if (mPlaybackFile == null) return false;
+            Intent i = new Intent(PLAYBACK_ERROR);
+            i.putExtra("path",mPlaybackFile.getAbsolutePath());
+            sendBroadcast(i);
             onPlaybackComplete();
             return true;
         }

@@ -29,6 +29,7 @@ import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.task.*;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.view.CreateController;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
@@ -206,6 +207,14 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
             if (Intent.ACTION_VIEW.equals(intent.getAction()) && handleViewUrl(intent)) {
                 // already handled
+            } else if (Actions.MESSAGE.equals(intent.getAction())){
+                final long recipient = intent.getLongExtra("recipient", -1);
+                if (recipient != -1){
+                startActivity(
+                    new Intent(this, UserBrowser.class).putExtra("userId",recipient)
+                            .putExtra("userBrowserTag",UserBrowser.TabTags.privateMessage)
+                );
+                }
             } else if (tab != null) {
                 getTabHost().setCurrentTabByTag(tab);
                 if (getCurrentActivity() instanceof Dashboard) {

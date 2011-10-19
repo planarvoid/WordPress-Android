@@ -172,23 +172,14 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         mEmptyView = inflater.inflate(R.layout.empty_list, null);
         mEmptyView.setBackgroundColor(0xFFFFFFFF);
 
+        setLongClickable(false);
         setOnItemClickListener(mOnItemClickListener);
-        setOnItemLongClickListener(mOnItemLongClickListener);
-        setOnItemSelectedListener(mOnItemSelectedListener);
         setOnTouchListener(new FingerTracker());
     }
 
     @Override
     public int getSolidColor() {
         return 0x666666;
-    }
-
-    public void enableLongClickListener() {
-        setOnItemLongClickListener(mOnItemLongClickListener);
-    }
-
-    public void disableLongClickListener() {
-        setOnItemLongClickListener(null);
     }
 
     public void setLazyListListener(LazyListListener listener) {
@@ -404,37 +395,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         }
     };
 
-    private final AdapterView.OnItemLongClickListener mOnItemLongClickListener = new AdapterView.OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> list, View row, int position, long id) {
-            if (list.getAdapter().getCount() <= 0 || position >= list.getAdapter().getCount() || !(list instanceof ScListView)) {
-                return false; // bad list item clicked (possibly loading item)
-            }
-
-            position -= getHeaderViewsCount();
-            ScListView.this.getBaseAdapter().submenuIndex = ((ScListView) list).getBaseAdapter().animateSubmenuIndex = position;
-            ScListView.this.getWrapper().notifyDataSetChanged();
-            return true;
-        }
-
-    };
-    private final AdapterView.OnItemSelectedListener mOnItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> listView, View view, int position, long id) {
-            if (listView instanceof ScListView) return;
-            if (((ScListView) listView).getBaseAdapter().submenuIndex == position) {
-                listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-            } else {
-                listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-            }
-        }
-
-        public void onNothingSelected(AdapterView<?> listView) {
-            // This happens when you start scrolling, so we need to prevent it from staying
-            // in the afterDescendants mode if the EditText was focused
-            listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-        }
-    };
 
     @Override
     protected void onAttachedToWindow() {

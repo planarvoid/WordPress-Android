@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <resources>
-
-	
-	
 	<color name="listTxtValue">#FF000000</color>
     <color name="listTxtValuePressed">#88FFFFFF</color>
 	<color name="listTxtValueInactive">#FFa9a9a9</color>
 	<color name="listTxtSecondary">#FF777777</color>
-	<color name="listTxtSecondaryDark">#FF969696</color>
 	<color name="listTxtRecSecondary">#FFcccccc</color>
 
     <color name="listTxtHeader">#777777</color>
@@ -27,17 +22,12 @@
 	<color name="lightGrayBackground">#FFEEEEEE</color>
 	<color name="lightGrayAlphaBackground">#AAEEEEEE</color>
 	<color name="playerArtworkBackground">#FF666666</color>
-
     <color name="commentPanelBg">#EAFFFFFF</color>
-	
 	<color name="createBackground">#FF333333</color>
 	<color name="progressDarkAlphaBackground">#AA000000</color>
 	
-	<color name="userHeaderBackground">#FFEEEEEE</color>
-	
 	<color name="commentGray">#ff9c9c9c</color>
 	
-	<color name="recordUploadBackground">#ff474747</color>
 	<color name="recordUploadBorder">#ff525252</color>
     <color name="recordListItemBackground">#ff999999</color>
 
@@ -61,34 +51,16 @@
 	<color name="cloudProgressRoundBackgroundCenter">#FF222222</color>
 	<color name="cloudProgressRoundBackgroundEnd">#FF222222</color>
 	
-	<color name="cloudProgressRoundSecondaryStart">#00FFFFFF</color>
-	<color name="cloudProgressRoundSecondaryCenter">#00FFFFFF</color>
-	<color name="cloudProgressRoundSecondaryEnd">#00FFFFFF</color>
-	
 	<color name="cloudProgressRoundStart">#fd320c</color>
     <color name="cloudProgressRoundCenter">#ef5002</color>
     <color name="cloudProgressRoundEnd">#f92600</color>
 	
 	<color name="cloudProgressRoundBorder">#4b504c</color>
-	
-	
-	<color name="cloudProgressCommentBarBgOff">#AA2EC9FF</color>
-	<color name="cloudProgressCommentBarBgOn">#3D00C1</color>
-	
-	<color name="iconGlowSelected">#ff6600</color>
-	<color name="iconGlowPressed">#ef5002</color>
 
 	<color name="listSeperator">#FF333333</color>
 	<color name="horizontalRule">#FFcccccc</color>
     <color name="verticalPipe">#FFcccccc</color>
 
-	<color name="menuBackground">#7fff0000</color>
-	<color name="tabFocused">#7fff0000</color>
-	<color name="tabFocusedSelected">#7fff0000</color>
-	<color name="tabUnfocused">#7fff0000</color>
-	<color name="tabUnfocusedSelected">#7fff0000</color>
-	<color name="tabPressed">#7fff0000</color>
-	<color name="dragndrop_background">#7f070000</color>
 	<drawable name="screen_background_light">#ffffffff</drawable>
 
 	<drawable name="screen_background_dark">#ff1a1a1a</drawable>
@@ -96,28 +68,10 @@
 	<drawable name="status_bar_opened_default_background">#ff000000</drawable>
 	<drawable name="search_bar_default_color">#ff000000</drawable>
 	<drawable name="safe_mode_background">#60000000</drawable>
-	<color name="safe_mode_text">#80ffffff</color>
 	<color name="white">#ffffffff</color>
 	<color name="black">#ff000000</color>
 	<color name="transparent">#00000000</color>
 	<color name="background_dark">#ff1a1a1a</color>
-	<color name="bright_foreground_dark">#ffffffff</color>
-	<color name="bright_foreground_dark_disabled">#80ffffff</color>
-	<color name="bright_foreground_dark_inverse">#ff000000</color>
-	<color name="dim_foreground_dark">#bebebe</color>
-	<color name="dim_foreground_dark_disabled">#80bebebe</color>
-	<color name="dim_foreground_dark_inverse">#323232</color>
-	<color name="dim_foreground_dark_inverse_disabled">#80323232</color>
-	<color name="hint_foreground_dark">#808080</color>
-	<color name="background_light">#ffffffff</color>
-	<color name="bright_foreground_light">#ff000000</color>
-	<color name="bright_foreground_light_inverse">#ffffffff</color>
-	<color name="bright_foreground_light_disabled">#80000000</color>
-	<color name="dim_foreground_light">#323232</color>
-	<color name="dim_foreground_light_disabled">#80323232</color>
-	<color name="dim_foreground_light_inverse">#bebebe</color>
-	<color name="dim_foreground_light_inverse_disabled">#80bebebe</color>
-	<color name="hint_foreground_light">#808080</color>
 
 
 	<drawable name="input_method_fullscreen_background">#ffffffff</drawable>
@@ -126,14 +80,7 @@
 	<drawable name="selected_day_background">#ff0092f4</drawable>
 
 	<!-- For settings framework -->
-	<color name="lighter_gray">#ddd</color>
 	<color name="darker_gray">#aaa</color>
-
-	<!-- For security permissions -->
-	<color name="perms_dangerous_grp_color">#ffd57e</color>
-	<color name="perms_dangerous_perm_color">#ddb66a</color>
-	<color name="perms_normal_grp_color">#eeeeee</color>
-	<color name="perms_normal_perm_color">#c0c0c0</color>
 
     <color name="blue_gradient_1">#d4e7fc</color>
     <color name="blue_gradient_half">#f0f6fe</color>

@@ -19,7 +19,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "ScContentProvider";
     private static final String DATABASE_NAME = "SoundCloud";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
 
     public enum Tables {
@@ -97,6 +97,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         case 6:
                             success = upgradeTo6(db, oldVersion);
                             break;
+                        case 7:
+                            success = upgradeTo7(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -173,6 +176,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
                 alterTableColumns(db, Tables.TRACKS, null, null);
                 alterTableColumns(db, Tables.USERS, null, null);
+                return true;
+            } catch (SQLException e) {
+                SoundCloudApplication.handleSilentException("error during upgrade6 " +
+                        "(from "+oldVersion+")", e);
+            }
+            return false;
+        }
+
+    private boolean upgradeTo7(SQLiteDatabase db, int oldVersion) {
+            try {
+                alterTableColumns(db, Tables.RECORDINGS, null, null);
                 return true;
             } catch (SQLException e) {
                 SoundCloudApplication.handleSilentException("error during upgrade6 " +
@@ -285,6 +299,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + "duration integer null, "
             + "four_square_venue_id string null, "
             + "shared_emails text null, "
+            + "shared_ids text null, "
+            + "private_user_id integer null, "
             + "service_ids string null, "
             + "is_private boolean false, "
             + "external_upload boolean false, "
@@ -448,6 +464,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
           public static final String ARTWORK_PATH = "artwork_path";
           public static final String FOUR_SQUARE_VENUE_ID = "four_square_venue_id";
           public static final String SHARED_EMAILS = "shared_emails";
+          public static final String SHARED_IDS = "shared_ids";
+          public static final String PRIVATE_USER_ID = "private_user_id";
           public static final String SERVICE_IDS = "service_ids";
           public static final String IS_PRIVATE = "is_private";
           public static final String EXTERNAL_UPLOAD = "external_upload";
@@ -467,6 +485,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
           public static final String CONCRETE_ARTWORK_PATH = Tables.RECORDINGS + "." + ARTWORK_PATH;
           public static final String CONCRETE_FOUR_SQUARE_VENUE_ID = Tables.RECORDINGS + "." + FOUR_SQUARE_VENUE_ID;
           public static final String CONCRETE_SHARED_EMAILS = Tables.RECORDINGS + "." + SHARED_EMAILS;
+          public static final String CONCRETE_SHARED_IDS = Tables.RECORDINGS + "." + SHARED_IDS;
+          public static final String CONCRETE_PRIVATE_USER_ID = Tables.RECORDINGS + "." + PRIVATE_USER_ID;
           public static final String CONCRETE_SERVICE_IDS = Tables.RECORDINGS + "." + SERVICE_IDS;
           public static final String CONCRETE_IS_PRIVATE = Tables.RECORDINGS + "." + IS_PRIVATE;
           public static final String CONCRETE_EXTERNAL_UPLOAD = Tables.RECORDINGS + "." + EXTERNAL_UPLOAD;
@@ -486,12 +506,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
           public static final String ALIAS_ARTWORK_PATH = Tables.RECORDINGS + "_" + ARTWORK_PATH;
           public static final String ALIAS_FOUR_SQUARE_VENUE_ID = Tables.RECORDINGS + "_" + FOUR_SQUARE_VENUE_ID;
           public static final String ALIAS_SHARED_EMAILS = Tables.RECORDINGS + "_" + SHARED_EMAILS;
+          public static final String ALIAS_SHARED_IDS = Tables.RECORDINGS + "_" + SHARED_IDS;
+          public static final String ALIAS_PRIVATE_USER_ID = Tables.RECORDINGS + "_" + PRIVATE_USER_ID;
           public static final String ALIAS_SERVICE_IDS = Tables.RECORDINGS + "_" + SERVICE_IDS;
           public static final String ALIAS_IS_PRIVATE = Tables.RECORDINGS + "_" + IS_PRIVATE;
           public static final String ALIAS_EXTERNAL_UPLOAD = Tables.RECORDINGS + "_" + EXTERNAL_UPLOAD;
           public static final String ALIAS_AUDIO_PROFILE = Tables.RECORDINGS + "_" + AUDIO_PROFILE;
           public static final String ALIAS_UPLOAD_STATUS = Tables.RECORDINGS + "_" + UPLOAD_STATUS;
           public static final String ALIAS_UPLOAD_ERROR = Tables.RECORDINGS + "_" + UPLOAD_ERROR;
+
       }
 
       public static final class Events implements BaseColumns {

@@ -4,29 +4,23 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.task.FoursquareVenueTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
+import com.soundcloud.android.view.RecordingMetaData;
 import com.soundcloud.android.view.ShareUserHeader;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.DataSetObserver;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -34,7 +28,6 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,20 +35,10 @@ public class ScUpload extends ScActivity {
     private ViewFlipper mSharingFlipper;
     private RadioGroup mRdoPrivacy;
     /* package */ RadioButton mRdoPrivate, mRdoPublic;
-    /* package */ EditText mWhatText;
-    /* package */ TextView mWhereText;
-
-    private ImageView mArtwork;
-    private File mImageDir, mArtworkFile;
     /* package */ ConnectionList mConnectionList;
     /* package */ AccessList mAccessList;
-    private String mFourSquareVenueId;
-    private double mLong, mLat;
     private Recording mRecording;
-
-    // used for preloading foursquare venues
-    private ArrayList<FoursquareVenue> mVenues = new ArrayList<FoursquareVenue>();
-    private Location mLocation;
+    private RecordingMetaData mRecordingMetadata;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -63,11 +46,9 @@ public class ScUpload extends ScActivity {
         setContentView(R.layout.sc_upload);
         initResourceRefs();
 
-        mImageDir = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
-        CloudUtils.mkdirs(mImageDir);
-
         final Intent intent = getIntent();
         if (intent != null && (mRecording = recordingFromIntent(intent)) != null) {
+            mRecordingMetadata.setRecording(mRecording);
             if (mRecording.external_upload) {
                 // 3rd party upload, disable "record another sound button"
                 findViewById(R.id.btn_cancel).setVisibility(View.GONE);
@@ -81,7 +62,7 @@ public class ScUpload extends ScActivity {
                 errorOut(R.string.recording_not_found);
             }
         }
-        if (mLocation == null) preloadLocations();
+
     }
 
     @Override
@@ -110,24 +91,16 @@ public class ScUpload extends ScActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        clearArtwork();
+        mRecordingMetadata.onDestroy();
     }
 
     private void setPrivateShareEmails(String[] emails) {
         mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
     }
 
-    /* package */ void setWhere(String where, String id, double lng, double lat) {
-        if (where != null) {
-            mWhereText.setTextKeepState(where);
-        }
-        mFourSquareVenueId = id;
-        mLong = lng;
-        mLat = lat;
-    }
-
-
     private void initResourceRefs() {
+        mRecordingMetadata = (RecordingMetaData) findViewById(R.id.metadata_layout);
+        mRecordingMetadata.setActivity(this);
 
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,34 +123,14 @@ public class ScUpload extends ScActivity {
 
                 if (startUpload()) {
                     mRecording = null;
+                    mRecordingMetadata.setRecording(null);
                     setResult(RESULT_OK);
                     finish();
                 }
             }
         });
 
-        mArtwork = (ImageView) findViewById(R.id.artwork);
-        mWhatText = (EditText) findViewById(R.id.what);
-        mWhereText = (TextView) findViewById(R.id.where);
 
-        mWhereText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ScUpload.this, LocationPicker.class);
-                intent.putExtra("name", ((TextView) v).getText().toString());
-                if (mRecording.longitude != 0) {
-                    intent.putExtra("long", mRecording.longitude);
-                }
-                if (mRecording.latitude != 0) {
-                    intent.putExtra("lat", mRecording.latitude);
-                }
-                synchronized (ScUpload.this) {
-                  intent.putParcelableArrayListExtra("venues", mVenues);
-                  intent.putExtra("location", mLocation);
-                }
-                startActivityForResult(intent, LocationPicker.PICK_VENUE);
-            }
-        });
 
         mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
         mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
@@ -197,29 +150,6 @@ public class ScUpload extends ScActivity {
                         ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_private);
                         break;
                 }
-            }
-        });
-
-        mArtwork.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showToast(R.string.cloud_upload_clear_artwork);
-            }
-        });
-
-        findViewById(R.id.txt_artwork_bg).setOnClickListener(
-            new ImageUtils.ImagePickListener(this) {
-                @Override protected File getFile() {
-                    return getCurrentImageFile();
-                }
-            }
-        );
-
-        mArtwork.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                clearArtwork();
-                return true;
             }
         });
 
@@ -266,70 +196,33 @@ public class ScUpload extends ScActivity {
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-        state.putString("createWhatValue", mWhatText.getText().toString());
-        state.putString("createWhereValue", mWhereText.getText().toString());
         state.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
-
-        if (mArtworkFile != null) {
-            state.putString("createArtworkPath", mArtworkFile.getAbsolutePath());
-        }
-
-        state.putParcelableArrayList("venues", mVenues);
-        state.putParcelable("location", mLocation);
-
+        mRecordingMetadata.onSaveInstanceState(state);
         super.onSaveInstanceState(state);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
-        mWhatText.setText(state.getString("createWhatValue"));
-        mWhereText.setText(state.getString("createWhereValue"));
-
         if (state.getInt("createPrivacyValue") == R.id.rdo_private) {
             mRdoPrivate.setChecked(true);
         } else {
             mRdoPublic.setChecked(true);
         }
 
-        mVenues = state.getParcelableArrayList("venues");
-        mLocation = state.getParcelable("location");
-
-        if (!TextUtils.isEmpty(state.getString("createArtworkPath"))) {
-            setImage(new File(state.getString("createArtworkPath")));
-        }
+        mRecordingMetadata.onRestoreInstanceState(state);
         super.onRestoreInstanceState(state);
-    }
-
-    public void setImage(File file) {
-        mArtworkFile = file;
-        ImageUtils.setImage(file, mArtwork, (int) (getResources().getDisplayMetrics().density * 100f),(int) (getResources().getDisplayMetrics().density * 100f));
     }
 
     // for testing purposes
     void setRecording(Recording r) {
         mRecording = r;
+        mRecordingMetadata.setRecording(mRecording);
         mapToRecording(r);
     }
 
-    private void clearArtwork() {
-        mArtworkFile = null;
-        mArtwork.setVisibility(View.GONE);
-        if (mArtwork.getDrawable() instanceof BitmapDrawable) {
-            ImageUtils.clearBitmap(((BitmapDrawable) mArtwork.getDrawable()).getBitmap());
-        }
-    }
-
     private void mapFromRecording(final Recording recording) {
-        if (!TextUtils.isEmpty(recording.what_text)) mWhatText.setTextKeepState(recording.what_text);
-        if (!TextUtils.isEmpty(recording.where_text)) mWhereText.setTextKeepState(recording.where_text);
-        if (recording.artwork_path != null) setImage(recording.artwork_path);
+        mRecordingMetadata.mapFromRecording(recording);
         if (!TextUtils.isEmpty(recording.shared_emails)) setPrivateShareEmails(recording.shared_emails.split(","));
-
-        setWhere(TextUtils.isEmpty(recording.where_text) ? "" : recording.where_text,
-                TextUtils.isEmpty(recording.four_square_venue_id) ? "" : recording.four_square_venue_id,
-                recording.longitude,
-                recording.latitude);
-
         if (recording.is_private) {
             mRdoPrivate.setChecked(true);
         } else {
@@ -338,16 +231,9 @@ public class ScUpload extends ScActivity {
     }
 
     private void mapToRecording(final Recording recording) {
+        mRecordingMetadata.mapToRecording(recording);
         recording.is_private = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
-        recording.what_text = mWhatText.getText().toString();
-        recording.where_text = mWhereText.getText().toString();
-        recording.artwork_path = mArtworkFile;
 
-        if (mFourSquareVenueId != null) {
-            recording.four_square_venue_id = mFourSquareVenueId;
-        }
-        recording.latitude = mLat;
-        recording.longitude = mLong;
         if (!recording.is_private) {
             if (mConnectionList.postToServiceIds() != null) {
                 recording.service_ids = TextUtils.join(",", mConnectionList.postToServiceIds());
@@ -361,39 +247,17 @@ public class ScUpload extends ScActivity {
         }
     }
 
-    private File getCurrentImageFile() {
-        return (mRecording == null) ? null : mRecording.generateImageFile(mImageDir);
-    }
-
-    private void preloadLocations() {
-        LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        final Location location = mgr.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        if (location != null) {
-            new FoursquareVenueTask() {
-                @Override
-                protected void onPostExecute(List<FoursquareVenue> venues) {
-                    if (venues != null && !venues.isEmpty()) {
-                        synchronized (ScUpload.this) {
-                          mLocation = location;
-                          mVenues.addAll(venues);
-                        }
-                    }
-                }
-            }.execute(location);
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
             case ImageUtils.ImagePickListener.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
-                    setImage(CloudUtils.getFromMediaUri(getContentResolver(), result.getData()));
+                    mRecordingMetadata.setImage(CloudUtils.getFromMediaUri(getContentResolver(), result.getData()));
                 }
                 break;
             case ImageUtils.ImagePickListener.GALLERY_IMAGE_TAKE:
                 if (resultCode == RESULT_OK) {
-                    setImage(getCurrentImageFile());
+                mRecordingMetadata.setDefaultImage();
                 }
                 break;
 
@@ -408,7 +272,7 @@ public class ScUpload extends ScActivity {
             case LocationPicker.PICK_VENUE:
                 if (resultCode == RESULT_OK && result != null && result.hasExtra("name")) {
                     // XXX candidate for model?
-                    setWhere(result.getStringExtra("name"),
+                mRecordingMetadata.    setWhere(result.getStringExtra("name"),
                             result.getStringExtra("id"),
                             result.getDoubleExtra("longitude", 0),
                             result.getDoubleExtra("latitude", 0));

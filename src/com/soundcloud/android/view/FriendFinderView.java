@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
@@ -119,8 +120,10 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 }
                 mFriendList.getWrapper().setEmptyViewText(" ");
                 mFriendList.getWrapper().applyEmptyText();
-                mFriendList.prepareForRefresh();
-                mFriendList.setSelection(0);
+                if (refresh){
+                    mFriendList.prepareForRefresh();
+                    mFriendList.setSelection(0);
+                }
                 break;
 
             case States.CONNECTION_ERROR:
@@ -205,8 +208,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
         if (!mFbConnected) mFriendList.addHeaderView(mHeaderLayout);
 
-        setLazyListView(mFriendList, mAdapter,
-            Consts.ListId.LIST_USER_SUGGESTED, false).disableLongClickListener();
+        setLazyListView(mFriendList, mAdapter, Consts.ListId.LIST_USER_SUGGESTED, false);
 
         if (mFbConnected) {
             addFriendsSection();

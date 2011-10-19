@@ -9,4 +9,50 @@
         Set the frequency between updates
     </string>
 
+    <string name='recording_in_progress'>
+        Recording in progress. Press stop to end the recording or select to the recording notification to view it.
+    </string>
+    <string name='playback_in_progress'>
+        Playback in progress. Press stop to end the playback or select the playback notification to view it.
+    </string>
+    <string name='private_message_title'>
+        Send a private message
+    </string>
+    <string name='private_message_upload_title'>
+        Your sound message got saved.
+    </string>
+    <string name='private_message_upload_message'>
+        Before we send it out privately to %s, maybe you want to add a little context?
+    </string>
+    <string name='private_message_btn_send'>
+        Send
+    </string>
+    <string name='btn_next'>
+        Next
+    </string>
+    <string name='btn_back'>
+        Back
+    </string>
+    <string name='user_browser_tab_message'>
+        Message
+    </string>
+    <string name='user_browser_tab_friend_finder'>
+        Friend Finder
+    </string>
+    <string name='user_browser_tab_sounds'>
+        Sounds
+    </string>
+    <string name='user_browser_tab_likes'>
+        Likes
+    </string>
+    <string name='user_browser_tab_followings'>
+        Followings
+    </string>
+    <string name='user_browser_tab_followers'>
+        Followers
+    </string>
+    <string name='user_browser_tab_info'>
+        Info
+    </string>
+
 </resources>

@@ -12,8 +12,6 @@ import android.widget.BaseAdapter;
 import java.util.List;
 
 public abstract class LazyBaseAdapter extends BaseAdapter {
-    public int submenuIndex = -1;
-    public int animateSubmenuIndex = -1;
     protected ScActivity mActivity;
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
@@ -69,8 +67,6 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
     public void reset() {
         mData.clear();
         mPage = 1;
-        submenuIndex = -1;
-        animateSubmenuIndex = -1;
     }
 
     public Class<?> getLoadModel() {
