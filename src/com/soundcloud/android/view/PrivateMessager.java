@@ -156,6 +156,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         mViewFlipper.setInAnimation(AnimUtils.inFromBottomAnimation());
         mViewFlipper.setOutAnimation(AnimUtils.outToTopAnimation());
         mViewFlipper.showNext();
+
         mCreateController.updateUi(false);
     }
 

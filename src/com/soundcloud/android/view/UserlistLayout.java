@@ -113,6 +113,10 @@ public class UserlistLayout extends RelativeLayout {
         return mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen());
     }
 
+    public int getCurrentWorkspaceIndex() {
+        return mWorkspaceView.getCurrentScreen();
+    }
+
     private static class TabLabel {
 
         public final String tag;

@@ -13,10 +13,8 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.*;
 import android.widget.ImageView.ScaleType;
@@ -39,7 +37,6 @@ import com.soundcloud.android.view.*;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,12 +49,12 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private ImageLoader.BindResult avatarResult;
 
     private ScTabView mMyTracksView;
-    private FrameLayout mDetailsView;
+    private FrameLayout mInfoView;
     private FriendFinderView mFriendFinderView;
     private ImageButton mFollowStateBtn;
     private Drawable mFollowDrawable, mUnfollowDrawable;
     private UserlistLayout mUserlistBrowser;
-    private LoadUserTask mLoadDetailsTask;
+    private LoadUserTask mLoadUserTask;
     private boolean mUpdateInfo;
 
     private PrivateMessager mMessager;
@@ -85,7 +82,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         super.onCreate(bundle);
         setContentView(R.layout.user_browser);
 
-        mDetailsView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_browser_details_view, null);
+        mInfoView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_browser_details_view, null);
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUsername = (TextView) findViewById(R.id.username);
@@ -94,11 +91,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mFollowerCount = (TextView) findViewById(R.id.followers);
         mTrackCount = (TextView) findViewById(R.id.tracks);
 
-        mLocation = (TextView) mDetailsView.findViewById(R.id.location);
-        mWebsite = (TextView) mDetailsView.findViewById(R.id.website);
-        mDiscogsName = (TextView) mDetailsView.findViewById(R.id.discogs_name);
-        mMyspaceName = (TextView) mDetailsView.findViewById(R.id.myspace_name);
-        mDescription = (TextView) mDetailsView.findViewById(R.id.description);
+        mLocation = (TextView) mInfoView.findViewById(R.id.location);
+        mWebsite = (TextView) mInfoView.findViewById(R.id.website);
+        mDiscogsName = (TextView) mInfoView.findViewById(R.id.discogs_name);
+        mMyspaceName = (TextView) mInfoView.findViewById(R.id.myspace_name);
+        mDescription = (TextView) mInfoView.findViewById(R.id.description);
 
         mIcon.setScaleType(ScaleType.CENTER_INSIDE);
         if (getResources().getDisplayMetrics().density > 1 || CloudUtils.isScreenXL(this)) {
@@ -132,24 +129,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         Intent intent = getIntent();
         mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
 
-        mPreviousState = (Object[]) getLastNonConfigurationInstance();
-        if (mPreviousState != null) {
-            mLoadDetailsTask = (LoadUserTask) mPreviousState[1];
-            if (mLoadDetailsTask != null) mLoadDetailsTask.setActivity(this);
-
-            setUser((User) mPreviousState[2]);
-
-            if (isMe()) {
-                mConnections = (List<Connection>) mPreviousState[3];
-            }
-
-            build();
-
-            restoreAdapterStates((Object[]) mPreviousState[4]);
-
-            if (mPreviousState[5] != null)
-                mFriendFinderView.setState(Integer.parseInt(mPreviousState[5].toString()), false);
-
+        Configuration c = (Configuration) getLastNonConfigurationInstance();
+        if (c != null) {
+            fromConfiguration(c);
         } else {
 
             if (intent != null) {
@@ -165,6 +147,17 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 }*/
             } else {
                 loadYou();
+            }
+
+            if (isMe()) {
+                final int initialTab = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
+                if (initialTab == -1) {
+                    mUserlistBrowser.initWorkspace(1);//tracks tab
+                } else {
+                    mUserlistBrowser.initWorkspace(initialTab);
+                }
+            } else {
+                mUserlistBrowser.initWorkspace(1);//tracks tab
             }
 
             if (isMe()) {
@@ -240,14 +233,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        return new Object[]{
-                super.onRetainNonConfigurationInstance(),
-                mLoadDetailsTask,
-                mUser,
-                mConnections,
-                mAdapterStates,
-                mFriendFinderView != null ? mFriendFinderView.getCurrentState() : null
-        };
+        return toConfiguration();
     }
 
     private void restoreAdapterStates(Object[] adapterStates) {
@@ -307,13 +293,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private void loadDetails() {
         if (!mUpdateInfo) return;
 
-        if (mLoadDetailsTask == null) {
-            mLoadDetailsTask = new LoadUserTask(getApp());
-            mLoadDetailsTask.setActivity(this);
+        if (mLoadUserTask == null) {
+            mLoadUserTask = new LoadUserTask(getApp());
+            mLoadUserTask.setActivity(this);
         }
 
-        if (CloudUtils.isTaskPending(mLoadDetailsTask)) {
-            mLoadDetailsTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
+        if (CloudUtils.isTaskPending(mLoadUserTask)) {
+            mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
         }
     }
 
@@ -343,12 +329,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private void build() {
 
         mUserlistBrowser = (UserlistLayout) findViewById(R.id.userlist_browser);
-
-        // Details View
-        final ScTabView detailsView = new ScTabView(this);
-        detailsView.addView(mDetailsView);
-
-
         mMessager = isMe() ? null : new PrivateMessager(this, mUser);
 
         // Tracks View
@@ -424,6 +404,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         final ScTabView followersView = new ScTabView(this);
         followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true).disableLongClickListener();
 
+        // Details View
+        final ScTabView infoView = new ScTabView(this);
+        infoView.addView(mInfoView);
+
         for (ScListView list : mLists){
             list.setFadingEdgeLength(0);
         }
@@ -438,15 +422,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         }
 
-        mUserlistBrowser.addView(detailsView, "Info", TabTags.details);
         if (mMessager != null) mUserlistBrowser.addView(mMessager, "Message", TabTags.privateMessage);
-
         if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder", TabTags.friend_finder);
         mUserlistBrowser.addView(mMyTracksView, "Tracks", TabTags.tracks);
         mUserlistBrowser.addView(favoritesView, "Favorites", TabTags.favorites);
         mUserlistBrowser.addView(followingsView, "Following", TabTags.followings);
         mUserlistBrowser.addView(followersView, "Followers", TabTags.followers);
-
+        mUserlistBrowser.addView(infoView, "Info", TabTags.details);
 
         mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
             @Override public void onScreenChanged(View newScreen, int newScreenIndex) {
@@ -462,21 +444,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 ((ScTabView) newScreen).onVisible();
             }
         });
-
-        if (isMe()) {
-            final int initialTab = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
-            if (initialTab == -1){
-                //tracks tab
-                mUserlistBrowser.initWorkspace(2);
-            } else {
-                mUserlistBrowser.initWorkspace(initialTab);
-            }
-
-        } else {
-            mUserlistBrowser.initWorkspace(1);
-        }
-
-
     }
 
     private boolean isOtherUser() {
@@ -605,9 +572,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         if (displayedSomething) {
-            mDetailsView.findViewById(R.id.empty_txt).setVisibility(View.GONE);
+            mInfoView.findViewById(R.id.empty_txt).setVisibility(View.GONE);
         } else {
-            TextView txtEmpty = (TextView) mDetailsView.findViewById(R.id.empty_txt);
+            TextView txtEmpty = (TextView) mInfoView.findViewById(R.id.empty_txt);
             txtEmpty.setText(Html.fromHtml(getString(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you)));
             txtEmpty.setVisibility(View.VISIBLE);
         }
@@ -738,6 +705,40 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             created = mMessager.onCreateDialog(which);
         }
         return created == null ? super.onCreateDialog(which) : created;
+    }
+
+    private Configuration toConfiguration(){
+        Configuration c = new Configuration();
+        c.loadUserTask = mLoadUserTask;
+        c.user = mUser;
+        c.connections = mConnections;
+        c.workspaceIndex = mUserlistBrowser.getCurrentWorkspaceIndex();
+        c.adapterStates = mAdapterStates;
+        c.friendFinderState = mFriendFinderView != null ? mFriendFinderView.getCurrentState() : -1;
+        return c;
+    }
+
+    private void fromConfiguration(Configuration c){
+        setUser(c.user);
+        build(); //build here because the rest of the state needs a constructed userlist browser
+
+        if (c.loadUserTask != null) {
+            mLoadUserTask = c.loadUserTask;
+            mLoadUserTask.setActivity(this);
+        }
+        if (isMe()) mConnections = c.connections;
+        mUserlistBrowser.initWorkspace(c.workspaceIndex);
+        restoreAdapterStates(c.adapterStates);
+        if (c.friendFinderState != -1) mFriendFinderView.setState(c.friendFinderState, false);
+    }
+
+    private static class Configuration {
+        LoadUserTask loadUserTask;
+        User user;
+        List<Connection> connections;
+        int workspaceIndex;
+        Object[] adapterStates;
+        int friendFinderState;
     }
 
 }
