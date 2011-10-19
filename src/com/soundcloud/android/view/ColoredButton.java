@@ -8,6 +8,7 @@ import android.graphics.LightingColorFilter;
 import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.StateSet;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.widget.Button;
@@ -44,7 +45,7 @@ public class ColoredButton extends Button {
     private void init(AttributeSet attrs){
         TypedArray a=getContext().obtainStyledAttributes(attrs,R.styleable.ColoredButton);
         mIdleMult = a.getInt(R.styleable.ColoredButton_idleMult, 0xFF494949);
-        mIdleText = a.getInt(R.styleable.ColoredButton_idleText, 0xFFFFFFFF);
+        mIdleText = a.getColor(R.styleable.ColoredButton_idleText, 0xFFFFFFFF);
         a.recycle();
 
         mDefaultTextColors = getTextColors();
@@ -53,21 +54,24 @@ public class ColoredButton extends Button {
 
     @Override
     protected void drawableStateChanged() {
-
-        if (mDown){
+        int[] states = getDrawableState();
+        if (StateSet.stateSetMatches(new int[]{android.R.attr.state_pressed}, states) || StateSet.stateSetMatches(new int[] { android.R.attr.state_focused }, states)) {
             getBackground().setColorFilter(null);
             setTextColor(mDefaultTextColors);
+
         } else {
             getBackground().setColorFilter(mIdleMult, PorterDuff.Mode.MULTIPLY);
             setTextColor(mIdleText);
+
         }
+
         super.drawableStateChanged();
     }
 
 
     @Override
     public void setPressed(boolean pressed) {
-       mDown = pressed;
+        mDown = pressed;
         super.setPressed(pressed);
     }
 

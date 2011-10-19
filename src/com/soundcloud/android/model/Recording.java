@@ -44,6 +44,8 @@ public class Recording extends ModelBase implements PageTrackable {
     public File artwork_path;
     public String four_square_venue_id; /* this is actually a hex id */
     public String shared_emails;
+    public String shared_ids;
+    public long private_user_id;
     public String service_ids;
     public boolean is_private;
     public boolean external_upload;
@@ -54,12 +56,13 @@ public class Recording extends ModelBase implements PageTrackable {
     public String[] tags;
     public String description, genre;
 
+    private User mPrivateUser;
+
     private Map<String,Object> mUpload_data;
 
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
     private static final Pattern COMPRESSED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
-
 
     public File generateImageFile(File imageDir) {
         if (audio_path == null) {
@@ -124,6 +127,7 @@ public class Recording extends ModelBase implements PageTrackable {
                 }
             }
         }
+
         // enforce proper construction
         if (audio_path == null) {
             throw new IllegalArgumentException("audio_path is null");
@@ -132,6 +136,17 @@ public class Recording extends ModelBase implements PageTrackable {
 
     public static Recording fromUri(Uri uri, ContentResolver resolver) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
+        try {
+            return cursor != null && cursor.moveToFirst() ? new Recording(cursor) : null;
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+    }
+
+    public static Recording fromPrivateUserId(long id, ContentResolver resolver) {
+        Cursor cursor = resolver.query(DatabaseHelper.Content.RECORDINGS, null, Recordings.PRIVATE_USER_ID + " = ?",
+                new String[]{Long.toString(id)}, null);
+
         try {
             return cursor != null && cursor.moveToFirst() ? new Recording(cursor) : null;
         } finally {
@@ -162,6 +177,8 @@ public class Recording extends ModelBase implements PageTrackable {
         if (artwork_path != null) cv.put(Recordings.ARTWORK_PATH, artwork_path.getAbsolutePath());
         cv.put(Recordings.FOUR_SQUARE_VENUE_ID, four_square_venue_id);
         cv.put(Recordings.SHARED_EMAILS, shared_emails);
+        cv.put(Recordings.SHARED_IDS, shared_ids);
+        cv.put(Recordings.PRIVATE_USER_ID, private_user_id);
         cv.put(Recordings.SERVICE_IDS, service_ids);
         cv.put(Recordings.IS_PRIVATE, is_private);
         cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
@@ -269,6 +286,7 @@ public class Recording extends ModelBase implements PageTrackable {
                 ", artwork_path=" + artwork_path +
                 ", four_square_venue_id='" + four_square_venue_id + '\'' +
                 ", shared_emails='" + shared_emails + '\'' +
+                ", shared_ids='" + shared_ids + '\'' +
                 ", service_ids='" + service_ids + '\'' +
                 ", is_private=" + is_private +
                 ", external_upload=" + external_upload +

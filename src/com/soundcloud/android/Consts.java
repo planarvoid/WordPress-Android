@@ -43,8 +43,9 @@ public final class Consts {
         int DIALOG_CANCEL_UPLOAD = 3;
         int DIALOG_RESET_RECORDING = 5;
         int DIALOG_UNSAVED_RECORDING = 6;
-        int DIALOG_LOGOUT = 7;
+        int DIALOG_DELETE_RECORDING = 7;
         int DIALOG_ADD_COMMENT = 8;
+        int DIALOG_LOGOUT = 9;
     }
 
     public interface OptionsMenu {
@@ -124,6 +125,7 @@ public final class Consts {
             String CONNECT   = "connect";
             String TRACKS    = "tracks";
             String RECORDING = "recording";
+            String AUDIO_MESSAGE = "audio_message";
             String SHARE     = "share";
             String ERROR     = "error";
             String PLAYBACK_ERROR = "playbackError";
@@ -145,6 +147,8 @@ public final class Consts {
         @Deprecated String RECORD_COMPLETE  = "/record/complete";
         @Deprecated String SHARE_PUBLIC     = "/record/share/public";
         @Deprecated String SHARE_PRIVATE    = "/record/share/private";
+        @Deprecated String AUDIO_MESSAGE_RECORDING = "/audio_message/recording";
+        @Deprecated String AUDIO_MESSAGE_COMPLETE  = "/audio_message/complete";
         String SEARCH        = "/search";
         String SEARCH_TRACKS = "/search?type=users&q=";
         String SEARCH_USERS  = "/search?type=tracks&q=";

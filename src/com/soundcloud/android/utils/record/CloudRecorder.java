@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import com.soundcloud.android.view.CreateController;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,7 +104,7 @@ public class CloudRecorder {
             case Profile.RAW: {
                 nChannels = 1;
                 mSamples = 16;
-                mSampleRate = ScCreate.REC_SAMPLE_RATE;
+                mSampleRate = CreateController.REC_SAMPLE_RATE;
                 int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
 
                 framePeriod = mSampleRate * TIMER_INTERVAL / 1000;
@@ -126,7 +127,7 @@ public class CloudRecorder {
                 mRecorder = new MediaRecorder();
                 mRecorder.setAudioSource(audioSource);
                 if (Build.VERSION.SDK_INT >= 8) {
-                    mRecorder.setAudioSamplingRate(ScCreate.REC_SAMPLE_RATE);
+                    mRecorder.setAudioSamplingRate(CreateController.REC_SAMPLE_RATE);
                     mRecorder.setAudioEncodingBitRate(96000);
                 }
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);

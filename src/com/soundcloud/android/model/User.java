@@ -213,6 +213,16 @@ public class User extends ModelBase implements PageTrackable {
         return sb.toString();
     }
 
+    public String getDisplayName() {
+        if (!TextUtils.isEmpty(username)){
+            return username;
+        } else if (!TextUtils.isEmpty(permalink)){
+            return permalink;
+        } else {
+            return "";
+        }
+    }
+
     public static interface DataKeys {
         String USERNAME = "currentUsername";
         String USER_ID = "currentUserId";

@@ -1,41 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
-    
-     <declare-styleable name="PlayerDrawer"> 
-        <!-- Identifier for the child that represents the drawer's handle. --> 
-        <attr name="handle" format="reference" /> 
-        <!-- Identifier for the child that represents the drawer's content. --> 
-        <attr name="content" format="reference" /> 
-        <!-- Orientation of the SlidingDrawer. --> 
-         <!-- Extra offset for the handle at the bottom of the SlidingDrawer. --> 
-        <attr name="bottomOffset" format="dimension"  /> 
-        <!-- Extra offset for the handle at the top of the SlidingDrawer. --> 
-        <attr name="topOffset" format="dimension"  /> 
-        <!-- Indicates whether the drawer can be opened/closed by a single tap
-             on the handle.  (If false, the user must drag or fling, or click
-             using the trackball, to open/close the drawer.)  Default is true. --> 
-        <attr name="allowSingleTap" format="boolean" /> 
-        <!-- Indicates whether the drawer should be opened/closed with an animation
-             when the user clicks the handle. Default is true. --> 
-        <attr name="animateOnClick" format="boolean" /> 
-    </declare-styleable> 
-    
-    <declare-styleable name="SmoothButton">
-        <attr name="transitionDrawable" format="reference" />
-        <attr name="transitionDrawableLength" format="integer" />
-        <attr name="transitionTextColorUp" format="color" />
-        <attr name="transitionTextColorDown" format="color" />
-    </declare-styleable>
-
     <declare-styleable name="ColoredButton">
         <attr name="idleMult" format="color" />
         <attr name="idleText" format="color" />
     </declare-styleable>
-
     <declare-styleable name="PlayerTime">
         <attr name="show_arrow" format="boolean" />
     </declare-styleable>
-    
-    
 </resources>

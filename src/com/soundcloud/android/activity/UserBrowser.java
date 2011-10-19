@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -12,9 +13,9 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.*;
 import android.widget.ImageView.ScaleType;
 import com.google.android.imageloader.ImageLoader;
@@ -41,33 +42,29 @@ import java.util.List;
 
 /** @noinspection unchecked*/
 public class UserBrowser extends ScActivity implements ParcelCache.Listener<Connection>, FollowStatus.Listener {
-    private ImageView mIcon;
-
-    private FrameLayout mDetailsView;
-    private FriendFinderView mFriendFinderView;
-
-    private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
-
-    private ImageButton mFollowStateBtn;
-    private Drawable mFollowDrawable, mUnfollowDrawable;
-
-    private String mIconURL;
-
-    private UserlistLayout mUserlistBrowser;
-    private LoadUserTask mLoadDetailsTask;
-    private boolean mUpdateInfo;
-
     private User mUser;
-
+    private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
+    private ImageView mIcon;
+    private String mIconURL;
     private ImageLoader.BindResult avatarResult;
 
-    private List<Connection> mConnections;
+    private ScTabView mMyTracksView;
+    private FrameLayout mInfoView;
+    private FriendFinderView mFriendFinderView;
+    private ImageButton mFollowStateBtn;
+    private Drawable mFollowDrawable, mUnfollowDrawable;
+    private UserlistLayout mUserlistBrowser;
+    private LoadUserTask mLoadUserTask;
+    private boolean mUpdateInfo;
 
+    private PrivateMessager mMessager;
+
+    private List<Connection> mConnections;
     private Object mAdapterStates[];
 
     private static final CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
     private static final CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
-    private ScTabView mMyTracksView;
+
 
     public interface TabTags {
         String tracks = "tracks";
@@ -76,6 +73,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         String followings = "followings";
         String followers = "followers";
         String friend_finder = "friend_finder";
+        String privateMessage = "private_message";
     }
 
     @SuppressWarnings("unchecked")
@@ -84,7 +82,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         super.onCreate(bundle);
         setContentView(R.layout.user_browser);
 
-        mDetailsView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_browser_details_view, null);
+        mInfoView = (FrameLayout) getLayoutInflater().inflate(R.layout.user_browser_details_view, null);
 
         mIcon = (ImageView) findViewById(R.id.user_icon);
         mUsername = (TextView) findViewById(R.id.username);
@@ -93,11 +91,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mFollowerCount = (TextView) findViewById(R.id.followers);
         mTrackCount = (TextView) findViewById(R.id.tracks);
 
-        mLocation = (TextView) mDetailsView.findViewById(R.id.location);
-        mWebsite = (TextView) mDetailsView.findViewById(R.id.website);
-        mDiscogsName = (TextView) mDetailsView.findViewById(R.id.discogs_name);
-        mMyspaceName = (TextView) mDetailsView.findViewById(R.id.myspace_name);
-        mDescription = (TextView) mDetailsView.findViewById(R.id.description);
+        mLocation = (TextView) mInfoView.findViewById(R.id.location);
+        mWebsite = (TextView) mInfoView.findViewById(R.id.website);
+        mDiscogsName = (TextView) mInfoView.findViewById(R.id.discogs_name);
+        mMyspaceName = (TextView) mInfoView.findViewById(R.id.myspace_name);
+        mDescription = (TextView) mInfoView.findViewById(R.id.description);
 
         mIcon.setScaleType(ScaleType.CENTER_INSIDE);
         if (getResources().getDisplayMetrics().density > 1 || CloudUtils.isScreenXL(this)) {
@@ -131,32 +129,35 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         Intent intent = getIntent();
         mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
 
-        mPreviousState = (Object[]) getLastNonConfigurationInstance();
-        if (mPreviousState != null) {
-            mLoadDetailsTask = (LoadUserTask) mPreviousState[1];
-            if (mLoadDetailsTask != null) mLoadDetailsTask.setActivity(this);
-
-            setUser((User) mPreviousState[2]);
-
-            if (isMe()) {
-                mConnections = (List<Connection>) mPreviousState[3];
-            }
-
-            build();
-
-            restoreAdapterStates((Object[]) mPreviousState[4]);
-
-            if (mPreviousState[5] != null)
-                mFriendFinderView.setState(Integer.parseInt(mPreviousState[5].toString()), false);
-
+        Configuration c = (Configuration) getLastNonConfigurationInstance();
+        if (c != null) {
+            fromConfiguration(c);
         } else {
 
-            if (intent != null && intent.hasExtra("user")) {
-                loadUserByObject((User) intent.getParcelableExtra("user"));
-            } else if (intent != null && intent.hasExtra("userId")) {
-                loadUserById(intent.getLongExtra("userId", -1));
+            if (intent != null) {
+                if (intent.hasExtra("user")) {
+                    loadUserByObject((User) intent.getParcelableExtra("user"));
+                } else if (intent.hasExtra("userId")) {
+                    loadUserById(intent.getLongExtra("userId", -1));
+                } else {
+                    loadYou();
+                }
+                /*if (intent.hasExtra("recordingUri")) {
+                    mMessager.setRecording(Uri.parse(intent.getStringExtra("recordingUri")), intent.getBooleanExtra("edit", false));
+                }*/
             } else {
                 loadYou();
+            }
+
+            if (isMe()) {
+                final int initialTab = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
+                if (initialTab == -1) {
+                    mUserlistBrowser.initWorkspace(1);//tracks tab
+                } else {
+                    mUserlistBrowser.initWorkspace(initialTab);
+                }
+            } else {
+                mUserlistBrowser.initWorkspace(1);//tracks tab
             }
 
             if (isMe()) {
@@ -167,6 +168,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mMyTracksView.onVisible();
         ((ScTabView) mUserlistBrowser.getCurrentWorkspaceView()).onVisible();
         loadDetails();
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     public void setTab(String tag) {
@@ -181,17 +184,32 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
         trackCurrentScreen();
         super.onResume();
+        if (mMessager != null) mMessager.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mMessager != null) mMessager.onPause();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mMessager != null) mMessager.onStart();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+
+        if (mMessager != null) mMessager.onStop();
         FollowStatus.get().removeListener(this);
 
         mAdapterStates = new Object[mLists.size()];
         int i = 0;
         for (ScListView list : mLists) {
-            if (list.getWrapper() != null){
+            if (list.getWrapper() != null) {
                 mAdapterStates[i] = list.getWrapper().saveState();
                 list.getWrapper().cleanup();
             }
@@ -200,15 +218,22 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mMessager != null) mMessager.onDestroy();
+    }
+
+    public void onSaveInstanceState(Bundle state) {
+        if (mMessager != null) mMessager.onSaveInstanceState(state);
+    }
+
+    public void onRestoreInstanceState(Bundle state) {
+        if (mMessager != null) mMessager.onRestoreInstanceState(state);
+    }
+
+    @Override
     public Object onRetainNonConfigurationInstance() {
-        return new Object[]{
-                super.onRetainNonConfigurationInstance(),
-                mLoadDetailsTask,
-                mUser,
-                mConnections,
-                mAdapterStates,
-                mFriendFinderView != null ? mFriendFinderView.getCurrentState() : null
-        };
+        return toConfiguration();
     }
 
     private void restoreAdapterStates(Object[] adapterStates) {
@@ -230,7 +255,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     public void refreshConnections(){
         if (isMe()) {
             Connections.get().requestUpdate(getApp(), true, this);
-            if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
+            if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, true);
         }
     }
 
@@ -268,13 +293,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private void loadDetails() {
         if (!mUpdateInfo) return;
 
-        if (mLoadDetailsTask == null) {
-            mLoadDetailsTask = new LoadUserTask(getApp());
-            mLoadDetailsTask.setActivity(this);
+        if (mLoadUserTask == null) {
+            mLoadUserTask = new LoadUserTask(getApp());
+            mLoadUserTask.setActivity(this);
         }
 
-        if (CloudUtils.isTaskPending(mLoadDetailsTask)) {
-            mLoadDetailsTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
+        if (CloudUtils.isTaskPending(mLoadUserTask)) {
+            mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
         }
     }
 
@@ -304,10 +329,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private void build() {
 
         mUserlistBrowser = (UserlistLayout) findViewById(R.id.userlist_browser);
-
-        // Details View
-        final ScTabView detailsView = new ScTabView(this);
-        detailsView.addView(mDetailsView);
+        mMessager = isMe() ? null : new PrivateMessager(this, mUser);
 
         // Tracks View
         LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
@@ -362,7 +384,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         final ScTabView followingsView = new ScTabView(this);
-        followingsView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true).disableLongClickListener();
+        followingsView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true);
 
         // Followers View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
@@ -380,7 +402,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         final ScTabView followersView = new ScTabView(this);
-        followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true).disableLongClickListener();
+        followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true);
+
+        // Details View
+        final ScTabView infoView = new ScTabView(this);
+        infoView.addView(mInfoView);
 
         for (ScListView list : mLists){
             list.setFadingEdgeLength(0);
@@ -396,13 +422,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         }
 
-        mUserlistBrowser.addView(detailsView, "Info", TabTags.details);
-        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, "Friend Finder", TabTags.friend_finder);
-        mUserlistBrowser.addView(mMyTracksView, "Tracks", TabTags.tracks);
-        mUserlistBrowser.addView(favoritesView, "Favorites", TabTags.favorites);
-        mUserlistBrowser.addView(followingsView, "Following", TabTags.followings);
-        mUserlistBrowser.addView(followersView, "Followers", TabTags.followers);
-
+        if (mMessager != null) mUserlistBrowser.addView(mMessager, getString(R.string.user_browser_tab_message), getResources().getDrawable(R.drawable.user_tab_rec), TabTags.privateMessage);
+        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, getString(R.string.user_browser_tab_friend_finder), getResources().getDrawable(R.drawable.ic_stats_followers_states), TabTags.friend_finder);
+        mUserlistBrowser.addView(mMyTracksView,  getString(R.string.user_browser_tab_sounds), getResources().getDrawable(R.drawable.ic_stats_sounds_states), TabTags.tracks);
+        mUserlistBrowser.addView(favoritesView, getString(R.string.user_browser_tab_likes), getResources().getDrawable(R.drawable.ic_stats_favorites_states), TabTags.favorites);
+        mUserlistBrowser.addView(followingsView, getString(R.string.user_browser_tab_followings), getResources().getDrawable(R.drawable.ic_stats_followers_states), TabTags.followings);
+        mUserlistBrowser.addView(followersView, getString(R.string.user_browser_tab_followers), getResources().getDrawable(R.drawable.ic_stats_followers_states), TabTags.followers);
+        mUserlistBrowser.addView(infoView, getString(R.string.user_browser_tab_info), getResources().getDrawable(R.drawable.ic_stats_followers_states), TabTags.details);
 
         mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
             @Override public void onScreenChanged(View newScreen, int newScreenIndex) {
@@ -418,21 +444,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 ((ScTabView) newScreen).onVisible();
             }
         });
-
-        if (isMe()) {
-            final int initialTab = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
-            if (initialTab == -1){
-                //tracks tab
-                mUserlistBrowser.initWorkspace(2);
-            } else {
-                mUserlistBrowser.initWorkspace(initialTab);
-            }
-
-        } else {
-            mUserlistBrowser.initWorkspace(1);
-        }
-
-
     }
 
     private boolean isOtherUser() {
@@ -481,7 +492,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
-
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
                 || !user.avatar_url.substring(0, user.avatar_url.indexOf("?")).equals(mIconURL.substring(0, mIconURL.indexOf("?")))) {
@@ -562,9 +572,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         if (displayedSomething) {
-            mDetailsView.findViewById(R.id.empty_txt).setVisibility(View.GONE);
+            mInfoView.findViewById(R.id.empty_txt).setVisibility(View.GONE);
         } else {
-            TextView txtEmpty = (TextView) mDetailsView.findViewById(R.id.empty_txt);
+            TextView txtEmpty = (TextView) mInfoView.findViewById(R.id.empty_txt);
             txtEmpty.setText(Html.fromHtml(getString(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you)));
             txtEmpty.setVisibility(View.VISIBLE);
         }
@@ -591,7 +601,15 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         if (recording.upload_status == Upload.UploadStatus.UPLOADING)
             safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
         else {
-            showRecordingDialog(recording);
+            if (recording.private_user_id <= 0) {
+                startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
+            } else {
+                startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
+                        .putExtra("edit", false)
+                        .putExtra("recordingUri", recording.toUri().toString())
+                        .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
+            }
+            //showRecordingDialog(recording);
         }
     }
 
@@ -605,9 +623,27 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             .setItems(curr_items, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int item) {
                     if (curr_items[item].equals(RECORDING_ITEMS[0])) {
-                        startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.toUri()));
+                        if (recording.private_user_id <= 0){
+                            startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.toUri()));
+                        } else {
+                            startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
+                                            .putExtra("edit",true)
+                                            .putExtra("recordingUri", recording.toUri().toString())
+                                            .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
+                        }
+
                     } else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
-                        startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
+                        if (recording.private_user_id <= 0){
+                            startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
+                        } else {
+                            startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
+                                    .putExtra("edit", false)
+                                    .putExtra("recordingUri", recording.toUri().toString())
+                                    .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
+                        }
+
+
+
                     } else if (curr_items[item].equals(RECORDING_ITEMS[2])) {
                         startUpload(recording);
                     } else if (curr_items[item].equals(RECORDING_ITEMS[3])) {
@@ -651,7 +687,58 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                         }
                     }
                 }
+            default:
+                mMessager.onActivityResult(requestCode,resultCode,result);
         }
+    }
+
+    @Override
+    public void onCreateServiceBound() {
+        super.onCreateServiceBound();
+        if (mMessager != null) mMessager.onCreateServiceBound(mCreateService);
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int which) {
+        Dialog created = null;
+        if (mMessager != null) {
+            created = mMessager.onCreateDialog(which);
+        }
+        return created == null ? super.onCreateDialog(which) : created;
+    }
+
+    private Configuration toConfiguration(){
+        Configuration c = new Configuration();
+        c.loadUserTask = mLoadUserTask;
+        c.user = mUser;
+        c.connections = mConnections;
+        c.workspaceIndex = mUserlistBrowser.getCurrentWorkspaceIndex();
+        c.adapterStates = mAdapterStates;
+        c.friendFinderState = mFriendFinderView != null ? mFriendFinderView.getCurrentState() : -1;
+        return c;
+    }
+
+    private void fromConfiguration(Configuration c){
+        setUser(c.user);
+        build(); //build here because the rest of the state needs a constructed userlist browser
+
+        if (c.loadUserTask != null) {
+            mLoadUserTask = c.loadUserTask;
+            mLoadUserTask.setActivity(this);
+        }
+        if (isMe()) mConnections = c.connections;
+        mUserlistBrowser.initWorkspace(c.workspaceIndex);
+        restoreAdapterStates(c.adapterStates);
+        if (c.friendFinderState != -1) mFriendFinderView.setState(c.friendFinderState, false);
+    }
+
+    private static class Configuration {
+        LoadUserTask loadUserTask;
+        User user;
+        List<Connection> connections;
+        int workspaceIndex;
+        Object[] adapterStates;
+        int friendFinderState;
     }
 
 }

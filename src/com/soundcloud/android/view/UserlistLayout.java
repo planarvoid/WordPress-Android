@@ -1,5 +1,7 @@
 package com.soundcloud.android.view;
 
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import com.soundcloud.android.R;
 
 import android.content.Context;
@@ -50,13 +52,15 @@ public class UserlistLayout extends RelativeLayout {
                 setLabels(screenFraction);
             }
         }, true);
-        mHolderPad = (int) (5 * getResources().getDisplayMetrics().density);
+        mHolderPad = (int) (3 * getResources().getDisplayMetrics().density);
     }
 
-    public void addView(View view, String label, String tag){
+    public void addView(View view, String label, Drawable drawable, String tag){
         mWorkspaceView.addView(view);
-        TextView labelTxt = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.user_list_browser_label_txt,null);
+        TextView labelTxt = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.user_list_browser_label_txt, null);
         labelTxt.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.FILL_PARENT));
+        labelTxt.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+        labelTxt.setCompoundDrawablePadding((int) (getResources().getDisplayMetrics().density * 5));
         mLabelHolder.addView(labelTxt);
         tabLabels.add(new TabLabel(labelTxt,label,tag, mLabelHolder.getChildCount() - 1));
     }
@@ -70,15 +74,15 @@ public class UserlistLayout extends RelativeLayout {
         if (mHolderWidth == 0) return;
 
         for (TabLabel tl : tabLabels){
-             if (tl.index < screenFraction - 1.5 || tl.index > screenFraction + 1.5){
+             if (tl.index < screenFraction - 1.3 || tl.index > screenFraction + 1.3){
                  tl.hide();
              } else {
                  tl.setPosition(screenFraction,mHolderWidth,mHolderPad, mMiddleLow, mMiddleHigh);
              }
         }
 
-        mLeftArrow.setVisibility(screenFraction < 1.5 ? INVISIBLE : VISIBLE);
-        mRightArrow.setVisibility(screenFraction > tabLabels.size() - 2.5 ? INVISIBLE : VISIBLE);
+        mLeftArrow.setVisibility(screenFraction < 1.3 ? INVISIBLE : VISIBLE);
+        mRightArrow.setVisibility(screenFraction > tabLabels.size() - 2.3 ? INVISIBLE : VISIBLE);
     }
 
     @Override
@@ -113,6 +117,10 @@ public class UserlistLayout extends RelativeLayout {
         return mWorkspaceView.getChildAt(mWorkspaceView.getCurrentScreen());
     }
 
+    public int getCurrentWorkspaceIndex() {
+        return mWorkspaceView.getCurrentScreen();
+    }
+
     private static class TabLabel {
 
         public final String tag;
@@ -135,7 +143,10 @@ public class UserlistLayout extends RelativeLayout {
         }
 
         private void computeMarginOffset(){
-            mMarginOffset = (int) (-(mTextView.getPaint().measureText(mTextView.getText().toString()))/2);
+            Drawable drawable = mTextView.getCompoundDrawables()[0];
+            Log.i("asdf","d " + drawable.getMinimumWidth());
+
+            mMarginOffset = (int) (-(mTextView.getPaint().measureText(mTextView.getText().toString()) + drawable.getMinimumWidth() + mTextView.getCompoundDrawablePadding())/2);
         }
 
         public void setPosition(float screenFraction, int holderWidth, int holderPad, int middleLow, int middleHigh){

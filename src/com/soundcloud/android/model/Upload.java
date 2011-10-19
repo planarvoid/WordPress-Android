@@ -29,6 +29,7 @@ public class Upload extends ModelBase {
     public String genre;
     public String service_ids;
     public String shared_emails;
+    public String shared_ids;
     public boolean encode;
     public boolean downloadable;
     public boolean streamable;
@@ -49,6 +50,8 @@ public class Upload extends ModelBase {
     public static final String OGG_FILENAME = "ogg_filename";
     public static final String ARTWORK_PATH = "artwork_path";
     public static final String DELETE_AFTER = "delete_after";
+
+
 
     public static interface UploadStatus {
         int NOT_YET_UPLOADED    = 0;
@@ -83,6 +86,9 @@ public class Upload extends ModelBase {
         }
         if (uploadData.containsKey(Params.Track.SHARED_EMAILS)) {
             shared_emails = TextUtils.join(",",(List<String>) uploadData.get(Params.Track.SHARED_EMAILS));
+        }
+        if (uploadData.containsKey(Params.Track.SHARED_IDS)) {
+            shared_ids = TextUtils.join(",",(List<String>) uploadData.get(Params.Track.SHARED_IDS));
         }
 
         post_to_empty = uploadData.get(Params.Track.POST_TO_EMPTY) != null ? "" : null;
@@ -125,6 +131,12 @@ public class Upload extends ModelBase {
             if (!TextUtils.isEmpty(r.shared_emails)) {
                 shared_emails = r.shared_emails;
             }
+        }
+
+        if (r.private_user_id >0){
+            shared_ids = String.valueOf(r.private_user_id);
+        } else if (!TextUtils.isEmpty(r.shared_ids)) {
+            shared_ids = r.shared_ids;
         }
 
         // add machine tags
@@ -178,6 +190,12 @@ public class Upload extends ModelBase {
             List<String> ids = new ArrayList<String>();
             Collections.addAll(ids, shared_emails.split(","));
             data.put(Params.Track.SHARED_EMAILS, ids);
+        }
+
+        if (!TextUtils.isEmpty(shared_ids)) {
+            List<String> ids = new ArrayList<String>();
+            Collections.addAll(ids, shared_ids.split(","));
+            data.put(Params.Track.SHARED_IDS, ids);
         }
 
         if (post_to_empty != null) data.put(Params.Track.POST_TO_EMPTY, "");

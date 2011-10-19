@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.util.Log;
 import android.view.View;
 
 public class PowerGauge extends View {
@@ -15,21 +16,13 @@ public class PowerGauge extends View {
     private static final String TAG = "PowerGauge";
 
     private Bitmap bitmap;
-
     private float nextBufferX;
-
     private int mGlowHeight;
-
     private int mMaxWaveHeight;
-
     private final Matrix m = new Matrix();
-
     private final Paint mPaint = new Paint();
-
     private final Paint mBlurPaint = new Paint();
-
     private static final int WAVEFORM_ORANGE = 0xffff8000;
-
     private final Path mPath = new Path();
 
     public PowerGauge(Context context) {
@@ -64,7 +57,7 @@ public class PowerGauge extends View {
         super.onLayout(changed, l, t, r, b);
 
         if (changed && this.getHeight() > 0) {
-            mMaxWaveHeight = getHeight() - 2*mGlowHeight;
+            mMaxWaveHeight = getHeight() - mGlowHeight;
         }
     }
 

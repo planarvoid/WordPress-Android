@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 public final class Actions {
     public static final String RECORD       = "com.soundcloud.android.action.RECORD";
+    public static final String MESSAGE      = "com.soundcloud.android.action.MESSAGE";
     public static final String STREAM       = "com.soundcloud.android.action.STREAM";
     public static final String ACTIVITY     = "com.soundcloud.android.action.ACTIVITY";
     public static final String SEARCH       = "com.soundcloud.android.action.SEARCH";
