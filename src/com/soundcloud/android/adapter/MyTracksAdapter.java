@@ -148,8 +148,6 @@ public class MyTracksAdapter extends TracklistAdapter {
      */
     protected void onContentChanged() {
         if (mCursor == null) {
-            submenuIndex = -1;
-            animateSubmenuIndex = -1;
             refreshCursor();
             notifyDataSetChanged();
         }

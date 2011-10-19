@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import android.view.View;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Friend;
@@ -14,6 +15,7 @@ import com.soundcloud.android.view.TracklistSectionedRow;
 import com.soundcloud.android.view.UserlistSectionedRow;
 
 import android.os.Parcelable;
+import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 
 import java.util.ArrayList;
 
@@ -21,9 +23,11 @@ public class SectionedTracklistAdapter extends SectionedAdapter implements ITrac
 
     private long mPlayingId = -1;
     private boolean mIsPlaying = false;
+    private QuickTrackMenu mQuickTrackMenu;
 
     public SectionedTracklistAdapter(ScActivity activity) {
         super(activity);
+        mQuickTrackMenu = new QuickTrackMenu(activity, this);
     }
 
     @Override protected LazyRow createRow(int position) {
@@ -54,6 +58,12 @@ public class SectionedTracklistAdapter extends SectionedAdapter implements ITrac
         f.setOnFavoriteListener(mFavoriteListener);
         f.execute(track);
     }
+
+    @Override
+    public QuickTrackMenu getQuickTrackMenu() {
+        return mQuickTrackMenu;
+    }
+
 
     public void removeFavorite(Track track) {
         FavoriteRemoveTask f = new FavoriteRemoveTask(mActivity.getApp());
