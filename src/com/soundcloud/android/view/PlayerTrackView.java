@@ -90,6 +90,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         mArtwork = (ImageView) findViewById(R.id.artwork);
         if (mArtwork != null){
             mArtwork.setVisibility(View.INVISIBLE);
+            mArtwork.setScaleType(ImageView.ScaleType.CENTER_CROP);
         } else {
             mLandscape = true;
         }

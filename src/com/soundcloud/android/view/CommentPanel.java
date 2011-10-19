@@ -49,12 +49,10 @@ public class CommentPanel extends RelativeLayout {
     private final String at_timestamp;
 
     private final boolean mIsLandscape;
-    private boolean mAnimatedIn;
 
     private final Paint mBgPaint;
     private final Paint mLinePaint;
     private int mPlayheadOffset;
-    private boolean mPlayheadLeft;
     private final int mPlayheadArrowWidth;
     private final int mPlayheadArrowHeight;
 
@@ -200,12 +198,6 @@ public class CommentPanel extends RelativeLayout {
                 });
 
         mPlayheadOffset = mComment.xPos;
-        if (mComment.xPos < getMeasuredWidth() / 2) {
-            mPlayheadLeft = true;
-        } else {
-            mPlayheadLeft = false;
-        }
-
     }
 
     public Comment getComment() {
@@ -214,7 +206,8 @@ public class CommentPanel extends RelativeLayout {
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        if (mIsLandscape || mAnimatedIn){
+        //if (mIsLandscape){
+        if (true){ // might change this later
             CloudUtils.drawSquareBubbleOnCanvas(canvas, mBgPaint, mLinePaint, getMeasuredWidth(), getMeasuredHeight() - mPlayheadArrowHeight,
                     mPlayheadArrowWidth, mPlayheadArrowHeight, mPlayheadOffset);
         } else {
