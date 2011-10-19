@@ -43,7 +43,7 @@ public class QuickTrackMenu extends QuickAction {
         //mProfileActionItem.setTitle("Profile");
         mFavoriteActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_like_states_v1));
         //mFavoriteActionItem.setTitle("Favorite");
-        mCommentActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_comment_states));
+        mCommentActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_comment_states_v1));
         //mCommentActionItem.setTitle("Comment");
         mShareActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_share_states));
         //mShareActionItem.setTitle(("Share"));
