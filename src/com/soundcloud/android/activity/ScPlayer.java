@@ -487,6 +487,8 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
 
 
     private void setPauseButtonImage() {
+        if (mPauseButton == null) return;
+
         try {
             if (mPlaybackService != null && mPlaybackService.isPlaying()) {
                 mPauseButton.setImageDrawable(mPauseState);
@@ -1017,7 +1019,9 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
     }
 
     private void registerHeadphoneRemoteControl() {
-        if (mRegisterMediaButtonEventReceiver == null) return;
+        if (mRegisterMediaButtonEventReceiver == null ||
+            mAudioManager == null ||
+            mRemoteControlResponder == null) return;
 
         try {
             mRegisterMediaButtonEventReceiver.invoke(mAudioManager, mRemoteControlResponder);
