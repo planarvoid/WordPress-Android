@@ -29,5 +29,26 @@
     <string name='btn_back'>
         Back
     </string>
+    <string name='user_browser_tab_message'>
+        Message
+    </string>
+    <string name='user_browser_tab_friend_finder'>
+        Friend Finder
+    </string>
+    <string name='user_browser_tab_sounds'>
+        Sounds
+    </string>
+    <string name='user_browser_tab_likes'>
+        Likes
+    </string>
+    <string name='user_browser_tab_followings'>
+        Followings
+    </string>
+    <string name='user_browser_tab_followers'>
+        Followers
+    </string>
+    <string name='user_browser_tab_info'>
+        Info
+    </string>
 
 </resources>
