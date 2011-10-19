@@ -255,7 +255,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     public void refreshConnections(){
         if (isMe()) {
             Connections.get().requestUpdate(getApp(), true, this);
-            if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
+            if (mFriendFinderView != null) mFriendFinderView.setState(FriendFinderView.States.LOADING, true);
         }
     }
 
