@@ -18,6 +18,7 @@ package com.google.android.imageloader;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.DownloadManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -403,9 +404,11 @@ public final class ImageLoader {
     }
 
     public void cancelRequest(String url){
+        ImageRequest toRemove = null;
         for (ImageRequest request : mRequests){
-            if (request.getUrl().equals(url)) mRequests.remove(request);
+            if (request.getUrl().equals(url)) toRemove = request;
         }
+        if (toRemove != null) mRequests.remove(toRemove);
     }
 
     private void enqueueRequest(ImageRequest request) {
