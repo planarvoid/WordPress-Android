@@ -266,7 +266,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                         waveformResult = BindResult.OK;
                         showWaveform();
                     }
-                });
+                },new ImageLoader.Options(true,true));
 
 
 

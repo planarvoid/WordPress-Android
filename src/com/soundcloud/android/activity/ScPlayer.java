@@ -891,7 +891,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                         public void onImageLoaded(ImageView view, String url) {
                             onArtworkSet();
                         }
-                    }, null)) != BindResult.OK) {
+                    }, new ImageLoader.Options(true,true))) != BindResult.OK) {
                         mArtwork.setVisibility(View.INVISIBLE);
                     } else {
                         onArtworkSet();
