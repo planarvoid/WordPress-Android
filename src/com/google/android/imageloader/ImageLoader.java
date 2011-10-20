@@ -990,15 +990,15 @@ public final class ImageLoader {
 
         /** {@inheritDoc} */
         public void send() {
-            String binding = mImageViewBinding.get(mImageView);
+            final ImageView imageView = mImageView.get();
+            if (imageView == null) return;
+
+            String binding = mImageViewBinding.get(imageView);
             if (!TextUtils.equals(binding, mUrl)) {
                 // The ImageView has been unbound or bound to a
                 // different URL since the task was started.
                 return;
             }
-
-            final ImageView imageView = mImageView.get();
-            if (imageView == null) return;
 
             Context context = imageView.getContext();
             if (context instanceof Activity) {
