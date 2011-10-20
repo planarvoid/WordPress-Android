@@ -32,7 +32,7 @@ public class FullImageDialog extends Dialog {
         final ImageView image = (ImageView) this.findViewById(R.id.image);
         final ProgressBar progress = (ProgressBar) this.findViewById(R.id.progress);
         BindResult result;
-        if ((result = ImageLoader.get(context).bind(image, imageUri, new ImageLoader.ImageViewCallback() {
+        if ((result = ImageLoader.get(context).bind(image, imageUri, new ImageLoader.Callback() {
             @Override
             public void onImageLoaded(ImageView view, String url) {
                 if (!isShowing()) return;

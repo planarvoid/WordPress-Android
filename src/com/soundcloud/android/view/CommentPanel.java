@@ -187,7 +187,7 @@ public class CommentPanel extends RelativeLayout {
 
         ImageLoader.get(getContext()).bind(mIcon,
                 ImageUtils.formatGraphicsUriForList(getContext(), currentShowingComment.user.avatar_url),
-                new ImageLoader.ImageViewCallback() {
+                new ImageLoader.Callback() {
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
                     }

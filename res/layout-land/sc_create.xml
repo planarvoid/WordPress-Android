@@ -60,9 +60,6 @@
                   android:gravity="center"/>
     </RelativeLayout>
 
-
-
-
     <ImageButton android:id="@+id/btn_action"
                  android:background="@color/transparent"
                  android:src="@drawable/btn_rec_states"

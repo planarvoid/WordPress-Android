@@ -273,7 +273,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                     getContext(),
                     mArtwork,
                     mTrack.artwork_url,
-                    Consts.GraphicSize.T500, new ImageLoader.ImageViewCallback() {
+                    Consts.GraphicSize.T500, new ImageLoader.Callback() {
                 @Override
                 public void onImageError(ImageView view, String url, Throwable error) {
                     mCurrentArtBindResult = ImageLoader.BindResult.ERROR;
@@ -305,7 +305,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             if ((mCurrentAvatarBindResult = ImageLoader.get(mPlayer).bind(
                     mAvatar,
                     ImageUtils.formatGraphicsUriForList(mPlayer, mTrack.user.avatar_url),
-                    new ImageLoader.ImageViewCallback() {
+                    new ImageLoader.Callback() {
                         @Override
                         public void onImageError(ImageView view, String url, Throwable error) {
                             mCurrentAvatarBindResult = ImageLoader.BindResult.ERROR;

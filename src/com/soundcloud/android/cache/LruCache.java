@@ -36,7 +36,7 @@ public class LruCache<K, V> {
      * 2 level cache - LRU (bound to capacity) + softreference map (unbound)
      * @param capacity max capacity for the LRU cache
      */
-    public LruCache(final int capacity) {
+    public LruCache(final long capacity) {
         mLruMap = new LinkedHashMap<K, V>(16, 0.75f, true) {
             @Override protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
                 return size() > capacity;

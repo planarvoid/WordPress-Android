@@ -582,7 +582,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private void reloadAvatar() {
         if (CloudUtils.checkIconShouldLoad(mIconURL)) {
-            if ((avatarResult = ImageUtils.loadImageSubstitute(this,mIcon,mIconURL, Consts.GraphicSize.LARGE,new ImageLoader.ImageViewCallback() {
+            if ((avatarResult = ImageUtils.loadImageSubstitute(this,mIcon,mIconURL, Consts.GraphicSize.LARGE,new ImageLoader.Callback() {
                 @Override
                 public void onImageLoaded(ImageView view, String url) {}
 
