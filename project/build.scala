@@ -61,6 +61,7 @@ object AndroidBuild extends Build {
     file("."),
     settings = General.androidProjectSettings ++ Seq (
       keyalias in Android := "change-me",
+      unmanagedBase <<= baseDirectory / "lib-unmanaged",
       libraryDependencies ++= coreDependencies ++ providedDependencies ++ testDependencies,
       resolvers ++= repos,
       compileOrder := CompileOrder.JavaThenScala
