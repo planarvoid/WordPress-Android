@@ -225,6 +225,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
     public void onConnected(boolean isForeground) {
+        getBaseAdapter().notifyDataSetChanged();
         if (mOnRefreshListener != null) {
             mOnRefreshListener.onConnected();
             if (isForeground && mOnRefreshListener.needsRefresh()) onRefresh();

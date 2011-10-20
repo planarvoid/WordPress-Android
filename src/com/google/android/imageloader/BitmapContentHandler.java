@@ -18,6 +18,7 @@ package com.google.android.imageloader;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +37,7 @@ import java.net.URLConnection;
 public class BitmapContentHandler extends ContentHandler {
     @Override
     public Bitmap getContent(URLConnection connection) throws IOException {
-
+        connection.setReadTimeout(10000);
         InputStream input = connection.getInputStream();
         try {
             input = new BlockingFilterInputStream(input);
