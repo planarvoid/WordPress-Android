@@ -925,8 +925,6 @@ public final class ImageLoader {
     }
 
     public static class BitmapCallback implements ImageCallback {
-        // TODO: Use WeakReferences?
-
         private String mUrl;
         private Bitmap mBitmap;
         private ImageError mError;
@@ -965,7 +963,7 @@ public final class ImageLoader {
     public final class ImageViewCallback implements ImageCallback {
         
         // TODO: Use WeakReferences?
-        private final ImageView mImageView;
+        private final WeakReference<ImageView> mImageView;
         private final Callback mCallback;
 
         private String mUrl;
@@ -973,7 +971,7 @@ public final class ImageLoader {
         private ImageError mError;
 
         public ImageViewCallback(ImageView imageView, Callback callback) {
-            mImageView = imageView;
+            mImageView = new WeakReference<ImageView>(imageView);
             mCallback = callback;
         }
         
@@ -998,7 +996,11 @@ public final class ImageLoader {
                 // different URL since the task was started.
                 return;
             }
-            Context context = mImageView.getContext();
+
+            final ImageView imageView = mImageView.get();
+            if (imageView == null) return;
+
+            Context context = imageView.getContext();
             if (context instanceof Activity) {
                 Activity activity = (Activity) context;
                 if (activity.isFinishing()) {
@@ -1006,13 +1008,13 @@ public final class ImageLoader {
                 }
             }
             if (mBitmap != null) {
-                mImageView.setImageBitmap(mBitmap);
+                imageView.setImageBitmap(mBitmap);
                 if (mCallback != null) {
-                    mCallback.onImageLoaded(mImageView, mUrl);
+                    mCallback.onImageLoaded(imageView, mUrl);
                 }
             } else if (mError != null) {
                 if (mCallback != null) {
-                    mCallback.onImageError(mImageView, mUrl, mError.getCause());
+                    mCallback.onImageError(imageView, mUrl, mError.getCause());
                 }
             }
         }
