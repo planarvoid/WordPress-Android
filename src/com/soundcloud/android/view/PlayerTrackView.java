@@ -284,7 +284,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                 public void onImageLoaded(ImageView view, String url) {
                     onArtworkSet();
                 }
-            }, null)) != ImageLoader.BindResult.OK) {
+            }, new ImageLoader.Options(true,true))) != ImageLoader.BindResult.OK) {
                 mArtwork.setVisibility(View.INVISIBLE);
             } else {
                 onArtworkSet();
@@ -314,7 +314,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                         @Override
                         public void onImageLoaded(ImageView view, String url) {
                         }
-                    })) != ImageLoader.BindResult.OK) {
+                    },new ImageLoader.Options(true,true))) != ImageLoader.BindResult.OK) {
             }
         } else {
             ImageLoader.get(mPlayer).unbind(mAvatar);
