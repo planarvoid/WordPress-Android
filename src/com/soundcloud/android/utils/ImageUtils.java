@@ -305,7 +305,7 @@ public class ImageUtils {
 
     }
 
-    public static ImageLoader.BindResult loadImageSubstitute(Context c, ImageView imageView, String uri, Consts.GraphicSize targetSize, ImageLoader.ImageViewCallback callback, ImageLoader.Options options){
+    public static ImageLoader.BindResult loadImageSubstitute(Context c, ImageView imageView, String uri, Consts.GraphicSize targetSize, ImageLoader.Callback callback, ImageLoader.Options options){
         final String targetUri = formatGraphicsUri(uri, targetSize);
         final ImageLoader imageLoader = ImageLoader.get(c);
         if (options == null) options = new ImageLoader.Options();

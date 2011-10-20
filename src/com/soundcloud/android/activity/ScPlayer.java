@@ -880,7 +880,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                             this,
                             mArtwork,
                             mPlayingTrack.artwork_url,
-                            Consts.GraphicSize.T500, new ImageViewCallback() {
+                            Consts.GraphicSize.T500, new ImageLoader.Callback() {
                         @Override
                         public void onImageError(ImageView view, String url, Throwable error) {
                             mCurrentArtBindResult = BindResult.ERROR;
@@ -908,7 +908,7 @@ public class ScPlayer extends ScActivity implements OnTouchListener, LoadTrackIn
                 if ((mCurrentAvatarBindResult = ImageLoader.get(this).bind(
                         mAvatar,
                         ImageUtils.formatGraphicsUriForList(this, mPlayingTrack.user.avatar_url),
-                        new ImageViewCallback() {
+                        new ImageLoader.Callback() {
                             @Override
                             public void onImageError(ImageView view, String url, Throwable error) {
                                 mCurrentAvatarBindResult = BindResult.ERROR;

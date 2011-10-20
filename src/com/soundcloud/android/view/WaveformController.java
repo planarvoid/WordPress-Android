@@ -254,7 +254,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             mWaveformErrorCount = 0;
         }
         waveformResult = ImageLoader.get(mPlayer).bind(mOverlay, track.waveform_url,
-                new ImageLoader.ImageViewCallback() {
+                new ImageLoader.Callback() {
                     @Override
                     public void onImageError(ImageView view, String url, Throwable error) {
                         waveformResult = BindResult.ERROR;

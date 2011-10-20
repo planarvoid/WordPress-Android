@@ -144,8 +144,6 @@ public class UserlistLayout extends RelativeLayout {
 
         private void computeMarginOffset(){
             Drawable drawable = mTextView.getCompoundDrawables()[0];
-            Log.i("asdf","d " + drawable.getMinimumWidth());
-
             mMarginOffset = (int) (-(mTextView.getPaint().measureText(mTextView.getText().toString()) + drawable.getMinimumWidth() + mTextView.getCompoundDrawablePadding())/2);
         }
 

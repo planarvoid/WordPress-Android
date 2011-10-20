@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.widget.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -28,16 +29,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.HeaderViewListAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -674,6 +665,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MESSAGE_UPDATE_LIST_ICONS:
+                    //if (BaseAdapter.class.isAssignableFrom(getAdapter())) ((BaseAdapter) getAdapter()).notifyDataSetChanged();
                     if (mListener != null)
                         mListener.onFlingDone();
                     break;
