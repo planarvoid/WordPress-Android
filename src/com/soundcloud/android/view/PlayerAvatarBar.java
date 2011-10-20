@@ -52,6 +52,7 @@ public class PlayerAvatarBar extends View {
     private ImageLoader mBitmapLoader;
 
     private Context mContext;
+    private boolean mLandscape;
 
     public PlayerAvatarBar(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -186,6 +187,10 @@ public class PlayerAvatarBar extends View {
 
     }
 
+    public void setIsLandscape(boolean landscape) {
+        mLandscape = landscape;
+    }
+
     class AvatarRefresher implements Runnable {
         @Override
         public void run() {
@@ -247,10 +252,12 @@ public class PlayerAvatarBar extends View {
 
     private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint){
         if (!CloudUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null || comment.avatar.isRecycled()){
-            refreshDefaultAvatar();
-            mMatrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
-            mMatrix.postTranslate(comment.xPos, 0);
-            canvas.drawBitmap(mDefaultAvatar, mMatrix, mImagePaint);
+            if (mLandscape){
+                refreshDefaultAvatar();
+                mMatrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
+                mMatrix.postTranslate(comment.xPos, 0);
+                canvas.drawBitmap(mDefaultAvatar, mMatrix, mImagePaint);
+            }
             canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
 
             if (comment.avatar != null && comment.avatar.isRecycled()) loadAvatar(comment);

@@ -49,6 +49,10 @@ public class WaveformControllerLand extends WaveformController {
         }
     };
 
+    @Override
+    protected boolean isLandscape() {
+        return true;
+    }
 
 
     public WaveformControllerLand(Context context, AttributeSet attrs) {
