@@ -35,9 +35,9 @@
 	<color name="cloudProgressSecondaryCenter">#707070</color>
 	<color name="cloudProgressSecondaryEnd">#333333</color>
 	
-	<color name="cloudProgressStart">#e36711</color>
-	<color name="cloudProgressCenter">#e36711</color>
-	<color name="cloudProgressEnd">#e36711</color>
+	<color name="cloudProgressStart">#ff6600</color>
+	<color name="cloudProgressCenter">#ff5500</color>
+	<color name="cloudProgressEnd">#ff3300</color>
 	
 	<color name="cloudProgressLandscapeBackgroundStart">#FF666666</color>
 	<color name="cloudProgressLandscapeBackgroundCenter">#FF949494</color>
