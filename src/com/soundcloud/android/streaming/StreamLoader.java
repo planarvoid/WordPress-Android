@@ -30,7 +30,7 @@ public class StreamLoader {
     private StreamItem mCurrentItem;
     private int mCurrentPosition;
 
-    private HashSet<PlayerCallback> mPlayerCallbacks;
+    private HashSet<StreamFuture> mPlayerCallbacks;
     private ArrayList<LoadingItem> mHighPriorityQueue;
     private ArrayList<LoadingItem> mLowPriorityQueue;
     private DataTask mHighPriorityConnection;
@@ -48,7 +48,7 @@ public class StreamLoader {
         mContext = context;
         mStorage = storage;
         chunkSize = storage.chunkSize;
-        mPlayerCallbacks = new HashSet<PlayerCallback>();
+        mPlayerCallbacks = new HashSet<StreamFuture>();
 
         // setup connectivity listening
         mConnectivityListener = new NetworkConnectivityListener();
@@ -72,30 +72,29 @@ public class StreamLoader {
         mResultHandler = new Handler(Looper.getMainLooper());
     }
 
-    public PlayerCallback getDataForItem(StreamItem item, Range range) throws IOException {
+    public StreamFuture getDataForItem(StreamItem item, Range range) throws IOException {
         Log.d(getClass().getSimpleName(), "Get Data for item " + item.toString() + " " + range);
 
-        Range chunkRange = range.chunkRange(chunkSize);
-        Set<Integer> missingChunksForRange = mStorage.getMissingChunksForItem(item, chunkRange);
+        Set<Integer> missingChunks = mStorage.getMissingChunksForItem(item, range.chunkRange(chunkSize));
 
         //If the current item changes
-        if (item != mCurrentItem) {
+        if (!item.equals(mCurrentItem)) {
             mItemsNeedingHeadRequests.add(item);
+
             // If we won't request the 0th byte (by either having it already OR jumping into the middle of a new track)
-            if (!missingChunksForRange.contains(0l)) {
+            if (!missingChunks.contains(0)) {
                 countPlayForItem(item);
             }
-
         }
 
         mCurrentItem = item;
         mCurrentPosition = range.location;
 
-        PlayerCallback pc = new PlayerCallback(item, range);
+        StreamFuture pc = new StreamFuture(item, range);
 
-        if (missingChunksForRange.size() > 0) {
-            mPlayerCallbacks.add(new PlayerCallback(item, range));
-            addItem(item, missingChunksForRange, mHighPriorityQueue);
+        if (!missingChunks.isEmpty()) {
+            mPlayerCallbacks.add(pc);
+            addItem(item, missingChunks, mHighPriorityQueue);
             updateLowPriorityQueue();
             processQueues();
         } else {
@@ -121,14 +120,14 @@ public class StreamLoader {
     }
 
 
-    private ByteBuffer fetchStoredDataForItem(StreamItem item, Range byteRange) {
-        Range actualRange = byteRange;
-        if (item.getContentLength() != 0){
-            actualRange = byteRange.intersection(Range.from(0, (int) item.getContentLength()));
+    private ByteBuffer fetchStoredDataForItem(StreamItem item, Range range) {
+        Range actualRange = range;
+        if (item.getContentLength() != 0) {
+            actualRange = range.intersection(item.getRange());
         }
 
-        if (actualRange == null){
-            Log.e(getClass().getSimpleName(), "Invalid range, outside content length. Requested range " + byteRange + " from item " + item);
+        if (actualRange == null) {
+            Log.e(getClass().getSimpleName(), "Invalid range, outside content length. Requested range " + range + " from item " + item);
             return null;
         }
 
@@ -151,7 +150,7 @@ public class StreamLoader {
             writeIndex += i;
         }
 
-        if (actualRange.length < data.length){
+        if (actualRange.length < data.length) {
             return ByteBuffer.wrap(data, actualRange.location - (chunkRange.location * chunkSize), actualRange.length).slice().asReadOnlyBuffer();
         } else {
             return ByteBuffer.wrap(data);
@@ -207,7 +206,7 @@ public class StreamLoader {
 
         for (LoadingItem highPriorityItem : mHighPriorityQueue) {
             StreamItem item = highPriorityItem.scStreamItem;
-            if (!item.enabled) {
+            if (!item.available) {
                 mHighPriorityQueue.remove(highPriorityItem);
             } else if (item.getContentLength() != 0) {
                 Range chunkRange = Range.from((Integer) highPriorityItem.indexes.get(0), 1);
@@ -240,7 +239,7 @@ public class StreamLoader {
 
         for (LoadingItem lowPriorityItem : mHighPriorityQueue) {
             StreamItem item = lowPriorityItem.scStreamItem;
-            if (!item.enabled) {
+            if (!item.available) {
                 mHighPriorityQueue.remove(lowPriorityItem);
             } else if (item.getContentLength() != 0) {
                 /*
@@ -265,7 +264,7 @@ public class StreamLoader {
     }
 
     private void addItem(StreamItem item, Set<Integer> chunks, List<LoadingItem> queue) {
-        if (!item.enabled) {
+        if (!item.available) {
             Log.e(getClass().getSimpleName(), "Can't add chunks for %@: Item is disabled." + item.getURLHash());
             return;
         }
@@ -313,8 +312,8 @@ public class StreamLoader {
 
 
     private void fulfillPlayerCallbacks() {
-        List<PlayerCallback> fulfilledCallbacks = new ArrayList<PlayerCallback>();
-        for (PlayerCallback playerCallback : mPlayerCallbacks) {
+        List<StreamFuture> fulfilledCallbacks = new ArrayList<StreamFuture>();
+        for (StreamFuture playerCallback : mPlayerCallbacks) {
             StreamItem item = playerCallback.scStreamItem;
             Range chunkRange = playerCallback.byteRange.chunkRange(chunkSize);
             Set<Integer> missingIndexes = mStorage.getMissingChunksForItem(item, chunkRange);
@@ -323,7 +322,7 @@ public class StreamLoader {
             }
         }
 
-        for (PlayerCallback playerCallback : fulfilledCallbacks) {
+        for (StreamFuture playerCallback : fulfilledCallbacks) {
             ByteBuffer storedData = fetchStoredDataForItem(playerCallback.scStreamItem,playerCallback.byteRange);
             if (storedData != null){
                 playerCallback.setByteBuffer(storedData);
@@ -357,7 +356,7 @@ public class StreamLoader {
     }
 
     private HeadTask startHeadTask(StreamItem item){
-        if (!item.enabled) {
+        if (!item.available) {
             Log.i(getClass().getSimpleName(), String.format("Can't start head for %s: Item is disabled." , item));
             return null;
         }

@@ -38,4 +38,16 @@ public class RangeTest {
         expect(chunk.location).toBe(1);
         expect(chunk.length).toBe(3);
     }
+
+    @Test
+    public void testIntersection() throws Exception {
+        expect(Range.from(10, 40).intersection(Range.from(0, 60))).toEqual(Range.from(10,40));
+        expect(Range.from(20,10).intersection(Range.from(0,5))).toBeNull();
+    }
+
+    @Test
+    public void shouldSupportEquals() throws Exception {
+        expect(Range.from(0, 10)).toEqual(Range.from(0, 10));
+        expect(Range.from(0, 10)).not.toEqual(Range.from(1, 10));
+    }
 }

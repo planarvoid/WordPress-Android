@@ -40,12 +40,10 @@ public class Range implements Parcelable {
     }
 
     public Range intersection(Range range) {
-        int low = Math.max(range.location, location);
-        int high = Math.min(range.location + length, location + length);
-        if (low < high) {
-            return new Range(low, high - low);
-        }
-        return null;
+        final int low = Math.max(range.location, location);
+        final int high = Math.min(range.end(), end());
+
+        return (low < high) ? new Range(low, high - low) : null;
     }
 
     public String toString() {
@@ -57,6 +55,21 @@ public class Range implements Parcelable {
     public Range chunkRange(int chunkSize) {
        return Range.from(location / chunkSize,
             (int) Math.ceil((double) ((location % chunkSize) + length) / (double) chunkSize));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Range range = (Range) o;
+        return length == range.length && location == range.location;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = location;
+        result = 31 * result + length;
+        return result;
     }
 
     @Override
