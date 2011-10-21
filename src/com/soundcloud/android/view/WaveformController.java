@@ -489,8 +489,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     };
 
     public void nextCommentInThread() {
-        if (mCurrentShowingComment.nextComment != null) {
-            mCurrentShowingComment = mCurrentShowingComment.nextComment;
+        if (mCurrentShowingComment != null && mCurrentShowingComment.nextComment != null) {
+            final Comment nextComment = mCurrentShowingComment.nextComment;
+            if (!isLandscape()) closeComment(false);
+            mCurrentShowingComment = nextComment;
             showCurrentComment(true);
         }
     }
