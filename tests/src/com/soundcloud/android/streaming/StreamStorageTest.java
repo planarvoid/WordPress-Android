@@ -21,16 +21,16 @@ import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 
 @RunWith(DefaultTestRunner.class)
-public class ScStreamStorageTest {
-    ScStreamStorage storage;
-    ScStreamItem item;
+public class StreamStorageTest {
+    StreamStorage storage;
+    StreamItem item;
     File baseDir = new File(System.getProperty("java.io.tmpdir"), "storage-test");
 
     @Before
     public void before() {
         CloudUtils.deleteDir(baseDir);
-        storage = new ScStreamStorage(DefaultTestRunner.application, baseDir, 1028);
-        item = new ScStreamItem(DefaultTestRunner.application, "fred.mp3");
+        storage = new StreamStorage(DefaultTestRunner.application, baseDir, 1028);
+        item = new StreamItem(DefaultTestRunner.application, "fred.mp3");
     }
 
     private long mSampleContentLength;
@@ -75,7 +75,7 @@ public class ScStreamStorageTest {
         item.setContentLength(100);
         storage.writeIndex(item, Arrays.asList(1, 2, 3, 4));
 
-        ScStreamStorage other = new ScStreamStorage(DefaultTestRunner.application, baseDir);
+        StreamStorage other = new StreamStorage(DefaultTestRunner.application, baseDir);
 
         assertThat(other.isMetaDataLoaded(item), is(false));
 

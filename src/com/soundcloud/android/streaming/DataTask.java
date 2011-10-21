@@ -11,7 +11,7 @@ import android.text.TextUtils;
 import java.io.IOException;
 
 class DataTask implements Runnable {
-    ScStreamItem mItem;
+    StreamItem mItem;
     Range mByteRange;
 
     AndroidHttpClient mClient;
@@ -21,12 +21,12 @@ class DataTask implements Runnable {
 
 
 
-    public DataTask(ScStreamItem item){
+    public DataTask(StreamItem item){
         mItem = item;
         mClient = AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
     }
 
-    public DataTask(ScStreamItem item, Range byteRange){
+    public DataTask(StreamItem item, Range byteRange){
         this(item);
         mByteRange = byteRange;
     }

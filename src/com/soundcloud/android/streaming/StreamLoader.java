@@ -13,19 +13,19 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-public class ScStreamLoader {
+public class StreamLoader {
 
     protected NetworkConnectivityListener mConnectivityListener;
     private NetworkInfo mCurrentNetworkInfo;
     protected static final int CONNECTIVITY_MSG = 0;
 
     private Context mContext;
-    private ScStreamStorage mStorage;
-    private List<ScStreamItem> mItemsNeedingHeadRequests;
-    private List<ScStreamItem> mItemsNeedingPlayCountRequests;
+    private StreamStorage mStorage;
+    private List<StreamItem> mItemsNeedingHeadRequests;
+    private List<StreamItem> mItemsNeedingPlayCountRequests;
 
     private int chunkSize;
-    private ScStreamItem mCurrentItem;
+    private StreamItem mCurrentItem;
     private int mCurrentPosition;
 
     private HashSet<PlayerCallback> mPlayerCallbacks;
@@ -42,7 +42,7 @@ public class ScStreamLoader {
     private Handler mResultHandler;
 
 
-    public ScStreamLoader(Context context, ScStreamStorage storage) {
+    public StreamLoader(Context context, StreamStorage storage) {
         mContext = context;
         mStorage = storage;
         chunkSize = storage.chunkSize;
@@ -53,8 +53,8 @@ public class ScStreamLoader {
         mConnectivityListener.registerHandler(mConnHandler, CONNECTIVITY_MSG);
         mConnectivityListener.startListening(context);
 
-        mItemsNeedingHeadRequests = new ArrayList<ScStreamItem>();
-        mItemsNeedingPlayCountRequests = new ArrayList<ScStreamItem>();
+        mItemsNeedingHeadRequests = new ArrayList<StreamItem>();
+        mItemsNeedingPlayCountRequests = new ArrayList<StreamItem>();
 
         mHeadTasks = new HashSet<HeadTask>();
 
@@ -70,7 +70,7 @@ public class ScStreamLoader {
         mResultHandler = new Handler(Looper.getMainLooper());
     }
 
-    public PlayerCallback getDataForItem(ScStreamItem item, Range range) throws IOException {
+    public PlayerCallback getDataForItem(StreamItem item, Range range) throws IOException {
         Log.d(getClass().getSimpleName(), "Get Data for item " + item.toString() + " " + range);
 
         Range chunkRange = range.chunkRange(chunkSize);
@@ -104,7 +104,7 @@ public class ScStreamLoader {
     }
 
 
-    public void storeData(byte[] data, int chunk, ScStreamItem item) {
+    public void storeData(byte[] data, int chunk, StreamItem item) {
         Log.d(getClass().getSimpleName(), "Storing " + data.length + " bytes at index " + chunk + " for item " + item) ;
         mStorage.setData(data, chunk, item);
         fulfillPlayerCallbacks();
@@ -119,7 +119,7 @@ public class ScStreamLoader {
     }
 
 
-    private ByteBuffer fetchStoredDataForItem(ScStreamItem item, Range byteRange) {
+    private ByteBuffer fetchStoredDataForItem(StreamItem item, Range byteRange) {
         Range actualRange = byteRange;
         if (item.getContentLength() != 0){
             actualRange = byteRange.intersection(Range.from(0, (int) item.getContentLength()));
@@ -167,14 +167,14 @@ public class ScStreamLoader {
         if (!isOnline()) return;
 
         if (mItemsNeedingHeadRequests.size() > 0){
-            for (ScStreamItem item : mItemsNeedingHeadRequests){
+            for (StreamItem item : mItemsNeedingHeadRequests){
                 // start head connection for item
             }
             mItemsNeedingHeadRequests.clear();
         }
 
          if (mItemsNeedingPlayCountRequests.size() > 0){
-            for (ScStreamItem item : mItemsNeedingPlayCountRequests){
+            for (StreamItem item : mItemsNeedingPlayCountRequests){
                 // start play count connection for item
             }
             mItemsNeedingPlayCountRequests.clear();
@@ -204,7 +204,7 @@ public class ScStreamLoader {
         }
 
         for (LoadingItem highPriorityItem : mHighPriorityQueue) {
-            ScStreamItem item = highPriorityItem.scStreamItem;
+            StreamItem item = highPriorityItem.scStreamItem;
             if (!item.enabled) {
                 mHighPriorityQueue.remove(highPriorityItem);
             } else if (item.getContentLength() != 0) {
@@ -237,7 +237,7 @@ public class ScStreamLoader {
         if (mLowPriorityQueue.size() == 0) return;
 
         for (LoadingItem lowPriorityItem : mHighPriorityQueue) {
-            ScStreamItem item = lowPriorityItem.scStreamItem;
+            StreamItem item = lowPriorityItem.scStreamItem;
             if (!item.enabled) {
                 mHighPriorityQueue.remove(lowPriorityItem);
             } else if (item.getContentLength() != 0) {
@@ -262,7 +262,7 @@ public class ScStreamLoader {
          */
     }
 
-    private void addItem(ScStreamItem item, Set<Integer> chunks, List<LoadingItem> queue) {
+    private void addItem(StreamItem item, Set<Integer> chunks, List<LoadingItem> queue) {
         if (!item.enabled) {
             Log.e(getClass().getSimpleName(), "Can't add chunks for %@: Item is disabled." + item.getURLHash());
             return;
@@ -283,7 +283,7 @@ public class ScStreamLoader {
         loadingItem.indexes.addAll(chunks);
     }
 
-    private void removeItem(ScStreamItem item, Set<Long> chunks, List<LoadingItem> queue) {
+    private void removeItem(StreamItem item, Set<Long> chunks, List<LoadingItem> queue) {
         LoadingItem loadingItem = null;
         for (LoadingItem candidate : queue) {
             if (candidate.scStreamItem.equals(item)) {
@@ -300,7 +300,7 @@ public class ScStreamLoader {
         }
     }
 
-    private void countPlayForItem(ScStreamItem item) {
+    private void countPlayForItem(StreamItem item) {
         if (item == null) return;
         /*
         TODO request necessary range for a playcount
@@ -313,7 +313,7 @@ public class ScStreamLoader {
     private void fulfillPlayerCallbacks() {
         List<PlayerCallback> fulfilledCallbacks = new ArrayList<PlayerCallback>();
         for (PlayerCallback playerCallback : mPlayerCallbacks) {
-            ScStreamItem item = playerCallback.scStreamItem;
+            StreamItem item = playerCallback.scStreamItem;
             Range chunkRange = playerCallback.byteRange.chunkRange(chunkSize);
             Set<Integer> missingIndexes = mStorage.getMissingChunksForItem(item, chunkRange);
             if (missingIndexes.size() == 0) {
@@ -347,14 +347,14 @@ public class ScStreamLoader {
         }
     };
 
-    private DataTask startDataTask(ScStreamItem item, Range chunkRange){
+    private DataTask startDataTask(StreamItem item, Range chunkRange){
         DataTask dt = new DataTask(item, Range.from(chunkRange.location * chunkSize, chunkRange.length * chunkSize));
         Message msg = mHeadHandler.obtainMessage(item.URL.hashCode(),dt);
         mDataHandler.sendMessage(msg);
         return dt;
     }
 
-    private HeadTask startHeadTask(ScStreamItem item){
+    private HeadTask startHeadTask(StreamItem item){
         if (!item.enabled) {
             Log.i(getClass().getSimpleName(), String.format("Can't start head for %s: Item is disabled." , item));
             return null;
@@ -406,20 +406,20 @@ public class ScStreamLoader {
             return t.getState();
         } catch (ArrayIndexOutOfBoundsException e) {
             // Android 2.2.x seems to throw this exception occasionally
-            Log.w(ScStreamLoader.class.getSimpleName(), e);
+            Log.w(StreamLoader.class.getSimpleName(), e);
             return Thread.State.WAITING;
         }
     }
 
     private static class LoadingItem {
-        ScStreamItem scStreamItem;
+        StreamItem scStreamItem;
         List indexes;
 
-        public LoadingItem(ScStreamItem item) {
+        public LoadingItem(StreamItem item) {
             this.scStreamItem = item;
         }
 
-        public LoadingItem(ScStreamItem scStreamItem, List indexes) {
+        public LoadingItem(StreamItem scStreamItem, List indexes) {
             this(scStreamItem);
             this.indexes = indexes;
         }

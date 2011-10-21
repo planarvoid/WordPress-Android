@@ -6,15 +6,10 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
+
 import com.soundcloud.android.utils.CloudUtils;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-public class ScStreamItem implements Parcelable {
+public class StreamItem implements Parcelable {
 
     public static String SCStreamItemDidResetNotification = "com.soundcloud.android.SCStreamItemDidResetNotification";
 
@@ -26,13 +21,13 @@ public class ScStreamItem implements Parcelable {
     private String mURLHash;
     private long mContentLength;
 
-    public ScStreamItem(Context context, String URL) {
+    public StreamItem(Context context, String URL) {
         if (TextUtils.isEmpty(URL)) throw new IllegalArgumentException();
         mContext = context;
         this.URL = URL;
     }
 
-    public ScStreamItem(Context context, String URL, long length) {
+    public StreamItem(Context context, String URL, long length) {
         this(context, URL);
         setContentLength(length);
     }
@@ -94,7 +89,7 @@ public class ScStreamItem implements Parcelable {
         dest.writeBundle(data);
     }
 
-    public ScStreamItem(Parcel in) {
+    public StreamItem(Parcel in) {
         Bundle data = in.readBundle(getClass().getClassLoader());
         URL = data.getString("URL");
         redirectedURL = data.getString("redirectedURL");
@@ -103,13 +98,13 @@ public class ScStreamItem implements Parcelable {
         mContentLength = data.getLong("contentLength");
     }
 
-    public static final Parcelable.Creator<ScStreamItem> CREATOR = new Parcelable.Creator<ScStreamItem>() {
-        public ScStreamItem createFromParcel(Parcel in) {
-            return new ScStreamItem(in);
+    public static final Parcelable.Creator<StreamItem> CREATOR = new Parcelable.Creator<StreamItem>() {
+        public StreamItem createFromParcel(Parcel in) {
+            return new StreamItem(in);
         }
 
-        public ScStreamItem[] newArray(int size) {
-            return new ScStreamItem[size];
+        public StreamItem[] newArray(int size) {
+            return new StreamItem[size];
         }
     };
 }

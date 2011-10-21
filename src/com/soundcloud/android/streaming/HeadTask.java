@@ -9,7 +9,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import android.util.Log;
 
 class HeadTask extends DataTask {
-    public HeadTask(ScStreamItem item) {
+    public HeadTask(StreamItem item) {
         super(item);
     }
 
@@ -41,7 +41,7 @@ class HeadTask extends DataTask {
         }
     }
 
-    public ScStreamItem getItem() {
+    public StreamItem getItem() {
         return mItem;
     }
 }

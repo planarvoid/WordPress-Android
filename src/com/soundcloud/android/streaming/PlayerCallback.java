@@ -7,12 +7,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class PlayerCallback implements Future<ByteBuffer> {
-    ScStreamItem scStreamItem;
+    StreamItem scStreamItem;
     Range byteRange;
     ByteBuffer byteBuffer;
     boolean ready = false;
 
-    public PlayerCallback(ScStreamItem scStreamItem, Range byteRange) {
+    public PlayerCallback(StreamItem scStreamItem, Range byteRange) {
         this.scStreamItem = scStreamItem;
         this.byteRange = byteRange;
     }

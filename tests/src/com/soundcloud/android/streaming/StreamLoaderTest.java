@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(DefaultTestRunner.class)
-public class ScStreamLoaderTest {
+public class StreamLoaderTest {
     public static final String TEST_MP3 = "fred.mp3";
     public static final int CHUNK_SIZE = 1024;
-    ScStreamLoader loader;
-    ScStreamStorage storage;
-    ScStreamItem item;
+    StreamLoader loader;
+    StreamStorage storage;
+    StreamItem item;
     File baseDir = new File(System.getProperty("java.io.tmpdir"), "storage-test");
     File testFile;
 
@@ -40,9 +40,9 @@ public class ScStreamLoaderTest {
     public void before() {
         CloudUtils.deleteDir(baseDir);
         testFile = new File(getClass().getResource(TEST_MP3).getFile());
-        storage = new ScStreamStorage(DefaultTestRunner.application, baseDir, CHUNK_SIZE);
-        loader = new ScStreamLoader(DefaultTestRunner.application, storage);
-        item = new ScStreamItem(DefaultTestRunner.application, TEST_MP3, testFile.length());
+        storage = new StreamStorage(DefaultTestRunner.application, baseDir, CHUNK_SIZE);
+        loader = new StreamLoader(DefaultTestRunner.application, storage);
+        item = new StreamItem(DefaultTestRunner.application, TEST_MP3, testFile.length());
     }
 
     @Test
