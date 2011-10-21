@@ -30,7 +30,7 @@ public class StreamStorageTest {
     public void before() {
         CloudUtils.deleteDir(baseDir);
         storage = new StreamStorage(DefaultTestRunner.application, baseDir, 1028);
-        item = new StreamItem(DefaultTestRunner.application, "fred.mp3");
+        item = new StreamItem("fred.mp3");
     }
 
     private long mSampleContentLength;
@@ -80,8 +80,8 @@ public class StreamStorageTest {
         assertThat(other.isMetaDataLoaded(item), is(false));
 
         other.readIndex(item);
-        assertThat(other.getIncompleteIndexes().get(item.getURLHash()), hasItems(1, 2, 3, 4));
-        assertThat(other.getIncompleteContentLengths().get(item.getURLHash()), equalTo(100L));
+        assertThat(other.getIncompleteIndexes().get(item), hasItems(1, 2, 3, 4));
+        assertThat(other.getIncompleteContentLengths().get(item), equalTo(100L));
 
         assertThat(other.isMetaDataLoaded(item), is(true));
     }
@@ -102,9 +102,9 @@ public class StreamStorageTest {
 
     @Test
     public void shouldSetContentLength() throws Exception {
-        storage.setContentLength(item.getURLHash(), 2 * storage.chunkSize);
-        assertThat(storage.getIncompleteContentLengths().get(item.getURLHash()), is(2L * storage.chunkSize));
-        assertThat(storage.numberOfChunksForKey(item), is(2L));
+        storage.setContentLength(item, 2 * storage.chunkSize);
+        assertThat(storage.getIncompleteContentLengths().get(item), is(2L * storage.chunkSize));
+        assertThat(storage.numberOfChunksForItem(item), is(2L));
     }
 
     @Test
@@ -189,9 +189,9 @@ public class StreamStorageTest {
             storage.setData(mSampleBuffers.get(aChunkArray), aChunkArray, item);
         }
 
-        assertThat(storage.numberOfChunksForKey(item), is(chunks));
+        assertThat(storage.numberOfChunksForItem(item), is(chunks));
 
-        File assembled = storage.completeFileForKey(item.getURLHash());
+        File assembled = storage.completeFileForItem(item);
         assertThat(mSampleContentLength, is(assembled.length()));
 
         String original = CloudUtils.md5(getClass().getResourceAsStream("fred.mp3"));

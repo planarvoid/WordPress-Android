@@ -39,7 +39,7 @@ class DataTask implements Runnable {
         }
 
         final HttpGet method = new HttpGet(useRedirectedUrl ? mItem.redirectedURL :
-                mItem.URL);
+                mItem.url);
 
         // method.setHeader("Range", "bytes=" + get + "-");
 

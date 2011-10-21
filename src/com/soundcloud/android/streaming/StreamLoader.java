@@ -1,5 +1,7 @@
 package com.soundcloud.android.streaming;
 
+import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
+
 import android.content.Context;
 import android.net.NetworkInfo;
 import android.os.Handler;
@@ -58,11 +60,11 @@ public class StreamLoader {
 
         mHeadTasks = new HashSet<HeadTask>();
 
-        HandlerThread dataThread = new HandlerThread(getClass().getSimpleName(), android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        HandlerThread dataThread = new HandlerThread(getClass().getSimpleName(), THREAD_PRIORITY_BACKGROUND);
         dataThread.start();
         mDataHandler = new StreamHandler(dataThread.getLooper());
 
-        HandlerThread contentLengthThread = new HandlerThread(getClass().getSimpleName(), android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        HandlerThread contentLengthThread = new HandlerThread(getClass().getSimpleName(), THREAD_PRIORITY_BACKGROUND);
         contentLengthThread.start();
         mHeadHandler = new StreamHandler(contentLengthThread.getLooper());
 
@@ -349,7 +351,7 @@ public class StreamLoader {
 
     private DataTask startDataTask(StreamItem item, Range chunkRange){
         DataTask dt = new DataTask(item, Range.from(chunkRange.location * chunkSize, chunkRange.length * chunkSize));
-        Message msg = mHeadHandler.obtainMessage(item.URL.hashCode(),dt);
+        Message msg = mHeadHandler.obtainMessage(item.url.hashCode(),dt);
         mDataHandler.sendMessage(msg);
         return dt;
     }
@@ -372,7 +374,7 @@ public class StreamLoader {
 
         HeadTask ht = new HeadTask(item);
 
-        Message msg = mHeadHandler.obtainMessage(item.URL.hashCode(),ht);
+        Message msg = mHeadHandler.obtainMessage(item.url.hashCode(),ht);
         mHeadHandler.sendMessage(msg);
 
         return ht;
@@ -425,7 +427,7 @@ public class StreamLoader {
         }
 
         public int getWhat() {
-            return scStreamItem.URL.hashCode();
+            return scStreamItem.url.hashCode();
         }
     }
 }

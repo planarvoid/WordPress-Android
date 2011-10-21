@@ -42,7 +42,7 @@ public class StreamLoaderTest {
         testFile = new File(getClass().getResource(TEST_MP3).getFile());
         storage = new StreamStorage(DefaultTestRunner.application, baseDir, CHUNK_SIZE);
         loader = new StreamLoader(DefaultTestRunner.application, storage);
-        item = new StreamItem(DefaultTestRunner.application, TEST_MP3, testFile.length());
+        item = new StreamItem(TEST_MP3, testFile.length());
     }
 
     @Test
