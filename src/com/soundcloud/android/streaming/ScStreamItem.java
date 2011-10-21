@@ -32,6 +32,11 @@ public class ScStreamItem implements Parcelable {
         this.URL = URL;
     }
 
+    public ScStreamItem(Context context, String URL, long length) {
+        this(context, URL);
+        setContentLength(length);
+    }
+
     public void setContentLength(long value){
         if (mContentLength == value) return;
 

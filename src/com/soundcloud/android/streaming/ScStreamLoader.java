@@ -123,7 +123,7 @@ public class ScStreamLoader {
     private ByteBuffer fetchStoredDataForItem(ScStreamItem item, Range byteRange) {
         Range actualRange = byteRange;
         if (item.getContentLength() != 0){
-            actualRange = byteRange.intersection(new Range(0, (int) item.getContentLength()));
+            actualRange = byteRange.intersection(Range.from(0, (int) item.getContentLength()));
         }
 
         if (actualRange == null){
@@ -133,7 +133,7 @@ public class ScStreamLoader {
 
         Range chunkRange = chunkRangeForByteRange(actualRange);
 
-        byte[] data = new byte[(int) (chunkRange.length * chunkSize)];
+        byte[] data = new byte[chunkRange.length * chunkSize];
         final int end = chunkRange.location + chunkRange.length;
         int writeIndex = 0;
         for (int chunkIndex = chunkRange.location; chunkIndex < end; chunkIndex++){
@@ -209,7 +209,7 @@ public class ScStreamLoader {
             if (!item.enabled) {
                 mHighPriorityQueue.remove(highPriorityItem);
             } else if (item.getContentLength() != 0) {
-                Range chunkRange = new Range((Integer) highPriorityItem.indexes.get(0),1);
+                Range chunkRange = Range.from((Integer) highPriorityItem.indexes.get(0),1);
                 mHighPriorityConnection = startDataTask(item,chunkRange);
                         /*
                   highPriorityConnection = [[self startDataConnectionForItem:item range:chunkRange] retain];
@@ -310,7 +310,7 @@ public class ScStreamLoader {
     }
 
     private Range chunkRangeForByteRange(Range byteRange) {
-        return new Range(byteRange.location / chunkSize,
+        return  Range.from(byteRange.location / chunkSize,
                 (int) Math.ceil((double) ((byteRange.location % chunkSize) + byteRange.length) / (double) chunkSize));
     }
 
@@ -354,7 +354,7 @@ public class ScStreamLoader {
     };
 
     private DataTask startDataTask(ScStreamItem item, Range chunkRange){
-        DataTask dt = new DataTask(item, new Range(chunkRange.location * chunkSize,chunkRange.length * chunkSize));
+        DataTask dt = new DataTask(item, Range.from(chunkRange.location * chunkSize,chunkRange.length * chunkSize));
         Message msg = mHeadHandler.obtainMessage(item.URL.hashCode(),dt);
         mDataHandler.sendMessage(msg);
         return dt;

@@ -1,108 +1,92 @@
 package com.soundcloud.android.streaming;
 
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.Range;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.regex.Matcher;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.hasItems;
+import java.util.List;
+import java.util.Map;
 
 @RunWith(DefaultTestRunner.class)
 public class ScStreamLoaderTest {
+    public static final String TEST_MP3 = "fred.mp3";
+    public static final int CHUNK_SIZE = 1024;
     ScStreamLoader loader;
     ScStreamStorage storage;
     ScStreamItem item;
     File baseDir = new File(System.getProperty("java.io.tmpdir"), "storage-test");
+    File testFile;
 
-    private long mSampleContentLength;
-    private LinkedHashMap<Integer, byte[]> mSampleBuffers;
-    private ArrayList<Integer> mSampleChunkIndexes;
+    private Map<Integer, byte[]> mSampleBuffers = new LinkedHashMap<Integer, byte[]>();
+    private List<Integer> mSampleChunkIndexes = new ArrayList<Integer>();
 
     @Before
     public void before() {
         CloudUtils.deleteDir(baseDir);
-
-        storage = new ScStreamStorage(DefaultTestRunner.application, baseDir, 1024);
+        testFile = new File(getClass().getResource(TEST_MP3).getFile());
+        storage = new ScStreamStorage(DefaultTestRunner.application, baseDir, CHUNK_SIZE);
         loader = new ScStreamLoader(DefaultTestRunner.application, storage);
-        item = new ScStreamItem(DefaultTestRunner.application, "fred.mp3");
+        item = new ScStreamItem(DefaultTestRunner.application, TEST_MP3, testFile.length());
     }
 
+    @Test
+    public void shouldGetAChunkFromStorage() throws Exception {
+        setupChunkArray();
+        loader.storeData(mSampleBuffers.get(0), 0, item);
+        ByteBuffer actual = loader.getDataForItem(item, Range.from(0, CHUNK_SIZE)).get();
+        ByteBuffer expected = readToByteBuffer(testFile, CHUNK_SIZE);
 
-    private long setupChunkArray() throws IOException {
+        assertThat(actual, equalTo(expected));
+    }
 
-         InputStream inputStream = getClass().getResourceAsStream("fred.mp3");
-         mSampleContentLength = new File(getClass().getResource("fred.mp3").getFile()).length();
+    @Test
+    public void shouldGetAllBytesFromStorage() throws Exception {
+        setupChunkArray();
+        Collections.shuffle(mSampleChunkIndexes);
 
-         long chunks = 0;
-         mSampleBuffers = new LinkedHashMap<Integer, byte[]>();
-         mSampleChunkIndexes = new ArrayList<Integer>();
-         do {
-             byte[] buffer = new byte[storage.chunkSize];
-             if (inputStream.read(buffer) == -1) {
-                 break;
-             } else {
-                 mSampleBuffers.put((int) chunks, buffer);
-                 mSampleChunkIndexes.add((int) chunks);
-                 chunks++;
-             }
-         } while (true);
+        for (Integer mSampleChunkIndexe : mSampleChunkIndexes) {
+            loader.storeData(mSampleBuffers.get(mSampleChunkIndexe), mSampleChunkIndexe, item);
+        }
+        assertThat(loader.getDataForItem(item, Range.from(0, testFile.length())).get(), equalTo(readToByteBuffer(testFile, (int) testFile.length())));
+    }
+
+    private int setupChunkArray() throws IOException {
+        InputStream is = getClass().getResourceAsStream(TEST_MP3);
+        assert is instanceof BufferedInputStream;
+        byte[] buffer = new byte[CHUNK_SIZE];
+        int chunks = 0;
+        while (is.read(buffer, 0, buffer.length) != -1) {
+            byte[] copy = new byte[buffer.length];
+            System.arraycopy(buffer, 0, copy, 0, buffer.length);
+            mSampleBuffers.put(chunks, copy);
+            mSampleChunkIndexes.add(chunks);
+            chunks++;
+        }
         return chunks;
     }
 
-    static ByteBuffer readToByteBuffer(InputStream inStream, int toRead) throws IOException {
-        byte[] buffer = new byte[1024];
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream(1024);
-        int read;
-
-        while (true) {
-            if (toRead < buffer.length){
-                read = inStream.read(buffer,0,toRead);
-            } else {
-                read = inStream.read(buffer);
-            }
-
-            if (read == -1)break;
-            outStream.write(buffer, 0, read);
-            toRead -= read;
-            if (toRead <= 0) break;
-        }
-        return ByteBuffer.wrap(outStream.toByteArray());
+    static ByteBuffer readToByteBuffer(File f, int toRead) throws IOException {
+        ByteBuffer b = ByteBuffer.allocate(toRead);
+        FileChannel fc = new FileInputStream(f).getChannel();
+        fc.read(b);
+        b.flip();
+        return b;
     }
-
-     @Test
-     public void shouldGetAChunkFromStorage() throws Exception {
-         setupChunkArray();
-         item.setContentLength(mSampleContentLength);
-         loader.storeData(mSampleBuffers.get(0), 0, item);
-         assertThat(loader.getDataForItem(item,new Range(0, 1024)).get(), equalTo(readToByteBuffer(getClass().getResourceAsStream("fred.mp3"), 1024)));
-     }
-
-     @Test
-     public void shouldGetAllBytesFromStorage() throws Exception {
-         setupChunkArray();
-         item.setContentLength(mSampleContentLength);
-         Collections.shuffle(mSampleChunkIndexes);
-
-         for (Integer mSampleChunkIndexe : mSampleChunkIndexes) {
-             loader.storeData(mSampleBuffers.get(mSampleChunkIndexe), mSampleChunkIndexe, item);
-         }
-
-         assertThat(loader.getDataForItem(item,new Range(0, (int) mSampleContentLength)).get(), equalTo(readToByteBuffer(getClass().getResourceAsStream("fred.mp3"), (int) mSampleContentLength)));
-     }
-
-
 }
