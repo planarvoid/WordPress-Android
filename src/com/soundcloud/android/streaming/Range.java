@@ -1,4 +1,4 @@
-package com.soundcloud.android.utils;
+package com.soundcloud.android.streaming;
 
 import android.os.Bundle;
 import android.os.Parcel;
@@ -8,22 +8,26 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Range implements Parcelable {
+    public final int location;
+    public final int length;
 
-    public Range(int start, int length) {
+    /* private */ Range(int start, int length) {
+        if (start < 0) throw new IllegalArgumentException("start must be >=0");
+        if (length <= 0) throw new IllegalArgumentException("length must be >0");
+
         this.location = start;
         this.length = length;
     }
 
-    public int location;
-    public int length;
-
-    public String toString() {
-        return "Range{location: " + location +
-                ", length:" + length +
-                "}";
+    public static Range from(int start, int length) {
+        return new Range(start, length);
     }
 
-    public HashSet<Integer> toIndexSet() {
+    public static Range from(long start, long length) {
+        return new Range((int)start, (int)length);
+    }
+
+    public Set<Integer> toIndexSet() {
         HashSet<Integer> indexSet = new HashSet<Integer>();
         for (int i = location; i < length; i++) {
             indexSet.add(location);
@@ -42,6 +46,17 @@ public class Range implements Parcelable {
             return new Range(low, high - low);
         }
         return null;
+    }
+
+    public String toString() {
+        return "Range{location: " + location +
+                ", length:" + length +
+                "}";
+    }
+
+    public Range chunkRange(int chunkSize) {
+       return Range.from(location / chunkSize,
+            (int) Math.ceil((double) ((location % chunkSize) + length) / (double) chunkSize));
     }
 
     @Override

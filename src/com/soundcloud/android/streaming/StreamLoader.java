@@ -1,45 +1,33 @@
 package com.soundcloud.android.streaming;
 
+import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
+
 import android.content.Context;
 import android.net.NetworkInfo;
-import android.net.http.AndroidHttpClient;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
-import com.soundcloud.android.utils.Range;
-import com.soundcloud.api.CloudAPI;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpUriRequest;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-public class ScStreamLoader {
+public class StreamLoader {
 
     protected NetworkConnectivityListener mConnectivityListener;
     private NetworkInfo mCurrentNetworkInfo;
     protected static final int CONNECTIVITY_MSG = 0;
 
     private Context mContext;
-    private ScStreamStorage mStorage;
-    private List<ScStreamItem> mItemsNeedingHeadRequests;
-    private List<ScStreamItem> mItemsNeedingPlayCountRequests;
+    private StreamStorage mStorage;
+    private List<StreamItem> mItemsNeedingHeadRequests;
+    private List<StreamItem> mItemsNeedingPlayCountRequests;
 
     private int chunkSize;
-    private ScStreamItem mCurrentItem;
+    private StreamItem mCurrentItem;
     private int mCurrentPosition;
 
     private HashSet<PlayerCallback> mPlayerCallbacks;
@@ -56,7 +44,7 @@ public class ScStreamLoader {
     private Handler mResultHandler;
 
 
-    public ScStreamLoader(Context context, ScStreamStorage storage) {
+    public StreamLoader(Context context, StreamStorage storage) {
         mContext = context;
         mStorage = storage;
         chunkSize = storage.chunkSize;
@@ -67,36 +55,27 @@ public class ScStreamLoader {
         mConnectivityListener.registerHandler(mConnHandler, CONNECTIVITY_MSG);
         mConnectivityListener.startListening(context);
 
-        mItemsNeedingHeadRequests = new ArrayList<ScStreamItem>();
-        mItemsNeedingPlayCountRequests = new ArrayList<ScStreamItem>();
+        mItemsNeedingHeadRequests = new ArrayList<StreamItem>();
+        mItemsNeedingPlayCountRequests = new ArrayList<StreamItem>();
 
         mHeadTasks = new HashSet<HeadTask>();
 
-        HandlerThread dataThread = new HandlerThread(getClass().getSimpleName(), android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        HandlerThread dataThread = new HandlerThread(getClass().getSimpleName(), THREAD_PRIORITY_BACKGROUND);
         dataThread.start();
         mDataHandler = new StreamHandler(dataThread.getLooper());
 
-        HandlerThread contentLengthThread = new HandlerThread(getClass().getSimpleName(), android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        HandlerThread contentLengthThread = new HandlerThread(getClass().getSimpleName(), THREAD_PRIORITY_BACKGROUND);
         contentLengthThread.start();
         mHeadHandler = new StreamHandler(contentLengthThread.getLooper());
 
 
         mResultHandler = new Handler(Looper.getMainLooper());
-
-
     }
 
-    public void cleanup(){
-        mConnectivityListener.stopListening();
-               mConnectivityListener.unregisterHandler(mConnHandler);
-               mConnectivityListener = null;
+    public PlayerCallback getDataForItem(StreamItem item, Range range) throws IOException {
+        Log.d(getClass().getSimpleName(), "Get Data for item " + item.toString() + " " + range);
 
-    }
-
-    /* package */ PlayerCallback getDataForItem(ScStreamItem item, Range byteRange) throws IOException {
-        Log.d(getClass().getSimpleName(), "Get Data for item " + item.toString() + " " + byteRange);
-
-        Range chunkRange = chunkRangeForByteRange(byteRange);
+        Range chunkRange = range.chunkRange(chunkSize);
         Set<Integer> missingChunksForRange = mStorage.getMissingChunksForItem(item, chunkRange);
 
         //If the current item changes
@@ -110,26 +89,42 @@ public class ScStreamLoader {
         }
 
         mCurrentItem = item;
-        mCurrentPosition = byteRange.location;
+        mCurrentPosition = range.location;
 
-        PlayerCallback pc = new PlayerCallback(item,byteRange);
+        PlayerCallback pc = new PlayerCallback(item, range);
 
         if (missingChunksForRange.size() > 0) {
-            mPlayerCallbacks.add(new PlayerCallback(item, byteRange));
+            mPlayerCallbacks.add(new PlayerCallback(item, range));
             addItem(item, missingChunksForRange, mHighPriorityQueue);
             updateLowPriorityQueue();
             processQueues();
         } else {
             Log.d(getClass().getSimpleName(), "Serving item from storage");
-            pc.setByteBuffer(fetchStoredDataForItem(item,byteRange));
+            pc.setByteBuffer(fetchStoredDataForItem(item, range));
         }
         return pc;
     }
 
-    private ByteBuffer fetchStoredDataForItem(ScStreamItem item, Range byteRange) {
+
+    public void storeData(byte[] data, int chunk, StreamItem item) {
+        Log.d(getClass().getSimpleName(), "Storing " + data.length + " bytes at index " + chunk + " for item " + item) ;
+        mStorage.setData(data, chunk, item);
+        fulfillPlayerCallbacks();
+    }
+
+
+    public void cleanup() {
+        mConnectivityListener.stopListening();
+        mConnectivityListener.unregisterHandler(mConnHandler);
+        mConnectivityListener = null;
+
+    }
+
+
+    private ByteBuffer fetchStoredDataForItem(StreamItem item, Range byteRange) {
         Range actualRange = byteRange;
         if (item.getContentLength() != 0){
-            actualRange = byteRange.intersection(new Range(0, (int) item.getContentLength()));
+            actualRange = byteRange.intersection(Range.from(0, (int) item.getContentLength()));
         }
 
         if (actualRange == null){
@@ -137,9 +132,9 @@ public class ScStreamLoader {
             return null;
         }
 
-        Range chunkRange = chunkRangeForByteRange(actualRange);
+        Range chunkRange = actualRange.chunkRange(chunkSize);
 
-        byte[] data = new byte[(int) (chunkRange.length * chunkSize)];
+        byte[] data = new byte[chunkRange.length * chunkSize];
         final int end = chunkRange.location + chunkRange.length;
         int writeIndex = 0;
         for (int chunkIndex = chunkRange.location; chunkIndex < end; chunkIndex++){
@@ -174,14 +169,14 @@ public class ScStreamLoader {
         if (!isOnline()) return;
 
         if (mItemsNeedingHeadRequests.size() > 0){
-            for (ScStreamItem item : mItemsNeedingHeadRequests){
+            for (StreamItem item : mItemsNeedingHeadRequests){
                 // start head connection for item
             }
             mItemsNeedingHeadRequests.clear();
         }
 
          if (mItemsNeedingPlayCountRequests.size() > 0){
-            for (ScStreamItem item : mItemsNeedingPlayCountRequests){
+            for (StreamItem item : mItemsNeedingPlayCountRequests){
                 // start play count connection for item
             }
             mItemsNeedingPlayCountRequests.clear();
@@ -211,11 +206,11 @@ public class ScStreamLoader {
         }
 
         for (LoadingItem highPriorityItem : mHighPriorityQueue) {
-            ScStreamItem item = highPriorityItem.scStreamItem;
+            StreamItem item = highPriorityItem.scStreamItem;
             if (!item.enabled) {
                 mHighPriorityQueue.remove(highPriorityItem);
             } else if (item.getContentLength() != 0) {
-                Range chunkRange = new Range((Integer) highPriorityItem.indexes.get(0),1);
+                Range chunkRange = Range.from((Integer) highPriorityItem.indexes.get(0), 1);
                 mHighPriorityConnection = startDataTask(item,chunkRange);
                         /*
                   highPriorityConnection = [[self startDataConnectionForItem:item range:chunkRange] retain];
@@ -244,7 +239,7 @@ public class ScStreamLoader {
         if (mLowPriorityQueue.size() == 0) return;
 
         for (LoadingItem lowPriorityItem : mHighPriorityQueue) {
-            ScStreamItem item = lowPriorityItem.scStreamItem;
+            StreamItem item = lowPriorityItem.scStreamItem;
             if (!item.enabled) {
                 mHighPriorityQueue.remove(lowPriorityItem);
             } else if (item.getContentLength() != 0) {
@@ -269,7 +264,7 @@ public class ScStreamLoader {
          */
     }
 
-    private void addItem(ScStreamItem item, Set<Integer> chunks, List<LoadingItem> queue) {
+    private void addItem(StreamItem item, Set<Integer> chunks, List<LoadingItem> queue) {
         if (!item.enabled) {
             Log.e(getClass().getSimpleName(), "Can't add chunks for %@: Item is disabled." + item.getURLHash());
             return;
@@ -290,7 +285,7 @@ public class ScStreamLoader {
         loadingItem.indexes.addAll(chunks);
     }
 
-    private void removeItem(ScStreamItem item, Set<Long> chunks, List<LoadingItem> queue) {
+    private void removeItem(StreamItem item, Set<Long> chunks, List<LoadingItem> queue) {
         LoadingItem loadingItem = null;
         for (LoadingItem candidate : queue) {
             if (candidate.scStreamItem.equals(item)) {
@@ -307,7 +302,7 @@ public class ScStreamLoader {
         }
     }
 
-    private void countPlayForItem(ScStreamItem item) {
+    private void countPlayForItem(StreamItem item) {
         if (item == null) return;
         /*
         TODO request necessary range for a playcount
@@ -315,22 +310,13 @@ public class ScStreamLoader {
          */
     }
 
-    private Range chunkRangeForByteRange(Range byteRange) {
-        return new Range(byteRange.location / chunkSize,
-                (int) Math.ceil((double) ((byteRange.location % chunkSize) + byteRange.length) / (double) chunkSize));
-    }
 
-    /* package */ void storeData(byte[] data, int chunk, ScStreamItem item) {
-        Log.d(getClass().getSimpleName(), "Storing " + data.length + " bytes at index " + chunk + " for item " + item) ;
-        mStorage.setData(data,chunk,item);
-        fulfillPlayerCallbacks();
-    }
 
     private void fulfillPlayerCallbacks() {
-        ArrayList<PlayerCallback> fulfilledCallbacks = new ArrayList<PlayerCallback>();
+        List<PlayerCallback> fulfilledCallbacks = new ArrayList<PlayerCallback>();
         for (PlayerCallback playerCallback : mPlayerCallbacks) {
-            ScStreamItem item = playerCallback.scStreamItem;
-            Range chunkRange = chunkRangeForByteRange(playerCallback.byteRange);
+            StreamItem item = playerCallback.scStreamItem;
+            Range chunkRange = playerCallback.byteRange.chunkRange(chunkSize);
             Set<Integer> missingIndexes = mStorage.getMissingChunksForItem(item, chunkRange);
             if (missingIndexes.size() == 0) {
                 fulfilledCallbacks.add(playerCallback);
@@ -343,7 +329,6 @@ public class ScStreamLoader {
                 playerCallback.setByteBuffer(storedData);
                 mPlayerCallbacks.remove(playerCallback);
             }
-
         }
     }
 
@@ -364,135 +349,14 @@ public class ScStreamLoader {
         }
     };
 
-    /* package */ class PlayerCallback implements Future<ByteBuffer>{
-        ScStreamItem scStreamItem;
-        Range byteRange;
-        ByteBuffer byteBuffer;
-        boolean ready = false;
-
-        public PlayerCallback(ScStreamItem scStreamItem, Range byteRange) {
-            this.scStreamItem = scStreamItem;
-            this.byteRange = byteRange;
-        }
-
-        public void setByteBuffer(ByteBuffer byteBuffer){
-            this.byteBuffer = byteBuffer;
-            ready = true;
-            synchronized (this) {
-                notifyAll();
-            }
-        }
-
-        @Override
-        public boolean cancel(boolean b) {
-            return false;
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return false;
-        }
-
-        @Override
-        public boolean isDone() {
-            return ready;
-        }
-
-        @Override
-        public ByteBuffer get() throws InterruptedException, ExecutionException {
-            synchronized (this) {
-            while (!ready) {
-                try {wait(); } catch (InterruptedException e) { return null; }
-            }
-            }
-            return byteBuffer;
-        }
-
-        @Override
-        public ByteBuffer get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
-            return byteBuffer;
-        }
-    }
-
-    private class LoadingItem {
-        ScStreamItem scStreamItem;
-        List indexes;
-
-        public LoadingItem(ScStreamItem item) {
-            this.scStreamItem = item;
-        }
-
-        public LoadingItem(ScStreamItem scStreamItem, List indexes) {
-            this(scStreamItem);
-            this.indexes = indexes;
-        }
-
-        public int getWhat() {
-            return scStreamItem.URL.hashCode();
-        }
-    }
-
-    private DataTask startDataTask(ScStreamItem item, Range chunkRange){
-        DataTask dt = new DataTask(item, new Range(chunkRange.location * chunkSize,chunkRange.length * chunkSize));
-        Message msg = mHeadHandler.obtainMessage(item.URL.hashCode(),dt);
+    private DataTask startDataTask(StreamItem item, Range chunkRange){
+        DataTask dt = new DataTask(item, Range.from(chunkRange.location * chunkSize, chunkRange.length * chunkSize));
+        Message msg = mHeadHandler.obtainMessage(item.url.hashCode(),dt);
         mDataHandler.sendMessage(msg);
         return dt;
     }
 
-    private class DataTask implements Runnable {
-        ScStreamItem mItem;
-        Range mByteRange;
-
-        AndroidHttpClient mClient;
-        HttpResponse mResponse;
-
-        public boolean executed = false;
-
-
-
-        public DataTask(ScStreamItem item){
-            mItem = item;
-            mClient = AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
-        }
-
-        public DataTask(ScStreamItem item, Range byteRange){
-            this(item);
-            mByteRange = byteRange;
-        }
-
-        protected HttpUriRequest buildRequest(){
-
-            boolean useRedirectedUrl = false;
-            if (!TextUtils.isEmpty(mItem.redirectedURL) && !(mByteRange.location == 0)){
-                useRedirectedUrl = true;
-            }
-
-            final HttpGet method = new HttpGet(useRedirectedUrl ? mItem.redirectedURL :
-                    mItem.URL);
-
-            // method.setHeader("Range", "bytes=" + get + "-");
-
-            return null;
-        }
-
-        public boolean execute() {
-            try {
-                mResponse = mClient.execute(buildRequest());
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            executed = true;
-            return false;
-        }
-
-        @Override
-        public void run() {
-
-        }
-    }
-
-    private HeadTask startHeadTask(ScStreamItem item){
+    private HeadTask startHeadTask(StreamItem item){
         if (!item.enabled) {
             Log.i(getClass().getSimpleName(), String.format("Can't start head for %s: Item is disabled." , item));
             return null;
@@ -510,52 +374,11 @@ public class ScStreamLoader {
 
         HeadTask ht = new HeadTask(item);
 
-        Message msg = mHeadHandler.obtainMessage(item.URL.hashCode(),ht);
+        Message msg = mHeadHandler.obtainMessage(item.url.hashCode(),ht);
         mHeadHandler.sendMessage(msg);
 
         return ht;
     }
-
-
-
-    private class HeadTask extends DataTask {
-        public HeadTask(ScStreamItem item) {
-            super(item);
-        }
-
-        @Override
-        protected HttpUriRequest buildRequest(){
-           return new HttpHead(mItem.redirectedURL);
-        }
-
-        @Override
-        public void run() {
-            if (mResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.i(getClass().getSimpleName(), "invalid status received: " + mResponse.getStatusLine().toString());
-            } else {
-                mItem.setContentLength(getContentLength(mResponse));
-            }
-            mHeadTasks.remove(this);
-        }
-
-        private long getContentLength(HttpResponse resp) {
-            Header h = resp.getFirstHeader("Content-Length");
-            if (h != null) {
-                try {
-                    return Long.parseLong(h.getValue());
-                } catch (NumberFormatException e) {
-                    return -1;
-                }
-            } else {
-                return -1;
-            }
-        }
-
-        public ScStreamItem getItem() {
-            return mItem;
-        }
-    }
-
 
 
     // request pipeline
@@ -585,9 +408,26 @@ public class ScStreamLoader {
             return t.getState();
         } catch (ArrayIndexOutOfBoundsException e) {
             // Android 2.2.x seems to throw this exception occasionally
-            Log.w(ScStreamLoader.class.getSimpleName(), e);
+            Log.w(StreamLoader.class.getSimpleName(), e);
             return Thread.State.WAITING;
         }
     }
 
+    private static class LoadingItem {
+        StreamItem scStreamItem;
+        List indexes;
+
+        public LoadingItem(StreamItem item) {
+            this.scStreamItem = item;
+        }
+
+        public LoadingItem(StreamItem scStreamItem, List indexes) {
+            this(scStreamItem);
+            this.indexes = indexes;
+        }
+
+        public int getWhat() {
+            return scStreamItem.url.hashCode();
+        }
+    }
 }

@@ -167,6 +167,29 @@ Good:
 
     public boolean isFooEnabled() { }
 
+## Inner classes
+
+Only use when appropriate (small classes) - avoid non-static innerclasses if possible.
+
+## public, then private
+
+Public methods should be at the top of the source code, followed by package and
+private methods.
+
+```java
+public void doSomething() {
+  internalMethod();
+}
+
+public void anotherPublicMethod() {
+}
+
+private void internalMethod() {
+}
+```
+
 
 [Code Style Guidelines for Contributors]: http://source.android.com/source/code-style.html
 [The Final Word on the final keyword]: http://renaud.waldura.com/doc/java/final-keyword.shtml
+
+

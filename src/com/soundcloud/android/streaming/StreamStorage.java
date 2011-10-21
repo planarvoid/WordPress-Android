@@ -5,17 +5,16 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.utils.Range;
 
 import java.io.*;
 import java.util.*;
 
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
-public class ScStreamStorage {
+/** @noinspection ResultOfMethodCallIgnored*/
+public class StreamStorage {
     private static final int DEFAULT_CHUNK_SIZE = 128*1024;
     private static final int CLEANUP_INTERVAL = 20;
 
@@ -25,59 +24,52 @@ public class ScStreamStorage {
     private File mBaseDir, mCompleteDir, mIncompleteDir;
     private long mUsedSpace, mSpaceLeft;
 
-    private Map<String, Long>  mIncompleteContentLengths;
-    private Map<String, List<Integer>> mIncompleteIndexes;
+    private Map<StreamItem, Long>  mIncompleteContentLengths = new HashMap<StreamItem, Long>();
+    private Map<StreamItem, List<Integer>> mIncompleteIndexes =  new HashMap<StreamItem, List<Integer>>();
+    private List<StreamItem> mConvertingItems = new ArrayList<StreamItem>();
 
-    private ArrayList<String> mConvertingKeys;
-
-    public ScStreamStorage(Context context, File basedir) {
+    public StreamStorage(Context context, File basedir) {
         this(context,basedir,DEFAULT_CHUNK_SIZE);
     }
 
-    public ScStreamStorage(Context context, File basedir, int chunkSize) {
+    public StreamStorage(Context context, File basedir, int chunkSize) {
         mContext = context;
         mBaseDir = basedir;
         mIncompleteDir = new File(mBaseDir,"Incomplete");
         mCompleteDir = new File(mBaseDir,"Complete");
 
-        mIncompleteContentLengths = new HashMap<String, Long>();
-        mIncompleteIndexes = new HashMap<String, List<Integer>>();
-
         mkdirs(mIncompleteDir);
         mkdirs(mCompleteDir);
 
         this.chunkSize = chunkSize;
-
-        mConvertingKeys = new ArrayList<String>();
     }
 
-    public boolean setData(byte[] data, int chunkIndex, ScStreamItem item) {
+    public boolean setData(byte[] data, int chunkIndex, final StreamItem item) {
         if (data == null) return false;
         if (item.getContentLength() == 0) {
             Log.d(getClass().getSimpleName(), "Not Storing Data. Content Length is Zero.");
             return false;
         }
 
-        final String key = item.getURLHash();
-        setContentLength(key, item.getContentLength());
+        setContentLength(item, item.getContentLength());
 
         //Do not add to complete files
-        if (completeFileForKey(key).exists()) return false;
+        if (completeFileForItem(item).exists()) return false;
 
         //Prepare incomplete file
-        ensureMetadataIsLoadedForKey(item);
+        ensureMetadataIsLoadedForItem(item);
 
-        List<Integer> indexes = mIncompleteIndexes.get(key);
+        List<Integer> indexes = mIncompleteIndexes.get(item);
 
         if (indexes == null) {
             indexes = new ArrayList<Integer>();
-            mIncompleteIndexes.put(key, indexes);
+            mIncompleteIndexes.put(item, indexes);
         }
 
         //return if it's already in store
         if (indexes.contains(chunkIndex)) return false;
 
-        final File incompleteFile = incompleteFileForKey(key);
+        final File incompleteFile = incompleteFileForItem(item);
         // always write chunk size even if it isn't a complete chunk (for offsetting I think)
         if (data.length != chunkSize){
             data = Arrays.copyOf(data, chunkSize);
@@ -87,10 +79,14 @@ public class ScStreamStorage {
         try {
             fos = new FileOutputStream(incompleteFile, true);
             fos.write(data);
-            fos.close();
         } catch (IOException e) {
             Log.i(getClass().getSimpleName(), "Error storing chunk data ", e);
             return false;
+        } finally {
+            if (fos!=null) try {
+                fos.close();
+            } catch (IOException ignored) {
+            }
         }
 
         //Add Index and save it
@@ -104,9 +100,9 @@ public class ScStreamStorage {
         }
 
 
-        if (indexes.size() == numberOfChunksForKey(item)){
-            mConvertingKeys.add(key);
-            new ConvertFileToComplete(key, indexes).execute(incompleteFile, completeFileForKey(key));
+        if (indexes.size() == numberOfChunksForItem(item)){
+            mConvertingItems.add(item);
+            new ConvertFileToComplete(item, indexes).execute(incompleteFile, completeFileForItem(item));
         }
 
         //Update the number of writes, cleanup if necessary
@@ -114,16 +110,15 @@ public class ScStreamStorage {
         final int currentCount = prefs.getInt("streamingWritesSinceCleanup", 0) + 1;
         prefs.edit().putInt("streamingWritesSinceCleanup",currentCount).commit();
 
-        /*if (currentCount >= CLEANUP_INTERVAL) {
-            calculateFileMetrics();
-            cleanup();
-        }*/
+//        if (currentCount >= CLEANUP_INTERVAL) {
+//            calculateFileMetrics();
+//            cleanup();
+//        }
         return true;
     }
 
     private void cleanup() {
-
-        if (mConvertingKeys.size() > 0) {
+        if (mConvertingItems.size() > 0) {
             Log.d(getClass().getSimpleName(), "Not doing storage cleanup, conversion is going on");
             return;
         }
@@ -172,28 +167,25 @@ public class ScStreamStorage {
         Log.d(getClass().getSimpleName(), "[File Metrics] used: " + mUsedSpace + " , free: " + mSpaceLeft);
     }
 
-    /* package */ void setContentLength(String key, long contentLength) {
-        if (TextUtils.isEmpty(key)){
-            Log.e(getClass().getSimpleName(),"No key provided for setting content length");
-        }
-        if (contentLength != contentLengthForKey(key)) {
-            if (contentLengthForKey(key) != 0) {
-                removeAllDataForKey(key);
+    /* package */ void setContentLength(StreamItem item, long contentLength) {
+
+        if (contentLength != contentLengthForItem(item)) {
+            if (contentLengthForItem(item) != 0) {
+                removeAllDataForItem(item);
             }
-            mIncompleteContentLengths.put(key, contentLength);
+            mIncompleteContentLengths.put(item, contentLength);
         }
     }
 
-    public Set<Integer> getMissingChunksForItem(ScStreamItem item, Range chunkRange) {
+    public Set<Integer> getMissingChunksForItem(StreamItem item, Range chunkRange) {
         resetDataIfNecessary(item);
-        String key = item.getURLHash();
 
         //If the complete file exists
-        if (completeFileForKey(key).exists()) {
+        if (completeFileForItem(item).exists()) {
             return Collections.emptySet();
         }
-        ensureMetadataIsLoadedForKey(item);
-        long contentLength = getContentLengthForKey(key);
+        ensureMetadataIsLoadedForItem(item);
+        long contentLength = getContentLengthForItem(item);
 
         //We have no idea about track size, so let's assume that all chunks are missing
         if (contentLength == 0) {
@@ -201,7 +193,7 @@ public class ScStreamStorage {
         }
 
         long lastChunk = (long) Math.ceil((double) contentLength / (double) chunkSize) - 1;
-        final List<Integer> allIncompleteIndexes = mIncompleteIndexes.get(key);
+        final List<Integer> allIncompleteIndexes = mIncompleteIndexes.get(item);
         HashSet<Integer> missingIndexes = new HashSet<Integer>();
         for (int chunk = chunkRange.location; chunk < chunkRange.end(); chunk++) {
             if (!allIncompleteIndexes.contains(chunk) && chunk <= lastChunk){
@@ -211,14 +203,14 @@ public class ScStreamStorage {
         return missingIndexes;
     }
 
-    private void ensureMetadataIsLoadedForKey(ScStreamItem item) {
-        if (!isMetaDataLoaded(item) && !completeFileForKey(item).exists()) {
+    private void ensureMetadataIsLoadedForItem(StreamItem item) {
+        if (!isMetaDataLoaded(item) && !completeFileForItem(item).exists()) {
             readIndex(item);
         }
     }
 
-    /* package */ void writeIndex(ScStreamItem item, List<Integer> indexes) throws IOException {
-        File indexFile = incompleteIndexFileForKey(item.getURLHash());
+    /* package */ void writeIndex(StreamItem item, List<Integer> indexes) throws IOException {
+        File indexFile = incompleteIndexFileForItem(item);
         if (indexFile.exists()) {
             indexFile.delete();
         }
@@ -230,20 +222,19 @@ public class ScStreamStorage {
         din.close();
     }
 
-    /* package */ void readIndex(ScStreamItem item) {
-        String key = item.getURLHash();
-        File indexFile = incompleteIndexFileForKey(key);
+    /* package */ void readIndex(StreamItem item) {
+        File indexFile = incompleteIndexFileForItem(item);
         if (indexFile.exists()) {
             try {
                 DataInputStream din = new DataInputStream(new BufferedInputStream(new FileInputStream(indexFile)));
-                mIncompleteContentLengths.put(key, din.readLong());
+                mIncompleteContentLengths.put(item, din.readLong());
 
                 int count = (int) (indexFile.length() / 4) - 2;
                 ArrayList<Integer> indexes = new ArrayList<Integer>();
                 for (int i = 0; i < count; i++) {
                     indexes.add(din.readInt());
                 }
-                mIncompleteIndexes.put(key, indexes);
+                mIncompleteIndexes.put(item, indexes);
 
             } catch (IOException e) {
                 Log.e(getClass().getSimpleName(), e.getMessage(), e);
@@ -251,69 +242,55 @@ public class ScStreamStorage {
         }
     }
 
-    /* package */ boolean isMetaDataLoaded(ScStreamItem key) {
-        return mIncompleteContentLengths.get(key.getURLHash()) != null && mIncompleteIndexes.get(key.getURLHash()) != null;
+    /* package */ boolean isMetaDataLoaded(StreamItem key) {
+        return mIncompleteContentLengths.get(key) != null && mIncompleteIndexes.get(key) != null;
     }
 
-    private long contentLengthForKey(ScStreamItem key) {
-        return contentLengthForKey(key.getURLHash());
-    }
 
-    private long contentLengthForKey(String key) {
-        final File completeFile = completeFileForKey(key);
+    private long contentLengthForItem(StreamItem key) {
+        final File completeFile = completeFileForItem(key);
         if (completeFile.exists()) return completeFile.length();
         return mIncompleteContentLengths.containsKey(key) ? mIncompleteContentLengths.get(key) : 0;
     }
 
-    private File completeFileForKey(ScStreamItem key){
-        return completeFileForKey(key.getURLHash());
+    /* package */ File completeFileForItem(StreamItem key) {
+        return new File(mCompleteDir, key.getURLHash());
+    }
+
+    /* package */ File incompleteFileForItem(StreamItem key){
+        return new File(mIncompleteDir, key.getURLHash());
+    }
+
+    private File incompleteIndexFileForItem(StreamItem item){
+        return new File(mIncompleteDir,item.getURLHash()+"_index");
 
     }
 
-    /* package */ File completeFileForKey(String key){
-        return new File(mCompleteDir,key);
-
-    }
-
-    /* package */ File incompleteFileForKey(String key){
-        return new File(mIncompleteDir,key);
-    }
-
-    private File incompleteIndexFileForKey(String key){
-        return new File(mIncompleteDir,key+"_index");
-
-    }
-
-    private boolean resetDataIfNecessary(ScStreamItem item) {
-        final String key = item.getURLHash();
+    private boolean resetDataIfNecessary(StreamItem item) {
         if (item.getContentLength() != 0 &&
-                item.getContentLength() != getContentLengthForKey(key)) {
-            removeAllDataForKey(key);
+                item.getContentLength() != getContentLengthForItem(item)) {
+            removeAllDataForItem(item);
             return true;
         }
         return false;
     }
 
-    private long getContentLengthForKey(String key) {
-        if (completeFileForKey(key).exists()) {
-            return completeFileForKey(key).length();
+    private long getContentLengthForItem(StreamItem key) {
+        if (completeFileForItem(key).exists()) {
+            return completeFileForItem(key).length();
         } else {
             return mIncompleteContentLengths.containsKey(key) ? mIncompleteContentLengths.get(key) : -1;
         }
     }
 
-    private void removeAllDataForKey(String key) {
-        if (key.length() != 0) {
-            removeCompleteDataForKey(key);
-            removeIncompleteDataForKey(key);
-        }
+    private void removeAllDataForItem(StreamItem item) {
+        removeCompleteDataForItem(item);
+        removeIncompleteDataForItem(item);
     }
 
-    private void removeIncompleteDataForKey(String key){
-         if (key.length() == 0) return;
-
-        final File incompleteFile = incompleteFileForKey(key);
-        final File indexFile = incompleteIndexFileForKey(key);
+    private void removeIncompleteDataForItem(StreamItem key) {
+        final File incompleteFile = incompleteFileForItem(key);
+        final File indexFile = incompleteIndexFileForItem(key);
 
         if (incompleteFile.exists()) incompleteFile.delete();
         if (indexFile.exists()) indexFile.delete();
@@ -322,20 +299,16 @@ public class ScStreamStorage {
         mIncompleteContentLengths.remove(key);
     }
 
-    private void removeCompleteDataForKey(String key){
-         if (key.length() == 0) return;
-
-        final File completeFile = completeFileForKey(key);
+    private void removeCompleteDataForItem(StreamItem item) {
+        final File completeFile = completeFileForItem(item);
         if (completeFile.exists()) completeFile.delete();
     }
 
-    public byte[] getChunkData(ScStreamItem item, int chunkIndex) {
+    public byte[] getChunkData(StreamItem item, int chunkIndex) {
         resetDataIfNecessary(item);
+        ensureMetadataIsLoadedForItem(item);
 
-        final String key = item.getURLHash();
-        ensureMetadataIsLoadedForKey(item);
-
-        long savedContentLength = contentLengthForKey(key);
+        long savedContentLength = contentLengthForItem(item);
 
         if (item.getContentLength() == 0) {
             item.setContentLength((int) savedContentLength);
@@ -360,19 +333,18 @@ public class ScStreamStorage {
         return null;
     }
 
-    /* package */ byte[] incompleteDataForChunk(ScStreamItem item, int chunkIndex) throws IOException {
-        final String key = item.getURLHash();
-        final List<Integer> indexArray = mIncompleteIndexes.get(key);
+    /* package */ byte[] incompleteDataForChunk(StreamItem item, int chunkIndex) throws IOException {
+        final List<Integer> indexArray = mIncompleteIndexes.get(item);
 
         if (indexArray != null) {
             if (!indexArray.contains(chunkIndex)) return null;
-            File chunkFile = incompleteFileForKey(key);
+            File chunkFile = incompleteFileForItem(item);
 
             if (chunkFile.exists()){
                 int seekToChunkOffset = indexArray.indexOf(chunkIndex) * chunkSize;
                 int readLength = chunkSize;
-                if (chunkIndex == numberOfChunksForKey(item)){
-                    readLength = (int) (contentLengthForKey(key) % chunkSize);
+                if (chunkIndex == numberOfChunksForItem(item)){
+                    readLength = (int) (contentLengthForItem(item) % chunkSize);
                 }
                 byte [] buffer = new byte[readLength];
                 RandomAccessFile raf = null;
@@ -392,12 +364,11 @@ public class ScStreamStorage {
         return null;
     }
 
-    /* package */ byte[] completeDataForChunk(ScStreamItem item, long chunkIndex) throws IOException {
-        final String key = item.getURLHash();
-        final File completeFile = completeFileForKey(key);
+    /* package */ byte[] completeDataForChunk(StreamItem item, long chunkIndex) throws IOException {
+        final File completeFile = completeFileForItem(item);
 
         if (completeFile.exists()) {
-            final long totalChunks = numberOfChunksForKey(item);
+            final long totalChunks = numberOfChunksForItem(item);
             if (chunkIndex >= totalChunks) {
                 Log.e(getClass().getSimpleName(), "Requested invalid chunk index. Requested index " + chunkIndex + " of size " + totalChunks);
                 return null;
@@ -405,7 +376,7 @@ public class ScStreamStorage {
             int seekToChunkOffset = (int) (chunkIndex * chunkSize);
             int readLength = chunkSize;
             if (chunkIndex == totalChunks - 1) {
-                readLength = (int) (contentLengthForKey(key) % chunkSize);
+                readLength = (int) (contentLengthForItem(item) % chunkSize);
             }
             byte[] buffer = new byte[readLength];
             RandomAccessFile raf = null;
@@ -423,8 +394,8 @@ public class ScStreamStorage {
         return null;
     }
 
-    /* package */ long numberOfChunksForKey(ScStreamItem item) {
-        return (long) Math.ceil(((float ) contentLengthForKey(item)) / ((float) chunkSize));
+    /* package */ long numberOfChunksForItem(StreamItem item) {
+        return (long) Math.ceil(((float ) contentLengthForItem(item)) / ((float) chunkSize));
     }
 
     private static class FileLastModifiedComparator implements Comparator<File> {
@@ -436,13 +407,13 @@ public class ScStreamStorage {
     }
 
     private class ConvertFileToComplete extends AsyncTask<File,Integer,Boolean> {
-        private String mKey;
+        private StreamItem mItem;
         private long mContentLength;
         private List<Integer> mIndexes;
-        public ConvertFileToComplete(String key, List<Integer> indexes){
-            mKey = key;
+        public ConvertFileToComplete(StreamItem item, List<Integer> indexes){
+            mItem = item;
             mIndexes = indexes;
-            mContentLength = contentLengthForKey(key);
+            mContentLength = contentLengthForItem(item);
         }
 
         @Override
@@ -479,15 +450,10 @@ public class ScStreamStorage {
                 }
             } catch (IOException e) {
                 Log.e(getClass().getSimpleName(), "IO error during complete file creation");
-                e.printStackTrace();
                 return false;
             } finally {
-                if (raf != null){
-                    try {raf.close();} catch (IOException e) {e.printStackTrace();}
-                }
-                if (fos != null){
-                    try {fos.close();} catch (IOException e) {e.printStackTrace();}
-                }
+                if (raf != null) try { raf.close(); } catch (IOException ignored) {}
+                if (fos != null) try { fos.close(); } catch (IOException ignored) {}
             }
             onPostExecute(true);
             return true;
@@ -496,16 +462,16 @@ public class ScStreamStorage {
         @Override
         protected void onPostExecute(Boolean success) {
             super.onPostExecute(success);
-            removeIncompleteDataForKey(mKey);
-            mConvertingKeys.remove(mKey);
+            removeIncompleteDataForItem(mItem);
+            mConvertingItems.remove(mItem);
         }
     }
 
-    public Map<String, List<Integer>> getIncompleteIndexes() {
+    public Map<StreamItem, List<Integer>> getIncompleteIndexes() {
         return mIncompleteIndexes;
     }
 
-    public Map<String, Long> getIncompleteContentLengths() {
+    public Map<StreamItem, Long> getIncompleteContentLengths() {
         return mIncompleteContentLengths;
     }
 }
