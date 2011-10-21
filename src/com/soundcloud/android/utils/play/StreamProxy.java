@@ -10,6 +10,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicLineParser;
@@ -30,6 +31,8 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * orig: http://code.google.com/p/npr-android-app/source/browse/trunk/Npr/src/org/npr/android/news/StreamProxy.java
@@ -42,6 +45,8 @@ public class StreamProxy implements Runnable {
     private ServerSocket mSocket;
     private Thread mThread;
     private AndroidCloudAPI mApi;
+
+
 
 
     private Map<String, ResolvedUrl> resolverCache = new HashMap<String, ResolvedUrl>();
@@ -156,14 +161,22 @@ public class StreamProxy implements Runnable {
         if (request == null) {
             return;
         }
+        long startByte = 0;
+
+        Header range = request.getFirstHeader("Range");
+        if (range != null && range.getValue() != null) {
+            Matcher m = Pattern.compile("bytes=(\\d+)-").matcher(range.getValue());
+            if (m.matches()) {
+                startByte = Long.parseLong(m.group(1));
+            }
+        }
+        Log.d(LOG_TAG, "startByte: "+startByte);
+
         InputStream data = null;
         HttpClient httpClient = null;
         try {
             httpClient = Http.createHttpClient(AndroidCloudAPI.USER_AGENT);
             HttpResponse realResponse = httpClient.execute(request);
-            if (realResponse == null) {
-                return;
-            }
 
             data = realResponse.getEntity().getContent();
             StatusLine line = realResponse.getStatusLine();
@@ -172,6 +185,7 @@ public class StreamProxy implements Runnable {
 
             StringBuilder httpString = new StringBuilder();
             httpString.append(response.getStatusLine().toString());
+
 
             httpString.append("\n");
             for (Header h : response.getAllHeaders()) {

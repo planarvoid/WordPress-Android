@@ -28,6 +28,10 @@ public class ScStreamLoaderTest {
     ScStreamItem item;
     File baseDir = new File(System.getProperty("java.io.tmpdir"), "storage-test");
 
+    private long mSampleContentLength;
+    private LinkedHashMap<Integer, byte[]> mSampleBuffers;
+    private ArrayList<Integer> mSampleChunkIndexes;
+
     @Before
     public void before() {
         CloudUtils.deleteDir(baseDir);
@@ -37,9 +41,6 @@ public class ScStreamLoaderTest {
         item = new ScStreamItem(DefaultTestRunner.application, "fred.mp3");
     }
 
-    private long mSampleContentLength;
-    private LinkedHashMap<Integer, byte[]> mSampleBuffers;
-    private ArrayList<Integer> mSampleChunkIndexes;
 
     private long setupChunkArray() throws IOException {
 
@@ -79,19 +80,16 @@ public class ScStreamLoaderTest {
             toRead -= read;
             if (toRead <= 0) break;
         }
-        ByteBuffer byteData = ByteBuffer.wrap(outStream.toByteArray());
-        return byteData;
+        return ByteBuffer.wrap(outStream.toByteArray());
     }
 
      @Test
      public void shouldGetAChunkFromStorage() throws Exception {
          setupChunkArray();
          item.setContentLength(mSampleContentLength);
-
          loader.storeData(mSampleBuffers.get(0), 0, item);
          assertThat(loader.getDataForItem(item,new Range(0, 1024)).get(), equalTo(readToByteBuffer(getClass().getResourceAsStream("fred.mp3"), 1024)));
      }
-
 
      @Test
      public void shouldGetAllBytesFromStorage() throws Exception {
@@ -99,8 +97,8 @@ public class ScStreamLoaderTest {
          item.setContentLength(mSampleContentLength);
          Collections.shuffle(mSampleChunkIndexes);
 
-         for (int i = 0; i < mSampleChunkIndexes.size(); i++) {
-             loader.storeData(mSampleBuffers.get(mSampleChunkIndexes.get(i)), mSampleChunkIndexes.get(i), item);
+         for (Integer mSampleChunkIndexe : mSampleChunkIndexes) {
+             loader.storeData(mSampleBuffers.get(mSampleChunkIndexe), mSampleChunkIndexe, item);
          }
 
          assertThat(loader.getDataForItem(item,new Range(0, (int) mSampleContentLength)).get(), equalTo(readToByteBuffer(getClass().getResourceAsStream("fred.mp3"), (int) mSampleContentLength)));

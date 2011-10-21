@@ -2,30 +2,17 @@ package com.soundcloud.android.streaming;
 
 import android.content.Context;
 import android.net.NetworkInfo;
-import android.net.http.AndroidHttpClient;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.Range;
-import com.soundcloud.api.CloudAPI;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpUriRequest;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class ScStreamLoader {
 
@@ -82,18 +69,9 @@ public class ScStreamLoader {
 
 
         mResultHandler = new Handler(Looper.getMainLooper());
-
-
     }
 
-    public void cleanup(){
-        mConnectivityListener.stopListening();
-               mConnectivityListener.unregisterHandler(mConnHandler);
-               mConnectivityListener = null;
-
-    }
-
-    /* package */ PlayerCallback getDataForItem(ScStreamItem item, Range byteRange) throws IOException {
+    public PlayerCallback getDataForItem(ScStreamItem item, Range byteRange) throws IOException {
         Log.d(getClass().getSimpleName(), "Get Data for item " + item.toString() + " " + byteRange);
 
         Range chunkRange = chunkRangeForByteRange(byteRange);
@@ -125,6 +103,22 @@ public class ScStreamLoader {
         }
         return pc;
     }
+
+
+    public void storeData(byte[] data, int chunk, ScStreamItem item) {
+        Log.d(getClass().getSimpleName(), "Storing " + data.length + " bytes at index " + chunk + " for item " + item) ;
+        mStorage.setData(data,chunk,item);
+        fulfillPlayerCallbacks();
+    }
+
+
+    public void cleanup(){
+        mConnectivityListener.stopListening();
+               mConnectivityListener.unregisterHandler(mConnHandler);
+               mConnectivityListener = null;
+
+    }
+
 
     private ByteBuffer fetchStoredDataForItem(ScStreamItem item, Range byteRange) {
         Range actualRange = byteRange;
@@ -320,11 +314,6 @@ public class ScStreamLoader {
                 (int) Math.ceil((double) ((byteRange.location % chunkSize) + byteRange.length) / (double) chunkSize));
     }
 
-    /* package */ void storeData(byte[] data, int chunk, ScStreamItem item) {
-        Log.d(getClass().getSimpleName(), "Storing " + data.length + " bytes at index " + chunk + " for item " + item) ;
-        mStorage.setData(data,chunk,item);
-        fulfillPlayerCallbacks();
-    }
 
     private void fulfillPlayerCallbacks() {
         ArrayList<PlayerCallback> fulfilledCallbacks = new ArrayList<PlayerCallback>();
@@ -364,132 +353,11 @@ public class ScStreamLoader {
         }
     };
 
-    /* package */ class PlayerCallback implements Future<ByteBuffer>{
-        ScStreamItem scStreamItem;
-        Range byteRange;
-        ByteBuffer byteBuffer;
-        boolean ready = false;
-
-        public PlayerCallback(ScStreamItem scStreamItem, Range byteRange) {
-            this.scStreamItem = scStreamItem;
-            this.byteRange = byteRange;
-        }
-
-        public void setByteBuffer(ByteBuffer byteBuffer){
-            this.byteBuffer = byteBuffer;
-            ready = true;
-            synchronized (this) {
-                notifyAll();
-            }
-        }
-
-        @Override
-        public boolean cancel(boolean b) {
-            return false;
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return false;
-        }
-
-        @Override
-        public boolean isDone() {
-            return ready;
-        }
-
-        @Override
-        public ByteBuffer get() throws InterruptedException, ExecutionException {
-            synchronized (this) {
-            while (!ready) {
-                try {wait(); } catch (InterruptedException e) { return null; }
-            }
-            }
-            return byteBuffer;
-        }
-
-        @Override
-        public ByteBuffer get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
-            return byteBuffer;
-        }
-    }
-
-    private class LoadingItem {
-        ScStreamItem scStreamItem;
-        List indexes;
-
-        public LoadingItem(ScStreamItem item) {
-            this.scStreamItem = item;
-        }
-
-        public LoadingItem(ScStreamItem scStreamItem, List indexes) {
-            this(scStreamItem);
-            this.indexes = indexes;
-        }
-
-        public int getWhat() {
-            return scStreamItem.URL.hashCode();
-        }
-    }
-
     private DataTask startDataTask(ScStreamItem item, Range chunkRange){
         DataTask dt = new DataTask(item, new Range(chunkRange.location * chunkSize,chunkRange.length * chunkSize));
         Message msg = mHeadHandler.obtainMessage(item.URL.hashCode(),dt);
         mDataHandler.sendMessage(msg);
         return dt;
-    }
-
-    private class DataTask implements Runnable {
-        ScStreamItem mItem;
-        Range mByteRange;
-
-        AndroidHttpClient mClient;
-        HttpResponse mResponse;
-
-        public boolean executed = false;
-
-
-
-        public DataTask(ScStreamItem item){
-            mItem = item;
-            mClient = AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
-        }
-
-        public DataTask(ScStreamItem item, Range byteRange){
-            this(item);
-            mByteRange = byteRange;
-        }
-
-        protected HttpUriRequest buildRequest(){
-
-            boolean useRedirectedUrl = false;
-            if (!TextUtils.isEmpty(mItem.redirectedURL) && !(mByteRange.location == 0)){
-                useRedirectedUrl = true;
-            }
-
-            final HttpGet method = new HttpGet(useRedirectedUrl ? mItem.redirectedURL :
-                    mItem.URL);
-
-            // method.setHeader("Range", "bytes=" + get + "-");
-
-            return null;
-        }
-
-        public boolean execute() {
-            try {
-                mResponse = mClient.execute(buildRequest());
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            executed = true;
-            return false;
-        }
-
-        @Override
-        public void run() {
-
-        }
     }
 
     private HeadTask startHeadTask(ScStreamItem item){
@@ -515,47 +383,6 @@ public class ScStreamLoader {
 
         return ht;
     }
-
-
-
-    private class HeadTask extends DataTask {
-        public HeadTask(ScStreamItem item) {
-            super(item);
-        }
-
-        @Override
-        protected HttpUriRequest buildRequest(){
-           return new HttpHead(mItem.redirectedURL);
-        }
-
-        @Override
-        public void run() {
-            if (mResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.i(getClass().getSimpleName(), "invalid status received: " + mResponse.getStatusLine().toString());
-            } else {
-                mItem.setContentLength(getContentLength(mResponse));
-            }
-            mHeadTasks.remove(this);
-        }
-
-        private long getContentLength(HttpResponse resp) {
-            Header h = resp.getFirstHeader("Content-Length");
-            if (h != null) {
-                try {
-                    return Long.parseLong(h.getValue());
-                } catch (NumberFormatException e) {
-                    return -1;
-                }
-            } else {
-                return -1;
-            }
-        }
-
-        public ScStreamItem getItem() {
-            return mItem;
-        }
-    }
-
 
 
     // request pipeline
@@ -590,4 +417,21 @@ public class ScStreamLoader {
         }
     }
 
+    private static class LoadingItem {
+        ScStreamItem scStreamItem;
+        List indexes;
+
+        public LoadingItem(ScStreamItem item) {
+            this.scStreamItem = item;
+        }
+
+        public LoadingItem(ScStreamItem scStreamItem, List indexes) {
+            this(scStreamItem);
+            this.indexes = indexes;
+        }
+
+        public int getWhat() {
+            return scStreamItem.URL.hashCode();
+        }
+    }
 }

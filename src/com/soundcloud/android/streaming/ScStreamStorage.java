@@ -114,15 +114,14 @@ public class ScStreamStorage {
         final int currentCount = prefs.getInt("streamingWritesSinceCleanup", 0) + 1;
         prefs.edit().putInt("streamingWritesSinceCleanup",currentCount).commit();
 
-        /*if (currentCount >= CLEANUP_INTERVAL) {
-            calculateFileMetrics();
-            cleanup();
-        }*/
+//        if (currentCount >= CLEANUP_INTERVAL) {
+//            calculateFileMetrics();
+//            cleanup();
+//        }
         return true;
     }
 
     private void cleanup() {
-
         if (mConvertingKeys.size() > 0) {
             Log.d(getClass().getSimpleName(), "Not doing storage cleanup, conversion is going on");
             return;

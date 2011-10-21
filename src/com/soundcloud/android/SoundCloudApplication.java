@@ -105,7 +105,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.debugRequests = DEV_MODE;
 
         if (DEV_MODE) {
-            setupStrictMode();
+            //setupStrictMode();
         }
 
         if (account != null) {
