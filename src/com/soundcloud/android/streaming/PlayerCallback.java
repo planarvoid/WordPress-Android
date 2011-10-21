@@ -1,7 +1,5 @@
 package com.soundcloud.android.streaming;
 
-import com.soundcloud.android.utils.Range;
-
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;

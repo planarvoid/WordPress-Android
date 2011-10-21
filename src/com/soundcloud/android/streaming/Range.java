@@ -1,4 +1,4 @@
-package com.soundcloud.android.utils;
+package com.soundcloud.android.streaming;
 
 import android.os.Bundle;
 import android.os.Parcel;
@@ -12,6 +12,9 @@ public class Range implements Parcelable {
     public final int length;
 
     /* private */ Range(int start, int length) {
+        if (start < 0) throw new IllegalArgumentException("start must be >=0");
+        if (length <= 0) throw new IllegalArgumentException("length must be >0");
+
         this.location = start;
         this.length = length;
     }
@@ -49,6 +52,11 @@ public class Range implements Parcelable {
         return "Range{location: " + location +
                 ", length:" + length +
                 "}";
+    }
+
+    public Range chunkRange(int chunkSize) {
+       return Range.from(location / chunkSize,
+            (int) Math.ceil((double) ((location % chunkSize) + length) / (double) chunkSize));
     }
 
     @Override

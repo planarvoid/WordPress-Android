@@ -6,7 +6,6 @@ import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.Range;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

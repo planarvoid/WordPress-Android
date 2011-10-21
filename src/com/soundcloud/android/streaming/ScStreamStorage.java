@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.utils.Range;
 
 import java.io.*;
 import java.util.*;

@@ -19,7 +19,6 @@ public class ScStreamItemTest {
         assertThat(item.getURLHash(), equalTo("b0ecbe2bc0fd8e426395c81ee96f81cf"));
     }
 
-
     @Test(expected = IllegalArgumentException.class)
     public void shouldRequireURL() throws Exception {
         new ScStreamItem(DefaultTestRunner.application, null);

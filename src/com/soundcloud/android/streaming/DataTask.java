@@ -1,6 +1,5 @@
 package com.soundcloud.android.streaming;
 
-import com.soundcloud.android.utils.Range;
 import com.soundcloud.api.CloudAPI;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
