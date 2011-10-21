@@ -142,6 +142,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mPlayerAvatarBar = (PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
         mPlayerAvatarBar.setOnTouchListener(this);
+        mPlayerAvatarBar.setIsLandscape(isLandscape());
 
         mCommentLines = new WaveformCommentLines(mPlayer, null);
         mWaveformHolder.addView(mCommentLines);
@@ -162,6 +163,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mkdirs(dirFile);
         mPlayerTouchBar.setLandscape(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
 
+    }
+
+    protected boolean isLandscape(){
+        return false;
     }
 
     private long mProgressPeriod = 500;
@@ -380,7 +385,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                         waveformResult = BindResult.OK;
                         showWaveform();
                     }
-                });
+                },new ImageLoader.Options(true,true));
 
 
         switch (waveformResult) {

@@ -43,6 +43,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private Track mPlayingTrack;
     private RelativeLayout mContainer;
     private WorkspaceView mTrackWorkspace;
+    private Drawable mFavoriteDrawable, mFavoritedDrawable;
 
     private ComponentName mRemoteControlResponder;
     private AudioManager mAudioManager;
@@ -87,9 +88,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             mFavoriteButton = (ImageButton) findViewById(R.id.btn_favorite);
             mFavoriteButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    if (toggleFavorite(mPlayingTrack)){
-                        mFavoriteButton.setEnabled(false);
-                    }
+                    toggleFavorite(mPlayingTrack);
                 }
             });
         }
@@ -251,9 +250,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     }
 
     public boolean toggleFavorite(Track track) {
-        if (track == null)
-            return false;
-
+        if (track == null) return false;
         try {
             if (track.user_favorite) {
                     mPlaybackService.setFavoriteStatus(track.id, false);
@@ -488,6 +485,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 for (int i = 0; i < mTrackWorkspace.getChildCount(); i++){
                     ((PlayerTrackView) mTrackWorkspace.getChildAt(i)).handleIdBasedIntent(intent);
                 }
+                if (action.equals(CloudPlaybackService.FAVORITE_SET)) setFavoriteStatus();
             } else {
                 if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
                     setPauseButtonImage();
@@ -643,6 +641,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             mPlayingTrack = getAndCacheTrack(trackId,currentQueuePosition);
             final boolean first = mTrackWorkspace.getChildCount() == 0;
 
+            setFavoriteStatus();
+
             int workspaceIndex = 0;
             final int queueLength = mPlaybackService.getQueueLength();
             for (int pos = currentQueuePosition -1; pos < currentQueuePosition + 2; pos++){
@@ -674,6 +674,20 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 getCurrentTrackView().onBuffering();
             }
         } catch (RemoteException ignored) {}
+    }
+
+    private void setFavoriteStatus() {
+        if (mPlayingTrack == null || mFavoriteButton == null) {
+            return;
+        }
+
+        if (mPlayingTrack.user_favorite) {
+            if (mFavoritedDrawable == null) mFavoritedDrawable = getResources().getDrawable(R.drawable.ic_liked_states);
+            mFavoriteButton.setImageDrawable(mFavoritedDrawable);
+        } else {
+            if (mFavoriteDrawable == null) mFavoriteDrawable = getResources().getDrawable(R.drawable.ic_like_states);
+            mFavoriteButton.setImageDrawable(mFavoriteDrawable);
+        }
     }
 
     private PlayerTrackView getCurrentTrackView(){

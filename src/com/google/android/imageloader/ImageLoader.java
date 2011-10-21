@@ -433,7 +433,14 @@ public final class ImageLoader {
             this.decodeInSampleSize = 1;
         }
 
+        public Options(boolean loadRemotelyIfNecessary, boolean postAtFront) {
+            this.loadRemotelyIfNecessary = loadRemotelyIfNecessary;
+            this.postAtFront = postAtFront;
+            this.decodeInSampleSize = 1;
+        }
+
         public boolean loadRemotelyIfNecessary;
+        public boolean postAtFront;
         public int decodeInSampleSize;
         public int cornerRadius;
         public WeakReference<Bitmap> temporaryBitmapRef;
@@ -454,7 +461,11 @@ public final class ImageLoader {
             return memoryBmp;
         } else if (options.loadRemotelyIfNecessary){
             ImageRequest request = new ImageRequest(uri,callback,true, options);
-            insertRequestAtFrontOfQueue(request);
+            if (options.postAtFront) {
+                insertRequestAtFrontOfQueue(request);
+            } else {
+                enqueueRequest(request);
+            }
         }
         return null;
     }
@@ -604,7 +615,12 @@ public final class ImageLoader {
                 return BindResult.ERROR;
             } else {
                 ImageRequest request = new ImageRequest(view, url, callback, options);
-                enqueueRequest(request);
+                if (options.postAtFront){
+                    insertRequestAtFrontOfQueue(request);
+                } else {
+                    enqueueRequest(request);
+                }
+
                 return BindResult.LOADING;
             }
         }
