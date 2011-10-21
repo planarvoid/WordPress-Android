@@ -30,9 +30,9 @@ public class StreamLoader {
     private StreamItem mCurrentItem;
     private int mCurrentPosition;
 
-    private HashSet<StreamFuture> mPlayerCallbacks;
-    private ArrayList<LoadingItem> mHighPriorityQueue;
-    private ArrayList<LoadingItem> mLowPriorityQueue;
+    private Set<StreamFuture> mPlayerCallbacks;
+    private LoadingQueue mHighPriorityQueue = new LoadingQueue();
+    private LoadingQueue mLowPriorityQueue = new LoadingQueue();
     private DataTask mHighPriorityConnection;
     private boolean mLowPriorityConnection;
     private static final String STREAM_ITEM_RANGE_LOADED = "com.soundcloud.android.streaming.streamitemrangeloaded";
@@ -120,6 +120,15 @@ public class StreamLoader {
     }
 
 
+    /* package */ LoadingQueue getHighPriorityQueue() {
+        return mHighPriorityQueue;
+    }
+
+    /* package */ LoadingQueue getLowPriorityQueue() {
+        return mLowPriorityQueue;
+    }
+
+
     private ByteBuffer fetchStoredDataForItem(StreamItem item, Range range) {
         Range actualRange = range;
         if (item.getContentLength() != 0) {
@@ -158,7 +167,6 @@ public class StreamLoader {
     }
 
     private void processQueues() {
-
         if (mHighPriorityConnection != null){
             if (!mHighPriorityConnection.executed) return;
 
@@ -205,7 +213,7 @@ public class StreamLoader {
         }
 
         for (LoadingItem highPriorityItem : mHighPriorityQueue) {
-            StreamItem item = highPriorityItem.scStreamItem;
+            StreamItem item = highPriorityItem.streamItem;
             if (!item.available) {
                 mHighPriorityQueue.remove(highPriorityItem);
             } else if (item.getContentLength() != 0) {
@@ -238,7 +246,7 @@ public class StreamLoader {
         if (mLowPriorityQueue.size() == 0) return;
 
         for (LoadingItem lowPriorityItem : mHighPriorityQueue) {
-            StreamItem item = lowPriorityItem.scStreamItem;
+            StreamItem item = lowPriorityItem.streamItem;
             if (!item.available) {
                 mHighPriorityQueue.remove(lowPriorityItem);
             } else if (item.getContentLength() != 0) {
@@ -265,29 +273,28 @@ public class StreamLoader {
 
     private void addItem(StreamItem item, Set<Integer> chunks, List<LoadingItem> queue) {
         if (!item.available) {
-            Log.e(getClass().getSimpleName(), "Can't add chunks for %@: Item is disabled." + item.getURLHash());
-            return;
-        }
-
-        LoadingItem loadingItem = null;
-        for (LoadingItem candidate : queue) {
-            if (candidate.scStreamItem.equals(item)) {
-                loadingItem = candidate;
-                break;
+            Log.e(getClass().getSimpleName(), String.format("Can't add chunks for %s: Item is not available.",item));
+        } else {
+            LoadingItem loadingItem = null;
+            for (LoadingItem candidate : queue) {
+                if (candidate.streamItem.equals(item)) {
+                    loadingItem = candidate;
+                    break;
+                }
             }
-        }
 
-        if (loadingItem == null) {
-            loadingItem = new LoadingItem(item);
-            queue.add(loadingItem);
+            if (loadingItem == null) {
+                loadingItem = new LoadingItem(item);
+                queue.add(loadingItem);
+            }
+            loadingItem.indexes.addAll(chunks);
         }
-        loadingItem.indexes.addAll(chunks);
     }
 
     private void removeItem(StreamItem item, Set<Long> chunks, List<LoadingItem> queue) {
         LoadingItem loadingItem = null;
         for (LoadingItem candidate : queue) {
-            if (candidate.scStreamItem.equals(item)) {
+            if (candidate.streamItem.equals(item)) {
                 loadingItem = candidate;
                 break;
             }
@@ -412,21 +419,31 @@ public class StreamLoader {
         }
     }
 
-    private static class LoadingItem {
-        StreamItem scStreamItem;
-        List indexes;
+    static class LoadingItem {
+        public final StreamItem streamItem;
+        List<Integer> indexes = new ArrayList<Integer>();
 
         public LoadingItem(StreamItem item) {
-            this.scStreamItem = item;
+            this.streamItem = item;
         }
 
-        public LoadingItem(StreamItem scStreamItem, List indexes) {
-            this(scStreamItem);
+        public LoadingItem(StreamItem streamItem, List<Integer> indexes) {
+            this(streamItem);
             this.indexes = indexes;
         }
 
         public int getWhat() {
-            return scStreamItem.url.hashCode();
+            return streamItem.url.hashCode();
+        }
+    }
+
+    static class LoadingQueue extends ArrayList<LoadingItem> {
+        public LoadingItem head() {
+            if (!isEmpty()) {
+                return get(0);
+            } else {
+                return null;
+            }
         }
     }
 }

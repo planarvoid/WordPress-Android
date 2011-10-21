@@ -19,22 +19,20 @@ class DataTask implements Runnable {
 
     public boolean executed = false;
 
-
-
-    public DataTask(StreamItem item){
+    public DataTask(StreamItem item) {
         mItem = item;
         mClient = AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
     }
 
-    public DataTask(StreamItem item, Range byteRange){
+    public DataTask(StreamItem item, Range byteRange) {
         this(item);
         mByteRange = byteRange;
     }
 
-    protected HttpUriRequest buildRequest(){
+    protected HttpUriRequest buildRequest() {
 
         boolean useRedirectedUrl = false;
-        if (!TextUtils.isEmpty(mItem.redirectedURL) && !(mByteRange.location == 0)){
+        if (!TextUtils.isEmpty(mItem.redirectedURL) && !(mByteRange.location == 0)) {
             useRedirectedUrl = true;
         }
 

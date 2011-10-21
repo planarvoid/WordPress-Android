@@ -60,8 +60,8 @@ public class StreamLoaderTest {
         setupChunkArray();
         Collections.shuffle(mSampleChunkIndexes);
 
-        for (Integer mSampleChunkIndexe : mSampleChunkIndexes) {
-            loader.storeData(mSampleBuffers.get(mSampleChunkIndexe), mSampleChunkIndexe, item);
+        for (Integer i : mSampleChunkIndexes) {
+            loader.storeData(mSampleBuffers.get(i), i, item);
         }
 
         expect(loader.getDataForItem(item, Range.from(0, testFile.length())).get())
@@ -76,11 +76,15 @@ public class StreamLoaderTest {
 
         Collections.shuffle(mSampleChunkIndexes);
 
-        for (Integer mSampleChunkIndexe : mSampleChunkIndexes) {
-            loader.storeData(mSampleBuffers.get(mSampleChunkIndexe), mSampleChunkIndexe, item);
+        for (Integer i : mSampleChunkIndexes) {
+            loader.storeData(mSampleBuffers.get(i), i, item);
         }
 
         StreamFuture cb = loader.getDataForItem(item, Range.from(0, 300));
+
+        expect(loader.getHighPriorityQueue().size()).toBe(1);
+        expect(loader.getHighPriorityQueue().head().streamItem.url).toEqual(TEST_MP3);
+
         expect(cb.isDone()).toBeFalse();
         cb.get(1, TimeUnit.SECONDS);
         expect(cb.isDone()).toBeFalse();

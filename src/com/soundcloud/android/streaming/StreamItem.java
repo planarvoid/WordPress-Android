@@ -12,7 +12,7 @@ public class StreamItem implements Parcelable {
 
     public final String url;
     public String redirectedURL;
-    public boolean available;  // http status 402,404,410
+    public boolean available = true;  // http status 402,404,410
 
     private String mURLHash;
     private long mContentLength;
