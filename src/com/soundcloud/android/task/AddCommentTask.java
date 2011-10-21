@@ -62,6 +62,7 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
             }
 
             Intent i = new Intent(Consts.IntentActions.COMMENT_ADDED);
+            i.putExtra("id",mAddComment.track_id);
             i.putExtra("comment", mAddComment);
             mApplication.sendBroadcast(i);
 

@@ -6,6 +6,7 @@ import android.os.Message;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
@@ -149,7 +150,6 @@ public class WaveformControllerLand extends WaveformController {
     }
 
    protected void showCurrentComment(boolean userTriggered) {
-
        if (mCurrentShowingComment != null) {
            if (userTriggered && !mShowingComments) {
                toggleComments();
@@ -178,7 +178,6 @@ public class WaveformControllerLand extends WaveformController {
     }
 
     private void toggleWaveformHalf(boolean half){
-
         if (half && !mWaveformHalf) {
             mWaveformHalf = true;
             if (mWaveformHolder.getAnimation() != null && !mWaveformHolder.getAnimation().hasEnded()){

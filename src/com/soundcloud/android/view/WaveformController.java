@@ -243,7 +243,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     public void setCommentMode(boolean commenting) {
         if (commenting) {
-            if (mCurrentShowingComment != null) closeComment(false);
+            if (mCurrentShowingComment != null && !isLandscape()) {
+                closeComment(false);
+            }
             mSuspendTimeDisplay = true;
             mode = TOUCH_MODE_COMMENT_DRAG;
             mPlayerTouchBar.setSeekPosition((int) ((((float) lastTrackTime) / mDuration) * getWidth()), mPlayerTouchBar.getHeight());
@@ -489,8 +491,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     };
 
     public void nextCommentInThread() {
-        if (mCurrentShowingComment.nextComment != null) {
-            mCurrentShowingComment = mCurrentShowingComment.nextComment;
+        if (mCurrentShowingComment != null && mCurrentShowingComment.nextComment != null) {
+            final Comment nextComment = mCurrentShowingComment.nextComment;
+            if (!isLandscape()) closeComment(false);
+            mCurrentShowingComment = nextComment;
             showCurrentComment(true);
         }
     }
