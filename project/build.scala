@@ -43,11 +43,12 @@ object AndroidBuild extends Build {
   )
 
   val testDependencies = Seq(
-    "com.pivotallabs" % "robolectric" % "1.0-RC5-SNAPSHOT" % "test" classifier "jar-with-dependencies",
+    "com.pivotallabs" % "robolectric" % "1.0" % "test" classifier "jar-with-dependencies",
     "junit" % "junit-dep" % "4.9" % "test",
     "org.mockito" % "mockito-core" % "1.8.5" % "test",
     "org.hamcrest" % "hamcrest-core" % "1.1" % "test",
-    "com.github.xian" % "great-expectations" % "0.10" % "test"
+    "com.github.xian" % "great-expectations" % "0.10" % "test",
+    "com.novocode" % "junit-interface" % "0.7" % "test" intransitive()
   )
 
   val repos = Seq(
@@ -64,7 +65,9 @@ object AndroidBuild extends Build {
       unmanagedBase <<= baseDirectory / "lib-unmanaged",
       libraryDependencies ++= coreDependencies ++ providedDependencies ++ testDependencies,
       resolvers ++= repos,
-      compileOrder := CompileOrder.JavaThenScala
+      compileOrder := CompileOrder.JavaThenScala,
+      javaSource in Test <<= (baseDirectory) (_ / "tests" / "src"),
+      unmanagedClasspath in Test <<= (unmanagedClasspath in Test) map (cp => Seq.empty)
     ) ++ AndroidInstall.settings ++ Mavenizer.settings
   )
 }
