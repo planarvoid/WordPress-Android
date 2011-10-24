@@ -32,12 +32,15 @@ public class PlayerAvatarBar extends View {
     private List<Comment> mCurrentComments;
     private Comment mCurrentComment;
 
-    private Matrix mMatrix;
+    private Matrix mBgMatrix;
+    private Matrix mActiveMatrix;
     private float mDefaultAvatarScale = 1f;
     private int mAvatarWidth;
 
     private Paint mImagePaint;
     private Paint mLinePaint;
+
+    private Paint mActiveImagePaint;
     private Paint mActiveLinePaint;
 
     private Consts.GraphicSize mTargetSize;
@@ -64,6 +67,10 @@ public class PlayerAvatarBar extends View {
         mImagePaint.setAntiAlias(false);
         mImagePaint.setFilterBitmap(true);
 
+        mActiveImagePaint = new Paint();
+        mActiveImagePaint.setAntiAlias(false);
+        mActiveImagePaint.setFilterBitmap(true);
+
         mLinePaint = new Paint();
         mLinePaint.setColor(getResources().getColor(R.color.commentLine));
 
@@ -72,7 +79,9 @@ public class PlayerAvatarBar extends View {
 
         float mDensity = getContext().getResources().getDisplayMetrics().density;
 
-        mMatrix = new Matrix();
+        mBgMatrix = new Matrix();
+        mActiveMatrix = new Matrix();
+
         if (CloudUtils.isScreenXL(mContext)) {
             mTargetSize = Consts.GraphicSize.LARGE;
             mAvatarWidth = (int) (AVATAR_WIDTH_LARGE * mDensity);
@@ -207,19 +216,20 @@ public class PlayerAvatarBar extends View {
             }
 
             Canvas canvas = new Canvas(mNextCanvasBmp);
-
             for (Comment comment : comments){
                 if (Thread.currentThread().isInterrupted()) break;
                 if (comment.timestamp == 0) continue;
-                drawCommentOnCanvas(comment, canvas, mLinePaint);
+                drawCommentOnCanvas(comment, canvas, mLinePaint, mImagePaint, mBgMatrix);
             }
 
             if (Thread.currentThread().isInterrupted()) {
                 mNextCanvasBmp.recycle();
             } else {
-                mUIHandler.removeMessages(AVATARS_REFRESHED);
-                Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);
-                PlayerAvatarBar.this.mUIHandler.sendMessage(msg);
+                if (!mUIHandler.hasMessages(AVATARS_REFRESHED)) {
+                    Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);
+                    PlayerAvatarBar.this.mUIHandler.sendMessageDelayed(msg, 200);
+                }
+
             }
         }
     }
@@ -250,25 +260,27 @@ public class PlayerAvatarBar extends View {
         }
     };
 
-    private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint){
-        if (!CloudUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null || comment.avatar.isRecycled()){
-            if (mLandscape){
-                refreshDefaultAvatar();
-                mMatrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
-                mMatrix.postTranslate(comment.xPos, 0);
-                canvas.drawBitmap(mDefaultAvatar, mMatrix, mImagePaint);
+    private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint, Paint imagePaint, Matrix matrix){
+
+            if (!CloudUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null || comment.avatar.isRecycled()) {
+                if (mLandscape) {
+                    refreshDefaultAvatar();
+                    matrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
+                    matrix.postTranslate(comment.xPos, 0);
+                    canvas.drawBitmap(mDefaultAvatar, matrix, imagePaint);
+                }
+                canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
+
+                if (comment.avatar != null && comment.avatar.isRecycled()) loadAvatar(comment);
+
+            } else if (comment.avatar != null) {
+                final float drawScale = ((float) mAvatarWidth) / comment.avatar.getHeight();
+                matrix.setScale(drawScale, drawScale);
+                matrix.postTranslate(comment.xPos, 0);
+                canvas.drawBitmap(comment.avatar, matrix, imagePaint);
+                canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
             }
-            canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
 
-            if (comment.avatar != null && comment.avatar.isRecycled()) loadAvatar(comment);
-
-        } else if (comment.avatar != null) {
-            final float drawScale = ((float) mAvatarWidth)/comment.avatar.getHeight();
-            mMatrix.setScale(drawScale, drawScale);
-            mMatrix.postTranslate(comment.xPos, 0);
-            canvas.drawBitmap(comment.avatar, mMatrix, mImagePaint);
-            canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
-        }
     }
 
     @Override
@@ -284,7 +296,7 @@ public class PlayerAvatarBar extends View {
         }
 
         if (mCurrentComment != null){
-            drawCommentOnCanvas(mCurrentComment,canvas,mActiveLinePaint);
+            drawCommentOnCanvas(mCurrentComment,canvas,mActiveLinePaint, mActiveImagePaint,mActiveMatrix);
             canvas.drawLine(mCurrentComment.xPos, 0, mCurrentComment.xPos, getHeight(), mActiveLinePaint);
         }
     }
