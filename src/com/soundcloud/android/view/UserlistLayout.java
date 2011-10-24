@@ -32,12 +32,16 @@ public class UserlistLayout extends RelativeLayout {
     private final View mLeftArrow;
     private final View mRightArrow;
 
+    private final int mSpacer;
+
     public UserlistLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.user_list_browser, this);
+
+        mSpacer = (int) (context.getResources().getDisplayMetrics().density * 10);
 
         mLabelHolder = (RelativeLayout) findViewById(R.id.label_holder);
         tabLabels = new ArrayList<TabLabel>();
@@ -73,16 +77,28 @@ public class UserlistLayout extends RelativeLayout {
     private void setLabels(float screenFraction){
         if (mHolderWidth == 0) return;
 
+        int leftCutoff = -1;
+        int rightCutoff = -1;
         for (TabLabel tl : tabLabels){
-             if (tl.index < screenFraction - 1.3 || tl.index > screenFraction + 1.3){
+            if (Math.abs(tl.index - screenFraction) <= .7){
+                tl.setPosition(screenFraction,mHolderWidth,mHolderPad, mMiddleLow, mMiddleHigh, -1, -1, mSpacer);
+                if (tl.index > screenFraction){
+                    rightCutoff = tl.getRight();
+                } else if (tl.index <= screenFraction){
+                    leftCutoff = tl.getLeft();
+                }
+            }
+        }
+        for (TabLabel tl : tabLabels){
+             if (tl.index < screenFraction - 1.7 || tl.index > screenFraction + 1.7){
                  tl.hide();
-             } else {
-                 tl.setPosition(screenFraction,mHolderWidth,mHolderPad, mMiddleLow, mMiddleHigh);
+             } else if (Math.abs(tl.index - screenFraction) > .7) {
+                 tl.setPosition(screenFraction,mHolderWidth,mHolderPad, mMiddleLow, mMiddleHigh, leftCutoff, rightCutoff, mSpacer);
              }
         }
 
-        mLeftArrow.setVisibility(screenFraction < 1.3 ? INVISIBLE : VISIBLE);
-        mRightArrow.setVisibility(screenFraction > tabLabels.size() - 2.3 ? INVISIBLE : VISIBLE);
+        mLeftArrow.setVisibility(screenFraction < 1.7 ? INVISIBLE : VISIBLE);
+        mRightArrow.setVisibility(screenFraction > tabLabels.size() - 2.7 ? INVISIBLE : VISIBLE);
     }
 
     @Override
@@ -140,6 +156,9 @@ public class UserlistLayout extends RelativeLayout {
         private int mCurrentPosition;
         private boolean mBold = true;
 
+        private int mCurrentLeftMargin;
+        private int mCurrentWidth;
+
         public TabLabel(TextView textView, String label, String tag, int index){
             this.mTextView = textView;
             this.mLabel = label;
@@ -152,12 +171,14 @@ public class UserlistLayout extends RelativeLayout {
 
         private void computeMarginOffset(){
             Drawable drawable = mTextView.getCompoundDrawables()[0];
-            mMarginOffset = (int) (-(mTextView.getPaint().measureText(mTextView.getText().toString()) + drawable.getMinimumWidth() + mTextView.getCompoundDrawablePadding())/2);
+            mCurrentWidth = (int) (mTextView.getPaint().measureText(mTextView.getText().toString()) +
+                    drawable.getMinimumWidth() + mTextView.getCompoundDrawablePadding());
+            mMarginOffset = -mCurrentWidth/2;
         }
 
-        public void setPosition(float screenFraction, int holderWidth, int holderPad, int middleLow, int middleHigh){
+        public void setPosition(float screenFraction, int holderWidth, int holderPad, int middleLow, int middleHigh, int cutoffLeft, int cutoffRight, int spacer){
             final int middlePos = (int) (holderWidth / 2 +
-                    (((index - screenFraction) / 1.5) * holderWidth));
+                    (((index - screenFraction) / 1.7) * holderWidth));
 
             if (middlePos > middleLow && middlePos < middleHigh) {
                 if (!mBold) {
@@ -171,10 +192,26 @@ public class UserlistLayout extends RelativeLayout {
                 mBold = false;
             }
 
-            ((LayoutParams) mTextView.getLayoutParams()).leftMargin = Math.min(holderWidth + mMarginOffset * 2 - holderPad,
+            mCurrentLeftMargin = Math.min(holderWidth + mMarginOffset * 2 - holderPad,
                     Math.max(holderPad, middlePos + mMarginOffset));
+
+            if (cutoffLeft != -1 && mCurrentLeftMargin <= cutoffLeft){
+                mCurrentLeftMargin = Math.min(cutoffLeft - mCurrentWidth - spacer, mCurrentLeftMargin);
+            } else if (cutoffRight != -1 && mCurrentLeftMargin + mCurrentWidth >= cutoffRight){
+                mCurrentLeftMargin = Math.max(cutoffRight + spacer, mCurrentLeftMargin);
+            }
+
+            ((LayoutParams) mTextView.getLayoutParams()).leftMargin = mCurrentLeftMargin;
             mTextView.setVisibility(View.VISIBLE);
             mTextView.requestLayout();
+        }
+
+        public int getLeft(){
+            return mCurrentLeftMargin;
+        }
+
+        public int getRight(){
+            return mCurrentLeftMargin + mCurrentWidth;
         }
 
         public void hide(){
