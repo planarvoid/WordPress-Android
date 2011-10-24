@@ -89,6 +89,8 @@ public class WorkspaceView extends ViewGroup {
     private int mPagingTouchSlop;
     private int mMaximumVelocity;
 
+    private int initialSlop;
+
     private static final int INVALID_POINTER = -1;
 
     private int mActivePointerId = INVALID_POINTER;
@@ -498,7 +500,9 @@ public class WorkspaceView extends ViewGroup {
                 if (xMoved || yMoved) {
                     if (xPaged) {
                         // Scroll if the user moved far enough along the X axis
+                        initialSlop = (int) (mDownMotionX - x);
                         mTouchState = TOUCH_STATE_SCROLLING;
+
                     }
                     // Either way, cancel any pending longpress
                     if (mAllowLongPress) {
@@ -635,9 +639,8 @@ public class WorkspaceView extends ViewGroup {
                     final View lastChild = getChildAt(getChildCount() - 1);
                     final int maxScrollX = lastChild.getRight() - getWidth();
                     scrollTo(Math.max(0, Math.min(maxScrollX,
-                            (int)(mDownScrollX + mDownMotionX -
-                                    (mDownMotionX > x ? x + mPagingTouchSlop : x - mPagingTouchSlop)
-                            ))), 0);
+                            (int) (mDownScrollX + mDownMotionX - (x + initialSlop)))), 0);
+
                     if (mOnScrollListener != null) {
                         mOnScrollListener.onScroll(getCurrentScreenFraction());
                     }
@@ -664,6 +667,7 @@ public class WorkspaceView extends ViewGroup {
 
                     if (xMoved || yMoved) {
                         if (xPaged) {
+                            initialSlop = (int) (mDownMotionX - x);
                             // Scroll if the user moved far enough along the X axis
                             mTouchState = TOUCH_STATE_SCROLLING;
                         }
@@ -684,6 +688,7 @@ public class WorkspaceView extends ViewGroup {
 
             case MotionEvent.ACTION_UP:
                 if (mTouchState == TOUCH_STATE_SCROLLING) {
+                    initialSlop = 0;
                     final int activePointerId = mActivePointerId;
                     final int pointerIndex = MotionEventUtils.findPointerIndex(ev, activePointerId);
                     final float x = MotionEventUtils.getX(ev, pointerIndex);
