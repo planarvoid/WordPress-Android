@@ -121,6 +121,14 @@ public class UserlistLayout extends RelativeLayout {
         return mWorkspaceView.getCurrentScreen();
     }
 
+    public void initByTag(String tag) {
+        for (TabLabel tl : tabLabels) {
+            if (tl.tag.contentEquals(tag)) {
+                mWorkspaceView.initWorkspace((int) tl.index);
+            }
+        }
+    }
+
     private static class TabLabel {
 
         public final String tag;

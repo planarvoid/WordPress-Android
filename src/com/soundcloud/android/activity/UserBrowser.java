@@ -149,7 +149,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 loadYou();
             }
 
-            if (isMe()) {
+            if (intent != null && intent.hasExtra("userBrowserTag")){
+                mUserlistBrowser.initByTag(intent.getStringExtra("userBrowserTag"));
+            } else if (isMe()) {
                 final int initialTab = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
                 if (initialTab == -1) {
                     mUserlistBrowser.initWorkspace(1);//tracks tab

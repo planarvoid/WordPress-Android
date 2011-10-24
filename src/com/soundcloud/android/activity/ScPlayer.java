@@ -2,6 +2,7 @@
 package com.soundcloud.android.activity;
 
 import android.os.*;
+import android.view.WindowManager;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
@@ -101,6 +102,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
         final Object[] saved = (Object[]) getLastNonConfigurationInstance();
         if (saved != null && saved[0] != null) mPlayingTrack = (Track) saved[0];
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     public void toggleCommentMode(int playPos) {
