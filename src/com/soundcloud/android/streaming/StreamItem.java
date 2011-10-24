@@ -3,9 +3,12 @@ package com.soundcloud.android.streaming;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.os.Bundle;
+import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+
+import java.util.logging.Handler;
 
 public class StreamItem implements Parcelable {
     public static String SCStreamItemDidResetNotification = "com.soundcloud.android.SCStreamItemDidResetNotification";
@@ -67,6 +70,7 @@ public class StreamItem implements Parcelable {
         }
         return mURLHash;
     }
+
 
     @Override
     public String toString() {

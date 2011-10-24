@@ -33,6 +33,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
     protected void bindShadowClasses() {
         super.bindShadowClasses();
         Robolectric.bindShadowClass(ShadowLog.class);
+        Robolectric.bindShadowClass(ShadowHandlerThread.class);
     }
 
     @SuppressWarnings({"UseOfSystemOutOrSystemErr", "UnusedDeclaration", "CallToPrintStackTrace"})

@@ -2,9 +2,12 @@ package com.soundcloud.android.streaming;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
+import com.xtremelabs.robolectric.Robolectric;
+import org.apache.http.message.BasicHeader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +45,7 @@ public class StreamLoaderTest {
         testFile = new File(getClass().getResource(TEST_MP3).getFile());
         storage = new StreamStorage(DefaultTestRunner.application, baseDir, CHUNK_SIZE);
         loader = new StreamLoader(DefaultTestRunner.application, storage);
+        loader.setForceOnline(true);
         item = new StreamItem(TEST_MP3, testFile.length());
     }
 
@@ -79,6 +83,9 @@ public class StreamLoaderTest {
         for (Integer i : mSampleChunkIndexes) {
             loader.storeData(mSampleBuffers.get(i), i, item);
         }
+
+        addPendingHttpResponse(302, "", new BasicHeader("Location", "foo"));
+        addPendingHttpResponse(200, "data");
 
         StreamFuture cb = loader.getDataForItem(item, Range.from(0, 300));
 
