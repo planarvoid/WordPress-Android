@@ -528,7 +528,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
         registerHeadphoneRemoteControl();
 
-        updateTrackDisplay();
+
         setPauseButtonImage();
 
         long next = refreshNow();
