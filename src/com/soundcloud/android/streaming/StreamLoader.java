@@ -21,53 +21,50 @@ public class StreamLoader {
     private NetworkInfo mCurrentNetworkInfo;
     protected static final int CONNECTIVITY_MSG = 0;
 
-    private Context mContext;
+    private Context mContext; // really needed?
     private StreamStorage mStorage;
-    private List<StreamItem> mItemsNeedingHeadRequests;
-    private List<StreamItem> mItemsNeedingPlayCountRequests;
+    private List<StreamItem> mItemsNeedingHeadRequests = new ArrayList<StreamItem>();
+    private List<StreamItem> mItemsNeedingPlayCountRequests = new ArrayList<StreamItem>();
 
     private int chunkSize;
     private StreamItem mCurrentItem;
     private int mCurrentPosition;
 
-    private Set<StreamFuture> mPlayerCallbacks;
+    private Set<StreamFuture> mPlayerCallbacks = new HashSet<StreamFuture>();
     private LoadingQueue mHighPriorityQueue = new LoadingQueue();
     private LoadingQueue mLowPriorityQueue = new LoadingQueue();
     private DataTask mHighPriorityConnection;
     private boolean mLowPriorityConnection;
     private static final String STREAM_ITEM_RANGE_LOADED = "com.soundcloud.android.streaming.streamitemrangeloaded";
 
-    private Set<HeadTask> mHeadTasks;
+    private Set<HeadTask> mHeadTasks = new HashSet<HeadTask>();
 
     private StreamHandler mDataHandler;
     private StreamHandler mHeadHandler;
+
     private Handler mResultHandler;
 
+    private boolean mForceOnline;
 
     public StreamLoader(Context context, StreamStorage storage) {
         mContext = context;
         mStorage = storage;
         chunkSize = storage.chunkSize;
-        mPlayerCallbacks = new HashSet<StreamFuture>();
 
         // setup connectivity listening
-        mConnectivityListener = new NetworkConnectivityListener();
-        mConnectivityListener.registerHandler(mConnHandler, CONNECTIVITY_MSG);
-        mConnectivityListener.startListening(context);
-
-        mItemsNeedingHeadRequests = new ArrayList<StreamItem>();
-        mItemsNeedingPlayCountRequests = new ArrayList<StreamItem>();
-
-        mHeadTasks = new HashSet<HeadTask>();
+        mConnectivityListener = new NetworkConnectivityListener()
+                .registerHandler(mConnHandler, CONNECTIVITY_MSG)
+                .startListening(context);
 
         HandlerThread dataThread = new HandlerThread(getClass().getSimpleName(), THREAD_PRIORITY_BACKGROUND);
         dataThread.start();
+
         mDataHandler = new StreamHandler(dataThread.getLooper());
 
         HandlerThread contentLengthThread = new HandlerThread(getClass().getSimpleName(), THREAD_PRIORITY_BACKGROUND);
         contentLengthThread.start();
-        mHeadHandler = new StreamHandler(contentLengthThread.getLooper());
 
+        mHeadHandler = new StreamHandler(contentLengthThread.getLooper());
 
         mResultHandler = new Handler(Looper.getMainLooper());
     }
@@ -173,53 +170,53 @@ public class StreamLoader {
             mHighPriorityConnection = null;
         }
 
-        if (!isOnline()) return;
-
-        if (mItemsNeedingHeadRequests.size() > 0){
-            for (StreamItem item : mItemsNeedingHeadRequests){
-                // start head connection for item
+        if (isOnline()) {
+            if (!mItemsNeedingHeadRequests.isEmpty()){
+                for (StreamItem item : mItemsNeedingHeadRequests) {
+                    startHeadTask(item);
+                }
+                mItemsNeedingHeadRequests.clear();
             }
-            mItemsNeedingHeadRequests.clear();
-        }
 
-         if (mItemsNeedingPlayCountRequests.size() > 0){
-            for (StreamItem item : mItemsNeedingPlayCountRequests){
-                // start play count connection for item
+             if (!mItemsNeedingPlayCountRequests.isEmpty()) {
+                for (StreamItem item : mItemsNeedingPlayCountRequests) {
+                    // start play count connection for item
+                }
+                mItemsNeedingPlayCountRequests.clear();
             }
-            mItemsNeedingPlayCountRequests.clear();
-        }
 
-        processHighPriorityQueue();
-        if (mHighPriorityConnection == null){
-            processLowPriorityQueue();
+            processHighPriorityQueue();
+            if (mHighPriorityConnection == null){
+                processLowPriorityQueue();
+            }
         }
     }
 
     private void processHighPriorityQueue() {
-
-        if (mHighPriorityQueue.size() == 0) return;
+        if (mHighPriorityQueue.isEmpty()) return;
 
         //Look if it is the current LowPriority Chunk.
         if (mLowPriorityConnection) {
-            LoadingItem loadingItem = mHighPriorityQueue.get(0);
+            LoadingItem loadingItem = mHighPriorityQueue.head();
             List<Integer> indexes = loadingItem.indexes;
-
 
             /*
              TODO cancel low priority connection and re-add it to the queue
              https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L789
               */
-
         }
 
         for (LoadingItem highPriorityItem : mHighPriorityQueue) {
             StreamItem item = highPriorityItem.streamItem;
             if (!item.available) {
                 mHighPriorityQueue.remove(highPriorityItem);
-            } else if (item.getContentLength() != 0) {
-                Range chunkRange = Range.from((Integer) highPriorityItem.indexes.get(0), 1);
-                mHighPriorityConnection = startDataTask(item,chunkRange);
-                        /*
+
+            }
+            //If there is a contentLength for the item, download fist chunk
+            else if (item.getContentLength() != 0) {
+                Range chunkRange = Range.from(highPriorityItem.indexes.get(0), 1);
+                mHighPriorityConnection = startDataTask(item, chunkRange);
+                /*
                   highPriorityConnection = [[self startDataConnectionForItem:item range:chunkRange] retain];
             if (highPriorityConnection) {
                 //If we have a connection, remove the chunk - it is taken care of and will be re-added in case of failure.
@@ -339,6 +336,7 @@ public class StreamLoader {
     }
 
     private boolean isOnline() {
+        if (mForceOnline) return true;
         if (mConnectivityListener == null) return false;
         mCurrentNetworkInfo = mConnectivityListener.getNetworkInfo();
         return mCurrentNetworkInfo != null && mCurrentNetworkInfo.isConnected();
@@ -356,10 +354,10 @@ public class StreamLoader {
     };
 
     private DataTask startDataTask(StreamItem item, Range chunkRange){
-        DataTask dt = new DataTask(item, Range.from(chunkRange.location * chunkSize, chunkRange.length * chunkSize));
-        Message msg = mHeadHandler.obtainMessage(item.url.hashCode(),dt);
+        DataTask task = new DataTask(item, Range.from(chunkRange.location * chunkSize, chunkRange.length * chunkSize));
+        Message msg = mDataHandler.obtainMessage(item.hashCode(), task);
         mDataHandler.sendMessage(msg);
-        return dt;
+        return task;
     }
 
     private HeadTask startHeadTask(StreamItem item){
@@ -379,8 +377,7 @@ public class StreamLoader {
         }
 
         HeadTask ht = new HeadTask(item);
-
-        Message msg = mHeadHandler.obtainMessage(item.url.hashCode(),ht);
+        Message msg = mHeadHandler.obtainMessage(item.hashCode(), ht);
         mHeadHandler.sendMessage(msg);
 
         return ht;
@@ -400,6 +397,10 @@ public class StreamLoader {
                 mResultHandler.post(task);
             }
         }
+    }
+
+    /* package */ void setForceOnline(boolean b) {
+        mForceOnline = b;
     }
 
     private static boolean isWaiting(Handler handler) {

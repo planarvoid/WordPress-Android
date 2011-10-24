@@ -15,7 +15,7 @@ class HeadTask extends DataTask {
 
     @Override
     protected HttpUriRequest buildRequest(){
-       return new HttpHead(mItem.redirectedURL);
+       return new HttpHead(mItem.url);
     }
 
     @Override

@@ -41,7 +41,7 @@ class DataTask implements Runnable {
 
         // method.setHeader("Range", "bytes=" + get + "-");
 
-        return null;
+        return method;
     }
 
     public boolean execute() {

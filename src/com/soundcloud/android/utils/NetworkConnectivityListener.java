@@ -40,7 +40,107 @@ public class NetworkConnectivityListener {
 
     private ConnectivityBroadcastReceiver mReceiver;
 
-    private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
+    public enum State {
+        UNKNOWN,
+
+        /** This state is returned if there is connectivity to any network **/
+        CONNECTED,
+        /**
+         * This state is returned if there is no connectivity to any network.
+         * This is set to true under two circumstances:
+         * <ul>
+         * <li>When connectivity is lost to one network, and there is no other
+         * available network to attempt to switch to.</li>
+         * <li>When connectivity is lost to one network, and the attempt to
+         * switch to another network fails.</li>
+         */
+        NOT_CONNECTED
+    }
+
+    /**
+     * Create a new NetworkConnectivityListener.
+     */
+    public NetworkConnectivityListener() {
+        mState = State.UNKNOWN;
+        mReceiver = new ConnectivityBroadcastReceiver();
+    }
+
+    /**
+     * This method starts listening for network connectivity state changes.
+     */
+    public synchronized NetworkConnectivityListener startListening(Context context) {
+        if (!mListening) {
+            mContext = context;
+
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            context.registerReceiver(mReceiver, filter);
+            mListening = true;
+        }
+        return this;
+    }
+
+    /**
+     * This method stops this class from listening for network changes.
+     */
+    public synchronized void stopListening() {
+        if (mListening) {
+            mContext.unregisterReceiver(mReceiver);
+            mContext = null;
+            mNetworkInfo = null;
+            mOtherNetworkInfo = null;
+            mListening = false;
+        }
+    }
+
+    /**
+     * This methods registers a Handler to be called back onto with the
+     * specified what code when the network connectivity state changes.
+     * 
+     * @param target The target handler.
+     * @param what The what code to be used when posting a message to the
+     *            handler.
+     */
+    public NetworkConnectivityListener registerHandler(Handler target, int what) {
+        mHandlers.put(target, what);
+        return this;
+    }
+
+    /**
+     * This methods unregisters the specified Handler.
+     * 
+     * @param target
+     */
+    public NetworkConnectivityListener unregisterHandler(Handler target) {
+        mHandlers.remove(target);
+        return this;
+    }
+
+    /**
+     * Return the NetworkInfo associated with the most recent connectivity
+     * event.
+     * 
+     * @return {@code NetworkInfo} for the network that had the most recent
+     *         connectivity event.
+     */
+    public NetworkInfo getNetworkInfo() {
+        return mNetworkInfo;
+    }
+
+    /**
+     * If the most recent connectivity event was a DISCONNECT, return any
+     * information supplied in the broadcast about an alternate network that
+     * might be available. If this returns a non-null value, then another
+     * broadcast should follow shortly indicating whether connection to the
+     * other network succeeded.
+     * 
+     * @return NetworkInfo
+     */
+    public NetworkInfo getOtherNetworkInfo() {
+        return mOtherNetworkInfo;
+    }
+
+     private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -79,102 +179,5 @@ public class NetworkConnectivityListener {
                 target.sendMessage(message);
             }
         }
-    }
-
-    public enum State {
-        UNKNOWN,
-
-        /** This state is returned if there is connectivity to any network **/
-        CONNECTED,
-        /**
-         * This state is returned if there is no connectivity to any network.
-         * This is set to true under two circumstances:
-         * <ul>
-         * <li>When connectivity is lost to one network, and there is no other
-         * available network to attempt to switch to.</li>
-         * <li>When connectivity is lost to one network, and the attempt to
-         * switch to another network fails.</li>
-         */
-        NOT_CONNECTED
-    }
-
-    /**
-     * Create a new NetworkConnectivityListener.
-     */
-    public NetworkConnectivityListener() {
-        mState = State.UNKNOWN;
-        mReceiver = new ConnectivityBroadcastReceiver();
-    }
-
-    /**
-     * This method starts listening for network connectivity state changes.
-     */
-    public synchronized void startListening(Context context) {
-        if (!mListening) {
-            mContext = context;
-
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            context.registerReceiver(mReceiver, filter);
-            mListening = true;
-        }
-    }
-
-    /**
-     * This method stops this class from listening for network changes.
-     */
-    public synchronized void stopListening() {
-        if (mListening) {
-            mContext.unregisterReceiver(mReceiver);
-            mContext = null;
-            mNetworkInfo = null;
-            mOtherNetworkInfo = null;
-            mListening = false;
-        }
-    }
-
-    /**
-     * This methods registers a Handler to be called back onto with the
-     * specified what code when the network connectivity state changes.
-     * 
-     * @param target The target handler.
-     * @param what The what code to be used when posting a message to the
-     *            handler.
-     */
-    public void registerHandler(Handler target, int what) {
-        mHandlers.put(target, what);
-    }
-
-    /**
-     * This methods unregisters the specified Handler.
-     * 
-     * @param target
-     */
-    public void unregisterHandler(Handler target) {
-        mHandlers.remove(target);
-    }
-
-    /**
-     * Return the NetworkInfo associated with the most recent connectivity
-     * event.
-     * 
-     * @return {@code NetworkInfo} for the network that had the most recent
-     *         connectivity event.
-     */
-    public NetworkInfo getNetworkInfo() {
-        return mNetworkInfo;
-    }
-
-    /**
-     * If the most recent connectivity event was a DISCONNECT, return any
-     * information supplied in the broadcast about an alternate network that
-     * might be available. If this returns a non-null value, then another
-     * broadcast should follow shortly indicating whether connection to the
-     * other network succeeded.
-     * 
-     * @return NetworkInfo
-     */
-    public NetworkInfo getOtherNetworkInfo() {
-        return mOtherNetworkInfo;
     }
 }
