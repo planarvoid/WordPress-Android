@@ -315,12 +315,12 @@ public class StreamStorage {
         }
 
         byte[] data = null;
-
         try {
             data = incompleteDataForChunk(item, chunkIndex);
         } catch (IOException e) {
-            Log.i(getClass().getSimpleName(), "Error retrieving chunk data: ", e);
+            Log.i(getClass().getSimpleName(), "Error retrieving incomplete chunk data: ", e);
         }
+
         if (data != null) return data;
 
         try{

@@ -12,7 +12,7 @@ public class StreamItem implements Parcelable {
 
     public final String url;
     public String redirectedURL;
-    public boolean enabled;
+    public boolean available = true;  // http status 402,404,410
 
     private String mURLHash;
     private long mContentLength;
@@ -57,6 +57,10 @@ public class StreamItem implements Parcelable {
         return mContentLength;
     }
 
+    public Range getRange() {
+        return Range.from(0, getContentLength());
+    }
+
     public String getURLHash() {
         if (mURLHash == null) {
             mURLHash = CloudUtils.md5(url);
@@ -70,7 +74,7 @@ public class StreamItem implements Parcelable {
                 ", redirectedURL:" + redirectedURL +
                 ", URLHash:" + mURLHash +
                 ", contentLength:" + mContentLength +
-                ", enabled:" + enabled +
+                ", enabled:" + available +
                 "}";
     }
 
@@ -85,7 +89,7 @@ public class StreamItem implements Parcelable {
         data.putString("URL", url);
         data.putString("redirectedURL", redirectedURL);
         data.putString("URLHash", mURLHash);
-        data.putBoolean("enabled", enabled);
+        data.putBoolean("enabled", available);
         data.putLong("contentLength", mContentLength);
         dest.writeBundle(data);
     }
@@ -95,7 +99,7 @@ public class StreamItem implements Parcelable {
         url = data.getString("URL");
         redirectedURL = data.getString("redirectedURL");
         mURLHash = data.getString("URLHash");
-        enabled = data.getBoolean("enabled");
+        available = data.getBoolean("enabled");
         mContentLength = data.getLong("contentLength");
     }
 

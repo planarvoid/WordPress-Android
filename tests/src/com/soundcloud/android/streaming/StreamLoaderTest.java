@@ -1,8 +1,7 @@
 package com.soundcloud.android.streaming;
 
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
@@ -22,6 +21,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(DefaultTestRunner.class)
 public class StreamLoaderTest {
@@ -52,7 +52,7 @@ public class StreamLoaderTest {
         ByteBuffer actual = loader.getDataForItem(item, Range.from(0, CHUNK_SIZE)).get();
         ByteBuffer expected = readToByteBuffer(testFile, CHUNK_SIZE);
 
-        assertThat(actual, equalTo(expected));
+        expect(actual).toEqual(expected);
     }
 
     @Test
@@ -60,10 +60,34 @@ public class StreamLoaderTest {
         setupChunkArray();
         Collections.shuffle(mSampleChunkIndexes);
 
-        for (Integer mSampleChunkIndexe : mSampleChunkIndexes) {
-            loader.storeData(mSampleBuffers.get(mSampleChunkIndexe), mSampleChunkIndexe, item);
+        for (Integer i : mSampleChunkIndexes) {
+            loader.storeData(mSampleBuffers.get(i), i, item);
         }
-        assertThat(loader.getDataForItem(item, Range.from(0, testFile.length())).get(), equalTo(readToByteBuffer(testFile, (int) testFile.length())));
+
+        expect(loader.getDataForItem(item, Range.from(0, testFile.length())).get())
+            .toEqual(readToByteBuffer(testFile, (int) testFile.length()));
+    }
+
+
+    @Test
+    public void shouldReturnAFutureForMissingChunk() throws Exception {
+        setupChunkArray();
+        mSampleChunkIndexes.remove(0);
+
+        Collections.shuffle(mSampleChunkIndexes);
+
+        for (Integer i : mSampleChunkIndexes) {
+            loader.storeData(mSampleBuffers.get(i), i, item);
+        }
+
+        StreamFuture cb = loader.getDataForItem(item, Range.from(0, 300));
+
+        expect(loader.getHighPriorityQueue().size()).toBe(1);
+        expect(loader.getHighPriorityQueue().head().streamItem.url).toEqual(TEST_MP3);
+
+        expect(cb.isDone()).toBeFalse();
+        cb.get(1, TimeUnit.SECONDS);
+        expect(cb.isDone()).toBeFalse();
     }
 
     private int setupChunkArray() throws IOException {

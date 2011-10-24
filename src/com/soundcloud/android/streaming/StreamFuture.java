@@ -6,18 +6,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class PlayerCallback implements Future<ByteBuffer> {
-    StreamItem scStreamItem;
-    Range byteRange;
-    ByteBuffer byteBuffer;
-    boolean ready = false;
+public class StreamFuture implements Future<ByteBuffer> {
+    final StreamItem scStreamItem;
+    final Range byteRange;
+    private ByteBuffer byteBuffer;
+    private boolean ready;
 
-    public PlayerCallback(StreamItem scStreamItem, Range byteRange) {
+    public StreamFuture(StreamItem scStreamItem, Range byteRange) {
         this.scStreamItem = scStreamItem;
         this.byteRange = byteRange;
     }
 
-    public void setByteBuffer(ByteBuffer byteBuffer){
+    public void setByteBuffer(ByteBuffer byteBuffer) {
         this.byteBuffer = byteBuffer;
         ready = true;
         synchronized (this) {
@@ -42,16 +42,30 @@ public class PlayerCallback implements Future<ByteBuffer> {
 
     @Override
     public ByteBuffer get() throws InterruptedException, ExecutionException {
-        synchronized (this) {
-        while (!ready) {
-            try {wait(); } catch (InterruptedException e) { return null; }
-        }
-        }
-        return byteBuffer;
+        return get(-1);
     }
 
     @Override
     public ByteBuffer get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
-        throw new RuntimeException("not implemented");
+        return get(timeUnit.toMillis(l));
     }
+
+    private ByteBuffer get(long millis) throws InterruptedException, ExecutionException {
+        synchronized (this) {
+            while (!ready) {
+                try {
+                    if (millis < 0) {
+                        wait();
+                    } else {
+                        wait(millis);
+                        break;
+                    }
+                } catch (InterruptedException e) {
+                    return null;
+                }
+            }
+        }
+        return byteBuffer;
+    }
+
 }
