@@ -609,7 +609,12 @@ public final class ImageLoader {
             // Clear the ImageView by default.
             // The caller can set their own placeholder
             // based on the return value.
-            view.setImageDrawable(null);
+            final Bitmap temporaryBitmap = options.temporaryBitmapRef != null ? options.temporaryBitmapRef.get() : null;
+            if (temporaryBitmap != null) {
+                view.setImageBitmap(temporaryBitmap);
+            } else {
+                view.setImageDrawable(null);
+            }
 
             if (error != null) {
                 return BindResult.ERROR;
