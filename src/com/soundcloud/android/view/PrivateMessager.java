@@ -73,7 +73,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
                     saveRecording(mRecording);
                     mActivity.startUpload(mRecording);
                     mRecording = null;
-                    mRecordingMetadata.setRecording(null);
+                    mRecordingMetadata.reset();
                     mCreateController.reset();
                     flipToCreate();
 
@@ -191,6 +191,14 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
                             result.getDoubleExtra("latitude", 0));
                 }
                 break;
+        }
+    }
+
+    public void setRecording(Uri recordingUri) {
+        mRecording = Recording.fromUri(recordingUri, mActivity.getContentResolver());
+        if (mRecording != null){
+            mCreateController.setRecording(mRecording);
+            mRecordingMetadata.setRecording(mRecording, true);
         }
     }
 }

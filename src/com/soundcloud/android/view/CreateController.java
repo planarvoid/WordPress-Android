@@ -191,7 +191,6 @@ public class CreateController {
     }
 
     public void reset() {
-        Log.i("asdf","ON RESETTT ");
         mRecordFile = null;
         mRecording = null;
         mCurrentState = CreateState.IDLE_RECORD;
