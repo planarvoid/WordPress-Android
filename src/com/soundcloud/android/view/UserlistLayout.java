@@ -201,9 +201,11 @@ public class UserlistLayout extends RelativeLayout {
                 mCurrentLeftMargin = Math.max(cutoffRight + spacer, mCurrentLeftMargin);
             }
 
-            ((LayoutParams) mTextView.getLayoutParams()).leftMargin = mCurrentLeftMargin;
-            mTextView.setVisibility(View.VISIBLE);
-            mTextView.requestLayout();
+            if (mCurrentLeftMargin != ((LayoutParams) mTextView.getLayoutParams()).leftMargin || (mTextView.getVisibility() != View.VISIBLE)){
+                ((LayoutParams) mTextView.getLayoutParams()).leftMargin = mCurrentLeftMargin;
+                mTextView.setVisibility(View.VISIBLE);
+                mTextView.requestLayout();
+            }
         }
 
         public int getLeft(){
