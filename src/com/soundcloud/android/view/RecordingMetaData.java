@@ -164,6 +164,7 @@ public class RecordingMetaData extends RelativeLayout{
 
         state.putParcelableArrayList("venues", mVenues);
         state.putParcelable("location", mLocation);
+        state.putParcelable("recording", mRecording);
     }
 
     public void onRestoreInstanceState(Bundle state) {
@@ -171,6 +172,7 @@ public class RecordingMetaData extends RelativeLayout{
         mWhereText.setText(state.getString("createWhereValue"));
         mVenues = state.getParcelableArrayList("venues");
         mLocation = state.getParcelable("location");
+        mRecording = state.getParcelable("recording");
 
         if (!TextUtils.isEmpty(state.getString("createArtworkPath"))) {
             setImage(new File(state.getString("createArtworkPath")));
