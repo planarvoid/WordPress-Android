@@ -154,7 +154,7 @@ public class UserlistLayout extends RelativeLayout {
         private final TextView mTextView;
         private final String mLabel;
         private int mCurrentPosition;
-        private boolean mBold = true;
+        private boolean mBold = false;
 
         private int mCurrentLeftMargin;
         private int mCurrentWidth;
