@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.util.Log;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Event;
@@ -120,6 +121,9 @@ public class TrackInfoBar extends RelativeLayout {
 
     /** update the views with the data corresponding to selection index */
     public void display(Parcelable p, boolean shouldLoadIcon, long playingId, boolean keepHeight) {
+        display(p,shouldLoadIcon,playingId,keepHeight,false);
+    }
+    public void display(Parcelable p, boolean shouldLoadIcon, long playingId, boolean keepHeight, boolean isMyTrack) {
         mTrack = p instanceof Event ? ((Event) p).getTrack() :
                  p instanceof Track ? (Track) p : null;
         if (mTrack == null) return;
@@ -142,7 +146,7 @@ public class TrackInfoBar extends RelativeLayout {
         } else {
             if (mTrack.shared_to_count == 1){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_with_you));
+                mPrivateIndicator.setText(getContext().getString(isMyTrack ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you));
             } else {
                 if (mTrack.shared_to_count < 8){
                     mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
