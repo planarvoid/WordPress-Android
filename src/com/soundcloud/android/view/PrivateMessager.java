@@ -84,8 +84,8 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     }
 
     private void flipToCreate(){
-        mViewFlipper.setInAnimation(AnimUtils.inFromTopAnimation());
-        mViewFlipper.setOutAnimation(AnimUtils.outToBottomAnimation());
+        mViewFlipper.setInAnimation(AnimUtils.inFromTopAnimation(500));
+        mViewFlipper.setOutAnimation(AnimUtils.outToBottomAnimation(500));
         mViewFlipper.showPrevious();
     }
 
@@ -153,8 +153,8 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     public void onSave(Uri recordingUri, Recording recording) {
         mRecording = recording;
         mRecordingMetadata.setRecording(mRecording, true);
-        mViewFlipper.setInAnimation(AnimUtils.inFromBottomAnimation());
-        mViewFlipper.setOutAnimation(AnimUtils.outToTopAnimation());
+        mViewFlipper.setInAnimation(AnimUtils.inFromBottomAnimation(500));
+        mViewFlipper.setOutAnimation(AnimUtils.outToTopAnimation(500));
         mViewFlipper.showNext();
 
         mCreateController.updateUi(false);
