@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="@color/createBackground">
+                android:background="@drawable/create_bg_repeat">
 
     <RelativeLayout android:id="@+id/bar_holder"
                     android:layout_width="fill_parent"
