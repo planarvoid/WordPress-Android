@@ -1,6 +1,7 @@
 package com.soundcloud.android.streaming;
 
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.Stream;
 
 import android.os.Bundle;
 import android.os.Message;
@@ -8,18 +9,23 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Handler;
 
 public class StreamItem implements Parcelable {
     public static String SCStreamItemDidResetNotification = "com.soundcloud.android.SCStreamItemDidResetNotification";
+    public IndexSet index = new IndexSet();
 
     public final String url;
     public String redirectedURL;
     public boolean available = true;  // http status 402,404,410
-
     private String mURLHash;
     private long mContentLength;
-    private String mEtag;
+    private String eTag;
 
     public StreamItem(String url) {
         if (TextUtils.isEmpty(url)) throw new IllegalArgumentException();
@@ -29,6 +35,13 @@ public class StreamItem implements Parcelable {
     public StreamItem(String url, long length) {
         this(url);
         setContentLength(length);
+    }
+
+    public StreamItem initializeFrom(Stream s) {
+        setContentLength(s.contentLength);
+        redirectedURL = s.streamUrl;
+        eTag = s.eTag;
+        return this;
     }
 
     public boolean setContentLength(long value) {

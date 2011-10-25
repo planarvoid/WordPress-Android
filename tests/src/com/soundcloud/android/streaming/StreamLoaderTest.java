@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
+import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,13 +85,12 @@ public class StreamLoaderTest {
             loader.storeData(mSampleBuffers.get(i), i, item);
         }
 
-        addPendingHttpResponse(302, "", new BasicHeader("Location", "foo"));
-        addPendingHttpResponse(200, "data");
+        pendingResponses();
 
         StreamFuture cb = loader.getDataForItem(item, Range.from(0, 300));
 
         expect(loader.getHighPriorityQueue().size()).toBe(1);
-        expect(loader.getHighPriorityQueue().head().streamItem.url).toEqual(TEST_URL);
+        expect(loader.getHighPriorityQueue().head().url).toEqual(TEST_URL);
 
         expect(cb.isDone()).toBeFalse();
         cb.get(1, TimeUnit.SECONDS);
@@ -118,5 +118,39 @@ public class StreamLoaderTest {
         fc.read(b);
         b.flip();
         return b;
+    }
+
+    static void pendingResponses() {
+        long expires = System.currentTimeMillis() + 60*1000;
+        // first HEAD request
+        addPendingHttpResponse(302, "", headers(
+            "Location", "http://ak-media.soundcloud.com/foo_head.mp3?Expires="+expires)
+        );
+
+        // second HEAD request (to S3/akamai)
+        addPendingHttpResponse(200, "", headers(
+            "Content-Length",      "12345",
+            "ETag",                "anEtag",
+            "Last-Modified",       "Tue, 25 Oct 2011 10:01:23 GMT",
+            "x-amz-meta-bitrate",  "128",
+            "x-amz-meta-duration", "18998"
+        ));
+
+        // first GET request - soundcloud
+        addPendingHttpResponse(302, "", headers(
+            "Location", "http://ak-media.soundcloud.com/foo_get.mp3?Expires="+expires+1000)
+        );
+
+        // second GET request (actual data)
+        addPendingHttpResponse(200, "");
+    }
+
+
+    public static Header[] headers(String... keyValues) {
+        Header[] headers = new Header[keyValues.length/2];
+        for (int i=0; i<keyValues.length/2; i++) {
+            headers[i] = new BasicHeader(keyValues[i*2], keyValues[i*2+1]);
+        }
+        return  headers;
     }
 }

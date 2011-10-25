@@ -177,12 +177,12 @@ public class StreamStorage {
         }
     }
 
-    public Set<Integer> getMissingChunksForItem(StreamItem item, Range chunkRange) {
+    public IndexSet getMissingChunksForItem(StreamItem item, Range chunkRange) {
         resetDataIfNecessary(item);
 
         //If the complete file exists
         if (completeFileForItem(item).exists()) {
-            return Collections.emptySet();
+            return IndexSet.empty();
         }
         ensureMetadataIsLoadedForItem(item);
         long contentLength = getContentLengthForItem(item);
@@ -194,7 +194,7 @@ public class StreamStorage {
 
         long lastChunk = (long) Math.ceil((double) contentLength / (double) chunkSize) - 1;
         final List<Integer> allIncompleteIndexes = mIncompleteIndexes.get(item);
-        HashSet<Integer> missingIndexes = new HashSet<Integer>();
+        IndexSet missingIndexes = new IndexSet();
         for (int chunk = chunkRange.location; chunk < chunkRange.end(); chunk++) {
             if (!allIncompleteIndexes.contains(chunk) && chunk <= lastChunk){
                 missingIndexes.add(chunk);

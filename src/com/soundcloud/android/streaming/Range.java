@@ -4,9 +4,6 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class Range implements Parcelable {
     public final int location;
     public final int length;
@@ -27,10 +24,10 @@ public class Range implements Parcelable {
         return new Range((int)start, (int)length);
     }
 
-    public Set<Integer> toIndexSet() {
-        HashSet<Integer> indexSet = new HashSet<Integer>();
+    public IndexSet toIndexSet() {
+        IndexSet indexSet = new IndexSet();
         for (int i = location; i < length; i++) {
-            indexSet.add(location);
+            indexSet.add(i);
         }
         return indexSet;
     }
