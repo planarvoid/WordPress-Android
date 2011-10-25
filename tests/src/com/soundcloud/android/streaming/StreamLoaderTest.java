@@ -6,7 +6,6 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
-import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.message.BasicHeader;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(DefaultTestRunner.class)
 public class StreamLoaderTest {
     public static final String TEST_MP3 = "fred.mp3";
+    public static final String TEST_URL = "https://api.soundcloud.com/tracks/12345";
     public static final int CHUNK_SIZE = 1024;
     StreamLoader loader;
     StreamStorage storage;
@@ -46,7 +46,7 @@ public class StreamLoaderTest {
         storage = new StreamStorage(DefaultTestRunner.application, baseDir, CHUNK_SIZE);
         loader = new StreamLoader(DefaultTestRunner.application, storage);
         loader.setForceOnline(true);
-        item = new StreamItem(TEST_MP3, testFile.length());
+        item = new StreamItem(TEST_URL, testFile.length());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class StreamLoaderTest {
         StreamFuture cb = loader.getDataForItem(item, Range.from(0, 300));
 
         expect(loader.getHighPriorityQueue().size()).toBe(1);
-        expect(loader.getHighPriorityQueue().head().streamItem.url).toEqual(TEST_MP3);
+        expect(loader.getHighPriorityQueue().head().streamItem.url).toEqual(TEST_URL);
 
         expect(cb.isDone()).toBeFalse();
         cb.get(1, TimeUnit.SECONDS);

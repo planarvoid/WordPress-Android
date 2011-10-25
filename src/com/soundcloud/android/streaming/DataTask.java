@@ -1,62 +1,50 @@
 package com.soundcloud.android.streaming;
 
-import com.soundcloud.api.CloudAPI;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
 
-import android.net.http.AndroidHttpClient;
 import android.text.TextUtils;
+import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
-class DataTask implements Runnable {
-    StreamItem mItem;
-    Range mByteRange;
+class DataTask extends ApiTask {
+    final Range byteRange;
+    final byte[] buffer;
 
-    AndroidHttpClient mClient;
-    HttpResponse mResponse;
-
-    public boolean executed = false;
-
-    public DataTask(StreamItem item) {
-        mItem = item;
-        mClient = AndroidHttpClient.newInstance(CloudAPI.USER_AGENT);
-    }
-
-    public DataTask(StreamItem item, Range byteRange) {
-        this(item);
-        mByteRange = byteRange;
-    }
-
-    protected HttpUriRequest buildRequest() {
-
-        boolean useRedirectedUrl = false;
-        if (!TextUtils.isEmpty(mItem.redirectedURL) && !(mByteRange.location == 0)) {
-            useRedirectedUrl = true;
-        }
-
-        final HttpGet method = new HttpGet(useRedirectedUrl ? mItem.redirectedURL :
-                mItem.url);
-
-        // method.setHeader("Range", "bytes=" + get + "-");
-
-        return method;
-    }
-
-    public boolean execute() {
-        try {
-            mResponse = mClient.execute(buildRequest());
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        executed = true;
-        return false;
+    public DataTask(StreamItem item, Range byteRange, AndroidCloudAPI api) {
+        super(item, api);
+        if (byteRange == null) throw new IllegalArgumentException("byterange cannot be null");
+        this.byteRange = byteRange;
+        buffer = new byte[byteRange.length];
     }
 
     @Override
-    public void run() {
+    protected HttpResponse performRequest() throws IOException {
+        return api.get(buildRequest());
+    }
 
+    @Override
+    public void handleResponse() throws IOException {
+
+        if (response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 206) {
+            InputStream is = new BufferedInputStream(response.getEntity().getContent());
+            int n = is.read(buffer);
+            Log.d(getClass().getSimpleName(), "read "+n+" bytes");
+        } else {
+            Log.w(getClass().getSimpleName(), "invalid status code received:"+response.getStatusLine());
+        }
+    }
+
+    private Request buildRequest() {
+        boolean useRedirectedUrl = !TextUtils.isEmpty(item.redirectedURL) && byteRange.location > 0;
+        final Request request = Request.to(useRedirectedUrl ? item.redirectedURL : item.url);
+        if (byteRange != null) {
+            request.range(byteRange.location, byteRange.end());
+        }
+        return request;
     }
 }

@@ -140,6 +140,10 @@ public class NetworkConnectivityListener {
         return mOtherNetworkInfo;
     }
 
+    public boolean isConnected() {
+        return mNetworkInfo != null && mNetworkInfo.isConnected();
+    }
+
      private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
