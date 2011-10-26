@@ -17,7 +17,6 @@ public class TracklistRow extends LazyRow {
     private Track mTrack;
 
     private final TrackInfoBar mTrackInfoBar;
-    private final boolean isMyTracklist;
     protected final ImageView mCloseIcon;
 
     public TracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
@@ -25,8 +24,6 @@ public class TracklistRow extends LazyRow {
 
         mCloseIcon = (ImageView) findViewById(R.id.close_icon);
         mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
-
-        isMyTracklist = MyTracksAdapter.class.isAssignableFrom(_adapter.getClass());
 
         if (mIcon != null) {
             mIcon.setFocusable(false);
@@ -53,7 +50,7 @@ public class TracklistRow extends LazyRow {
         final Parcelable p = (Parcelable) mAdapter.getItem(position);
         mTrack = getTrackFromParcelable(p);
         super.display(position);
-        mTrackInfoBar.display(p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false, isMyTracklist);
+        mTrackInfoBar.display(p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false, mActivity.getCurrentUserId());
     }
 
     protected Track getTrackFromParcelable(Parcelable p) {

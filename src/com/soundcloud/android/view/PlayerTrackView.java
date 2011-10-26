@@ -177,7 +177,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
             mWaveformController.updateTrack(mTrack);
 
-            mTrackInfoBar.display(mTrack, false, -1, true);
+            mTrackInfoBar.display(mTrack, false, -1, true, mPlayer.getCurrentUserId());
             if (mTrackInfo != null) mTrackInfo.setPlayingTrack(mTrack);
             updateAvatar();
 
