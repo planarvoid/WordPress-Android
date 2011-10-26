@@ -17,6 +17,7 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.io.PipedOutputStream;
 import java.util.List;
 
 public class PlayListManager {
@@ -55,7 +56,7 @@ public class PlayListManager {
     }
 
     public Track getTrackAt(int pos) {
-        if (mPlayList != null && mPlayListLen > pos) {
+        if (mPlayList != null && (pos >= 0 && mPlayListLen > pos)) {
             if (mPlayListCache != null) {
                 return mPlayListCache[pos]; //TODO NPE GALORE, NOT SURE WHY YET WHY
             } else {

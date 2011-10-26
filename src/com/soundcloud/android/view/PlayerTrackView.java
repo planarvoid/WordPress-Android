@@ -568,7 +568,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
             if (intent.getBooleanExtra("isSupposedToBePlaying", false)) {
                 hideUnplayable();
-                mTrack.last_playback_error = -1;
+                if (mTrack != null) mTrack.last_playback_error = -1;
             } else {
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra("position", 0));
             }
