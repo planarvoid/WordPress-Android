@@ -24,12 +24,12 @@ public class Range implements Parcelable {
         return new Range((int)start, (int)length);
     }
 
-    public IndexSet toIndexSet() {
-        IndexSet indexSet = new IndexSet();
-        for (int i = location; i < length; i++) {
-            indexSet.add(i);
+    public Index toIndex() {
+        Index index = new Index();
+        for (int i = location; i < length+location; i++) {
+            index.set(i);
         }
-        return indexSet;
+        return index;
     }
 
     public int end() {
@@ -52,6 +52,10 @@ public class Range implements Parcelable {
     public Range chunkRange(int chunkSize) {
        return Range.from(location / chunkSize,
             (int) Math.ceil((double) ((location % chunkSize) + length) / (double) chunkSize));
+    }
+
+    public Range byteRange(int chunkSize) {
+        return Range.from(location * chunkSize, length * chunkSize);
     }
 
     @Override

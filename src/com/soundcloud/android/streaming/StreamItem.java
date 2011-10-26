@@ -4,25 +4,16 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Stream;
 
 import android.os.Bundle;
-import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.logging.Handler;
-
 public class StreamItem implements Parcelable {
-    public static String SCStreamItemDidResetNotification = "com.soundcloud.android.SCStreamItemDidResetNotification";
-    public IndexSet index = new IndexSet();
+    public Index index = new Index();
 
     public final String url;
     public String redirectedURL;
-    public boolean available = true;  // http status 402,404,410
+    public boolean unavailable;  // http status 402,404,410
     private String mURLHash;
     private long mContentLength;
     private String eTag;
@@ -52,6 +43,8 @@ public class StreamItem implements Parcelable {
 
             /*
             TODO: move this out of this class
+
+            public static String SCStreamItemDidResetNotification = "com.soundcloud.android.SCStreamItemDidResetNotification";
 
             if (oldLength != 0) {
                 Intent i = new Intent(SCStreamItemDidResetNotification);
@@ -91,7 +84,7 @@ public class StreamItem implements Parcelable {
                 ", redirectedURL:" + redirectedURL +
                 ", URLHash:" + mURLHash +
                 ", contentLength:" + mContentLength +
-                ", enabled:" + available +
+                ", unavailable:" + unavailable +
                 "}";
     }
 
@@ -106,7 +99,7 @@ public class StreamItem implements Parcelable {
         data.putString("URL", url);
         data.putString("redirectedURL", redirectedURL);
         data.putString("URLHash", mURLHash);
-        data.putBoolean("enabled", available);
+        data.putBoolean("unavailable", unavailable);
         data.putLong("contentLength", mContentLength);
         dest.writeBundle(data);
     }
@@ -116,7 +109,7 @@ public class StreamItem implements Parcelable {
         url = data.getString("URL");
         redirectedURL = data.getString("redirectedURL");
         mURLHash = data.getString("URLHash");
-        available = data.getBoolean("enabled");
+        unavailable = data.getBoolean("unavailable");
         mContentLength = data.getLong("contentLength");
     }
 

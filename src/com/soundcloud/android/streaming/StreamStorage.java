@@ -15,15 +15,16 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 /** @noinspection ResultOfMethodCallIgnored*/
 public class StreamStorage {
+    private static final String LOG_TAG = StreamStorage.class.getSimpleName();
     private static final int DEFAULT_CHUNK_SIZE = 128*1024;
+
     private static final int CLEANUP_INTERVAL = 20;
-
     public final int chunkSize;
+
     private Context mContext;
-
     private File mBaseDir, mCompleteDir, mIncompleteDir;
-    private long mUsedSpace, mSpaceLeft;
 
+    private long mUsedSpace, mSpaceLeft;
     private Map<StreamItem, Long>  mIncompleteContentLengths = new HashMap<StreamItem, Long>();
     private Map<StreamItem, List<Integer>> mIncompleteIndexes =  new HashMap<StreamItem, List<Integer>>();
     private List<StreamItem> mConvertingItems = new ArrayList<StreamItem>();
@@ -177,27 +178,27 @@ public class StreamStorage {
         }
     }
 
-    public IndexSet getMissingChunksForItem(StreamItem item, Range chunkRange) {
+    public Index getMissingChunksForItem(StreamItem item, Range chunkRange) {
         resetDataIfNecessary(item);
 
         //If the complete file exists
         if (completeFileForItem(item).exists()) {
-            return IndexSet.empty();
+            return Index.empty();
         }
         ensureMetadataIsLoadedForItem(item);
         long contentLength = getContentLengthForItem(item);
 
         //We have no idea about track size, so let's assume that all chunks are missing
         if (contentLength == 0) {
-            return chunkRange.toIndexSet();
+            return chunkRange.toIndex();
         }
 
         long lastChunk = (long) Math.ceil((double) contentLength / (double) chunkSize) - 1;
         final List<Integer> allIncompleteIndexes = mIncompleteIndexes.get(item);
-        IndexSet missingIndexes = new IndexSet();
+        Index missingIndexes = new Index();
         for (int chunk = chunkRange.location; chunk < chunkRange.end(); chunk++) {
             if (!allIncompleteIndexes.contains(chunk) && chunk <= lastChunk){
-                missingIndexes.add(chunk);
+                missingIndexes.set(chunk);
             }
         }
         return missingIndexes;
@@ -420,6 +421,8 @@ public class StreamStorage {
         protected Boolean doInBackground(File... params) {
             File chunkFile = params[0];
             File completeFile = params[1];
+
+            Log.d(LOG_TAG, "writing complete file to "+ completeFile);
 
             if (completeFile.exists()){
                 Log.e(getClass().getSimpleName(),"Complete file exists at path " + completeFile.getAbsolutePath());

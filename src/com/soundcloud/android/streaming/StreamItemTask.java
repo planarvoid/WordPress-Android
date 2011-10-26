@@ -34,4 +34,12 @@ public abstract class StreamItemTask implements Runnable {
     public boolean isExecuted() {
         return executed;
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()+"{" +
+                "item=" + item +
+                ", executed=" + executed +
+                '}';
+    }
 }

@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
+import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.junit.Before;
@@ -24,7 +25,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(DefaultTestRunner.class)
 public class StreamLoaderTest {
@@ -73,7 +73,6 @@ public class StreamLoaderTest {
             .toEqual(readToByteBuffer(testFile, (int) testFile.length()));
     }
 
-
     @Test
     public void shouldReturnAFutureForMissingChunk() throws Exception {
         setupChunkArray();
@@ -85,16 +84,14 @@ public class StreamLoaderTest {
             loader.storeData(mSampleBuffers.get(i), i, item);
         }
 
-        pendingResponses();
+        pendingResponses(mSampleBuffers.get(0));
 
         StreamFuture cb = loader.getDataForItem(item, Range.from(0, 300));
 
-        expect(loader.getHighPriorityQueue().size()).toBe(1);
-        expect(loader.getHighPriorityQueue().head().url).toEqual(TEST_URL);
+        expect(loader.getHighPriorityQueue().isEmpty()).toBeTrue();
+        expect(loader.getLowPriorityQueue().isEmpty()).toBeTrue();
 
-        expect(cb.isDone()).toBeFalse();
-        cb.get(1, TimeUnit.SECONDS);
-        expect(cb.isDone()).toBeFalse();
+        expect(cb.isDone()).toBeTrue();
     }
 
     private int setupChunkArray() throws IOException {
@@ -120,7 +117,7 @@ public class StreamLoaderTest {
         return b;
     }
 
-    static void pendingResponses() {
+    static void pendingResponses(byte[] bytes) {
         long expires = System.currentTimeMillis() + 60*1000;
         // first HEAD request
         addPendingHttpResponse(302, "", headers(
@@ -142,9 +139,8 @@ public class StreamLoaderTest {
         );
 
         // second GET request (actual data)
-        addPendingHttpResponse(200, "");
+        addPendingHttpResponse(new TestHttpResponse(200, bytes));
     }
-
 
     public static Header[] headers(String... keyValues) {
         Header[] headers = new Header[keyValues.length/2];

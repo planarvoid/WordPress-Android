@@ -143,7 +143,6 @@ public class StreamStorageTest {
         for (int i = 0; i < writing; i++) {
             assertNotNull(storage.getChunkData(item, mSampleChunkIndexes.get(i)));
         }
-
         assertNull(storage.getChunkData(item, mSampleChunkIndexes.get(writing)));
     }
 
@@ -192,7 +191,7 @@ public class StreamStorageTest {
         assertThat(storage.numberOfChunksForItem(item), is(chunks));
 
         File assembled = storage.completeFileForItem(item);
-        assertThat(mSampleContentLength, is(assembled.length()));
+        assertThat(assembled.length(), is(mSampleContentLength));
 
         String original = CloudUtils.md5(getClass().getResourceAsStream("fred.mp3"));
         assertThat(CloudUtils.md5(new FileInputStream(assembled)), equalTo(original));
