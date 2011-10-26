@@ -249,16 +249,16 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
 
     private boolean handleViewUrl(Intent intent) {
-        final Uri data = intent.getData();
+        Uri data = intent.getData();
         if (data != null && !data.getPathSegments().isEmpty()) {
             // only handle the first 2 path segments (resource only for now, actions to be implemented later)
-            Uri u = Uri.parse("http://soundcloud.com/");
-            Uri resolveUri = (data.getPathSegments().size() > 2) ?
-                    (u.buildUpon().path(TextUtils.join("/", data.getPathSegments().subList(0, 2))).build()) : data;
+            if (data.getPathSegments().size() > 2) {
+                data = data.buildUpon().path(TextUtils.join("/", data.getPathSegments().subList(0, 2))).build();
+            }
 
             mResolveTask = new ResolveTask(getApp()) ;
             mResolveTask.setListener(this);
-            mResolveTask.execute(resolveUri);
+            mResolveTask.execute(data);
             return true;
         } else {
             return false;
