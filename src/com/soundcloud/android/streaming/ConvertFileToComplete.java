@@ -1,5 +1,7 @@
 package com.soundcloud.android.streaming;
 
+import static com.soundcloud.android.streaming.StreamStorage.LOG_TAG;
+
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -10,6 +12,7 @@ import java.io.RandomAccessFile;
 import java.util.List;
 
 class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
+
     private long mContentLength;
     private List<Integer> mIndexes;
     private int mChunkSize;
@@ -25,10 +28,10 @@ class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
         File chunkFile = params[0];
         File completeFile = params[1];
 
-        Log.d(StreamStorage.LOG_TAG, "writing complete file to " + completeFile);
+        Log.d(LOG_TAG, "About to write complete file to " + completeFile);
 
         if (completeFile.exists()) {
-            Log.e(StreamStorage.LOG_TAG, "Complete file exists at path " + completeFile.getAbsolutePath());
+            Log.e(LOG_TAG, "Complete file exists at path " + completeFile.getAbsolutePath());
             return false;
         }
 
@@ -39,9 +42,7 @@ class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
             fos = new FileOutputStream(completeFile);
             raf = new RandomAccessFile(chunkFile, "r");
 
-            if (!completeFile.createNewFile()) Log.w(StreamStorage.LOG_TAG, "could not create "+completeFile);
             byte[] buffer = new byte[mChunkSize];
-
             for (int chunkNumber = 0; chunkNumber < mIndexes.size(); chunkNumber++) {
                 int offset = mChunkSize * mIndexes.indexOf(chunkNumber);
                 raf.seek(offset);
@@ -52,10 +53,11 @@ class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
                 } else {
                     fos.write(buffer);
                 }
-
             }
+            Log.d(LOG_TAG, "complete file " + completeFile + " written");
         } catch (IOException e) {
-            Log.e(StreamStorage.LOG_TAG, "IO error during complete file creation");
+            Log.e(LOG_TAG, "IO error during complete file creation", e);
+            if (completeFile.delete()) Log.d(LOG_TAG, "Deleted "+completeFile);
             return false;
         } finally {
             if (raf != null) try {

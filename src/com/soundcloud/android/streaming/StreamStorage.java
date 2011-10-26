@@ -15,7 +15,7 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 public class StreamStorage {
     static final String LOG_TAG = StreamStorage.class.getSimpleName();
-    private static final int DEFAULT_CHUNK_SIZE = 128 * 1024;
+    public static final int DEFAULT_CHUNK_SIZE = 128 * 1024;
     /** @noinspection UnusedDeclaration*/
     private static final int CLEANUP_INTERVAL = 20;
 
@@ -152,7 +152,9 @@ public class StreamStorage {
 
 
     public Index getMissingChunksForItem(StreamItem item, Range chunkRange) {
-        resetDataIfNecessary(item);
+        if (resetDataIfNecessary(item)) {
+            Log.w(LOG_TAG, "data reset for " +item);
+        }
 
         //If the complete file exists
         if (completeFileForItem(item).exists()) {
@@ -164,19 +166,19 @@ public class StreamStorage {
         //We have no idea about track size, so let's assume that all chunks are missing
         if (contentLength == 0) {
             return chunkRange.toIndex();
-        }
+        } else {
+            long lastChunk = (long) Math.ceil((double) contentLength / (double) chunkSize) - 1;
+            List<Integer> allIncompleteIndexes = mIncompleteIndexes.get(item);
+            if (allIncompleteIndexes == null) allIncompleteIndexes = Collections.emptyList();
 
-        long lastChunk = (long) Math.ceil((double) contentLength / (double) chunkSize) - 1;
-        List<Integer> allIncompleteIndexes = mIncompleteIndexes.get(item);
-        if (allIncompleteIndexes == null) allIncompleteIndexes = Collections.emptyList();
-
-        final Index missingIndexes = new Index();
-        for (int chunk = chunkRange.location; chunk < chunkRange.end(); chunk++) {
-            if (!allIncompleteIndexes.contains(chunk) && chunk <= lastChunk) {
-                missingIndexes.set(chunk);
+            final Index missingIndexes = new Index();
+            for (int chunk = chunkRange.location; chunk < chunkRange.end(); chunk++) {
+                if (!allIncompleteIndexes.contains(chunk) && chunk <= lastChunk) {
+                    missingIndexes.set(chunk);
+                }
             }
+            return missingIndexes;
         }
-        return missingIndexes;
     }
 
     public Map<StreamItem, List<Integer>> getIncompleteIndexes() {
@@ -269,22 +271,23 @@ public class StreamStorage {
 
     private boolean resetDataIfNecessary(StreamItem item) {
         if (item.getContentLength() != 0 &&
-                item.getContentLength() != getContentLengthForItem(item)) {
+            item.getContentLength() != getContentLengthForItem(item)) {
             removeAllDataForItem(item);
             return true;
         }
         return false;
     }
 
-    private long getContentLengthForItem(StreamItem key) {
-        if (completeFileForItem(key).exists()) {
-            return completeFileForItem(key).length();
+    private long getContentLengthForItem(StreamItem item) {
+        if (completeFileForItem(item).exists()) {
+            return completeFileForItem(item).length();
         } else {
-            return mIncompleteContentLengths.containsKey(key) ? mIncompleteContentLengths.get(key) : 0;
+            return mIncompleteContentLengths.containsKey(item) ? mIncompleteContentLengths.get(item) : 0;
         }
     }
 
     private void removeAllDataForItem(StreamItem item) {
+        Log.w(LOG_TAG, "removing all data for "+item);
         removeCompleteDataForItem(item);
         removeIncompleteDataForItem(item);
     }

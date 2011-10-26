@@ -84,7 +84,7 @@ public class StreamLoaderTest {
     @Test
     public void shouldReturnAFutureForMissingChunk() throws Exception {
         setupChunkArray();
-        mSampleChunkIndexes.remove(0);
+        mSampleChunkIndexes.remove(1);
 
         Collections.shuffle(mSampleChunkIndexes);
 
@@ -94,15 +94,15 @@ public class StreamLoaderTest {
 
         pendingResponses(item, mSampleBuffers.get(0));
 
-        final Range requestedRange = Range.from(0, 300);
+        final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
         StreamFuture cb = loader.getDataForItem(item, requestedRange);
 
         expect(loader.getHighPriorityQueue().isEmpty()).toBeTrue();
         expect(loader.getLowPriorityQueue().isEmpty()).toBeTrue();
 
         expect(cb.isDone()).toBeTrue();
-        expect(cb.get()).toEqual(ByteBuffer.wrap(mSampleBuffers.get(0),
-                requestedRange.location, requestedRange.length));
+        expect(cb.get()).toEqual(
+            ByteBuffer.wrap(mSampleBuffers.get(0), 0, requestedRange.length));
     }
 
     private int setupChunkArray() throws IOException {
@@ -151,7 +151,7 @@ public class StreamLoaderTest {
 
         // second GET request (actual data)
         HttpResponse stream = new TestHttpResponse(200, bytes);
-        addHttpResponseRule(new FakeHttpLayer.RequestMatcherBuilder().header("Range", "bytes=0-1024"), stream);
+        addHttpResponseRule(new FakeHttpLayer.RequestMatcherBuilder().header("Range", "bytes=1024-2047"), stream);
     }
 
     public static Header[] headers(String... keyValues) {

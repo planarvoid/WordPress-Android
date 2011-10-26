@@ -18,18 +18,16 @@ package com.soundcloud.android.service;
 
 import android.text.TextUtils;
 import com.soundcloud.android.*;
-import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
+import com.soundcloud.android.streaming.StreamProxy;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
-import com.soundcloud.android.utils.play.StreamProxy;
 import com.soundcloud.api.Request;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -48,13 +46,11 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -1009,9 +1005,7 @@ public class CloudPlaybackService extends Service {
 
             try {
                 if (proxy == null) {
-                    proxy = new StreamProxy(getApp());
-                    proxy.init();
-                    proxy.start();
+                    proxy = new StreamProxy(getApp(), 50000 /* hardcoded for testing */).init().start();
                 }
                 mPlayingPath = String.format("http://127.0.0.1:%d/%s", proxy.getPort(), path);
 

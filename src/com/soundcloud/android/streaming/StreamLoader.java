@@ -2,6 +2,9 @@ package com.soundcloud.android.streaming;
 
 import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -63,8 +66,11 @@ public class StreamLoader {
                     mHeadTasks.remove(t);
                 } else if (msg.obj instanceof DataTask) {
                     DataTask t = (DataTask) msg.obj;
-                    storeData(t.buffer, 0, t.item);
+                    storeData(t.buffer, t.chunkRange.location, t.item);
                 }
+                if (msg.obj == mHighPriorityTask) mHighPriorityTask = null;
+                else if (msg.obj == mLowPriorityTask) mLowPriorityTask = null;
+
                 processQueues();
             }
         };
@@ -100,7 +106,6 @@ public class StreamLoader {
         mCurrentPosition = range.location;
 
         StreamFuture pc = new StreamFuture(item, range);
-
         if (!missingChunks.isEmpty()) {
             mPlayerCallbacks.add(pc);
             mHighPriorityQ.addItem(item, missingChunks);
@@ -177,7 +182,7 @@ public class StreamLoader {
             if (mHighPriorityTask.isExecuted()) {
                 mHighPriorityTask = null;
             } else {
-                // still working
+                Log.d(LOG_TAG, "still working hi-prio, skip processing of queues");
                 return;
             }
         }
@@ -199,6 +204,8 @@ public class StreamLoader {
             if (mHighPriorityTask == null) {
                 processLowPriorityQueue();
             }
+        } else {
+            Log.d(LOG_TAG, "not connected, skip processing of queues");
         }
     }
 
@@ -219,7 +226,7 @@ public class StreamLoader {
             final StreamItem item = it.next();
             if (item.unavailable) it.remove();
             //If there is a contentLength for the item, download first chunk
-            else if (item.getContentLength() > 0) {
+            else if (item.getContentLength() > 0 && item.redirectedURL != null) {
                 Range chunkRange = Range.from(item.index.first(), 1);
                 it.remove();
                 item.index.andNot(chunkRange.toIndex());
@@ -308,7 +315,14 @@ public class StreamLoader {
     }
 
     private boolean isConnected() {
-        return mForceOnline || mConnectivityListener != null && mConnectivityListener.isConnected();
+        if (mForceOnline) {
+            return true;
+        } else {
+            //return mConnectivityListener.isConnected();
+            ConnectivityManager c = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo info = c.getActiveNetworkInfo();
+            return info != null && info.isConnected();
+        }
     }
 
     private Handler mConnHandler = new Handler() {
@@ -323,7 +337,7 @@ public class StreamLoader {
     };
 
     private DataTask startDataTask(StreamItem item, Range chunkRange) {
-        DataTask task = new DataTask(item, chunkRange.byteRange(chunkSize), mContext);
+        DataTask task = new DataTask(item, chunkRange, chunkRange.byteRange(chunkSize), mContext);
         Message msg = mDataHandler.obtainMessage(item.hashCode(), task);
         mDataHandler.sendMessage(msg);
         return task;
@@ -367,7 +381,7 @@ public class StreamLoader {
             StreamItemTask task = (StreamItemTask) msg.obj;
             try {
                 task.execute();
-                mHandler.sendMessage(msg);
+                mHandler.sendMessage(obtainMessage(task.item.hashCode(), msg.obj));
             } catch (IOException e) {
                 //Log.w(LOG_TAG, e);
                 throw new RuntimeException(e);
