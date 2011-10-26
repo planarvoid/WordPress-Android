@@ -2,12 +2,15 @@ package com.soundcloud.android.streaming;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
+import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHeader;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +33,7 @@ import java.util.Map;
 public class StreamLoaderTest {
     public static final String TEST_MP3 = "fred.mp3";
     public static final String TEST_URL = "https://api.soundcloud.com/tracks/12345";
-    public static final int CHUNK_SIZE = 1024;
+    public static final int TEST_CHUNK_SIZE = 1024;
     StreamLoader loader;
     StreamStorage storage;
     StreamItem item;
@@ -44,7 +47,7 @@ public class StreamLoaderTest {
     public void before() {
         CloudUtils.deleteDir(baseDir);
         testFile = new File(getClass().getResource(TEST_MP3).getFile());
-        storage = new StreamStorage(DefaultTestRunner.application, baseDir, CHUNK_SIZE);
+        storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE);
         loader = new StreamLoader(DefaultTestRunner.application, storage);
         loader.setForceOnline(true);
         item = new StreamItem(TEST_URL, testFile.length());
@@ -54,10 +57,15 @@ public class StreamLoaderTest {
     public void shouldGetAChunkFromStorage() throws Exception {
         setupChunkArray();
         loader.storeData(mSampleBuffers.get(0), 0, item);
-        ByteBuffer actual = loader.getDataForItem(item, Range.from(0, CHUNK_SIZE)).get();
-        ByteBuffer expected = readToByteBuffer(testFile, CHUNK_SIZE);
+        ByteBuffer actual = loader.getDataForItem(item, Range.from(0, TEST_CHUNK_SIZE)).get();
+        ByteBuffer expected = readToByteBuffer(testFile, TEST_CHUNK_SIZE);
 
         expect(actual).toEqual(expected);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void getAChunkFromStorageWithEmptyStorage() throws Exception {
+        loader.getDataForItem(item, Range.from(0, TEST_CHUNK_SIZE)).get();
     }
 
     @Test
@@ -84,20 +92,23 @@ public class StreamLoaderTest {
             loader.storeData(mSampleBuffers.get(i), i, item);
         }
 
-        pendingResponses(mSampleBuffers.get(0));
+        pendingResponses(item, mSampleBuffers.get(0));
 
-        StreamFuture cb = loader.getDataForItem(item, Range.from(0, 300));
+        final Range requestedRange = Range.from(0, 300);
+        StreamFuture cb = loader.getDataForItem(item, requestedRange);
 
         expect(loader.getHighPriorityQueue().isEmpty()).toBeTrue();
         expect(loader.getLowPriorityQueue().isEmpty()).toBeTrue();
 
         expect(cb.isDone()).toBeTrue();
+        expect(cb.get()).toEqual(ByteBuffer.wrap(mSampleBuffers.get(0),
+                requestedRange.location, requestedRange.length));
     }
 
     private int setupChunkArray() throws IOException {
         InputStream is = getClass().getResourceAsStream(TEST_MP3);
         assert is instanceof BufferedInputStream;
-        byte[] buffer = new byte[CHUNK_SIZE];
+        byte[] buffer = new byte[TEST_CHUNK_SIZE];
         int chunks = 0;
         while (is.read(buffer, 0, buffer.length) != -1) {
             byte[] copy = new byte[buffer.length];
@@ -117,20 +128,20 @@ public class StreamLoaderTest {
         return b;
     }
 
-    static void pendingResponses(byte[] bytes) {
+    static void pendingResponses(StreamItem item, byte[] bytes) {
         long expires = System.currentTimeMillis() + 60*1000;
         // first HEAD request
         addPendingHttpResponse(302, "", headers(
-            "Location", "http://ak-media.soundcloud.com/foo_head.mp3?Expires="+expires)
+                "Location", "http://ak-media.soundcloud.com/foo_head.mp3?Expires=" + expires)
         );
 
         // second HEAD request (to S3/akamai)
         addPendingHttpResponse(200, "", headers(
-            "Content-Length",      "12345",
-            "ETag",                "anEtag",
-            "Last-Modified",       "Tue, 25 Oct 2011 10:01:23 GMT",
-            "x-amz-meta-bitrate",  "128",
-            "x-amz-meta-duration", "18998"
+                "Content-Length", "12345",
+                "ETag", "anEtag",
+                "Last-Modified", "Tue, 25 Oct 2011 10:01:23 GMT",
+                "x-amz-meta-bitrate", "128",
+                "x-amz-meta-duration", "18998"
         ));
 
         // first GET request - soundcloud
@@ -139,7 +150,8 @@ public class StreamLoaderTest {
         );
 
         // second GET request (actual data)
-        addPendingHttpResponse(new TestHttpResponse(200, bytes));
+        HttpResponse stream = new TestHttpResponse(200, bytes);
+        addHttpResponseRule(new FakeHttpLayer.RequestMatcherBuilder().header("Range", "bytes=0-1024"), stream);
     }
 
     public static Header[] headers(String... keyValues) {

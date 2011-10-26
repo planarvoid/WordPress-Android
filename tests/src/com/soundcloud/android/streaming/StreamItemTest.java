@@ -7,8 +7,6 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
-
 @RunWith(DefaultTestRunner.class)
 public class StreamItemTest {
      @Test
@@ -29,5 +27,17 @@ public class StreamItemTest {
 
         expect(a).toEqual(new StreamItem("http://a.com"));
         expect(a).not.toEqual(b);
+    }
+
+    @Test
+    public void testByteRange() throws Exception {
+        StreamItem item = new StreamItem("foo", 1543);
+        expect(item.byteRange()).toEqual(Range.from(0, 1543));
+    }
+
+    @Test
+    public void testChunkRange() throws Exception {
+        StreamItem item = new StreamItem("foo", 1543);
+        expect(item.chunkRange(128)).toEqual(Range.from(0, 13));
     }
 }

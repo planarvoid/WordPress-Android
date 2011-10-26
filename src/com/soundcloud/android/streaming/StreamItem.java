@@ -9,7 +9,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 public class StreamItem implements Parcelable {
-    public Index index = new Index();
+    public final Index index = new Index();
 
     public final String url;
     public String redirectedURL;
@@ -66,8 +66,12 @@ public class StreamItem implements Parcelable {
         return mContentLength;
     }
 
-    public Range getRange() {
+    public Range byteRange() {
         return Range.from(0, getContentLength());
+    }
+
+    public Range chunkRange(int chunkSize) {
+        return byteRange().chunkRange(chunkSize);
     }
 
     public String getURLHash() {
@@ -76,7 +80,6 @@ public class StreamItem implements Parcelable {
         }
         return mURLHash;
     }
-
 
     @Override
     public String toString() {

@@ -16,7 +16,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 public class StreamLoader {
-    static final String LOG_TAG = HeadTask.class.getSimpleName();
+    static final String LOG_TAG = StreamLoader.class.getSimpleName();
     protected static final int CONNECTIVITY_MSG = 0;
 
     private NetworkConnectivityListener mConnectivityListener;
@@ -63,10 +63,8 @@ public class StreamLoader {
                     mHeadTasks.remove(t);
                 } else if (msg.obj instanceof DataTask) {
                     DataTask t = (DataTask) msg.obj;
-                    storage.setData(t.buffer, 0, t.item);
-                    fulfillPlayerCallbacks();
+                    storeData(t.buffer, 0, t.item);
                 }
-
                 processQueues();
             }
         };
@@ -117,11 +115,10 @@ public class StreamLoader {
 
 
     public void storeData(byte[] data, int chunk, StreamItem item) {
-        Log.d(LOG_TAG, "Storing " + data.length + " bytes at index " + chunk + " for item " + item);
+        Log.d(LOG_TAG, String.format("Storing %d bytes at index %d for item %s", data.length, chunk, item));
         mStorage.setData(data, chunk, item);
         fulfillPlayerCallbacks();
     }
-
 
     public void cleanup() {
         mConnectivityListener.stopListening();
@@ -141,7 +138,7 @@ public class StreamLoader {
     private ByteBuffer fetchStoredDataForItem(StreamItem item, Range range) {
         Range actualRange = range;
         if (item.getContentLength() != 0) {
-            actualRange = range.intersection(item.getRange());
+            actualRange = range.intersection(item.byteRange());
         }
 
         if (actualRange == null) {
@@ -282,13 +279,13 @@ public class StreamLoader {
     }
 
     private void countPlayForItem(StreamItem item) {
-        if (item == null) return;
-        /*
-        TODO request necessary range for a playcount
-        migrate : https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L924
-         */
+        if (item != null)  {
+            /*
+            TODO request necessary range for a playcount
+            migrate : https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L924
+             */
+        }
     }
-
 
     private void fulfillPlayerCallbacks() {
         List<StreamFuture> fulfilledCallbacks = new ArrayList<StreamFuture>();
