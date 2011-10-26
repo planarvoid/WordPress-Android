@@ -304,6 +304,16 @@ public class WaveformControllerLand extends WaveformController {
     }
 
     @Override
+    public void resetCommentDisplay(){
+        if (mCommentPanel != null && mCommentPanel.getParent() == this) {
+            if (mCommentPanel.getAnimation() != null) mCommentPanel.getAnimation().cancel();
+            mCommentPanelVisible = false;
+            removeView(mCommentPanel);
+        }
+        mWaveformHolder.clearAnimation();
+    }
+
+    @Override
      protected void autoShowComment(Comment c) {
         if (!mShowingComments) return;
 

@@ -40,7 +40,7 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
         // overly cautious, should never happen
         if (mTrack == null) return;
 
-        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(mTrack, true, -1, true);
+        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(mTrack, true, -1, true, getCurrentUserId());
         findViewById(R.id.track_info_bar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,7 +105,7 @@ public class TrackFavoriters extends ScActivity implements SectionedEndlessAdapt
 
     @Override
     public void onTrackInfoLoaded(Track track, String action) {
-        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, true, -1, false);
+        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, true, -1, false, getCurrentUserId());
     }
 
     @Override

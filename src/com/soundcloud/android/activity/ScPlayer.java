@@ -620,7 +620,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         if (getApp().getTrackFromCache(trackId) == null) {
             Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId, getCurrentUserId());
             try {
-                getApp().cacheTrack(t != null ? t : mPlaybackService.getTrackAt(queuePos - 1));
+                getApp().cacheTrack(t != null ? t : mPlaybackService.getTrackAt(queuePos));
             } catch (RemoteException ignored) {
             }
         }
@@ -640,7 +640,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             }
 
             final int currentQueuePosition = mPlaybackService.getQueuePosition();
-
             mPlayingTrack = getAndCacheTrack(trackId,currentQueuePosition);
             final boolean first = mTrackWorkspace.getChildCount() == 0;
 

@@ -25,4 +25,5 @@ public class TracklistItem {
     public int playback_count;
     public int comment_count;
     public int favoritings_count;
+    public int shared_to_count;
 }

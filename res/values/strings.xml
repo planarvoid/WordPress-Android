@@ -54,5 +54,6 @@
     <string name='user_browser_tab_info'>
         Info
     </string>
+    <string name="tracklist_item_shared_with_1_person">1 Person</string>
 
 </resources>

@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ITracklistAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -16,7 +17,6 @@ public class TracklistRow extends LazyRow {
     private Track mTrack;
 
     private final TrackInfoBar mTrackInfoBar;
-
     protected final ImageView mCloseIcon;
 
     public TracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
@@ -50,7 +50,7 @@ public class TracklistRow extends LazyRow {
         final Parcelable p = (Parcelable) mAdapter.getItem(position);
         mTrack = getTrackFromParcelable(p);
         super.display(position);
-        mTrackInfoBar.display(p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false);
+        mTrackInfoBar.display(p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false, mActivity.getCurrentUserId());
     }
 
     protected Track getTrackFromParcelable(Parcelable p) {

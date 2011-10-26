@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -35,6 +36,7 @@ import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
@@ -247,12 +249,25 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
 
     private boolean handleViewUrl(Intent intent) {
-        final Uri data = intent.getData();
+        Uri data = intent.getData();
         if (data != null && !data.getPathSegments().isEmpty()) {
+            // only handle the first 2 path segments (resource only for now, actions to be implemented later)
+            int cutoff = 0;
+            if (data.getPathSegments().size() > 1 && (data.getPathSegments().get(1).contentEquals("follow")
+                    || data.getPathSegments().get(1).contentEquals("favorite"))){
+                cutoff = 1;
+            } else if (data.getPathSegments().size() > 2){
+                cutoff = 2;
+            }
+            if (cutoff > 0) {
+                data = data.buildUpon().path(TextUtils.join("/", data.getPathSegments().subList(0, cutoff))).build();
+            }
+
             mResolveTask = new ResolveTask(getApp()) ;
             mResolveTask.setListener(this);
             mResolveTask.execute(data);
             return true;
+
         } else {
             return false;
         }

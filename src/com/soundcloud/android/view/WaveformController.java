@@ -224,6 +224,25 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         hideConnectingLayout();
         setProgressInternal(0);
         setSecondaryProgress(0);
+        cancelAutoCloseComment();
+
+        if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
+        if (mCommentLines != null) mCommentLines.setCurrentComment(null);
+        mCurrentShowingComment = null;
+        resetCommentDisplay();
+    }
+
+    public void resetCommentDisplay(){
+        if (mCurrentCommentPanel != null) {
+            if (mCurrentCommentPanel.getAnimation() != null){
+                mCurrentCommentPanel.getAnimation().cancel();
+                mCurrentCommentPanel.clearAnimation();
+            }
+            if (mCurrentCommentPanel.getParent() == mWaveformFrame){
+                mWaveformFrame.removeView(mCurrentCommentPanel);
+            }
+            mCurrentCommentPanel = null;
+        }
     }
 
     public void onStop() {

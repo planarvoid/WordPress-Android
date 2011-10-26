@@ -216,6 +216,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         comment_count = tracklistItem.comment_count;
         favoritings_count = tracklistItem.favoritings_count;
         user_favorite = tracklistItem.user_favorite;
+        shared_to_count = tracklistItem.shared_to_count;
     }
 
     public Track(Cursor cursor, boolean aliasesOnly ) {

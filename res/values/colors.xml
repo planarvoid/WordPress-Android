@@ -19,7 +19,6 @@
     <color name="playerControlBackgroundDark">#FFc8c8c8</color>
 
 	<color name="playerControlAlphaBackground">#AAE2E2E2</color>
-	<color name="createBackground">#FF333333</color>
 	<color name="progressDarkAlphaBackground">#AA000000</color>
 	
 	<color name="commentGray">#ff9c9c9c</color>

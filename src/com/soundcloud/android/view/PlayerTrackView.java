@@ -177,7 +177,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
             mWaveformController.updateTrack(mTrack);
 
-            mTrackInfoBar.display(mTrack, false, -1, true);
+            mTrackInfoBar.display(mTrack, false, -1, true, mPlayer.getCurrentUserId());
             if (mTrackInfo != null) mTrackInfo.setPlayingTrack(mTrack);
             updateAvatar();
 
@@ -568,7 +568,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
             if (intent.getBooleanExtra("isSupposedToBePlaying", false)) {
                 hideUnplayable();
-                mTrack.last_playback_error = -1;
+                if (mTrack != null) mTrack.last_playback_error = -1;
             } else {
                 mWaveformController.setPlaybackStatus(false, intent.getLongExtra("position", 0));
             }

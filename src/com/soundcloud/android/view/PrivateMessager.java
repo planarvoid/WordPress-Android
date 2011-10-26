@@ -73,7 +73,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
                     saveRecording(mRecording);
                     mActivity.startUpload(mRecording);
                     mRecording = null;
-                    mRecordingMetadata.setRecording(null);
+                    mRecordingMetadata.reset();
                     mCreateController.reset();
                     flipToCreate();
 
@@ -84,8 +84,8 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     }
 
     private void flipToCreate(){
-        mViewFlipper.setInAnimation(AnimUtils.inFromTopAnimation());
-        mViewFlipper.setOutAnimation(AnimUtils.outToBottomAnimation());
+        mViewFlipper.setInAnimation(AnimUtils.inFromTopAnimation(500));
+        mViewFlipper.setOutAnimation(AnimUtils.outToBottomAnimation(500));
         mViewFlipper.showPrevious();
     }
 
@@ -150,11 +150,11 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     }
 
     @Override
-    public void onSave(Uri recordingUri, Recording recording) {
+    public void onSave(Uri recordingUri, Recording recording, boolean newRecording) {
         mRecording = recording;
         mRecordingMetadata.setRecording(mRecording, true);
-        mViewFlipper.setInAnimation(AnimUtils.inFromBottomAnimation());
-        mViewFlipper.setOutAnimation(AnimUtils.outToTopAnimation());
+        mViewFlipper.setInAnimation(AnimUtils.inFromBottomAnimation(500));
+        mViewFlipper.setOutAnimation(AnimUtils.outToTopAnimation(500));
         mViewFlipper.showNext();
 
         mCreateController.updateUi(false);
@@ -191,6 +191,14 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
                             result.getDoubleExtra("latitude", 0));
                 }
                 break;
+        }
+    }
+
+    public void setRecording(Uri recordingUri) {
+        mRecording = Recording.fromUri(recordingUri, mActivity.getContentResolver());
+        if (mRecording != null){
+            mCreateController.setRecording(mRecording);
+            mRecordingMetadata.setRecording(mRecording, true);
         }
     }
 }
