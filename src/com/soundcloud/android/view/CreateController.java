@@ -165,12 +165,12 @@ public class CreateController {
                     mRecording.id = Long.parseLong(newRecordingUri.getLastPathSegment());
 
                     if (mCreateListener != null){
-                        mCreateListener.onSave(newRecordingUri, mRecording);
+                        mCreateListener.onSave(newRecordingUri, mRecording, true);
                     }
                 } else {
                     //start for result, because if an upload starts, finish, playback should not longer be possible
                     if (mCreateListener != null){
-                        mCreateListener.onSave(mRecording.toUri(), mRecording);
+                        mCreateListener.onSave(mRecording.toUri(), mRecording, false);
                     }
                 }
             }
@@ -939,7 +939,7 @@ public class CreateController {
     }
 
     public interface CreateListener {
-        void onSave(Uri recordingUri, Recording recording);
+        void onSave(Uri recordingUri, Recording recording, boolean newRecording);
         void onCancel();
         void onDelete();
     }

@@ -150,7 +150,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     }
 
     @Override
-    public void onSave(Uri recordingUri, Recording recording) {
+    public void onSave(Uri recordingUri, Recording recording, boolean newRecording) {
         mRecording = recording;
         mRecordingMetadata.setRecording(mRecording, true);
         mViewFlipper.setInAnimation(AnimUtils.inFromBottomAnimation());
