@@ -596,6 +596,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
 
     public void setComments(List<Comment> comments, boolean animateIn) {
+
+        if (comments.equals(mCurrentComments)){
+            Log.i(getClass().getSimpleName(),"Same comments found, ignoring setComments");
+            return;
+        }
+
         mCurrentComments = comments;
 
         if (mCurrentComments == null)
