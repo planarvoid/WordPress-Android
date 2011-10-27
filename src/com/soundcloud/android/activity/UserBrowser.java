@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.*;
 import android.widget.ImageView.ScaleType;
@@ -199,6 +200,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     protected void onStart() {
         super.onStart();
         if (mMessager != null) mMessager.onStart();
+
+        for (ScListView list : mLists) {
+            list.checkForManualDetatch();
+        }
     }
 
     @Override
@@ -214,6 +219,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             if (list.getWrapper() != null) {
                 mAdapterStates[i] = list.getWrapper().saveState();
                 list.getWrapper().cleanup();
+                list.postDetatch(); // detatch from window to clear recycler
             }
             i++;
         }
