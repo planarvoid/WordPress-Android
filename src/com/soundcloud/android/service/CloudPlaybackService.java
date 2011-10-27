@@ -1221,6 +1221,8 @@ public class CloudPlaybackService extends Service {
             public void onPrepared(MediaPlayer mp) {
                 mIsAsyncOpening = false;
                 mIsInitialized = true;
+                notifyChange(BUFFERING_COMPLETE);
+
                 if (!mAutoPause) {
                     if (mIsSupposedToBePlaying) {
                         mPlayer.setVolume(0);
@@ -1235,7 +1237,7 @@ public class CloudPlaybackService extends Service {
                     mResumeId = -1;
                 }
                 pausedForBuffering = false;
-                notifyChange(BUFFERING_COMPLETE);
+
             }
         };
 

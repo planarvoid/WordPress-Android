@@ -734,6 +734,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 case UI_SEND_SEEK:
                     if (mPlayer != null){
                         setProgress(mPlayer.sendSeek(mSeekPercent));
+                        stopSmoothProgress();
                     }
                     mCurrentTimeDisplay.setByPercent(mSeekPercent, false);
                     mPlayerTouchBar.clearSeek();
