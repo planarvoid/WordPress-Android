@@ -220,12 +220,16 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void reset(){
-        stopSmoothProgress();
         hideConnectingLayout();
         setProgressInternal(0);
         setSecondaryProgress(0);
-        cancelAutoCloseComment();
+        onStop();
+    }
 
+     public void onStop() {
+        stopSmoothProgress();
+         cancelAutoCloseComment();
+        if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
         if (mCommentLines != null) mCommentLines.setCurrentComment(null);
         mCurrentShowingComment = null;
@@ -243,11 +247,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             }
             mCurrentCommentPanel = null;
         }
-    }
-
-    public void onStop() {
-        stopSmoothProgress();
-        if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
     }
 
     public void showConnectingLayout() {
