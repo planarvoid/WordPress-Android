@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.filecache.FileResponseCache;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -11,13 +12,12 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.ResponseCache;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -79,28 +79,8 @@ public class FileCache extends FileResponseCache {
         }
     }
 
-    public static double cacheSizeInMb(Context c) {
-        return dirSize(getCacheDir(c)) / 1048576d;
-    }
-
-    public static String cacheSizeInMbFormatted(Context c) {
-        double sizeRaw = cacheSizeInMb(c);
-        DecimalFormat maxDigitsFormatter = new DecimalFormat("#.##");
-        return maxDigitsFormatter.format(sizeRaw);
-    }
-
-    private static long dirSize(File dir) {
-        long result = 0;
-        File[] fileList = dir.listFiles();
-        if (fileList == null) return 0;
-        for (File aFileList : fileList) {
-            if (aFileList.isDirectory()) {
-                result += dirSize(aFileList);
-            } else {
-                result += aFileList.length();
-            }
-        }
-        return result;
+    public static double dirSizeInMb(File dir) {
+        return CloudUtils.dirSize(dir) / 1048576d;
     }
 
     public static File getCacheDir(Context context) {
@@ -110,16 +90,30 @@ public class FileCache extends FileResponseCache {
     }
 
     public static class DeleteCacheTask extends AsyncTask<File, Integer, Boolean> {
-        @Override protected Boolean doInBackground(File... params) {
-            final File dir = params[0];
-            File[] files = dir.listFiles();
-            File file;
-            for (int i = 0; i < files.length; i++) {
-                file = files[i];
-                if (!file.delete()) Log.w(TAG, "could not delete file "+file);
-                publishProgress(i, files.length);
-            }
+        private boolean recurse;
+
+        public DeleteCacheTask(boolean recurse) {
+            this.recurse = recurse;
+        }
+
+        @Override protected Boolean doInBackground(File... dirs) {
+            if (recurse) deleteRecursively(dirs); else deletePlain(dirs);
             return true;
+        }
+
+        private void deleteRecursively(File[] dirs) {
+            for (File d : dirs) if (d.isDirectory()) CloudUtils.deleteDir(d);
+        }
+
+        private void deletePlain(File[] dirs) {
+            List<File> allFiles = new ArrayList<File>();
+            for (File dir : dirs) if (dir.isDirectory()) allFiles.addAll(Arrays.asList(dir.listFiles()));
+
+            for (int i=0; i < allFiles.size(); i++) {
+                File f = allFiles.get(i);
+                if (!f.delete()) Log.w(TAG, "could not delete file "+f);
+                publishProgress(i, allFiles.size());
+            }
         }
     }
 
@@ -129,17 +123,14 @@ public class FileCache extends FileResponseCache {
         protected Boolean doInBackground(File... params) {
             final File dir = params[0];
 
-            final long dirSize = dirSize(dir);
+            final long dirSize = CloudUtils.dirSize(dir);
             if (dirSize < maxCacheSize) return false;
 
             long toTrim = dirSize - maxCacheSize;
 
             File[] files = dir.listFiles();
-            Arrays.sort(files, new Comparator() {
-                public int compare(Object o1, Object o2) {
-                    return compare((File) o1, (File) o2);
-                }
-                private int compare(File f1, File f2) {
+            Arrays.sort(files, new Comparator<File>() {
+                public int compare(File f1, File f2) {
                     long result = f2.lastModified() - f1.lastModified();
                     if (result > 0) {
                         return -1;

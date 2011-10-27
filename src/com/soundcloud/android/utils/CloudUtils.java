@@ -70,6 +70,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -646,35 +647,6 @@ public class CloudUtils {
         }
     }
 
-    /**
-     * SDK 8 can be either open core or stagefright. This determines it as best we can.
-     */
-    public static boolean isStagefright() {
-        if (Build.VERSION.SDK_INT < 8) {
-            // 2.1 or earlier, opencore only, no stream seeking
-            return false;
-        }
-        // check the build file, works in most cases and will catch cases for instant playback
-        boolean stageFright = true;
-        try {
-            File f = new File("/system/build.prop");
-            InputStream instream = new BufferedInputStream(new FileInputStream(f));
-            String line;
-            BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
-            while ((line = buffreader.readLine()) != null) {
-                if (line.contains("media.stagefright.enable-player")) {
-                    if (line.contains("false")) stageFright = false;
-                    break;
-                }
-            }
-            instream.close();
-        } catch (Exception e) {
-            // really need to catch exception here
-            Log.e(TAG, "error", e);
-        }
-        return stageFright;
-    }
-
     public static String getAppVersion(Context context, String defaultVersion) {
         try {
             PackageInfo info = context
@@ -897,5 +869,24 @@ public class CloudUtils {
         return (e instanceof UnknownHostException
                 || e instanceof SocketException
                 || e instanceof JSONException);
+    }
+
+    public static String inMbFormatted(double size) {
+        DecimalFormat maxDigitsFormatter = new DecimalFormat("#.#");
+        return maxDigitsFormatter.format(size);
+    }
+
+    public static long dirSize(File dir) {
+        long result = 0;
+        File[] fileList = dir.listFiles();
+        if (fileList == null) return 0;
+        for (File aFileList : fileList) {
+            if (aFileList.isDirectory()) {
+                result += dirSize(aFileList);
+            } else {
+                result += aFileList.length();
+            }
+        }
+        return result;
     }
 }

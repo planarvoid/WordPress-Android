@@ -10,6 +10,7 @@ import com.soundcloud.android.activity.tour.Start;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
+import com.soundcloud.android.streaming.StreamStorage;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 
@@ -23,6 +24,8 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.util.Log;
+
+import java.io.File;
 
 public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING      = 0;
@@ -39,7 +42,7 @@ public class Settings extends PreferenceActivity {
             BetaPreferences.add(this, getPreferenceScreen());
         }
 
-        setClearCacheTitle();
+        updateClearCacheTitles();
 
         findPreference("tour").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
@@ -74,7 +77,7 @@ public class Settings extends PreferenceActivity {
         findPreference("clearCache").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        new FileCache.DeleteCacheTask() {
+                        new FileCache.DeleteCacheTask(false) {
                             @Override protected void onPreExecute() {
                                 safeShowDialog(DIALOG_CACHE_DELETING);
                             }
@@ -89,12 +92,40 @@ public class Settings extends PreferenceActivity {
 
                             @Override protected void onPostExecute(Boolean result) {
                                 removeDialog(DIALOG_CACHE_DELETING);
-                                setClearCacheTitle();
+                                updateClearCacheTitles();
                             }
                         }.execute(FileCache.getCacheDir(Settings.this));
                         return true;
                     }
                 });
+
+        findPreference("clearStreamCache").setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        new FileCache.DeleteCacheTask(true) {
+                            @Override protected void onPreExecute() {
+                                safeShowDialog(DIALOG_CACHE_DELETING);
+                            }
+
+                            @Override protected void onProgressUpdate(Integer... progress) {
+                                if (mDeleteDialog != null) {
+                                    mDeleteDialog.setIndeterminate(false);
+                                    mDeleteDialog.setProgress(progress[0]);
+                                    mDeleteDialog.setMax(progress[1]);
+                                }
+                            }
+
+                            @Override protected void onPostExecute(Boolean result) {
+                                removeDialog(DIALOG_CACHE_DELETING);
+                                updateClearCacheTitles();
+                            }
+                        }.execute(Consts.EXTERNAL_STREAM_DIRECTORY);
+                        return true;
+                    }
+                });
+
+
+
         findPreference("wireless").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
@@ -172,6 +203,11 @@ public class Settings extends PreferenceActivity {
         }
     }
 
+    private void updateClearCacheTitles() {
+        setClearCacheTitle("clearCache", R.string.pref_clear_cache, FileCache.getCacheDir(this));
+        setClearCacheTitle("clearStreamCache", R.string.pref_clear_stream_cache, Consts.EXTERNAL_STREAM_DIRECTORY);
+    }
+
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
     }
@@ -182,17 +218,17 @@ public class Settings extends PreferenceActivity {
         super.onResume();
     }
 
-    private void setClearCacheTitle() {
+    private void setClearCacheTitle(final String pref, final int key, final File dir) {
         final Handler handler = new Handler();
         new Thread() {
             @Override
             public void run() {
-                final String cacheSize = FileCache.cacheSizeInMbFormatted(Settings.this);
+                final String size = CloudUtils.inMbFormatted(FileCache.dirSizeInMb(dir));
                 handler.post(new Runnable() {
                     @Override public void run() {
-                        findPreference("clearCache").setTitle(
-                            getResources().getString(R.string.pref_clear_cache) +
-                            " [" + cacheSize + " MB]");
+                        findPreference(pref).setTitle(
+                                getResources().getString(key) +
+                                        " [" + size + " MB]");
                     }
                 });
             }

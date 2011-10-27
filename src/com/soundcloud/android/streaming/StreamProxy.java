@@ -89,6 +89,8 @@ public class StreamProxy implements Runnable {
             mThread.join(5000);
         } catch (InterruptedException ignored) {
         }
+
+        loader.stop();
     }
 
     @Override
@@ -182,12 +184,9 @@ public class StreamProxy implements Runnable {
 
             final File completeFile = storage.completeFileForItem(item);
             if (completeFile.exists()) {
-                headers.put("Content-Length", String.valueOf(completeFile.length() -  startByte));
-                writeHeader(startByte, channel, headers);
-                streamCompleteFile(completeFile, startByte,  channel);
+                streamCompleteFile(completeFile, startByte, channel, headers);
             } else {
-                writeHeader(startByte, channel, headers);
-                writeChunks(item, startByte, channel);
+                writeChunks(item, startByte, channel, headers);
             }
         } catch (SocketException e) {
             if ("Connection reset by peer".equals(e.getMessage())) {
@@ -225,12 +224,20 @@ public class StreamProxy implements Runnable {
         channel.write(ByteBuffer.wrap(sb.toString().getBytes()));
     }
 
-    private void writeChunks(StreamItem item, long startByte, SocketChannel channel) throws IOException, InterruptedException, ExecutionException {
+    private void writeChunks(StreamItem item, final long startByte, SocketChannel channel, Map<String,String> headers)
+            throws IOException, InterruptedException, ExecutionException {
         long offset = startByte;
         for (;;) {
             StreamFuture stream = loader.getDataForItem(item, Range.from(offset, storage.chunkSize));
+            ByteBuffer buffer = stream.get();
 
-            channel.write(stream.get());
+            if (offset == startByte) {
+                // first chunk, write header
+                headers.put("Content-Length", String.valueOf(item.getContentLength()));
+                writeHeader(startByte, channel, headers);
+            }
+
+            channel.write(buffer);
             offset += storage.chunkSize;
 
             if (offset > item.getContentLength()) {
@@ -249,8 +256,11 @@ public class StreamProxy implements Runnable {
         return h;
     }
 
-    private void streamCompleteFile(File file, long offset, SocketChannel channel) throws IOException {
+    private void streamCompleteFile(File file, long offset, SocketChannel channel, Map<String,String> headers) throws IOException {
         Log.d(LOG_TAG, "streaming complete file "+file);
+        headers.put("Content-Length", String.valueOf(file.length() -  offset));
+        writeHeader(offset, channel, headers);
+
         FileChannel f = new FileInputStream(file).getChannel();
         f.position(offset);
         ByteBuffer buffer = ByteBuffer.allocate(8192);

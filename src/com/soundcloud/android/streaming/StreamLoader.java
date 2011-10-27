@@ -68,6 +68,7 @@ public class StreamLoader {
                     DataTask t = (DataTask) msg.obj;
                     storeData(t.buffer, t.chunkRange.start, t.item);
                 }
+
                 if (msg.obj == mHighPriorityTask) mHighPriorityTask = null;
                 else if (msg.obj == mLowPriorityTask) mLowPriorityTask = null;
 
@@ -125,7 +126,7 @@ public class StreamLoader {
         fulfillPlayerCallbacks();
     }
 
-    public void cleanup() {
+    public void stop() {
         mConnectivityListener.stopListening();
         mConnectivityListener.unregisterHandler(mConnHandler);
         mConnectivityListener = null;
@@ -162,12 +163,8 @@ public class StreamLoader {
                 Log.e(LOG_TAG, "Error getting chunk data, aborting");
                 return null;
             }
-            int i = 0;
-            while (i < chunkData.length) {
-                data[writeIndex + i] = chunkData[i];
-                i++;
-            }
-            writeIndex += i;
+            System.arraycopy(chunkData, 0, data, writeIndex, chunkData.length);
+            writeIndex += chunkData.length;
         }
 
         if (actualRange.length < data.length) {
@@ -330,7 +327,7 @@ public class StreamLoader {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
-                    // TODO process queues
+                    processQueues();
                     break;
             }
         }
@@ -345,7 +342,7 @@ public class StreamLoader {
 
     private HeadTask startHeadTask(StreamItem item) {
         if (item.unavailable) {
-            Log.i(LOG_TAG, String.format("Can't start head for %s: Item is unavailable.", item));
+            Log.d(LOG_TAG, String.format("Can't start head for %s: Item is unavailable.", item));
             return null;
         } else if (!isConnected()) {
             mItemsNeedingHeadRequests.add(item);

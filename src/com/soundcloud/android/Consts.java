@@ -30,9 +30,6 @@ public final class Consts {
 
     public static final long MAX_IMAGE_CACHE = 5 * 1024  * 1024; // 5  MB
 
-    public static final String SOUNDCLOUD_SCHEME = "http";
-    public static final String SOUNDCLOUD_HOST = "soundcloud.com";
-
     public interface IntentActions {
         public static final String CONNECTION_ERROR = "com.soundcloud.android.connectionerror";
         public static final String COMMENT_ADDED = "com.soundcloud.android.commentadded";
