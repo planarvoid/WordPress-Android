@@ -190,6 +190,7 @@ public abstract class ScActivity extends Activity {
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
         unregisterReceiver(mPlaybackStatusListener);
+        unregisterReceiver(mGeneralIntentListener);
 
         for (final ScListView l : mLists) {
             if (LazyBaseAdapter.class.isAssignableFrom(l.getBaseAdapter().getClass())) {
