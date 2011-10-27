@@ -16,8 +16,8 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 public class StreamStorage {
     static final String LOG_TAG = StreamStorage.class.getSimpleName();
     public static final int DEFAULT_CHUNK_SIZE = 128 * 1024;
-    /** @noinspection UnusedDeclaration*/
     private static final int CLEANUP_INTERVAL = 20;
+    public static final String STREAMING_WRITES_SINCE_CLEANUP = "streamingWritesSinceCleanup";
 
     public final int chunkSize;
 
@@ -47,7 +47,7 @@ public class StreamStorage {
 
     /**
      * @param data       the data to store
-     * @param chunkIndex
+     * @param chunkIndex the chunk index the data belongs to
      * @param item       the item the data belongs to
      * @return if the data was set
      */
@@ -110,13 +110,13 @@ public class StreamStorage {
 
         //Update the number of writes, cleanup if necessary
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        final int currentCount = prefs.getInt("streamingWritesSinceCleanup", 0) + 1;
-        prefs.edit().putInt("streamingWritesSinceCleanup", currentCount).commit();
+        final int currentCount = prefs.getInt(STREAMING_WRITES_SINCE_CLEANUP, 0) + 1;
+        prefs.edit().putInt(STREAMING_WRITES_SINCE_CLEANUP, currentCount).commit();
 
-//        if (currentCount >= CLEANUP_INTERVAL) {
-//            calculateFileMetrics();
-//            cleanup();
-//        }
+        if (currentCount >= CLEANUP_INTERVAL) {
+            calculateFileMetrics();
+            cleanup();
+        }
         return true;
     }
 
@@ -172,7 +172,7 @@ public class StreamStorage {
             if (allIncompleteIndexes == null) allIncompleteIndexes = Collections.emptyList();
 
             final Index missingIndexes = new Index();
-            for (int chunk = chunkRange.location; chunk < chunkRange.end(); chunk++) {
+            for (int chunk = chunkRange.start; chunk < chunkRange.end(); chunk++) {
                 if (!allIncompleteIndexes.contains(chunk) && chunk <= lastChunk) {
                     missingIndexes.set(chunk);
                 }
@@ -182,11 +182,23 @@ public class StreamStorage {
     }
 
     public Map<StreamItem, List<Integer>> getIncompleteIndexes() {
-        return mIncompleteIndexes;
+        return new HashMap<StreamItem, List<Integer>>(mIncompleteIndexes);
     }
 
     public Map<StreamItem, Long> getIncompleteContentLengths() {
-        return mIncompleteContentLengths;
+        return new HashMap<StreamItem, Long>(mIncompleteContentLengths);
+    }
+
+    /* package */ File completeFileForItem(StreamItem item) {
+        return new File(mCompleteDir, item.getURLHash());
+    }
+
+    /* package */ File incompleteFileForItem(StreamItem item) {
+        return new File(mIncompleteDir, item.getURLHash());
+    }
+
+    /* package */ File incompleteIndexFileForItem(StreamItem item) {
+        return new File(mIncompleteDir, item.getURLHash() + "_index");
     }
 
     private void ensureMetadataIsLoadedForItem(StreamItem item) {
@@ -249,28 +261,15 @@ public class StreamStorage {
         return mIncompleteContentLengths.get(item) != null && mIncompleteIndexes.get(item) != null;
     }
 
-
     private long contentLengthForItem(StreamItem item) {
         final File completeFile = completeFileForItem(item);
         if (completeFile.exists()) return completeFile.length();
         return mIncompleteContentLengths.containsKey(item) ? mIncompleteContentLengths.get(item) : 0;
     }
 
-    /* package */ File completeFileForItem(StreamItem item) {
-        return new File(mCompleteDir, item.getURLHash());
-    }
-
-    /* package */ File incompleteFileForItem(StreamItem item) {
-        return new File(mIncompleteDir, item.getURLHash());
-    }
-
-    private File incompleteIndexFileForItem(StreamItem item) {
-        return new File(mIncompleteDir, item.getURLHash() + "_index");
-
-    }
-
     private boolean resetDataIfNecessary(StreamItem item) {
         if (item.getContentLength() != 0 &&
+            getContentLengthForItem(item) != 0 &&
             item.getContentLength() != getContentLengthForItem(item)) {
             removeAllDataForItem(item);
             return true;
@@ -307,7 +306,6 @@ public class StreamStorage {
         final File completeFile = completeFileForItem(item);
         return completeFile.exists() && completeFile.delete();
     }
-
 
     /* package */ byte[] incompleteDataForChunk(StreamItem item, int chunkIndex) throws IOException {
         final List<Integer> indexArray = mIncompleteIndexes.get(item);
@@ -375,28 +373,26 @@ public class StreamStorage {
     }
 
 
-    /** @noinspection UnusedDeclaration*/
     private void cleanup() {
-        if (mConvertingItems.size() > 0) {
+        if (!mConvertingItems.isEmpty()) {
             Log.d(LOG_TAG, "Not doing storage cleanup, conversion is going on");
             return;
         }
 
-        PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt("streamingWritesSinceCleanup", 0).commit();
+        PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(STREAMING_WRITES_SINCE_CLEANUP, 0).commit();
 
         if (mUsedSpace <= Consts.TRACK_MAX_CACHE && mSpaceLeft >= Consts.TRACK_CACHE_MIN_FREE_SPACE) return;
 
-        ArrayList<File> files = new ArrayList<File>();
+        List<File> files = new ArrayList<File>();
         files.addAll(Arrays.asList(mIncompleteDir.listFiles()));
         files.addAll(Arrays.asList(mCompleteDir.listFiles()));
         Collections.sort(files, FileLastModifiedComparator.INSTANCE);
 
         final long spaceToClean = Math.max(mUsedSpace - Consts.TRACK_MAX_CACHE,
                 Consts.TRACK_CACHE_MIN_FREE_SPACE - mSpaceLeft);
-        int i = 0;
         long cleanedSpace = 0;
-        while (i < files.size() && cleanedSpace < spaceToClean) {
-            final File f = files.get(i);
+
+        for (File f : files) {
             final File parent = f.getParentFile();
             cleanedSpace += f.length();
             if (!f.delete()) Log.w(LOG_TAG, "could not delete "+f);
@@ -407,14 +403,17 @@ public class StreamStorage {
                     if (!indexFile.delete()) Log.w(LOG_TAG, "could not delete "+indexFile);
                 }
             }
+            if (cleanedSpace >= spaceToClean) break;
         }
     }
 
     /* package */ void calculateFileMetrics() {
+        mSpaceLeft = getSpaceLeft();
+        mUsedSpace = getUsedSpace();
+        Log.d(LOG_TAG, "[File Metrics] used: " + mUsedSpace + " , free: " + mSpaceLeft);
+    }
 
-        StatFs fs = new StatFs(mBaseDir.getAbsolutePath());
-        mSpaceLeft = fs.getBlockSize() * fs.getAvailableBlocks();
-
+    /* package */ long getUsedSpace() {
         long currentlyUsedSpace = 0;
         for (File f : mCompleteDir.listFiles()) {
             currentlyUsedSpace += f.length();
@@ -422,13 +421,15 @@ public class StreamStorage {
         for (File f : mIncompleteDir.listFiles()) {
             currentlyUsedSpace += f.length();
         }
-        mUsedSpace = currentlyUsedSpace;
+        return currentlyUsedSpace;
+    }
 
-        Log.d(LOG_TAG, "[File Metrics] used: " + mUsedSpace + " , free: " + mSpaceLeft);
+    /* package */ long getSpaceLeft() {
+        StatFs fs = new StatFs(mBaseDir.getAbsolutePath());
+       return fs.getBlockSize() * fs.getAvailableBlocks();
     }
 
     /* package */ void setContentLength(StreamItem item, long contentLength) {
-
         if (contentLength != contentLengthForItem(item)) {
             if (contentLengthForItem(item) != 0) {
                 removeAllDataForItem(item);

@@ -4,12 +4,15 @@ package com.soundcloud.android.streaming;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import org.apache.http.Header;
+import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.message.BasicLineParser;
 
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,10 +20,12 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
@@ -149,12 +154,9 @@ public class StreamProxy implements Runnable {
         return mPort;
     }
 
-    private void processRequest(HttpGet request, Socket client) {
-        final String streamUrl = request.getURI().toString();
-        Log.d(LOG_TAG, "processRequest: " + streamUrl);
 
+    private long firstRequestedByte(HttpRequest request) {
         long startByte = 0;
-
         Header range = request.getFirstHeader("Range");
         if (range != null && range.getValue() != null) {
             Matcher m = Pattern.compile("bytes=(\\d+)-").matcher(range.getValue());
@@ -162,39 +164,30 @@ public class StreamProxy implements Runnable {
                 startByte = Long.parseLong(m.group(1));
             }
         }
+        return startByte;
+    }
+
+    private void processRequest(HttpGet request, Socket client) {
+        final String streamUrl = request.getURI().toString();
+        Log.d(LOG_TAG, "processRequest: " + streamUrl);
+
+        final StreamItem item = new StreamItem(streamUrl);
+        final long startByte = firstRequestedByte(request);
+
         Log.d(LOG_TAG, "startByte: " + startByte);
 
         try {
-            SocketChannel channel = client.getChannel();
+            final SocketChannel channel = client.getChannel();
+            Map<String,String> headers = createHeader(item);
 
-            final StreamItem item = new StreamItem(streamUrl);
-            // write HTTP response header
-            StringBuilder sb = new StringBuilder()
-                    .append("HTTP/1.1 ")
-                    .append(range == null ? "200 OK" : "206 OK").append("\r\n")
-                    .append("Server: SoundCloudStreaming\r\n")
-                    .append("Accept-Ranges: bytes\r\n")
-                    .append("Content-Type: audio/mpeg\r\n")
-                    .append("Connection: keep-alive\r\n");
-
-            if (range != null) {
-//                sb.append(String.format("Content-Range: %d-%d/%d", startByte, item.
-            }
-
-            sb.append("\r\n");
-
-            channel.write(ByteBuffer.wrap(sb.toString().getBytes()));
-            for (; ; ) {
-                StreamFuture stream = loader.getDataForItem(item,
-                        Range.from(startByte, storage.chunkSize));
-
-                channel.write(stream.get());
-                startByte += storage.chunkSize;
-
-                if (startByte > item.getContentLength()) {
-                    Log.d(LOG_TAG, "reached end of stream");
-                    break;
-                }
+            final File completeFile = storage.completeFileForItem(item);
+            if (completeFile.exists()) {
+                headers.put("Content-Length", String.valueOf(completeFile.length() -  startByte));
+                writeHeader(startByte, channel, headers);
+                streamCompleteFile(completeFile, startByte,  channel);
+            } else {
+                writeHeader(startByte, channel, headers);
+                writeChunks(item, startByte, channel);
             }
         } catch (SocketException e) {
             if ("Connection reset by peer".equals(e.getMessage())) {
@@ -212,6 +205,66 @@ public class StreamProxy implements Runnable {
             try {
                 client.close();
             } catch (IOException ignored) {
+            }
+        }
+    }
+
+    private void writeHeader(long startByte, SocketChannel channel, Map<String, String> headers) throws IOException {
+        // write HTTP response header
+        StringBuilder sb = new StringBuilder()
+                .append("HTTP/1.1 ")
+                .append(startByte == 0 ? "200 OK" : "206 OK").append("\r\n");
+
+        for (Map.Entry<String,String> e : headers.entrySet()) {
+            sb.append(e.getKey()).append(':').append(' ').append(e.getValue()).append("\r\n");
+        }
+        if (startByte != 0) {
+//                sb.append(String.format("Content-Range: %d-%d/%d", startByte, item.
+        }
+        sb.append("\r\n");
+        channel.write(ByteBuffer.wrap(sb.toString().getBytes()));
+    }
+
+    private void writeChunks(StreamItem item, long startByte, SocketChannel channel) throws IOException, InterruptedException, ExecutionException {
+        long offset = startByte;
+        for (;;) {
+            StreamFuture stream = loader.getDataForItem(item, Range.from(offset, storage.chunkSize));
+
+            channel.write(stream.get());
+            offset += storage.chunkSize;
+
+            if (offset > item.getContentLength()) {
+                Log.d(LOG_TAG, "reached end of stream");
+                break;
+            }
+        }
+    }
+
+    /* package */ Map<String,String> createHeader(StreamItem item) {
+        Map<String,String> h = new LinkedHashMap<String, String>();
+        h.put("Server", "SoundCloudStreaming");
+        h.put("Accept-Ranges", "bytes");
+        h.put("Content-Type", "audio/mpeg");
+        h.put("Connection", "keep-alive");
+        return h;
+    }
+
+    private void streamCompleteFile(File file, long offset, SocketChannel channel) throws IOException {
+        Log.d(LOG_TAG, "streaming complete file "+file);
+        FileChannel f = new FileInputStream(file).getChannel();
+        f.position(offset);
+        ByteBuffer buffer = ByteBuffer.allocate(8192);
+        int read = 0;
+        while (read < file.length() - offset)   {
+            int readnow = f.read(buffer);
+            if (readnow == -1) {
+                f.close();
+                break;
+            } else {
+                read += readnow;
+                buffer.flip();
+                channel.write(buffer);
+                buffer.rewind();
             }
         }
     }

@@ -1,9 +1,14 @@
 package com.soundcloud.android.streaming;
 
+import static com.soundcloud.android.Expect.expect;
+
+import com.soundcloud.android.Expect;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Map;
 
 @RunWith(DefaultTestRunner.class)
 public class StreamProxyTest {
@@ -15,5 +20,18 @@ public class StreamProxyTest {
         proxy.init()
              .start()
              .join();
+    }
+
+    @Test
+    public void testCreateHeader() throws Exception {
+        StreamProxy proxy = new StreamProxy(DefaultTestRunner.application, 0);
+
+        StreamItem item = new StreamItem("http://foo.com/naz");
+
+        Map<String, String> h = proxy.createHeader(item);
+
+        expect(h.containsKey("Server")).toBeTrue();
+        expect(h.containsKey("Content-Type")).toBeTrue();
+        expect(h.get("Content-Type")).toEqual("audio/mpeg");
     }
 }

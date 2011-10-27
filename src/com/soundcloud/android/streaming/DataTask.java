@@ -9,10 +9,7 @@ import org.apache.http.util.EntityUtils;
 
 import android.util.Log;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
 
 class DataTask extends StreamItemTask {
     static final String LOG_TAG = DataTask.class.getSimpleName();
@@ -33,7 +30,7 @@ class DataTask extends StreamItemTask {
     public void execute() throws IOException {
         Log.d(LOG_TAG, String.format("fetching item %s with range %s", item, byteRange));
         HttpResponse resp = api.getHttpClient().execute(
-                Request.to(item.redirectedURL).range(byteRange.location, byteRange.end()-1)
+                Request.to(item.redirectedURL).range(byteRange.start, byteRange.end()-1)
                         .buildRequest(HttpGet.class));
 
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK ||

@@ -66,7 +66,7 @@ public class StreamLoader {
                     mHeadTasks.remove(t);
                 } else if (msg.obj instanceof DataTask) {
                     DataTask t = (DataTask) msg.obj;
-                    storeData(t.buffer, t.chunkRange.location, t.item);
+                    storeData(t.buffer, t.chunkRange.start, t.item);
                 }
                 if (msg.obj == mHighPriorityTask) mHighPriorityTask = null;
                 else if (msg.obj == mLowPriorityTask) mLowPriorityTask = null;
@@ -103,7 +103,7 @@ public class StreamLoader {
         }
 
         mCurrentItem = item;
-        mCurrentPosition = range.location;
+        mCurrentPosition = range.start;
 
         StreamFuture pc = new StreamFuture(item, range);
         if (!missingChunks.isEmpty()) {
@@ -154,9 +154,9 @@ public class StreamLoader {
         Range chunkRange = actualRange.chunkRange(chunkSize);
 
         byte[] data = new byte[chunkRange.length * chunkSize];
-        final int end = chunkRange.location + chunkRange.length;
+        final int end = chunkRange.start + chunkRange.length;
         int writeIndex = 0;
-        for (int chunkIndex = chunkRange.location; chunkIndex < end; chunkIndex++) {
+        for (int chunkIndex = chunkRange.start; chunkIndex < end; chunkIndex++) {
             byte[] chunkData = mStorage.getChunkData(item, chunkIndex);
             if (chunkData == null) {
                 Log.e(LOG_TAG, "Error getting chunk data, aborting");
@@ -171,7 +171,7 @@ public class StreamLoader {
         }
 
         if (actualRange.length < data.length) {
-            return ByteBuffer.wrap(data, actualRange.location - (chunkRange.location * chunkSize), actualRange.length).slice().asReadOnlyBuffer();
+            return ByteBuffer.wrap(data, actualRange.start - (chunkRange.start * chunkSize), actualRange.length).slice().asReadOnlyBuffer();
         } else {
             return ByteBuffer.wrap(data);
         }

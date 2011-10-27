@@ -9,7 +9,7 @@ public class RangeTest {
     public void testConstruction() throws Exception {
         Range r = Range.from(0, 10);
 
-        expect(r.location).toBe(0);
+        expect(r.start).toBe(0);
         expect(r.length).toBe(10);
         expect(r.end()).toBe(10);
     }
@@ -35,7 +35,7 @@ public class RangeTest {
         Range r = Range.from(1025, 2555);
         Range chunk = r.chunkRange(1024);
 
-        expect(chunk.location).toBe(1);
+        expect(chunk.start).toBe(1);
         expect(chunk.length).toBe(3);
     }
 
@@ -49,5 +49,10 @@ public class RangeTest {
     public void shouldSupportEquals() throws Exception {
         expect(Range.from(0, 10)).toEqual(Range.from(0, 10));
         expect(Range.from(0, 10)).not.toEqual(Range.from(1, 10));
+    }
+
+    @Test
+    public void moveStart() throws Exception {
+        expect(Range.from(0, 10).moveStart(10)).toEqual(Range.from(10,10));
     }
 }

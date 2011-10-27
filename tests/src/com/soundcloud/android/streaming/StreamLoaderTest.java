@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
@@ -47,7 +48,11 @@ public class StreamLoaderTest {
     public void before() {
         CloudUtils.deleteDir(baseDir);
         testFile = new File(getClass().getResource(TEST_MP3).getFile());
-        storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE);
+        storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE) {
+            @Override long getSpaceLeft() {
+                return Consts.TRACK_MAX_CACHE; // to avoid returning 0 here
+            }
+        };
         loader = new StreamLoader(DefaultTestRunner.application, storage);
         loader.setForceOnline(true);
         item = new StreamItem(TEST_URL, testFile.length());
