@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.view.*;
 import android.widget.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -23,10 +24,6 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 
@@ -84,6 +81,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     private int mRefreshOriginalTopPadding;
     private int mRefreshVerticalTolerance;
     private long mLastUpdated;
+
+    private boolean mManuallyDetatched;
 
     public ScListView(ScActivity activity) {
         super(activity);
@@ -351,6 +350,20 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         post(mSelectionRunnable);
     }
 
+    public void checkForManualDetatch(){
+        if (mManuallyDetatched) onAttachedToWindow();
+    }
+
+     public void postDetatch() {
+        post( new Runnable() {
+            @Override
+            public void run() {
+                mManuallyDetatched = true;
+                onDetachedFromWindow();
+            }
+        });
+    }
+
     private final AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> list, View row, int position, long id) {
             if (mListener == null) return;
@@ -392,6 +405,11 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         checkHeaderVisibility();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
     }
 
     @Override
@@ -697,4 +715,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
         void onFlingDone();
     }
+
+
 }
