@@ -29,7 +29,7 @@
               android:layout_width="80dp"
               android:layout_height="wrap_content"
               android:gravity="right"
-              style="@style/txt_list_sub_secondary"
+              style="@style/txt_list_created_at"
               android:layout_marginRight="@dimen/list_text_margin_right"
               android:layout_alignTop="@id/icon"
               android:paddingLeft="0dip"

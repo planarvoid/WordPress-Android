@@ -81,6 +81,10 @@
         <item name="android:textStyle">italic</item>
     </style>
 
+    <style name="txt_list_created_at" parent="txt_list_sub">
+        <item name="android:textColor">@drawable/txt_list_created_at_states</item>
+    </style>
+
     <style name="stat_pipe">
         <item name="android:layout_marginRight">6dip</item>
         <item name="android:layout_marginLeft">6dip</item>

@@ -5,6 +5,8 @@
 	<color name="listTxtValueInactive">#FFa9a9a9</color>
 	<color name="listTxtSecondary">#FF777777</color>
 	<color name="listTxtRecSecondary">#FFcccccc</color>
+    <color name="listTxtCreatedAt">#FFc9c9c9</color>
+
 
     <color name="listTxtHeader">#777777</color>
     <color name="listBgHeader">#DEEFEFEF</color>
