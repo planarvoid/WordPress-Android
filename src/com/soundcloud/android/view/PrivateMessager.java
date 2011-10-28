@@ -40,6 +40,10 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         mViewFlipper = new ViewFlipper(activity);
         addView(mViewFlipper,new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 
+        View v = new View(activity);
+        v.setBackgroundDrawable(activity.getResources().getDrawable(R.drawable.drop_shadow_down));
+        addView(v,new LayoutParams(LayoutParams.FILL_PARENT, (int) (5*activity.getResources().getDisplayMetrics().density)));
+
         ViewGroup createLayout = (ViewGroup) activity.getLayoutInflater().inflate(R.layout.sc_create, null);
         mCreateController = new CreateController(activity, createLayout, mRecording, mUser);
         mCreateController.setInstructionsText(activity.getString(R.string.private_message_title));
@@ -122,7 +126,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     }
 
     public void onSaveInstanceState(Bundle state) {
-        state.putInt("privateMessagerCurrentIndex",mViewFlipper.indexOfChild(mViewFlipper.getCurrentView()));
+        state.putInt("privateMessagerCurrentIndex", mViewFlipper.indexOfChild(mViewFlipper.getCurrentView()));
         mCreateController.onSaveInstanceState(state);
         mRecordingMetadata.onSaveInstanceState(state);
     }
