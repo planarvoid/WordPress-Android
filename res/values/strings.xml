@@ -23,6 +23,12 @@
     <string name='private_message_btn_send'>
         Send
     </string>
+    <string name='private_message_for'>
+        Private message for %s
+    </string>
+    <string name='private_message'>
+        Private message
+    </string>
     <string name='btn_next'>
         Next
     </string>
@@ -49,6 +55,9 @@
     </string>
     <string name='user_browser_tab_info'>
         Info
+    </string>
+    <string name="tracklist_item_shared_with_1_person">
+        1 Person
     </string>
     <string name='tracklist_item_shared_count_unavailable'>
         Private

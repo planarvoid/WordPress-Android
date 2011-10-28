@@ -56,13 +56,13 @@ public class Recording extends ModelBase implements PageTrackable {
     public String[] tags;
     public String description, genre;
 
-    private User mPrivateUser;
-
     private Map<String,Object> mUpload_data;
 
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
     private static final Pattern COMPRESSED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
+
+    public String private_username;
 
     public File generateImageFile(File imageDir) {
         if (audio_path == null) {

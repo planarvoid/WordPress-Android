@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
@@ -76,7 +77,11 @@ public class MyTracksAdapter extends TracklistAdapter {
         List<Recording> recordings = new ArrayList<Recording>();
         if (cursor != null && !cursor.isClosed()) {
             while (cursor.moveToNext()) {
-                recordings.add(new Recording(cursor));
+                Recording rec = new Recording(cursor);
+                if (rec.private_user_id > 0){
+                    rec.private_username = SoundCloudDB.getUsernameById(mActivity.getContentResolver(),rec.private_user_id);
+                }
+                recordings.add(rec);
             }
         }
         return recordings;
