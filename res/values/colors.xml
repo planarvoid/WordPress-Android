@@ -51,7 +51,7 @@
 
 	<color name="listSeperator">#FF333333</color>
 	<color name="horizontalRule">#FFcccccc</color>
-    <color name="verticalPipe">#FFcccccc</color>
+    <color name="verticalPipe">#77dddddd</color>
 
 	<drawable name="screen_background_light">#ffffffff</drawable>
 
