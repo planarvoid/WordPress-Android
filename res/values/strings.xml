@@ -27,6 +27,12 @@
     <string name='private_message_btn_send'>
         Send
     </string>
+    <string name='private_message_for'>
+        Private message for %s
+    </string>
+    <string name='private_message'>
+        Private message
+    </string>
     <string name='btn_next'>
         Next
     </string>

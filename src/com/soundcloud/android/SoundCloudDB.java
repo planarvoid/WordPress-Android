@@ -13,7 +13,6 @@ import android.util.Log;
 public class SoundCloudDB {
     private static final String TAG = "SoundCloudDB";
 
-
     public enum WriteState {
         insert_only, update_only, all
     }
@@ -107,6 +106,17 @@ public class SoundCloudDB {
         }
         if (cursor != null) cursor.close();
         return user;
+    }
+
+    public static String getUsernameById(ContentResolver contentResolver, long userId) {
+        Cursor cursor = contentResolver.query(Content.USERS, new String[]{Users.CONCRETE_USERNAME}, Users.ID + "= ?",new String[]{Long.toString(userId)}, null);
+        String username = null;
+        if (cursor != null && cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            username = cursor.getString(0);
+        }
+        if (cursor != null) cursor.close();
+        return username;
     }
 
     public static boolean isUserInDb(ContentResolver contentResolver, long id) {

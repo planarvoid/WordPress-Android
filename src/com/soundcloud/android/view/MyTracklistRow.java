@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.text.TextUtils;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -20,12 +21,15 @@ import java.io.IOException;
 public class MyTracklistRow extends TracklistRow {
     private TextView mTitle;
     private TextView mCreatedAt;
-    private Drawable mPrivateDrawable;
+    private TextView mPrivateIndicator;
+    private Drawable mPrivateBgDrawable;
+    private Drawable mVeryPrivateBgDrawable;
 
     public MyTracklistRow(ScActivity activity, LazyBaseAdapter adapter) {
         super(activity, adapter);
         mTitle = (TextView) findViewById(R.id.track);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
+        mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
     }
 
     @Override
@@ -33,9 +37,20 @@ public class MyTracklistRow extends TracklistRow {
         return R.layout.record_list_item_row;
     }
 
-    private Drawable getPrivateDrawable() {
-        if (mPrivateDrawable == null) mPrivateDrawable = getContext().getResources().getDrawable(R.drawable.very_private);
-        return mPrivateDrawable;
+    private Drawable getPrivateBgDrawable(){
+          if (mPrivateBgDrawable == null) {
+              mPrivateBgDrawable = getResources().getDrawable(R.drawable.round_rect_gray);
+              mPrivateBgDrawable.setBounds(0, 0, mPrivateBgDrawable.getIntrinsicWidth(), mPrivateBgDrawable.getIntrinsicHeight());
+          }
+        return mPrivateBgDrawable;
+    }
+
+    private Drawable getVeryPrivateBgDrawable(){
+          if (mVeryPrivateBgDrawable == null) {
+              mVeryPrivateBgDrawable = getResources().getDrawable(R.drawable.round_rect_orange);
+              mVeryPrivateBgDrawable.setBounds(0, 0, mVeryPrivateBgDrawable.getIntrinsicWidth(), mVeryPrivateBgDrawable.getIntrinsicHeight());
+          }
+        return mVeryPrivateBgDrawable;
     }
 
     @Override
@@ -44,10 +59,26 @@ public class MyTracklistRow extends TracklistRow {
 
         mTitle.setText(recording.sharingNote(getResources()));
 
-        if (recording.is_private) {
-            mTitle.setCompoundDrawablesWithIntrinsicBounds(null,null,getPrivateDrawable(),null);
+        if (!recording.is_private) {
+            mPrivateIndicator.setVisibility(View.GONE);
         } else {
-            mTitle.setCompoundDrawables(null,null,null,null);
+            if (!TextUtils.isEmpty(recording.private_username)){
+                mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
+                mPrivateIndicator.setText(recording.private_username);
+            } else {
+                final int sharedToCount = TextUtils.isEmpty(recording.shared_emails) ? 0
+                        : recording.shared_emails.split(",").length;
+                if (sharedToCount < 8){
+                    mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
+                } else {
+                    mPrivateIndicator.setBackgroundDrawable(getPrivateBgDrawable());
+                }
+                mPrivateIndicator.setText(sharedToCount > 0 ? (sharedToCount == 1 ?
+                            getContext().getString(R.string.tracklist_item_shared_with_1_person) :
+                            getContext().getString(R.string.tracklist_item_shared_with_x_people, sharedToCount))
+                        : getContext().getString(R.string.tracklist_item_shared_with_you));
+            }
+            mPrivateIndicator.setVisibility(View.VISIBLE);
         }
 
         mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtRecSecondary));
