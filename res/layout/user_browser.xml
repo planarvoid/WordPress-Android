@@ -67,6 +67,7 @@
                           android:layout_alignParentLeft="true"
                           style="@style/txt_list_sub_secondary"/>
                 <View style="@style/stat_pipe"
+                      android:background="@color/verticalPipeDark"
                       android:layout_toRightOf="@+id/tracks"
                       android:layout_alignBottom="@+id/tracks"
                       android:layout_alignTop="@+id/tracks"
