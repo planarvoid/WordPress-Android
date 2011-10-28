@@ -50,5 +50,9 @@
     <string name='user_browser_tab_info'>
         Info
     </string>
+    <string name='tracklist_item_shared_count_unavailable'>
+        Private
+    </string>
+
 
 </resources>
