@@ -96,6 +96,14 @@
     <style name="txt_comment_panel_body">
         <item name="android:textColor">@drawable/txt_list_main_states</item>
         <item name="android:textSize">@dimen/comment_panel_main_size</item>
+    <style name="txt_list_created_at" parent="txt_list_sub">
+        <item name="android:textColor">@drawable/txt_list_created_at_states</item>
+    </style>
+
+    <style name="stat_pipe">
+        <item name="android:layout_marginRight">6dip</item>
+        <item name="android:layout_marginLeft">6dip</item>
+        <item name="android:background">@color/verticalPipe</item>
     </style>
 
     <style name="txt_auth_title" parent="@android:style/TextAppearance.Large">

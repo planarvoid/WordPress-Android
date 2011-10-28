@@ -66,16 +66,12 @@
                           android:id="@+id/tracks"
                           android:text="@string/track_count"
                           android:layout_alignParentLeft="true"
-                          android:paddingLeft="0dip"
-                          android:paddingRight="5dip"
                           style="@style/txt_list_sub_secondary"/>
-                <View android:background="@color/verticalPipe"
+                <View style="@style/stat_pipe"
                       android:layout_toRightOf="@+id/tracks"
                       android:layout_alignBottom="@+id/tracks"
                       android:layout_alignTop="@+id/tracks"
                       android:layout_height="0dp"
-                      android:layout_marginRight="2dip"
-                      android:layout_marginLeft="3dip"
                       android:layout_width="1dip"
                       android:id="@+id/vr_stats"/>
                 <TextView android:layout_width="wrap_content"
@@ -85,7 +81,6 @@
                           android:id="@+id/followers"
                           android:text="@string/follower_count"
                           android:layout_toRightOf="@id/vr_stats"
-                          android:paddingRight="5dip"
                           style="@style/txt_list_sub_secondary"/>
             </RelativeLayout>
             <ImageButton android:id="@+id/btn_followState"
