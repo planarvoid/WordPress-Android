@@ -30,7 +30,6 @@ import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.task.*;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.view.CreateController;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
@@ -50,11 +49,14 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
     private ResolveTask mResolveTask;
     private LoadTrackInfoTask mLoadTrackTask;
     private LoadUserInfoTask mLoadUserTask;
+    private ChangeLog mChangeLog;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.main);
+        mChangeLog = new ChangeLog(this);
+
         final SoundCloudApplication app = getApp();
         final boolean showSplash = showSplash(state);
         mSplash = findViewById(R.id.splash);
@@ -97,6 +99,10 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
     @Override
     protected void onResume() {
+        if (SoundCloudApplication.BETA_MODE && mChangeLog.isFirstRun()) {
+            SoundCloudApplication.handleSilentException("Install",
+                    new InstallNotification(CloudUtils.getAppVersionCode(Main.this, -1), CloudUtils.getAppVersion(Main.this, "")));
+        }
         if (!checkAccountExists(getApp())) {
             finish();
         }
@@ -349,7 +355,6 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
     private void dismissSplash() {
         if (mSplash.getVisibility() == View.VISIBLE) {
-            final ChangeLog cl = new ChangeLog(this);
             mSplash.startAnimation(new AlphaAnimation(1, 0) {
                 {
                     setDuration(FADE_DELAY);
@@ -361,8 +366,9 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
                         @Override
                         public void onAnimationEnd(Animation animation) {
                             mSplash.setVisibility(View.GONE);
-                            if (cl.isFirstRun()) {
-                                cl.getDialog(true).show();
+
+                            if (mChangeLog.isFirstRun()) {
+                                mChangeLog.getDialog(true).show();
                             }
                         }
 
@@ -488,5 +494,22 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
     @Override
     public void onUserInfoError(long trackId) {
         Toast.makeText(this,getString(R.string.error_loading_user),Toast.LENGTH_LONG).show();
+    }
+
+    static class InstallNotification extends Exception {
+        int versionCode;
+        String versionName;
+        InstallNotification(int versionCode, String versionName) {
+            super();
+            this.versionCode = versionCode;
+            this.versionName = versionName;
+        }
+
+        @Override
+        public String getMessage() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("versionCode: ").append(versionCode).append(" ").append("versionName: ").append(versionName);
+            return sb.toString();
+        }
     }
 }
