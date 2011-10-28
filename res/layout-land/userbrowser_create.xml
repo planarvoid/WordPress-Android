@@ -3,10 +3,7 @@
                 xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="@color/createBackground">
-
-
-
+                android:background="@drawable/bg_rec">
     <RelativeLayout android:id="@+id/RelativeLayout03"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

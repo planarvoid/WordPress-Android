@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
             android:id="@+id/ScrollView01"
-            android:background="@color/createBackground"
+            android:background="@drawable/bg_rec"
             android:layout_weight="1"
             android:layout_height="0dp"
             android:layout_width="fill_parent"
