@@ -16,23 +16,28 @@ public class StreamItem implements Parcelable {
     public boolean unavailable;  // http status 402,404,410
     private String mURLHash;
     private long mContentLength;
-    private String eTag;
+    private String mEtag;
 
     public StreamItem(String url) {
         if (TextUtils.isEmpty(url)) throw new IllegalArgumentException();
         this.url = url;
     }
 
-    public StreamItem(String url, long length) {
+    /* package */ StreamItem(String url, long length, String etag) {
         this(url);
-        setContentLength(length);
+        mContentLength = length;
+        mEtag = etag;
     }
 
     public StreamItem initializeFrom(Stream s) {
         setContentLength(s.contentLength);
         redirectedURL = s.streamUrl;
-        eTag = s.eTag;
+        mEtag = s.eTag;
         return this;
+    }
+
+    public String getETag() {
+        return mEtag;
     }
 
     public boolean setContentLength(long value) {
@@ -76,9 +81,13 @@ public class StreamItem implements Parcelable {
 
     public String getURLHash() {
         if (mURLHash == null) {
-            mURLHash = CloudUtils.md5(url);
+            mURLHash = urlHash(url);
         }
         return mURLHash;
+    }
+
+    public static String urlHash(String url) {
+        return CloudUtils.md5(url);
     }
 
     @Override
@@ -137,5 +146,13 @@ public class StreamItem implements Parcelable {
     @Override
     public int hashCode() {
         return url != null ? url.hashCode() : 0;
+    }
+
+
+    public StreamStorage.Metadata getMetadata() {
+        StreamStorage.Metadata md = new StreamStorage.Metadata();
+        md.eTag = mEtag;
+        md.contentLength = mContentLength;
+        return md;
     }
 }

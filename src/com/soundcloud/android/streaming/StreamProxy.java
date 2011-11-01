@@ -75,9 +75,11 @@ public class StreamProxy implements Runnable {
         }
     }
 
-    /**
-     * @noinspection UnusedDeclaration
-     */
+
+    public boolean isRunning() {
+        return mIsRunning;
+    }
+
     public void stop() {
         mIsRunning = false;
         if (mThread == null) {
@@ -102,7 +104,7 @@ public class StreamProxy implements Runnable {
                 Log.d(LOG_TAG, "client connected");
                 try {
                     final HttpGet request = readRequest(client);
-                    new Thread("handle-proxy-request") {
+                    new Thread("handle- proxy-request") {
                         @Override
                         public void run() {
                             processRequest(request, client);
@@ -173,20 +175,19 @@ public class StreamProxy implements Runnable {
         final String streamUrl = request.getURI().toString();
         Log.d(LOG_TAG, "processRequest: " + streamUrl);
 
-        final StreamItem item = new StreamItem(streamUrl);
         final long startByte = firstRequestedByte(request);
 
         Log.d(LOG_TAG, "startByte: " + startByte);
 
         try {
             final SocketChannel channel = client.getChannel();
-            Map<String,String> headers = createHeader(item);
+            Map<String,String> headers = headerForItem(streamUrl);
 
-            final File completeFile = storage.completeFileForItem(item);
+            final File completeFile = storage.completeFileForItem(streamUrl);
             if (completeFile.exists()) {
                 streamCompleteFile(completeFile, startByte, channel, headers);
             } else {
-                writeChunks(item, startByte, channel, headers);
+                writeChunks(streamUrl, startByte, channel, headers);
             }
         } catch (SocketException e) {
             if ("Connection reset by peer".equals(e.getMessage())) {
@@ -208,7 +209,7 @@ public class StreamProxy implements Runnable {
         }
     }
 
-    private void writeHeader(long startByte, SocketChannel channel, Map<String, String> headers) throws IOException {
+    private ByteBuffer getHeader(long startByte, Map<String, String> headers) throws IOException {
         // write HTTP response header
         StringBuilder sb = new StringBuilder()
                 .append("HTTP/1.1 ")
@@ -217,49 +218,54 @@ public class StreamProxy implements Runnable {
         for (Map.Entry<String,String> e : headers.entrySet()) {
             sb.append(e.getKey()).append(':').append(' ').append(e.getValue()).append("\r\n");
         }
-        if (startByte != 0) {
-//                sb.append(String.format("Content-Range: %d-%d/%d", startByte, item.
-        }
         sb.append("\r\n");
-        channel.write(ByteBuffer.wrap(sb.toString().getBytes()));
+
+        Log.d(LOG_TAG, "header:"+sb);
+        return ByteBuffer.wrap(sb.toString().getBytes());
     }
 
-    private void writeChunks(StreamItem item, final long startByte, SocketChannel channel, Map<String,String> headers)
+    private void writeChunks(String streamUrl, final long startByte, SocketChannel channel, Map<String,String> headers)
             throws IOException, InterruptedException, ExecutionException {
         long offset = startByte;
         for (;;) {
-            StreamFuture stream = loader.getDataForItem(item, Range.from(offset, storage.chunkSize));
-            ByteBuffer buffer = stream.get();
+            StreamFuture stream = loader.getDataForItem(streamUrl, Range.from(offset, storage.chunkSize));
+             ByteBuffer buffer = stream.get();
 
             if (offset == startByte) {
+                final long length = stream.item.getContentLength();
                 // first chunk, write header
-                headers.put("Content-Length", String.valueOf(item.getContentLength()));
-                writeHeader(startByte, channel, headers);
+                headers.put("Content-Length", String.valueOf(length));
+
+                if (startByte != 0) {
+                    headers.put("Content-Range",
+                        String.format("%d-%d/%d", startByte, length-1, length));
+                }
+                channel.write(getHeader(startByte, headers));
             }
 
             channel.write(buffer);
             offset += storage.chunkSize;
 
-            if (offset > item.getContentLength()) {
+            if (offset > stream.item.getContentLength()) {
                 Log.d(LOG_TAG, "reached end of stream");
                 break;
             }
         }
     }
 
-    /* package */ Map<String,String> createHeader(StreamItem item) {
+    /* package */ Map<String,String> headerForItem(String url) {
         Map<String,String> h = new LinkedHashMap<String, String>();
         h.put("Server", "SoundCloudStreaming");
         h.put("Accept-Ranges", "bytes");
         h.put("Content-Type", "audio/mpeg");
-        h.put("Connection", "keep-alive");
+//        h.put("Connection", "keep-alive");
         return h;
     }
 
     private void streamCompleteFile(File file, long offset, SocketChannel channel, Map<String,String> headers) throws IOException {
-        Log.d(LOG_TAG, "streaming complete file "+file);
+          Log.d(LOG_TAG, "streaming complete file "+file);
         headers.put("Content-Length", String.valueOf(file.length() -  offset));
-        writeHeader(offset, channel, headers);
+        channel.write(getHeader(offset, headers));
 
         FileChannel f = new FileInputStream(file).getChannel();
         f.position(offset);

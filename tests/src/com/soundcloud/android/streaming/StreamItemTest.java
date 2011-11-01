@@ -31,13 +31,13 @@ public class StreamItemTest {
 
     @Test
     public void testByteRange() throws Exception {
-        StreamItem item = new StreamItem("foo", 1543);
+        StreamItem item = new StreamItem("foo", 1543, null);
         expect(item.byteRange()).toEqual(Range.from(0, 1543));
     }
 
     @Test
     public void testChunkRange() throws Exception {
-        StreamItem item = new StreamItem("foo", 1543);
+        StreamItem item = new StreamItem("foo", 1543, null);
         expect(item.chunkRange(128)).toEqual(Range.from(0, 13));
     }
 }

@@ -2,6 +2,7 @@ package com.soundcloud.android.streaming;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static junit.framework.Assert.fail;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
@@ -9,10 +10,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,82 +36,71 @@ public class StreamStorageTest {
     @Before
     public void before() {
         CloudUtils.deleteDir(baseDir);
-        storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE);
+        storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE, false);
         item = new StreamItem("fred.mp3");
     }
 
     private long mSampleContentLength;
-    private LinkedHashMap<Integer, byte[]> mSampleBuffers;
+    private LinkedHashMap<Integer, ByteBuffer> mSampleBuffers = new LinkedHashMap<Integer, ByteBuffer>();
     private ArrayList<Integer> mSampleChunkIndexes;
 
     private long setupChunkArray() throws IOException {
-
-        InputStream inputStream = getClass().getResourceAsStream("fred.mp3");
-        mSampleContentLength = new File(getClass().getResource("fred.mp3").getFile()).length();
-
-        long chunks = 0;
-        mSampleBuffers = new LinkedHashMap<Integer, byte[]>();
+        File fred = new File(getClass().getResource("fred.mp3").getFile());
+        mSampleContentLength = fred.length();
+        FileChannel fc = new FileInputStream(fred).getChannel();
+        int chunks = 0;
         mSampleChunkIndexes = new ArrayList<Integer>();
-        do {
-            byte[] buffer = new byte[storage.chunkSize];
-            if (inputStream.read(buffer) == -1) {
-                break;
-            } else {
-                mSampleBuffers.put((int) chunks, buffer);
-                mSampleChunkIndexes.add((int) chunks);
-                chunks++;
-            }
-        } while (true);
+        ByteBuffer buffer = storage.getBuffer();
+
+        while (fc.read(buffer) != -1) {
+            mSampleBuffers.put(chunks, clone(buffer));
+            mSampleChunkIndexes.add(chunks);
+            chunks++;
+        }
         return chunks;
     }
 
     @Test
     public void testSetDataShouldNotStoreIfContentLengthZero() throws IOException {
         expect(item.getContentLength()).toBe(0l);
-        expect(storage.setData(new byte[]{1, 2, 3}, 0, item)).toBeFalse();
+        expect(storage.storeData(ByteBuffer.wrap(new byte[] {1, 2, 3}), 0, item)).toBeFalse();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testSetDataShouldNotStoreIfDataNull() throws IOException {
         item.setContentLength(10);
-        expect(storage.setData(null, 0, item)).toBeFalse();
+        storage.storeData(null, 0, item);
     }
 
     @Test
-    public void shouldWriteAndReadIndex() throws Exception {
-        item.setContentLength(100);
-        storage.writeIndex(item, Arrays.asList(1, 2, 3, 4));
+    public void shouldWriteAndReadMetadata() throws Exception {
+        StreamStorage.Metadata md = new StreamStorage.Metadata();
+        md.contentLength = 100;
+        md.eTag = "foo";
+        md.downloadedChunks = Arrays.asList(1,2,3,4,5);
 
-        StreamStorage other = new StreamStorage(DefaultTestRunner.application, baseDir);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        md.write(new DataOutputStream(bos));
 
-        expect(other.isMetaDataLoaded(item)).toBeFalse();
+        StreamStorage.Metadata md_ = StreamStorage.Metadata.read(
+                new DataInputStream(new ByteArrayInputStream(bos.toByteArray())));
 
-        other.readIndex(item);
-        expect(other.getIncompleteIndexes().get(item)).toContainInOrder(1,2,3,4);
-        expect(other.getIncompleteContentLengths().get(item)).toBe(100l);
-
-        expect(other.isMetaDataLoaded(item)).toBeTrue();
+        expect(md.contentLength).toEqual(md_.contentLength);
+        expect(md.eTag).toEqual(md_.eTag);
+        expect(md.downloadedChunks).toEqual(md_.downloadedChunks);
     }
 
 
     @Test
     public void shouldSetData() throws Exception {
         item.setContentLength(storage.chunkSize * 2);
-
-        expect(storage.setData(new byte[]{1, 2, 3}, 0, item)).toBeTrue();
-        byte[] data = storage.getChunkData(item, 0);
+        expect(storage.storeData(ByteBuffer.wrap(new byte[]{1, 2, 3}), 0, item)).toBeTrue();
+        ByteBuffer data = storage.getChunkData(item, 0);
         expect(data).not.toBeNull();
-        expect(data.length).toEqual(storage.chunkSize);
-        expect(data[0]).toBe((byte) 1);
-        expect(data[1]).toBe((byte) 2);
-        expect(data[2]).toBe((byte) 3);
-    }
-
-    @Test
-    public void shouldSetContentLength() throws Exception {
-        storage.setContentLength(item, 2 * storage.chunkSize);
-        expect(storage.getIncompleteContentLengths().get(item)).toEqual(2l * storage.chunkSize);
-        expect(storage.numberOfChunksForItem(item)).toEqual(2l);
+        expect(data.limit()).toEqual(storage.chunkSize);
+        expect(data.get()).toBe((byte) 1);
+        expect(data.get()).toBe((byte) 2);
+        expect(data.get()).toBe((byte) 3);
     }
 
     @Test
@@ -118,13 +115,12 @@ public class StreamStorageTest {
 
         final int writing = mSampleChunkIndexes.size() - 1;
         for (int i = 0; i < writing; i++) {
-            storage.setData(mSampleBuffers.get(i), i, item);
+            storage.storeData(mSampleBuffers.get(i), i, item);
         }
 
         for (int i = 0; i < writing; i++) {
             expect(storage.getChunkData(item, i)).not.toBeNull();
         }
-        expect(storage.getChunkData(item, writing)).toBeNull();
     }
 
     @Test
@@ -135,14 +131,19 @@ public class StreamStorageTest {
 
         final int writing = mSampleChunkIndexes.size() - 1;
         for (int i = 0; i < writing; i++) {
-            storage.setData(mSampleBuffers.get(mSampleChunkIndexes.get(i)), mSampleChunkIndexes.get(i), item);
+            storage.storeData(mSampleBuffers.get(mSampleChunkIndexes.get(i)), mSampleChunkIndexes.get(i), item);
         }
 
         for (int i = 0; i < writing; i++) {
             expect(storage.getChunkData(item, mSampleChunkIndexes.get(i))).not.toBeNull();
         }
-        expect(storage.getChunkData(item, mSampleChunkIndexes.get(writing))).toBeNull();
     }
+
+    @Test(expected = FileNotFoundException.class)
+    public void shouldThrowFileNotFoundExceptionIfChunkIsNotAvailable() throws Exception {
+       storage.getChunkData(item, 0);
+    }
+
 
     @Test
     public void shouldTestCompleteSequentialWriting() throws Exception {
@@ -150,14 +151,17 @@ public class StreamStorageTest {
         item.setContentLength(mSampleContentLength);
 
         for (int i = 0; i < mSampleChunkIndexes.size(); i++) {
-            storage.setData(mSampleBuffers.get(i), i, item);
+            storage.storeData(mSampleBuffers.get(i), i, item);
         }
 
         for (int i = 0; i < mSampleChunkIndexes.size(); i++) {
             expect(storage.getChunkData(item, i)).not.toBeNull();
         }
 
-        expect(storage.getChunkData(item, mSampleChunkIndexes.size())).toBeNull();
+        try {
+            storage.getChunkData(item, mSampleChunkIndexes.size());
+            fail("expected IO exception");
+        } catch (IOException e) { /* expected */ }
     }
 
     @Test
@@ -167,7 +171,7 @@ public class StreamStorageTest {
         Collections.shuffle(mSampleChunkIndexes);
 
         for (Integer mSampleChunkIndexe1 : mSampleChunkIndexes) {
-            storage.setData(mSampleBuffers.get(mSampleChunkIndexe1), mSampleChunkIndexe1, item);
+            storage.storeData(mSampleBuffers.get(mSampleChunkIndexe1), mSampleChunkIndexe1, item);
         }
 
         for (Integer mSampleChunkIndexe : mSampleChunkIndexes) {
@@ -183,12 +187,13 @@ public class StreamStorageTest {
         Collections.shuffle(mSampleChunkIndexes);
 
         for (Integer aChunkArray : mSampleChunkIndexes) {
-            storage.setData(mSampleBuffers.get(aChunkArray), aChunkArray, item);
+            storage.storeData(mSampleBuffers.get(aChunkArray), aChunkArray, item);
         }
 
         expect(storage.numberOfChunksForItem(item)).toBe(chunks);
 
         File assembled = storage.completeFileForItem(item);
+        expect(assembled.exists()).toBeTrue();
         expect(assembled.length()).toEqual(mSampleContentLength);
 
         String original = CloudUtils.md5(getClass().getResourceAsStream("fred.mp3"));
@@ -201,4 +206,14 @@ public class StreamStorageTest {
         Index index = storage.getMissingChunksForItem(item, item.chunkRange(storage.chunkSize));
         expect(index.size()).toEqual(3);
     }
+
+    public static ByteBuffer clone(ByteBuffer original) {
+        ByteBuffer clone = ByteBuffer.allocate(original.capacity());
+        original.rewind();
+        clone.put(original);
+        original.rewind();
+        clone.flip();
+        return clone;
+    }
+
 }

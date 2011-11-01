@@ -4,7 +4,10 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Range implements Parcelable {
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class Range implements Iterable<Integer>, Parcelable {
     public final int start;
     public final int length;
 
@@ -26,7 +29,7 @@ public class Range implements Parcelable {
 
     public Index toIndex() {
         Index index = new Index();
-        for (int i = start; i < length+ start; i++) {
+        for (int i = start; i < length+start; i++) {
             index.set(i);
         }
         return index;
@@ -105,4 +108,24 @@ public class Range implements Parcelable {
             return new Range[size];
         }
     };
+
+    @Override
+    public Iterator<Integer> iterator() {
+        return new Iterator<Integer>() {
+            int i = Range.this.start;
+
+            @Override public boolean hasNext() {
+                return i < end();
+            }
+
+            @Override public Integer next() {
+                if (!hasNext()) throw new NoSuchElementException();
+                return i++;
+            }
+
+            @Override public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
 }

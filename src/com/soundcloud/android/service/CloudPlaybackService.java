@@ -16,7 +16,6 @@
 
 package com.soundcloud.android.service;
 
-import android.text.TextUtils;
 import com.soundcloud.android.*;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -28,10 +27,6 @@ import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
-import com.soundcloud.api.Request;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 
 import android.app.Notification;
@@ -157,7 +152,7 @@ public class CloudPlaybackService extends Service {
     private boolean m10percentStampReached;
     private boolean m95percentStampReached;
 
-    private StreamProxy proxy;
+    private StreamProxy mProxy;
 
     public CloudPlaybackService() {
     }
@@ -238,6 +233,8 @@ public class CloudPlaybackService extends Service {
         if (mWifiLock.isHeld())
             mWifiLock.release();
         mWifiLock = null;
+
+        if (mProxy != null && mProxy.isRunning()) mProxy.stop();
 
         super.onDestroy();
     }
@@ -953,10 +950,10 @@ public class CloudPlaybackService extends Service {
             mIsAsyncOpening = true;
 
             try {
-                if (proxy == null) {
-                    proxy = new StreamProxy(getApp(), 50000 /* hardcoded for testing */).init().start();
+                if (mProxy == null) {
+                    mProxy = new StreamProxy(getApp(), 50000 /* hardcoded for testing */).init().start();
                 }
-                mPlayingPath = String.format("http://127.0.0.1:%d/%s", proxy.getPort(), path);
+                mPlayingPath = String.format("http://127.0.0.1:%d/%s", mProxy.getPort(), path);
 
                 mMediaPlayer.setDataSource(mPlayingPath);
                 mMediaPlayer.prepareAsync();

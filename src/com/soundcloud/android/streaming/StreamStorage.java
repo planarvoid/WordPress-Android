@@ -9,6 +9,8 @@ import android.util.Log;
 import com.soundcloud.android.Consts;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.*;
 
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
@@ -25,19 +27,22 @@ public class StreamStorage {
     private File mBaseDir, mCompleteDir, mIncompleteDir;
 
     private long mUsedSpace, mSpaceLeft;
-    private Map<StreamItem, Long> mIncompleteContentLengths = new HashMap<StreamItem, Long>();
-    private Map<StreamItem, List<Integer>> mIncompleteIndexes = new HashMap<StreamItem, List<Integer>>();
-    private List<StreamItem> mConvertingItems = new ArrayList<StreamItem>();
+
+    private Map<StreamItem, Metadata> mIncompleteStreams = new HashMap<StreamItem, Metadata>();
+    private Set<StreamItem> mConvertingItems = new HashSet<StreamItem>();
+
+    private boolean mPerformCleanup;
 
     public StreamStorage(Context context, File basedir) {
-        this(context, basedir, DEFAULT_CHUNK_SIZE);
+        this(context, basedir, DEFAULT_CHUNK_SIZE, true);
     }
 
-    public StreamStorage(Context context, File basedir, int chunkSize) {
+    public StreamStorage(Context context, File basedir, int chunkSize, boolean performCleanup) {
         mContext = context;
         mBaseDir = basedir;
         mIncompleteDir = new File(mBaseDir, "Incomplete");
         mCompleteDir = new File(mBaseDir, "Complete");
+        mPerformCleanup = performCleanup;
 
         mkdirs(mIncompleteDir);
         mkdirs(mCompleteDir);
@@ -50,52 +55,46 @@ public class StreamStorage {
      * @param chunkIndex the chunk index the data belongs to
      * @param item       the item the data belongs to
      * @return if the data was set
+     * @throws java.io.IOException IO error
      */
-    public boolean setData(byte[] data, final int chunkIndex, final StreamItem item) {
-        if (data == null) return false;
+    public boolean storeData(ByteBuffer data, final int chunkIndex, final StreamItem item) throws IOException {
+        if (data == null) throw new IllegalArgumentException("buffer is null");
+
         if (item.getContentLength() == 0) {
             Log.w(LOG_TAG, "Not Storing Data. Content Length is Zero.");
             return false;
         }
 
-        setContentLength(item, item.getContentLength());
+        verifyMetadata(item);
 
         // Do not add to complete files
         if (completeFileForItem(item).exists()) return false;
 
         // Prepare incomplete file
-        ensureMetadataIsLoadedForItem(item);
+        Metadata md = ensureMetadataIsLoadedForItem(item);
 
-        List<Integer> indexes = mIncompleteIndexes.get(item);
-
-        if (indexes == null) {
-            indexes = new ArrayList<Integer>();
-            mIncompleteIndexes.put(item, indexes);
-        }
+        List<Integer> downloadedChunks = md.downloadedChunks;
 
         // return if it's already in store
-        if (indexes.contains(chunkIndex)) return false;
+        if (downloadedChunks.contains(chunkIndex)) return false;
 
         final File incompleteFile = incompleteFileForItem(item);
-        // always write chunk size even if it isn't a complete chunk (for offsetting I think)
-        if (data.length != chunkSize) {
-            data = Arrays.copyOf(data, chunkSize);
-        }
 
-        if (!appendToFile(data, incompleteFile)) return false;
+
+        appendToFile(data, incompleteFile);
 
         // Add Index and save it
-        indexes.add(chunkIndex);
+        downloadedChunks.add(chunkIndex);
 
         try {
-            writeIndex(item, indexes);
+            writeMetadata(item, md);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error storing index data ", e);
             return false;
         }
 
-        if (indexes.size() == numberOfChunksForItem(item)) {
-            new ConvertFileToComplete(contentLengthForItem(item), chunkSize, indexes) {
+        if (downloadedChunks.size() == numberOfChunksForItem(item)) {
+            new ConvertFileToComplete(item.getContentLength(), chunkSize, downloadedChunks) {
                 @Override protected void onPreExecute() {
                     mConvertingItems.add(item);
                 }
@@ -108,71 +107,52 @@ public class StreamStorage {
             }.execute(incompleteFile, completeFileForItem(item));
         }
 
-        //Update the number of writes, cleanup if necessary
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        final int currentCount = prefs.getInt(STREAMING_WRITES_SINCE_CLEANUP, 0) + 1;
-        prefs.edit().putInt(STREAMING_WRITES_SINCE_CLEANUP, currentCount).commit();
 
-        if (currentCount >= CLEANUP_INTERVAL) {
-            calculateFileMetrics();
-            cleanup();
+        if (mPerformCleanup) {
+            //Update the number of writes, cleanup if necessary
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            final int currentCount = prefs.getInt(STREAMING_WRITES_SINCE_CLEANUP, 0) + 1;
+            prefs.edit().putInt(STREAMING_WRITES_SINCE_CLEANUP, currentCount).commit();
+
+            if (currentCount >= CLEANUP_INTERVAL) {
+                calculateFileMetrics();
+                cleanup();
+            }
         }
         return true;
     }
 
 
-    public byte[] getChunkData(StreamItem item, int chunkIndex) {
-        resetDataIfNecessary(item);
+    public ByteBuffer getChunkData(StreamItem item, int chunkIndex) throws IOException {
+        verifyMetadata(item);
         ensureMetadataIsLoadedForItem(item);
 
-        long savedContentLength = contentLengthForItem(item);
-
-        if (item.getContentLength() == 0) {
-            item.setContentLength((int) savedContentLength);
+        if (completeFileForItem(item).exists()) {
+            return completeDataForChunk(item, chunkIndex);
+        } else {
+            return incompleteDataForChunk(item, chunkIndex);
         }
-
-        byte[] data = null;
-        try {
-            data = incompleteDataForChunk(item, chunkIndex);
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Error retrieving incomplete chunk data: ", e);
-        }
-
-        if (data != null) return data;
-
-        try {
-            data = completeDataForChunk(item, chunkIndex);
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Error retrieving chunk data: ", e);
-        }
-        if (data != null) return data;
-
-        return null;
     }
 
 
     public Index getMissingChunksForItem(StreamItem item, Range chunkRange) {
-        if (resetDataIfNecessary(item)) {
-            Log.w(LOG_TAG, "data reset for " +item);
-        }
+        verifyMetadata(item);
 
         //If the complete file exists
         if (completeFileForItem(item).exists()) {
             return Index.empty();
         }
-        ensureMetadataIsLoadedForItem(item);
-        long contentLength = getContentLengthForItem(item);
+
+        Metadata md = ensureMetadataIsLoadedForItem(item);
 
         //We have no idea about track size, so let's assume that all chunks are missing
-        if (contentLength == 0) {
+        if (md.contentLength == 0) {
             return chunkRange.toIndex();
         } else {
-            long lastChunk = (long) Math.ceil((double) contentLength / (double) chunkSize) - 1;
-            List<Integer> allIncompleteIndexes = mIncompleteIndexes.get(item);
-            if (allIncompleteIndexes == null) allIncompleteIndexes = Collections.emptyList();
-
+            long lastChunk = (long) Math.ceil((double) md.contentLength / (double) chunkSize) - 1;
+            List<Integer> allIncompleteIndexes = md.downloadedChunks;
             final Index missingIndexes = new Index();
-            for (int chunk = chunkRange.start; chunk < chunkRange.end(); chunk++) {
+            for (int chunk : chunkRange) {
                 if (!allIncompleteIndexes.contains(chunk) && chunk <= lastChunk) {
                     missingIndexes.set(chunk);
                 }
@@ -181,16 +161,16 @@ public class StreamStorage {
         }
     }
 
-    public Map<StreamItem, List<Integer>> getIncompleteIndexes() {
-        return new HashMap<StreamItem, List<Integer>>(mIncompleteIndexes);
-    }
-
-    public Map<StreamItem, Long> getIncompleteContentLengths() {
-        return new HashMap<StreamItem, Long>(mIncompleteContentLengths);
+    /* package */ ByteBuffer getBuffer() {
+        return ByteBuffer.allocate(chunkSize);
     }
 
     /* package */ File completeFileForItem(StreamItem item) {
-        return new File(mCompleteDir, item.getURLHash());
+        return completeFileForItem(item.getURLHash());
+    }
+
+    /* package */ File completeFileForItem(String url) {
+        return new File(mCompleteDir, StreamItem.urlHash(url));
     }
 
     /* package */ File incompleteFileForItem(StreamItem item) {
@@ -201,87 +181,47 @@ public class StreamStorage {
         return new File(mIncompleteDir, item.getURLHash() + "_index");
     }
 
-    private void ensureMetadataIsLoadedForItem(StreamItem item) {
-        if (!isMetaDataLoaded(item) && !completeFileForItem(item).exists()) {
-            readIndex(item);
+    private Metadata ensureMetadataIsLoadedForItem(StreamItem item) {
+        if (!mIncompleteStreams.containsKey(item) && !completeFileForItem(item).exists()) {
+            mIncompleteStreams.put(item, readMetadata(item));
         }
+        return mIncompleteStreams.get(item);
     }
 
-    private boolean appendToFile(byte[] data, File incompleteFile) {
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(incompleteFile, true);
-            fos.write(data);
-            return true;
-        } catch (IOException e) {
-            Log.w(LOG_TAG, "Error storing chunk data ", e);
-            return false;
-        } finally {
-            if (fos != null) try {
-                fos.close();
-            } catch (IOException ignored) {
-            }
+    private boolean appendToFile(ByteBuffer data, File incompleteFile) throws IOException {
+        // always write chunk size even if it isn't a complete chunk (for offsetting)
+        final int length = data.remaining();
+        FileChannel fc = new FileOutputStream(incompleteFile, true).getChannel();
+        fc.write(data);
+        if (length < chunkSize) {
+            fc.write(ByteBuffer.allocate(chunkSize - length));
         }
+        return true;
     }
 
-    /* package */ void writeIndex(StreamItem item, List<Integer> indexes) throws IOException {
+
+    private void writeMetadata(StreamItem item, Metadata md) throws IOException {
         File indexFile = incompleteIndexFileForItem(item);
         if (indexFile.exists() && !indexFile.delete()) Log.w(LOG_TAG, "could not delete "+indexFile);
-        DataOutputStream din = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
-        din.writeLong(item.getContentLength());
-        for (Integer index : indexes) {
-            din.writeInt(index);
-        }
-        din.close();
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
+        md.write(dos);
+        dos.close();
     }
 
-    /* package */ boolean readIndex(StreamItem item) {
-        File indexFile = incompleteIndexFileForItem(item);
-        if (indexFile.exists()) {
+    private Metadata readMetadata(StreamItem item) {
+        File f = incompleteIndexFileForItem(item);
+        if (f.exists()) {
             try {
-                DataInputStream din = new DataInputStream(new BufferedInputStream(new FileInputStream(indexFile)));
-                mIncompleteContentLengths.put(item, din.readLong());
-
-                int count = (int) (indexFile.length() / 4) - 2;
-                ArrayList<Integer> indexes = new ArrayList<Integer>();
-                for (int i = 0; i < count; i++) {
-                    indexes.add(din.readInt());
-                }
-                mIncompleteIndexes.put(item, indexes);
-
-                return true;
+                DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(f)));
+                return Metadata.read(dis);
             } catch (IOException e) {
-                Log.e(LOG_TAG, e.getMessage(), e);
-                return false;
+                Log.e(LOG_TAG, "could not read metadata, deleting", e);
+                removeAllDataForItem(item);
+                return item.getMetadata();
             }
-        } else return false;
-    }
-
-    /* package */ boolean isMetaDataLoaded(StreamItem item) {
-        return mIncompleteContentLengths.get(item) != null && mIncompleteIndexes.get(item) != null;
-    }
-
-    private long contentLengthForItem(StreamItem item) {
-        final File completeFile = completeFileForItem(item);
-        if (completeFile.exists()) return completeFile.length();
-        return mIncompleteContentLengths.containsKey(item) ? mIncompleteContentLengths.get(item) : 0;
-    }
-
-    private boolean resetDataIfNecessary(StreamItem item) {
-        if (item.getContentLength() != 0 &&
-            getContentLengthForItem(item) != 0 &&
-            item.getContentLength() != getContentLengthForItem(item)) {
-            removeAllDataForItem(item);
-            return true;
-        }
-        return false;
-    }
-
-    private long getContentLengthForItem(StreamItem item) {
-        if (completeFileForItem(item).exists()) {
-            return completeFileForItem(item).length();
         } else {
-            return mIncompleteContentLengths.containsKey(item) ? mIncompleteContentLengths.get(item) : 0;
+            // no metadata found, initialise from item
+            return item.getMetadata();
         }
     }
 
@@ -297,8 +237,7 @@ public class StreamStorage {
         boolean fileDeleted = true, indexDeleted = true;
         if (incompleteFile.exists()) fileDeleted = incompleteFile.delete();
         if (indexFile.exists()) indexDeleted = indexFile.delete();
-        mIncompleteIndexes.remove(item);
-        mIncompleteContentLengths.remove(item);
+        mIncompleteStreams.remove(item);
         return fileDeleted && indexDeleted;
     }
 
@@ -307,76 +246,47 @@ public class StreamStorage {
         return completeFile.exists() && completeFile.delete();
     }
 
-    /* package */ byte[] incompleteDataForChunk(StreamItem item, int chunkIndex) throws IOException {
-        final List<Integer> indexArray = mIncompleteIndexes.get(item);
-
-        if (indexArray != null) {
-            if (!indexArray.contains(chunkIndex)) return null;
-            File chunkFile = incompleteFileForItem(item);
-
-            if (chunkFile.exists()) {
-                int seekToChunkOffset = indexArray.indexOf(chunkIndex) * chunkSize;
-                int readLength = chunkSize;
-                if (chunkIndex == numberOfChunksForItem(item)) {
-                    readLength = (int) (contentLengthForItem(item) % chunkSize);
-                }
-                byte[] buffer = new byte[readLength];
-                RandomAccessFile raf = null;
-                try {
-                    raf = new RandomAccessFile(chunkFile, "r");
-                    raf.seek(seekToChunkOffset);
-                    raf.readFully(buffer, 0, readLength);
-                } finally {
-                    if (raf != null) {
-                        raf.close();
-                    }
-                }
-
-                return buffer;
-            }
-        }
-        return null;
+    /* package */ ByteBuffer incompleteDataForChunk(StreamItem item, int chunkIndex) throws IOException {
+        final List<Integer> downloadedChunks = mIncompleteStreams.get(item).downloadedChunks;
+        if (!downloadedChunks.contains(chunkIndex)) throw new FileNotFoundException("download chunk not available");
+        int readLength = chunkIndex == numberOfChunksForItem(item) ? (int) item.getContentLength() % chunkSize : chunkSize;
+        return readBuffer(incompleteFileForItem(item), downloadedChunks.indexOf(chunkIndex) * chunkSize, readLength);
     }
 
-    /* package */ byte[] completeDataForChunk(StreamItem item, long chunkIndex) throws IOException {
-        final File completeFile = completeFileForItem(item);
-
-        if (completeFile.exists()) {
-            final long totalChunks = numberOfChunksForItem(item);
-            if (chunkIndex >= totalChunks) {
-                Log.e(LOG_TAG, "Requested invalid chunk index. Requested index " + chunkIndex + " of size " + totalChunks);
-                return null;
-            }
-            int seekToChunkOffset = (int) (chunkIndex * chunkSize);
-            int readLength = chunkSize;
-            if (chunkIndex == totalChunks - 1) {
-                readLength = (int) (contentLengthForItem(item) % chunkSize);
-            }
-            byte[] buffer = new byte[readLength];
-            RandomAccessFile raf = null;
-            try {
-                raf = new RandomAccessFile(completeFile, "r");
-                raf.seek(seekToChunkOffset);
-                raf.readFully(buffer, 0, readLength);
-            } finally {
-                if (raf != null) {
-                    raf.close();
-                }
-            }
-            return buffer;
+    /* package */ ByteBuffer completeDataForChunk(StreamItem item, long chunkIndex) throws IOException {
+        final long totalChunks = numberOfChunksForItem(item);
+        if (chunkIndex >= totalChunks) {
+            throw new IOException("Requested invalid chunk index. Requested index " + chunkIndex + " of size " + totalChunks);
         }
-        return null;
+
+        int readLength = chunkIndex == totalChunks - 1 ?  (int) item.getContentLength() % chunkSize : chunkSize;
+        return readBuffer(completeFileForItem(item), chunkIndex * chunkSize, readLength);
+    }
+
+    private ByteBuffer readBuffer(File f, long pos, int length) throws IOException {
+        if (!f.exists()) throw new FileNotFoundException("file "+f+" does not exist");
+        FileChannel fc = new FileInputStream(f).getChannel();
+        fc.position(pos);
+        ByteBuffer bb = ByteBuffer.allocate(length);
+        try {
+            fc.read(bb);
+            bb.flip();
+            return bb;
+        } finally {
+            fc.close();
+        }
     }
 
     /* package */ long numberOfChunksForItem(StreamItem item) {
-        return (long) Math.ceil(((float) contentLengthForItem(item)) / ((float) chunkSize));
+        return item.chunkRange(chunkSize).length;
     }
-
 
     private void cleanup() {
         if (!mConvertingItems.isEmpty()) {
             Log.d(LOG_TAG, "Not doing storage cleanup, conversion is going on");
             return;
+        } else {
+            Log.d(LOG_TAG, "performing cleanup");
         }
 
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(STREAMING_WRITES_SINCE_CLEANUP, 0).commit();
@@ -429,12 +339,43 @@ public class StreamStorage {
        return fs.getBlockSize() * fs.getAvailableBlocks();
     }
 
-    /* package */ void setContentLength(StreamItem item, long contentLength) {
-        if (contentLength != contentLengthForItem(item)) {
-            if (contentLengthForItem(item) != 0) {
-                removeAllDataForItem(item);
+    /* package */ void verifyMetadata(StreamItem item) {
+        Metadata existing = mIncompleteStreams.get(item);
+        // perform etag comparison to make sure file data is correct
+        if (existing != null
+            && item.getETag() != null
+            && !item.getETag().equals(existing.eTag)) {
+
+            Log.d(LOG_TAG, "eTag don't match, removing cached data");
+
+            removeAllDataForItem(item);
+            mIncompleteStreams.put(item, item.getMetadata());
+        }
+    }
+
+    static class Metadata {
+        String eTag;
+        long contentLength;
+        List<Integer> downloadedChunks = new ArrayList<Integer>();
+
+        public void write(DataOutputStream dos) throws IOException {
+            dos.writeLong(contentLength);
+            dos.writeUTF(eTag == null ? "" : eTag);
+            dos.writeInt(downloadedChunks.size());
+            for (Integer index : downloadedChunks) {
+                dos.writeInt(index);
             }
-            mIncompleteContentLengths.put(item, contentLength);
+        }
+
+        static Metadata read(DataInputStream dis) throws IOException {
+            Metadata md = new Metadata();
+            md.contentLength  = dis.readLong();
+            md.eTag = dis.readUTF();
+            int n = dis.readInt();
+            for (int i = 0; i < n; i++) {
+                md.downloadedChunks.add(dis.readInt());
+            }
+            return md;
         }
     }
 

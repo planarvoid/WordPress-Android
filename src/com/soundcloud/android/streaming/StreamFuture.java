@@ -7,13 +7,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class StreamFuture implements Future<ByteBuffer> {
-    final StreamItem streamItem;
+    final StreamItem item;
     final Range byteRange;
     private ByteBuffer byteBuffer;
     private boolean ready;
 
-    public StreamFuture(StreamItem streamItem, Range byteRange) {
-        this.streamItem = streamItem;
+    public StreamFuture(StreamItem item, Range byteRange) {
+        this.item = item;
         this.byteRange = byteRange;
     }
 

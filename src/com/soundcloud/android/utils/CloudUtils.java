@@ -58,8 +58,10 @@ import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -212,13 +214,18 @@ public class CloudUtils {
 
 
     public static String md5(String s) {
+        return md5(new ByteArrayInputStream(s.getBytes()));
+    }
+
+    public static String md5(File f) {
+        FileInputStream fis = null;
         try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(s.getBytes());
-            return hexString(digest.digest());
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "error", e);
-            return "";
+            fis = new FileInputStream(f);
+            return md5(fis);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (fis != null) try { fis.close(); } catch (IOException ignored) { }
         }
     }
 

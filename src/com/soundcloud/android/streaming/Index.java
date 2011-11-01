@@ -2,6 +2,7 @@ package com.soundcloud.android.streaming;
 
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.Set;
 
 class Index extends BitSet implements Iterable<Integer> {
     public static Index create(int... pos) {
@@ -16,6 +17,12 @@ class Index extends BitSet implements Iterable<Integer> {
 
     public static Index empty() {
         return new Index();
+    }
+
+    public static Index fromSet(Set<Integer> set) {
+        Index idx = new Index();
+        for (int i  : set) idx.set(i, true);
+        return idx;
     }
 
     @Override
@@ -43,7 +50,7 @@ class Index extends BitSet implements Iterable<Integer> {
 
             @Override
             public void remove() {
-                set(position - 1, false);
+                set(position-1, false);
             }
         };
     }

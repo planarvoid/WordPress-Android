@@ -4,6 +4,8 @@ import static com.soundcloud.android.Expect.expect;
 
 import org.junit.Test;
 
+import java.util.Iterator;
+
 public class RangeTest {
     @Test
     public void testConstruction() throws Exception {
@@ -53,6 +55,15 @@ public class RangeTest {
 
     @Test
     public void moveStart() throws Exception {
-        expect(Range.from(0, 10).moveStart(10)).toEqual(Range.from(10,10));
+        expect(Range.from(0, 10).moveStart(10)).toEqual(Range.from(10, 10));
+    }
+
+    @Test
+    public void shouldSupportIteratable() throws Exception {
+        Iterator<Integer> it = Range.from(1, 3).iterator();
+        expect(it.next()).toBe(1);
+        expect(it.next()).toBe(2);
+        expect(it.next()).toBe(3);
+        expect(it.hasNext()).toBe(false);
     }
 }
