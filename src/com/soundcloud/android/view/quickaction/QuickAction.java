@@ -2,9 +2,7 @@ package com.soundcloud.android.view.quickaction;
 
 import android.content.Context;
 
-import android.graphics.BlurMaskFilter;
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.graphics.drawable.Drawable;
 
 import android.widget.ImageView;
@@ -68,6 +66,7 @@ public class QuickAction extends PopupWindows {
 
         mBgDrawable = new BubbleDrawable();
         mBgDrawable.setBgPaint(bgPaint);
+        mBgDrawable.setBgGradientColors(new int[]{0xffe2e2e2, 0xffd7d7d7,0xffe2e2e2});
 
         Paint linePaint = new Paint();
         linePaint.setColor(0xFF000000);
