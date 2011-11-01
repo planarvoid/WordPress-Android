@@ -37,22 +37,22 @@ public class QuickTrackMenu extends QuickAction {
         mActivity = activity;
         mAdapter = tracklistAdapter;
 
-        mPlayActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_submenu_play_states));
+        mPlayActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_left_states), getPlayDrawable());
         //mPlayActionItem.setTitle("Play");
-        mProfileActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_profile_states));
-        //mProfileActionItem.setTitle("Profile");
-        mFavoriteActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_favorite_states));
+        mFavoriteActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), getFavoriteDrawable());
         //mFavoriteActionItem.setTitle("Favorite");
-        mCommentActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_comment_states));
+        mCommentActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), mActivity.getResources().getDrawable(R.drawable.ic_submenu_comment_states));
         //mCommentActionItem.setTitle("Comment");
-        mShareActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_share_states));
+        mShareActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), mActivity.getResources().getDrawable(R.drawable.ic_submenu_share_states));
         //mShareActionItem.setTitle(("Share"));
+        mProfileActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_right_states), mActivity.getResources().getDrawable(R.drawable.ic_profile_states));
+        //mProfileActionItem.setTitle("Profile");
 
         addActionItem(mPlayActionItem);
-        addActionItem(mProfileActionItem);
         addActionItem(mFavoriteActionItem);
         addActionItem(mCommentActionItem);
         addActionItem(mShareActionItem);
+        addActionItem(mProfileActionItem);
     }
 
     public void show(View anchor, final Track track, final int itemPosition) {

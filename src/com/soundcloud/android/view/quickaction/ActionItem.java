@@ -24,7 +24,7 @@ public class ActionItem extends LinearLayout {
 	private boolean selected;
 	
 
-    public ActionItem(Context context) {
+    public ActionItem(Context context, Drawable background) {
         super(context);
            LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -33,14 +33,14 @@ public class ActionItem extends LinearLayout {
         setClickable(true);
         setFocusable(true);
         setGravity(Gravity.CENTER_HORIZONTAL);
-        setBackgroundResource(R.drawable.quickaction_action_item_btn);
+        setBackgroundDrawable(background);
 
         findViewById(R.id.tv_title).setVisibility(View.GONE);
         findViewById(R.id.iv_icon).setVisibility(View.GONE);
     }
 
-    public ActionItem(Context context, Drawable icon) {
-		this(context);
+    public ActionItem(Context context, Drawable background, Drawable icon) {
+		this(context, background);
         setIcon(icon);
 	}
 
