@@ -66,6 +66,10 @@
     <string name='tracklist_item_shared_count_unavailable'>
         Private
     </string>
-
-
+    <string name='list_header_track_results_for'>
+        Track results for %s
+    </string>
+    <string name='list_header_user_results_for'>
+        User results for %s
+    </string>
 </resources>

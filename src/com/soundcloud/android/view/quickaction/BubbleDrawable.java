@@ -21,6 +21,9 @@ public class BubbleDrawable extends Drawable {
     private int mArrowWidth;
     private int mArrowHeight;
 
+    private int[] mBgGradientColors;
+    private float[] mBgGradientPositions;
+
     @Override
     public void draw(Canvas canvas) {
 
@@ -92,6 +95,11 @@ public class BubbleDrawable extends Drawable {
         ctx.lineTo(Nx, Ny);
         ctx.arcTo(new RectF(Nx, Ay, Ax, Ny), 180, 90); //F-A arc
         ctx.close();
+
+        if (mBgGradientColors != null){
+            mBgPaint.setShader(new LinearGradient(0,0,0,height,mBgGradientColors,mBgGradientPositions,Shader.TileMode.CLAMP));
+        }
+
         canvas.drawPath(ctx, mBgPaint);
         canvas.drawPath(ctx, mLinePaint);
     }
@@ -116,6 +124,14 @@ public class BubbleDrawable extends Drawable {
 
     public void setBgPaint(Paint mBgPaint) {
         this.mBgPaint = mBgPaint;
+    }
+
+    public void setBgGradientColors(int[] colors){
+        mBgGradientColors = colors;
+    }
+
+    public void setBgGradientPositions(float[] positions){
+        mBgGradientPositions = positions;
     }
 
     public void setArrowOffsetX(int mArrowOffsetX) {

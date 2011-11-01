@@ -357,7 +357,7 @@ public abstract class ScActivity extends Activity {
     }
 
     public ScListView buildList() {
-        return configureList(new ScListView(this), true);
+        return configureList(new ScListView(this), false);
     }
 
     public ScListView buildList(boolean longClickable) {
@@ -365,7 +365,7 @@ public abstract class ScActivity extends Activity {
     }
 
     public ScListView configureList(ScListView lv) {
-        return configureList(lv,true, mLists.size());
+        return configureList(lv,false, mLists.size());
     }
 
     public ScListView configureList(ScListView lv, boolean longClickable) {

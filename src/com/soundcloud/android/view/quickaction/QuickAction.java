@@ -2,12 +2,11 @@ package com.soundcloud.android.view.quickaction;
 
 import android.content.Context;
 
-import android.graphics.BlurMaskFilter;
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.graphics.drawable.Drawable;
 
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ScrollView;
 
@@ -68,6 +67,7 @@ public class QuickAction extends PopupWindows {
 
         mBgDrawable = new BubbleDrawable();
         mBgDrawable.setBgPaint(bgPaint);
+        mBgDrawable.setBgGradientColors(new int[]{0xffe2e2e2, 0xffd7d7d7, 0xffe2e2e2});
 
         Paint linePaint = new Paint();
         linePaint.setColor(0xFF000000);
@@ -116,20 +116,21 @@ public class QuickAction extends PopupWindows {
 		mListener = listener;
 
         for (int i = 0; i < mTrack.getChildCount(); i++){
-            final ActionItem actionItem = (ActionItem) mTrack.getChildAt(i);
-            if (mListener == null){
-                actionItem.setOnClickListener(null);
-            } else {
-                final int finalI = i;
-                actionItem.setOnClickListener( new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mListener.onItemClick(finalI);
-                        dismiss();
+            if (mTrack.getChildAt(i) instanceof ActionItem) {
+                final ActionItem actionItem = (ActionItem) mTrack.getChildAt(i);
+                if (mListener == null) {
+                    actionItem.setOnClickListener(null);
+                } else {
+                    final int finalI = i;
+                    actionItem.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mListener.onItemClick(finalI);
+                            dismiss();
+                        }
                     }
+                    );
                 }
-
-                );
             }
         }
 	}
@@ -153,7 +154,13 @@ public class QuickAction extends PopupWindows {
 		actionItem.setFocusable(true);
 		actionItem.setClickable(true);
 
-		mTrack.addView(actionItem, mChildPos);
+        if (mTrack.getChildCount() > 0){
+            View v = new View(mContext);
+            v.setBackgroundColor(0xffb5b5b5);
+            mTrack.addView(v,new LinearLayout.LayoutParams((int) (1*mContext.getResources().getDisplayMetrics().density),LayoutParams.FILL_PARENT));
+        }
+
+		mTrack.addView(actionItem);
 		
 		mChildPos++;
 	}

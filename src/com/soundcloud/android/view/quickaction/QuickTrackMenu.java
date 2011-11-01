@@ -3,8 +3,12 @@ package com.soundcloud.android.view.quickaction;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
@@ -12,6 +16,7 @@ import com.soundcloud.android.adapter.ITracklistAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 public class QuickTrackMenu extends QuickAction {
 
@@ -37,22 +42,22 @@ public class QuickTrackMenu extends QuickAction {
         mActivity = activity;
         mAdapter = tracklistAdapter;
 
-        mPlayActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_submenu_play_states));
+        mPlayActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_left_states), getPlayDrawable());
         //mPlayActionItem.setTitle("Play");
-        mProfileActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_profile_states));
-        //mProfileActionItem.setTitle("Profile");
-        mFavoriteActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_like_states_v1));
+        mFavoriteActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), getFavoriteDrawable());
         //mFavoriteActionItem.setTitle("Favorite");
-        mCommentActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_comment_states_v1));
+        mCommentActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), mActivity.getResources().getDrawable(R.drawable.ic_submenu_comment_states));
         //mCommentActionItem.setTitle("Comment");
-        mShareActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.ic_share_states));
+        mShareActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), mActivity.getResources().getDrawable(R.drawable.ic_submenu_share_states));
         //mShareActionItem.setTitle(("Share"));
+        mProfileActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_right_states), mActivity.getResources().getDrawable(R.drawable.ic_profile_states));
+        //mProfileActionItem.setTitle("Profile");
 
         addActionItem(mPlayActionItem);
-        addActionItem(mProfileActionItem);
         addActionItem(mFavoriteActionItem);
         addActionItem(mCommentActionItem);
         addActionItem(mShareActionItem);
+        addActionItem(mProfileActionItem);
     }
 
     public void show(View anchor, final Track track, final int itemPosition) {
@@ -63,6 +68,12 @@ public class QuickTrackMenu extends QuickAction {
 
         mShareActionItem.setVisibility(track.isPublic() ? View.VISIBLE : View.GONE);
         mFavoriteActionItem.setIcon(track.user_favorite ? getFavoritedDrawable() : getFavoriteDrawable());
+
+        if (!track.hasAvatar() ||
+                ImageUtils.loadImageSubstitute(mActivity, mProfileActionItem.getIconView(), track.user.avatar_url,
+                        ImageUtils.getListItemGraphicSize(mActivity), null, null) != ImageLoader.BindResult.OK) {
+            mProfileActionItem.getIconView().setImageDrawable(mActivity.getResources().getDrawable(R.drawable.avatar_badge));
+        }
 
         setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
