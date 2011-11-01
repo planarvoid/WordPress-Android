@@ -1,13 +1,16 @@
 package com.soundcloud.android.activity;
 
+import android.util.Log;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.adapter.*;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.view.ScListView;
+import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -20,10 +23,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 
 import java.util.ArrayList;
 
@@ -36,8 +35,10 @@ public class ScSearch extends ScActivity {
     private RadioButton rdoTrack;
 
     private ScListView mList;
-    private LazyEndlessAdapter mTrackAdpWrapper;
-    private LazyEndlessAdapter mUserAdpWrapper;
+    private SectionedEndlessAdapter mTrackAdpWrapper;
+    private SectionedEndlessAdapter mUserAdpWrapper;
+
+    private ViewFlipper mSearchFlipper;
 
     @Override
     public void onCreate(Bundle state) {
@@ -45,6 +46,7 @@ public class ScSearch extends ScActivity {
 
         setContentView(R.layout.sc_search);
 
+        mSearchFlipper = (ViewFlipper) findViewById(R.id.vf_search);
         rdoType = (RadioGroup) findViewById(R.id.rdo_search_type);
         rdoUser = (RadioButton) findViewById(R.id.rdo_users);
         rdoTrack = (RadioButton) findViewById(R.id.rdo_tracks);
@@ -61,15 +63,14 @@ public class ScSearch extends ScActivity {
         rdoTrack.setVisibility(View.GONE);
         rdoUser.setVisibility(View.GONE);
 
-        // account for special handling of this list if we are in a tab with regards
-        // to checking for data type (user/track) when restoring list data
-        mList = buildList();
+        mList = new SectionedListView(this);
+        configureList(mList);
 
         ((ViewGroup) findViewById(R.id.list_holder)).addView(mList);
         mList.setVisibility(View.GONE);
 
-        mTrackAdpWrapper = new LazyEndlessAdapter(this, new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class), null);
-        mUserAdpWrapper = new LazyEndlessAdapter(this, new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class), null);
+        mTrackAdpWrapper = new SectionedEndlessAdapter(this, new SectionedTracklistAdapter(this), true);
+        mUserAdpWrapper = new SectionedEndlessAdapter(this, new SectionedUserlistAdapter(this), true);
 
         // set the list to tracks by default
         mList.setId(android.R.id.list);
@@ -100,6 +101,7 @@ public class ScSearch extends ScActivity {
             mList.setVisibility(Integer.parseInt(mPreviousState[1].toString()));
             mTrackAdpWrapper.restoreState((Object[]) mPreviousState[2]);
             mUserAdpWrapper.restoreState((Object[]) mPreviousState[3]);
+            mSearchFlipper.setDisplayedChild((Integer) mPreviousState[4]);
         } else {
             setListType(false);
         }
@@ -108,10 +110,11 @@ public class ScSearch extends ScActivity {
     @Override
     public Object onRetainNonConfigurationInstance() {
         return new Object[]{
-                mList.getBaseAdapter().getLoadModel(),
+                mList.getWrapper().getLoadModel(true),
                 mList.getVisibility(),
                 mTrackAdpWrapper.saveState(),
-                mUserAdpWrapper.saveState()
+                mUserAdpWrapper.saveState(),
+                mSearchFlipper.getDisplayedChild()
         };
     }
 
@@ -121,7 +124,6 @@ public class ScSearch extends ScActivity {
         mUserAdpWrapper.configureViews(isUser ? mList : null);
         mTrackAdpWrapper.configureViews(isUser ? null : mList);
     }
-
 
     @Override
     protected void onResume() {
@@ -142,13 +144,21 @@ public class ScSearch extends ScActivity {
         rdoUser.setVisibility(View.GONE);
 
         if (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) {
-            mTrackAdpWrapper.setRequest(Request.to(Endpoints.TRACKS).with("q", query));
+            mTrackAdpWrapper.clearSections();
+            mTrackAdpWrapper.addSection(new SectionedAdapter.Section(String.format(getString(R.string.list_header_track_results_for,
+                    query)), Track.class, new ArrayList<Parcelable>(),
+                    Request.to(Endpoints.TRACKS).with("q", query)));
+
             setListType(false);
             mUserAdpWrapper.clearRefreshTask();
             mUserAdpWrapper.reset(false,false);
             trackPage(Consts.Tracking.SEARCH_TRACKS + query);
         } else {
-            mUserAdpWrapper.setRequest(Request.to(Endpoints.USERS).with("q", query));
+            mUserAdpWrapper.clearSections();
+            mUserAdpWrapper.addSection(new SectionedAdapter.Section(String.format(getString(R.string.list_header_user_results_for,
+                    query)), User.class, new ArrayList<Parcelable>(),
+                    Request.to(Endpoints.USERS).with("q", query)));
+
             setListType(true);
             mTrackAdpWrapper.clearRefreshTask();
             mTrackAdpWrapper.reset(false,false);
@@ -158,6 +168,25 @@ public class ScSearch extends ScActivity {
         mList.setLastUpdated(0);
         mList.onRefresh();
         mList.setVisibility(View.VISIBLE);
+
+        if (mSearchFlipper.getDisplayedChild() == 0) {
+            mSearchFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
+            mSearchFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
+            mSearchFlipper.showNext();
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (mSearchFlipper != null && keyCode == KeyEvent.KEYCODE_BACK &&
+             mSearchFlipper.getDisplayedChild() != 0) {
+            mSearchFlipper.setInAnimation(AnimUtils.inFromLeftAnimation(new AccelerateDecelerateInterpolator()));
+            mSearchFlipper.setOutAnimation(AnimUtils.outToRightAnimation(new AccelerateDecelerateInterpolator()));
+            mSearchFlipper.showPrevious();
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 
     private View.OnFocusChangeListener queryFocusListener = new View.OnFocusChangeListener() {
