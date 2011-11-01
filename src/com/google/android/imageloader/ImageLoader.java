@@ -43,6 +43,7 @@ import com.soundcloud.android.utils.ImageUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -200,7 +201,7 @@ public final class ImageLoader {
      * Use soft references so that the application does not run out of memory in
      * the case where one or more of the bitmaps are large.
      */
-    private final LruCache<String, Bitmap> mBitmaps;
+    private final LruCache<String, SoftReference<Bitmap>> mBitmaps;
 
     /**
      * Recent errors encountered when loading bitmaps.
@@ -286,7 +287,7 @@ public final class ImageLoader {
         // Use a LruCache to prevent the set of keys from growing too large.
         // The Maps must be synchronized because they are accessed
         // by the UI thread and by background threads.
-        mBitmaps =  new LruCache<String, Bitmap>(cacheSize);
+        mBitmaps =  new LruCache<String, SoftReference<Bitmap>>(cacheSize);
         mErrors = new LruCache<String,ImageError>(cacheSize);
     }
 
@@ -769,7 +770,7 @@ public final class ImageLoader {
     }
 
     private void putBitmap(String url, Bitmap bitmap) {
-        mBitmaps.put(url, bitmap);
+        mBitmaps.put(url, new SoftReference<Bitmap>(bitmap));
     }
 
     private void putError(String url, ImageError error) {
@@ -777,7 +778,8 @@ public final class ImageLoader {
     }
 
     private Bitmap getBitmap(String url) {
-        return mBitmaps.get(url);
+        final SoftReference<Bitmap> softref = mBitmaps.get(url);
+        return softref == null ? null : softref.get();
     }
 
     private ImageError getError(String url) {

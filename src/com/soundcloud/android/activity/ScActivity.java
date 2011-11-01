@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.view.*;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -49,10 +50,6 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
 import java.net.SocketException;
@@ -190,11 +187,30 @@ public abstract class ScActivity extends Activity {
         connectivityListener.unregisterHandler(connHandler);
         connectivityListener = null;
         unregisterReceiver(mPlaybackStatusListener);
+        unregisterReceiver(mGeneralIntentListener);
 
         for (final ScListView l : mLists) {
             if (LazyBaseAdapter.class.isAssignableFrom(l.getBaseAdapter().getClass())) {
                 l.getBaseAdapter().onDestroy();
             }
+        }
+        if (findViewById(R.id.container) != null){
+            unbindDrawables(findViewById(R.id.container));
+            System.gc();
+        }
+    }
+
+    protected void unbindDrawables(View view) {
+        if (view.getBackground() != null) {
+            view.getBackground().setCallback(null);
+        }
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                unbindDrawables(((ViewGroup) view).getChildAt(i));
+            }
+            try {
+                ((ViewGroup) view).removeAllViews();
+            } catch (UnsupportedOperationException ignore){ }
         }
     }
 
@@ -341,7 +357,7 @@ public abstract class ScActivity extends Activity {
     }
 
     public ScListView buildList() {
-        return configureList(new ScListView(this), true);
+        return configureList(new ScListView(this), false);
     }
 
     public ScListView buildList(boolean longClickable) {
@@ -349,7 +365,7 @@ public abstract class ScActivity extends Activity {
     }
 
     public ScListView configureList(ScListView lv) {
-        return configureList(lv,true, mLists.size());
+        return configureList(lv,false, mLists.size());
     }
 
     public ScListView configureList(ScListView lv, boolean longClickable) {

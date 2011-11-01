@@ -141,7 +141,10 @@ public class TrackInfoBar extends RelativeLayout {
         if (mTrack.sharing == null || mTrack.sharing.contentEquals("public")) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
-            if (mTrack.shared_to_count == 1){
+            if (mTrack.shared_to_count == 0){
+                mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
+                mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_count_unavailable));
+            } else if (mTrack.shared_to_count == 1){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
                 mPrivateIndicator.setText(getContext().getString(mTrack.user_id == currentUserId ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you));
             } else {

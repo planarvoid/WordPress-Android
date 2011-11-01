@@ -2,16 +2,19 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content">
-        	
-	<ImageView
-		android:id="@+id/iv_icon" 
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:paddingLeft="5dip"
-		android:paddingRight="5dip"/>
 
-	<TextView 
+    <ImageView
+            android:id="@+id/iv_icon"
+            android:layout_width="@dimen/list_icon_width"
+            android:layout_height="@dimen/list_icon_height"
+            android:gravity="center_horizontal"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"
+            android:paddingTop="5dip"
+            android:paddingBottom="5dip"
+            android:duplicateParentState="true"/>
+
+	<TextView
 		android:id="@+id/tv_title"
 		android:layout_width="wrap_content"
 		android:layout_height="fill_parent"
@@ -21,5 +24,5 @@
 		android:text="Chart"
 		android:textColor="#000"
         style="@android:style/TextAppearance.Small"/>
-									         
+
 </merge>

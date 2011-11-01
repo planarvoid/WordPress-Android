@@ -27,6 +27,12 @@
     <string name='private_message_btn_send'>
         Send
     </string>
+    <string name='private_message_for'>
+        Private message for %s
+    </string>
+    <string name='private_message'>
+        Private message
+    </string>
     <string name='btn_next'>
         Next
     </string>
@@ -54,8 +60,20 @@
     <string name='user_browser_tab_info'>
         Info
     </string>
-    <string name="tracklist_item_shared_with_1_person">1 Person</string>
 
     <string name="pref_clear_stream_cache">Clear Stream Cache</string>
     <string name="pref_clear_stream_cache_desc">Clear the stream cache</string>
+
+    <string name="tracklist_item_shared_with_1_person">
+        1 Person
+    </string>
+    <string name='tracklist_item_shared_count_unavailable'>
+        Private
+    </string>
+    <string name='list_header_track_results_for'>
+        Track results for %s
+    </string>
+    <string name='list_header_user_results_for'>
+        User results for %s
+    </string>
 </resources>

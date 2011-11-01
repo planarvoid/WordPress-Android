@@ -5,6 +5,8 @@
 	<color name="listTxtValueInactive">#FFa9a9a9</color>
 	<color name="listTxtSecondary">#FF777777</color>
 	<color name="listTxtRecSecondary">#FFcccccc</color>
+    <color name="listTxtCreatedAt">#FFc9c9c9</color>
+
 
     <color name="listTxtHeader">#777777</color>
     <color name="listBgHeader">#DEEFEFEF</color>
@@ -26,21 +28,21 @@
 	<color name="recordUploadBorder">#ff525252</color>
     <color name="recordListItemBackground">#ff999999</color>
 
-	<color name="cloudProgressBackgroundStart">#AA999999</color>
-	<color name="cloudProgressBackgroundCenter">#AACACACA</color>
-	<color name="cloudProgressBackgroundEnd">#AA999999</color>
+	<color name="cloudProgressBackgroundStart">#FF444444</color>
+	<color name="cloudProgressBackgroundCenter">#FF666666</color>
+	<color name="cloudProgressBackgroundEnd">#FF444444</color>
 	
-	<color name="cloudProgressSecondaryStart">#333333</color>
-	<color name="cloudProgressSecondaryCenter">#707070</color>
-	<color name="cloudProgressSecondaryEnd">#333333</color>
+	<color name="cloudProgressSecondaryStart">#222222</color>
+	<color name="cloudProgressSecondaryCenter">#444444</color>
+	<color name="cloudProgressSecondaryEnd">#222222</color>
 	
-	<color name="cloudProgressStart">#ff6600</color>
-	<color name="cloudProgressCenter">#ff5500</color>
+	<color name="cloudProgressStart">#ff3300</color>
+	<color name="cloudProgressCenter">#ff6600</color>
 	<color name="cloudProgressEnd">#ff3300</color>
 	
-	<color name="cloudProgressLandscapeBackgroundStart">#FF666666</color>
-	<color name="cloudProgressLandscapeBackgroundCenter">#FF949494</color>
-	<color name="cloudProgressLandscapeBackgroundEnd">#FF666666</color>
+	<color name="cloudProgressLandscapeBackgroundStart">#FF444444</color>
+	<color name="cloudProgressLandscapeBackgroundCenter">#FF666666</color>
+	<color name="cloudProgressLandscapeBackgroundEnd">#FF444444</color>
 	
 	<color name="cloudProgressRoundBackgroundStart">#FF222222</color>
 	<color name="cloudProgressRoundBackgroundCenter">#FF222222</color>
@@ -54,7 +56,8 @@
 
 	<color name="listSeperator">#FF333333</color>
 	<color name="horizontalRule">#FFcccccc</color>
-    <color name="verticalPipe">#FFcccccc</color>
+    <color name="verticalPipeDark">#ccaaaaaa</color>
+    <color name="verticalPipe">#77dddddd</color>
 
 	<color name="white">#ffffffff</color>
 	<color name="black">#ff000000</color>

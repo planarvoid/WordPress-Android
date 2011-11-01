@@ -595,7 +595,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
             setCurrentComments(true);
         } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
-            // setPauseButtonImage();
+             mWaveformController.stopSmoothProgress();
         } else if (action.equals(Consts.IntentActions.COMMENT_ADDED)) {
             final Comment c = intent.getParcelableExtra("comment");
             if (c.track_id == mTrack.id) {
@@ -640,6 +640,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             mTrack.last_playback_error = -1;
             hideUnplayable();
             mWaveformController.showConnectingLayout();
+            mWaveformController.stopSmoothProgress();
         }
     }
 }

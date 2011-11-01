@@ -332,10 +332,10 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     @Override
     protected void onDestroy() {
+        for (int i = 0; i < mTrackWorkspace.getChildCount(); i++) {
+            ((PlayerTrackView) mTrackWorkspace.getChildAt(i)).onDestroy();
+        }
         super.onDestroy();
-        for (int i = 0; i < mTrackWorkspace.getChildCount(); i++){
-                    ((PlayerTrackView) mTrackWorkspace.getChildAt(i)).onDestroy();
-                }
     }
 
     private final View.OnClickListener mPauseListener = new View.OnClickListener() {

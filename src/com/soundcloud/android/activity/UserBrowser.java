@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.*;
 import android.widget.ImageView.ScaleType;
@@ -199,6 +200,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     protected void onStart() {
         super.onStart();
         if (mMessager != null) mMessager.onStart();
+
+        for (ScListView list : mLists) {
+            list.checkForManualDetatch();
+        }
     }
 
     @Override
@@ -214,6 +219,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             if (list.getWrapper() != null) {
                 mAdapterStates[i] = list.getWrapper().saveState();
                 list.getWrapper().cleanup();
+                list.postDetatch(); // detatch from window to clear recycler
             }
             i++;
         }
@@ -424,13 +430,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         }
 
-        if (mMessager != null) mUserlistBrowser.addView(mMessager, getString(R.string.user_browser_tab_message), getResources().getDrawable(R.drawable.user_tab_rec), TabTags.privateMessage);
-        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, getString(R.string.user_browser_tab_friend_finder), getResources().getDrawable(R.drawable.ic_stats_followers_states), TabTags.friend_finder);
-        mUserlistBrowser.addView(mMyTracksView,  getString(R.string.user_browser_tab_sounds), getResources().getDrawable(R.drawable.ic_stats_sounds_states), TabTags.tracks);
-        mUserlistBrowser.addView(favoritesView, getString(R.string.user_browser_tab_likes), getResources().getDrawable(R.drawable.ic_stats_favorites_states), TabTags.favorites);
-        mUserlistBrowser.addView(followingsView, getString(R.string.user_browser_tab_followings), getResources().getDrawable(R.drawable.ic_stats_followers_states), TabTags.followings);
-        mUserlistBrowser.addView(followersView, getString(R.string.user_browser_tab_followers), getResources().getDrawable(R.drawable.ic_stats_followers_states), TabTags.followers);
-        mUserlistBrowser.addView(infoView, getString(R.string.user_browser_tab_info), getResources().getDrawable(R.drawable.ic_stats_followers_states), TabTags.details);
+        if (mMessager != null) mUserlistBrowser.addView(mMessager, getString(R.string.user_browser_tab_message), getResources().getDrawable(R.drawable.ic_user_tab_rec), TabTags.privateMessage);
+        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, getString(R.string.user_browser_tab_friend_finder), getResources().getDrawable(R.drawable.ic_user_tab_friendfinder), TabTags.friend_finder);
+        mUserlistBrowser.addView(mMyTracksView,  getString(R.string.user_browser_tab_sounds), getResources().getDrawable(R.drawable.ic_user_tab_sounds), TabTags.tracks);
+        mUserlistBrowser.addView(favoritesView, getString(R.string.user_browser_tab_likes), getResources().getDrawable(R.drawable.ic_user_tab_likes), TabTags.favorites);
+        mUserlistBrowser.addView(followingsView, getString(R.string.user_browser_tab_followings), getResources().getDrawable(R.drawable.ic_user_tab_following), TabTags.followings);
+        mUserlistBrowser.addView(followersView, getString(R.string.user_browser_tab_followers), getResources().getDrawable(R.drawable.ic_user_tab_followers), TabTags.followers);
+        mUserlistBrowser.addView(infoView, getString(R.string.user_browser_tab_info), getResources().getDrawable(R.drawable.ic_user_tab_info), TabTags.details);
 
         mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
             @Override public void onScreenChanged(View newScreen, int newScreenIndex) {

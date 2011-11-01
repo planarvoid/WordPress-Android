@@ -19,7 +19,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "ScContentProvider";
     private static final String DATABASE_NAME = "SoundCloud";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
 
     public enum Tables {
@@ -27,7 +27,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         RECORDINGS("Recordings", DATABASE_CREATE_RECORDINGS),
         USERS("Users", DATABASE_CREATE_USERS),
         TRACK_PLAYS("TrackPlays", DATABASE_CREATE_TRACK_PLAYS),
-        EVENTS("Events", DATABASE_CREATE_EVENTS);
+        EVENTS("Events", DATABASE_CREATE_EVENTS),
+        SEARCHES("Searches", DATABASE_CREATE_SEARCHES);
 
 
         public final String tableName;
@@ -56,6 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Uri RECORDINGS = Tables.RECORDINGS.uri;
         Uri TRACK_PLAYS = Tables.TRACK_PLAYS.uri;
         Uri EVENTS = Tables.EVENTS.uri;
+        Uri SEARCHES = Tables.SEARCHES.uri;
 
         Uri INCOMING_TRACKS = Uri.parse("content://" + ScContentProvider.AUTHORITY + "/Events/Incoming/Tracks");
         Uri EXCLUSIVE_TRACKS = Uri.parse("content://" + ScContentProvider.AUTHORITY + "/Events/Incoming/Tracks");
@@ -73,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
             db.execSQL(DATABASE_CREATE_USERS);
             db.execSQL(DATABASE_CREATE_RECORDINGS);
+            db.execSQL(DATABASE_CREATE_SEARCHES);
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during onCreate()", e);
         }
@@ -99,6 +102,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             break;
                         case 7:
                             success = upgradeTo7(db, oldVersion);
+                            break;
+                        case 8:
+                            success = upgradeTo8(db, oldVersion);
                             break;
                         default:
                             break;
@@ -127,6 +133,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS Users");
         db.execSQL("DROP TABLE IF EXISTS Recordings");
         db.execSQL("DROP TABLE IF EXISTS TrackPlays");
+        db.execSQL("DROP TABLE IF EXISTS Searches");
         onCreate(db);
     }
 
@@ -189,7 +196,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 alterTableColumns(db, Tables.RECORDINGS, null, null);
                 return true;
             } catch (SQLException e) {
-                SoundCloudApplication.handleSilentException("error during upgrade6 " +
+                SoundCloudApplication.handleSilentException("error during upgrade7 " +
+                        "(from "+oldVersion+")", e);
+            }
+            return false;
+        }
+
+    private boolean upgradeTo8(SQLiteDatabase db, int oldVersion) {
+            try {
+                db.execSQL(DATABASE_CREATE_SEARCHES);
+                return true;
+            } catch (SQLException e) {
+                SoundCloudApplication.handleSilentException("error during upgrade8 " +
                         "(from "+oldVersion+")", e);
             }
             return false;
@@ -307,6 +325,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + "audio_profile integer null, "
             + "upload_status integer false, "
             + "upload_error boolean false);";
+
+    static final String DATABASE_CREATE_SEARCHES = "create table Searches (_id integer primary key AUTOINCREMENT, "
+            + "created_at integer null, "
+            + "user_id integer null, "
+            + "query string null, "
+            + "search_type integer null);";
 
 
     public static final class Tracks implements BaseColumns {
@@ -554,4 +578,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
           public static final String ALIAS_ORIGIN_ID = Tables.EVENTS + "_" + ORIGIN_ID;
           public static final String ALIAS_NEXT_CURSOR = Tables.EVENTS + "_" + NEXT_CURSOR;
       }
+
+    public static final class Searches implements BaseColumns {
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + ScContentProvider.AUTHORITY + "/Searches");
+
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.searches";
+        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.searches";
+
+        public static final String ID = "_id";
+        public static final String USER_ID = "user_id";
+        public static final String SEARCH_TYPE = "search_type";
+        public static final String CREATED_AT = "created_at";
+        public static final String QUERY = "query";
+
+        public static final String CONCRETE_ID = Tables.SEARCHES + "." + ID;
+        public static final String CONCRETE_USER_ID = Tables.SEARCHES + "." + USER_ID;
+        public static final String CONCRETE_TYPE = Tables.SEARCHES + "." + SEARCH_TYPE;
+        public static final String CONCRETE_CREATED_AT = Tables.SEARCHES + "." + CREATED_AT;
+        public static final String CONCRETE_QUERY = Tables.SEARCHES + "." + QUERY;
+
+        public static final String ALIAS_ID = Tables.SEARCHES + "_" + ID;
+        public static final String ALIAS_USER_ID = Tables.SEARCHES + "_" + USER_ID;
+        public static final String ALIAS_TYPE = Tables.SEARCHES + "_" + SEARCH_TYPE;
+        public static final String ALIAS_CREATED_AT = Tables.SEARCHES + "_" + CREATED_AT;
+        public static final String ALIAS_QUERY = Tables.SEARCHES + "_" + QUERY;
+    }
 }

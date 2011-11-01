@@ -220,12 +220,16 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void reset(){
-        stopSmoothProgress();
         hideConnectingLayout();
         setProgressInternal(0);
         setSecondaryProgress(0);
-        cancelAutoCloseComment();
+        onStop();
+    }
 
+     public void onStop() {
+        stopSmoothProgress();
+         cancelAutoCloseComment();
+        if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
         if (mCommentLines != null) mCommentLines.setCurrentComment(null);
         mCurrentShowingComment = null;
@@ -243,11 +247,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             }
             mCurrentCommentPanel = null;
         }
-    }
-
-    public void onStop() {
-        stopSmoothProgress();
-        if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
     }
 
     public void showConnectingLayout() {
@@ -596,6 +595,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
 
     public void setComments(List<Comment> comments, boolean animateIn) {
+
+        if (comments.equals(mCurrentComments)){
+            Log.i(getClass().getSimpleName(),"Same comments found, ignoring setComments");
+            return;
+        }
+
         mCurrentComments = comments;
 
         if (mCurrentComments == null)
@@ -728,6 +733,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 case UI_SEND_SEEK:
                     if (mPlayer != null){
                         setProgress(mPlayer.sendSeek(mSeekPercent));
+                        stopSmoothProgress();
                     }
                     mCurrentTimeDisplay.setByPercent(mSeekPercent, false);
                     mPlayerTouchBar.clearSeek();

@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
             android:id="@+id/ScrollView01"
-            android:background="@drawable/create_bg_repeat"
+            android:background="@drawable/bg_rec"
             android:layout_weight="1"
             android:layout_height="0dp"
             android:layout_width="fill_parent"
@@ -12,7 +12,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical"
-            android:paddingTop="5dp">
+            android:padding="5dp">
 
         <TextView android:id="@+id/txt_private_message_upload_title"
                   android:layout_width="fill_parent"
