@@ -12,7 +12,6 @@ import java.io.RandomAccessFile;
 import java.util.List;
 
 class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
-
     private long mContentLength;
     private List<Integer> mIndexes;
     private int mChunkSize;
@@ -31,10 +30,46 @@ class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
         Log.d(LOG_TAG, "About to write complete file to " + completeFile);
 
         if (completeFile.exists()) {
-            Log.e(LOG_TAG, "Complete file exists at path " + completeFile.getAbsolutePath());
+            Log.e(LOG_TAG, "Complete file already exists at path " + completeFile.getAbsolutePath());
             return false;
         }
 
+        // optimization - if chunks have been written in order, just move and truncate file
+        if (isOrdered(mIndexes)) {
+            Log.d(LOG_TAG, "chunk file is already in order, moving");
+            return move(chunkFile, completeFile);
+        } else {
+            Log.d(LOG_TAG, "reassembling chunkfile");
+            return reassembleFile(chunkFile, completeFile);
+        }
+    }
+
+    private Boolean move(File chunkFile, File completeFile) {
+        if (chunkFile.renameTo(completeFile)) {
+            if (completeFile.length() != mContentLength) {
+                try {
+                    new RandomAccessFile(completeFile, "rw").setLength(mContentLength);
+                    return true;
+                } catch (IOException e) {
+                    Log.w(LOG_TAG, e);
+                }
+            }
+        } else {
+            Log.w(LOG_TAG, "error moving files");
+        }
+        return false;
+    }
+
+    private boolean isOrdered(List<Integer> indexes) {
+        int last = 0;
+        for (int i : indexes) {
+            if (last > i) return false;
+            last = i;
+        }
+        return true;
+    }
+
+    private Boolean reassembleFile(File chunkFile, File completeFile) {
         FileOutputStream fos = null;
         RandomAccessFile raf = null;
 
@@ -57,7 +92,7 @@ class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
             Log.d(LOG_TAG, "complete file " + completeFile + " written");
         } catch (IOException e) {
             Log.e(LOG_TAG, "IO error during complete file creation", e);
-            if (completeFile.delete()) Log.d(LOG_TAG, "Deleted "+completeFile);
+            if (completeFile.delete()) Log.d(LOG_TAG, "Deleted " + completeFile);
             return false;
         } finally {
             if (raf != null) try {
@@ -69,9 +104,6 @@ class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
             } catch (IOException ignored) {
             }
         }
-        onPostExecute(true);
         return true;
     }
-
-
 }

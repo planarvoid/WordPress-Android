@@ -157,16 +157,12 @@ public class NetworkConnectivityListener {
                 Log.w(TAG, "onReceived() called with " + mState.toString() + " and " + intent);
                 return;
             }
+            State old = mState;
 
             boolean noConnectivity = intent.getBooleanExtra(
                     ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 
-            if (noConnectivity) {
-                mState = State.NOT_CONNECTED;
-            } else {
-                mState = State.CONNECTED;
-            }
-
+            mState =  noConnectivity ? State.NOT_CONNECTED : State.CONNECTED;
             mNetworkInfo = (NetworkInfo) intent
                     .getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
             mOtherNetworkInfo = (NetworkInfo) intent
@@ -183,7 +179,7 @@ public class NetworkConnectivityListener {
 
             // Notify any handlers.
             for (Handler target : mHandlers.keySet()) {
-                Message message = Message.obtain(target, mHandlers.get(target));
+                Message message = Message.obtain(target, mHandlers.get(target), old.ordinal(), mState.ordinal());
                 target.sendMessage(message);
             }
         }

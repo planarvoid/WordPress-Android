@@ -7,6 +7,12 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.util.Arrays;
+
 @RunWith(DefaultTestRunner.class)
 public class StreamItemTest {
      @Test
@@ -39,5 +45,21 @@ public class StreamItemTest {
     public void testChunkRange() throws Exception {
         StreamItem item = new StreamItem("foo", 1543, null);
         expect(item.chunkRange(128)).toEqual(Range.from(0, 13));
+    }
+
+    @Test
+    public void shouldWriteAndReadMetadata() throws Exception {
+        StreamItem md = new StreamItem("foo", 100, "etag");
+        md.downloadedChunks.addAll(Arrays.asList(1, 2, 3, 4, 5));
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        md.write(new DataOutputStream(bos));
+
+        StreamItem md_ = StreamItem.read(
+                new DataInputStream(new ByteArrayInputStream(bos.toByteArray())));
+
+        expect(md.getContentLength()).toEqual(md_.getContentLength());
+        expect(md.etag()).toEqual(md_.etag());
+        expect(md.downloadedChunks).toEqual(md_.downloadedChunks);
     }
 }

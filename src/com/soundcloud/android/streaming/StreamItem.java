@@ -8,15 +8,27 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class StreamItem implements Parcelable {
-    public final Index index = new Index();
+    public final Index chunksToDownload = new Index();
+    public final List<Integer> downloadedChunks = new ArrayList<Integer>();
 
     public final String url;
-    public String redirectedURL;
-    public boolean unavailable;  // http status 402,404,410
+    public boolean unavailable;  // http status 402, 404, 410
+
     private String mURLHash;
     private long mContentLength;
-    private String mEtag;
+    private String mRedirectedUrl;
+    private String mEtag;  // audio content ETag
+    private long mExpires; // expiration time of the redirect link
 
     public StreamItem(String url) {
         if (TextUtils.isEmpty(url)) throw new IllegalArgumentException();
@@ -30,25 +42,39 @@ public class StreamItem implements Parcelable {
     }
 
     public StreamItem initializeFrom(Stream s) {
-        setContentLength(s.contentLength);
-        redirectedURL = s.streamUrl;
+        mRedirectedUrl = s.streamUrl;
+        mContentLength = s.contentLength;
         mEtag = s.eTag;
+        mExpires = s.expires;
         return this;
     }
 
-    public String getETag() {
+    public int numberOfChunks(int chunkSize) {
+        return (int) Math.ceil(((double ) getContentLength()) / ((double ) chunkSize));
+    }
+
+    public String etag() {
         return mEtag;
+    }
+
+    public String redirectUrl() {
+        return mRedirectedUrl;
+    }
+
+    public void invalidateRedirectUrl() {
+        mRedirectedUrl = null;
+    }
+
+    public boolean isRedirectExpired() {
+        return System.currentTimeMillis() > mExpires;
     }
 
     public boolean setContentLength(long value) {
         if (mContentLength != value) {
             final long oldLength = mContentLength;
             mContentLength = value;
-
-
             /*
             TODO: move this out of this class
-
             public static String SCStreamItemDidResetNotification = "com.soundcloud.android.SCStreamItemDidResetNotification";
 
             if (oldLength != 0) {
@@ -57,8 +83,6 @@ public class StreamItem implements Parcelable {
                 mContext.sendBroadcast(i);
             }
             TODO add reset listener to player
-
-
             */
 
             return oldLength != 0;
@@ -79,6 +103,10 @@ public class StreamItem implements Parcelable {
         return byteRange().chunkRange(chunkSize);
     }
 
+    public boolean isAvailable() {
+        return !unavailable;
+    }
+
     public String getURLHash() {
         if (mURLHash == null) {
             mURLHash = urlHash(url);
@@ -93,11 +121,77 @@ public class StreamItem implements Parcelable {
     @Override
     public String toString() {
         return "ScStreamItem{url: " + url +
-                ", redirectedURL:" + redirectedURL +
+                ", redirectedURL:" + mRedirectedUrl +
                 ", URLHash:" + mURLHash +
                 ", contentLength:" + mContentLength +
                 ", unavailable:" + unavailable +
                 "}";
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StreamItem that = (StreamItem) o;
+        return !(url != null ? !url.equals(that.url) : that.url != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return url != null ? url.hashCode() : 0;
+    }
+
+    // serialization support
+    public void write(DataOutputStream dos) throws IOException {
+        dos.writeUTF(url);
+        dos.writeLong(mContentLength);
+        dos.writeUTF(mEtag == null ? "" : mEtag);
+        dos.writeInt(downloadedChunks.size());
+        for (Integer index : downloadedChunks) {
+            dos.writeInt(index);
+        }
+    }
+
+    public static StreamItem read(DataInputStream dis) throws IOException {
+        String url = dis.readUTF();
+        StreamItem item = new StreamItem(url);
+        item.mContentLength = dis.readLong();
+        item.mEtag = dis.readUTF();
+        int n = dis.readInt();
+        for (int i = 0; i < n; i++) {
+            item.downloadedChunks.add(dis.readInt());
+        }
+        return item;
+    }
+
+    public static StreamItem fromIndexFile(File file) throws IOException {
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+        try {
+            return read(dis);
+        } finally {
+            dis.close();
+        }
+    }
+
+    public static StreamItem fromCompleteFile(String url, File file) {
+        StreamItem item = new StreamItem(url);
+        item.mContentLength = file.length();
+        item.mEtag = CloudUtils.md5(file); // XXX overhead?
+        return item;
+    }
+
+
+    // parcelable support
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        Bundle data = new Bundle();
+        data.putString("URL", url);
+        data.putString("redirectedURL", mRedirectedUrl);
+        data.putString("URLHash", mURLHash);
+        data.putBoolean("unavailable", unavailable);
+        data.putLong("contentLength", mContentLength);
+        dest.writeBundle(data);
     }
 
     @Override
@@ -105,21 +199,10 @@ public class StreamItem implements Parcelable {
         return 0;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        Bundle data = new Bundle();
-        data.putString("URL", url);
-        data.putString("redirectedURL", redirectedURL);
-        data.putString("URLHash", mURLHash);
-        data.putBoolean("unavailable", unavailable);
-        data.putLong("contentLength", mContentLength);
-        dest.writeBundle(data);
-    }
-
     public StreamItem(Parcel in) {
         Bundle data = in.readBundle(getClass().getClassLoader());
         url = data.getString("URL");
-        redirectedURL = data.getString("redirectedURL");
+        mRedirectedUrl = data.getString("redirectedURL");
         mURLHash = data.getString("URLHash");
         unavailable = data.getBoolean("unavailable");
         mContentLength = data.getLong("contentLength");
@@ -135,24 +218,4 @@ public class StreamItem implements Parcelable {
         }
     };
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StreamItem that = (StreamItem) o;
-        return !(url != null ? !url.equals(that.url) : that.url != null);
-    }
-
-    @Override
-    public int hashCode() {
-        return url != null ? url.hashCode() : 0;
-    }
-
-
-    public StreamStorage.Metadata getMetadata() {
-        StreamStorage.Metadata md = new StreamStorage.Metadata();
-        md.eTag = mEtag;
-        md.contentLength = mContentLength;
-        return md;
-    }
 }

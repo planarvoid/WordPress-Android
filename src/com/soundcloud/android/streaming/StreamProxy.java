@@ -181,16 +181,17 @@ public class StreamProxy implements Runnable {
 
         try {
             final SocketChannel channel = client.getChannel();
-            Map<String,String> headers = headerForItem(streamUrl);
+            Map<String, String> headers = headerForItem(streamUrl);
 
-            final File completeFile = storage.completeFileForItem(streamUrl);
+            final File completeFile = storage.completeFileForUrl(streamUrl);
             if (completeFile.exists()) {
-                streamCompleteFile(completeFile, startByte, channel, headers);
+                streamCompleteFile(streamUrl, completeFile, startByte, channel, headers);
             } else {
                 writeChunks(streamUrl, startByte, channel, headers);
             }
         } catch (SocketException e) {
-            if ("Connection reset by peer".equals(e.getMessage())) {
+            if ("Connection reset by peer".equals(e.getMessage()) ||
+                    "Broken pipe".equals(e.getMessage())) {
                 Log.d(LOG_TAG, "client closed connection [expected]");
             } else {
                 Log.e(LOG_TAG, e.getMessage(), e);
@@ -215,37 +216,34 @@ public class StreamProxy implements Runnable {
                 .append("HTTP/1.1 ")
                 .append(startByte == 0 ? "200 OK" : "206 OK").append("\r\n");
 
-        for (Map.Entry<String,String> e : headers.entrySet()) {
+        for (Map.Entry<String, String> e : headers.entrySet()) {
             sb.append(e.getKey()).append(':').append(' ').append(e.getValue()).append("\r\n");
         }
         sb.append("\r\n");
 
-        Log.d(LOG_TAG, "header:"+sb);
+        Log.d(LOG_TAG, "header:" + sb);
         return ByteBuffer.wrap(sb.toString().getBytes());
     }
 
-    private void writeChunks(String streamUrl, final long startByte, SocketChannel channel, Map<String,String> headers)
+    private void writeChunks(String streamUrl, final long startByte, SocketChannel channel, Map<String, String> headers)
             throws IOException, InterruptedException, ExecutionException {
         long offset = startByte;
         for (;;) {
-            StreamFuture stream = loader.getDataForItem(streamUrl, Range.from(offset, storage.chunkSize));
-             ByteBuffer buffer = stream.get();
+            StreamFuture stream = loader.getDataForUrl(streamUrl, Range.from(offset, storage.chunkSize));
+            ByteBuffer buffer = stream.get();
 
             if (offset == startByte) {
-                final long length = stream.item.getContentLength();
                 // first chunk, write header
+                final long length = stream.item.getContentLength();
                 headers.put("Content-Length", String.valueOf(length));
 
                 if (startByte != 0) {
                     headers.put("Content-Range",
-                        String.format("%d-%d/%d", startByte, length-1, length));
+                            String.format("%d-%d/%d", startByte, length - 1, length));
                 }
                 channel.write(getHeader(startByte, headers));
             }
-
-            channel.write(buffer);
-            offset += storage.chunkSize;
-
+            offset += channel.write(buffer);
             if (offset > stream.item.getContentLength()) {
                 Log.d(LOG_TAG, "reached end of stream");
                 break;
@@ -253,8 +251,8 @@ public class StreamProxy implements Runnable {
         }
     }
 
-    /* package */ Map<String,String> headerForItem(String url) {
-        Map<String,String> h = new LinkedHashMap<String, String>();
+    /* package */ Map<String, String> headerForItem(String url) {
+        Map<String, String> h = new LinkedHashMap<String, String>();
         h.put("Server", "SoundCloudStreaming");
         h.put("Accept-Ranges", "bytes");
         h.put("Content-Type", "audio/mpeg");
@@ -262,16 +260,21 @@ public class StreamProxy implements Runnable {
         return h;
     }
 
-    private void streamCompleteFile(File file, long offset, SocketChannel channel, Map<String,String> headers) throws IOException {
-          Log.d(LOG_TAG, "streaming complete file "+file);
-        headers.put("Content-Length", String.valueOf(file.length() -  offset));
+    private void streamCompleteFile(String streamUrl, File file, long offset, SocketChannel channel, Map<String, String> headers) throws IOException {
+        Log.d(LOG_TAG, "streaming complete file " + file);
+        headers.put("Content-Length", String.valueOf(file.length() - offset));
         channel.write(getHeader(offset, headers));
+
+
+        if (!loader.logPlaycount(streamUrl)) {
+            Log.d(LOG_TAG, "could not queue playcount log");
+        }
 
         FileChannel f = new FileInputStream(file).getChannel();
         f.position(offset);
         ByteBuffer buffer = ByteBuffer.allocate(8192);
         int read = 0;
-        while (read < file.length() - offset)   {
+        while (read < file.length() - offset) {
             int readnow = f.read(buffer);
             if (readnow == -1) {
                 f.close();

@@ -7,6 +7,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import java.io.IOException;
@@ -28,19 +29,38 @@ class DataTask extends StreamItemTask {
     }
 
     @Override
-    public void execute() throws IOException {
+    public Bundle execute() throws IOException {
         Log.d(LOG_TAG, String.format("fetching chunk %d for item %s with range %s", chunkRange.start, item, byteRange));
         HttpResponse resp = api.getHttpClient().execute(
-                Request.to(item.redirectedURL).range(byteRange.start, byteRange.end()-1)
+                Request.to(item.redirectUrl()).range(byteRange.start, byteRange.end()-1)
                         .buildRequest(HttpGet.class));
 
-        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK ||
-            resp.getStatusLine().getStatusCode() == HttpStatus.SC_PARTIAL_CONTENT) {
-            buffer.put(EntityUtils.toByteArray(resp.getEntity()));
-            buffer.rewind();
-        } else {
-            Log.w(LOG_TAG, "invalid status code received:" + resp.getStatusLine());
+        final int status = resp.getStatusLine().getStatusCode();
+        switch (status) {
+            case HttpStatus.SC_OK:
+            case HttpStatus.SC_PARTIAL_CONTENT:
+                buffer.put(EntityUtils.toByteArray(resp.getEntity()));
+                buffer.rewind();
+                Bundle b = new Bundle();
+                b.putInt("status", status);
+                return b;
+
+            // link has expired
+            case HttpStatus.SC_FORBIDDEN:
+                item.invalidateRedirectUrl();
+                break;
+
+            // permanent failure
+            case HttpStatus.SC_PAYMENT_REQUIRED:
+            case HttpStatus.SC_NOT_FOUND:
+            case HttpStatus.SC_GONE:
+                item.unavailable = true;
+                break;
+
+            default:
+                throw new IOException("invalid status code received:" + resp.getStatusLine());
         }
+        return null;
     }
 
     @Override
