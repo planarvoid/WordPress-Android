@@ -3,8 +3,12 @@ package com.soundcloud.android.view.quickaction;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
@@ -12,6 +16,7 @@ import com.soundcloud.android.adapter.ITracklistAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 public class QuickTrackMenu extends QuickAction {
 
@@ -63,6 +68,12 @@ public class QuickTrackMenu extends QuickAction {
 
         mShareActionItem.setVisibility(track.isPublic() ? View.VISIBLE : View.GONE);
         mFavoriteActionItem.setIcon(track.user_favorite ? getFavoritedDrawable() : getFavoriteDrawable());
+
+        if (!track.hasAvatar() ||
+                ImageUtils.loadImageSubstitute(mActivity, mProfileActionItem.getIconView(), track.user.avatar_url,
+                        ImageUtils.getListItemGraphicSize(mActivity), null, null) != ImageLoader.BindResult.OK) {
+            mProfileActionItem.getIconView().setImageDrawable(mActivity.getResources().getDrawable(R.drawable.avatar_badge));
+        }
 
         setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override

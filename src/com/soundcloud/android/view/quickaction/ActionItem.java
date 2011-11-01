@@ -73,6 +73,10 @@ public class ActionItem extends LinearLayout {
 
     }
 
+    public ImageView getIconView(){
+        return ((ImageView) findViewById(R.id.iv_icon));
+    }
+
     /**
 	 * Set selected flag;
 	 * 
