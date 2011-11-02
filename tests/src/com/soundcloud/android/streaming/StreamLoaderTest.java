@@ -209,7 +209,7 @@ public class StreamLoaderTest {
         Map<String, StreamItem> _metadata = new HashMap<String, StreamItem>();
 
         public MockStorage(File basedir, int chunkSize) {
-            super(null, basedir, chunkSize, false);
+            super(null, basedir, chunkSize, 0);
         }
 
         @Override
