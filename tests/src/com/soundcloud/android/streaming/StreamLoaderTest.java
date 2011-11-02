@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class StreamLoaderTest {
         setupChunkArray();
         storage.storeMetadata(item);
         storage.storeData(item.url, sampleBuffers.get(0), 0);
-        ByteBuffer actual = loader.getDataForUrl(item.url, Range.from(0, TEST_CHUNK_SIZE)).get();
+        Buffer actual = loader.getDataForUrl(item.url, Range.from(0, TEST_CHUNK_SIZE)).get();
         ByteBuffer expected = readToByteBuffer(testFile, TEST_CHUNK_SIZE);
 
         expect(actual).toEqual(expected);
@@ -80,8 +81,8 @@ public class StreamLoaderTest {
         setupChunkArray();
         storage.storeMetadata(item);
         for (int i : sampleChunkIndexes) storage.storeData(item.url, sampleBuffers.get(i), i);
-        expect(loader.getDataForUrl(item.url, Range.from(0, testFile.length())).get())
-                .toEqual(readToByteBuffer(testFile, (int) testFile.length()));
+        expect((Buffer)loader.getDataForUrl(item.url, Range.from(0, testFile.length())).get())
+                .toEqual(readToByteBuffer(testFile));
     }
 
     @Test
@@ -104,7 +105,7 @@ public class StreamLoaderTest {
         expect(loader.getLowPriorityQueue().isEmpty()).toBeTrue();
 
         expect(cb.isDone()).toBeTrue();
-        expect((Buffer) cb.get()).toEqual(sampleBuffers.get(missingChunk).slice().limit(300));
+        expect((Buffer)cb.get()).toEqual(sampleBuffers.get(missingChunk).slice().limit(300));
     }
 
     @Test
@@ -118,8 +119,8 @@ public class StreamLoaderTest {
 
         expect(cb.isDone()).toBeTrue();
 
-        Buffer actual = cb.get();
-        Buffer expected = sampleBuffers.get(0).slice().limit(700);
+        ByteBuffer actual = cb.get();
+        ByteBuffer expected = (ByteBuffer) sampleBuffers.get(0).slice().limit(700);
 
         expect(actual).toEqual(expected);
 
@@ -144,12 +145,9 @@ public class StreamLoaderTest {
         StreamFuture cb = loader.getDataForUrl(item.url, Range.from(500, 1000));
 
         expect(cb.isDone()).toBeTrue();
-
-        ByteBuffer expected = readToByteBuffer(testFile);
-        expected.position(500).limit(1500);
-
-        //XXX
-        //expect(cb.get()).toEqual(expected.slice());
+        ByteBuffer actual = cb.get();
+        ByteBuffer expected = ((ByteBuffer) readToByteBuffer(testFile).position(500).limit(1500));
+        expect(actual).toEqual(expected);
     }
 
     private int setupChunkArray() throws IOException {

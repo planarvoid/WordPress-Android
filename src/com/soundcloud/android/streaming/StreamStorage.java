@@ -88,7 +88,7 @@ public class StreamStorage {
         return mItems.get(url);
     }
 
-    public ByteBuffer fetchStoredDataForItem(String url, Range range) throws IOException {
+    public ByteBuffer fetchStoredDataForUrl(String url, Range range) throws IOException {
         StreamItem item = getMetadata(url);
         if (item == null) throw new FileNotFoundException("stored data not found");
 
@@ -101,11 +101,14 @@ public class StreamStorage {
         }
         Range chunkRange = actualRange.chunkRange(chunkSize);
         ByteBuffer data = ByteBuffer.allocate(chunkRange.length * chunkSize);
+
+        // read all the chunks we need
         for (int index : chunkRange) {
             data.put(getChunkData(url, index));
         }
-        data.limit(actualRange.length);
-        data.rewind();
+        // and adjust offsets
+        data.position(actualRange.start % chunkSize);
+        data.limit(actualRange.start % chunkSize + actualRange.length);
         return data;
     }
 
@@ -350,7 +353,7 @@ public class StreamStorage {
         mSpaceLeft = getSpaceLeft();
         mUsedSpace = getUsedSpace();
         Log.d(LOG_TAG, String.format("[File Metrics]  %.1f mb used, %.1f mb free",
-                mUsedSpace/1024*1024d, mSpaceLeft/1024*1024d));
+                mUsedSpace/(1024d*1024d), mSpaceLeft/(1024d*1024d)));
     }
 
     /* package */ long getUsedSpace() {
