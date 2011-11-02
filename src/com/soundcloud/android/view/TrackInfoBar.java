@@ -168,17 +168,10 @@ public class TrackInfoBar extends RelativeLayout {
     }
 
     private void loadIcon() {
-        final String iconUrl = getTrackIcon();
+        final String iconUrl = mTrack == null ? null : ImageUtils.formatGraphicsUriForList(getContext(),mTrack.getArtwork());
         if (TextUtils.isEmpty(iconUrl)) {
             ImageLoader.get(getContext()).unbind(mIcon); // no artwork
         }
     }
 
-    public String getTrackIcon() {
-        if (mTrack == null || (mTrack.artwork_url == null && (mTrack.user == null || mTrack.user.avatar_url == null))){
-           return "";
-        }
-        return ImageUtils.formatGraphicsUriForList(getContext(),
-                mTrack.artwork_url == null ? mTrack.user.avatar_url : mTrack.artwork_url);
-    }
 }

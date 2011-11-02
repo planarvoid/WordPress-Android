@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import android.text.TextUtils;
 import android.view.animation.Transformation;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -78,10 +79,11 @@ public class TracklistRow extends LazyRow {
 
     @Override
     public String getIconRemoteUri() {
-        if (mTrack == null || (mTrack.artwork_url == null && mTrack.user.avatar_url == null)){
+        if (mTrack == null){
            return "";
+        } else {
+            final String iconUrl = mTrack.getArtwork();
+            return TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(mActivity,mTrack.getArtwork());
         }
-        return ImageUtils.formatGraphicsUriForList(mActivity,
-                mTrack.artwork_url == null ? mTrack.user.avatar_url : mTrack.artwork_url);
     }
 }

@@ -13,6 +13,7 @@ import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -178,6 +179,13 @@ public class Track extends ModelBase implements PageTrackable, Origin {
 
     public String getTrackEventLabel() {
         return Consts.Tracking.LABEL_DOMAIN_PREFIX + (user == null ? user_id : user.permalink) + "/" + permalink;
+    }
+
+    public String getArtwork() {
+        if (artwork_url == null && (user == null || user.avatar_url == null)){
+           return "";
+        }
+        return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
     }
 
     public static class CreatedWith {
