@@ -22,9 +22,9 @@ public class StreamItem implements Parcelable {
     public final List<Integer> downloadedChunks = new ArrayList<Integer>();
 
     public final String url;
-    public boolean unavailable;  // http status 402, 404, 410
-
     private String mURLHash;
+
+    private boolean mUnavailable;  // http status 402, 404, 410
     private long mContentLength;
     private String mRedirectedUrl;
     private String mEtag;  // audio content ETag
@@ -41,7 +41,7 @@ public class StreamItem implements Parcelable {
         mEtag = etag;
     }
 
-    public StreamItem initializeFrom(Stream s) {
+    public StreamItem initializeFromStream(Stream s) {
         mRedirectedUrl = s.streamUrl;
         mContentLength = s.contentLength;
         mEtag = s.eTag;
@@ -63,6 +63,14 @@ public class StreamItem implements Parcelable {
 
     public void invalidateRedirectUrl() {
         mRedirectedUrl = null;
+    }
+
+    public boolean isRedirectValid() {
+        return mContentLength > 0 && mRedirectedUrl != null && !isRedirectExpired();
+    }
+
+    public void markUnavailable() {
+        mUnavailable = true;
     }
 
     public boolean isRedirectExpired() {
@@ -104,7 +112,7 @@ public class StreamItem implements Parcelable {
     }
 
     public boolean isAvailable() {
-        return !unavailable;
+        return !mUnavailable;
     }
 
     public String getURLHash() {
@@ -120,14 +128,20 @@ public class StreamItem implements Parcelable {
 
     @Override
     public String toString() {
-        return "ScStreamItem{url: " + url +
-                ", redirectedURL:" + mRedirectedUrl +
-                ", URLHash:" + mURLHash +
-                ", contentLength:" + mContentLength +
-                ", unavailable:" + unavailable +
-                "}";
+        final StringBuilder sb = new StringBuilder();
+        sb.append("StreamItem");
+        sb.append("{url='").append(url).append('\'');
+        sb.append(", unavailable=").append(mUnavailable);
+        sb.append(", mURLHash='").append(mURLHash).append('\'');
+        sb.append(", mContentLength=").append(mContentLength);
+        sb.append(", mRedirectedUrl='").append(mRedirectedUrl).append('\'');
+        sb.append(", mEtag='").append(mEtag).append('\'');
+        sb.append(", mExpires=").append(mExpires);
+        sb.append(", chunksToDownload=").append(chunksToDownload);
+        sb.append(", downloadedChunks=").append(downloadedChunks);
+        sb.append('}');
+        return sb.toString();
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -177,7 +191,7 @@ public class StreamItem implements Parcelable {
     public static StreamItem fromCompleteFile(String url, File file) {
         StreamItem item = new StreamItem(url);
         item.mContentLength = file.length();
-        item.mEtag = CloudUtils.md5(file); // XXX overhead?
+        //item.mEtag = CloudUtils.md5(file); // XXX overhead?
         return item;
     }
 
@@ -186,11 +200,13 @@ public class StreamItem implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         Bundle data = new Bundle();
-        data.putString("URL", url);
-        data.putString("redirectedURL", mRedirectedUrl);
-        data.putString("URLHash", mURLHash);
-        data.putBoolean("unavailable", unavailable);
+        data.putString("url", url);
+        data.putString("redirectedUrl", mRedirectedUrl);
+        data.putString("etag", mEtag);
+        data.putBoolean("unavailable", mUnavailable);
         data.putLong("contentLength", mContentLength);
+        data.putLong("expires", mExpires);
+        // TODO index + downloaded chunks
         dest.writeBundle(data);
     }
 
@@ -201,11 +217,12 @@ public class StreamItem implements Parcelable {
 
     public StreamItem(Parcel in) {
         Bundle data = in.readBundle(getClass().getClassLoader());
-        url = data.getString("URL");
-        mRedirectedUrl = data.getString("redirectedURL");
-        mURLHash = data.getString("URLHash");
-        unavailable = data.getBoolean("unavailable");
+        url = data.getString("url");
+        mRedirectedUrl = data.getString("redirectedUrl");
+        mEtag = data.getString("etag");
+        mUnavailable = data.getBoolean("unavailable");
         mContentLength = data.getLong("contentLength");
+        mExpires = data.getLong("expires");
     }
 
     public static final Parcelable.Creator<StreamItem> CREATOR = new Parcelable.Creator<StreamItem>() {

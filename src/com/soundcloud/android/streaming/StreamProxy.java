@@ -28,6 +28,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -102,6 +104,7 @@ public class StreamProxy implements Runnable {
             try {
                 final Socket client = mSocket.socket().accept();
                 Log.d(LOG_TAG, "client connected");
+
                 try {
                     final HttpGet request = readRequest(client);
                     new Thread("handle- proxy-request") {
@@ -114,6 +117,7 @@ public class StreamProxy implements Runnable {
                     Log.w(LOG_TAG, "error reading request");
                     client.close();
                 }
+
             } catch (SocketTimeoutException e) {
                 // Do nothing
             } catch (IOException e) {
@@ -200,8 +204,9 @@ public class StreamProxy implements Runnable {
             Log.w(LOG_TAG, e);
         } catch (InterruptedException e) {
             Log.w(LOG_TAG, e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
+        } catch (TimeoutException e) {
+            // let client reconnect to stream on timeout
+            Log.d(LOG_TAG, "timeout getting data - closing connection", e);
         } finally {
             try {
                 client.close();
@@ -226,11 +231,11 @@ public class StreamProxy implements Runnable {
     }
 
     private void writeChunks(String streamUrl, final long startByte, SocketChannel channel, Map<String, String> headers)
-            throws IOException, InterruptedException, ExecutionException {
+            throws IOException, InterruptedException, TimeoutException {
         long offset = startByte;
         for (;;) {
             StreamFuture stream = loader.getDataForUrl(streamUrl, Range.from(offset, storage.chunkSize));
-            ByteBuffer buffer = stream.get();
+            ByteBuffer buffer = stream.get(10, TimeUnit.SECONDS);
 
             if (offset == startByte) {
                 // first chunk, write header
@@ -244,7 +249,7 @@ public class StreamProxy implements Runnable {
                 channel.write(getHeader(startByte, headers));
             }
             offset += channel.write(buffer);
-            if (offset > stream.item.getContentLength()) {
+            if (offset >= stream.item.getContentLength()) {
                 Log.d(LOG_TAG, "reached end of stream");
                 break;
             }
@@ -256,7 +261,7 @@ public class StreamProxy implements Runnable {
         h.put("Server", "SoundCloudStreaming");
         h.put("Accept-Ranges", "bytes");
         h.put("Content-Type", "audio/mpeg");
-//        h.put("Connection", "keep-alive");
+        h.put("Connection", "close");
         return h;
     }
 
@@ -265,26 +270,33 @@ public class StreamProxy implements Runnable {
         headers.put("Content-Length", String.valueOf(file.length() - offset));
         channel.write(getHeader(offset, headers));
 
-
         if (!loader.logPlaycount(streamUrl)) {
             Log.d(LOG_TAG, "could not queue playcount log");
+        }
+
+        // touch file to prevent it from being collected by the cleaner
+        if (!file.setLastModified(System.currentTimeMillis())) {
+            Log.w(LOG_TAG, "could not touch file "+file);
         }
 
         FileChannel f = new FileInputStream(file).getChannel();
         f.position(offset);
         ByteBuffer buffer = ByteBuffer.allocate(8192);
         int read = 0;
-        while (read < file.length() - offset) {
-            int readnow = f.read(buffer);
-            if (readnow == -1) {
-                f.close();
-                break;
-            } else {
-                read += readnow;
-                buffer.flip();
-                channel.write(buffer);
-                buffer.rewind();
+        try {
+            while (read < file.length() - offset) {
+                int readnow = f.read(buffer);
+                if (readnow == -1) {
+                    break;
+                } else {
+                    read += readnow;
+                    buffer.flip();
+                    channel.write(buffer);
+                    buffer.rewind();
+                }
             }
+        } finally {
+            try { f.close(); } catch (IOException ignored) { }
         }
     }
 }

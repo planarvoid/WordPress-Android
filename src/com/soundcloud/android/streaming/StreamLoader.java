@@ -25,20 +25,20 @@ public class StreamLoader {
     protected static final int CONNECTIVITY_MSG = 0;
 
     private NetworkConnectivityListener mConnectivityListener;
-    private SoundCloudApplication mContext;
-    private StreamStorage mStorage;
+    private final SoundCloudApplication mContext;
+    private final StreamStorage mStorage;
 
-    private ItemQueue mItemsNeedingHeadRequests = new ItemQueue();
-    private ItemQueue mItemsNeedingPlaycountRequests = new ItemQueue();
+    private final ItemQueue mItemsNeedingHeadRequests = new ItemQueue();
+    private final ItemQueue mItemsNeedingPlaycountRequests = new ItemQueue();
 
     private StreamItem mCurrentItem;
     private int mCurrentPosition;
 
-    private Set<StreamFuture> mPlayerCallbacks = new HashSet<StreamFuture>();
-    private ItemQueue mHighPriorityQ = new ItemQueue();
-    private ItemQueue mLowPriorityQueue = new ItemQueue();
+    private final Set<StreamFuture> mPlayerCallbacks = new HashSet<StreamFuture>();
+    private final ItemQueue mHighPriorityQ = new ItemQueue();
+    private final ItemQueue mLowPriorityQueue = new ItemQueue();
 
-    private Set<HeadTask> mHeadTasks = new HashSet<HeadTask>();
+    private final Set<HeadTask> mHeadTasks = new HashSet<HeadTask>();
 
     private StreamHandler mDataHandler;
     private StreamHandler mHeadHandler;
@@ -96,14 +96,14 @@ public class StreamLoader {
     }
 
     public StreamFuture getDataForUrl(String url, Range range) throws IOException {
-        Log.d(LOG_TAG, "Get Data for url " + url + " " + range);
+        Log.d(LOG_TAG, "Get data for url " + url + " " + range);
 
         StreamItem item = mStorage.getMetadata(url);
         if (item == null ) {
             item = new StreamItem(url);
         }
         //If there is no metadata yet or it is expired, request it
-        if (item.redirectUrl() == null || item.isRedirectExpired()) {
+        if (!item.isRedirectValid()) {
             mItemsNeedingHeadRequests.add(item);
         }
 
@@ -118,7 +118,7 @@ public class StreamLoader {
         }
         mCurrentPosition = range.start;
 
-        StreamFuture pc = new StreamFuture(item, range);
+        final StreamFuture pc = new StreamFuture(item, range);
         if (!missingChunks.isEmpty()) {
             mPlayerCallbacks.add(pc);
             mHighPriorityQ.addItem(item, missingChunks);
@@ -151,12 +151,6 @@ public class StreamLoader {
 
     private void processQueues() {
         if (isConnected()) {
-            for (StreamItem item : mItemsNeedingHeadRequests) {
-                // also done from processHighPriorityQueue()
-                mItemsNeedingHeadRequests.remove(item);
-                startHeadTask(item, HI_PRIO);
-            }
-
             processHighPriorityQueue();
 
             if (mHeadHandler.hasMessages(HI_PRIO) ||
@@ -171,38 +165,43 @@ public class StreamLoader {
     }
 
     private void processHighPriorityQueue() {
-        for (StreamItem item : mHighPriorityQ) {
-            if (item.unavailable) mHighPriorityQ.remove(item);
-
-            //If there is a contentLength for the item, download first chunk
-            else if (item.getContentLength() > 0 && item.redirectUrl() != null) {
-                Range chunkRange = Range.from(item.chunksToDownload.first(), 1);
-                mHighPriorityQ.removeIfCompleted(item, chunkRange.toIndex());
-                startDataTask(item, chunkRange, HI_PRIO);
-            } else {
-                startHeadTask(item, HI_PRIO);
-            }
+        for (StreamItem item : mItemsNeedingHeadRequests) {
+            // also done from processHighPriorityQueue()
+            mItemsNeedingHeadRequests.remove(item);
+            startHeadTask(item, HI_PRIO);
         }
+        processItemQueue(mHighPriorityQ, HI_PRIO);
     }
 
+
     private void processLowPriorityQueue() {
-        for (StreamItem item : mLowPriorityQueue) {
-            if (item.unavailable) {
-                mLowPriorityQueue.remove(item);
-            } else if (item.getContentLength() != 0) {
-                Range chunkRange = Range.from(item.chunksToDownload.first(), 1);
-                startDataTask(item, chunkRange, LOW_PRIO);
-            } else {
-                startHeadTask(item, LOW_PRIO);
-            }
-        }
+        processItemQueue(mLowPriorityQueue, LOW_PRIO);
 
         for (StreamItem item : mItemsNeedingPlaycountRequests) {
-            if (item.redirectUrl() != null && !item.isRedirectExpired()) {
+            if (item.isRedirectValid()) {
                 mItemsNeedingPlaycountRequests.remove(item);
                 startPlaycountTask(item, LOW_PRIO);
             }
         }
+    }
+
+    private void processItemQueue(ItemQueue q, int prio) {
+        for (StreamItem item : q) {
+            if (!item.isAvailable()) q.remove(item);
+            //If there is a valid redirect for the item, download first chunk
+            else if (item.isRedirectValid()) {
+                final int firstChunk = item.chunksToDownload.first();
+                if (firstChunk < 0) {
+                    throw new AssertionError("firstChunk < 0 for "+item);
+                }
+                Range chunkRange = Range.from(firstChunk, 1);
+                q.removeIfCompleted(item, chunkRange.toIndex());
+                startDataTask(item, chunkRange, prio);
+            } else {
+                startHeadTask(item, prio);
+            }
+        }
+
     }
 
     private void updateLowPriorityQueue() {
@@ -258,7 +257,7 @@ public class StreamLoader {
                             NetworkConnectivityListener.State.values()[msg.arg2];
 
                     if (current == NetworkConnectivityListener.State.CONNECTED &&
-                        previous != NetworkConnectivityListener.State.NOT_CONNECTED) {
+                        previous == NetworkConnectivityListener.State.NOT_CONNECTED) {
 
                         Log.d(LOG_TAG, "reconnected, processing queues");
                         processQueues();
@@ -268,7 +267,7 @@ public class StreamLoader {
         }
     };
 
-    private Handler  mPlaycountHandler = new Handler() {
+    private Handler mPlaycountHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             String url = msg.obj.toString();
@@ -295,36 +294,33 @@ public class StreamLoader {
 
     private PlaycountTask startPlaycountTask(StreamItem item, int prio) {
         Log.d(LOG_TAG, "startPlaycountTask(" + item + ", prio=" + prio + ")");
-
         PlaycountTask task = new PlaycountTask(item, mContext);
-        Message msg = mHeadHandler.obtainMessage(prio, task);
-
-        mHeadHandler.sendMessage(msg);
+        mHeadHandler.sendMessage(mHeadHandler.obtainMessage(prio, task));
         return task;
     }
 
     private HeadTask startHeadTask(StreamItem item, int prio) {
         Log.d(LOG_TAG, "startHeadTask(" + item + ",prio=" + prio + ")");
+        if (item.isAvailable()) {
+            if (isConnected()) {
+                for (HeadTask ht : mHeadTasks) {
+                    if (ht.item.equals(item)) {
+                        return null;
+                    }
+                }
+                HeadTask ht = new HeadTask(item, mContext);
+                Message msg = mHeadHandler.obtainMessage(prio, ht);
+                mHeadHandler.sendMessage(msg);
 
-        if (item.unavailable) {
-            Log.d(LOG_TAG, String.format("Can't start head for %s: Item is unavailable.", item));
-            return null;
-        } else if (!isConnected()) {
-            mItemsNeedingHeadRequests.add(item);
-            return null;
-        }
-
-        for (HeadTask ht : mHeadTasks) {
-            if (ht.item.equals(item)) {
+                return ht;
+            } else {
+                mItemsNeedingHeadRequests.add(item);
                 return null;
             }
+        } else {
+            Log.d(LOG_TAG, String.format("Can't start head for %s: Item is unavailable.", item));
+            return null;
         }
-
-        HeadTask ht = new HeadTask(item, mContext);
-        Message msg = mHeadHandler.obtainMessage(prio, ht);
-        mHeadHandler.sendMessage(msg);
-
-        return ht;
     }
 
     // request pipeline

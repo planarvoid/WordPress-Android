@@ -22,14 +22,14 @@ class HeadTask extends StreamItemTask implements HttpStatus {
             Stream stream = api.resolveStreamUrl(item.url);
             Bundle b = new Bundle();
 //            b.putSerializable("stream", stream);
-            item.initializeFrom(stream);
+            item.initializeFromStream(stream);
             return b;
         } catch (CloudAPI.ResolverException e) {
             switch (e.getStatusCode()) {
                 case SC_PAYMENT_REQUIRED:
                 case SC_NOT_FOUND:
                 case SC_GONE:
-                    item.unavailable = true;
+                    item.markUnavailable();
                     break;
             }
             return null;

@@ -18,14 +18,14 @@ class ItemQueue implements Iterable<StreamItem> {
     }
 
     public boolean addItem(StreamItem item, Index chunksToDownload) {
-        if (item.unavailable) {
-            Log.e(StreamLoader.LOG_TAG, String.format("Can't add chunks for %s: Item is not available.", item));
-            return false;
-        } else {
+        if (item.isAvailable()) {
             item.chunksToDownload.or(chunksToDownload);
             return !item.chunksToDownload.isEmpty() /* only add to q if there's something to download */
                 && !mItems.contains(item)
                 && mItems.add(item);
+        } else {
+            Log.e(StreamLoader.LOG_TAG, String.format("Can't add chunks for %s: Item is not available.", item));
+            return false;
         }
     }
 
