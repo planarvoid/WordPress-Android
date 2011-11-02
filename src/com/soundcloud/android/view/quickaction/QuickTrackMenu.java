@@ -1,19 +1,13 @@
 package com.soundcloud.android.view.quickaction;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.ITracklistAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -26,12 +20,11 @@ public class QuickTrackMenu extends QuickAction {
     ActionItem mCommentActionItem;
     ActionItem mFavoriteActionItem;
 
-    private Drawable mFavoriteDrawable;
-    private Drawable mFavoritedDrawable;
+    private Drawable mLikeDrawable;
+    private Drawable mlikedDrawable;
 
     private Drawable mPlayDrawable;
     private Drawable mPauseDrawable;
-
 
     private ScActivity mActivity;
     private ITracklistAdapter mAdapter;
@@ -44,13 +37,13 @@ public class QuickTrackMenu extends QuickAction {
 
         mPlayActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_left_states), getPlayDrawable());
         //mPlayActionItem.setTitle("Play");
-        mFavoriteActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), getFavoriteDrawable());
+        mFavoriteActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), getLikeDrawable());
         //mFavoriteActionItem.setTitle("Favorite");
         mCommentActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), mActivity.getResources().getDrawable(R.drawable.ic_submenu_comment_states));
         //mCommentActionItem.setTitle("Comment");
         mShareActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), mActivity.getResources().getDrawable(R.drawable.ic_submenu_share_states));
         //mShareActionItem.setTitle(("Share"));
-        mProfileActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_right_states), mActivity.getResources().getDrawable(R.drawable.ic_profile_states));
+        mProfileActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_right_states), mActivity.getResources().getDrawable(R.drawable.avatar_badge));
         //mProfileActionItem.setTitle("Profile");
 
         addActionItem(mPlayActionItem);
@@ -67,7 +60,7 @@ public class QuickTrackMenu extends QuickAction {
                 ? getPauseDrawable() : getPlayDrawable());
 
         mShareActionItem.setVisibility(track.isPublic() ? View.VISIBLE : View.GONE);
-        mFavoriteActionItem.setIcon(track.user_favorite ? getFavoritedDrawable() : getFavoriteDrawable());
+        mFavoriteActionItem.setIcon(track.user_favorite ? getLikedDrawable() : getLikeDrawable());
 
         if (!track.hasAvatar() ||
                 ImageUtils.loadImageSubstitute(mActivity, mProfileActionItem.getIconView(), track.user.avatar_url,
@@ -136,16 +129,16 @@ public class QuickTrackMenu extends QuickAction {
         return mPlayDrawable;
     }
 
-    private Drawable getFavoriteDrawable() {
-        if (mFavoriteDrawable == null)
-            mFavoriteDrawable = mContext.getResources().getDrawable(R.drawable.ic_like_states_v1);
-        return mFavoriteDrawable;
+    private Drawable getLikeDrawable() {
+        if (mLikeDrawable == null)
+            mLikeDrawable = mContext.getResources().getDrawable(R.drawable.ic_submenu_like_states);
+        return mLikeDrawable;
     }
 
-    private Drawable getFavoritedDrawable() {
-        if (mFavoritedDrawable == null)
-            mFavoritedDrawable = mContext.getResources().getDrawable(R.drawable.ic_liked_states_v1);
-        return mFavoritedDrawable;
+    private Drawable getLikedDrawable() {
+        if (mlikedDrawable == null)
+            mlikedDrawable = mContext.getResources().getDrawable(R.drawable.ic_submenu_liked_states);
+        return mlikedDrawable;
     }
 
 
