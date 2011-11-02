@@ -424,10 +424,6 @@
   <string name="track">sound</string>
   <string name="track_by">by</string>
   <string name="track_count">number of sounds</string>
-  <plurals name="track_info_favoriters">
-    <item quantity="one">1 person favorited it</item>
-    <item quantity="other">%d people favorited it</item>
-  </plurals>
   <string name="tracklist_empty">No sounds available</string>
   <string name="tracklist_error">Unable to get sounds</string>
   <string name="tracklist_item_shared_with_x_people">%d People</string>

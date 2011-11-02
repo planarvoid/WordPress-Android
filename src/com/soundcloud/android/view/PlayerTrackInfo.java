@@ -51,17 +51,18 @@ public class PlayerTrackInfo extends RelativeLayout{
         mPlayer = player;
 
         mTrackTags = (FlowLayout) findViewById(R.id.tags_holder);
-                mFavoritersTxt = (TextView) findViewById(R.id.favoriters_txt);
-                mFavoritersTxt.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mPlayingTrack != null) {
-                            Intent i = new Intent(mPlayer, TrackFavoriters.class);
-                            i.putExtra("track_id", mPlayingTrack.id);
-                            mPlayer.startActivity(i);
-                        }
-                    }
-                });
+        mFavoritersTxt = (TextView) findViewById(R.id.favoriters_txt);
+        mFavoritersTxt.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPlayingTrack != null) {
+                    Intent i = new Intent(mPlayer, TrackFavoriters.class);
+                    i.putExtra("track_id", mPlayingTrack.id);
+                    mPlayer.startActivity(i);
+                }
+            }
+        });
+
         mCommentersTxt = (TextView) findViewById(R.id.commenters_txt);
         mCommentersTxt.setOnClickListener(new OnClickListener() {
             @Override
@@ -116,6 +117,14 @@ public class PlayerTrackInfo extends RelativeLayout{
                 mFavoritersTxt.setVisibility(View.VISIBLE);
                 mFavoritersTxt.setText(getResources().getQuantityString(R.plurals.track_info_favoriters,
                         mPlayingTrack.favoritings_count,mPlayingTrack.favoritings_count));
+            }
+
+            if (mPlayingTrack.comment_count == 0) {
+                mCommentersTxt.setVisibility(View.GONE);
+            } else {
+                mCommentersTxt.setVisibility(View.VISIBLE);
+                mCommentersTxt.setText(getResources().getQuantityString(R.plurals.track_info_commenters,
+                        mPlayingTrack.comment_count,mPlayingTrack.comment_count));
             }
 
             mTrackTags.removeAllViews();
