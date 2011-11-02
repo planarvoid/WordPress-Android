@@ -1,7 +1,6 @@
 package com.soundcloud.android.streaming;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -41,27 +40,27 @@ public class StreamFuture implements Future<ByteBuffer> {
     }
 
     @Override
-    public ByteBuffer get() throws InterruptedException, ExecutionException {
-        return get(-1);
+    public ByteBuffer get() throws InterruptedException {
+        try {
+            return get(-1);
+        } catch (TimeoutException e) {
+            throw new InterruptedException(e.getMessage());
+        }
     }
 
     @Override
-    public ByteBuffer get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
+    public ByteBuffer get(long l, TimeUnit timeUnit) throws InterruptedException, TimeoutException {
         return get(timeUnit.toMillis(l));
     }
 
-    private ByteBuffer get(long millis) throws InterruptedException, ExecutionException {
+    private ByteBuffer get(long millis) throws InterruptedException, TimeoutException {
         synchronized (this) {
             while (!ready) {
-                try {
-                    if (millis < 0) {
-                        wait();
-                    } else {
-                        wait(millis);
-                        break;
-                    }
-                } catch (InterruptedException e) {
-                    return null;
+                if (millis < 0) {
+                    wait();
+                } else {
+                    wait(millis);
+                    if (!ready) throw new TimeoutException();
                 }
             }
         }

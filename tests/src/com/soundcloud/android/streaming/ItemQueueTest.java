@@ -54,7 +54,7 @@ public class ItemQueueTest {
     public void shouldNotAddUnavailableItemToQueue() throws Exception {
         ItemQueue q = new ItemQueue();
         StreamItem item = new StreamItem("/foo");
-        item.unavailable = true;
+        item.markUnavailable();
         expect(q.addItem(item, Index.create(1))).toBeFalse();
     }
 }

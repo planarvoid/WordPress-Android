@@ -1,19 +1,34 @@
 package com.soundcloud.android.streaming;
 
+import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.soundcloud.android.Consts;
-
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.*;
-
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class StreamStorage {
     static final String LOG_TAG = StreamStorage.class.getSimpleName();
@@ -31,18 +46,18 @@ public class StreamStorage {
     private Map<String, StreamItem> mItems = new HashMap<String, StreamItem>();
     private Set<String> mConvertingUrls = new HashSet<String>();
 
-    private boolean mPerformCleanup;
+    private final int mCleanupInterval;
 
     public StreamStorage(Context context, File basedir) {
-        this(context, basedir, DEFAULT_CHUNK_SIZE, true);
+        this(context, basedir, DEFAULT_CHUNK_SIZE, CLEANUP_INTERVAL);
     }
 
-    public StreamStorage(Context context, File basedir, int chunkSize, boolean performCleanup) {
+    public StreamStorage(Context context, File basedir, int chunkSize, int cleanupInterval) {
         mContext = context;
         mBaseDir = basedir;
         mIncompleteDir = new File(mBaseDir, "Incomplete");
         mCompleteDir = new File(mBaseDir, "Complete");
-        mPerformCleanup = performCleanup;
+        mCleanupInterval = cleanupInterval;
 
         mkdirs(mIncompleteDir);
         mkdirs(mCompleteDir);
@@ -54,6 +69,7 @@ public class StreamStorage {
         try {
             File indexFile = incompleteIndexFileForUrl(item.url);
             if (indexFile.exists() && !indexFile.delete()) Log.w(LOG_TAG, "could not delete "+indexFile);
+            mkdirs(indexFile.getParentFile());
             DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
             item.write(dos);
             dos.close();
@@ -77,16 +93,16 @@ public class StreamStorage {
         if (item == null) throw new FileNotFoundException("stored data not found");
 
         Range actualRange = range;
-        if (item.getContentLength() != 0) {
+        if (item.getContentLength() > 0) {
             actualRange = range.intersection(Range.from(0, item.getContentLength()));
             if (actualRange == null) {
-                throw new IOException("Invalid range, outside content length. Requested range " + range + " from item " + url);
+                throw new IOException("Invalid range, outside content length. Requested range " + range + " from item " + item);
             }
         }
         Range chunkRange = actualRange.chunkRange(chunkSize);
         ByteBuffer data = ByteBuffer.allocate(chunkRange.length * chunkSize);
-        for (int chunkIndex : chunkRange) {
-            data.put(getChunkData(url, chunkIndex));
+        for (int index : chunkRange) {
+            data.put(getChunkData(url, index));
         }
         data.limit(actualRange.length);
         data.rewind();
@@ -114,25 +130,21 @@ public class StreamStorage {
 
         // Prepare incomplete file
         StreamItem item = getMetadata(url);
-        verifyMetadata(url);
-
         if (item == null) throw new IllegalStateException("trying to store data for unknown item");
 
-        List<Integer> downloadedChunks = item.downloadedChunks;
-
         // return if it's already in store
-        if (downloadedChunks.contains(chunkIndex)) return false;
+        if (item.downloadedChunks.contains(chunkIndex)) return false;
 
         final File incompleteFile = incompleteFileForUrl(url);
 
         appendToFile(data, incompleteFile);
 
         // Add Index and save it
-        downloadedChunks.add(chunkIndex);
+        item.downloadedChunks.add(chunkIndex);
         storeMetadata(item);
 
-        if (downloadedChunks.size() == item.numberOfChunks(chunkSize)) {
-            new ConvertFileToComplete(item.getContentLength(), chunkSize, downloadedChunks) {
+        if (item.downloadedChunks.size() == item.numberOfChunks(chunkSize)) {
+            new CompleteFileTask(item.getContentLength(), chunkSize, item.downloadedChunks) {
                 @Override protected void onPreExecute() {
                     mConvertingUrls.add(url);
                 }
@@ -145,22 +157,26 @@ public class StreamStorage {
             }.execute(incompleteFile, completeFileForUrl(url));
         }
 
-        if (mPerformCleanup) {
+        if (mCleanupInterval > 0) {
             //Update the number of writes, cleanup if necessary
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
             final int currentCount = prefs.getInt(STREAMING_WRITES_SINCE_CLEANUP, 0) + 1;
             prefs.edit().putInt(STREAMING_WRITES_SINCE_CLEANUP, currentCount).commit();
 
-            if (currentCount >= CLEANUP_INTERVAL) {
+            if (currentCount >= mCleanupInterval) {
                 calculateFileMetrics();
-                cleanup();
+                if (cleanup()) {
+                    if (SoundCloudApplication.DEV_MODE) {
+                        // print file stats again
+                        calculateFileMetrics();
+                    }
+                }
             }
         }
         return true;
     }
 
     public ByteBuffer getChunkData(String url, int chunkIndex) throws IOException {
-        verifyMetadata(url);
         if (completeFileForUrl(url).exists()) {
             return completeDataForChunk(url, chunkIndex);
         } else {
@@ -169,21 +185,19 @@ public class StreamStorage {
     }
 
     public Index getMissingChunksForItem(String url, Range chunkRange) {
-        verifyMetadata(url);
         //we have everything if the complete file exists
         if (completeFileForUrl(url).exists()) {
             return Index.empty();
         } else {
-            StreamItem md = getMetadata(url);
+            StreamItem item = getMetadata(url);
             //We have no idea about track size, so let's assume that all chunks are missing
-            if (md == null || md.getContentLength() == 0) {
+            if (item == null || item.getContentLength() == 0) {
                 return chunkRange.toIndex();
             } else {
-                long lastChunk = (long) Math.ceil((double) md.getContentLength() / (double) chunkSize) - 1;
-                List<Integer> allIncompleteIndexes = md.downloadedChunks;
+                long lastChunk = (long) Math.ceil((double) item.getContentLength() / (double) chunkSize) - 1;
                 final Index missingIndexes = new Index();
                 for (int chunk : chunkRange) {
-                    if (!allIncompleteIndexes.contains(chunk) && chunk <= lastChunk) {
+                    if (!item.downloadedChunks.contains(chunk) && chunk <= lastChunk) {
                         missingIndexes.set(chunk);
                     }
                 }
@@ -210,10 +224,11 @@ public class StreamStorage {
     }
 
     private boolean appendToFile(ByteBuffer data, File incompleteFile) throws IOException {
-        // always write chunk size even if it isn't a complete chunk (for offsetting)
+        mkdirs(incompleteFile.getParentFile());
         final int length = data.remaining();
         FileChannel fc = new FileOutputStream(incompleteFile, true).getChannel();
         fc.write(data);
+        // always write chunk size even if it isn't a complete chunk (for offsetting)
         if (length < chunkSize) {
             fc.write(ByteBuffer.allocate(chunkSize - length));
         }
@@ -290,19 +305,23 @@ public class StreamStorage {
         }
     }
 
-    private void cleanup() {
+    private boolean cleanup() {
         if (!mConvertingUrls.isEmpty()) {
             Log.d(LOG_TAG, "Not doing storage cleanup, conversion is going on");
-            return;
+            return false;
         } else {
-            Log.d(LOG_TAG, "performing cleanup");
+            // reset counter
+            PreferenceManager.getDefaultSharedPreferences(mContext)
+                    .edit()
+                    .putInt(STREAMING_WRITES_SINCE_CLEANUP, 0).commit();
+
+            if (mUsedSpace <= Consts.TRACK_MAX_CACHE &&
+                mSpaceLeft >= Consts.TRACK_CACHE_MIN_FREE_SPACE) return false;
         }
 
-        PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(STREAMING_WRITES_SINCE_CLEANUP, 0).commit();
+        Log.d(LOG_TAG, "performing cleanup");
 
-        if (mUsedSpace <= Consts.TRACK_MAX_CACHE && mSpaceLeft >= Consts.TRACK_CACHE_MIN_FREE_SPACE) return;
-
-        List<File> files = new ArrayList<File>();
+        final List<File> files = new ArrayList<File>();
         files.addAll(Arrays.asList(mIncompleteDir.listFiles()));
         files.addAll(Arrays.asList(mCompleteDir.listFiles()));
         Collections.sort(files, FileLastModifiedComparator.INSTANCE);
@@ -324,12 +343,14 @@ public class StreamStorage {
             }
             if (cleanedSpace >= spaceToClean) break;
         }
+        return true;
     }
 
     /* package */ void calculateFileMetrics() {
         mSpaceLeft = getSpaceLeft();
         mUsedSpace = getUsedSpace();
-        Log.d(LOG_TAG, "[File Metrics] used: " + mUsedSpace + " , free: " + mSpaceLeft);
+        Log.d(LOG_TAG, String.format("[File Metrics]  %.1f mb used, %.1f mb free",
+                mUsedSpace/1024*1024d, mSpaceLeft/1024*1024d));
     }
 
     /* package */ long getUsedSpace() {
@@ -365,8 +386,8 @@ public class StreamStorage {
         */
     }
 
-    private static class FileLastModifiedComparator implements Comparator<File> {
-        static FileLastModifiedComparator INSTANCE = new FileLastModifiedComparator();
+    /* package */ static class FileLastModifiedComparator implements Comparator<File> {
+        static final FileLastModifiedComparator INSTANCE = new FileLastModifiedComparator();
         @Override
         public int compare(File f1, File f2) {
             return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());

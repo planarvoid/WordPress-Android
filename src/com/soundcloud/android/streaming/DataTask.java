@@ -54,7 +54,7 @@ class DataTask extends StreamItemTask {
             case HttpStatus.SC_PAYMENT_REQUIRED:
             case HttpStatus.SC_NOT_FOUND:
             case HttpStatus.SC_GONE:
-                item.unavailable = true;
+                item.markUnavailable();
                 break;
 
             default:

@@ -11,12 +11,12 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.List;
 
-class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
+class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
     private long mContentLength;
     private List<Integer> mIndexes;
     private int mChunkSize;
 
-    public ConvertFileToComplete(long length, int chunkSize, List<Integer> indexes) {
+    public CompleteFileTask(long length, int chunkSize, List<Integer> indexes) {
         mIndexes = indexes;
         mChunkSize = chunkSize;
         mContentLength = length;
@@ -33,9 +33,8 @@ class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
             Log.e(LOG_TAG, "Complete file already exists at path " + completeFile.getAbsolutePath());
             return false;
         }
-
         // optimization - if chunks have been written in order, just move and truncate file
-        if (isOrdered(mIndexes)) {
+        else if (isOrdered(mIndexes)) {
             Log.d(LOG_TAG, "chunk file is already in order, moving");
             return move(chunkFile, completeFile);
         } else {
@@ -60,7 +59,7 @@ class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
         return false;
     }
 
-    private boolean isOrdered(List<Integer> indexes) {
+    private boolean isOrdered(Iterable<Integer> indexes) {
         int last = 0;
         for (int i : indexes) {
             if (last > i) return false;
@@ -72,7 +71,6 @@ class ConvertFileToComplete extends AsyncTask<File, Integer, Boolean> {
     private Boolean reassembleFile(File chunkFile, File completeFile) {
         FileOutputStream fos = null;
         RandomAccessFile raf = null;
-
         try {
             fos = new FileOutputStream(completeFile);
             raf = new RandomAccessFile(chunkFile, "r");
