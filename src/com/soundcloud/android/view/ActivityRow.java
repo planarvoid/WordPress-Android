@@ -1,11 +1,14 @@
 package com.soundcloud.android.view;
 
+import android.os.Parcelable;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -20,6 +23,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Date;
+
 public class ActivityRow extends LazyRow {
     private Event mEvent;
     private final TextView mUser;
@@ -31,6 +36,10 @@ public class ActivityRow extends LazyRow {
     private Drawable mCommentedPressedDrawable;
     private SpannableStringBuilder mSpanBuilder;
 
+    protected enum ActivityType {
+        Comment,Favorite
+    }
+
     public ActivityRow(ScActivity activity, LazyBaseAdapter adapter) {
         super(activity, adapter);
 
@@ -41,14 +50,54 @@ public class ActivityRow extends LazyRow {
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mEvent == null || mEvent.getUser() == null) return;
+                final User u = getOriginUser();
+                if (u == null) return;
+
                 Intent intent = new Intent(mActivity, UserBrowser.class);
-                intent.putExtra("user", mEvent.getUser());
+                intent.putExtra("user", u);
                 mActivity.startActivity(intent);
             }
         });
         mIcon.setFocusable(false);
     }
+
+    // override these for non-dashboard activities to account for different parcelable structures
+
+    protected boolean fillParcelable(Parcelable p){
+        mEvent = (Event) p;
+        return mEvent != null;
+    }
+
+    protected ActivityType getType(){
+        if (mEvent.origin instanceof Comment){
+            return ActivityType.Comment;
+        } else return ActivityType.Favorite;
+    }
+
+    protected Track getTrack(){
+        return mEvent.getTrack();
+    }
+
+    protected Comment getComment(){
+        return (mEvent.origin instanceof Comment) ? (Comment) mEvent.origin : null;
+    }
+
+    protected User getOriginUser(){
+        return (mEvent == null || mEvent.getUser() == null) ? null : mEvent.getUser();
+    }
+
+    protected Date getOriginCreatedAt(){
+        return mEvent.created_at;
+    }
+
+    @Override
+    public String getIconRemoteUri() {
+        if (mEvent == null || mEvent.getUser() == null || mEvent.getUser().avatar_url == null) return "";
+        return ImageUtils.formatGraphicsUriForList(mActivity, mEvent.getUser().avatar_url);
+    }
+
+    // end override
+
 
     @Override
     protected int getRowResourceId() {
@@ -58,35 +107,34 @@ public class ActivityRow extends LazyRow {
     /** update the views with the data corresponding to selection index */
     @Override
     public void display(int position) {
-        mEvent = (Event) mAdapter.getItem(position);
+        boolean isNull = !fillParcelable((Parcelable) mAdapter.getItem(position));
 
         super.display(position);
 
-        if (mEvent == null)
-            return;
+        if (isNull) return;
 
         mSpanBuilder = new SpannableStringBuilder();
         mSpanBuilder.append("  ");
-        mSpanBuilder.append(mEvent.getTrack().title);
+        mSpanBuilder.append(getTrack().title);
 
-        if (mEvent.origin instanceof Comment){
+        if (getType() == ActivityType.Comment){
             mSpanBuilder.append(": ");
             mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            mSpanBuilder.append("\"").append(((Comment)mEvent.origin).body).append("\"");
+            mSpanBuilder.append("\"").append(getComment().body).append("\"");
         } else {
             mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         setImageSpan();
         
-        mUser.setText(mEvent.getUser().username);
-        mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), mEvent.created_at.getTime()));
+        mUser.setText(getOriginUser().username);
+        mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), getOriginCreatedAt().getTime()));
 
     }
     
     private void setImageSpan(){
         if (mSpanBuilder == null) return;
-        if (mEvent.type.contentEquals(Event.Types.COMMENT)){
+        if (getType() == ActivityType.Comment){
              mSpanBuilder.setSpan(new ImageSpan(isPressed() ?
                        getmCommentedPressedDrawable() :
                      getmCommentedDrawable(),ImageSpan.ALIGN_BASELINE), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -101,14 +149,6 @@ public class ActivityRow extends LazyRow {
     @Override
     public ImageView getRowIcon() {
         return mIcon;
-    }
-
-    @Override
-    public String getIconRemoteUri() {
-        if (mEvent == null || mEvent.getUser() == null || mEvent.getUser().avatar_url == null)
-            return "";
-
-        return ImageUtils.formatGraphicsUriForList(mActivity, mEvent.getUser().avatar_url);
     }
 
     @Override

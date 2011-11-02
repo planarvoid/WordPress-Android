@@ -78,11 +78,13 @@
     </string>
 
     <plurals name="track_info_commenters">
-        <item quantity="one">1 person commented on it</item>
-        <item quantity="other">%d people commented on it</item>
+        <item quantity="one">1 comment on this sound</item>
+        <item quantity="other">%d comments on this sound</item>
     </plurals>
     <plurals name="track_info_favoriters">
         <item quantity="one">1 person liked it</item>
         <item quantity="other">%d people liked it</item>
     </plurals>
+
+    <string name="list_header_track_comments">Comments on this sound</string>
 </resources>
