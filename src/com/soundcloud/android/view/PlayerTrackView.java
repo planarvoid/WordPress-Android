@@ -64,7 +64,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     private int mViewWidth = 0;
     private int mTouchSlop;
 
-    private String mCurrentDurationString;
     private ImageLoader.BindResult mCurrentAvatarBindResult;
     private Drawable mFavoriteDrawable, mFavoritedDrawable;
 
@@ -94,7 +93,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         } else {
             mLandscape = true;
         }
-
 
         mAvatar = (ImageView) findViewById(R.id.icon);
         mAvatar.setBackgroundDrawable(getResources().getDrawable(R.drawable.avatar_badge));
@@ -183,9 +181,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
             if (mDuration != mTrack.duration) {
                 mDuration = mTrack.duration;
-                if (mDuration != 0) {
-                    mCurrentDurationString = CloudUtils.formatTimestamp(mDuration);
-                }
             }
 
             setFavoriteStatus();
@@ -211,7 +206,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                 }
 
                 if (mTrack.comments != null) {
-                    setCurrentComments(true);
+                    mWaveformController.setComments(mTrack.comments, true);
                 } else {
                     refreshComments();
                 }
@@ -247,23 +242,12 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     public void onCommentsLoaded(long track_id, List<Comment> comments){
         if (mTrack != null && mTrack.id == track_id){
             mTrack.comments = comments;
-            setCurrentComments(true);
+            mWaveformController.setComments(mTrack.comments, true);
         }
-    }
-
-    private void setCurrentComments(boolean animateIn){
-        mWaveformController.setComments(mTrack.comments, animateIn);
-        if (mTrackInfo != null) {
-            mTrackInfo.clearIsTrackInfoCommentsFilled();
-            if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
-                mTrackInfo.fillTrackInfoComments();
-            }
-        }
-
     }
 
     private void updateArtwork() {
-        if (TextUtils.isEmpty(mTrack.artwork_url)) {
+        if (TextUtils.isEmpty(mTrack.getArtwork())) {
             // no artwork
             ImageLoader.get(getContext()).unbind(mArtwork);
             mArtwork.setVisibility(View.INVISIBLE);
@@ -272,7 +256,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             if ((mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
                     getContext(),
                     mArtwork,
-                    mTrack.artwork_url,
+                    mTrack.getArtwork(),
                     Consts.GraphicSize.T500, new ImageLoader.Callback() {
                 @Override
                 public void onImageError(ImageView view, String url, Throwable error) {
@@ -332,8 +316,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             }
 
             if (!mTrackInfo.getIsTrackInfoFilled()) mTrackInfo.fillTrackDetails();
-            if (!mTrackInfo.getIsTrackInfoCommentsFilled()) mTrackInfo.fillTrackInfoComments();
-
 
             mTrackFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
             mTrackFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
@@ -593,13 +575,13 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
             showUnplayable();
         } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
-            setCurrentComments(true);
+            mWaveformController.setComments(mTrack.comments, true);
         } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
              mWaveformController.stopSmoothProgress();
         } else if (action.equals(Consts.IntentActions.COMMENT_ADDED)) {
             final Comment c = intent.getParcelableExtra("comment");
             if (c.track_id == mTrack.id) {
-                setCurrentComments(true);
+                mWaveformController.setComments(mTrack.comments, true);
                 mWaveformController.showNewComment(c);
             }
         }
@@ -624,9 +606,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     public void onRefresh() {
         if (mTrackInfo != null) {
             mTrackInfo.clearIsTrackInfoFilled();
-            mTrackInfo.clearIsTrackInfoCommentsFilled();
             mTrackInfo.fillTrackDetails();
-            mTrackInfo.fillTrackInfoComments();
         }
         refreshComments();
     }
