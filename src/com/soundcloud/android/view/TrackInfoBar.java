@@ -43,8 +43,6 @@ public class TrackInfoBar extends RelativeLayout {
     private Drawable mVeryPrivateBgDrawable;
     private Drawable mPlayingDrawable;
 
-    private boolean mInactive;
-
     private ImageView mIcon;
 
     public TrackInfoBar(Context context, AttributeSet attrs) {
@@ -127,16 +125,6 @@ public class TrackInfoBar extends RelativeLayout {
 
         setTrackTime(p);
         if (mTrack.user != null) mUser.setText(mTrack.user.username);
-
-        if (!mTrack.isStreamable() && !mInactive) {
-            mTitle.setTextAppearance(getContext(), R.style.txt_list_main_inactive);
-            mTitle.invalidate();
-            mInactive = true;
-        } else if (mInactive){
-            mTitle.setTextAppearance(getContext(), R.style.txt_list_main);
-            mTitle.invalidate();
-            mInactive = false;
-        }
 
         if (mTrack.sharing == null || mTrack.sharing.contentEquals("public")) {
             mPrivateIndicator.setVisibility(View.GONE);
