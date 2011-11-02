@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import android.view.animation.Transformation;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.ITracklistAdapter;
@@ -36,6 +37,14 @@ public class TracklistRow extends LazyRow {
         }
     }
 
+     @Override
+    protected boolean getChildStaticTransformation(View child, Transformation t) {
+         super.getChildStaticTransformation(child, t);
+         t.setAlpha((float) 0.4);
+         return true;
+
+     }
+
     private void configureQuickActionMenu(){
 
     }
@@ -53,8 +62,12 @@ public class TracklistRow extends LazyRow {
         final Parcelable p = (Parcelable) mAdapter.getItem(position);
         mTrack = getTrackFromParcelable(p);
         super.display(position);
+        if (mTrack.isStreamable()){
+            setStaticTransformationsEnabled(false);
+        } else {
+            setStaticTransformationsEnabled(true);
+        }
         mTrackInfoBar.display(p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false);
-
     }
 
     protected Track getTrackFromParcelable(Parcelable p) {
