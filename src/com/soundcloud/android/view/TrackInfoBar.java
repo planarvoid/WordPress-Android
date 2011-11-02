@@ -43,7 +43,10 @@ public class TrackInfoBar extends RelativeLayout {
     private Drawable mVeryPrivateBgDrawable;
     private Drawable mPlayingDrawable;
 
+    private boolean mShouldLoadIcon;
+
     private ImageView mIcon;
+    private ImageLoader.BindResult mCurrentIconBindResult;
 
     public TrackInfoBar(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -119,6 +122,7 @@ public class TrackInfoBar extends RelativeLayout {
 
     /** update the views with the data corresponding to selection index */
     public void display(Parcelable p, boolean shouldLoadIcon, long playingId, boolean keepHeight, long currentUserId) {
+        mShouldLoadIcon = shouldLoadIcon;
         mTrack = p instanceof Event ? ((Event) p).getTrack() :
                  p instanceof Track ? (Track) p : null;
         if (mTrack == null) return;
@@ -167,10 +171,32 @@ public class TrackInfoBar extends RelativeLayout {
         if (shouldLoadIcon) loadIcon();
     }
 
+    public void onConnected(){
+        if (mCurrentIconBindResult == ImageLoader.BindResult.ERROR && mShouldLoadIcon){
+            loadIcon();
+        }
+    }
+
     private void loadIcon() {
         final String iconUrl = mTrack == null ? null : ImageUtils.formatGraphicsUriForList(getContext(),mTrack.getArtwork());
         if (TextUtils.isEmpty(iconUrl)) {
+            mCurrentIconBindResult = ImageLoader.BindResult.OK;
             ImageLoader.get(getContext()).unbind(mIcon); // no artwork
+        } else {
+            mCurrentIconBindResult = ImageLoader.get(getContext()).bind(mIcon,
+                    iconUrl,
+                    new ImageLoader.Callback() {
+                        @Override
+                        public void onImageError(ImageView view, String url, Throwable error) {
+                            mCurrentIconBindResult = ImageLoader.BindResult.ERROR;
+                        }
+
+                        @Override
+                        public void onImageLoaded(ImageView view, String url) {
+                            mCurrentIconBindResult = ImageLoader.BindResult.OK;
+                        }
+
+                    }, new ImageLoader.Options(true, true));
         }
     }
 

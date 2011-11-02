@@ -28,7 +28,7 @@
     <TextView android:id="@+id/created_at"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              style="@style/txt_list_sub_secondary"
+              style="@style/txt_list_created_at"
               android:layout_marginRight="@dimen/list_text_margin_right"
               android:layout_alignTop="@id/icon"
               android:paddingLeft="0dip"

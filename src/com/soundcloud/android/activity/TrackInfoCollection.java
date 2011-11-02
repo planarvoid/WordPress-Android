@@ -24,6 +24,7 @@ import java.util.ArrayList;
 public abstract class TrackInfoCollection extends ScActivity implements SectionedEndlessAdapter.SectionListener, LoadTrackInfoTask.LoadTrackInfoListener {
 
     Track mTrack;
+    TrackInfoBar mTrackInfoBar;
     SectionedListView mListView;
 
     @Override
@@ -31,24 +32,28 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
         super.onCreate(bundle);
         setContentView(R.layout.track_info_collection);
 
+
         Intent i = getIntent();
         if (!i.hasExtra("track_id")) throw new IllegalArgumentException("No track id supplied with intent");
         mTrack = getApp().getTrackFromCache(i.getLongExtra("track_id", 0));
 
+        mTrackInfoBar = ((TrackInfoBar) findViewById(R.id.track_info_bar));
+
         // overly cautious, should never happen
         if (mTrack == null) return;
 
-        ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(mTrack, true, -1, true, getCurrentUserId());
-        findViewById(R.id.track_info_bar).setOnClickListener(new View.OnClickListener() {
+
+        mTrackInfoBar.display(mTrack, true, -1, true, getCurrentUserId());
+        mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 playTrack(mTrack, true);
             }
         });
 
-        SectionedUserlistAdapter userAdapter = new SectionedUserlistAdapter(this);
-        SectionedEndlessAdapter userAdapterWrapper = new SectionedEndlessAdapter(this, userAdapter, true);
-        userAdapterWrapper.addListener(this);
+        SectionedAdapter adapter = createSectionedAdapter();
+        SectionedEndlessAdapter adapterWrapper = new SectionedEndlessAdapter(this, adapter, true);
+        adapterWrapper.addListener(this);
 
         mListView = new SectionedListView(this);
         configureList(mListView);
@@ -56,11 +61,11 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 
 
-        userAdapterWrapper.configureViews(mListView);
-        userAdapterWrapper.setEmptyViewText(getResources().getString(R.string.empty_list));
-        mListView.setAdapter(userAdapterWrapper, true);
+        adapterWrapper.configureViews(mListView);
+        adapterWrapper.setEmptyViewText(getResources().getString(R.string.empty_list));
+        mListView.setAdapter(adapterWrapper, true);
 
-        userAdapter.sections.add(createSection());
+        adapter.sections.add(createSection());
 
         if (!mTrack.info_loaded) {
             if (CloudUtils.isTaskFinished(mTrack.load_info_task)) {
@@ -78,6 +83,8 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
             mListView.getWrapper().restoreState(mPreviousState);
         }
     }
+
+    protected abstract SectionedAdapter createSectionedAdapter();
 
     abstract protected SectionedAdapter.Section createSection();
 
@@ -100,5 +107,11 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
 
     @Override
     public void onTrackInfoError(long trackId) {
+    }
+
+    @Override
+    public void onDataConnectionChanged(boolean isConnected){
+        super.onDataConnectionChanged(isConnected);
+        if (isConnected) mTrackInfoBar.onConnected();
     }
 }

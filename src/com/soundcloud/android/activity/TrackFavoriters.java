@@ -30,6 +30,11 @@ public class TrackFavoriters extends TrackInfoCollection {
     }
 
     @Override
+    protected SectionedAdapter createSectionedAdapter() {
+        return new SectionedUserlistAdapter(this);
+    }
+
+    @Override
     protected SectionedAdapter.Section createSection() {
         return new SectionedAdapter.Section(getString(R.string.list_header_track_favoriters),
                 User.class, new ArrayList<Parcelable>(), Request.to(Endpoints.TRACK_FAVORITERS, mTrack.id));

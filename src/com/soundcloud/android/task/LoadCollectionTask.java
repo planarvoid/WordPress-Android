@@ -4,14 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.model.ModelBase;
-import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TracklistItem;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserlistItem;
+import com.soundcloud.android.model.*;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
@@ -121,6 +114,11 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
             for (Friend f : (FriendHolder) holder) {
                 items.add(f);
             }
+        } else if (Comment.class.equals(loadModel)) {
+            holder = mApp.getMapper().readValue(is, CommentHolder.class);
+            for (Comment f : (CommentHolder) holder) {
+                items.add(f);
+            }
         }
         return holder;
     }
@@ -129,4 +127,5 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
     public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
     public static class FriendHolder extends CollectionHolder<Friend> {}
+    public static class CommentHolder extends CollectionHolder<Comment> {}
 }

@@ -58,7 +58,6 @@ public class SearchHistoryAdapter extends BaseAdapter {
             holder = new WeatherHolder();
             holder.iv_search_type = (ImageView) row.findViewById(R.id.iv_search_type);
             holder.tv_query = (TextView) row.findViewById(R.id.tv_query);
-            holder.tv_created_at = (TextView) row.findViewById(R.id.tv_created_at);
 
             row.setTag(holder);
         } else {
@@ -66,14 +65,13 @@ public class SearchHistoryAdapter extends BaseAdapter {
         }
 
         SearchHistoryItem history = data.get(position);
-        holder.tv_created_at.setText(history.created_at > 0 ? CloudUtils.getTimeElapsed(context.getResources(), history.created_at) : "");
         holder.tv_query.setText(history.query);
         switch (history.search_type) {
             case 0:
-                holder.iv_search_type.setImageResource(R.drawable.ic_user_tab_sounds);
+                holder.iv_search_type.setImageResource(R.drawable.ic_search_sound);
                 break;
             case 1:
-                holder.iv_search_type.setImageResource(R.drawable.ic_profile_states);
+                holder.iv_search_type.setImageResource(R.drawable.ic_search_people);
                 break;
         }
 
@@ -83,6 +81,6 @@ public class SearchHistoryAdapter extends BaseAdapter {
     static class WeatherHolder {
         ImageView iv_search_type;
         TextView tv_query;
-        TextView tv_created_at;
+        //TextView tv_created_at;
     }
 }

@@ -23,6 +23,7 @@ import com.soundcloud.android.cache.LruCache;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
@@ -481,6 +482,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     @Override
     public Stream resolveStreamUrl(String uri) throws IOException {
         return mCloudApi.resolveStreamUrl(uri);
+    }
+
+    public void clearUserDbData() {
+        getContentResolver().delete(DatabaseHelper.Searches.CONTENT_URI,DatabaseHelper.Searches.USER_ID + " = ?",new String[]{String.valueOf(getCurrentUserId())});
     }
 
     public static interface RecordListener {

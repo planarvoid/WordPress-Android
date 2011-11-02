@@ -2,6 +2,7 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.activity.TrackComments;
 import com.soundcloud.android.activity.TrackFavoriters;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
@@ -68,7 +69,7 @@ public class PlayerTrackInfo extends RelativeLayout{
             @Override
             public void onClick(View v) {
                 if (mPlayingTrack != null) {
-                    Intent i = new Intent(mPlayer, TrackFavoriters.class);
+                    Intent i = new Intent(mPlayer, TrackComments.class);
                     i.putExtra("track_id", mPlayingTrack.id);
                     mPlayer.startActivity(i);
                 }
