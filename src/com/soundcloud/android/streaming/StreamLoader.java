@@ -42,6 +42,7 @@ public class StreamLoader {
 
     private StreamHandler mDataHandler;
     private StreamHandler mHeadHandler;
+    private Handler mResultHandler;
 
     private boolean mForceOnline; /* for testing */
 
@@ -58,7 +59,7 @@ public class StreamLoader {
                 .startListening(context);
 
 
-        Handler resultHandler = new Handler(Looper.getMainLooper()) {
+        mResultHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
                 Log.d(LOG_TAG, "result of message:" + msg.obj);
@@ -87,12 +88,12 @@ public class StreamLoader {
         HandlerThread dataThread = new HandlerThread("streaming-data", THREAD_PRIORITY_BACKGROUND);
         dataThread.start();
 
-        mDataHandler = new StreamHandler(dataThread.getLooper(), resultHandler);
+        mDataHandler = new StreamHandler(dataThread.getLooper(), mResultHandler);
 
         HandlerThread contentLengthThread = new HandlerThread("streaming-head", THREAD_PRIORITY_BACKGROUND);
         contentLengthThread.start();
 
-        mHeadHandler = new StreamHandler(contentLengthThread.getLooper(), resultHandler);
+        mHeadHandler = new StreamHandler(contentLengthThread.getLooper(), mResultHandler);
     }
 
     public StreamFuture getDataForUrl(String url, Range range) throws IOException {
@@ -107,7 +108,7 @@ public class StreamLoader {
             mItemsNeedingHeadRequests.add(item);
         }
 
-        Index missingChunks = mStorage.getMissingChunksForItem(url, range.chunkRange(mStorage.chunkSize));
+        final Index missingChunks = mStorage.getMissingChunksForItem(url, range.chunkRange(mStorage.chunkSize));
         if (!item.equals(mCurrentItem)) {
             // If we won't request the 0th byte
             // (by either having it already OR jumping into the middle of a new track)
@@ -120,10 +121,15 @@ public class StreamLoader {
 
         final StreamFuture pc = new StreamFuture(item, range);
         if (!missingChunks.isEmpty()) {
-            mPlayerCallbacks.add(pc);
-            mHighPriorityQ.addItem(item, missingChunks);
-            updateLowPriorityQueue();
-            processQueues();
+            final StreamItem theItem = item;
+            mResultHandler.post(new Runnable() {
+                @Override public void run() {
+                    mPlayerCallbacks.add(pc);
+                    mHighPriorityQ.addItem(theItem, missingChunks);
+                    updateLowPriorityQueue();
+                    processQueues();
+                }
+            });
         } else {
             Log.d(LOG_TAG, "Serving item from storage");
             pc.setByteBuffer(mStorage.fetchStoredDataForUrl(item.url, range));
