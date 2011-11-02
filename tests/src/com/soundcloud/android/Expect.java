@@ -1,8 +1,13 @@
 package com.soundcloud.android;
 
-import com.pivotallabs.greatexpectations.matchers.*;
-
 import static com.pivotallabs.greatexpectations.GreatExpectations.wrapped;
+
+import com.pivotallabs.greatexpectations.matchers.BooleanMatcher;
+import com.pivotallabs.greatexpectations.matchers.ComparableMatcher;
+import com.pivotallabs.greatexpectations.matchers.DateMatcher;
+import com.pivotallabs.greatexpectations.matchers.IterableMatcher;
+import com.pivotallabs.greatexpectations.matchers.ObjectMatcher;
+import com.pivotallabs.greatexpectations.matchers.StringMatcher;
 
 /** @noinspection unchecked*/
 public class Expect {

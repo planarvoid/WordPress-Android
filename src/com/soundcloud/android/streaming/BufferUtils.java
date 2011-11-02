@@ -18,6 +18,7 @@ public class BufferUtils {
         ByteBuffer b = ByteBuffer.allocate(toRead);
         FileChannel fc = new FileInputStream(f).getChannel();
         fc.read(b);
+        fc.close();
         b.flip();
         return b;
     }

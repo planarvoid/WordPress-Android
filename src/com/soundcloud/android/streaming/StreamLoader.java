@@ -126,7 +126,7 @@ public class StreamLoader {
             processQueues();
         } else {
             Log.d(LOG_TAG, "Serving item from storage");
-            pc.setByteBuffer(mStorage.fetchStoredDataForItem(item.url, range));
+            pc.setByteBuffer(mStorage.fetchStoredDataForUrl(item.url, range));
         }
         return pc;
     }
@@ -227,7 +227,7 @@ public class StreamLoader {
 
         for (StreamFuture playerCallback : fulfilledCallbacks) {
             try {
-                playerCallback.setByteBuffer(mStorage.fetchStoredDataForItem(playerCallback.item.url, playerCallback.byteRange));
+                playerCallback.setByteBuffer(mStorage.fetchStoredDataForUrl(playerCallback.item.url, playerCallback.byteRange));
                 mPlayerCallbacks.remove(playerCallback);
             } catch (IOException e) {
                 Log.w(LOG_TAG, e);
