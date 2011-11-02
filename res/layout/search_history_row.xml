@@ -23,7 +23,9 @@
               android:layout_height="wrap_content"
               android:gravity="right"
               style="@style/txt_list_created_at"
-              android:layout_marginRight="@dimen/list_text_margin_right"
+              android:drawableRight="@drawable/arrow_states"
+              android:drawablePadding="15dip"
+              android:layout_marginRight="20dp"
               android:singleLine="true"
               android:ellipsize="marquee"
               android:layout_alignParentRight="true"/>
