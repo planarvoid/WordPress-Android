@@ -41,6 +41,8 @@ public class ScSearch extends ScActivity {
 
     private ListView mHistoryList;
 
+    private boolean mHasHistory;
+
     private ScListView mList;
     private SectionedEndlessAdapter mTrackAdpWrapper;
     private SectionedEndlessAdapter mUserAdpWrapper;
@@ -146,11 +148,19 @@ public class ScSearch extends ScActivity {
         history.clear();
 
         if (cursor != null && cursor.moveToFirst()) {
+            mHasHistory = true;
             do {
                 history.add(new SearchHistoryItem(cursor));
             } while (cursor.moveToNext());
+        } else {
+            mHasHistory = false;
         }
         if (cursor != null) cursor.close();
+
+        for (SearchHistoryItem searchDefault : searchDefaults){
+            history.add(searchDefault);
+        }
+
         mHistoryAdapter.notifyDataSetChanged();
     }
 
@@ -285,6 +295,8 @@ public class ScSearch extends ScActivity {
         }
     }
 
+
+
     private final View.OnFocusChangeListener queryFocusListener = new View.OnFocusChangeListener() {
         public void onFocusChange(View v, boolean hasFocus) {
             if (!isFinishing() && hasFocus) {
@@ -336,5 +348,18 @@ public class ScSearch extends ScActivity {
             rdoUser.setVisibility(View.GONE);
         }
     }
+
+    private SearchHistoryItem[] searchDefaults = new SearchHistoryItem[] {
+            new SearchHistoryItem("Interviews",0),
+            new SearchHistoryItem("Bluegrass",0),
+            new SearchHistoryItem("Sounds from Monday Morning",0),
+            new SearchHistoryItem("Freestyle acapella",0),
+            new SearchHistoryItem("Sound Effects",0),
+            new SearchHistoryItem("Learn Spanish",0),
+            new SearchHistoryItem("Field Recording",0),
+            new SearchHistoryItem("Audio Book",0),
+            new SearchHistoryItem("Guitar riff",0),
+            new SearchHistoryItem("Laughing",0)
+    };
 
 }

@@ -20,4 +20,10 @@ public class SearchHistoryItem {
             this.query = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Searches.QUERY));
             this.created_at = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.Searches.CREATED_AT));
         }
+
+    public SearchHistoryItem(String query, int search_type) {
+        this.query = query;
+        this.search_type = search_type;
+        this.created_at = this.id = -1;
     }
+}

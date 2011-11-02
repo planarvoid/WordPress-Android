@@ -66,7 +66,7 @@ public class SearchHistoryAdapter extends BaseAdapter {
         }
 
         SearchHistoryItem history = data.get(position);
-        holder.tv_created_at.setText(CloudUtils.getTimeElapsed(context.getResources(), history.created_at));
+        holder.tv_created_at.setText(history.created_at > 0 ? CloudUtils.getTimeElapsed(context.getResources(), history.created_at) : "");
         holder.tv_query.setText(history.query);
         switch (history.search_type) {
             case 0:
