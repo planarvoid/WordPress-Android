@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -7,19 +8,14 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.SectionedAdapter;
-import com.soundcloud.android.adapter.SectionedEndlessAdapter;
-import com.soundcloud.android.adapter.SectionedTracklistAdapter;
-import com.soundcloud.android.adapter.SectionedUserlistAdapter;
+import com.soundcloud.android.adapter.*;
+import com.soundcloud.android.model.SearchHistoryItem;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper;
@@ -30,6 +26,7 @@ import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static android.widget.FrameLayout.LayoutParams.FILL_PARENT;
@@ -43,13 +40,13 @@ public class ScSearch extends ScActivity {
     private RadioButton rdoTrack;
 
     private ListView mHistoryList;
-    private Cursor mHistoryCursor;
 
     private ScListView mList;
     private SectionedEndlessAdapter mTrackAdpWrapper;
     private SectionedEndlessAdapter mUserAdpWrapper;
 
     private ViewFlipper mSearchFlipper;
+    private SearchHistoryAdapter mHistoryAdapter;
 
     @Override
     public void onCreate(Bundle state) {
@@ -111,28 +108,19 @@ public class ScSearch extends ScActivity {
         ((ViewGroup) findViewById(R.id.fl_searches)).addView(mHistoryList,
                 new FrameLayout.LayoutParams(FILL_PARENT, FrameLayout.LayoutParams.FILL_PARENT));
 
-        mHistoryCursor = getContentResolver().query(DatabaseHelper.Content.SEARCHES,
-                new String[]{DatabaseHelper.Searches.ID, DatabaseHelper.Searches.SEARCH_TYPE, DatabaseHelper.Searches.QUERY, DatabaseHelper.Searches.CREATED_AT},
-                DatabaseHelper.Searches.USER_ID + " = ?",
-                new String[]{Long.toString(getCurrentUserId())},
-                DatabaseHelper.Searches.CREATED_AT + " DESC");
-        startManagingCursor(mHistoryCursor);
-
-        SimpleCursorAdapter adp = new SimpleCursorAdapter(this, R.layout.search_history_row, mHistoryCursor,
-                new String[]{DatabaseHelper.Searches.SEARCH_TYPE, DatabaseHelper.Searches.QUERY, DatabaseHelper.Searches.CREATED_AT},
-                new int[]{R.id.iv_search_type, R.id.tv_query, R.id.tv_created_at});
-        adp.setViewBinder(new SearchHistoryBinder());
-        mHistoryList.setAdapter(adp);
 
         mHistoryList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Cursor c = ((Cursor) parent.getItemAtPosition(position));
-                doSearch(c.getString(c.getColumnIndex(DatabaseHelper.Searches.QUERY)),
-                        c.getInt(c.getColumnIndex(DatabaseHelper.Searches.SEARCH_TYPE)),
-                        c.getLong(c.getColumnIndex(DatabaseHelper.Searches.ID)));
+                SearchHistoryItem item = ((SearchHistoryItem) parent.getItemAtPosition(position));
+                doSearch(item.query, item.search_type, item.id);
             }
         });
+
+        mHistoryAdapter = new SearchHistoryAdapter(this);
+        mHistoryList.setAdapter(mHistoryAdapter);
+
+        refreshHistory();
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
@@ -144,6 +132,26 @@ public class ScSearch extends ScActivity {
         } else {
             setListType(false);
         }
+    }
+
+    private void refreshHistory() {
+
+        Cursor cursor = getContentResolver().query(DatabaseHelper.Content.SEARCHES,
+                new String[]{DatabaseHelper.Searches.ID, DatabaseHelper.Searches.SEARCH_TYPE, DatabaseHelper.Searches.QUERY, DatabaseHelper.Searches.CREATED_AT},
+                DatabaseHelper.Searches.USER_ID + " = ?",
+                new String[]{Long.toString(getCurrentUserId())},
+                DatabaseHelper.Searches.CREATED_AT + " DESC");
+
+        ArrayList<SearchHistoryItem> history = mHistoryAdapter.getData();
+        history.clear();
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                history.add(new SearchHistoryItem(cursor));
+            } while (cursor.moveToNext());
+        }
+        if (cursor != null) cursor.close();
+        mHistoryAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -176,12 +184,19 @@ public class ScSearch extends ScActivity {
     }
 
     public void doSearch(String query) {
-        doSearch(query,0, -1);
+        doSearch(query, 0, -1);
     }
 
     void doSearch(final String query, int type, long updateId) {
         if (TextUtils.isEmpty(query)) return;
-        txtQuery.setText(query); // when called from Main
+
+        // when called from Main or History
+        txtQuery.setText(query);
+        if (type == 0 && (rdoType.getCheckedRadioButtonId() != R.id.rdo_tracks)){
+            rdoTrack.setChecked(true);
+        } else if (type == 1 && (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks)){
+            rdoUser.setChecked(true);
+        }
 
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (mgr != null) {
@@ -224,11 +239,11 @@ public class ScSearch extends ScActivity {
 
 
         // check for a duplicate to update
-        if (updateId == -1){
+        if (updateId == -1) {
             Cursor cursor = getContentResolver().query(DatabaseHelper.Content.SEARCHES,
-                new String[]{DatabaseHelper.Searches.ID},
-                DatabaseHelper.Searches.USER_ID + " = ? AND " + DatabaseHelper.Searches.QUERY + " = ? AND " + DatabaseHelper.Searches.SEARCH_TYPE +" = ?",
-                new String[]{Long.toString(getCurrentUserId()), query,String.valueOf(searchType)},null);
+                    new String[]{DatabaseHelper.Searches.ID},
+                    DatabaseHelper.Searches.USER_ID + " = ? AND " + DatabaseHelper.Searches.QUERY + " = ? AND " + DatabaseHelper.Searches.SEARCH_TYPE + " = ?",
+                    new String[]{Long.toString(getCurrentUserId()), query, String.valueOf(searchType)}, null);
 
             if (cursor != null && cursor.getCount() != 0) {
                 cursor.moveToFirst();
@@ -237,13 +252,13 @@ public class ScSearch extends ScActivity {
             if (cursor != null) cursor.close();
         }
 
-        if (updateId > 0){
-            getContentResolver().update(DatabaseHelper.Searches.CONTENT_URI, cv,DatabaseHelper.Searches.ID + " = ?",
-                new String[]{Long.toString(updateId)});
+        if (updateId > 0) {
+            getContentResolver().update(DatabaseHelper.Searches.CONTENT_URI, cv, DatabaseHelper.Searches.ID + " = ?",
+                    new String[]{Long.toString(updateId)});
         } else {
             getContentResolver().insert(DatabaseHelper.Searches.CONTENT_URI, cv);
         }
-        mHistoryCursor.requery();
+        refreshHistory();
 
         mList.setLastUpdated(0);
         mList.onRefresh();
@@ -255,7 +270,6 @@ public class ScSearch extends ScActivity {
             mSearchFlipper.showNext();
         }
     }
-
 
 
     @Override
@@ -271,7 +285,7 @@ public class ScSearch extends ScActivity {
         }
     }
 
-    private View.OnFocusChangeListener queryFocusListener = new View.OnFocusChangeListener() {
+    private final View.OnFocusChangeListener queryFocusListener = new View.OnFocusChangeListener() {
         public void onFocusChange(View v, boolean hasFocus) {
             if (!isFinishing() && hasFocus) {
                 showControls();
@@ -279,7 +293,7 @@ public class ScSearch extends ScActivity {
         }
     };
 
-    private View.OnClickListener queryClickListener = new View.OnClickListener() {
+    private final View.OnClickListener queryClickListener = new View.OnClickListener() {
         public void onClick(View v) {
             showControls();
         }
@@ -292,19 +306,19 @@ public class ScSearch extends ScActivity {
         }
     }
 
-    private View.OnFocusChangeListener keyboardHideFocusListener = new View.OnFocusChangeListener() {
+    private final View.OnFocusChangeListener keyboardHideFocusListener = new View.OnFocusChangeListener() {
         public void onFocusChange(View v, boolean hasFocus) {
             hideControls();
         }
     };
 
-    private View.OnClickListener keyboardHideClickListener = new View.OnClickListener() {
+    private final View.OnClickListener keyboardHideClickListener = new View.OnClickListener() {
         public void onClick(View v) {
             hideControls();
         }
     };
 
-    private View.OnTouchListener keyboardHideTouchListener = new View.OnTouchListener() {
+    private final View.OnTouchListener keyboardHideTouchListener = new View.OnTouchListener() {
         public boolean onTouch(View v, MotionEvent event) {
             hideControls();
             return false;
@@ -322,43 +336,5 @@ public class ScSearch extends ScActivity {
             rdoUser.setVisibility(View.GONE);
         }
     }
-
-    private void setListAdapterFromSearchType(int searchType) {
-        switch (searchType) {
-            case 0:
-                setListType(false);
-                break;
-            case 1:
-                setListType(true);
-                break;
-        }
-    }
-
-    private class SearchHistoryBinder implements SimpleCursorAdapter.ViewBinder {
-
-        public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-            int viewId = view.getId();
-            switch (viewId) {
-                case R.id.tv_query:
-                    ((TextView) view).setText(cursor.getString(columnIndex));
-                    break;
-                case R.id.tv_created_at:
-                    ((TextView) view).setText(CloudUtils.getTimeElapsed(ScSearch.this.getResources(), cursor.getLong(columnIndex)));
-                    break;
-                case R.id.iv_search_type:
-                    switch (cursor.getInt(columnIndex)) {
-                        case 0:
-                            ((ImageView) view).setImageResource(R.drawable.ic_user_tab_sounds);
-                            break;
-                        case 1:
-                            ((ImageView) view).setImageResource(R.drawable.ic_profile_states);
-                            break;
-                    }
-                    break;
-            }
-            return true;
-        }
-    }
-
 
 }
