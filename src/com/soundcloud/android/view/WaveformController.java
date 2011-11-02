@@ -325,7 +325,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             } else {
                 mCurrentTimeDisplay.setCurrentTime(pos, false);
             }
-
         }
     }
 
@@ -532,7 +531,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         mCurrentComments = null;
         mCurrentTopComments = null;
-        mode = TOUCH_MODE_NONE;
+        if (mode == TOUCH_MODE_AVATAR_DRAG) mode = TOUCH_MODE_NONE;
     }
 
     @Override
@@ -726,6 +725,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             switch (msg.what) {
                 case UI_UPDATE_SEEK:
                     setProgressInternal(mPlayer.setSeekMarker(mSeekPercent));
+
                     mCurrentTimeDisplay.setByPercent(mSeekPercent, false);
                     mWaveformHolder.invalidate();
                     break;

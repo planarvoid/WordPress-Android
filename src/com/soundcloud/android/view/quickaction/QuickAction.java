@@ -121,7 +121,7 @@ public class QuickAction extends PopupWindows {
                 if (mListener == null) {
                     actionItem.setOnClickListener(null);
                 } else {
-                    final int finalI = i;
+                    final int finalI = i/2;
                     actionItem.setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {

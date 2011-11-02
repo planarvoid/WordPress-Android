@@ -308,6 +308,18 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 setPauseButtonImage();
                 long next = refreshNow();
                 queueNextRefresh(next);
+
+                if (getIntent().getBooleanExtra("commentMode", false)){
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            toggleCommentMode(getCurrentTrackView().getPlayPosition());
+                        }
+                    }, 200l);
+
+                    getIntent().putExtra("commentMode", false);
+                }
+
             } else {
                 Intent intent = new Intent(this, Main.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

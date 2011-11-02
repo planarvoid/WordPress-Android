@@ -274,8 +274,10 @@ public abstract class ScActivity extends Activity {
         trackList.add(track);
         playTrack(track.id, trackList, 0, goToPlayer);
     }
-
     public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer) {
+        playTrack(trackId,list,playPos,goToPlayer,false);
+    }
+    public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer, boolean commentMode) {
         // find out if this track is already playing. If it is, just go to the player
         try {
             if (mPlaybackService != null
@@ -283,7 +285,7 @@ public abstract class ScActivity extends Activity {
                     && mPlaybackService.getTrackId() == trackId) {
                 if (goToPlayer) {
                     // skip the enqueuing, its already playing
-                    launchPlayer();
+                    launchPlayer(commentMode);
                 } else {
                     mPlaybackService.play();
                 }
@@ -308,15 +310,15 @@ public abstract class ScActivity extends Activity {
         }
 
         if (goToPlayer) {
-            launchPlayer();
+            launchPlayer(commentMode);
             mIgnorePlaybackStatus = true;
         }
     }
 
-    public void launchPlayer() {
-
+    public void launchPlayer(boolean commentMode) {
         Intent i = new Intent(this, ScPlayer.class);
         i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        i.putExtra("commentMode",commentMode);
         startActivity(i);
     }
 

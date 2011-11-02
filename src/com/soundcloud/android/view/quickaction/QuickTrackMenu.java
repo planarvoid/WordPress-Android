@@ -2,6 +2,7 @@ package com.soundcloud.android.view.quickaction;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
@@ -81,12 +82,6 @@ public class QuickTrackMenu extends QuickAction {
                         break;
 
                     case 1:
-                        Intent intent = new Intent(mActivity, UserBrowser.class);
-                        intent.putExtra("userId", track.user.id);
-                        mActivity.startActivity(intent);
-                        break;
-
-                    case 2:
                         if (track.user_favorite) {
                             track.user_favorite = false;
                             mAdapter.removeFavorite(track);
@@ -95,19 +90,22 @@ public class QuickTrackMenu extends QuickAction {
                             mAdapter.addFavorite(track);
                         }
                         break;
-                    case 3:
-                        mActivity.addNewComment(CloudUtils.buildComment(
-                                mActivity,
-                                mActivity.getCurrentUserId(),
-                                track.id, -1, "",
-                                0));
+
+                    case 2:
+                        mActivity.playTrack(track.id, mAdapter.getData(), itemPosition, true,true);
                         break;
-                    case 4:
+                    case 3:
                         Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
                         shareIntent.setType("text/plain");
                         shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, track.title + " by " + track.user.username + " on #SoundCloud");
                         shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, track.permalink_url);
                         mActivity.startActivity(Intent.createChooser(shareIntent, "Share: " + track.title));
+                        break;
+                    case 4:
+                        Intent intent = new Intent(mActivity, UserBrowser.class);
+                        intent.putExtra("userId", track.user.id);
+                        mActivity.startActivity(intent);
+
                         break;
                 }
 
