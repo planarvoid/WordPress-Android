@@ -16,24 +16,17 @@
 
 package com.soundcloud.android.service;
 
-import android.text.TextUtils;
 import com.soundcloud.android.*;
-import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
+import com.soundcloud.android.streaming.StreamProxy;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
-import com.soundcloud.android.utils.play.StreamProxy;
-import com.soundcloud.api.Request;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 
 import android.app.Notification;
@@ -48,13 +41,11 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -161,7 +152,7 @@ public class CloudPlaybackService extends Service {
     private boolean m10percentStampReached;
     private boolean m95percentStampReached;
 
-    private StreamProxy proxy;
+    private StreamProxy mProxy;
 
     public CloudPlaybackService() {
     }
@@ -242,6 +233,8 @@ public class CloudPlaybackService extends Service {
         if (mWifiLock.isHeld())
             mWifiLock.release();
         mWifiLock = null;
+
+        if (mProxy != null && mProxy.isRunning()) mProxy.stop();
 
         super.onDestroy();
     }
@@ -515,61 +508,10 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-    private void setResolvedStreamSourceAsync(final String url, final Handler handler) {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    HttpResponse resp = getApp().get(Request.to(url));
-
-                    if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-                        final Header location = resp.getFirstHeader("Location");
-                        if (location != null && location.getValue() != null) {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mPlayer != null && mPlayingData != null && !TextUtils.isEmpty(mPlayingData.stream_url) && mPlayingData.stream_url.equalsIgnoreCase(url)) {
-                                        mPlayer.setDataSourceAsync(location.getValue());
-                                    }
-                                }
-                            });
-                            return;
-                        } else {
-                            Log.w(TAG, "no location header found");
-                        }
-                    } else {
-                        Log.w(TAG, "unexpected response " + resp);
-                    }
-                } catch (IOException e) {
-                    Log.w(TAG, e);
-                }
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        // set with original url, at least we will get proper error handling
-                        if (mPlayer != null && mPlayingData.stream_url.equalsIgnoreCase(url)) {
-                            mPlayer.setDataSourceAsync(url);
-                        }
-                    }
-                });
-
-            }
-        }.start();
-    }
-
-
-
-
-    public void sendStreamException() {
-        sendStreamException(1000);
-    }
-
     public void sendStreamException(long delay) {
         gotoIdleState();
         mMediaplayerHandler.sendMessageDelayed(mMediaplayerHandler.obtainMessage(STREAM_EXCEPTION), delay);
     }
-
-
 
     /**
      * Starts playback of a previously opened file.
@@ -1008,12 +950,10 @@ public class CloudPlaybackService extends Service {
             mIsAsyncOpening = true;
 
             try {
-                if (proxy == null) {
-                    proxy = new StreamProxy(getApp());
-                    proxy.init();
-                    proxy.start();
+                if (mProxy == null) {
+                    mProxy = new StreamProxy(getApp(), 50000 /* hardcoded for testing */).init().start();
                 }
-                mPlayingPath = String.format("http://127.0.0.1:%d/%s", proxy.getPort(), path);
+                mPlayingPath = String.format("http://127.0.0.1:%d/%s", mProxy.getPort(), path);
 
                 mMediaPlayer.setDataSource(mPlayingPath);
                 mMediaPlayer.prepareAsync();
@@ -1519,27 +1459,11 @@ public class CloudPlaybackService extends Service {
         }
     }
 
-
-
-
-    private long getContentLength(HttpResponse resp) {
-        Header h = resp.getFirstHeader("Content-Length");
-        if (h != null) {
-            try {
-                return Long.parseLong(h.getValue());
-            } catch (NumberFormatException e) {
-                return -1;
-            }
-        } else {
-            return -1;
-        }
-    }
-
     /*
-     * By making this a static class with a WeakReference to the Service, we
-     * ensure that the Service can be GCd even when the system process still has
-     * a remote reference to the stub.
-     */
+    * By making this a static class with a WeakReference to the Service, we
+    * ensure that the Service can be GCd even when the system process still has
+    * a remote reference to the stub.
+    */
     static class ServiceStub extends ICloudPlaybackService.Stub {
         WeakReference<CloudPlaybackService> mService;
 

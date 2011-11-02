@@ -4,12 +4,14 @@ import static com.soundcloud.android.Expect.expect;
 
 import org.junit.Test;
 
+import java.util.Iterator;
+
 public class RangeTest {
     @Test
     public void testConstruction() throws Exception {
         Range r = Range.from(0, 10);
 
-        expect(r.location).toBe(0);
+        expect(r.start).toBe(0);
         expect(r.length).toBe(10);
         expect(r.end()).toBe(10);
     }
@@ -35,7 +37,7 @@ public class RangeTest {
         Range r = Range.from(1025, 2555);
         Range chunk = r.chunkRange(1024);
 
-        expect(chunk.location).toBe(1);
+        expect(chunk.start).toBe(1);
         expect(chunk.length).toBe(3);
     }
 
@@ -49,5 +51,19 @@ public class RangeTest {
     public void shouldSupportEquals() throws Exception {
         expect(Range.from(0, 10)).toEqual(Range.from(0, 10));
         expect(Range.from(0, 10)).not.toEqual(Range.from(1, 10));
+    }
+
+    @Test
+    public void moveStart() throws Exception {
+        expect(Range.from(0, 10).moveStart(10)).toEqual(Range.from(10, 10));
+    }
+
+    @Test
+    public void shouldSupportIteratable() throws Exception {
+        Iterator<Integer> it = Range.from(1, 3).iterator();
+        expect(it.next()).toBe(1);
+        expect(it.next()).toBe(2);
+        expect(it.next()).toBe(3);
+        expect(it.hasNext()).toBe(false);
     }
 }

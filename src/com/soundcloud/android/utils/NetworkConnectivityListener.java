@@ -28,7 +28,9 @@ public class NetworkConnectivityListener {
     private State mState;
     private boolean mListening;
 
-    /** Network connectivity information */
+    /**
+     * Network connectivity information
+     */
     private NetworkInfo mNetworkInfo;
 
     /**
@@ -43,7 +45,9 @@ public class NetworkConnectivityListener {
     public enum State {
         UNKNOWN,
 
-        /** This state is returned if there is connectivity to any network **/
+        /**
+         * This state is returned if there is connectivity to any network *
+         */
         CONNECTED,
         /**
          * This state is returned if there is no connectivity to any network.
@@ -96,10 +100,10 @@ public class NetworkConnectivityListener {
     /**
      * This methods registers a Handler to be called back onto with the
      * specified what code when the network connectivity state changes.
-     * 
+     *
      * @param target The target handler.
-     * @param what The what code to be used when posting a message to the
-     *            handler.
+     * @param what   The what code to be used when posting a message to the
+     *               handler.
      */
     public NetworkConnectivityListener registerHandler(Handler target, int what) {
         mHandlers.put(target, what);
@@ -108,7 +112,7 @@ public class NetworkConnectivityListener {
 
     /**
      * This methods unregisters the specified Handler.
-     * 
+     *
      * @param target
      */
     public NetworkConnectivityListener unregisterHandler(Handler target) {
@@ -119,7 +123,7 @@ public class NetworkConnectivityListener {
     /**
      * Return the NetworkInfo associated with the most recent connectivity
      * event.
-     * 
+     *
      * @return {@code NetworkInfo} for the network that had the most recent
      *         connectivity event.
      */
@@ -133,14 +137,18 @@ public class NetworkConnectivityListener {
      * might be available. If this returns a non-null value, then another
      * broadcast should follow shortly indicating whether connection to the
      * other network succeeded.
-     * 
+     *
      * @return NetworkInfo
      */
     public NetworkInfo getOtherNetworkInfo() {
         return mOtherNetworkInfo;
     }
 
-     private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
+    public boolean isConnected() {
+        return mNetworkInfo != null && mNetworkInfo.isConnected();
+    }
+
+    private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -149,16 +157,12 @@ public class NetworkConnectivityListener {
                 Log.w(TAG, "onReceived() called with " + mState.toString() + " and " + intent);
                 return;
             }
+            State old = mState;
 
             boolean noConnectivity = intent.getBooleanExtra(
                     ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 
-            if (noConnectivity) {
-                mState = State.NOT_CONNECTED;
-            } else {
-                mState = State.CONNECTED;
-            }
-
+            mState =  noConnectivity ? State.NOT_CONNECTED : State.CONNECTED;
             mNetworkInfo = (NetworkInfo) intent
                     .getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
             mOtherNetworkInfo = (NetworkInfo) intent
@@ -170,12 +174,12 @@ public class NetworkConnectivityListener {
                         + mNetworkInfo
                         + " mOtherNetworkInfo = "
                         + (mOtherNetworkInfo == null ? "[none]" : mOtherNetworkInfo + " noConn="
-                                + noConnectivity) + " mState=" + mState.toString());
+                        + noConnectivity) + " mState=" + mState.toString());
             }
 
             // Notify any handlers.
             for (Handler target : mHandlers.keySet()) {
-                Message message = Message.obtain(target, mHandlers.get(target));
+                Message message = Message.obtain(target, mHandlers.get(target), old.ordinal(), mState.ordinal());
                 target.sendMessage(message);
             }
         }

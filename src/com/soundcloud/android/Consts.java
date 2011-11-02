@@ -22,15 +22,13 @@ public final class Consts {
             "Android/data/com.soundcloud.android/files");
 
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH, ".cache");
+    public static final File EXTERNAL_STREAM_DIRECTORY = new File(FILES_PATH, "stream");
     public static final File EXTERNAL_TRACK_CACHE_DIRECTORY = new File(FILES_PATH, ".s");
 
     public static final long TRACK_MAX_CACHE = 200 * 1024 * 1024; // 200 MB
     public static final long TRACK_CACHE_MIN_FREE_SPACE = 20 * 1024  * 1024; // 20  MB
 
     public static final long MAX_IMAGE_CACHE = 5 * 1024  * 1024; // 5  MB
-
-    public static final String SOUNDCLOUD_SCHEME = "http";
-    public static final String SOUNDCLOUD_HOST = "soundcloud.com";
 
     public interface IntentActions {
         public static final String CONNECTION_ERROR = "com.soundcloud.android.connectionerror";

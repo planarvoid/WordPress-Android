@@ -1,47 +1,38 @@
 package com.soundcloud.android.streaming;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
+import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Stream;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpUriRequest;
 
-import android.util.Log;
+import android.os.Bundle;
 
-class HeadTask extends DataTask {
-    public HeadTask(StreamItem item) {
-        super(item);
+import java.io.IOException;
+
+class HeadTask extends StreamItemTask implements HttpStatus {
+    static final String LOG_TAG = HeadTask.class.getSimpleName();
+
+    public HeadTask(StreamItem item, AndroidCloudAPI api) {
+        super(item, api);
     }
 
     @Override
-    protected HttpUriRequest buildRequest(){
-       return new HttpHead(mItem.url);
-    }
-
-    @Override
-    public void run() {
-        if (mResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            Log.i(getClass().getSimpleName(), "invalid status received: " + mResponse.getStatusLine().toString());
-        } else {
-            mItem.setContentLength(getContentLength(mResponse));
-        }
-        //mHeadTasks.remove(this);
-    }
-
-    private long getContentLength(HttpResponse resp) {
-        Header h = resp.getFirstHeader("Content-Length");
-        if (h != null) {
-            try {
-                return Long.parseLong(h.getValue());
-            } catch (NumberFormatException e) {
-                return -1;
+    public Bundle execute() throws IOException {
+        try {
+            Stream stream = api.resolveStreamUrl(item.url);
+            Bundle b = new Bundle();
+//            b.putSerializable("stream", stream);
+            item.initializeFrom(stream);
+            return b;
+        } catch (CloudAPI.ResolverException e) {
+            switch (e.getStatusCode()) {
+                case SC_PAYMENT_REQUIRED:
+                case SC_NOT_FOUND:
+                case SC_GONE:
+                    item.unavailable = true;
+                    break;
             }
-        } else {
-            return -1;
+            return null;
         }
-    }
-
-    public StreamItem getItem() {
-        return mItem;
     }
 }

@@ -52,9 +52,17 @@
                 android:entryValues="@array/pref_page_size_values"/>
 
         <Preference
+                android:key="clearCache"
                 android:title="@string/pref_clear_cache"
                 android:summary="@string/pref_clear_cache_desc"
-                android:key="clearCache"/>
+                />
+
+        <Preference
+                android:key="clearStreamCache"
+                android:title="@string/pref_clear_stream_cache"
+                android:summary="@string/pref_clear_stream_cache_desc"
+                />
+
     </PreferenceCategory>
 
 

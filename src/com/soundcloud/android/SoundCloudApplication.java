@@ -31,6 +31,7 @@ import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
+import com.soundcloud.api.Stream;
 import com.soundcloud.api.Token;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
@@ -384,6 +385,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return AccountManager.get(this);
     }
 
+    public HttpResponse head(Request resource) throws IOException {
+        return mCloudApi.head(resource);
+    }
+
     public HttpResponse get(Request resource) throws IOException {
         return mCloudApi.get(resource);
     }
@@ -474,7 +479,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     @Override
-    public String resolveStreamUrl(String uri) throws IOException {
+    public Stream resolveStreamUrl(String uri) throws IOException {
         return mCloudApi.resolveStreamUrl(uri);
     }
 

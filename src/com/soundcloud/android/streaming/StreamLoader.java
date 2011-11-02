@@ -2,262 +2,206 @@ package com.soundcloud.android.streaming;
 
 import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
 
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.NetworkConnectivityListener;
+
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import com.soundcloud.android.utils.NetworkConnectivityListener;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class StreamLoader {
-
-    protected NetworkConnectivityListener mConnectivityListener;
-    private NetworkInfo mCurrentNetworkInfo;
+    static final String LOG_TAG = StreamLoader.class.getSimpleName();
     protected static final int CONNECTIVITY_MSG = 0;
 
-    private Context mContext; // really needed?
+    private NetworkConnectivityListener mConnectivityListener;
+    private SoundCloudApplication mContext;
     private StreamStorage mStorage;
-    private List<StreamItem> mItemsNeedingHeadRequests = new ArrayList<StreamItem>();
-    private List<StreamItem> mItemsNeedingPlayCountRequests = new ArrayList<StreamItem>();
 
-    private int chunkSize;
+    private ItemQueue mItemsNeedingHeadRequests = new ItemQueue();
+    private ItemQueue mItemsNeedingPlaycountRequests = new ItemQueue();
+
     private StreamItem mCurrentItem;
     private int mCurrentPosition;
 
     private Set<StreamFuture> mPlayerCallbacks = new HashSet<StreamFuture>();
-    private LoadingQueue mHighPriorityQueue = new LoadingQueue();
-    private LoadingQueue mLowPriorityQueue = new LoadingQueue();
-    private DataTask mHighPriorityConnection;
-    private boolean mLowPriorityConnection;
-    private static final String STREAM_ITEM_RANGE_LOADED = "com.soundcloud.android.streaming.streamitemrangeloaded";
+    private ItemQueue mHighPriorityQ = new ItemQueue();
+    private ItemQueue mLowPriorityQueue = new ItemQueue();
 
     private Set<HeadTask> mHeadTasks = new HashSet<HeadTask>();
 
     private StreamHandler mDataHandler;
     private StreamHandler mHeadHandler;
 
-    private Handler mResultHandler;
+    private boolean mForceOnline; /* for testing */
 
-    private boolean mForceOnline;
+    static final int LOW_PRIO = 0;
+    static final int HI_PRIO = 1;
 
-    public StreamLoader(Context context, StreamStorage storage) {
+    public StreamLoader(SoundCloudApplication context, final StreamStorage storage) {
         mContext = context;
         mStorage = storage;
-        chunkSize = storage.chunkSize;
 
         // setup connectivity listening
         mConnectivityListener = new NetworkConnectivityListener()
                 .registerHandler(mConnHandler, CONNECTIVITY_MSG)
                 .startListening(context);
 
-        HandlerThread dataThread = new HandlerThread(getClass().getSimpleName(), THREAD_PRIORITY_BACKGROUND);
+
+        Handler resultHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                Log.d(LOG_TAG, "result of message:" + msg.obj);
+                if (msg.obj instanceof HeadTask) {
+                    HeadTask t = (HeadTask) msg.obj;
+                    if (storage.storeMetadata(t.item)) {
+                        mHeadTasks.remove(t);
+                    }
+                } else if (msg.obj instanceof DataTask) {
+                    DataTask t = (DataTask) msg.obj;
+                    try {
+                        Log.d(LOG_TAG, String.format("Storing %d bytes at index %d for url %s",
+                                t.buffer.limit(), t.chunkRange.start, t.item.url));
+                        mStorage.storeData(t.item.url, t.buffer, t.chunkRange.start);
+                        fulfillPlayerCallbacks();
+                    } catch (IOException e) {
+                        Log.e(LOG_TAG, "error storing data", e);
+                    }
+                } else if (msg.obj instanceof PlaycountTask) {
+
+                }
+                processQueues();
+            }
+        };
+
+        HandlerThread dataThread = new HandlerThread("streaming-data", THREAD_PRIORITY_BACKGROUND);
         dataThread.start();
 
-        mDataHandler = new StreamHandler(dataThread.getLooper());
+        mDataHandler = new StreamHandler(dataThread.getLooper(), resultHandler);
 
-        HandlerThread contentLengthThread = new HandlerThread(getClass().getSimpleName(), THREAD_PRIORITY_BACKGROUND);
+        HandlerThread contentLengthThread = new HandlerThread("streaming-head", THREAD_PRIORITY_BACKGROUND);
         contentLengthThread.start();
 
-        mHeadHandler = new StreamHandler(contentLengthThread.getLooper());
-
-        mResultHandler = new Handler(Looper.getMainLooper());
+        mHeadHandler = new StreamHandler(contentLengthThread.getLooper(), resultHandler);
     }
 
-    public StreamFuture getDataForItem(StreamItem item, Range range) throws IOException {
-        Log.d(getClass().getSimpleName(), "Get Data for item " + item.toString() + " " + range);
+    public StreamFuture getDataForUrl(String url, Range range) throws IOException {
+        Log.d(LOG_TAG, "Get Data for url " + url + " " + range);
 
-        Set<Integer> missingChunks = mStorage.getMissingChunksForItem(item, range.chunkRange(chunkSize));
-
-        //If the current item changes
-        if (!item.equals(mCurrentItem)) {
+        StreamItem item = mStorage.getMetadata(url);
+        if (item == null ) {
+            item = new StreamItem(url);
+        }
+        //If there is no metadata yet or it is expired, request it
+        if (item.redirectUrl() == null || item.isRedirectExpired()) {
             mItemsNeedingHeadRequests.add(item);
-
-            // If we won't request the 0th byte (by either having it already OR jumping into the middle of a new track)
-            if (!missingChunks.contains(0)) {
-                countPlayForItem(item);
-            }
         }
 
-        mCurrentItem = item;
-        mCurrentPosition = range.location;
+        Index missingChunks = mStorage.getMissingChunksForItem(url, range.chunkRange(mStorage.chunkSize));
+        if (!item.equals(mCurrentItem)) {
+            // If we won't request the 0th byte
+            // (by either having it already OR jumping into the middle of a new track)
+            if (!missingChunks.get(0)) {
+                mItemsNeedingPlaycountRequests.add(item);
+            }
+            mCurrentItem = item;
+        }
+        mCurrentPosition = range.start;
 
         StreamFuture pc = new StreamFuture(item, range);
-
         if (!missingChunks.isEmpty()) {
             mPlayerCallbacks.add(pc);
-            addItem(item, missingChunks, mHighPriorityQueue);
+            mHighPriorityQ.addItem(item, missingChunks);
             updateLowPriorityQueue();
             processQueues();
         } else {
-            Log.d(getClass().getSimpleName(), "Serving item from storage");
-            pc.setByteBuffer(fetchStoredDataForItem(item, range));
+            Log.d(LOG_TAG, "Serving item from storage");
+            pc.setByteBuffer(mStorage.fetchStoredDataForItem(item.url, range));
         }
         return pc;
     }
 
-
-    public void storeData(byte[] data, int chunk, StreamItem item) {
-        Log.d(getClass().getSimpleName(), "Storing " + data.length + " bytes at index " + chunk + " for item " + item) ;
-        mStorage.setData(data, chunk, item);
-        fulfillPlayerCallbacks();
+    public boolean logPlaycount(String url) {
+        return mPlaycountHandler.sendMessage(mPlaycountHandler.obtainMessage(LOW_PRIO, url));
     }
 
-
-    public void cleanup() {
+    public void stop() {
         mConnectivityListener.stopListening();
         mConnectivityListener.unregisterHandler(mConnHandler);
         mConnectivityListener = null;
-
     }
 
-
-    /* package */ LoadingQueue getHighPriorityQueue() {
-        return mHighPriorityQueue;
+    /* package */ ItemQueue getHighPriorityQueue() {
+        return mHighPriorityQ;
     }
 
-    /* package */ LoadingQueue getLowPriorityQueue() {
+    /* package */ ItemQueue getLowPriorityQueue() {
         return mLowPriorityQueue;
     }
 
-
-    private ByteBuffer fetchStoredDataForItem(StreamItem item, Range range) {
-        Range actualRange = range;
-        if (item.getContentLength() != 0) {
-            actualRange = range.intersection(item.getRange());
-        }
-
-        if (actualRange == null) {
-            Log.e(getClass().getSimpleName(), "Invalid range, outside content length. Requested range " + range + " from item " + item);
-            return null;
-        }
-
-        Range chunkRange = actualRange.chunkRange(chunkSize);
-
-        byte[] data = new byte[chunkRange.length * chunkSize];
-        final int end = chunkRange.location + chunkRange.length;
-        int writeIndex = 0;
-        for (int chunkIndex = chunkRange.location; chunkIndex < end; chunkIndex++){
-            byte[] chunkData = mStorage.getChunkData(item, chunkIndex);
-            if (chunkData == null) {
-                Log.e(getClass().getSimpleName(), "Error getting chunk data, aborting");
-                return null;
-            }
-            int i = 0;
-            while (i < chunkData.length){
-                data[writeIndex + i] = chunkData[i];
-                i++;
-            }
-            writeIndex += i;
-        }
-
-        if (actualRange.length < data.length) {
-            return ByteBuffer.wrap(data, actualRange.location - (chunkRange.location * chunkSize), actualRange.length).slice().asReadOnlyBuffer();
-        } else {
-            return ByteBuffer.wrap(data);
-        }
-    }
-
     private void processQueues() {
-        if (mHighPriorityConnection != null){
-            if (!mHighPriorityConnection.executed) return;
-
-            mHighPriorityConnection = null;
-        }
-
-        if (isOnline()) {
-            if (!mItemsNeedingHeadRequests.isEmpty()){
-                for (StreamItem item : mItemsNeedingHeadRequests) {
-                    startHeadTask(item);
-                }
-                mItemsNeedingHeadRequests.clear();
-            }
-
-             if (!mItemsNeedingPlayCountRequests.isEmpty()) {
-                for (StreamItem item : mItemsNeedingPlayCountRequests) {
-                    // start play count connection for item
-                }
-                mItemsNeedingPlayCountRequests.clear();
+        if (isConnected()) {
+            for (StreamItem item : mItemsNeedingHeadRequests) {
+                // also done from processHighPriorityQueue()
+                mItemsNeedingHeadRequests.remove(item);
+                startHeadTask(item, HI_PRIO);
             }
 
             processHighPriorityQueue();
-            if (mHighPriorityConnection == null){
+
+            if (mHeadHandler.hasMessages(HI_PRIO) ||
+                mDataHandler.hasMessages(HI_PRIO)) {
+                Log.d(LOG_TAG, "still hi-prio tasks, skip processing of lo-prio queue");
+            } else {
                 processLowPriorityQueue();
             }
+        } else {
+            Log.d(LOG_TAG, "not connected, skip processing of queues");
         }
     }
 
     private void processHighPriorityQueue() {
-        if (mHighPriorityQueue.isEmpty()) return;
+        for (StreamItem item : mHighPriorityQ) {
+            if (item.unavailable) mHighPriorityQ.remove(item);
 
-        //Look if it is the current LowPriority Chunk.
-        if (mLowPriorityConnection) {
-            LoadingItem loadingItem = mHighPriorityQueue.head();
-            List<Integer> indexes = loadingItem.indexes;
-
-            /*
-             TODO cancel low priority connection and re-add it to the queue
-             https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L789
-              */
-        }
-
-        for (LoadingItem highPriorityItem : mHighPriorityQueue) {
-            StreamItem item = highPriorityItem.streamItem;
-            if (!item.available) {
-                mHighPriorityQueue.remove(highPriorityItem);
-
-            }
-            //If there is a contentLength for the item, download fist chunk
-            else if (item.getContentLength() != 0) {
-                Range chunkRange = Range.from(highPriorityItem.indexes.get(0), 1);
-                mHighPriorityConnection = startDataTask(item, chunkRange);
-                /*
-                  highPriorityConnection = [[self startDataConnectionForItem:item range:chunkRange] retain];
-            if (highPriorityConnection) {
-                //If we have a connection, remove the chunk - it is taken care of and will be re-added in case of failure.
-                [self removeItem:item chunks:[NSIndexSet indexSetWithIndexesInRange:chunkRange] fromQueue:highPriorityQueue];
-                [self removeItem:item chunks:[NSIndexSet indexSetWithIndexesInRange:chunkRange] fromQueue:lowPriorityQueue];
-
-            }   */
-                /*
-                 TODO download chunk indexes in loading item
-                 https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L806
-                  */
+            //If there is a contentLength for the item, download first chunk
+            else if (item.getContentLength() > 0 && item.redirectUrl() != null) {
+                Range chunkRange = Range.from(item.chunksToDownload.first(), 1);
+                mHighPriorityQ.removeIfCompleted(item, chunkRange.toIndex());
+                startDataTask(item, chunkRange, HI_PRIO);
             } else {
-                /*
-                 TODO do a head request to get content length
-                 https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L818
-                  */
+                startHeadTask(item, HI_PRIO);
             }
-
         }
     }
 
     private void processLowPriorityQueue() {
-        if (mLowPriorityConnection) return;
-        if (mLowPriorityQueue.size() == 0) return;
-
-        for (LoadingItem lowPriorityItem : mHighPriorityQueue) {
-            StreamItem item = lowPriorityItem.streamItem;
-            if (!item.available) {
-                mHighPriorityQueue.remove(lowPriorityItem);
+        for (StreamItem item : mLowPriorityQueue) {
+            if (item.unavailable) {
+                mLowPriorityQueue.remove(item);
             } else if (item.getContentLength() != 0) {
-                /*
-                 TODO download chunk indexes in loading item
-                 https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L840
-                  */
+                Range chunkRange = Range.from(item.chunksToDownload.first(), 1);
+                startDataTask(item, chunkRange, LOW_PRIO);
             } else {
-                /*
-                 TODO do a head request to get content length
-                 https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L851
-                  */
+                startHeadTask(item, LOW_PRIO);
             }
+        }
 
+        for (StreamItem item : mItemsNeedingPlaycountRequests) {
+            if (item.redirectUrl() != null && !item.isRedirectExpired()) {
+                mItemsNeedingPlaycountRequests.remove(item);
+                startPlaycountTask(item, LOW_PRIO);
+            }
         }
     }
 
@@ -268,78 +212,39 @@ public class StreamLoader {
          */
     }
 
-    private void addItem(StreamItem item, Set<Integer> chunks, List<LoadingItem> queue) {
-        if (!item.available) {
-            Log.e(getClass().getSimpleName(), String.format("Can't add chunks for %s: Item is not available.",item));
-        } else {
-            LoadingItem loadingItem = null;
-            for (LoadingItem candidate : queue) {
-                if (candidate.streamItem.equals(item)) {
-                    loadingItem = candidate;
-                    break;
-                }
-            }
-
-            if (loadingItem == null) {
-                loadingItem = new LoadingItem(item);
-                queue.add(loadingItem);
-            }
-            loadingItem.indexes.addAll(chunks);
-        }
-    }
-
-    private void removeItem(StreamItem item, Set<Long> chunks, List<LoadingItem> queue) {
-        LoadingItem loadingItem = null;
-        for (LoadingItem candidate : queue) {
-            if (candidate.streamItem.equals(item)) {
-                loadingItem = candidate;
-                break;
-            }
-        }
-
-        //Remove
-        if (loadingItem != null) {
-            loadingItem.indexes.removeAll(chunks);
-            if (loadingItem.indexes.size() == 0) queue.remove(loadingItem);
-
-        }
-    }
-
-    private void countPlayForItem(StreamItem item) {
-        if (item == null) return;
-        /*
-        TODO request necessary range for a playcount
-        migrate : https://github.com/nxtbgthng/SoundCloudStreaming/blob/master/Sources/SoundCloudStreaming/SCStreamLoader.m#L924
-         */
-    }
-
-
-
     private void fulfillPlayerCallbacks() {
         List<StreamFuture> fulfilledCallbacks = new ArrayList<StreamFuture>();
-        for (StreamFuture playerCallback : mPlayerCallbacks) {
-            StreamItem item = playerCallback.scStreamItem;
-            Range chunkRange = playerCallback.byteRange.chunkRange(chunkSize);
-            Set<Integer> missingIndexes = mStorage.getMissingChunksForItem(item, chunkRange);
-            if (missingIndexes.size() == 0) {
-                fulfilledCallbacks.add(playerCallback);
+        for (StreamFuture future : mPlayerCallbacks) {
+            StreamItem item = future.item;
+            Range chunkRange = future.byteRange.chunkRange(mStorage.chunkSize);
+
+            Index missingIndexes = mStorage.getMissingChunksForItem(item.url, chunkRange);
+            if (missingIndexes.isEmpty()) {
+                fulfilledCallbacks.add(future);
+            } else {
+                Log.d(LOG_TAG, "still missing indexes, not fullfilling callback");
             }
         }
 
         for (StreamFuture playerCallback : fulfilledCallbacks) {
-            ByteBuffer storedData = fetchStoredDataForItem(playerCallback.scStreamItem,playerCallback.byteRange);
-            if (storedData != null){
-                playerCallback.setByteBuffer(storedData);
+            try {
+                playerCallback.setByteBuffer(mStorage.fetchStoredDataForItem(playerCallback.item.url, playerCallback.byteRange));
                 mPlayerCallbacks.remove(playerCallback);
+            } catch (IOException e) {
+                Log.w(LOG_TAG, e);
             }
         }
     }
 
-    private boolean isOnline() {
-        if (mForceOnline) return true;
-        if (mConnectivityListener == null) return false;
-        mCurrentNetworkInfo = mConnectivityListener.getNetworkInfo();
-        return mCurrentNetworkInfo != null && mCurrentNetworkInfo.isConnected();
+    private boolean isConnected() {
+        if (mForceOnline) {
+            return true;
+        } else {
+            //return mConnectivityListener.isConnected();
+            ConnectivityManager c = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo info = c.getActiveNetworkInfo();
+            return info != null && info.isConnected();
+        }
     }
 
     private Handler mConnHandler = new Handler() {
@@ -347,104 +252,112 @@ public class StreamLoader {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
-                   // TODO process queues
-                    break;
+                    NetworkConnectivityListener.State previous =
+                            NetworkConnectivityListener.State.values()[msg.arg1];
+                    NetworkConnectivityListener.State current =
+                            NetworkConnectivityListener.State.values()[msg.arg2];
+
+                    if (current == NetworkConnectivityListener.State.CONNECTED &&
+                        previous != NetworkConnectivityListener.State.NOT_CONNECTED) {
+
+                        Log.d(LOG_TAG, "reconnected, processing queues");
+                        processQueues();
+                        break;
+                    }
             }
         }
     };
 
-    private DataTask startDataTask(StreamItem item, Range chunkRange){
-        DataTask task = new DataTask(item, Range.from(chunkRange.location * chunkSize, chunkRange.length * chunkSize));
-        Message msg = mDataHandler.obtainMessage(item.hashCode(), task);
+    private Handler  mPlaycountHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            String url = msg.obj.toString();
+            StreamItem item = mStorage.getMetadata(url);
+            if (item != null) {
+                if (item.redirectUrl() == null || item.isRedirectExpired()) {
+                    mItemsNeedingHeadRequests.add(item);
+                }
+                mItemsNeedingPlaycountRequests.add(item);
+                processQueues();
+            }
+        }
+    };
+
+    private DataTask startDataTask(StreamItem item, Range chunkRange, int prio) {
+        Log.d(LOG_TAG, "startDataTask(" + item + ", prio=" + prio + ")");
+
+        DataTask task = new DataTask(item, chunkRange, chunkRange.byteRange(mStorage.chunkSize), mContext);
+        Message msg = mDataHandler.obtainMessage(prio, task);
+
         mDataHandler.sendMessage(msg);
         return task;
     }
 
-    private HeadTask startHeadTask(StreamItem item){
-        if (!item.available) {
-            Log.i(getClass().getSimpleName(), String.format("Can't start head for %s: Item is disabled." , item));
+    private PlaycountTask startPlaycountTask(StreamItem item, int prio) {
+        Log.d(LOG_TAG, "startPlaycountTask(" + item + ", prio=" + prio + ")");
+
+        PlaycountTask task = new PlaycountTask(item, mContext);
+        Message msg = mHeadHandler.obtainMessage(prio, task);
+
+        mHeadHandler.sendMessage(msg);
+        return task;
+    }
+
+    private HeadTask startHeadTask(StreamItem item, int prio) {
+        Log.d(LOG_TAG, "startHeadTask(" + item + ",prio=" + prio + ")");
+
+        if (item.unavailable) {
+            Log.d(LOG_TAG, String.format("Can't start head for %s: Item is unavailable.", item));
             return null;
-        }
-        if (!isOnline()) {
+        } else if (!isConnected()) {
             mItemsNeedingHeadRequests.add(item);
             return null;
         }
 
-        for (HeadTask ht : mHeadTasks){
-            if (ht.getItem().equals(item)){
+        for (HeadTask ht : mHeadTasks) {
+            if (ht.item.equals(item)) {
                 return null;
             }
         }
 
-        HeadTask ht = new HeadTask(item);
-        Message msg = mHeadHandler.obtainMessage(item.hashCode(), ht);
+        HeadTask ht = new HeadTask(item, mContext);
+        Message msg = mHeadHandler.obtainMessage(prio, ht);
         mHeadHandler.sendMessage(msg);
 
         return ht;
     }
 
-
     // request pipeline
-    private class StreamHandler extends Handler {
-        public StreamHandler(Looper looper) {
+    static class StreamHandler extends Handler {
+        private Handler mHandler;
+
+        public StreamHandler(Looper looper, Handler resultHandler) {
             super(looper);
+            mHandler = resultHandler;
         }
 
         @Override
         public void handleMessage(Message msg) {
-            DataTask task = (DataTask) msg.obj;
-            if (task.execute()) {
-                mResultHandler.post(task);
+            Log.d(LOG_TAG, "StreamHandler: handle " + msg.obj);
+
+            StreamItemTask task = (StreamItemTask) msg.obj;
+            try {
+                Message result = obtainMessage(msg.what, msg.obj);
+                result.setData(task.execute());
+                mHandler.sendMessage(result);
+            } catch (IOException e) {
+                Log.w(LOG_TAG, e);
+                if (task.item.isAvailable() && msg.arg1 < 3) {
+                    Log.d(LOG_TAG, "retrying, tries=" + msg.arg1);
+                    sendMessageDelayed(obtainMessage(msg.what, msg.arg1 + 1, 0, msg.obj), 200 * msg.arg1);
+                } else {
+                    Log.d(LOG_TAG, "giving up");
+                }
             }
         }
     }
 
     /* package */ void setForceOnline(boolean b) {
         mForceOnline = b;
-    }
-
-    private static boolean isWaiting(Handler handler) {
-        Looper looper = handler.getLooper();
-        Thread thread = looper.getThread();
-        Thread.State state = getThreadState(thread);
-        return state == Thread.State.WAITING || state == Thread.State.TIMED_WAITING;
-    }
-
-    private static Thread.State getThreadState(Thread t) {
-        try {
-            return t.getState();
-        } catch (ArrayIndexOutOfBoundsException e) {
-            // Android 2.2.x seems to throw this exception occasionally
-            Log.w(StreamLoader.class.getSimpleName(), e);
-            return Thread.State.WAITING;
-        }
-    }
-
-    static class LoadingItem {
-        public final StreamItem streamItem;
-        List<Integer> indexes = new ArrayList<Integer>();
-
-        public LoadingItem(StreamItem item) {
-            this.streamItem = item;
-        }
-
-        public LoadingItem(StreamItem streamItem, List<Integer> indexes) {
-            this(streamItem);
-            this.indexes = indexes;
-        }
-
-        public int getWhat() {
-            return streamItem.url.hashCode();
-        }
-    }
-
-    static class LoadingQueue extends ArrayList<LoadingItem> {
-        public LoadingItem head() {
-            if (!isEmpty()) {
-                return get(0);
-            } else {
-                return null;
-            }
-        }
     }
 }
