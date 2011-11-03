@@ -6,9 +6,12 @@ import static junit.framework.Assert.fail;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.CloudUtils;
+import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import android.os.Environment;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +42,8 @@ public class StreamStorageTest {
         CloudUtils.deleteDir(baseDir);
         storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE, 0);
         item = new StreamItem("fred.mp3", sampleContentLength, CloudUtils.md5(testFile));
+
+        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
     private int setupChunkArray() throws IOException {
@@ -65,7 +70,7 @@ public class StreamStorageTest {
     }
 
     @Test
-    public void shouldSetData() throws Exception {
+    public void shouldStoreData() throws Exception {
         item.setContentLength(storage.chunkSize * 2);
         expect(storage.storeMetadata(item)).toBeTrue();
         expect(storage.storeData(item.url, ByteBuffer.wrap(new byte[]{1, 2, 3}), 0)).toBeTrue();
@@ -75,6 +80,13 @@ public class StreamStorageTest {
         expect(data.get()).toBe((byte) 1);
         expect(data.get()).toBe((byte) 2);
         expect(data.get()).toBe((byte) 3);
+    }
+
+    @Test
+    public void shouldNotStoreDataWhenSDCardNotAvailable() throws Exception {
+        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_REMOVED);
+        expect(storage.storeMetadata(item)).toBeTrue();
+        expect(storage.storeData(item.url, ByteBuffer.wrap(new byte[]{1, 2, 3}), 0)).toBeFalse();
     }
 
     @Test
