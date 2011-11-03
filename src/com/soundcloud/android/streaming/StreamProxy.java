@@ -45,12 +45,16 @@ public class StreamProxy implements Runnable {
     private static final String LOG_TAG = StreamProxy.class.getSimpleName();
     public static boolean opencoreClient;
 
-    private int mPort = 0;
+    private int mPort;
     private boolean mIsRunning = true;
     private ServerSocketChannel mSocket;
     private Thread mThread;
     /* package */ final StreamLoader loader;
     /* package */ final StreamStorage storage;
+
+    public StreamProxy(SoundCloudApplication app) {
+        this(app, 0);
+    }
 
     public StreamProxy(SoundCloudApplication app, int port) {
         storage = new StreamStorage(app, Consts.EXTERNAL_STREAM_DIRECTORY);

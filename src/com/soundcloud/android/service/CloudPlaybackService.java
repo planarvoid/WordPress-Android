@@ -925,7 +925,6 @@ public class CloudPlaybackService extends Service {
         private boolean mIsAsyncOpening;
         private String mPlayingPath = "";
 
-
         public MultiPlayer() {
             refreshMediaplayer();
         }
@@ -954,7 +953,7 @@ public class CloudPlaybackService extends Service {
 
             try {
                 if (mProxy == null) {
-                    mProxy = new StreamProxy(getApp(), 50000 /* hardcoded for testing */).init().start();
+                    mProxy = new StreamProxy(getApp()).init().start();
                 }
                 mPlayingPath = String.format("http://127.0.0.1:%d/%s", mProxy.getPort(), path);
 
@@ -968,15 +967,10 @@ public class CloudPlaybackService extends Service {
                 Log.e(TAG, "error", e);
                 mIsInitialized = false;
             }
-
         }
 
         public boolean isInitialized() {
             return mIsInitialized;
-        }
-
-        public String getPlayingPath() {
-            return mPlayingPath;
         }
 
         public boolean isAsyncOpening() {
