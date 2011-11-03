@@ -845,7 +845,11 @@ public class CreateController {
         if (path.indexOf("_") == -1){
             return -1;
         } else {
-            return Long.valueOf(path.substring(path.indexOf("_")+1,path.indexOf(".")));
+            try {
+                return Long.valueOf(path.substring(path.indexOf("_")+1,path.indexOf(".")));
+            } catch (NumberFormatException e){
+                return -1;
+            }
         }
     }
 
