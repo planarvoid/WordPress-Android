@@ -91,8 +91,8 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         mPendingView = null;
         if (responseCode == HttpStatus.SC_OK) {
             if (newItems != null && newItems.size() > 0) {
-                for (Parcelable newitem : newItems) {
-                    getData().add(newitem);
+                for (Parcelable newItem : newItems) {
+                    getWrappedAdapter().addItem(mSectionIndex,newItem);
                 }
             }
             if (!TextUtils.isEmpty(nextHref)) {

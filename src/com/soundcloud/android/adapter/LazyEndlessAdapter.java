@@ -324,7 +324,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
         if (newItems != null && newItems.size() > 0) {
             for (Parcelable newitem : newItems) {
-                getData().add(newitem);
+                getWrappedAdapter().addItem(newitem);
             }
         }
         mPendingView = null;

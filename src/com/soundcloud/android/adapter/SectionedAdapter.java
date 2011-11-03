@@ -93,6 +93,10 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
         return sections.size() == 0 ? null : sections.get(index).data;
     }
 
+    public void addItem(int index, Parcelable newItem) {
+        getData(index).add(newItem);
+    }
+
     public void clearData(){
         for (Section section : sections) {
             section.clear();
