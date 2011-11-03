@@ -92,6 +92,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mFollowerCount = (TextView) findViewById(R.id.followers);
         mTrackCount = (TextView) findViewById(R.id.tracks);
 
+        CloudUtils.setTextShadowForGrayBg(mUsername);
+        CloudUtils.setTextShadowForGrayBg(mFullName);
+        CloudUtils.setTextShadowForGrayBg(mFollowerCount);
+        CloudUtils.setTextShadowForGrayBg(mTrackCount);
+
         mLocation = (TextView) mInfoView.findViewById(R.id.location);
         mWebsite = (TextView) mInfoView.findViewById(R.id.website);
         mDiscogsName = (TextView) mInfoView.findViewById(R.id.discogs_name);
