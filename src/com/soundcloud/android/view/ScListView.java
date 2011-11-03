@@ -7,11 +7,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.*;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
@@ -394,6 +390,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 mListener.onEventClick(adp.getData(), position);
             } else if (item instanceof User || item instanceof Friend) {
                 mListener.onUserClick(adp.getData(), position);
+            } else if (item instanceof Comment) {
+                mListener.onCommentClick((Comment) item);
             } else if (item instanceof Recording) {
                 mListener.onRecordingClick((Recording) item);
             }
@@ -710,6 +708,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         void onTrackClick(List<Parcelable> tracks, int position);
 
         void onEventClick(List<Parcelable> events, int position);
+
+        void onCommentClick(Comment comment);
 
         void onFling();
 

@@ -47,6 +47,10 @@ public class ActivityRow extends LazyRow {
         mUser = (TextView) findViewById(R.id.user);
         mCreatedAt = (TextView) findViewById(R.id.created_at);
 
+        init();
+    }
+
+    protected void init(){
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

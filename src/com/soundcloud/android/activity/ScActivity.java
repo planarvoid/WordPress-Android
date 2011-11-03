@@ -666,6 +666,13 @@ public abstract class ScActivity extends Activity {
 
         }
 
+        @Override
+        public void onCommentClick(Comment comment) {
+            Intent i = new Intent(ScActivity.this, UserBrowser.class);
+            i.putExtra("user", comment.user);
+            startActivity(i);
+        }
+
         public void onFling() {
             ImageLoader.get(ScActivity.this).pause();
         }

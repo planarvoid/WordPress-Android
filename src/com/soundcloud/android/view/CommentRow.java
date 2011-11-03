@@ -39,6 +39,11 @@ public class CommentRow extends ActivityRow {
     }
 
     @Override
+    protected void init(){
+        // do nothing
+    }
+
+    @Override
     protected boolean fillParcelable(Parcelable p){
         mComment = (Comment) p;
         return mComment != null;
