@@ -1027,9 +1027,7 @@ public class CloudPlaybackService extends Service {
 
         public long seek(long whereto) {
             if (mPlayer == null) return -1;
-
-            else if (isNotSeekablePastBuffer() &&
-                (whereto / (double) mPlayingData.duration) * 100 > mLoadPercent) {
+            else if (isNotSeekablePastBuffer() && isPastBuffer(whereto)) {
                 Log.d(TAG, "MediaPlayer bug: cannot seek past buffer");
                 return -1;
             }
@@ -1044,8 +1042,15 @@ public class CloudPlaybackService extends Service {
             return getSeekResult(whereto, false);
         }
 
+        private boolean isPastBuffer(long pos) {
+             return (pos / (double) mPlayingData.duration) * 100 > mLoadPercent;
+        }
+
         public long getSeekResult(long whereto, boolean resumeSeek) {
             if (mPlayer == null) return -1;
+            else if (isNotSeekablePastBuffer() && isPastBuffer(whereto)) {
+                return -1;
+            }
             long maxSeek;
             if (!resumeSeek) {
                 maxSeek = getDuration();
