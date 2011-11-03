@@ -61,7 +61,7 @@ public class PlayerTime extends RelativeLayout {
         mBgPaint.setColor(0xFFFFFFFF);
         mBgPaint.setAntiAlias(true);
         mBgPaint.setStyle(Paint.Style.FILL);
-        mBgPaint.setMaskFilter(new EmbossMaskFilter(new float[] { 0, 1, 1 },0.85f, 10, 1f));
+        mBgPaint.setMaskFilter(new EmbossMaskFilter(new float[] { 0, .5f, 1 },0.85f, 10, 1f));
         //mBgPaint.setMaskFilter(new BlurMaskFilter(2, BlurMaskFilter.Blur.INNER));
         //mBgPaint.setShadowLayer(-2, -2, 2, Color.BLACK);
 
