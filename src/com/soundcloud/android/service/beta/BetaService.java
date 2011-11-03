@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Settings;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.Http;
 import org.apache.http.client.HttpClient;
 
@@ -21,7 +22,6 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
@@ -79,7 +79,7 @@ public class BetaService extends Service {
                 Log.d(TAG, "already running");
             } else if (!shouldCheckForUpdates(this) && !manual) {
                 skip(null, "User disabled auto-update", intent);
-            } else if (!isStorageAvailable()) {
+            } else if (!CloudUtils.isSDCardAvailable()) {
                 skip(null, "SD card not available", intent);
             } else if (!isBackgroundDataEnabled() && !manual) {
                 skip(null, "Background data disabled", intent);
@@ -238,9 +238,6 @@ public class BetaService extends Service {
         }.execute(content);
     }
 
-    private static boolean isStorageAvailable() {
-        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
-    }
 
     private void notifyNewVersion(Content apk) {
         String title   = getString(R.string.pref_beta_new_version_downloaded);
@@ -361,7 +358,7 @@ public class BetaService extends Service {
     }
 
     static List<Content> getContents() {
-        if (isStorageAvailable()) {
+        if (CloudUtils.isSDCardAvailable()) {
             File[] md = APK_PATH.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File file, String s) {

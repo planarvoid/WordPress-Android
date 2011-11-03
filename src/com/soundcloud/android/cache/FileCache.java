@@ -84,9 +84,7 @@ public class FileCache extends FileResponseCache {
     }
 
     public static File getCacheDir(Context context) {
-        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ?
-                Consts.EXTERNAL_CACHE_DIRECTORY :
-                context.getCacheDir();
+        return CloudUtils.isSDCardAvailable() ? Consts.EXTERNAL_CACHE_DIRECTORY : context.getCacheDir();
     }
 
     public static class DeleteCacheTask extends AsyncTask<File, Integer, Boolean> {

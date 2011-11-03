@@ -17,6 +17,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -65,16 +66,25 @@ public class StreamLoader {
                 Log.d(LOG_TAG, "result of message:" + msg.obj);
                 if (msg.obj instanceof HeadTask) {
                     HeadTask t = (HeadTask) msg.obj;
-                    if (storage.storeMetadata(t.item)) {
-                        mHeadTasks.remove(t);
-                    }
+                    storage.storeMetadata(t.item);
+                    mHeadTasks.remove(t);
                 } else if (msg.obj instanceof DataTask) {
                     DataTask t = (DataTask) msg.obj;
                     try {
                         Log.d(LOG_TAG, String.format("Storing %d bytes at index %d for url %s",
                                 t.buffer.limit(), t.chunkRange.start, t.item.url));
-                        mStorage.storeData(t.item.url, t.buffer, t.chunkRange.start);
-                        fulfillPlayerCallbacks();
+                        if (!mStorage.storeData(t.item.url, t.buffer, t.chunkRange.start)) {
+                            // try to fulfill callbacks directly if we couldn't store data
+                            // (maybe SD storage was not available)
+                            for (Iterator<StreamFuture> it = mPlayerCallbacks.iterator(); it.hasNext();) {
+                                StreamFuture cb = it.next();
+                                if (cb.item.equals(t.item) && cb.byteRange.equals(t.byteRange)) {
+                                    cb.setByteBuffer(t.buffer);
+                                    it.remove();
+                                }
+                            }
+                        }
+                        fulfillPlayerCallbacks(t);
                     } catch (IOException e) {
                         Log.e(LOG_TAG, "error storing data", e);
                     }
@@ -217,7 +227,7 @@ public class StreamLoader {
          */
     }
 
-    private void fulfillPlayerCallbacks() {
+    private void fulfillPlayerCallbacks(DataTask t) {
         List<StreamFuture> fulfilledCallbacks = new ArrayList<StreamFuture>();
         for (StreamFuture future : mPlayerCallbacks) {
             StreamItem item = future.item;

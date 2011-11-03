@@ -462,7 +462,7 @@ public class CreateController {
         mRemainingTimeCalculator.reset();
         mPowerGauge.clear();
 
-        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        if (!CloudUtils.isSDCardAvailable()) {
             mSampleInterrupted = true;
             mRecordErrorMessage = mActivity.getResources().getString(R.string.record_insert_sd_card);
         } else if (!mRemainingTimeCalculator.diskSpaceAvailable()) {

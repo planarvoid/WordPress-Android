@@ -83,8 +83,15 @@ public class CloudUtils {
     private static final String DURATION_FORMAT_LONG  = "%1$d.%3$02d.%5$02d";
     private static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.ENGLISH);
 
+    private CloudUtils() {}
+
+
+    public static boolean isSDCardAvailable() {
+        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
+    }
+
     public static File getCacheDir(Context c) {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        if (isSDCardAvailable()) {
             return Consts.EXTERNAL_CACHE_DIRECTORY;
         } else {
             return c.getCacheDir();
@@ -135,7 +142,7 @@ public class CloudUtils {
         mkdirs(getCacheDir(c));
 
         // create external storage directory
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+        if (isSDCardAvailable()) {
             // fix deprecated casing
             if (fileExistsCaseSensitive(Consts.DEPRECATED_EXTERNAL_STORAGE_DIRECTORY)) {
                 boolean renamed = renameCaseSensitive(

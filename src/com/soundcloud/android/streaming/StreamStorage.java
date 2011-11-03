@@ -3,6 +3,7 @@ package com.soundcloud.android.streaming;
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -74,6 +75,7 @@ public class StreamStorage {
     }
 
     public boolean storeMetadata(StreamItem item) {
+        mItems.put(item.urlHash, item);
         try {
             File indexFile = incompleteIndexFileForUrl(item.url);
             if (indexFile.exists() && !indexFile.delete()) Log.w(LOG_TAG, "could not delete "+indexFile);
@@ -81,10 +83,11 @@ public class StreamStorage {
             DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
             item.write(dos);
             dos.close();
-            mItems.put(item.urlHash, item);
             return true;
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Error storing index data ", e);
+            if (CloudUtils.isSDCardAvailable()) {
+                Log.e(LOG_TAG, "Error storing index data ", e);
+            }
             return false;
         }
     }
@@ -139,8 +142,12 @@ public class StreamStorage {
             return false;
         }
         // Do not add to complete files
-        if (completeFileForUrl(url).exists()) {
+        else if (completeFileForUrl(url).exists()) {
             Log.d(LOG_TAG, "complete file exists, not adding data");
+            return false;
+        }
+        else if (!CloudUtils.isSDCardAvailable()) {
+            Log.d(LOG_TAG, "storage not available, not adding data");
             return false;
         }
 
