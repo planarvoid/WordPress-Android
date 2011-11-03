@@ -163,7 +163,7 @@ public class WorkspaceView extends ViewGroup {
     /**
      * Returns the number of screens currently contained in this Workspace.
      */
-    int getScreenCount() {
+    public int getScreenCount() {
         int childCount = getChildCount();
         if (mSeparatorDrawable != null) {
             return (childCount + 1) / 2;
@@ -171,7 +171,7 @@ public class WorkspaceView extends ViewGroup {
         return childCount;
     }
 
-    View getScreenAt(int index) {
+    public View getScreenAt(int index) {
         if (mSeparatorDrawable == null) {
             return getChildAt(index);
         }
@@ -1014,12 +1014,7 @@ public class WorkspaceView extends ViewGroup {
                 int insertIndex = 1;
                 mSeparatorDrawable = getResources().getDrawable(resId);
                 for (int i = 1; i < numsep; i++) {
-                    View v = new View(getContext());
-                    v.setBackgroundDrawable(mSeparatorDrawable);
-                    LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                            LayoutParams.FILL_PARENT);
-                    v.setLayoutParams(lp);
-                    addView(v, insertIndex);
+                    addView(getNewSeparator(), insertIndex);
                     insertIndex += 2;
                 }
                 requestLayout();
@@ -1033,6 +1028,15 @@ public class WorkspaceView extends ViewGroup {
                 requestLayout();
             }
         }
+    }
+
+    private View getNewSeparator() {
+        View v = new View(getContext());
+        v.setBackgroundDrawable(mSeparatorDrawable);
+        LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.FILL_PARENT);
+        v.setLayoutParams(lp);
+        return v;
     }
 
     private static class SavedState extends BaseSavedState {
@@ -1065,33 +1069,51 @@ public class WorkspaceView extends ViewGroup {
                 };
     }
 
-    public void addViewAtPosition(View v, int pos) {
-        if (pos <= mCurrentScreen) mCurrentScreen++;
-        addView(v, pos);
+    public void addViewAtScreenPosition(View v, int pos) {
+        if (pos == 0){
+            addViewToFront(v);
+        } else if (pos == getScreenCount()) {
+            addViewToBack(v);
+        } else {
+            if (pos <= mCurrentScreen) mCurrentScreen++;
+            if (mSeparatorDrawable != null) {
+                addView(getNewSeparator(), pos * 2);
+                addView(v, pos * 2);
+            } else {
+                addView(v, pos);
+            }
+        }
+
     }
 
 
     public void addViewToFront(View v) {
         mCurrentScreen++;
+        if (mSeparatorDrawable != null && getChildCount() > 0) {
+            addView(getNewSeparator(), 0);
+        }
         addView(v, 0);
     }
 
     public void removeViewFromFront() {
         mCurrentScreen--;
         removeViewAt(0);
+        if (mSeparatorDrawable != null && getChildCount() > 0){
+            removeViewAt(0);
+        }
     }
 
     public void addViewToBack(View v) {
+        if (mSeparatorDrawable != null && getChildCount() > 0) {
+            addView(getNewSeparator());
+        }
         addView(v);
     }
 
     public void removeViewFromBack() {
         removeViewAt(getChildCount() - 1);
-    }
-
-    public void bringLastToFront(){
-        View v = getChildAt(getChildCount() -1);
-        super.bringChildToFront(v);
-        mCurrentScreen++;
+        if (mSeparatorDrawable != null && getChildCount() > 0){
+            removeViewAt(getChildCount() - 1);
+        }
     }
 }
