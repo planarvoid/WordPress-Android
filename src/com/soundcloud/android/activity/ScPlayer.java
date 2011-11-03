@@ -75,6 +75,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         findViewById(R.id.next).setOnClickListener(mNextListener);
 
         mTrackWorkspace = (WorkspaceView) findViewById(R.id.track_view);
+        mTrackWorkspace.setVisibility(View.GONE);
         mTrackWorkspace.setOnScreenChangeListener(this);
 
         mCommentButton = (ImageButton) findViewById(R.id.btn_comment);
@@ -679,6 +680,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             }
 
             if (first){
+                mTrackWorkspace.setVisibility(View.VISIBLE);
                 mTrackWorkspace.initWorkspace(currentQueuePosition > 0 ? 1 : 0);
             } else {
                 mTrackWorkspace.setCurrentScreenNow(currentQueuePosition > 0 ? 1 : 0, false);
