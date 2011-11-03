@@ -328,7 +328,6 @@ public class StreamStorage {
             Log.d(LOG_TAG, "Not doing storage cleanup, conversion is going on");
             return false;
         }
-
         // reset counter
         PreferenceManager.getDefaultSharedPreferences(mContext)
                 .edit()
@@ -337,14 +336,12 @@ public class StreamStorage {
         final long spaceToClean = mUsedSpace - mUsableSpace;
         if (spaceToClean > 0) {
             Log.d(LOG_TAG, "performing cleanup");
-            final List<File> files = new ArrayList<File>();
-            files.addAll(Arrays.asList(mIncompleteDir.listFiles(extension(CHUNKS_EXTENSION))));
-            files.addAll(Arrays.asList(mCompleteDir.listFiles()));
-            Collections.sort(files, FileLastModifiedComparator.INSTANCE);
+            final List<File> files = allFiles(FileLastModifiedComparator.INSTANCE);
             long cleanedSpace = 0;
             for (File f : files) {
                 if (f.delete()) {
                     Log.d(LOG_TAG, "deleted "+f);
+                    cleanedSpace += f.length();
                     String name = f.getName();
                     if (name.endsWith(CHUNKS_EXTENSION)) {
                         String hash = name.substring(0, name.indexOf('.'));
@@ -355,7 +352,6 @@ public class StreamStorage {
                             mItems.remove(hash);
                         }
                     }
-                    cleanedSpace += f.length();
                     if (cleanedSpace >= spaceToClean) break;
                 } else {
                     Log.w(LOG_TAG, "could not delete "+f);
@@ -365,6 +361,20 @@ public class StreamStorage {
         } else {
             return false;
         }
+    }
+
+    private List<File> allFiles(Comparator<File> comparator) {
+        final List<File> files = new ArrayList<File>();
+        File[] chunks = mIncompleteDir.listFiles(extension(CHUNKS_EXTENSION));
+        if (chunks != null) files.addAll(Arrays.asList(chunks));
+
+        File[] complete = mCompleteDir.listFiles();
+        if (complete != null) files.addAll(Arrays.asList(complete));
+
+        if (comparator != null) {
+            Collections.sort(files, comparator);
+        }
+        return files;
     }
 
     /* package */ void calculateFileMetrics() {
@@ -380,10 +390,13 @@ public class StreamStorage {
 
     /* package */ long getUsedSpace() {
         long currentlyUsedSpace = 0;
-        for (File f : mCompleteDir.listFiles()) {
+        File[] complete = mCompleteDir.listFiles();
+        if (complete != null) for (File f : complete) {
             currentlyUsedSpace += f.length();
         }
-        for (File f : mIncompleteDir.listFiles()) {
+
+        File[] incomplete = mIncompleteDir.listFiles();
+        if (incomplete != null) for (File f : incomplete) {
             currentlyUsedSpace += f.length();
         }
         return currentlyUsedSpace;

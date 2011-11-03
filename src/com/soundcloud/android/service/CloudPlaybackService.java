@@ -1049,7 +1049,7 @@ public class CloudPlaybackService extends Service {
         public long getSeekResult(long whereto, boolean resumeSeek) {
             if (mPlayer == null) return -1;
             else if (isNotSeekablePastBuffer() && isPastBuffer(whereto)) {
-                return -1;
+                return mPlayer.position();
             }
             long maxSeek;
             if (!resumeSeek) {
