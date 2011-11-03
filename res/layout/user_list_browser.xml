@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content">
-    <View   android:id="@+id/hr"
-            android:layout_width="fill_parent"
-              android:layout_height="1dip"
-              android:background="@color/horizontalRule"/>
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+    <View android:id="@+id/hr"
+          android:layout_width="fill_parent"
+          android:layout_height="1dp"
+          android:background="?android:attr/listDivider"/>
 
     <RelativeLayout android:layout_width="fill_parent"
                     android:background="@drawable/user_list_browser_tab_bg"
@@ -37,13 +37,13 @@
                    android:src="@drawable/next_sm"/>
     </RelativeLayout>
     <com.soundcloud.android.view.WorkspaceView
-                android:id="@+id/workspace_view"
-                android:layout_below="@id/label_strip"
-                android:layout_alignParentBottom="true"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"/>
+            android:id="@+id/workspace_view"
+            android:layout_below="@id/label_strip"
+            android:layout_alignParentBottom="true"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
     <View android:layout_width="fill_parent"
-                  android:layout_below="@id/label_strip"
-                  android:layout_height="5dip"
-                  android:background="@drawable/drop_shadow_down"/>
+          android:layout_below="@id/label_strip"
+          android:layout_height="5dip"
+          android:background="@drawable/drop_shadow_down"/>
 </RelativeLayout>
