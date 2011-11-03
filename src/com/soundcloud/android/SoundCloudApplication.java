@@ -559,6 +559,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
      * @return       the thread used to submit the msg
      */
     public static Thread handleSilentException(String msg, Exception e) {
+        if (EMULATOR) return null; // acra is disabled on emulator
         if (msg != null) {
            Log.w(TAG, "silentException: "+msg, e);
            ACRA.getErrorReporter().putCustomData("message", msg);
