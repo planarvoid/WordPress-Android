@@ -453,55 +453,6 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         }
     };
 
-    public boolean createCache() {
-        if (getCache().exists()) {
-            return true;
-        } else {
-            CloudUtils.mkdirs(getCache().getParentFile());
-            try {
-                return getCache().createNewFile();
-            } catch (IOException e) {
-                Log.w(TAG, "error creating cache "+getCache(), e);
-                return false;
-            }
-        }
-    }
-
-    public File getCache() {
-        if (mCacheFile == null) {
-            mCacheFile = new File(Consts.EXTERNAL_TRACK_CACHE_DIRECTORY, CloudUtils.md5(Long.toString(id)));
-        }
-        return mCacheFile;
-    }
-
-    public boolean isCached() {
-        return filelength > 0 &&  getCache().length() >= filelength;
-    }
-
-    public boolean touchCache() {
-        File cache = getCache();
-        if (cache.exists())  {
-            if (!cache.setLastModified(System.currentTimeMillis())) {
-                Log.w(TAG, "error touching "+cache);
-                return false;
-            } else {
-                return true;
-            }
-        } else return false;
-    }
-
-    public boolean deleteCache() {
-        File cache = getCache();
-        if (cache != null && cache.exists()) {
-            if (!cache.delete()) {
-                Log.w(TAG, "error deleting " + cache);
-                return false;
-            } else {
-                return true;
-            }
-        } else return false;
-    }
-
     public CharSequence getElapsedTime(Context c) {
         if (mElapsedTime == null){
             mElapsedTime = CloudUtils.getTimeElapsed(c.getResources(),created_at.getTime());

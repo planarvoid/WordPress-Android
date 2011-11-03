@@ -2,7 +2,6 @@ package com.soundcloud.android.streaming;
 
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 
 import android.content.Context;
@@ -17,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -32,16 +32,24 @@ import java.util.Set;
 
 public class StreamStorage {
     static final String LOG_TAG = StreamStorage.class.getSimpleName();
-    public static final int DEFAULT_CHUNK_SIZE = 128 * 1024;
+    public static final int DEFAULT_CHUNK_SIZE = 128 * 1024;     // 128k
+    public static final int STREAM_CACHE_SIZE  = 200* 1024 * 1024; // 200 MB
+    public static final long STREAM_CACHE_MIN_FREE_SPACE = 20 * 1024  * 1024; // 20 MB
+    public static final double MAXIMUM_PERCENTAGE_OF_FREE_SPACE = 0.1d;
+
     private static final int CLEANUP_INTERVAL = 20;
     public static final String STREAMING_WRITES_SINCE_CLEANUP = "streamingWritesSinceCleanup";
+
+    public static final String INDEX_EXTENSION = "index";
+    public static final String CHUNKS_EXTENSION = "chunks";
 
     public final int chunkSize;
 
     private Context mContext;
     private File mBaseDir, mCompleteDir, mIncompleteDir;
 
-    private long mUsedSpace, mSpaceLeft;
+    private long mUsedSpace;
+    private long mUsableSpace;
 
     private Map<String, StreamItem> mItems = new HashMap<String, StreamItem>();
     private Set<String> mConvertingUrls = new HashSet<String>();
@@ -73,7 +81,7 @@ public class StreamStorage {
             DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
             item.write(dos);
             dos.close();
-            mItems.put(item.url, item);
+            mItems.put(item.urlHash, item);
             return true;
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error storing index data ", e);
@@ -82,10 +90,15 @@ public class StreamStorage {
     }
 
     public StreamItem getMetadata(String url) {
-        if (!mItems.containsKey(url)) {
-            mItems.put(url, readMetadata(url));
+        String hashed = StreamItem.urlHash(url);
+        if (!mItems.containsKey(hashed)) {
+            mItems.put(hashed, readMetadata(url));
         }
-        return mItems.get(url);
+        return mItems.get(hashed);
+    }
+
+    public boolean removeMetadata(String url) {
+        return mItems.remove(StreamItem.urlHash(url)) != null;
     }
 
     public ByteBuffer fetchStoredDataForUrl(String url, Range range) throws IOException {
@@ -131,15 +144,17 @@ public class StreamStorage {
             return false;
         }
 
-        // Prepare incomplete file
         StreamItem item = getMetadata(url);
-        if (item == null) throw new IllegalStateException("trying to store data for unknown item");
+        if (item == null) {
+            Log.w(LOG_TAG, "no metadata found for url "+url+", not storing");
+            return false;
+        }
 
         // return if it's already in store
         if (item.downloadedChunks.contains(chunkIndex)) return false;
 
+        // Prepare incomplete file
         final File incompleteFile = incompleteFileForUrl(url);
-
         appendToFile(data, incompleteFile);
 
         // Add Index and save it
@@ -219,11 +234,11 @@ public class StreamStorage {
     }
 
     /* package */ File incompleteFileForUrl(String url) {
-        return new File(mIncompleteDir, StreamItem.urlHash(url));
+        return new File(mIncompleteDir, StreamItem.urlHash(url)+"."+CHUNKS_EXTENSION);
     }
 
     /* package */ File incompleteIndexFileForUrl(String url) {
-        return new File(mIncompleteDir, StreamItem.urlHash(url) + "_index");
+        return new File(mIncompleteDir, StreamItem.urlHash(url)+"."+INDEX_EXTENSION);
     }
 
     private boolean appendToFile(ByteBuffer data, File incompleteFile) throws IOException {
@@ -268,7 +283,7 @@ public class StreamStorage {
         boolean fileDeleted = true, indexDeleted = true;
         if (incompleteFile.exists()) fileDeleted = incompleteFile.delete();
         if (indexFile.exists()) indexDeleted = indexFile.delete();
-        mItems.remove(url);
+        mItems.remove(StreamItem.urlHash(url));
         return fileDeleted && indexDeleted;
     }
 
@@ -312,48 +327,55 @@ public class StreamStorage {
         if (!mConvertingUrls.isEmpty()) {
             Log.d(LOG_TAG, "Not doing storage cleanup, conversion is going on");
             return false;
-        } else {
-            // reset counter
-            PreferenceManager.getDefaultSharedPreferences(mContext)
-                    .edit()
-                    .putInt(STREAMING_WRITES_SINCE_CLEANUP, 0).commit();
-
-            if (mUsedSpace <= Consts.TRACK_MAX_CACHE &&
-                mSpaceLeft >= Consts.TRACK_CACHE_MIN_FREE_SPACE) return false;
         }
 
-        Log.d(LOG_TAG, "performing cleanup");
+        // reset counter
+        PreferenceManager.getDefaultSharedPreferences(mContext)
+                .edit()
+                .putInt(STREAMING_WRITES_SINCE_CLEANUP, 0).commit();
 
-        final List<File> files = new ArrayList<File>();
-        files.addAll(Arrays.asList(mIncompleteDir.listFiles()));
-        files.addAll(Arrays.asList(mCompleteDir.listFiles()));
-        Collections.sort(files, FileLastModifiedComparator.INSTANCE);
-
-        final long spaceToClean = Math.max(mUsedSpace - Consts.TRACK_MAX_CACHE,
-                Consts.TRACK_CACHE_MIN_FREE_SPACE - mSpaceLeft);
-        long cleanedSpace = 0;
-
-        for (File f : files) {
-            final File parent = f.getParentFile();
-            cleanedSpace += f.length();
-            if (!f.delete()) Log.w(LOG_TAG, "could not delete "+f);
-            if (parent.equals(mIncompleteDir)) {
-                File indexFile = new File(f.getAbsolutePath() + "_index");
-                if (indexFile.exists()) {
-                    cleanedSpace += indexFile.length();
-                    if (!indexFile.delete()) Log.w(LOG_TAG, "could not delete "+indexFile);
+        final long spaceToClean = mUsedSpace - mUsableSpace;
+        if (spaceToClean > 0) {
+            Log.d(LOG_TAG, "performing cleanup");
+            final List<File> files = new ArrayList<File>();
+            files.addAll(Arrays.asList(mIncompleteDir.listFiles(extension(CHUNKS_EXTENSION))));
+            files.addAll(Arrays.asList(mCompleteDir.listFiles()));
+            Collections.sort(files, FileLastModifiedComparator.INSTANCE);
+            long cleanedSpace = 0;
+            for (File f : files) {
+                if (f.delete()) {
+                    Log.d(LOG_TAG, "deleted "+f);
+                    String name = f.getName();
+                    if (name.endsWith(CHUNKS_EXTENSION)) {
+                        String hash = name.substring(0, name.indexOf('.'));
+                        File indexFile = new File(mIncompleteDir, hash+"."+INDEX_EXTENSION);
+                        if (indexFile.exists() && indexFile.delete()) {
+                            Log.d(LOG_TAG, "deleted "+indexFile);
+                            // invalidate cache
+                            mItems.remove(hash);
+                        }
+                    }
+                    cleanedSpace += f.length();
+                    if (cleanedSpace >= spaceToClean) break;
+                } else {
+                    Log.w(LOG_TAG, "could not delete "+f);
                 }
             }
-            if (cleanedSpace >= spaceToClean) break;
+            return true;
+        } else {
+            return false;
         }
-        return true;
     }
 
     /* package */ void calculateFileMetrics() {
-        mSpaceLeft = getSpaceLeft();
+        long spaceLeft = getSpaceLeft();
         mUsedSpace = getUsedSpace();
-        Log.d(LOG_TAG, String.format("[File Metrics]  %.1f mb used, %.1f mb free",
-                mUsedSpace/(1024d*1024d), mSpaceLeft/(1024d*1024d)));
+        mUsableSpace = Math.min(
+                (long) (Math.floor((mUsedSpace + spaceLeft) * MAXIMUM_PERCENTAGE_OF_FREE_SPACE)),
+                STREAM_CACHE_SIZE);
+
+        Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable",
+                mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
     }
 
     /* package */ long getUsedSpace() {
@@ -395,5 +417,14 @@ public class StreamStorage {
         public int compare(File f1, File f2) {
             return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
         }
+    }
+
+    static FilenameFilter extension(final String ext) {
+        return new FilenameFilter() {
+            @Override
+            public boolean accept(File file, String s) {
+                return s.endsWith("."+ext);
+            }
+        };
     }
 }
