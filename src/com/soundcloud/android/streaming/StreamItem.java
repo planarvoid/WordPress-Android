@@ -15,11 +15,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class StreamItem implements Parcelable {
     public final Index chunksToDownload = new Index();
-    public final List<Integer> downloadedChunks = new ArrayList<Integer>();
+    public final List<Integer> downloadedChunks =
+            Collections.synchronizedList(new ArrayList<Integer>());
 
     public final String url;
     public final String urlHash;
