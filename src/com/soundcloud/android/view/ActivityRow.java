@@ -34,7 +34,7 @@ public class ActivityRow extends LazyRow {
     private Drawable mCommentedDrawable;
     private Drawable mFavoritedPressedDrawable;
     private Drawable mCommentedPressedDrawable;
-    private SpannableStringBuilder mSpanBuilder;
+    protected SpannableStringBuilder mSpanBuilder;
 
     protected enum ActivityType {
         Comment,Favorite
@@ -90,6 +90,20 @@ public class ActivityRow extends LazyRow {
         return mEvent.created_at;
     }
 
+    protected SpannableStringBuilder createSpan() {
+        mSpanBuilder = new SpannableStringBuilder();
+        mSpanBuilder.append("  ").append(getTrack().title);
+
+        if (getType() == ActivityType.Comment) {
+            mSpanBuilder.append(": ");
+            mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mSpanBuilder.append("\"").append(getComment().body).append("\"");
+        } else {
+            mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return mSpanBuilder;
+    }
+
     @Override
     public String getIconRemoteUri() {
         if (mEvent == null || mEvent.getUser() == null || mEvent.getUser().avatar_url == null) return "";
@@ -113,17 +127,7 @@ public class ActivityRow extends LazyRow {
 
         if (isNull) return;
 
-        mSpanBuilder = new SpannableStringBuilder();
-        mSpanBuilder.append("  ");
-        mSpanBuilder.append(getTrack().title);
-
-        if (getType() == ActivityType.Comment){
-            mSpanBuilder.append(": ");
-            mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            mSpanBuilder.append("\"").append(getComment().body).append("\"");
-        } else {
-            mSpanBuilder.setSpan(new StyleSpan(Typeface.BOLD), 1, mSpanBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
+        mSpanBuilder = createSpan();
 
         setImageSpan();
         
@@ -131,7 +135,9 @@ public class ActivityRow extends LazyRow {
         mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), getOriginCreatedAt().getTime()));
 
     }
-    
+
+
+
     private void setImageSpan(){
         if (mSpanBuilder == null) return;
         if (getType() == ActivityType.Comment){

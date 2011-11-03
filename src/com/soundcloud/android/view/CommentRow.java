@@ -38,29 +38,42 @@ public class CommentRow extends ActivityRow {
         mTrack = track;
     }
 
+    @Override
     protected boolean fillParcelable(Parcelable p){
         mComment = (Comment) p;
         return mComment != null;
     }
 
+    @Override
     protected ActivityType getType() {
         return ActivityType.Comment;
     }
 
+    @Override
     protected Track getTrack(){
         return mTrack == null ? mComment.track : mTrack;
     }
 
+    @Override
     protected Comment getComment(){
         return mComment;
     }
 
+    @Override
     protected User getOriginUser(){
         return mComment.user;
     }
 
+    @Override
     protected Date getOriginCreatedAt(){
         return mComment.created_at;
+    }
+
+    @Override
+    protected SpannableStringBuilder createSpan() {
+        mSpanBuilder = new SpannableStringBuilder();
+        mSpanBuilder.append("  \"").append(getComment().body).append("\"");
+        return mSpanBuilder;
     }
 
     @Override

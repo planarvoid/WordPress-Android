@@ -249,7 +249,7 @@ public class WorkspaceView extends ViewGroup {
                 }
             }
         }
-
+        //TODO scroller is npe???
         if (mScroller.computeScrollOffset()) {
             scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
             if (mOnScrollListener != null) {
