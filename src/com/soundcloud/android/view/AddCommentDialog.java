@@ -2,6 +2,7 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -69,6 +70,10 @@ public class AddCommentDialog extends Dialog {
 
                 // cannot simply dismiss, or state will be saved
                 mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+
+                if (mActivity instanceof ScPlayer){
+                    ((ScPlayer)mActivity).onNewComment(comment);
+                }
             }
         });
 

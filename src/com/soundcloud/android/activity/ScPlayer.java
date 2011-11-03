@@ -6,6 +6,7 @@ import android.view.WindowManager;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.service.RemoteControlReceiver;
@@ -267,6 +268,10 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             return false;
         }
         return true;
+    }
+
+    public void onNewComment(Comment comment) {
+        getCurrentTrackView().onNewComment(comment);
     }
 
     @Override
