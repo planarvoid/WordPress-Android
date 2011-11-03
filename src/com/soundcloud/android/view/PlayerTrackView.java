@@ -579,12 +579,13 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             mWaveformController.setComments(mTrack.comments, true);
         } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
              mWaveformController.stopSmoothProgress();
-        } else if (action.equals(Consts.IntentActions.COMMENT_ADDED)) {
-            final Comment c = intent.getParcelableExtra("comment");
-            if (c.track_id == mTrack.id) {
-                mWaveformController.setComments(mTrack.comments, true);
-                mWaveformController.showNewComment(c);
-            }
+        }
+    }
+
+    public void onNewComment(Comment comment) {
+        if (comment.track_id == mTrack.id) {
+            mWaveformController.setComments(mTrack.comments, true);
+            mWaveformController.showNewComment(comment);
         }
     }
 
