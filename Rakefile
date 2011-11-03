@@ -163,6 +163,7 @@ namespace :beta do
   end
 
   task :push => :upload
+  task :release => :upload
 
   desc "upload beta to s3"
   task :upload => :verify do
