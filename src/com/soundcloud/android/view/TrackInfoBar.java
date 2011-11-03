@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.graphics.Color;
 import android.util.Log;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
@@ -66,6 +67,15 @@ public class TrackInfoBar extends RelativeLayout {
 
         mPlayCountSeparator = findViewById(R.id.vr_play_count);
         mCommentCountSeparator = findViewById(R.id.vr_comment_count);
+    }
+
+    public void addTextShadows(){
+        CloudUtils.setTextShadowForGrayBg(mTitle);
+        CloudUtils.setTextShadowForGrayBg(mUser);
+        CloudUtils.setTextShadowForGrayBg(mCreatedAt);
+        CloudUtils.setTextShadowForGrayBg(mFavoriteCount);
+        CloudUtils.setTextShadowForGrayBg(mPlayCount);
+        CloudUtils.setTextShadowForGrayBg(mCommentCount);
     }
 
     private Drawable getPlayingDrawable() {

@@ -2,11 +2,7 @@ package com.soundcloud.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.BlurMaskFilter;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.RectF;
+import android.graphics.*;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -65,8 +61,8 @@ public class PlayerTime extends RelativeLayout {
         mBgPaint.setColor(0xFFFFFFFF);
         mBgPaint.setAntiAlias(true);
         mBgPaint.setStyle(Paint.Style.FILL);
-        //mBgPaint.setMaskFilter(new EmbossMaskFilter(new float[] { 0, 1, 1 },0.9f, 10, 1f));
-        mBgPaint.setMaskFilter(new BlurMaskFilter(1, BlurMaskFilter.Blur.INNER));
+        mBgPaint.setMaskFilter(new EmbossMaskFilter(new float[] { 0, .5f, 1 },0.85f, 10, 1f));
+        //mBgPaint.setMaskFilter(new BlurMaskFilter(2, BlurMaskFilter.Blur.INNER));
         //mBgPaint.setShadowLayer(-2, -2, 2, Color.BLACK);
 
         mLinePaint = new Paint();

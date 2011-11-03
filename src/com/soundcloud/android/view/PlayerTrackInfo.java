@@ -36,7 +36,9 @@ public class PlayerTrackInfo extends RelativeLayout{
     private final ScPlayer mPlayer;
     private final FlowLayout mTrackTags;
     private final TextView mFavoritersTxt;
+    private final View mFavoritersHr;
     private final TextView mCommentersTxt;
+    private final View mCommentersHr;
     private Track mPlayingTrack;
 
     private boolean mTrackInfoFilled;
@@ -53,6 +55,9 @@ public class PlayerTrackInfo extends RelativeLayout{
 
         mTrackTags = (FlowLayout) findViewById(R.id.tags_holder);
         mFavoritersTxt = (TextView) findViewById(R.id.favoriters_txt);
+        mFavoritersHr = findViewById(R.id.favoriters_hr);
+        mFavoritersTxt.setVisibility(View.GONE);
+        mFavoritersHr.setVisibility(View.GONE);
         mFavoritersTxt.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,6 +70,9 @@ public class PlayerTrackInfo extends RelativeLayout{
         });
 
         mCommentersTxt = (TextView) findViewById(R.id.commenters_txt);
+        mCommentersHr = findViewById(R.id.commenters_hr);
+        mCommentersTxt.setVisibility(View.GONE);
+        mCommentersHr.setVisibility(View.GONE);
         mCommentersTxt.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -114,16 +122,20 @@ public class PlayerTrackInfo extends RelativeLayout{
 
             if (mPlayingTrack.favoritings_count == 0) {
                 mFavoritersTxt.setVisibility(View.GONE);
+                mFavoritersHr.setVisibility(View.GONE);
             } else {
                 mFavoritersTxt.setVisibility(View.VISIBLE);
+                mFavoritersHr.setVisibility(View.VISIBLE);
                 mFavoritersTxt.setText(getResources().getQuantityString(R.plurals.track_info_favoriters,
                         mPlayingTrack.favoritings_count,mPlayingTrack.favoritings_count));
             }
 
             if (mPlayingTrack.comment_count == 0) {
                 mCommentersTxt.setVisibility(View.GONE);
+                mCommentersHr.setVisibility(View.GONE);
             } else {
                 mCommentersTxt.setVisibility(View.VISIBLE);
+                mCommentersHr.setVisibility(View.VISIBLE);
                 mCommentersTxt.setText(getResources().getQuantityString(R.plurals.track_info_commenters,
                         mPlayingTrack.comment_count,mPlayingTrack.comment_count));
             }

@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.graphics.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -26,10 +27,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -896,5 +893,9 @@ public class CloudUtils {
             }
         }
         return result;
+    }
+
+    public static void setTextShadowForGrayBg(TextView tv){
+        tv.setShadowLayer(1, 0, 1, Color.WHITE);
     }
 }

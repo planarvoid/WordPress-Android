@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.adapter.FriendFinderAdapter;
 import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
@@ -40,6 +41,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
     private List<Connection> mConnections;
     private boolean mSeen;
+    private boolean mPendingTrendsetterMessage;
 
     public interface States {
         int LOADING = 1;
@@ -101,9 +103,11 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     public void onSectionLoaded(SectionedAdapter.Section section) {
         if ((mFriendsSection == section && mFriendsSection.data.size() == 0 &&
             !mActivity.getApp().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))) {
-
-            mActivity.showToast(R.string.suggested_users_no_friends_msg);
-            mActivity.getApp().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
+            if (mActivity instanceof UserBrowser && ((UserBrowser) mActivity).isShowingTab(UserBrowser.TabTags.friend_finder)){
+                showTrendsetterMessage();
+            } else {
+                mPendingTrendsetterMessage = true;
+            }
         }
     }
 
@@ -188,6 +192,11 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 mFriendList.getWrapper().allowInitialLoading();
             }
         }
+
+        if (mPendingTrendsetterMessage){
+            mPendingTrendsetterMessage = false;
+            showTrendsetterMessage();
+        }
     }
 
     private void removeList() {
@@ -203,7 +212,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         mFriendList.setOnRefreshListener(this);
         mFriendList.setFadingEdgeLength(0);
 
-        mAdapter = new SectionedEndlessAdapter(mActivity, new SectionedUserlistAdapter(mActivity), false);
+        mAdapter = new SectionedEndlessAdapter(mActivity, new FriendFinderAdapter(mActivity), false);
         mAdapter.addListener(this);
 
         if (!mFbConnected) mFriendList.addHeaderView(mHeaderLayout);
@@ -234,6 +243,11 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         mAdapter.getWrappedAdapter().sections.add(
                 new SectionedAdapter.Section(mActivity.getString(R.string.list_header_suggested_users),
                         User.class, new ArrayList<Parcelable>(), Request.to(Endpoints.SUGGESTED_USERS)));
+    }
+
+    private void showTrendsetterMessage() {
+        mActivity.showToast(R.string.suggested_users_no_friends_msg);
+        mActivity.getApp().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
     }
 
     @Override

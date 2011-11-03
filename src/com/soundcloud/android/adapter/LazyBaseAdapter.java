@@ -78,4 +78,8 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
     }
 
     public void onDestroy(){}
+
+    public void addItem(Parcelable newItem) {
+        getData().add(newItem);
+    }
 }

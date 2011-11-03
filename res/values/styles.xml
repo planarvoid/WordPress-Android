@@ -104,7 +104,7 @@
     <style name="stat_pipe">
         <item name="android:layout_marginRight">6dip</item>
         <item name="android:layout_marginLeft">6dip</item>
-        <item name="android:background">@color/verticalPipe</item>
+        <item name="android:background">?android:attr/listDivider</item>
     </style>
 
     <style name="txt_auth_title" parent="@android:style/TextAppearance.Large">

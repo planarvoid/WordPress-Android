@@ -334,9 +334,10 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             if (relativeLayout.getChildAt(j) instanceof TextView) {
                 relativeLayout.getChildAt(j).setVisibility(View.GONE);
             } else if (relativeLayout.getChildAt(j) instanceof ImageView) {
-                relativeLayout.getChildAt(j).getLayoutParams().height = RelativeLayout.LayoutParams.FILL_PARENT;
-                ((RelativeLayout.LayoutParams) relativeLayout.getChildAt(j).getLayoutParams()).bottomMargin =
-                        (int) (5*getResources().getDisplayMetrics().density);
+                // this broke the miui rom
+                //relativeLayout.getChildAt(j).getLayoutParams().height = RelativeLayout.LayoutParams.FILL_PARENT;
+                //((RelativeLayout.LayoutParams) relativeLayout.getChildAt(j).getLayoutParams()).bottomMargin =
+                  //      (int) (5*getResources().getDisplayMetrics().density);
             }
         }
 

@@ -85,6 +85,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
         mTrackFlipper = (ViewFlipper) findViewById(R.id.vfTrackInfo);
 
+        mTrackInfoBar.addTextShadows();
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
         if (mArtwork != null){

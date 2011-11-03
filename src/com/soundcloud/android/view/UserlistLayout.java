@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.soundcloud.android.utils.CloudUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,7 @@ public class UserlistLayout extends RelativeLayout {
         labelTxt.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.FILL_PARENT));
         labelTxt.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
         labelTxt.setCompoundDrawablePadding((int) (getResources().getDisplayMetrics().density * 5));
+        CloudUtils.setTextShadowForGrayBg(labelTxt);
         mLabelHolder.addView(labelTxt);
         tabLabels.add(new TabLabel(labelTxt,label,tag, mLabelHolder.getChildCount() - 1));
     }
@@ -114,6 +116,10 @@ public class UserlistLayout extends RelativeLayout {
 
     public void setOnScreenChangedListener(WorkspaceView.OnScreenChangeListener listener){
         mWorkspaceView.setOnScreenChangeListener(listener, false);
+    }
+
+    public void isShowingTag(String tag) {
+
     }
 
     public void setCurrentScreenByTag(String tag) {

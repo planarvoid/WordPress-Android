@@ -14,9 +14,9 @@
                     android:layout_height="1dip"
                     android:background="@color/playerControlBackground">
         <View android:layout_width="fill_parent"
-              android:layout_height="1dip"
+              android:layout_height="1px"
               android:layout_marginLeft="10dip"
-              android:background="@color/horizontalRule"
+              android:background="?android:attr/listDivider"
               android:layout_marginRight="10dip"/>
     </RelativeLayout>
     <LinearLayout android:id="@+id/track_menu"

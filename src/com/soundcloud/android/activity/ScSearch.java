@@ -61,6 +61,9 @@ public class ScSearch extends ScActivity {
         rdoUser = (RadioButton) findViewById(R.id.rdo_users);
         rdoTrack = (RadioButton) findViewById(R.id.rdo_tracks);
 
+        CloudUtils.setTextShadowForGrayBg(rdoUser);
+        CloudUtils.setTextShadowForGrayBg(rdoTrack);
+
         txtQuery = (EditText) findViewById(R.id.query);
 
         Button btnSearch = (Button) findViewById(R.id.search);

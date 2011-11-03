@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import android.os.Parcelable;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Friend;

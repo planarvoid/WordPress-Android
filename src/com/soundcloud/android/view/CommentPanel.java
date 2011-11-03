@@ -66,10 +66,9 @@ public class CommentPanel extends RelativeLayout {
         inflater.inflate(R.layout.comment_panel, this);
 
         mBgPaint = new Paint();
-        mBgPaint.setColor(getResources().getColor(R.color.white));
+        mBgPaint.setColor(0xDDFFFFFF);
         mBgPaint.setAntiAlias(true);
         mBgPaint.setStyle(Paint.Style.FILL);
-        mBgPaint.setMaskFilter(new BlurMaskFilter(1, BlurMaskFilter.Blur.INNER));
 
         mLinePaint = new Paint();
         mLinePaint.setColor(getResources().getColor(R.color.portraitPlayerCommentLine));
