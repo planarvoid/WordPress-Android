@@ -118,6 +118,10 @@ public class UserlistLayout extends RelativeLayout {
         mWorkspaceView.setOnScreenChangeListener(listener, false);
     }
 
+    public void isShowingTag(String tag) {
+
+    }
+
     public void setCurrentScreenByTag(String tag) {
         for (TabLabel tl : tabLabels) {
             if (tl.tag.contentEquals(tag)) {

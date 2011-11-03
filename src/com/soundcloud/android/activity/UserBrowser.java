@@ -66,7 +66,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private static final CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
     private static final CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
 
-
     public interface TabTags {
         String tracks = "tracks";
         String favorites = "favorites";
@@ -182,6 +181,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     public void setTab(String tag) {
         mUserlistBrowser.setCurrentScreenByTag(tag);
+    }
+
+    public boolean isShowingTab(String tabTag) {
+        return mUserlistBrowser.getCurrentTag().contentEquals(tabTag);
     }
 
     @Override
