@@ -378,7 +378,6 @@
   <string name="sounds_from">Sounds from %s</string>
   <string name="suggested_users">Suggested People</string>
   <string name="suggested_users_msg">Welcome! Thanks for joining SoundCloud. Feel free to follow some of our Suggested People to find new sounds.</string>
-  <string name="suggested_users_no_friends_msg">[ Whoop! You\'re a trendsetter.] You\'re the first of your friends to join SoundCloud. Check out new sounds from our Suggested People.</string>
   <string name="tab_activity">Activity</string>
   <string name="tab_exclusive">Exclusive</string>
   <string name="tab_favorites">Favorites</string>

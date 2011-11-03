@@ -52,7 +52,7 @@
         Likes
     </string>
     <string name='user_browser_tab_followings'>
-        Followings
+        Following
     </string>
     <string name='user_browser_tab_followers'>
         Followers
@@ -87,4 +87,6 @@
     </plurals>
 
     <string name="list_header_track_comments">Comments on this sound</string>
+
+    <string name="suggested_users_no_friends_msg">You\'re the first of your friends to join SoundCloud. Check out new sounds from our Suggested People.</string>
 </resources>
