@@ -23,10 +23,10 @@ public final class Consts {
 
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH, ".cache");
     public static final File EXTERNAL_STREAM_DIRECTORY = new File(FILES_PATH, "stream");
+
+    @Deprecated
     public static final File EXTERNAL_TRACK_CACHE_DIRECTORY = new File(FILES_PATH, ".s");
 
-    public static final long TRACK_MAX_CACHE = 200 * 1024 * 1024; // 200 MB
-    public static final long TRACK_CACHE_MIN_FREE_SPACE = 20 * 1024  * 1024; // 20  MB
 
     public static final long MAX_IMAGE_CACHE = 5 * 1024  * 1024; // 5  MB
 

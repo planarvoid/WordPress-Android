@@ -22,7 +22,7 @@ public class StreamItem implements Parcelable {
     public final List<Integer> downloadedChunks = new ArrayList<Integer>();
 
     public final String url;
-    private String mURLHash;
+    public final String urlHash;
 
     private boolean mUnavailable;  // http status 402, 404, 410
     private long mContentLength;
@@ -33,6 +33,7 @@ public class StreamItem implements Parcelable {
     public StreamItem(String url) {
         if (TextUtils.isEmpty(url)) throw new IllegalArgumentException();
         this.url = url;
+        this.urlHash = urlHash(url);
     }
 
     /* package */ StreamItem(String url, long length, String etag) {
@@ -115,13 +116,6 @@ public class StreamItem implements Parcelable {
         return !mUnavailable;
     }
 
-    public String getURLHash() {
-        if (mURLHash == null) {
-            mURLHash = urlHash(url);
-        }
-        return mURLHash;
-    }
-
     public static String urlHash(String url) {
         return CloudUtils.md5(url);
     }
@@ -131,8 +125,8 @@ public class StreamItem implements Parcelable {
         final StringBuilder sb = new StringBuilder();
         sb.append("StreamItem");
         sb.append("{url='").append(url).append('\'');
+        sb.append(", urlHash='").append(urlHash).append('\'');
         sb.append(", unavailable=").append(mUnavailable);
-        sb.append(", mURLHash='").append(mURLHash).append('\'');
         sb.append(", mContentLength=").append(mContentLength);
         sb.append(", mRedirectedUrl='").append(mRedirectedUrl).append('\'');
         sb.append(", mEtag='").append(mEtag).append('\'');
@@ -218,6 +212,7 @@ public class StreamItem implements Parcelable {
     public StreamItem(Parcel in) {
         Bundle data = in.readBundle(getClass().getClassLoader());
         url = data.getString("url");
+        urlHash = urlHash(url);
         mRedirectedUrl = data.getString("redirectedUrl");
         mEtag = data.getString("etag");
         mUnavailable = data.getBoolean("unavailable");

@@ -81,33 +81,6 @@ public class TrackTest {
     }
 
     @Test
-    public void shouldHaveCacheFile() throws Exception {
-        Track t = new Track();
-        t.id = 10;
-        t.getCache().deleteOnExit();
-
-        assertThat(t.getCache().getAbsolutePath().contains(
-                "Android/data/com.soundcloud.android/files/.s/d3d9446802a44259755d38e6d163e820")
-                , is(true));
-
-        assertThat(t.getCache().exists(), is(false));
-        assertThat(t.touchCache(), is(false));
-    }
-
-    @Test
-    public void shouldDeleteCacheFile() throws Exception {
-        Track t = new Track();
-        t.id = 10;
-        t.getCache().deleteOnExit();
-
-        assertThat(t.getCache().exists(), is(false));
-        assertThat(t.createCache(), is(true));
-        assertThat(t.getCache().exists(), is(true));
-        assertThat(t.deleteCache(), is(true));
-        assertThat(t.getCache().exists(), is(false));
-    }
-
-    @Test
     public void shouldBuildContentValuesEmpty() throws Exception{
         Track t = new Track();
         ContentValues v = t.buildContentValues();

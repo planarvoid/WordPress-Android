@@ -42,8 +42,6 @@ public class Settings extends PreferenceActivity {
             BetaPreferences.add(this, getPreferenceScreen());
         }
 
-        updateClearCacheTitles();
-
         findPreference("tour").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
@@ -215,6 +213,7 @@ public class Settings extends PreferenceActivity {
     @Override
     protected void onResume() {
         getApp().trackPage(Consts.Tracking.SETTINGS);
+        updateClearCacheTitles();
         super.onResume();
     }
 

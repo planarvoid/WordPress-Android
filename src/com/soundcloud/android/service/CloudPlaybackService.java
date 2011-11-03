@@ -144,7 +144,7 @@ public class CloudPlaybackService extends Service {
 
     public boolean mAutoAdvance = true;
 
-    private static final int MINIMUM_SEEKABLE_SDK = 9;
+    private static final int MINIMUM_SEEKABLE_SDK = Build.VERSION_CODES.ECLAIR_MR1; // 7, 2.1
 
     private long m10percentStamp;
     private long m95percentStamp;
@@ -871,6 +871,11 @@ public class CloudPlaybackService extends Service {
         }
     }
 
+    public boolean isNotSeekablePastBuffer() {
+        // Some phones on 2.2 ship with broken opencore
+        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO && StreamProxy.opencoreClient;
+    }
+
     /**
      * Seeks to the position specified.
      *
@@ -901,11 +906,9 @@ public class CloudPlaybackService extends Service {
     public long getSeekResult(long pos) {
         synchronized (this) {
             if (isSeekable()) {
-
                 if (pos <= 0) {
                     pos = 0;
                 }
-
                 return mPlayer.getSeekResult(pos);
             }
             return -1;
@@ -1023,13 +1026,14 @@ public class CloudPlaybackService extends Service {
         }
 
         public long seek(long whereto) {
-            return seek(whereto, false);
-        }
-
-        public long seek(long whereto, boolean resumeSeek) {
             if (mPlayer == null) return -1;
 
-            if (whereto != mPlayer.position()) {
+            else if (isNotSeekablePastBuffer() &&
+                (whereto / (double) mPlayingData.duration) * 100 > mLoadPercent) {
+                Log.d(TAG, "MediaPlayer bug: cannot seek past buffer");
+                return -1;
+            }
+            else if (whereto != mPlayer.position()) {
                 mSeekPos = whereto;
                 mMediaPlayer.seekTo((int) whereto);
             }
@@ -1121,7 +1125,6 @@ public class CloudPlaybackService extends Service {
                 mMediaplayerHandler.removeMessages(CLEAR_LAST_SEEK);
                 mMediaplayerHandler.sendMessageDelayed(msg,3000);
                 notifyChange(SEEK_COMPLETE);
-
             }
         };
 
@@ -1172,7 +1175,7 @@ public class CloudPlaybackService extends Service {
                 }
 
                 if (mResumeId == mPlayingData.id) {
-                    mPlayer.seek(mResumeTime, true);
+                    mPlayer.seek(mResumeTime);
                     mResumeTime = -1;
                     mResumeId = -1;
                 }

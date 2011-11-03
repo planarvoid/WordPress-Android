@@ -18,7 +18,7 @@ public class StreamItemTest {
      @Test
     public void shouldGetHashKey() throws Exception {
         StreamItem item = new StreamItem("http://asdf.com");
-        expect(item.getURLHash()).toEqual("b0ecbe2bc0fd8e426395c81ee96f81cf");
+        expect(item.urlHash).toEqual("b0ecbe2bc0fd8e426395c81ee96f81cf");
     }
 
     @Test(expected = IllegalArgumentException.class)
