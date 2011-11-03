@@ -55,8 +55,6 @@
 	<color name="cloudProgressRoundBorder">#4b504c</color>
 
 	<color name="listSeperator">#FF333333</color>
-    <color name="verticalPipeDark">#ccaaaaaa</color>
-    <color name="verticalPipe">#77cccccc</color>
 
 	<color name="white">#ffffffff</color>
 	<color name="black">#ff000000</color>
