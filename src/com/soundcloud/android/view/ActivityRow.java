@@ -157,11 +157,6 @@ public class ActivityRow extends LazyRow {
     }
 
     @Override
-    public ImageView getRowIcon() {
-        return mIcon;
-    }
-
-    @Override
     public void setPressed(boolean pressed){
         super.setPressed(pressed);
        setImageSpan();

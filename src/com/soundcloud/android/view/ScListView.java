@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.os.*;
 import android.view.*;
 import android.widget.*;
 import com.soundcloud.android.R;
@@ -14,10 +15,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.animation.LinearInterpolator;
@@ -466,6 +463,17 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         if (mOnScrollListener != null) mOnScrollListener.onScrollStateChanged(view, scrollState);
+
+        /*
+        // for debugging list flings, useful
+        switch (scrollState){
+            case 1:
+                Debug.startMethodTracing("scroll");
+                break;
+            case 0:
+                Debug.stopMethodTracing();
+                break;
+        }   */
 
         if (mCurrentScrollState == SCROLL_STATE_FLING && scrollState != SCROLL_STATE_FLING) {
             final Handler handler = mScrollHandler;

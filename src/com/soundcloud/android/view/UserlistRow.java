@@ -103,14 +103,8 @@ public class UserlistRow extends LazyRow {
     }
 
     @Override
-    public ImageView getRowIcon() {
-        return mIcon;
-    }
-
-    @Override
     public String getIconRemoteUri() {
-        if (mUser.avatar_url == null)
-            return "";
+        if (mUser.avatar_url == null) return "";
         return ImageUtils.formatGraphicsUriForList(mActivity, mUser.avatar_url);
     }
 

@@ -101,11 +101,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public static final int MINIMUM_SMOOTH_PROGRESS_SDK = 9;
     private static final long MINIMUM_PROGRESS_PERIOD = 40;
     private boolean mShowingSmoothProgress;
-
-
-
-
-
+    private boolean mShowingWaiting, mIsBuffering;
 
 
     public WaveformController(Context context, AttributeSet attrs) {
@@ -220,7 +216,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void reset(){
-        hideConnectingLayout();
+        hideWaiting();
         setProgressInternal(0);
         setSecondaryProgress(0);
         onStop();
@@ -249,14 +245,31 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-    public void showConnectingLayout() {
-        mWaveformHolder.showConnectingLayout(true);
+    public void onBufferingStart(){
+        mIsBuffering = true;
+        if (!mShowingWaiting){
+            showWaiting();
+        }
+    }
+
+    public void onBufferingStop(){
+        mIsBuffering = false;
+        if (waveformResult != BindResult.LOADING){
+            hideWaiting();
+        }
+    }
+
+    private void showWaiting() {
+        mShowingWaiting = true;
+        mWaveformHolder.showWaitingLayout(true);
         invalidate();
     }
 
-    public void hideConnectingLayout() {
-        mWaveformHolder.hideConnectingLayout();
+    private void hideWaiting() {
+        mShowingWaiting = false;
+        mWaveformHolder.hideWaitingLayout();
         invalidate();
+
     }
 
     public void setCommentMode(boolean commenting) {
@@ -412,10 +425,17 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 showWaveform();
                 break;
             case LOADING:
-            case ERROR:
+                if (!mShowingWaiting) showWaiting();
                 mOverlay.setVisibility(View.INVISIBLE);
                 mProgressBar.setVisibility(View.INVISIBLE);
                 mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
+                break;
+            case ERROR:
+                if (!mShowingWaiting) showWaiting();
+                mOverlay.setVisibility(View.INVISIBLE);
+                mProgressBar.setVisibility(View.INVISIBLE);
+                mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
+                onWaveformError();
                 break;
         }
     }
@@ -559,6 +579,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private void showWaveform() {
         mPlayer.onWaveformLoaded();
+        if (!mIsBuffering) hideWaiting();
+
         if (mOverlay.getVisibility() == View.INVISIBLE) {
             AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
             aa.setDuration(500);

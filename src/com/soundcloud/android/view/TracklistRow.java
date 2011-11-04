@@ -73,11 +73,6 @@ public class TracklistRow extends LazyRow {
     }
 
     @Override
-    public ImageView getRowIcon() {
-        return mIcon;
-    }
-
-    @Override
     public String getIconRemoteUri() {
         if (mTrack == null){
            return "";

@@ -220,7 +220,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                     hideUnplayable();
                 } else {
                     showUnplayable();
-                    mWaveformController.hideConnectingLayout();
+                    mWaveformController.onBufferingStop();
                 }
 
             }
@@ -563,16 +563,16 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {
             onBuffering();
         } else if (action.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
-            mWaveformController.hideConnectingLayout();
+            mWaveformController.onBufferingStop();
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
         } else if (action.equals(CloudPlaybackService.PLAYBACK_ERROR)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.PLAYBACK_ERROR;
-            mWaveformController.hideConnectingLayout();
+            mWaveformController.onBufferingStop();
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
             showUnplayable();
         } else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.STREAM_ERROR;
-            mWaveformController.hideConnectingLayout();
+            mWaveformController.onBufferingStop();
             mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
             showUnplayable();
         } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
@@ -621,7 +621,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         if (mTrack != null) {
             mTrack.last_playback_error = -1;
             hideUnplayable();
-            mWaveformController.showConnectingLayout();
+            mWaveformController.onBufferingStart();
             mWaveformController.stopSmoothProgress();
         }
     }

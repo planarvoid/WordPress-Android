@@ -181,7 +181,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             }
 
             for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++) {
-                Log.i("asdf","Gettin screen at " + i);
                 if (i != mTrackWorkspace.getCurrentScreen()) {
                     ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).getWaveformController().reset();
                 }

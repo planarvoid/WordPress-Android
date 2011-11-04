@@ -543,7 +543,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             if (info != null && info.signatures != null) {
                 final String[] keys = getResources().getStringArray(resource);
                 final String sig =  info.signatures[0].toCharsString();
-                Log.i("asdf","SIGNATURE " + sig);
                 Arrays.sort(keys);
                 return Arrays.binarySearch(keys, sig) > -1;
             } else {

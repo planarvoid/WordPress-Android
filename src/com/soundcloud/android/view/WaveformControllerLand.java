@@ -6,7 +6,6 @@ import android.os.Message;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
@@ -145,7 +144,7 @@ public class WaveformControllerLand extends WaveformController {
     }
 
     public void showConnectingLayout() {
-        mWaveformHolder.showConnectingLayout(false);
+        mWaveformHolder.showWaitingLayout(false);
         invalidate();
     }
 

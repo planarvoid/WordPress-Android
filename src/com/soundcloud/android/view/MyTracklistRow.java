@@ -87,7 +87,7 @@ public class MyTracklistRow extends TracklistRow {
         mCloseIcon.setVisibility(recording.upload_status == 1 ? View.VISIBLE : View.GONE);
 
         if (recording.artwork_path == null) {
-            mImageLoader.unbind(getRowIcon());
+            mImageLoader.unbind(mIcon);
         } else {
             ImageLoader.Options options = new ImageLoader.Options();
             try {
@@ -98,7 +98,7 @@ public class MyTracklistRow extends TracklistRow {
             } catch (IOException e) {
                 Log.w(TAG, "error", e);
             }
-            mImageLoader.bind(mAdapter, getRowIcon(), recording.artwork_path.getAbsolutePath(), options);
+            mImageLoader.bind(mAdapter, mIcon, recording.artwork_path.getAbsolutePath(), options);
         }
     }
 }

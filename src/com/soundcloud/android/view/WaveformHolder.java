@@ -17,13 +17,13 @@ public class WaveformHolder extends RelativeLayout {
 
     }
 
-    public void showConnectingLayout(boolean setAlpha) {
+    public void showWaitingLayout(boolean setAlpha) {
         if (mConnectingBar == null) mConnectingBar = (RelativeLayout) findViewById(R.id.connecting_bar);
         if (setAlpha) setStaticTransformationsEnabled(true);
         mConnectingBar.setVisibility(View.VISIBLE);
     }
 
-    public void hideConnectingLayout() {
+    public void hideWaitingLayout() {
         if (mConnectingBar == null) mConnectingBar = (RelativeLayout) findViewById(R.id.connecting_bar);
         setStaticTransformationsEnabled(false);
         mConnectingBar.setVisibility(View.GONE);

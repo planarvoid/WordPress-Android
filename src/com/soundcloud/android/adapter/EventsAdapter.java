@@ -1,14 +1,13 @@
 
 package com.soundcloud.android.adapter;
 
+import android.os.Parcelable;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.view.ActivityRow;
 import com.soundcloud.android.view.IncomingRow;
 import com.soundcloud.android.view.LazyRow;
-import com.soundcloud.android.view.ActivityRow;
-
-import android.os.Parcelable;
 
 import java.util.ArrayList;
 

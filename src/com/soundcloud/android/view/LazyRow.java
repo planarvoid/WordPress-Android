@@ -25,12 +25,14 @@ public abstract class LazyRow extends FrameLayout {
     protected ImageView mIcon;
 
     protected int mCurrentPosition;
+    protected ImageLoader.Options mIconOptions;
 
     public LazyRow(ScActivity activity, LazyBaseAdapter adapter) {
         super(activity);
         mActivity = activity;
         mAdapter = adapter;
 
+        if (mIconOptions == null) mIconOptions = new ImageLoader.Options();
         if (mActivity != null) mImageLoader = ImageLoader.get(mActivity);
 
         LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -49,21 +51,19 @@ public abstract class LazyRow extends FrameLayout {
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
         mCurrentPosition = position;
-        if (TextUtils.isEmpty(getIconRemoteUri())){
-            mImageLoader.unbind(getRowIcon());
+
+        final String iconUri = getIconRemoteUri();
+        if (TextUtils.isEmpty(iconUri)){
+            mImageLoader.unbind(mIcon);
             mIcon.setImageDrawable(null);
             return;
         }
 
-        if (CloudUtils.checkIconShouldLoad(getIconRemoteUri())) {
-            mImageLoader.bind(mAdapter, getRowIcon(), getIconRemoteUri());
+        if (CloudUtils.checkIconShouldLoad(iconUri)) {
+            mImageLoader.bind(mAdapter, mIcon, iconUri, mIconOptions);
         } else {
-            mImageLoader.unbind(getRowIcon());
+            mImageLoader.unbind(mIcon);
         }
-    }
-
-    public ImageView getRowIcon() {
-        return null;
     }
 
     public String getIconRemoteUri() {
