@@ -324,7 +324,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             setCurrentTime(pos);
         }
 
-
         if (mode == TOUCH_MODE_NONE && mCurrentTopComments != null) {
             final Comment last = lastCommentBeforeTimestamp(pos);
             if (last != null) {
@@ -339,7 +338,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                         });
                         mLastAutoComment = last;
                     }
-
                 }
             }
         }

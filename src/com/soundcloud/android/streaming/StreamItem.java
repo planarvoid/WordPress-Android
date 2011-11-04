@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class StreamItem implements Parcelable {
@@ -140,7 +141,7 @@ public class StreamItem implements Parcelable {
         sb.append(", mContentLength=").append(mContentLength);
         sb.append(", mRedirectedUrl='").append(mRedirectedUrl).append('\'');
         sb.append(", mEtag='").append(mEtag).append('\'');
-        sb.append(", mExpires=").append(mExpires);
+        sb.append(", mExpires=").append(mExpires == 0 ? "" : new Date(mExpires));
         sb.append(", chunksToDownload=").append(chunksToDownload);
         sb.append(", downloadedChunks=").append(downloadedChunks);
         sb.append('}');

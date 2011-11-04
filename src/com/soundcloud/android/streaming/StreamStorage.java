@@ -151,7 +151,7 @@ public class StreamStorage {
             return false;
         }
 
-        StreamItem item = getMetadata(url);
+        final StreamItem item = getMetadata(url);
         if (item == null) {
             Log.w(LOG_TAG, "no metadata found for url "+url+", not storing");
             return false;
@@ -169,13 +169,15 @@ public class StreamStorage {
         storeMetadata(item);
 
         if (item.downloadedChunks.size() == item.numberOfChunks(chunkSize)) {
-            new CompleteFileTask(item.getContentLength(), chunkSize, item.downloadedChunks) {
+            new CompleteFileTask(item.getContentLength(), item.etag(), chunkSize, item.downloadedChunks) {
                 @Override protected void onPreExecute() {
                     mConvertingUrls.add(url);
                 }
                 @Override protected void onPostExecute(Boolean success) {
                     if (success) {
                         removeIncompleteDataForItem(url);
+                    } else {
+                        removeAllDataForItem(url);
                     }
                     mConvertingUrls.remove(url);
                 }

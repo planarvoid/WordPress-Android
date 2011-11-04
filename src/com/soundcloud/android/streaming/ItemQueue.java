@@ -3,6 +3,7 @@ package com.soundcloud.android.streaming;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,7 +15,7 @@ class ItemQueue implements Iterable<StreamItem> {
     }
 
     public ItemQueue(List<StreamItem> items) {
-        this.mItems = items;
+        this.mItems = Collections.synchronizedList(items);
     }
 
     public boolean addItem(StreamItem item, Index chunksToDownload) {

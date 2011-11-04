@@ -2,6 +2,8 @@ package com.soundcloud.android.streaming;
 
 import static com.soundcloud.android.streaming.StreamStorage.LOG_TAG;
 
+import com.soundcloud.android.utils.CloudUtils;
+
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -12,14 +14,19 @@ import java.io.RandomAccessFile;
 import java.util.List;
 
 class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
+    static final long MAX_MD5_CHECK_SIZE = 5 * 1024*1024; // don't md5 check files over 5MB
+
     private long mContentLength;
+    private String mEtag;
     private List<Integer> mIndexes;
+
     private int mChunkSize;
 
-    public CompleteFileTask(long length, int chunkSize, List<Integer> indexes) {
+    public CompleteFileTask(long length, String etag, int chunkSize, List<Integer> indexes) {
         mIndexes = indexes;
         mChunkSize = chunkSize;
         mContentLength = length;
+        mEtag = etag;
     }
 
     @Override
@@ -36,11 +43,21 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
         // optimization - if chunks have been written in order, just move and truncate file
         else if (isOrdered(mIndexes)) {
             Log.d(LOG_TAG, "chunk file is already in order, moving");
-            return move(chunkFile, completeFile);
+            return move(chunkFile, completeFile) && checkEtag(completeFile, mEtag);
         } else {
             Log.d(LOG_TAG, "reassembling chunkfile");
-            return reassembleFile(chunkFile, completeFile);
+            return reassembleFile(chunkFile, completeFile) && checkEtag(completeFile, mEtag);
         }
+    }
+
+    private boolean checkEtag(File file, String etag) {
+        if (etag == null || file.length() > MAX_MD5_CHECK_SIZE) return true;
+
+        final String calculatedEtag = '"'+CloudUtils.md5(file)+'"';
+        if (!calculatedEtag.equals(etag)) {
+            Log.d(LOG_TAG, "etag " +etag+ " for complete file "+ file + " does not match "+calculatedEtag);
+            return false;
+        } else return true;
     }
 
     private Boolean move(File chunkFile, File completeFile) {

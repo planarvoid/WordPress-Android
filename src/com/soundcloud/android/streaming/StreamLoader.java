@@ -16,6 +16,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -39,11 +40,13 @@ public class StreamLoader {
     private final ItemQueue mHighPriorityQ = new ItemQueue();
     private final ItemQueue mLowPriorityQueue = new ItemQueue();
 
-    private final Set<HeadTask> mHeadTasks = new HashSet<HeadTask>();
+    private final Set<StreamItem> mHeadTasks = Collections.synchronizedSet(new HashSet<StreamItem>());
 
-    private StreamHandler mDataHandler;
-    private StreamHandler mHeadHandler;
-    private Handler mResultHandler;
+    private final StreamHandler mDataHandler;
+    private final StreamHandler mHeadHandler;
+    private final Handler mResultHandler;
+    private final Handler mConnHandler;
+    private final Handler mPlaycountHandler;
 
     private boolean mForceOnline; /* for testing */
 
@@ -54,20 +57,18 @@ public class StreamLoader {
         mContext = context;
         mStorage = storage;
 
-        // setup connectivity listening
-        mConnectivityListener = new NetworkConnectivityListener()
-                .registerHandler(mConnHandler, CONNECTIVITY_MSG)
-                .startListening(context);
+        HandlerThread resultThread = new HandlerThread("streaming-result");
+        resultThread.start();
 
-
-        mResultHandler = new Handler(Looper.getMainLooper()) {
+        final Looper resultLooper = resultThread.getLooper();
+        mResultHandler = new Handler(resultLooper) {
             @Override
             public void handleMessage(Message msg) {
                 Log.d(LOG_TAG, "result of message:" + msg.obj);
                 if (msg.obj instanceof HeadTask) {
                     HeadTask t = (HeadTask) msg.obj;
                     storage.storeMetadata(t.item);
-                    mHeadTasks.remove(t);
+                    mHeadTasks.remove(t.item);
                 } else if (msg.obj instanceof DataTask) {
                     DataTask t = (DataTask) msg.obj;
                     try {
@@ -84,7 +85,7 @@ public class StreamLoader {
                                 }
                             }
                         }
-                        fulfillPlayerCallbacks(t);
+                        fulfillPlayerCallbacks();
                     } catch (IOException e) {
                         Log.e(LOG_TAG, "error storing data", e);
                     }
@@ -95,6 +96,31 @@ public class StreamLoader {
             }
         };
 
+        // setup connectivity listening
+        mConnHandler = new Handler(resultLooper) {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case CONNECTIVITY_MSG:
+                        NetworkConnectivityListener.State previous =
+                                NetworkConnectivityListener.State.values()[msg.arg1];
+                        NetworkConnectivityListener.State current =
+                                NetworkConnectivityListener.State.values()[msg.arg2];
+
+                        if (current == NetworkConnectivityListener.State.CONNECTED &&
+                            previous == NetworkConnectivityListener.State.NOT_CONNECTED) {
+
+                            Log.d(LOG_TAG, "reconnected, processing queues");
+                            processQueues();
+                            break;
+                        }
+                }
+            }
+        };
+        mConnectivityListener = new NetworkConnectivityListener()
+                .registerHandler(mConnHandler, CONNECTIVITY_MSG)
+                .startListening(context);
+
         HandlerThread dataThread = new HandlerThread("streaming-data", THREAD_PRIORITY_BACKGROUND);
         dataThread.start();
 
@@ -104,6 +130,22 @@ public class StreamLoader {
         contentLengthThread.start();
 
         mHeadHandler = new StreamHandler(contentLengthThread.getLooper(), mResultHandler);
+
+
+        mPlaycountHandler = new Handler(resultLooper) {
+            @Override
+            public void handleMessage(Message msg) {
+                String url = msg.obj.toString();
+                StreamItem item = mStorage.getMetadata(url);
+                if (item != null) {
+                    if (item.redirectUrl() == null || item.isRedirectExpired()) {
+                        mItemsNeedingHeadRequests.add(item);
+                    }
+                    mItemsNeedingPlaycountRequests.add(item);
+                    processQueues();
+                }
+            }
+        };
     }
 
     public StreamFuture getDataForUrl(String url, Range range) throws IOException {
@@ -206,11 +248,7 @@ public class StreamLoader {
             if (!item.isAvailable()) q.remove(item);
             //If there is a valid redirect for the item, download first chunk
             else if (item.isRedirectValid()) {
-                final int firstChunk = item.chunksToDownload.first();
-                if (firstChunk < 0) {
-                    throw new AssertionError("firstChunk < 0 for "+item);
-                }
-                Range chunkRange = Range.from(firstChunk, 1);
+                Range chunkRange = Range.from(item.chunksToDownload.first(), 1);
                 q.removeIfCompleted(item, chunkRange.toIndex());
                 startDataTask(item, chunkRange, prio);
             } else {
@@ -227,7 +265,7 @@ public class StreamLoader {
          */
     }
 
-    private void fulfillPlayerCallbacks(DataTask t) {
+    private void fulfillPlayerCallbacks() {
         List<StreamFuture> fulfilledCallbacks = new ArrayList<StreamFuture>();
         for (StreamFuture future : mPlayerCallbacks) {
             StreamItem item = future.item;
@@ -262,73 +300,35 @@ public class StreamLoader {
         }
     }
 
-    private Handler mConnHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case CONNECTIVITY_MSG:
-                    NetworkConnectivityListener.State previous =
-                            NetworkConnectivityListener.State.values()[msg.arg1];
-                    NetworkConnectivityListener.State current =
-                            NetworkConnectivityListener.State.values()[msg.arg2];
-
-                    if (current == NetworkConnectivityListener.State.CONNECTED &&
-                        previous == NetworkConnectivityListener.State.NOT_CONNECTED) {
-
-                        Log.d(LOG_TAG, "reconnected, processing queues");
-                        processQueues();
-                        break;
-                    }
-            }
-        }
-    };
-
-    private Handler mPlaycountHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            String url = msg.obj.toString();
-            StreamItem item = mStorage.getMetadata(url);
-            if (item != null) {
-                if (item.redirectUrl() == null || item.isRedirectExpired()) {
-                    mItemsNeedingHeadRequests.add(item);
-                }
-                mItemsNeedingPlaycountRequests.add(item);
-                processQueues();
-            }
-        }
-    };
 
     private DataTask startDataTask(StreamItem item, Range chunkRange, int prio) {
-        Log.d(LOG_TAG, "startDataTask(" + item + ", prio=" + prio + ")");
-
         DataTask task = new DataTask(item, chunkRange, chunkRange.byteRange(mStorage.chunkSize), mContext);
         Message msg = mDataHandler.obtainMessage(prio, task);
-
         mDataHandler.sendMessage(msg);
         return task;
     }
 
     private PlaycountTask startPlaycountTask(StreamItem item, int prio) {
-        Log.d(LOG_TAG, "startPlaycountTask(" + item + ", prio=" + prio + ")");
+
         PlaycountTask task = new PlaycountTask(item, mContext);
         mHeadHandler.sendMessage(mHeadHandler.obtainMessage(prio, task));
         return task;
     }
 
     private HeadTask startHeadTask(StreamItem item, int prio) {
-        Log.d(LOG_TAG, "startHeadTask(" + item + ",prio=" + prio + ")");
         if (item.isAvailable()) {
             if (isConnected()) {
-                for (HeadTask ht : mHeadTasks) {
-                    if (ht.item.equals(item)) {
+                synchronized (mHeadTasks) {
+                    if (!mHeadTasks.contains(item)) {
+                        mHeadTasks.add(item);
+                        HeadTask ht = new HeadTask(item, mContext);
+                        Message msg = mHeadHandler.obtainMessage(prio, ht);
+                        mHeadHandler.sendMessage(msg);
+                        return ht;
+                    } else {
                         return null;
                     }
                 }
-                HeadTask ht = new HeadTask(item, mContext);
-                Message msg = mHeadHandler.obtainMessage(prio, ht);
-                mHeadHandler.sendMessage(msg);
-
-                return ht;
             } else {
                 mItemsNeedingHeadRequests.add(item);
                 return null;

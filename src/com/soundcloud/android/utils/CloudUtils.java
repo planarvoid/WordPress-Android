@@ -54,7 +54,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,9 +61,7 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
-import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
@@ -222,14 +219,14 @@ public class CloudUtils {
     }
 
     public static String md5(File f) {
-        FileInputStream fis = null;
+        InputStream is = null;
         try {
-            fis = new FileInputStream(f);
-            return md5(fis);
+            is = new BufferedInputStream(new FileInputStream(f));
+            return md5(is);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
-            if (fis != null) try { fis.close(); } catch (IOException ignored) { }
+            if (is != null) try { is.close(); } catch (IOException ignored) { }
         }
     }
 

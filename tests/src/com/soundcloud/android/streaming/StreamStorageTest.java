@@ -190,6 +190,21 @@ public class StreamStorageTest {
     }
 
     @Test
+    public void shouldCheckEtagOfCompleteItem() throws Exception {
+        setupChunkArray();
+        Collections.shuffle(sampleChunkIndexes);
+
+        StreamItem wrongEtag = new StreamItem(item.url, item.getContentLength(), "deadbeef");
+
+        expect(storage.storeMetadata(wrongEtag)).toBeTrue();
+        for (int i : sampleChunkIndexes) {
+            storage.storeData(wrongEtag.url, sampleBuffers.get(i), i);
+        }
+        File assembled = storage.completeFileForUrl(wrongEtag.url);
+        expect(assembled.exists()).toBeFalse();
+    }
+
+    @Test
     public void shouldReturnMissingIndexes() throws Exception {
         item.setContentLength(TEST_CHUNK_SIZE * 2 + 5);
         Index index = storage.getMissingChunksForItem(item.url, item.chunkRange(storage.chunkSize));
@@ -199,7 +214,7 @@ public class StreamStorageTest {
 
     /** @noinspection ResultOfMethodCallIgnored*/
     @Test
-    public void testLastMofifiedFileComparator() throws Exception {
+    public void testLastModfifiedFileComparator() throws Exception {
         File f1 = File.createTempFile("test_f1", null);
         File f2 = File.createTempFile("test_f2", null);
 
