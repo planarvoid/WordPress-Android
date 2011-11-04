@@ -209,7 +209,7 @@ public class CloudPlaybackService extends Service {
 
     @Override
     public void onDestroy() {
-        stopStreaming(null);
+        stopStreaming();
         gotoIdleState();
 
         // release all MediaPlayer resources, including the native player and wakelocks
@@ -395,7 +395,7 @@ public class CloudPlaybackService extends Service {
         if (track == null) return;
          synchronized (this) {
             mPlayListManager.oneShotTrack(track);
-            stopStreaming(null);
+            stopStreaming();
             openCurrent();
             mIsSupposedToBePlaying = true;
             setPlayingStatus();
@@ -405,7 +405,7 @@ public class CloudPlaybackService extends Service {
     public void playFromAppCache(int playPos) {
         synchronized (this) {
             mPlayListManager.loadPlaylist(getApp().flushCachePlaylist(), playPos);
-            stopStreaming(null);
+            stopStreaming();
             openCurrent();
             mIsSupposedToBePlaying = true;
             setPlayingStatus();
@@ -433,27 +433,48 @@ public class CloudPlaybackService extends Service {
             setPlayingStatus();
         }
 
+        if (mPlayer != null && (mPlayer.isInitialized() || mPlayer.isAsyncOpening())) {
+            new Thread(new Runnable() {
+                public void run() {
+                    mPlayer.stop();
+                }
+            }).start();
+        }
+
+
         mLoadPercent = 0;
 
         // if we are already playing this track
         if (mPlayingData != null && mPlayingData.id == track.id) {
-            mChangeTracksThread = new ChangeTracksAsync(this, mPlayingData);
-            mChangeTracksThread.setPriority(Thread.MAX_PRIORITY);
-            mChangeTracksThread.start();
+            startNextTrack();
             return;
         }
 
         //otherwise it will wait for the waveform
         mWaitingForArtwork = getApp().playerWaitForArtwork;
 
-        // stop in a thread so the resetting (or releasing if we are
-        // async opening) doesn't holdup the UI
-        mChangeTracksThread = new ChangeTracksAsync(this, track);
-        mChangeTracksThread.setPriority(Thread.MAX_PRIORITY);
-        mChangeTracksThread.start();
-
         // new play data
         mPlayingData = track;
+
+        final User user = getApp().getLoggedInUser();
+
+        Cursor cursor = getContentResolver().query(Content.TRACK_PLAYS, null,
+                TrackPlays.TRACK_ID + " = ?", new String[]{
+                Long.toString(mPlayingData.id)
+        }, null);
+
+        if (cursor == null || cursor.getCount() == 0) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(TrackPlays.TRACK_ID, mPlayingData.id);
+            contentValues.put(TrackPlays.USER_ID, user.id);
+            getContentResolver().insert(Content.TRACK_PLAYS, contentValues);
+        }
+        if (cursor != null) cursor.close();
+
+        mPlayingData.updateFromDb(getContentResolver(), user);
+        if (getApp().getTrackFromCache(mPlayingData.id) == null) {
+            getApp().cacheTrack(mPlayingData);
+        }
 
         m10percentStamp = (long) (mPlayingData.duration * .1);
         m10percentStampReached = false;
@@ -470,27 +491,21 @@ public class CloudPlaybackService extends Service {
 
         // meta has changed
         notifyChange(META_CHANGED);
+
+        startNextTrack();
     }
 
-    private void stopStreaming(Long continueId) {
-        synchronized (this) {
-            // stop checking buffer
-            pausedForBuffering = false;
-
-            // stop playing
-            if (mPlayer != null && (mPlayer.isInitialized() || mPlayer.isAsyncOpening())) {
-                mPlayer.stop();
-            }
-
-
+    private void stopStreaming() {
+        // stop checking buffer
+        pausedForBuffering = false;
+        // stop playing
+        if (mPlayer != null && (mPlayer.isInitialized() || mPlayer.isAsyncOpening())) {
+            mPlayer.stop();
         }
     }
 
     private void startNextTrack() {
         synchronized (this) {
-
-            mChangeTracksThread = null;
-
             if (mPlayingData.isStreamable()) {
                 pausedForBuffering = true;
                 notifyChange(BUFFERING);
@@ -569,7 +584,7 @@ public class CloudPlaybackService extends Service {
 
     private void stop(boolean remove_status_icon) {
         if (mPlayer != null && mPlayer.isInitialized()) {
-            stopStreaming(null);
+            stopStreaming();
         }
 
         if (remove_status_icon) {
@@ -662,9 +677,7 @@ public class CloudPlaybackService extends Service {
      * @return the position in the queue
      */
     public int getQueuePosition() {
-        synchronized (this) {
             return mPlayListManager.getCurrentPosition();
-        }
     }
 
     /**
@@ -685,7 +698,6 @@ public class CloudPlaybackService extends Service {
     }
 
     public void setFavoriteStatus(long trackId, boolean favoriteStatus) {
-        synchronized (this) {
             if (mPlayingData != null && mPlayingData.id == trackId) {
                 if (favoriteStatus) {
                     addFavorite();
@@ -693,7 +705,6 @@ public class CloudPlaybackService extends Service {
                     removeFavorite();
                 }
             }
-        }
     }
 
     public void addFavorite() {
@@ -754,65 +765,49 @@ public class CloudPlaybackService extends Service {
     }
 
     public String getUserName() {
-        synchronized (this) {
-            if (mPlayingData != null && mPlayingData.user != null) {
-                return mPlayingData.user.username;
-            } else return null;
-        }
+        if (mPlayingData != null && mPlayingData.user != null) {
+            return mPlayingData.user.username;
+        } else return null;
     }
 
     public String getUserPermalink() {
-        synchronized (this) {
-            if (mPlayingData == null) {
-                return null;
-            }
-            return mPlayingData.user.permalink;
+        if (mPlayingData == null) {
+            return null;
         }
+        return mPlayingData.user.permalink;
     }
 
     public long getTrackId() {
-        synchronized (this) {
-            if (mPlayingData == null) {
-                return -1;
-            }
-            return mPlayingData.id;
+        if (mPlayingData == null) {
+            return -1;
         }
+        return mPlayingData.id;
     }
 
     public boolean getDownloadable() {
-        synchronized (this) {
-            return mPlayingData != null && mPlayingData.downloadable;
-        }
+        return mPlayingData != null && mPlayingData.downloadable;
     }
 
     public Track getTrack() {
-        synchronized (this) {
-            return mPlayingData == null ? mPlayListManager.getCurrentTrack() : mPlayingData;
-        }
+        return mPlayingData == null ? mPlayListManager.getCurrentTrack() : mPlayingData;
     }
 
     public String getTrackName() {
-        synchronized (this) {
-            if (mPlayingData == null) {
-                return null;
-            }
-            return mPlayingData.title;
+        if (mPlayingData == null) {
+            return null;
         }
+        return mPlayingData.title;
     }
 
     public int getDuration() {
-        synchronized (this) {
-            if (mPlayingData == null) {
-                return 0;
-            }
-            return mPlayingData.duration;
+        if (mPlayingData == null) {
+            return 0;
         }
+        return mPlayingData.duration;
     }
 
     public boolean isBuffering() {
-        synchronized (this) {
-            return pausedForBuffering;
-        }
+        return pausedForBuffering;
     }
 
     /*
@@ -820,21 +815,17 @@ public class CloudPlaybackService extends Service {
      * returns -1 for the duration of MIDI files.
      */
     public long duration() {
-        synchronized (this) {
-            if (mPlayingData == null) {
-                return -1;
-            }
-            return mPlayingData.duration;
+        if (mPlayingData == null) {
+            return -1;
         }
+        return mPlayingData.duration;
     }
 
     public String getWaveformUrl() {
-        synchronized (this) {
-            if (mPlayingData == null) {
-                return "";
-            }
-            return mPlayingData.waveform_url;
+        if (mPlayingData == null) {
+            return "";
         }
+        return mPlayingData.waveform_url;
     }
 
     /*
@@ -853,22 +844,18 @@ public class CloudPlaybackService extends Service {
      * returns -1 for the duration of MIDI files.
      */
     public int loadPercent() {
-        synchronized (this) {
-            if (mPlayer != null && mPlayer.isInitialized()) {
-                return mLoadPercent;
-            }
-            return 0;
+        if (mPlayer != null && mPlayer.isInitialized()) {
+            return mLoadPercent;
         }
+        return 0;
     }
 
     public boolean isSeekable() {
-        synchronized (this) {
-            return (Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK
-                            && mPlayer != null
-                            && mPlayer.isInitialized()
-                            && !mPlayer.isAsyncOpening()
-                            && mPlayingData != null);
-        }
+        return (Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK
+                && mPlayer != null
+                && mPlayer.isInitialized()
+                && !mPlayer.isAsyncOpening()
+                && mPlayingData != null);
     }
 
     public boolean isNotSeekablePastBuffer() {
@@ -904,15 +891,13 @@ public class CloudPlaybackService extends Service {
      * @return the new pos, or -1
      */
     public long getSeekResult(long pos) {
-        synchronized (this) {
-            if (isSeekable()) {
-                if (pos <= 0) {
-                    pos = 0;
-                }
-                return mPlayer.getSeekResult(pos);
+        if (isSeekable()) {
+            if (pos <= 0) {
+                pos = 0;
             }
-            return -1;
+            return mPlayer.getSeekResult(pos);
         }
+        return -1;
     }
 
     /**
@@ -992,11 +977,15 @@ public class CloudPlaybackService extends Service {
             if (mMediaPlayer == null)
                 return;
 
-            if (mMediaPlayer.isPlaying())
+            try {
+                if (mMediaPlayer.isPlaying())
                 mMediaPlayer.pause();
+            } catch (IllegalStateException ignore) {}
 
             if (mIsAsyncOpening) {
+                long start = System.currentTimeMillis();
                 mMediaPlayer.release();
+                Log.d(TAG, "released in "+ (System.currentTimeMillis()-start)+ " ms");
                 mMediaPlayer = null;
             } else {
                 try {
@@ -1211,7 +1200,11 @@ public class CloudPlaybackService extends Service {
         };
 
         public boolean isPlaying() {
-            return mMediaPlayer != null && mMediaPlayer.isPlaying() && isSupposedToBePlaying();
+            try {
+                return mMediaPlayer != null && mMediaPlayer.isPlaying() && isSupposedToBePlaying();
+            } catch (IllegalStateException e) {
+                return false;
+            }
         }
     }
 
@@ -1404,62 +1397,6 @@ public class CloudPlaybackService extends Service {
             }
         }
     };
-
-
-
-    private void queueNextTrack(long delay) {
-        Message msg = mMediaplayerHandler.obtainMessage(START_NEXT_TRACK);
-        mMediaplayerHandler.removeMessages(START_NEXT_TRACK);
-        mMediaplayerHandler.sendMessageDelayed(msg, delay);
-    }
-
-
-    /**
-     * Stop the mediaplayer and stream in a thread since it seems to take a bit
-     * of time and sometimes when navigating tracks we don't want the UI to have
-     * to wait
-     */
-    private static class ChangeTracksAsync extends Thread {
-        private WeakReference<CloudPlaybackService> serviceRef;
-        private Track nextTrack;
-
-        public ChangeTracksAsync(CloudPlaybackService service, Track track) {
-            serviceRef = new WeakReference<CloudPlaybackService>(service);
-            nextTrack = track;
-        }
-
-        @Override
-        public void run() {
-            CloudPlaybackService svc = serviceRef.get();
-            if (svc == null) return;
-
-            final User user = svc.getApp().getLoggedInUser();
-
-            svc.stopStreaming(nextTrack.id);
-
-            Cursor cursor = svc.getContentResolver().query(Content.TRACK_PLAYS, null,
-                    TrackPlays.TRACK_ID + " = ?", new String[]{
-                    Long.toString(nextTrack.id)
-            }, null);
-
-            if (cursor == null || cursor.getCount() == 0) {
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(TrackPlays.TRACK_ID, nextTrack.id);
-                contentValues.put(TrackPlays.USER_ID, user.id);
-                svc.getContentResolver().insert(Content.TRACK_PLAYS, contentValues);
-            }
-            if (cursor != null) cursor.close();
-
-            nextTrack.updateFromDb(svc.getContentResolver(), user);
-
-            if (svc.getApp().getTrackFromCache(nextTrack.id) == null) {
-                svc.getApp().cacheTrack(nextTrack);
-            }
-
-            svc.mChangeTracksThread = null;
-            svc.queueNextTrack(0);
-        }
-    }
 
     /*
     * By making this a static class with a WeakReference to the Service, we
