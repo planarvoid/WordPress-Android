@@ -200,18 +200,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     return mPlaybackService.position();
                 } else {
                     if (mPlayingTrack != null) {
-                        long now = SystemClock.elapsedRealtime();
-                        if ((now - mLastSeekEventTime) > 250) {
-                            mLastSeekEventTime = now;
-                            try {
-                                mSeekPos = mPlaybackService.seek((long) (mPlayingTrack.duration * seekPercent));
-                            } catch (RemoteException e) {
-                                Log.e(TAG, "error", e);
-                            }
-                        } else {
-                            // where would we be if we had seeked
-                            mSeekPos = mPlaybackService.getSeekResult((long) (mPlayingTrack.duration * seekPercent));
-                        }
+                        // where would we be if we had seeked
+                        mSeekPos = mPlaybackService.getSeekResult((long) (mPlayingTrack.duration * seekPercent));
                         return mSeekPos;
                     }
                 }

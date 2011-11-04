@@ -13,6 +13,7 @@ public class PlayerTouchBar extends View {
 
     private boolean mSeeking;
     private boolean mLandscape;
+    private boolean mCommentingMode;
     private Rect mMarkerRect;
     private Paint mMarkerPaint;
 
@@ -42,13 +43,14 @@ public class PlayerTouchBar extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);    //To change body of overridden methods use File | Settings | File Templates.
         if (mSeeking) {
-            canvas.drawColor(0xAAFFFFFF);
+            if (mCommentingMode) canvas.drawColor(0xAAFFFFFF);
             canvas.drawRect(mMarkerRect, mMarkerPaint);
         }
     }
 
     public void clearSeek() {
         mSeeking = false;
+        mCommentingMode = false;
         invalidate();
     }
 
@@ -56,8 +58,9 @@ public class PlayerTouchBar extends View {
         mLandscape = landscape;
     }
 
-    public void setSeekPosition(int seekPosition, int waveHeight) {
+    public void setSeekPosition(int seekPosition, int waveHeight, boolean inCommentingMode) {
         mMarkerRect = new Rect(seekPosition,0,seekPosition+1,waveHeight);
+        mCommentingMode = inCommentingMode;
         mSeeking = true;
         invalidate();
     }

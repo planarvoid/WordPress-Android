@@ -86,11 +86,14 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private static final int UI_ADD_COMMENT = 4;
     private static final int UI_TOGGLE_COMMENTS = 5;
     protected static final int UI_UPDATE_COMMENT = 6;
+    protected static final int UI_CLEAR_SEEK = 7;
 
     static final int TOUCH_MODE_NONE = 0;
     static final int TOUCH_MODE_SEEK_DRAG = 1;
     static final int TOUCH_MODE_COMMENT_DRAG = 2;
     static final int TOUCH_MODE_AVATAR_DRAG = 3;
+    static final int TOUCH_MODE_SEEK_CLEAR_DRAG = 4;
+
     int mode = TOUCH_MODE_NONE;
 
     private PlayerTrackView mPlayerTrackView;
@@ -101,7 +104,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public static final int MINIMUM_SMOOTH_PROGRESS_SDK = 9;
     private static final long MINIMUM_PROGRESS_PERIOD = 40;
     private boolean mShowingSmoothProgress;
-    private boolean mShowingWaiting, mIsBuffering;
+    private boolean mShowingWaiting, mIsBuffering, mWaitingForSeekComplete;
 
 
     public WaveformController(Context context, AttributeSet attrs) {
@@ -171,9 +174,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private Runnable mSmoothProgress = new Runnable() {
         public void run() {
-            if (mode != TOUCH_MODE_SEEK_DRAG){
-                setProgressInternal(lastTrackTime + System.currentTimeMillis() - lastProgressTimestamp);
-            }
+            setProgressInternal(lastTrackTime + System.currentTimeMillis() - lastProgressTimestamp);
             mHandler.postDelayed(this, mProgressPeriod);
         }
     };
@@ -217,6 +218,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     public void reset(){
         hideWaiting();
+        mWaitingForSeekComplete = false;
+        mIsBuffering = false;
         setProgressInternal(0);
         setSecondaryProgress(0);
         onStop();
@@ -254,7 +257,15 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     public void onBufferingStop(){
         mIsBuffering = false;
-        if (waveformResult != BindResult.LOADING){
+        if (waveformResult != BindResult.LOADING && !mWaitingForSeekComplete){
+            hideWaiting();
+        }
+    }
+
+    public void onSeekComplete(){
+        stopSmoothProgress();
+        mWaitingForSeekComplete = false;
+        if (mShowingWaiting && waveformResult != BindResult.LOADING && !mIsBuffering){
             hideWaiting();
         }
     }
@@ -279,7 +290,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             }
             mSuspendTimeDisplay = true;
             mode = TOUCH_MODE_COMMENT_DRAG;
-            mPlayerTouchBar.setSeekPosition((int) ((((float) lastTrackTime) / mDuration) * getWidth()), mPlayerTouchBar.getHeight());
+            mPlayerTouchBar.setSeekPosition((int) ((((float) lastTrackTime) / mDuration) * getWidth()), mPlayerTouchBar.getHeight(), false);
             mCurrentTimeDisplay.setByPercent((((float) lastTrackTime) / mDuration), true);
         } else {
             mSuspendTimeDisplay = false;
@@ -303,8 +314,11 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (mDuration == 0)
             return;
 
-        setCurrentTime(pos);
         mProgressBar.setProgress((int) (pos * 1000 / mDuration));
+        if (mode != TOUCH_MODE_SEEK_DRAG) {
+            setCurrentTime(pos);
+        }
+
 
         if (mode == TOUCH_MODE_NONE && mCurrentTopComments != null) {
             final Comment last = lastCommentBeforeTimestamp(pos);
@@ -712,10 +726,20 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 queueUnique(UI_UPDATE_COMMENT_POSITION);
                 break;
             case TOUCH_MODE_SEEK_DRAG:
-                if (mPlayer != null && mPlayer.isSeekable()) {
-                    mLastAutoComment = null; //reset auto comment in case they seek backward
+                if (input.y > mPlayerTouchBar.getTop() && input.y < mPlayerTouchBar.getBottom()) {
                     mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
                     queueUnique(UI_UPDATE_SEEK);
+                } else {
+                    queueUnique(UI_CLEAR_SEEK);
+                    mode = TOUCH_MODE_SEEK_CLEAR_DRAG;
+                }
+                break;
+
+            case TOUCH_MODE_SEEK_CLEAR_DRAG:
+                if (input.y > mPlayerTouchBar.getTop() && input.y < mPlayerTouchBar.getBottom()) {
+                    mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+                    queueUnique(UI_UPDATE_SEEK);
+                    mode = TOUCH_MODE_SEEK_DRAG;
                 }
                 break;
         }
@@ -731,7 +755,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 }
                 break;
             case TOUCH_MODE_SEEK_DRAG:
-                queueUnique(UI_SEND_SEEK);
+            case TOUCH_MODE_SEEK_CLEAR_DRAG:
+                if (input.y > mPlayerTouchBar.getTop() && input.y < mPlayerTouchBar.getBottom()) {
+                    queueUnique(UI_SEND_SEEK);
+                } else {
+                    queueUnique(UI_CLEAR_SEEK);
+                }
                 break;
         }
         mode = TOUCH_MODE_NONE;
@@ -747,25 +776,31 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             switch (msg.what) {
                 case UI_UPDATE_SEEK:
                     long seekTime = mPlayer.setSeekMarker(mSeekPercent);
-                    setProgressInternal(seekTime);
+                    mPlayerTouchBar.setSeekPosition((int) (mSeekPercent * getWidth()), mPlayerTouchBar.getHeight(), false);
+                    //setProgressInternal(seekTime);
                     mCurrentTimeDisplay.setCurrentTime(seekTime,false);
                     mWaveformHolder.invalidate();
                     break;
 
                 case UI_SEND_SEEK:
-                    if (mPlayer != null){
+                    if (mPlayer != null && mPlayer.isSeekable()){
+                        mWaitingForSeekComplete = true;
                         seekTime = mPlayer.sendSeek(mSeekPercent);
                         setProgressInternal(seekTime);
                         setProgress(seekTime);
                         stopSmoothProgress();
                     }
+                    mPlayerTouchBar.clearSeek();
+                    break;
 
+                case UI_CLEAR_SEEK:
+                    setProgressInternal(lastTrackTime + System.currentTimeMillis() - lastProgressTimestamp);
                     mPlayerTouchBar.clearSeek();
                     break;
 
                 case UI_UPDATE_COMMENT_POSITION:
                     mCurrentTimeDisplay.setByPercent(mSeekPercent, true);
-                    mPlayerTouchBar.setSeekPosition((int) (mSeekPercent * getWidth()), mPlayerTouchBar.getHeight());
+                    mPlayerTouchBar.setSeekPosition((int) (mSeekPercent * getWidth()), mPlayerTouchBar.getHeight(), true);
                     break;
 
                 case UI_ADD_COMMENT:
