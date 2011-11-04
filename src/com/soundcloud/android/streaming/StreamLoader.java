@@ -24,7 +24,8 @@ import java.util.Set;
 
 public class StreamLoader {
     static final String LOG_TAG = StreamLoader.class.getSimpleName();
-    protected static final int CONNECTIVITY_MSG = 0;
+    static final int CONNECTIVITY_MSG = 0;
+    static final int MAX_RETRIES = 3;
 
     private NetworkConnectivityListener mConnectivityListener;
     private final SoundCloudApplication mContext;
@@ -124,12 +125,12 @@ public class StreamLoader {
         HandlerThread dataThread = new HandlerThread("streaming-data", THREAD_PRIORITY_BACKGROUND);
         dataThread.start();
 
-        mDataHandler = new StreamHandler(dataThread.getLooper(), mResultHandler);
+        mDataHandler = new StreamHandler(dataThread.getLooper(), mResultHandler, MAX_RETRIES);
 
         HandlerThread contentLengthThread = new HandlerThread("streaming-head", THREAD_PRIORITY_BACKGROUND);
         contentLengthThread.start();
 
-        mHeadHandler = new StreamHandler(contentLengthThread.getLooper(), mResultHandler);
+        mHeadHandler = new StreamHandler(contentLengthThread.getLooper(), mResultHandler, MAX_RETRIES);
 
 
         mPlaycountHandler = new Handler(resultLooper) {
@@ -341,11 +342,14 @@ public class StreamLoader {
 
     // request pipeline
     static class StreamHandler extends Handler {
-        private Handler mHandler;
+        final private Handler mHandler;
+        final private int mMaxRetries;
 
-        public StreamHandler(Looper looper, Handler resultHandler) {
+
+        public StreamHandler(Looper looper, Handler handler, int maxRetries) {
             super(looper);
-            mHandler = resultHandler;
+            mHandler = handler;
+            mMaxRetries = maxRetries;
         }
 
         @Override
@@ -359,11 +363,12 @@ public class StreamLoader {
                 mHandler.sendMessage(result);
             } catch (IOException e) {
                 Log.w(LOG_TAG, e);
-                if (task.item.isAvailable() && msg.arg1 < 3) {
+                if (task.item.isAvailable() && msg.arg1 < mMaxRetries) {
                     Log.d(LOG_TAG, "retrying, tries=" + msg.arg1);
-                    sendMessageDelayed(obtainMessage(msg.what, msg.arg1 + 1, 0, msg.obj), 200 * msg.arg1);
+                    final long backoff = msg.arg1*msg.arg1*150;
+                    sendMessageDelayed(obtainMessage(msg.what, msg.arg1+1, 0, msg.obj), backoff);
                 } else {
-                    Log.d(LOG_TAG, "giving up");
+                    Log.d(LOG_TAG, "giving up (max tries="+mMaxRetries+")");
                 }
             }
         }
