@@ -43,14 +43,6 @@
                 android:title="@string/wifi_settings"
                 android:summary="@string/wifi_settings_summary"/>
 
-        <CheckBoxPreference
-                android:title="@string/pref_buffer_during_pause"
-                android:summary="@string/pref_buffer_during_pause_desc"
-                android:key="bufferOnPause"
-                android:defaultValue="true"
-                android:entries="@array/pref_page_size"
-                android:entryValues="@array/pref_page_size_values"/>
-
         <Preference
                 android:key="clearCache"
                 android:title="@string/pref_clear_cache"
