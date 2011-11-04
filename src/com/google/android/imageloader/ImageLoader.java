@@ -37,7 +37,6 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
-import com.soundcloud.android.cache.LruCache;
 import com.soundcloud.android.utils.ImageUtils;
 
 import java.io.File;
@@ -201,12 +200,12 @@ public final class ImageLoader {
      * Use soft references so that the application does not run out of memory in
      * the case where one or more of the bitmaps are large.
      */
-    private final LruCache<String, SoftReference<Bitmap>> mBitmaps;
+    private final Map<String, Bitmap> mBitmaps;
 
     /**
      * Recent errors encountered when loading bitmaps.
      */
-    private final LruCache<String, ImageError> mErrors;
+    private final Map<String, ImageError> mErrors;
 
     /**
      * Tracks the last URL that was bound to an {@link ImageView}.
@@ -287,8 +286,8 @@ public final class ImageLoader {
         // Use a LruCache to prevent the set of keys from growing too large.
         // The Maps must be synchronized because they are accessed
         // by the UI thread and by background threads.
-        mBitmaps =  new LruCache<String, SoftReference<Bitmap>>(cacheSize);
-        mErrors = new LruCache<String,ImageError>(cacheSize);
+        mBitmaps = Collections.synchronizedMap(new BitmapCache<String>(cacheSize));
+        mErrors = Collections.synchronizedMap(new LruCache<String, ImageError>());
     }
 
     /**
@@ -770,7 +769,7 @@ public final class ImageLoader {
     }
 
     private void putBitmap(String url, Bitmap bitmap) {
-        mBitmaps.put(url, new SoftReference<Bitmap>(bitmap));
+        mBitmaps.put(url, bitmap);
     }
 
     private void putError(String url, ImageError error) {
@@ -778,8 +777,7 @@ public final class ImageLoader {
     }
 
     private Bitmap getBitmap(String url) {
-        final SoftReference<Bitmap> softref = mBitmaps.get(url);
-        return softref == null ? null : softref.get();
+        return mBitmaps.get(url);
     }
 
     private ImageError getError(String url) {
