@@ -4,6 +4,7 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 import android.content.res.Configuration;
 import android.os.Build;
+import android.view.ViewConfiguration;
 import android.view.animation.*;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
@@ -105,6 +106,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private static final long MINIMUM_PROGRESS_PERIOD = 40;
     private boolean mShowingSmoothProgress;
     private boolean mShowingWaiting, mIsBuffering, mWaitingForSeekComplete;
+    private int mTouchSlop;
 
 
     public WaveformController(Context context, AttributeSet attrs) {
@@ -126,6 +128,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         for (int i = 0; i < INPUT_QUEUE_SIZE; i++) {
             mInputObjectPool.add(new InputObject(mInputObjectPool));
         }
+
+        final ViewConfiguration configuration = ViewConfiguration.get(getContext());
+        mTouchSlop = configuration.getScaledTouchSlop();
 
         mTouchThread = new TouchThread();
         mTouchThread.start();
@@ -722,11 +727,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected void processMoveInput(InputObject input) {
         switch (mode) {
             case TOUCH_MODE_COMMENT_DRAG:
-                mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
-                queueUnique(UI_UPDATE_COMMENT_POSITION);
+                if (isOnTouchBar(input.y)) {
+                    mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+                    queueUnique(UI_UPDATE_COMMENT_POSITION);
+                }
                 break;
             case TOUCH_MODE_SEEK_DRAG:
-                if (input.y > mPlayerTouchBar.getTop() && input.y < mPlayerTouchBar.getBottom()) {
+                if (isOnTouchBar(input.y)) {
                     mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
                     queueUnique(UI_UPDATE_SEEK);
                 } else {
@@ -736,7 +743,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 break;
 
             case TOUCH_MODE_SEEK_CLEAR_DRAG:
-                if (input.y > mPlayerTouchBar.getTop() && input.y < mPlayerTouchBar.getBottom()) {
+                if (isOnTouchBar(input.y)) {
                     mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
                     queueUnique(UI_UPDATE_SEEK);
                     mode = TOUCH_MODE_SEEK_DRAG;
@@ -748,15 +755,16 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected void processUpInput(InputObject input) {
         switch (mode) {
             case TOUCH_MODE_COMMENT_DRAG:
-                if (Math.abs(mPlayerTouchBar.getTop() - input.y) < 200) {
+                if (isOnTouchBar(input.y)) {
                     mAddComment = CloudUtils.buildComment(mPlayer, mPlayer.getCurrentUserId(),
                             mPlayingTrack.id, stampFromPosition(input.x), "", 0);
                     queueUnique(UI_ADD_COMMENT);
-                }
+                } else return;
+
                 break;
             case TOUCH_MODE_SEEK_DRAG:
             case TOUCH_MODE_SEEK_CLEAR_DRAG:
-                if (input.y > mPlayerTouchBar.getTop() && input.y < mPlayerTouchBar.getBottom()) {
+                if (isOnTouchBar(input.y)) {
                     queueUnique(UI_SEND_SEEK);
                 } else {
                     queueUnique(UI_CLEAR_SEEK);
@@ -764,6 +772,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 break;
         }
         mode = TOUCH_MODE_NONE;
+    }
+
+    private boolean isOnTouchBar(int y){
+        return (y > mPlayerTouchBar.getTop() - mTouchSlop && y < mPlayerTouchBar.getBottom() + mTouchSlop);
     }
 
     protected void queueUnique(int what) {
