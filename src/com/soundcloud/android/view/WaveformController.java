@@ -270,7 +270,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public void onSeekComplete(){
         stopSmoothProgress();
         mWaitingForSeekComplete = false;
-        if (mShowingWaiting && waveformResult != BindResult.LOADING && !mIsBuffering){
+        if (mShowingWaiting && waveformResult != BindResult.LOADING){
             hideWaiting();
         }
     }
