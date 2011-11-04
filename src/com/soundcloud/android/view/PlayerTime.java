@@ -115,6 +115,8 @@ public class PlayerTime extends RelativeLayout {
         mCurrentTime.setText(CloudUtils.formatTimestamp(time));
         final RelativeLayout.LayoutParams lp = (LayoutParams) getLayoutParams();
 
+        if (this.getParent() == null) return;
+
         final int width = commenting ? mCommentingWidth : mMeasuredMaxWidth;
         final int height = (commenting ? mCommentingHeight : mDefaultHeight) ;
         if (commenting && !mCommenting) {
