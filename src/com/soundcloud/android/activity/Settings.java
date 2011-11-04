@@ -166,16 +166,26 @@ public class Settings extends PreferenceActivity {
                     new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            SyncAdapterService.requestNewSync(getApp(), true);
+                            SyncAdapterService.requestNewSync(getApp(), 0);
                             return true;
                         }
                     });
+
+            findPreference("dev.rewindNotifications").setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            SyncAdapterService.requestNewSync(getApp(), 1);
+                            return true;
+                        }
+                    });
+
 
             findPreference("dev.syncNow").setOnPreferenceClickListener(
                     new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            SyncAdapterService.requestNewSync(getApp(), false);
+                            SyncAdapterService.requestNewSync(getApp(), -1);
                             return true;
                         }
                     });

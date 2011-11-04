@@ -270,13 +270,22 @@ public class SyncAdapterService extends Service {
     }
 
     // only used for debugging
-    public static void requestNewSync(SoundCloudApplication app, boolean clear) {
-        if (clear) {
-            app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
-            app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
-            app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED, 1);
-            app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED, 1);
-            ActivitiesCache.clear(app);
+    public static void requestNewSync(SoundCloudApplication app, int clearMode) {
+        switch (clearMode){
+            case 0:
+                app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
+                app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
+                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED, 1);
+                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED, 1);
+                ActivitiesCache.clear(app);
+                break;
+            case 1:
+                app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) - (24 * 3600000));
+                app.setAccountData(User.DataKeys.LAST_OWN_SEEN, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN) - (24 * 3600000));
+                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED, app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED) - (24 * 3600000));
+                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED) - (24 * 3600000));
+                ActivitiesCache.clear(app);
+                break;
         }
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
     }

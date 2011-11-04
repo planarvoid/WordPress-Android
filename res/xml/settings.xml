@@ -103,6 +103,11 @@
             android:key="dev.clearNotifications"/>
 
         <Preference
+            android:title="@string/pref_dev_rewind_notification"
+            android:summary="@string/pref_dev_rewind_notification_summary"
+            android:key="dev.rewindNotifications"/>
+
+        <Preference
             android:title="@string/pref_dev_sync_now"
             android:summary="@string/pref_dev_sync_now_summary"
             android:key="dev.syncNow"/>
