@@ -69,13 +69,21 @@ public class StreamItem implements Parcelable {
     }
 
     public boolean isRedirectValid() {
-        return mContentLength > 0 && mRedirectedUrl != null && !isRedirectExpired();
+        return mContentLength > 0
+                && mRedirectedUrl != null;
+                /* && !isRedirectExpired();  */ // unreliable, don't use
     }
 
     public void markUnavailable() {
         mUnavailable = true;
     }
 
+
+    /**
+     * Checks is the redirect is expired.
+     * Note: this assumes that the client clock is correct and is therefore not reliable.
+     * @return true if the redirect is no longer valid.
+     */
     public boolean isRedirectExpired() {
         return System.currentTimeMillis() > mExpires;
     }
