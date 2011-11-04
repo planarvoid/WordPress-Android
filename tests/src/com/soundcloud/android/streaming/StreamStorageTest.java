@@ -41,7 +41,7 @@ public class StreamStorageTest {
     public void before() {
         CloudUtils.deleteDir(baseDir);
         storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE, 0);
-        item = new StreamItem("fred.mp3", sampleContentLength, CloudUtils.md5(testFile));
+        item = new StreamItem("fred.mp3", sampleContentLength, '"'+CloudUtils.md5(testFile)+'"');
 
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
