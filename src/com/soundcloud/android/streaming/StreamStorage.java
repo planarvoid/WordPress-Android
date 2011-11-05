@@ -4,6 +4,7 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.Stream;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -35,8 +36,7 @@ public class StreamStorage {
     static final String LOG_TAG = StreamStorage.class.getSimpleName();
     public static final int DEFAULT_CHUNK_SIZE = 128 * 1024;     // 128k
     public static final int STREAM_CACHE_SIZE  = 200* 1024 * 1024; // 200 MB
-    public static final long STREAM_CACHE_MIN_FREE_SPACE = 20 * 1024  * 1024; // 20 MB
-    public static final double MAXIMUM_PERCENTAGE_OF_FREE_SPACE = 0.1d;
+    public static final double MAXIMUM_PERCENTAGE_OF_FREE_SPACE = 0.1d; // use 10% of sd card
 
     private static final int CLEANUP_INTERVAL = 20;
     public static final String STREAMING_WRITES_SINCE_CLEANUP = "streamingWritesSinceCleanup";
@@ -74,7 +74,7 @@ public class StreamStorage {
         this.chunkSize = chunkSize;
     }
 
-    public boolean storeMetadata(StreamItem item) {
+    public synchronized boolean storeMetadata(StreamItem item) {
         mItems.put(item.urlHash, item);
         try {
             File indexFile = incompleteIndexFileForUrl(item.url);
@@ -92,7 +92,7 @@ public class StreamStorage {
         }
     }
 
-    public StreamItem getMetadata(String url) {
+    public synchronized StreamItem getMetadata(String url) {
         String hashed = StreamItem.urlHash(url);
         if (!mItems.containsKey(hashed)) {
             mItems.put(hashed, readMetadata(url));
@@ -100,7 +100,7 @@ public class StreamStorage {
         return mItems.get(hashed);
     }
 
-    public boolean removeMetadata(String url) {
+    public synchronized boolean removeMetadata(String url) {
         return mItems.remove(StreamItem.urlHash(url)) != null;
     }
 
@@ -152,11 +152,6 @@ public class StreamStorage {
         }
 
         final StreamItem item = getMetadata(url);
-        if (item == null) {
-            Log.w(LOG_TAG, "no metadata found for url "+url+", not storing");
-            return false;
-        }
-
         // return if it's already in store
         if (item.downloadedChunks.contains(chunkIndex)) return false;
 
@@ -218,7 +213,7 @@ public class StreamStorage {
         } else {
             StreamItem item = getMetadata(url);
             //We have no idea about track size, so let's assume that all chunks are missing
-            if (item == null || item.getContentLength() == 0) {
+            if (item.getContentLength() == 0) {
                 return chunkRange.toIndex();
             } else {
                 long lastChunk = (long) Math.ceil((double) item.getContentLength() / (double) chunkSize) - 1;
@@ -270,13 +265,13 @@ public class StreamStorage {
             } catch (IOException e) {
                 Log.e(LOG_TAG, "could not read metadata, deleting", e);
                 removeAllDataForItem(url);
-                return null;
+                return new StreamItem(url);
             }
         } else if (completeFileForUrl(url).exists()) {
-            return StreamItem.fromCompleteFile(url, completeFileForUrl(url));
+            return new StreamItem(url, completeFileForUrl(url));
         } else {
             // we don't have anything yet
-            return null;
+            return new StreamItem(url);
         }
     }
 

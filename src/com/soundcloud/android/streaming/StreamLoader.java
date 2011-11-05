@@ -66,30 +66,32 @@ public class StreamLoader {
                 Log.d(LOG_TAG, "result of message:" + msg.obj);
                 if (msg.obj instanceof HeadTask) {
                     HeadTask t = (HeadTask) msg.obj;
-                    storage.storeMetadata(t.item);
+                    if (t.item.isAvailable()) {
+                        storage.storeMetadata(t.item);
+                    }
                     mHeadTasks.remove(t.item);
                 } else if (msg.obj instanceof DataTask) {
                     DataTask t = (DataTask) msg.obj;
-                    try {
+                    if (t.item.isAvailable() && t.item.isRedirectValid()) {
                         Log.d(LOG_TAG, String.format("Storing %d bytes at index %d for url %s",
                                 t.buffer.limit(), t.chunkRange.start, t.item.url));
-                        if (!mStorage.storeData(t.item.url, t.buffer, t.chunkRange.start)) {
-                            // try to fulfill callbacks directly if we couldn't store data
-                            // (maybe SD storage was not available)
-                            for (Iterator<StreamFuture> it = mPlayerCallbacks.iterator(); it.hasNext();) {
-                                StreamFuture cb = it.next();
-                                if (cb.item.equals(t.item) && cb.byteRange.equals(t.byteRange)) {
-                                    cb.setByteBuffer(t.buffer);
-                                    it.remove();
+                        try {
+                            if (!mStorage.storeData(t.item.url, t.buffer, t.chunkRange.start)) {
+                                // try to fulfill callbacks directly if we couldn't store data
+                                // (maybe SD storage was not available)
+                                for (Iterator<StreamFuture> it = mPlayerCallbacks.iterator(); it.hasNext(); ) {
+                                    StreamFuture cb = it.next();
+                                    if (cb.item.equals(t.item) && cb.byteRange.equals(t.byteRange)) {
+                                        cb.setByteBuffer(t.buffer);
+                                        it.remove();
+                                    }
                                 }
                             }
+                            fulfillPlayerCallbacks();
+                        } catch (IOException e) {
+                            Log.e(LOG_TAG, "error storing data", e);
                         }
-                        fulfillPlayerCallbacks();
-                    } catch (IOException e) {
-                        Log.e(LOG_TAG, "error storing data", e);
                     }
-                } else if (msg.obj instanceof PlaycountTask) {
-
                 }
                 processQueues();
             }
@@ -148,11 +150,8 @@ public class StreamLoader {
 
     public StreamFuture getDataForUrl(String url, Range range) throws IOException {
         Log.d(LOG_TAG, "Get data for url " + url + " " + range);
+        final StreamItem item = mStorage.getMetadata(url);
 
-        StreamItem item = mStorage.getMetadata(url);
-        if (item == null ) {
-            item = new StreamItem(url);
-        }
         //If there is no metadata yet or it is expired, request it
         if (!item.isRedirectValid()) {
             mItemsNeedingHeadRequests.add(item);
@@ -168,14 +167,12 @@ public class StreamLoader {
             mCurrentItem = item;
         }
         mCurrentPosition = range.start;
-
         final StreamFuture pc = new StreamFuture(item, range);
         if (!missingChunks.isEmpty()) {
-            final StreamItem theItem = item;
             mResultHandler.post(new Runnable() {
                 @Override public void run() {
                     mPlayerCallbacks.add(pc);
-                    mHighPriorityQ.addItem(theItem, missingChunks);
+                    mHighPriorityQ.addItem(item, missingChunks);
                     updateLowPriorityQueue();
                     processQueues();
                 }
@@ -246,14 +243,13 @@ public class StreamLoader {
             if (!item.isAvailable()) q.remove(item);
             //If there is a valid redirect for the item, download first chunk
             else if (item.isRedirectValid()) {
-                Range chunkRange = Range.from(item.chunksToDownload.first(), 1);
+                Range chunkRange = Range.from(item.missingChunks.first(), 1);
                 q.removeIfCompleted(item, chunkRange.toIndex());
                 startDataTask(item, chunkRange, prio);
             } else {
                 startHeadTask(item, prio);
             }
         }
-
     }
 
     private void updateLowPriorityQueue() {

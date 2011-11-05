@@ -11,11 +11,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.util.Arrays;
 
 @RunWith(DefaultTestRunner.class)
 public class StreamItemTest {
-     @Test
+    @Test
     public void shouldGetHashKey() throws Exception {
         StreamItem item = new StreamItem("http://asdf.com");
         expect(item.urlHash).toEqual("b0ecbe2bc0fd8e426395c81ee96f81cf");
@@ -23,7 +24,7 @@ public class StreamItemTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRequireURL() throws Exception {
-        new StreamItem((String)null);
+        new StreamItem((String) null);
     }
 
     @Test
@@ -61,5 +62,11 @@ public class StreamItemTest {
         expect(md.getContentLength()).toEqual(md_.getContentLength());
         expect(md.etag()).toEqual(md_.etag());
         expect(md.downloadedChunks).toEqual(md_.downloadedChunks);
+    }
+
+    @Test
+    public void shouldGenerateEtagFromFile() throws Exception {
+        StreamItem fred = new StreamItem("fred", new File(getClass().getResource("fred.mp3").getFile()));
+        expect(fred.etag()).toEqual("\"ecc03db74b5b8cdb8d64c1cc4d04f68a\"");
     }
 }

@@ -20,8 +20,8 @@ class ItemQueue implements Iterable<StreamItem> {
 
     public boolean addItem(StreamItem item, Index chunksToDownload) {
         if (item.isAvailable()) {
-            item.chunksToDownload.or(chunksToDownload);
-            return !item.chunksToDownload.isEmpty() /* only add to q if there's something to download */
+            item.missingChunks.or(chunksToDownload);
+            return !item.missingChunks.isEmpty() /* only add to q if there's something to download */
                 && !mItems.contains(item)
                 && mItems.add(item);
         } else {
@@ -32,8 +32,8 @@ class ItemQueue implements Iterable<StreamItem> {
 
     public boolean removeIfCompleted(StreamItem item, Index newChunks) {
         if (mItems.contains(item)) {
-            item.chunksToDownload.andNot(newChunks);
-            return item.chunksToDownload.isEmpty() && mItems.remove(item);
+            item.missingChunks.andNot(newChunks);
+            return item.missingChunks.isEmpty() && mItems.remove(item);
         } else return false;
     }
 

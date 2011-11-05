@@ -30,7 +30,6 @@ public class StreamStorageTest {
     public static final int TEST_CHUNK_SIZE = 1024;
     final File baseDir = new File(System.getProperty("java.io.tmpdir"), "storage-test");
     final File testFile = new File(getClass().getResource("fred.mp3").getFile());
-    final long sampleContentLength = testFile.length();
     final LinkedHashMap<Integer, ByteBuffer> sampleBuffers = new LinkedHashMap<Integer, ByteBuffer>();
     final List<Integer> sampleChunkIndexes = new ArrayList<Integer>();
 
@@ -41,7 +40,7 @@ public class StreamStorageTest {
     public void before() {
         CloudUtils.deleteDir(baseDir);
         storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE, 0);
-        item = new StreamItem("fred.mp3", sampleContentLength, '"'+CloudUtils.md5(testFile)+'"');
+        item = new StreamItem("fred.mp3", testFile);
 
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
@@ -65,13 +64,11 @@ public class StreamStorageTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetDataShouldNotStoreIfDataNull() throws IOException {
-        item.setContentLength(10);
         storage.storeData(item.url, null, 0);
     }
 
     @Test
     public void shouldStoreData() throws Exception {
-        item.setContentLength(storage.chunkSize * 2);
         expect(storage.storeMetadata(item)).toBeTrue();
         expect(storage.storeData(item.url, ByteBuffer.wrap(new byte[]{1, 2, 3}), 0)).toBeTrue();
         ByteBuffer data = storage.getChunkData(item.url, 0);
@@ -97,7 +94,6 @@ public class StreamStorageTest {
     @Test
     public void shouldTestIncompleteSequentialWriting() throws Exception {
         setupChunkArray();
-        item.setContentLength(sampleContentLength);
 
         expect(storage.storeMetadata(item)).toBeTrue();
         final int writing = sampleChunkIndexes.size() - 1;
@@ -113,7 +109,6 @@ public class StreamStorageTest {
     @Test
     public void shouldTestIncompleteRandomWriting() throws Exception {
         setupChunkArray();
-        item.setContentLength(sampleContentLength);
         Collections.shuffle(sampleChunkIndexes);
 
         expect(storage.storeMetadata(item)).toBeTrue();
@@ -181,7 +176,7 @@ public class StreamStorageTest {
 
         File assembled = storage.completeFileForUrl(item.url);
         expect(assembled.exists()).toBeTrue();
-        expect(assembled.length()).toEqual(sampleContentLength);
+        expect(assembled.length()).toEqual(item.getContentLength());
 
         // make sure index file is gone
         expect(storage.incompleteFileForUrl(item.url).exists()).toBeFalse();
@@ -206,9 +201,8 @@ public class StreamStorageTest {
 
     @Test
     public void shouldReturnMissingIndexes() throws Exception {
-        item.setContentLength(TEST_CHUNK_SIZE * 2 + 5);
         Index index = storage.getMissingChunksForItem(item.url, item.chunkRange(storage.chunkSize));
-        expect(index.size()).toEqual(3);
+        expect(index.size()).toEqual(51);
     }
 
 

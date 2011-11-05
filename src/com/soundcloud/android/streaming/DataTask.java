@@ -36,31 +36,32 @@ class DataTask extends StreamItemTask {
                         .buildRequest(HttpGet.class));
 
         final int status = resp.getStatusLine().getStatusCode();
+        Bundle b = new Bundle();
+        b.putInt("status", status);
         switch (status) {
             case HttpStatus.SC_OK:
             case HttpStatus.SC_PARTIAL_CONTENT:
                 buffer.put(EntityUtils.toByteArray(resp.getEntity()));
                 buffer.rewind();
-                Bundle b = new Bundle();
-                b.putInt("status", status);
-                return b;
+                break;
 
             // link has expired
             case HttpStatus.SC_FORBIDDEN:
+                Log.d(LOG_TAG, "invalidating redirect url");
                 item.invalidateRedirectUrl();
                 break;
-
             // permanent failure
             case HttpStatus.SC_PAYMENT_REQUIRED:
             case HttpStatus.SC_NOT_FOUND:
             case HttpStatus.SC_GONE:
+                Log.d(LOG_TAG, "marking item as unavailable");
                 item.markUnavailable();
                 break;
 
             default:
                 throw new IOException("invalid status code received:" + resp.getStatusLine());
         }
-        return null;
+        return b;
     }
 
     @Override

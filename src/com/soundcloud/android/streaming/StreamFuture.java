@@ -16,12 +16,10 @@ public class StreamFuture implements Future<ByteBuffer> {
         this.byteRange = byteRange;
     }
 
-    public void setByteBuffer(ByteBuffer byteBuffer) {
+    public synchronized void setByteBuffer(ByteBuffer byteBuffer) {
         this.byteBuffer = byteBuffer;
         ready = true;
-        synchronized (this) {
-            notifyAll();
-        }
+        notifyAll();
     }
 
     @Override

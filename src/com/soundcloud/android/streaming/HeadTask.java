@@ -6,6 +6,7 @@ import com.soundcloud.api.Stream;
 import org.apache.http.HttpStatus;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -25,6 +26,8 @@ class HeadTask extends StreamItemTask implements HttpStatus {
             item.initializeFromStream(stream);
             return b;
         } catch (CloudAPI.ResolverException e) {
+            Log.w(LOG_TAG, "error resolving "+item, e);
+
             switch (e.getStatusCode()) {
                 case SC_PAYMENT_REQUIRED:
                 case SC_NOT_FOUND:

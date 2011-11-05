@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 public class StreamItem implements Parcelable {
-    public final Index chunksToDownload = new Index();
+    public final Index missingChunks = new Index();
     public final List<Integer> downloadedChunks =
             Collections.synchronizedList(new ArrayList<Integer>());
 
@@ -33,10 +33,19 @@ public class StreamItem implements Parcelable {
     private String mEtag;  // audio content ETag
     private long mExpires; // expiration time of the redirect link
 
+    private File mCachedFile;
+
     public StreamItem(String url) {
         if (TextUtils.isEmpty(url)) throw new IllegalArgumentException();
         this.url = url;
         this.urlHash = urlHash(url);
+    }
+
+    public StreamItem(String url, File f) {
+        this(url);
+        mContentLength = f.length();
+        mCachedFile = f;
+
     }
 
     /* package */ StreamItem(String url, long length, String etag) {
@@ -58,6 +67,9 @@ public class StreamItem implements Parcelable {
     }
 
     public String etag() {
+        if (mEtag == null && mCachedFile != null && mCachedFile.exists()) {
+            mEtag = '"'+CloudUtils.md5(mCachedFile)+'"';
+        }
         return mEtag;
     }
 
@@ -87,28 +99,6 @@ public class StreamItem implements Parcelable {
      */
     public boolean isRedirectExpired() {
         return System.currentTimeMillis() > mExpires;
-    }
-
-    public boolean setContentLength(long value) {
-        if (mContentLength != value) {
-            final long oldLength = mContentLength;
-            mContentLength = value;
-            /*
-            TODO: move this out of this class
-            public static String SCStreamItemDidResetNotification = "com.soundcloud.android.SCStreamItemDidResetNotification";
-
-            if (oldLength != 0) {
-                Intent i = new Intent(SCStreamItemDidResetNotification);
-                i.getExtras().putParcelable("item", this);
-                mContext.sendBroadcast(i);
-            }
-            TODO add reset listener to player
-            */
-
-            return oldLength != 0;
-        } else {
-            return false;
-        }
     }
 
     public long getContentLength() {
@@ -142,7 +132,7 @@ public class StreamItem implements Parcelable {
         sb.append(", mRedirectedUrl='").append(mRedirectedUrl).append('\'');
         sb.append(", mEtag='").append(mEtag).append('\'');
         sb.append(", mExpires=").append(mExpires == 0 ? "" : new Date(mExpires));
-        sb.append(", chunksToDownload=").append(chunksToDownload);
+        sb.append(", chunksToDownload=").append(missingChunks);
         sb.append(", downloadedChunks=").append(downloadedChunks);
         sb.append('}');
         return sb.toString();
@@ -172,18 +162,6 @@ public class StreamItem implements Parcelable {
         }
     }
 
-    public static StreamItem read(DataInputStream dis) throws IOException {
-        String url = dis.readUTF();
-        StreamItem item = new StreamItem(url);
-        item.mContentLength = dis.readLong();
-        item.mEtag = dis.readUTF();
-        int n = dis.readInt();
-        for (int i = 0; i < n; i++) {
-            item.downloadedChunks.add(dis.readInt());
-        }
-        return item;
-    }
-
     public static StreamItem fromIndexFile(File file) throws IOException {
         DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
         try {
@@ -193,10 +171,15 @@ public class StreamItem implements Parcelable {
         }
     }
 
-    public static StreamItem fromCompleteFile(String url, File file) {
+    /* package */ static StreamItem read(DataInputStream dis) throws IOException {
+        String url = dis.readUTF();
         StreamItem item = new StreamItem(url);
-        item.mContentLength = file.length();
-        //item.mEtag = CloudUtils.md5(file); // XXX overhead?
+        item.mContentLength = dis.readLong();
+        item.mEtag = dis.readUTF();
+        int n = dis.readInt();
+        for (int i = 0; i < n; i++) {
+            item.downloadedChunks.add(dis.readInt());
+        }
         return item;
     }
 
@@ -240,5 +223,4 @@ public class StreamItem implements Parcelable {
             return new StreamItem[size];
         }
     };
-
 }

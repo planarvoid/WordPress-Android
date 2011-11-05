@@ -40,6 +40,11 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
             Log.e(LOG_TAG, "Complete file already exists at path " + completeFile.getAbsolutePath());
             return false;
         }
+        // make sure complete dir exists
+        else if (!completeFile.getParentFile().exists() && !CloudUtils.mkdirs(completeFile.getParentFile())) {
+            Log.w(LOG_TAG, "could not create complete file dir");
+            return false;
+        }
         // optimization - if chunks have been written in order, just move and truncate file
         else if (isOrdered(mIndexes)) {
             Log.d(LOG_TAG, "chunk file is already in order, moving");
@@ -71,7 +76,7 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
                 }
             }
         } else {
-            Log.w(LOG_TAG, "error moving files");
+            Log.w(LOG_TAG, "error moving file");
         }
         return false;
     }

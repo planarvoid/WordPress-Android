@@ -1158,10 +1158,13 @@ public class CloudPlaybackService extends Service {
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
                 // when the proxy times out it will just close the connection - this gets reported
                 // as error -1005 (in some implementations). try to reconnect at least twice before giving up
-                if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -1005) {
+                if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN &&
+                        extra == -1004 /* ERROR_IO */ ||
+                        extra == -1005 /* ERROR_CONNECTION_LOST */) {
                     if (mRetries < 3) {
-                        Log.d(TAG, "stream disconnected, retrying (try="+mRetries+1+")");
+                        Log.d(TAG, "stream disconnected, retrying (try="+(mRetries+1)+")");
                         mRetries++;
+                        mMediaPlayer.reset();
                         play();
                         return true;
                     } else {
@@ -1180,15 +1183,11 @@ public class CloudPlaybackService extends Service {
                     getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
                 }
 
-                switch (what) {
-                    default:
-                        mIsInitialized = false;
-                        mPlayingPath = "";
-                        mMediaPlayer.reset();
-                        mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(isConnected() ?
-                                TRACK_EXCEPTION : STREAM_EXCEPTION));
-                        break;
-                }
+                mIsInitialized = false;
+                mPlayingPath = "";
+                mMediaPlayer.reset();
+                mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(isConnected() ?
+                        TRACK_EXCEPTION : STREAM_EXCEPTION));
                 return true;
             }
         };

@@ -3,14 +3,12 @@ package com.soundcloud.android.streaming;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.api.Stream;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.message.BasicLineParser;
 
-import android.os.Build;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -32,7 +30,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -43,6 +40,8 @@ import java.util.regex.Pattern;
  */
 public class StreamProxy implements Runnable {
     private static final String LOG_TAG = StreamProxy.class.getSimpleName();
+    public static final int TIMEOUT = 15; // wait this long before closing the connection
+
     public static boolean opencoreClient;
 
     private int mPort;
@@ -192,8 +191,6 @@ public class StreamProxy implements Runnable {
 
         final long startByte = firstRequestedByte(request);
 
-        Log.d(LOG_TAG, "startByte: " + startByte);
-
         try {
             final SocketChannel channel = client.getChannel();
             Map<String, String> headers = headerForItem(streamUrl);
@@ -247,11 +244,15 @@ public class StreamProxy implements Runnable {
     private void writeChunks(String streamUrl, final long startByte, SocketChannel channel, Map<String, String> headers)
             throws IOException, InterruptedException, TimeoutException {
 
-
         long offset = startByte;
         for (;;) {
             StreamFuture stream = loader.getDataForUrl(streamUrl, Range.from(offset, storage.chunkSize));
-            ByteBuffer buffer = stream.get(15, TimeUnit.SECONDS);
+            ByteBuffer buffer = stream.get(TIMEOUT, TimeUnit.SECONDS);
+
+            if (stream.item.getContentLength() == 0) {
+                // should not happen
+                throw new IOException("BUG: content-length is 0");
+            }
 
             if (offset == startByte) {
                 // first chunk, write header

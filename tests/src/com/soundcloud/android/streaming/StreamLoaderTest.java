@@ -212,6 +212,9 @@ public class StreamLoaderTest {
 
         @Override
         public StreamItem getMetadata(String url) {
+            if (!_metadata.containsKey(url)) {
+                _metadata.put(url, new StreamItem(url));
+            }
             return _metadata.get(url);
         }
 

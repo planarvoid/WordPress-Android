@@ -8,7 +8,6 @@ import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
@@ -116,7 +115,12 @@ public class FileCache extends FileResponseCache {
     }
 
     public static class TrimCacheTask extends AsyncTask<File, Integer, Boolean> {
-        public long maxCacheSize = 1024 * 1024;
+        final long maxCacheSize;
+
+        public TrimCacheTask(long max) {
+            this.maxCacheSize = max;
+        }
+
         @Override
         protected Boolean doInBackground(File... params) {
             final File dir = params[0];
