@@ -513,7 +513,6 @@ public class CloudPlaybackService extends Service {
         if (mPlayingData == null)
             return;
 
-
         boolean wasPlaying = mIsSupposedToBePlaying;
         mIsSupposedToBePlaying = true;
 
@@ -887,6 +886,7 @@ public class CloudPlaybackService extends Service {
         private boolean mIsInitialized;
         private boolean mIsAsyncOpening;
         private String mPlayingPath = "";
+        private int mRetries = 0;
 
         public MultiPlayer() {
             refreshMediaplayer();
@@ -1059,14 +1059,16 @@ public class CloudPlaybackService extends Service {
         MediaPlayer.OnInfoListener infolistener = new MediaPlayer.OnInfoListener() {
             @Override
             public boolean onInfo(MediaPlayer mediaPlayer, int what, int extra) {
+                Log.d(TAG, "onInfo("+what+", "+extra+")");
+
                 switch (what) {
-                    case 701: //MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                    case MediaPlayer.MEDIA_INFO_BUFFERING_START:
                         pausedForBuffering = true;
                         notifyChange(BUFFERING);
 
                         break;
 
-                    case 702: //MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                    case MediaPlayer.MEDIA_INFO_BUFFERING_END:
                         pausedForBuffering = false;
                         notifyChange(BUFFERING_COMPLETE);
 
@@ -1079,6 +1081,7 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnBufferingUpdateListener bufferinglistener = new MediaPlayer.OnBufferingUpdateListener() {
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                mRetries = 0;
                 mLoadPercent = percent;
             }
         };
@@ -1105,6 +1108,7 @@ public class CloudPlaybackService extends Service {
 
                     mMediaPlayer.reset();
                     mIsInitialized = false;
+                    mRetries = 0;
                     mPlayingPath = "";
                     return;
                 }
@@ -1152,6 +1156,18 @@ public class CloudPlaybackService extends Service {
         MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
             public boolean onError(MediaPlayer mp, int what, int extra) {
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
+                // when the proxy times out it will just close the connection - this gets reported
+                // as error -1005 (in some implementations). try to reconnect at least twice before giving up
+                if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -1005) {
+                    if (mRetries < 3) {
+                        Log.d(TAG, "stream disconnected, retrying (try="+mRetries+1+")");
+                        mRetries++;
+                        play();
+                        return true;
+                    } else {
+                        Log.d(TAG, "stream disconnected, giving up");
+                    }
+                }
 
                 mIsAsyncOpening = false;
                 mMediaplayerError = true;

@@ -339,7 +339,7 @@ public class StreamStorage {
                 (long) (Math.floor((mUsedSpace + spaceLeft) * MAXIMUM_PERCENTAGE_OF_FREE_SPACE)),
                 STREAM_CACHE_SIZE);
 
-        Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable",
+        Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable for caching",
                 mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
     }
 
@@ -355,7 +355,7 @@ public class StreamStorage {
 
         final long spaceToClean = mUsedSpace - mUsableSpace;
         if (spaceToClean > 0) {
-            Log.d(LOG_TAG, String.format("performing cleanup, need to free %.1f mb", spaceToClean/1024d*1024d));
+            Log.d(LOG_TAG, String.format("performing cleanup, need to free %.1f mb", spaceToClean/(1024d*1024d)));
             final List<File> files = allFiles(FileLastModifiedComparator.INSTANCE);
             long cleanedSpace = 0;
             for (File f : files) {

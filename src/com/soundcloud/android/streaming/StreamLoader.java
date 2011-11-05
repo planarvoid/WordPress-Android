@@ -307,7 +307,6 @@ public class StreamLoader {
     }
 
     private PlaycountTask startPlaycountTask(StreamItem item, int prio) {
-
         PlaycountTask task = new PlaycountTask(item, mContext);
         mHeadHandler.sendMessage(mHeadHandler.obtainMessage(prio, task));
         return task;
