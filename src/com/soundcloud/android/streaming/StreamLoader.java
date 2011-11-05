@@ -1,7 +1,5 @@
 package com.soundcloud.android.streaming;
 
-import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
-
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
@@ -122,16 +120,15 @@ public class StreamLoader {
                 .registerHandler(mConnHandler, CONNECTIVITY_MSG)
                 .startListening(context);
 
-        HandlerThread dataThread = new HandlerThread("streaming-data", THREAD_PRIORITY_BACKGROUND);
+        HandlerThread dataThread = new HandlerThread("streaming-data", android.os.Process.THREAD_PRIORITY_BACKGROUND);
         dataThread.start();
 
-        mDataHandler = new StreamHandler(dataThread.getLooper(), mResultHandler, MAX_RETRIES);
+        mDataHandler = new StreamHandler(context, dataThread.getLooper(), mResultHandler, MAX_RETRIES);
 
-        HandlerThread contentLengthThread = new HandlerThread("streaming-head", THREAD_PRIORITY_BACKGROUND);
+        HandlerThread contentLengthThread = new HandlerThread("streaming-head", android.os.Process.THREAD_PRIORITY_BACKGROUND);
         contentLengthThread.start();
 
-        mHeadHandler = new StreamHandler(contentLengthThread.getLooper(), mResultHandler, MAX_RETRIES);
-
+        mHeadHandler = new StreamHandler(context, contentLengthThread.getLooper(), mResultHandler, MAX_RETRIES);
 
         mPlaycountHandler = new Handler(resultLooper) {
             @Override
@@ -337,40 +334,6 @@ public class StreamLoader {
         } else {
             Log.d(LOG_TAG, String.format("Can't start head for %s: Item is unavailable.", item));
             return null;
-        }
-    }
-
-    // request pipeline
-    static class StreamHandler extends Handler {
-        final private Handler mHandler;
-        final private int mMaxRetries;
-
-
-        public StreamHandler(Looper looper, Handler handler, int maxRetries) {
-            super(looper);
-            mHandler = handler;
-            mMaxRetries = maxRetries;
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            Log.d(LOG_TAG, "StreamHandler: handle " + msg.obj);
-
-            StreamItemTask task = (StreamItemTask) msg.obj;
-            try {
-                Message result = obtainMessage(msg.what, msg.obj);
-                result.setData(task.execute());
-                mHandler.sendMessage(result);
-            } catch (IOException e) {
-                Log.w(LOG_TAG, e);
-                if (task.item.isAvailable() && msg.arg1 < mMaxRetries) {
-                    Log.d(LOG_TAG, "retrying, tries=" + msg.arg1);
-                    final long backoff = msg.arg1*msg.arg1*150;
-                    sendMessageDelayed(obtainMessage(msg.what, msg.arg1+1, 0, msg.obj), backoff);
-                } else {
-                    Log.d(LOG_TAG, "giving up (max tries="+mMaxRetries+")");
-                }
-            }
         }
     }
 

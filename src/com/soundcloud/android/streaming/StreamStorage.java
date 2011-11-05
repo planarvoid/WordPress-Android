@@ -332,6 +332,17 @@ public class StreamStorage {
         }
     }
 
+    /* package */ void calculateFileMetrics() {
+        long spaceLeft = getSpaceLeft();
+        mUsedSpace = getUsedSpace();
+        mUsableSpace = Math.min(
+                (long) (Math.floor((mUsedSpace + spaceLeft) * MAXIMUM_PERCENTAGE_OF_FREE_SPACE)),
+                STREAM_CACHE_SIZE);
+
+        Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable",
+                mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
+    }
+
     private boolean cleanup() {
         if (!mConvertingUrls.isEmpty()) {
             Log.d(LOG_TAG, "Not doing storage cleanup, conversion is going on");
@@ -344,13 +355,14 @@ public class StreamStorage {
 
         final long spaceToClean = mUsedSpace - mUsableSpace;
         if (spaceToClean > 0) {
-            Log.d(LOG_TAG, "performing cleanup");
+            Log.d(LOG_TAG, String.format("performing cleanup, need to free %.1f mb", spaceToClean/1024d*1024d));
             final List<File> files = allFiles(FileLastModifiedComparator.INSTANCE);
             long cleanedSpace = 0;
             for (File f : files) {
+                final long length = f.length();
                 if (f.delete()) {
+                    cleanedSpace += length;
                     Log.d(LOG_TAG, "deleted "+f);
-                    cleanedSpace += f.length();
                     String name = f.getName();
                     if (name.endsWith(CHUNKS_EXTENSION)) {
                         String hash = name.substring(0, name.indexOf('.'));
@@ -361,10 +373,10 @@ public class StreamStorage {
                             mItems.remove(hash);
                         }
                     }
-                    if (cleanedSpace >= spaceToClean) break;
                 } else {
                     Log.w(LOG_TAG, "could not delete "+f);
                 }
+                if (cleanedSpace >= spaceToClean) break;
             }
             return true;
         } else {
@@ -386,16 +398,6 @@ public class StreamStorage {
         return files;
     }
 
-    /* package */ void calculateFileMetrics() {
-        long spaceLeft = getSpaceLeft();
-        mUsedSpace = getUsedSpace();
-        mUsableSpace = Math.min(
-                (long) (Math.floor((mUsedSpace + spaceLeft) * MAXIMUM_PERCENTAGE_OF_FREE_SPACE)),
-                STREAM_CACHE_SIZE);
-
-        Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable",
-                mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
-    }
 
     /* package */ long getUsedSpace() {
         long currentlyUsedSpace = 0;

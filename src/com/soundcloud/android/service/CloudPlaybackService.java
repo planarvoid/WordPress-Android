@@ -16,7 +16,11 @@
 
 package com.soundcloud.android.service;
 
-import com.soundcloud.android.*;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
@@ -42,15 +46,12 @@ import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
-import android.net.wifi.WifiManager.WifiLock;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
@@ -58,7 +59,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import java.io.*;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 /**
@@ -102,8 +103,6 @@ public class CloudPlaybackService extends Service {
     private static final int SERVER_DIED = 3;
     private static final int FADEIN = 4;
     private static final int TRACK_EXCEPTION = 5;
-    private static final int ACQUIRE_WAKELOCKS = 6;
-    private static final int RELEASE_WAKELOCKS = 7;
     private static final int CLEAR_LAST_SEEK = 8;
     private static final int STREAM_EXCEPTION = 9;
     private static final int CHECK_TRACK_EVENT = 10;
@@ -120,8 +119,6 @@ public class CloudPlaybackService extends Service {
     private long mResumeTime = -1;
     private long mResumeId = -1;
 
-    private WifiLock mWifiLock;
-    private WakeLock mWakeLock;
     private int mServiceStartId = -1;
     private boolean mServiceInUse = false;
     private boolean mResumeAfterCall = false;
@@ -184,13 +181,6 @@ public class CloudPlaybackService extends Service {
         TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
-        mWakeLock.setReferenceCounted(false);
-
-        WifiManager wm = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        mWifiLock = wm.createWifiLock("wifilock");
-
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that
         // case.
@@ -225,17 +215,7 @@ public class CloudPlaybackService extends Service {
         mPhoneStateListener = null;
 
         unregisterReceiver(mIntentReceiver);
-
-        if (mWakeLock.isHeld())
-            mWakeLock.release();
-        mWakeLock = null;
-
-        if (mWifiLock.isHeld())
-            mWifiLock.release();
-        mWifiLock = null;
-
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
-
         super.onDestroy();
     }
 
@@ -418,8 +398,6 @@ public class CloudPlaybackService extends Service {
         }
         openAsync(mPlayListManager.getCurrentTrack());
     }
-
-    Thread mChangeTracksThread = null;
 
     public void openAsync(final Track track) {
 
@@ -922,7 +900,6 @@ public class CloudPlaybackService extends Service {
                     setAudioStreamType(AudioManager.STREAM_MUSIC);
                     setOnPreparedListener(preparedlistener);
                     setOnSeekCompleteListener(seeklistener);
-                    setWakeMode(CloudPlaybackService.this, PowerManager.PARTIAL_WAKE_LOCK);
                     setOnCompletionListener(listener);
                     setOnErrorListener(errorListener);
                     setOnBufferingUpdateListener(bufferinglistener);
@@ -1174,6 +1151,8 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
             public boolean onError(MediaPlayer mp, int what, int extra) {
+                Log.e(TAG, "MP ERROR " + what + " | " + extra);
+
                 mIsAsyncOpening = false;
                 mMediaplayerError = true;
 
@@ -1185,7 +1164,6 @@ public class CloudPlaybackService extends Service {
                     getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
                 }
 
-                Log.e(TAG, "MP ERROR " + what + " | " + extra);
                 switch (what) {
                     default:
                         mIsInitialized = false;
@@ -1357,14 +1335,6 @@ public class CloudPlaybackService extends Service {
                         notifyChange(PLAYBACK_COMPLETE);
                         gotoIdleState();
                     }
-                    break;
-                case ACQUIRE_WAKELOCKS:
-                    if (!mWakeLock.isHeld()) mWakeLock.acquire();
-                    if (!mWifiLock.isHeld()) mWifiLock.acquire();
-                    break;
-                case RELEASE_WAKELOCKS:
-                    if (mWakeLock.isHeld()) mWakeLock.release();
-                    if (mWifiLock.isHeld()) mWifiLock.release();
                     break;
                 case CLEAR_LAST_SEEK:
                     mSeekPos = -1;
