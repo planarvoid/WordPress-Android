@@ -2,6 +2,7 @@ package com.soundcloud.android.streaming;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -22,7 +23,13 @@ class StreamHandler extends Handler {
         mMaxRetries = maxRetries;
 
         WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        mWifiLock = mWifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, getClass().getSimpleName());
+        // some phones have really low transfer rates when the screen is turned off, so request a full
+        // performance lock on newer devices
+
+        // see http://code.google.com/p/android/issues/detail?id=9781
+        mWifiLock = mWifiManager.createWifiLock(
+                Build.VERSION.SDK_INT >= 9 ? 3 /* WIFI_MODE_FULL_HIGH_PERF */ : WifiManager.WIFI_MODE_FULL,
+                getClass().getSimpleName());
     }
 
     @Override
