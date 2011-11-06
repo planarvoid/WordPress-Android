@@ -1,5 +1,7 @@
 package com.soundcloud.android.streaming;
 
+import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Stream;
 
@@ -9,10 +11,12 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +49,6 @@ public class StreamItem implements Parcelable {
         this(url);
         mContentLength = f.length();
         mCachedFile = f;
-
     }
 
     /* package */ StreamItem(String url, long length, String etag) {
@@ -90,7 +93,6 @@ public class StreamItem implements Parcelable {
     public void markUnavailable() {
         mUnavailable = true;
     }
-
 
     /**
      * Checks is the redirect is expired.
@@ -152,13 +154,15 @@ public class StreamItem implements Parcelable {
     }
 
     // serialization support
-    public void write(DataOutputStream dos) throws IOException {
-        dos.writeUTF(url);
-        dos.writeLong(mContentLength);
-        dos.writeUTF(mEtag == null ? "" : mEtag);
-        dos.writeInt(downloadedChunks.size());
-        for (Integer index : downloadedChunks) {
-            dos.writeInt(index);
+
+    public void toIndexFile(File f) throws IOException {
+        mkdirs(f.getParentFile());
+        DataOutputStream dos = null;
+        try {
+            dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
+            write(dos);
+        } finally {
+            if (dos != null) dos.close();
         }
     }
 
@@ -168,6 +172,16 @@ public class StreamItem implements Parcelable {
             return read(dis);
         } finally {
             dis.close();
+        }
+    }
+
+    /* package */ void write(DataOutputStream dos) throws IOException {
+        dos.writeUTF(url);
+        dos.writeLong(mContentLength);
+        dos.writeUTF(mEtag == null ? "" : mEtag);
+        dos.writeInt(downloadedChunks.size());
+        for (Integer index : downloadedChunks) {
+            dos.writeInt(index);
         }
     }
 

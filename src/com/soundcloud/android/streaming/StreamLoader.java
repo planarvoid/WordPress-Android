@@ -219,7 +219,6 @@ public class StreamLoader {
 
     private void processHighPriorityQueue() {
         for (StreamItem item : mItemsNeedingHeadRequests) {
-            // also done from processHighPriorityQueue()
             mItemsNeedingHeadRequests.remove(item);
             startHeadTask(item, HI_PRIO);
         }

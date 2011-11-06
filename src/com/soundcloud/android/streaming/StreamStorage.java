@@ -79,10 +79,7 @@ public class StreamStorage {
         try {
             File indexFile = incompleteIndexFileForUrl(item.url);
             if (indexFile.exists() && !indexFile.delete()) Log.w(LOG_TAG, "could not delete "+indexFile);
-            mkdirs(indexFile.getParentFile());
-            DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
-            item.write(dos);
-            dos.close();
+            item.toIndexFile(indexFile);
             return true;
         } catch (IOException e) {
             if (CloudUtils.isSDCardAvailable()) {

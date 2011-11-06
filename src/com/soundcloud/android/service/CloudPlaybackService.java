@@ -490,10 +490,7 @@ public class CloudPlaybackService extends Service {
 
                 // commit updated track (user played update only)
                 mPlayListManager.commitTrackToDb(mPlayingData);
-                // need to resolve stream url, because f***ing mediaplayer doesn't handle https
-
                 mPlayer.setDataSourceAsync(mPlayingData.stream_url);
-                //setResolvedStreamSourceAsync(mPlayingData.stream_url, mMediaplayerHandler);
             } else {
                 sendStreamException(0);
                 gotoIdleState();
