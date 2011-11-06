@@ -75,6 +75,8 @@ public class StreamStorage {
     }
 
     public synchronized boolean storeMetadata(StreamItem item) {
+        verifyMetadata(item);
+
         mItems.put(item.urlHash, item);
         try {
             File indexFile = incompleteIndexFileForUrl(item.url);
@@ -335,7 +337,7 @@ public class StreamStorage {
                 mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
     }
 
-    private boolean cleanup() {
+    private synchronized boolean cleanup() {
         if (!mConvertingUrls.isEmpty()) {
             Log.d(LOG_TAG, "Not doing storage cleanup, conversion is going on");
             return false;
@@ -410,21 +412,15 @@ public class StreamStorage {
        return fs.getBlockSize() * fs.getAvailableBlocks();
     }
 
-    /* package */ void verifyMetadata(String url) {
-        // perform etag comparison to make sure file data is correct
-        // XXX TODO
-        /*
-        Metadata existing = mMetadata.get(url);
-        if (existing != null
-            && item.getETag() != null
-            && !item.getETag().equals(existing.eTag)) {
+    /* package */ void verifyMetadata(StreamItem item) {
+        StreamItem existing = mItems.get(item.urlHash);
+        if (existing != null &&
+            existing.etag() != null &&
+            !existing.etag().equals(item.etag())) {
 
             Log.d(LOG_TAG, "eTag don't match, removing cached data");
-
-            removeAllDataForItem(url);
-            mMetadata.put(url, item.getMetadata());
+            removeAllDataForItem(item.url);
         }
-        */
     }
 
     /* package */ static class FileLastModifiedComparator implements Comparator<File> {
