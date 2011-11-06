@@ -136,14 +136,8 @@ public class StreamLoader {
             @Override
             public void handleMessage(Message msg) {
                 String url = msg.obj.toString();
-                StreamItem item = mStorage.getMetadata(url);
-                if (item != null) {
-                    if (item.redirectUrl() == null || item.isRedirectExpired()) {
-                        mItemsNeedingHeadRequests.add(item);
-                    }
-                    mItemsNeedingPlaycountRequests.add(item);
-                    processQueues();
-                }
+                mItemsNeedingPlaycountRequests.add(mStorage.getMetadata(url));
+                processQueues();
             }
         };
     }

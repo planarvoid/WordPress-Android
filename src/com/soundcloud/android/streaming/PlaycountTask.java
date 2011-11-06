@@ -4,8 +4,8 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -21,14 +21,12 @@ public class PlaycountTask extends StreamItemTask {
     @Override
     public Bundle execute() throws IOException {
         Log.d(LOG_TAG, "Logging playcount for item "+item);
-        HttpResponse resp = api.getHttpClient().execute(
-                Request.to(item.redirectUrl()).range(0, 1)
-                        .buildRequest(HttpGet.class));
+        // request 1st byte to get counted as play
+        HttpResponse resp = api.get(Request.to(Uri.parse(item.url).getPath()).range(0, 1));
 
         final int status = resp.getStatusLine().getStatusCode();
         switch (status) {
-            case HttpStatus.SC_OK:
-            case HttpStatus.SC_PARTIAL_CONTENT:
+            case HttpStatus.SC_MOVED_TEMPORARILY:
                 Log.d(LOG_TAG, "logged play count for "+item);
                 return null;
             default:
