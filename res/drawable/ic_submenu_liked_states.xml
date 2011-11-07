@@ -1,6 +1,6 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_focused="true" android:drawable="@drawable/ic_submenu_like_focused" />
-    <item android:state_pressed="true" android:drawable="@drawable/ic_submenu_like_focused" />
-    <item android:drawable="@drawable/ic_submenu_like" />
+    <item android:state_focused="true" android:drawable="@drawable/ic_submenu_liked_focus" />
+    <item android:state_pressed="true" android:drawable="@drawable/ic_submenu_liked_focus" />
+    <item android:drawable="@drawable/ic_submenu_liked" />
 </selector>
 
