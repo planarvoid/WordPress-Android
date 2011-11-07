@@ -40,7 +40,7 @@ public class SyncAdapterService extends Service {
 
     public static final int NOTIFICATION_MAX = 100;
     public static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
-    private static long DEFAULT_POLL_FREQUENCY = 3600;
+    private static final long DEFAULT_POLL_FREQUENCY = 3600;
 
     @Override
     public void onCreate() {
@@ -315,10 +315,12 @@ public class SyncAdapterService extends Service {
     }
 
     public static long getDefaultNotificationsFrequency(Context c) {
-        if (PreferenceManager.getDefaultSharedPreferences(c).contains("notificationsFrequency"))
-            return Long.parseLong(PreferenceManager.getDefaultSharedPreferences(c).getString("notificationsFrequency","3600"));
-        else
+        if (PreferenceManager.getDefaultSharedPreferences(c).contains("notificationsFrequency")) {
+            return Long.parseLong(PreferenceManager.getDefaultSharedPreferences(c).getString("notificationsFrequency",
+                    String.valueOf(DEFAULT_POLL_FREQUENCY)));
+        } else {
             return DEFAULT_POLL_FREQUENCY;
+        }
     }
     private static class Message {
         public final CharSequence title, message, ticker;
