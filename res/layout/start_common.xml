@@ -15,7 +15,11 @@
             android:textColor="#FFFFFFFF"
             android:layout_width="fill_parent"
             android:background="@drawable/btn_fb_bg_states"
-            android:text="@string/authentication_log_in_with_facebook"/>
+            android:focusableInTouchMode="true"
+            android:text="@string/authentication_log_in_with_facebook">
+
+        <requestFocus/>
+    </Button>
 
     <Button android:id="@+id/login_btn"
             android:layout_height="wrap_content"

@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -25,7 +24,7 @@ public class Start extends AccountAuthenticatorActivity {
     private static final int RECOVER_CODE = 1;
     private static final int SUGGESTED_USERS = 2;
 
-    private Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler();
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -67,17 +66,17 @@ public class Start extends AccountAuthenticatorActivity {
 
             ((ViewGroup) findViewById(R.id.animation_holder)).setLayoutAnimation(
                     new LayoutAnimationController(animation, 0.25f));
-            mHandler.postDelayed(mShowAuthControls, 350);
+
+            mHandler.postDelayed(new Runnable() {
+                public void run() {
+                    if (!Start.this.isFinishing()){
+                        findViewById(R.id.animation_holder).setVisibility(View.VISIBLE);
+                    }
+                }
+            }, 350);
         }
     }
 
-    private Runnable mShowAuthControls = new Runnable() {
-        public void run() {
-            if (!Start.this.isFinishing()){
-                findViewById(R.id.animation_holder).setVisibility(View.VISIBLE);
-            }
-        }
-    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -127,7 +126,6 @@ public class Start extends AccountAuthenticatorActivity {
     }
 
     private void handleSuggestedUsersReturned(Intent data) {
-
         finish();
     }
 
