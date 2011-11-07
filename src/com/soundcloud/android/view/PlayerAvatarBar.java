@@ -215,6 +215,7 @@ public class PlayerAvatarBar extends View {
                 return; // just don't show the updated bar, acceptable failure
             }
 
+            if (mNextCanvasBmp.isRecycled()) return;
             Canvas canvas = new Canvas(mNextCanvasBmp);
             for (Comment comment : comments){
                 if (Thread.currentThread().isInterrupted()) break;
