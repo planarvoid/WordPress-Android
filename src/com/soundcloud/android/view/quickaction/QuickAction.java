@@ -157,10 +157,10 @@ public class QuickAction extends PopupWindows {
         if (mTrack.getChildCount() > 0){
             View v = new View(mContext);
             v.setBackgroundColor(0xffb5b5b5);
-            mTrack.addView(v,new LinearLayout.LayoutParams((int) (1*mContext.getResources().getDisplayMetrics().density),LayoutParams.FILL_PARENT));
+            mTrack.addView(v,new LinearLayout.LayoutParams(1,LayoutParams.FILL_PARENT));
         }
 
-		mTrack.addView(actionItem);
+		mTrack.addView(actionItem,new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
 		
 		mChildPos++;
 	}

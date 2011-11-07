@@ -32,10 +32,8 @@ public class ActionItem extends LinearLayout {
 
         setClickable(true);
         setFocusable(true);
-        setGravity(Gravity.CENTER_HORIZONTAL);
         setBackgroundDrawable(background);
 
-        findViewById(R.id.tv_title).setVisibility(View.GONE);
         findViewById(R.id.iv_icon).setVisibility(View.GONE);
     }
 
@@ -43,21 +41,6 @@ public class ActionItem extends LinearLayout {
 		this(context, background);
         setIcon(icon);
 	}
-
-
-    /**
-     * Set action title
-     *
-     * @param title action title
-     */
-    public void setTitle(String title) {
-        if (title != null) {
-            ((TextView) findViewById(R.id.tv_title)).setText(title);
-            findViewById(R.id.tv_title).setVisibility(View.VISIBLE);
-        } else
-            findViewById(R.id.tv_title).setVisibility(View.GONE);
-
-    }
 
     /**
      * Set action icon
