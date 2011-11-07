@@ -951,22 +951,23 @@ public class CloudPlaybackService extends Service {
             if (mMediaPlayer == null)
                 return;
 
+            final MediaPlayer releasing = mMediaPlayer;
+            mMediaPlayer = null;
+
             try {
-                if (mMediaPlayer.isPlaying())
-                mMediaPlayer.pause();
+                if (releasing.isPlaying())
+                releasing.pause();
             } catch (IllegalStateException ignore) {}
 
             if (mIsAsyncOpening) {
                 long start = System.currentTimeMillis();
-                mMediaPlayer.release();
+                releasing.release();
                 Log.d(TAG, "released in "+ (System.currentTimeMillis()-start)+ " ms");
-                mMediaPlayer = null;
             } else {
                 try {
-                    mMediaPlayer.reset();
+                    releasing.reset();
                 } catch (IllegalStateException e) {
-                    mMediaPlayer.release();
-                    mMediaPlayer = null;
+                    releasing.release();
                 }
             }
 
