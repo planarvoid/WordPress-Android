@@ -11,7 +11,7 @@ import android.util.Log;
 import java.io.IOException;
 
 class HeadTask extends StreamItemTask implements HttpStatus {
-    static final String LOG_TAG = HeadTask.class.getSimpleName();
+    static final String LOG_TAG = StreamLoader.LOG_TAG;
 
     public HeadTask(StreamItem item, AndroidCloudAPI api) {
         super(item, api);

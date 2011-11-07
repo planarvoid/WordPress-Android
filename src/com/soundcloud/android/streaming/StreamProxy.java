@@ -66,7 +66,8 @@ public class StreamProxy implements Runnable {
         mSocket.socket().bind(new InetSocketAddress(mPort));
         mPort = mSocket.socket().getLocalPort();
 
-        Log.d(LOG_TAG, "port " + mPort + " obtained");
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            Log.d(LOG_TAG, "port " + mPort + " obtained");
         return this;
     }
 
@@ -108,7 +109,7 @@ public class StreamProxy implements Runnable {
 
     @Override
     public void run() {
-        Log.d(LOG_TAG, "running");
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "running");
         while (mIsRunning) {
             try {
                 final Socket client = mSocket.socket().accept();
@@ -186,7 +187,8 @@ public class StreamProxy implements Runnable {
 
     private void processRequest(HttpGet request, Socket client) {
         final String streamUrl = request.getURI().toString();
-        Log.d(LOG_TAG, "processRequest: " + streamUrl);
+
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "processRequest: " + streamUrl);
         determineFramework(request);
 
         final long startByte = firstRequestedByte(request);
@@ -204,9 +206,10 @@ public class StreamProxy implements Runnable {
         } catch (SocketException e) {
             if ("Connection reset by peer".equals(e.getMessage()) ||
                     "Broken pipe".equals(e.getMessage())) {
-                Log.d(LOG_TAG, "client closed connection [expected]");
+                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                    Log.d(LOG_TAG, "client closed connection [expected]");
             } else {
-                Log.e(LOG_TAG, e.getMessage(), e);
+                Log.w(LOG_TAG, e.getMessage(), e);
             }
         } catch (FileNotFoundException e) {
             Log.w(LOG_TAG, e);
@@ -237,7 +240,8 @@ public class StreamProxy implements Runnable {
         }
         sb.append("\r\n");
 
-        Log.d(LOG_TAG, "header:" + sb);
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            Log.d(LOG_TAG, "header:" + sb);
         return ByteBuffer.wrap(sb.toString().getBytes());
     }
 
@@ -268,7 +272,7 @@ public class StreamProxy implements Runnable {
             }
             offset += channel.write(buffer);
             if (offset >= stream.item.getContentLength()) {
-                Log.d(LOG_TAG, "reached end of stream");
+                if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "reached end of stream");
                 break;
             }
         }
@@ -290,7 +294,7 @@ public class StreamProxy implements Runnable {
         channel.write(getHeader(offset, headers));
 
         if (!loader.logPlaycount(streamUrl)) {
-            Log.d(LOG_TAG, "could not queue playcount log");
+            Log.w(LOG_TAG, "could not queue playcount log");
         }
 
         // touch file to prevent it from being collected by the cleaner
@@ -325,7 +329,7 @@ public class StreamProxy implements Runnable {
         // N1, Cyanogen 7: stagefright/1.1 (Linux;Android 2.3.3)
         if (r.containsHeader("User-Agent")) {
             String agent = r.getFirstHeader("User-Agent").getValue();
-            Log.d(LOG_TAG, "userAgent:" + agent);
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "userAgent:" + agent);
             opencoreClient = agent.contains("OpenCORE");
         }
     }

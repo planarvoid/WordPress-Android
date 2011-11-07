@@ -4,7 +4,6 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Stream;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,8 +11,6 @@ import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,6 +31,7 @@ import java.util.Set;
 
 public class StreamStorage {
     static final String LOG_TAG = StreamStorage.class.getSimpleName();
+
     public static final int DEFAULT_CHUNK_SIZE = 128 * 1024;     // 128k
     public static final int STREAM_CACHE_SIZE  = 200* 1024 * 1024; // 200 MB
     public static final double MAXIMUM_PERCENTAGE_OF_FREE_SPACE = 0.1d; // use 10% of sd card
@@ -142,11 +140,12 @@ public class StreamStorage {
         }
         // Do not add to complete files
         else if (completeFileForUrl(url).exists()) {
-            Log.d(LOG_TAG, "complete file exists, not adding data");
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, "complete file exists, not adding data");
             return false;
         }
         else if (!CloudUtils.isSDCardAvailable()) {
-            Log.d(LOG_TAG, "storage not available, not adding data");
+            Log.w(LOG_TAG, "storage not available, not adding data");
             return false;
         }
 
@@ -333,13 +332,16 @@ public class StreamStorage {
                 (long) (Math.floor((mUsedSpace + spaceLeft) * MAXIMUM_PERCENTAGE_OF_FREE_SPACE)),
                 STREAM_CACHE_SIZE);
 
-        Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable for caching",
-                mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable for caching",
+                    mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
     }
 
     private synchronized boolean cleanup() {
         if (!mConvertingUrls.isEmpty()) {
-            Log.d(LOG_TAG, "Not doing storage cleanup, conversion is going on");
+
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, "Not doing storage cleanup, conversion is going on");
             return false;
         }
         // reset counter
@@ -349,14 +351,16 @@ public class StreamStorage {
 
         final long spaceToClean = mUsedSpace - mUsableSpace;
         if (spaceToClean > 0) {
-            Log.d(LOG_TAG, String.format("performing cleanup, need to free %.1f mb", spaceToClean/(1024d*1024d)));
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, String.format("performing cleanup, need to free %.1f mb", spaceToClean/(1024d*1024d)));
             final List<File> files = allFiles(FileLastModifiedComparator.INSTANCE);
             long cleanedSpace = 0;
             for (File f : files) {
                 final long length = f.length();
                 if (f.delete()) {
                     cleanedSpace += length;
-                    Log.d(LOG_TAG, "deleted "+f);
+                    if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                        Log.d(LOG_TAG, "deleted "+f);
                     String name = f.getName();
                     if (name.endsWith(CHUNKS_EXTENSION)) {
                         String hash = name.substring(0, name.indexOf('.'));
@@ -418,7 +422,7 @@ public class StreamStorage {
             existing.etag() != null &&
             !existing.etag().equals(item.etag())) {
 
-            Log.d(LOG_TAG, "eTag don't match, removing cached data");
+            Log.w(LOG_TAG, "eTag don't match, removing cached data");
             removeAllDataForItem(item.url);
         }
     }

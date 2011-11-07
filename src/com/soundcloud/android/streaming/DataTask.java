@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 class DataTask extends StreamItemTask {
-    static final String LOG_TAG = DataTask.class.getSimpleName();
+    static final String LOG_TAG = StreamLoader.LOG_TAG;
 
     final Range byteRange, chunkRange;
     final ByteBuffer buffer;
@@ -30,7 +30,8 @@ class DataTask extends StreamItemTask {
 
     @Override
     public Bundle execute() throws IOException {
-        Log.d(LOG_TAG, String.format("fetching chunk %d for item %s with range %s", chunkRange.start, item, byteRange));
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            Log.d(LOG_TAG, String.format("fetching chunk %d for item %s with range %s", chunkRange.start, item, byteRange));
         HttpResponse resp = api.getHttpClient().execute(
                 Request.to(item.redirectUrl()).range(byteRange.start, byteRange.end()-1)
                         .buildRequest(HttpGet.class));
@@ -49,14 +50,16 @@ class DataTask extends StreamItemTask {
                 break;
             // link has expired
             case HttpStatus.SC_FORBIDDEN:
-                Log.d(LOG_TAG, "invalidating redirect url");
+                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                    Log.d(LOG_TAG, "invalidating redirect url");
                 item.invalidateRedirectUrl();
                 break;
             // permanent failure
             case HttpStatus.SC_PAYMENT_REQUIRED:
             case HttpStatus.SC_NOT_FOUND:
             case HttpStatus.SC_GONE:
-                Log.d(LOG_TAG, "marking item as unavailable");
+                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                    Log.d(LOG_TAG, "marking item as unavailable");
                 item.markUnavailable();
                 break;
 

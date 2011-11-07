@@ -34,7 +34,8 @@ class StreamHandler extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
-        Log.d(StreamLoader.LOG_TAG, "StreamHandler: handle " + msg.obj);
+        if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
+            Log.d(StreamLoader.LOG_TAG, "StreamHandler: handle " + msg.obj);
 
         StreamItemTask task = (StreamItemTask) msg.obj;
         try {
@@ -42,17 +43,22 @@ class StreamHandler extends Handler {
             if (mWifiLock != null) mWifiLock.acquire();
             final long start = System.currentTimeMillis();
             result.setData(task.execute());
-            Log.d(StreamLoader.LOG_TAG, "took "+(System.currentTimeMillis()-start)+ " ms");
+
+
+            if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
+                Log.d(StreamLoader.LOG_TAG, "took "+(System.currentTimeMillis()-start)+ " ms");
 
             mHandler.sendMessage(result);
         } catch (IOException e) {
             Log.w(StreamLoader.LOG_TAG, e);
             if (task.item.isAvailable() && msg.arg1 < mMaxRetries) {
-                Log.d(StreamLoader.LOG_TAG, "retrying, tries=" + msg.arg1);
+                if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
+                    Log.d(StreamLoader.LOG_TAG, "retrying, tries=" + msg.arg1);
+
                 final long backoff = msg.arg1*msg.arg1*150;
                 sendMessageDelayed(obtainMessage(msg.what, msg.arg1+1, 0, msg.obj), backoff);
             } else {
-                Log.d(StreamLoader.LOG_TAG, "giving up (max tries="+mMaxRetries+")");
+                Log.w(StreamLoader.LOG_TAG, "giving up (max tries="+mMaxRetries+")");
             }
         } finally {
             if (mWifiLock != null) mWifiLock.release();

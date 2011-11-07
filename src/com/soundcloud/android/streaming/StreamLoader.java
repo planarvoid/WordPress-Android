@@ -22,6 +22,8 @@ import java.util.Set;
 
 public class StreamLoader {
     static final String LOG_TAG = StreamLoader.class.getSimpleName();
+    static final boolean DEBUG =  true;
+
     static final int CONNECTIVITY_MSG = 0;
     static final int MAX_RETRIES = 3;
 
@@ -63,7 +65,9 @@ public class StreamLoader {
         mResultHandler = new Handler(resultLooper) {
             @Override
             public void handleMessage(Message msg) {
-                Log.d(LOG_TAG, "result of message:" + msg.obj);
+                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                    Log.d(LOG_TAG, "result of message:" + msg.obj);
+
                 if (msg.obj instanceof HeadTask) {
                     HeadTask t = (HeadTask) msg.obj;
                     if (t.item.isAvailable()) {
@@ -73,7 +77,8 @@ public class StreamLoader {
                 } else if (msg.obj instanceof DataTask) {
                     DataTask t = (DataTask) msg.obj;
                     if (t.item.isAvailable() && t.item.isRedirectValid()) {
-                        Log.d(LOG_TAG, String.format("Storing %d bytes at index %d for url %s",
+                        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                            Log.d(LOG_TAG, String.format("Storing %d bytes at index %d for url %s",
                                 t.buffer.limit(), t.chunkRange.start, t.item.url));
                         try {
                             if (!mStorage.storeData(t.item.url, t.buffer, t.chunkRange.start)) {
@@ -111,7 +116,8 @@ public class StreamLoader {
                         if (current == NetworkConnectivityListener.State.CONNECTED &&
                             previous == NetworkConnectivityListener.State.NOT_CONNECTED) {
 
-                            Log.d(LOG_TAG, "reconnected, processing queues");
+                            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                                Log.d(LOG_TAG, "reconnected, processing queues");
                             processQueues();
                             break;
                         }
@@ -143,7 +149,9 @@ public class StreamLoader {
     }
 
     public StreamFuture getDataForUrl(String url, Range range) throws IOException {
-        Log.d(LOG_TAG, "Get data for url " + url + " " + range);
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            Log.d(LOG_TAG, "Get data for url " + url + " " + range);
+
         final StreamItem item = mStorage.getMetadata(url);
 
         //If there is no metadata yet or it is expired, request it
@@ -172,7 +180,8 @@ public class StreamLoader {
                 }
             });
         } else {
-            Log.d(LOG_TAG, "Serving item from storage");
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, "Serving item from storage");
             pc.setByteBuffer(mStorage.fetchStoredDataForUrl(item.url, range));
         }
         return pc;
@@ -202,12 +211,14 @@ public class StreamLoader {
 
             if (mHeadHandler.hasMessages(HI_PRIO) ||
                 mDataHandler.hasMessages(HI_PRIO)) {
-                Log.d(LOG_TAG, "still hi-prio tasks, skip processing of lo-prio queue");
+                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                    Log.d(LOG_TAG, "still hi-prio tasks, skip processing of lo-prio queue");
             } else {
                 processLowPriorityQueue();
             }
         } else {
-            Log.d(LOG_TAG, "not connected, skip processing of queues");
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, "not connected, skip processing of queues");
         }
     }
 
@@ -262,7 +273,8 @@ public class StreamLoader {
             if (missingIndexes.isEmpty()) {
                 fulfilledCallbacks.add(future);
             } else {
-                Log.d(LOG_TAG, "still missing indexes, not fullfilling callback");
+                if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                    Log.d(LOG_TAG, "still missing indexes, not fullfilling callback");
             }
         }
 
@@ -320,7 +332,7 @@ public class StreamLoader {
                 return null;
             }
         } else {
-            Log.d(LOG_TAG, String.format("Can't start head for %s: Item is unavailable.", item));
+            Log.w(LOG_TAG, String.format("Can't start head for %s: Item is unavailable.", item));
             return null;
         }
     }

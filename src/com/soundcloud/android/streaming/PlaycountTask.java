@@ -12,7 +12,7 @@ import android.util.Log;
 import java.io.IOException;
 
 public class PlaycountTask extends StreamItemTask {
-    static final String LOG_TAG = PlaycountTask.class.getSimpleName();
+    static final String LOG_TAG = StreamLoader.class.getSimpleName();
 
     public PlaycountTask(StreamItem item, AndroidCloudAPI api) {
         super(item, api);
@@ -27,7 +27,8 @@ public class PlaycountTask extends StreamItemTask {
         final int status = resp.getStatusLine().getStatusCode();
         switch (status) {
             case HttpStatus.SC_MOVED_TEMPORARILY:
-                Log.d(LOG_TAG, "logged play count for "+item);
+                if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
+                    Log.d(LOG_TAG, "logged play count for "+item);
                 return null;
             default:
                 throw new IOException("invalid status code received:" + resp.getStatusLine());

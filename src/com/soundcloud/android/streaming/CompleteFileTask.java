@@ -34,7 +34,8 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
         File chunkFile = params[0];
         File completeFile = params[1];
 
-        Log.d(LOG_TAG, "About to write complete file to " + completeFile);
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            Log.d(LOG_TAG, "About to write complete file to " + completeFile);
 
         if (completeFile.exists()) {
             Log.e(LOG_TAG, "Complete file already exists at path " + completeFile.getAbsolutePath());
@@ -47,10 +48,12 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
         }
         // optimization - if chunks have been written in order, just move and truncate file
         else if (isOrdered(mIndexes)) {
-            Log.d(LOG_TAG, "chunk file is already in order, moving");
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, "chunk file is already in order, moving");
             return move(chunkFile, completeFile) && checkEtag(completeFile, mEtag);
         } else {
-            Log.d(LOG_TAG, "reassembling chunkfile");
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, "reassembling chunkfile");
             return reassembleFile(chunkFile, completeFile) && checkEtag(completeFile, mEtag);
         }
     }
@@ -60,7 +63,7 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
 
         final String calculatedEtag = '"'+CloudUtils.md5(file)+'"';
         if (!calculatedEtag.equals(etag)) {
-            Log.d(LOG_TAG, "etag " +etag+ " for complete file "+ file + " does not match "+calculatedEtag);
+            Log.w(LOG_TAG, "etag " +etag+ " for complete file "+ file + " does not match "+calculatedEtag);
             return false;
         } else return true;
     }
@@ -109,7 +112,8 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
                     fos.write(buffer);
                 }
             }
-            Log.d(LOG_TAG, "complete file " + completeFile + " written");
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, "complete file " + completeFile + " written");
         } catch (IOException e) {
             Log.e(LOG_TAG, "IO error during complete file creation", e);
             if (completeFile.delete()) Log.d(LOG_TAG, "Deleted " + completeFile);
