@@ -959,18 +959,9 @@ public class CloudPlaybackService extends Service {
                 releasing.pause();
             } catch (IllegalStateException ignore) {}
 
-            if (mIsAsyncOpening) {
-                long start = System.currentTimeMillis();
-                releasing.release();
-                Log.d(TAG, "released in "+ (System.currentTimeMillis()-start)+ " ms");
-            } else {
-                try {
-                    releasing.reset();
-                } catch (IllegalStateException e) {
-                    releasing.release();
-                }
-            }
-
+            long start = System.currentTimeMillis();
+            releasing.release();
+            Log.d(TAG, "released in "+ (System.currentTimeMillis()-start)+ " ms");
         }
 
         public long position() {
