@@ -23,10 +23,10 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -91,12 +91,11 @@ public class StreamLoaderTest {
         final int missingChunk = 1;
         sampleChunkIndexes.remove(missingChunk);
         storage.storeMetadata(item);
-        for (Integer i : sampleChunkIndexes) storage.storeData(item.url, sampleBuffers.get(i), i);
+        for (int i : sampleChunkIndexes) storage.storeData(item.url, sampleBuffers.get(i), i);
 
         pendingHeadRequests(testFile);
-        pendingDataRequest(item, "bytes=1024-2047", sampleBuffers.get(missingChunk));
-        // playcount
-        pendingDataRequest(item, "bytes=0-1", sampleBuffers.get(0).slice().limit(1));
+        pendingDataRequest("bytes=1024-2047", sampleBuffers.get(missingChunk));
+        pendingPlaycountRequest(TEST_URL);
 
         final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
         StreamFuture cb = loader.getDataForUrl(item.url, requestedRange);
@@ -112,7 +111,7 @@ public class StreamLoaderTest {
     public void requestingTwoDifferentMissingChunks() throws Exception {
         setupChunkArray();
         pendingHeadRequests(testFile);
-        pendingDataRequest(item, "bytes=0-1023", sampleBuffers.get(0));
+        pendingDataRequest("bytes=0-1023", sampleBuffers.get(0));
 
         final Range firstRange = Range.from(0, 700);
         StreamFuture cb = loader.getDataForUrl(item.url, firstRange);
@@ -124,7 +123,7 @@ public class StreamLoaderTest {
 
         expect(actual).toEqual(expected);
 
-        pendingDataRequest(item, "bytes=1024-2047", sampleBuffers.get(1));
+        pendingDataRequest("bytes=1024-2047", sampleBuffers.get(1));
 
         final Range secondRange = Range.from(1024, 500);
         cb = loader.getDataForUrl(item.url, secondRange);
@@ -138,8 +137,8 @@ public class StreamLoaderTest {
         setupChunkArray();
         pendingHeadRequests(testFile);
 
-        pendingDataRequest(item, "bytes=0-1023", sampleBuffers.get(0));
-        pendingDataRequest(item, "bytes=1024-2047", sampleBuffers.get(1));
+        pendingDataRequest("bytes=0-1023", sampleBuffers.get(0));
+        pendingDataRequest("bytes=1024-2047", sampleBuffers.get(1));
 
         // needs a GET of 2 chunks (500-1500)
         StreamFuture cb = loader.getDataForUrl(item.url, Range.from(500, 1000));
@@ -163,13 +162,22 @@ public class StreamLoaderTest {
         return chunks;
     }
 
-    static void pendingDataRequest(StreamItem item, String expectedRange, Buffer bytes) {
+    static void pendingDataRequest(String expectedRange, Buffer bytes) {
         HttpResponse stream = new TestHttpResponse(200, (byte[]) bytes.array());
         FakeHttpLayer.RequestMatcherBuilder b = new FakeHttpLayer.RequestMatcherBuilder();
         if (expectedRange != null) {
             b.header("Range", expectedRange);
         }
         addHttpResponseRule(b, stream);
+    }
+
+    static void pendingPlaycountRequest(String url) {
+        String path = URI.create(url).getPath();
+        HttpResponse stream = new TestHttpResponse(302, "");
+        addHttpResponseRule(new FakeHttpLayer.RequestMatcherBuilder()
+//                .header("Range", "bytes=0-1")
+                .method("GET")
+                .path(path.substring(1, path.length())), stream);
     }
 
     static void pendingHeadRequests(File f) {

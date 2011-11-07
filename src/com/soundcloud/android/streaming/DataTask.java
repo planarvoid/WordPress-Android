@@ -41,10 +41,12 @@ class DataTask extends StreamItemTask {
         switch (status) {
             case HttpStatus.SC_OK:
             case HttpStatus.SC_PARTIAL_CONTENT:
-                buffer.put(EntityUtils.toByteArray(resp.getEntity()));
-                buffer.rewind();
+                if (BufferUtils.readBody(resp, buffer)) {
+                    buffer.rewind();
+                } else {
+                    throw new IOException("error reading buffer");
+                }
                 break;
-
             // link has expired
             case HttpStatus.SC_FORBIDDEN:
                 Log.d(LOG_TAG, "invalidating redirect url");
