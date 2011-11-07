@@ -413,7 +413,7 @@ public class StreamStorage {
 
     /* package */ long getSpaceLeft() {
         StatFs fs = new StatFs(mBaseDir.getAbsolutePath());
-       return fs.getBlockSize() * fs.getAvailableBlocks();
+       return (long) fs.getBlockSize() * (long) fs.getAvailableBlocks();
     }
 
     /* package */ void verifyMetadata(StreamItem item) {
