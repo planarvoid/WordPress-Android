@@ -18,6 +18,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -28,12 +30,12 @@ public class StreamItem implements Parcelable {
     public final List<Integer> downloadedChunks =
             Collections.synchronizedList(new ArrayList<Integer>());
 
-    public final String url;
+    public final URL url;
     public final String urlHash;
 
     private boolean mUnavailable;  // http status 402, 404, 410
     private long mContentLength;
-    private String mRedirectedUrl;
+    private URL mRedirectedUrl;
     private String mEtag;  // audio content ETag
     private long mExpires; // expiration time of the redirect link
 
@@ -41,7 +43,12 @@ public class StreamItem implements Parcelable {
 
     public StreamItem(String url) {
         if (TextUtils.isEmpty(url)) throw new IllegalArgumentException();
-        this.url = url;
+        try {
+            this.url = new URL(url);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("invalid url",e);
+        }
+
         this.urlHash = urlHash(url);
     }
 
@@ -58,7 +65,11 @@ public class StreamItem implements Parcelable {
     }
 
     public StreamItem initializeFromStream(Stream s) {
-        mRedirectedUrl = s.streamUrl;
+        try {
+            mRedirectedUrl = new URL(s.streamUrl);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
         mContentLength = s.contentLength;
         mEtag = s.eTag;
         mExpires = s.expires;
@@ -76,7 +87,7 @@ public class StreamItem implements Parcelable {
         return mEtag;
     }
 
-    public String redirectUrl() {
+    public URL redirectUrl() {
         return mRedirectedUrl;
     }
 
@@ -176,7 +187,7 @@ public class StreamItem implements Parcelable {
     }
 
     /* package */ void write(DataOutputStream dos) throws IOException {
-        dos.writeUTF(url);
+        dos.writeUTF(url.toString());
         dos.writeLong(mContentLength);
         dos.writeUTF(mEtag == null ? "" : mEtag);
         dos.writeInt(downloadedChunks.size());
@@ -202,8 +213,8 @@ public class StreamItem implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         Bundle data = new Bundle();
-        data.putString("url", url);
-        data.putString("redirectedUrl", mRedirectedUrl);
+        data.putString("url", url.toString());
+        data.putString("redirectedUrl", mRedirectedUrl.toString());
         data.putString("etag", mEtag);
         data.putBoolean("unavailable", mUnavailable);
         data.putLong("contentLength", mContentLength);
@@ -217,11 +228,11 @@ public class StreamItem implements Parcelable {
         return 0;
     }
 
-    public StreamItem(Parcel in) {
+    public StreamItem(Parcel in) throws MalformedURLException {
         Bundle data = in.readBundle(getClass().getClassLoader());
-        url = data.getString("url");
-        urlHash = urlHash(url);
-        mRedirectedUrl = data.getString("redirectedUrl");
+        url = new URL(data.getString("url"));
+        urlHash = urlHash(url.toString());
+        mRedirectedUrl = new URL(data.getString("redirectedUrl"));
         mEtag = data.getString("etag");
         mUnavailable = data.getBoolean("unavailable");
         mContentLength = data.getLong("contentLength");
@@ -230,7 +241,11 @@ public class StreamItem implements Parcelable {
 
     public static final Parcelable.Creator<StreamItem> CREATOR = new Parcelable.Creator<StreamItem>() {
         public StreamItem createFromParcel(Parcel in) {
-            return new StreamItem(in);
+            try {
+                return new StreamItem(in);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         public StreamItem[] newArray(int size) {

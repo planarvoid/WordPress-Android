@@ -73,7 +73,7 @@ public class StreamLoaderTest {
 
     @Test(expected = RuntimeException.class)
     public void getAChunkFromStorageWithEmptyStorage() throws Exception {
-        loader.getDataForUrl(item.url, Range.from(0, TEST_CHUNK_SIZE)).get();
+        loader.getDataForUrl(item.url.toString(), Range.from(0, TEST_CHUNK_SIZE)).get();
     }
 
     @Test
@@ -228,7 +228,7 @@ public class StreamLoaderTest {
 
         @Override
         public boolean storeMetadata(StreamItem item) {
-            return _metadata.put(item.url, item) != null;
+            return _metadata.put(item.url.toString(), item) != null;
         }
 
         @Override

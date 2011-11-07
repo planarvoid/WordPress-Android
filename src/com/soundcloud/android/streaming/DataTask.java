@@ -1,19 +1,24 @@
 package com.soundcloud.android.streaming;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.ByteBuffer;
 
-class DataTask extends StreamItemTask {
+abstract class DataTask extends StreamItemTask {
     static final String LOG_TAG = StreamLoader.LOG_TAG;
 
     final Range byteRange, chunkRange;
@@ -28,25 +33,23 @@ class DataTask extends StreamItemTask {
         buffer = ByteBuffer.allocate(byteRange.length);
     }
 
+    protected abstract int getData(URL url, int start, int end, ByteBuffer dst) throws IOException;
+
     @Override
     public Bundle execute() throws IOException {
         if (Log.isLoggable(LOG_TAG, Log.DEBUG))
             Log.d(LOG_TAG, String.format("fetching chunk %d for item %s with range %s", chunkRange.start, item, byteRange));
-        HttpResponse resp = api.getHttpClient().execute(
-                Request.to(item.redirectUrl()).range(byteRange.start, byteRange.end()-1)
-                        .buildRequest(HttpGet.class));
 
-        final int status = resp.getStatusLine().getStatusCode();
+        final int status = getData(item.redirectUrl(), byteRange.start, byteRange.end() - 1, buffer);
+
         Bundle b = new Bundle();
         b.putInt("status", status);
         switch (status) {
             case HttpStatus.SC_OK:
             case HttpStatus.SC_PARTIAL_CONTENT:
-                if (BufferUtils.readBody(resp, buffer)) {
-                    buffer.rewind();
-                } else {
-                    throw new IOException("error reading buffer");
-                }
+                // handled in getData()
+                buffer.rewind();
+
                 break;
             // link has expired
             case HttpStatus.SC_FORBIDDEN:
@@ -64,7 +67,7 @@ class DataTask extends StreamItemTask {
                 break;
 
             default:
-                throw new IOException("invalid status code received:" + resp.getStatusLine());
+                throw new IOException("invalid status code received:" + status);
         }
         return b;
     }
@@ -75,6 +78,74 @@ class DataTask extends StreamItemTask {
                 "item=" + item +
                 ", byteRange=" + byteRange +
                 ", chunkRange=" + chunkRange +
-                '}' ;
+                '}';
+    }
+
+    public static DataTask create(StreamItem item, Range chunkRange, Range range, SoundCloudApplication context) {
+        // google recommends using HttpURLConnection from Gingerbread on:
+        // http://android-developers.blogspot.com/2011/09/androids-http-clients.html
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            return new HttpURLConnectionDataTask(item, chunkRange, range, context);
+        } else {
+            return new HttpClientDataTask(item, chunkRange, range, context);
+        }
+    }
+
+    static class HttpClientDataTask extends DataTask {
+        public HttpClientDataTask(StreamItem item, Range chunkRange, Range byteRange, AndroidCloudAPI api) {
+            super(item, chunkRange, byteRange, api);
+        }
+
+        @Override
+        protected int getData(URL url, int start, int end, ByteBuffer dst) throws IOException {
+            HttpResponse resp = api.getHttpClient().execute(
+                    Request.to(url.toString()).range(start, end)
+                            .buildRequest(HttpGet.class));
+
+            final int status = resp.getStatusLine().getStatusCode();
+            switch (status) {
+                case HttpStatus.SC_OK:
+                case HttpStatus.SC_PARTIAL_CONTENT:
+                    if (!BufferUtils.readBody(resp, buffer)) {
+                        throw new IOException("error reading buffer");
+                    }
+            }
+            return status;
+        }
+    }
+
+    static class HttpURLConnectionDataTask extends DataTask {
+        public HttpURLConnectionDataTask(StreamItem item, Range chunkRange, Range byteRange, AndroidCloudAPI api) {
+            super(item, chunkRange, byteRange, api);
+        }
+
+        @Override
+        protected int getData(URL url, int start, int end, ByteBuffer dst) throws IOException {
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Range",
+                    String.format("bytes=%d-%d", start, end));
+
+            InputStream is = null;
+            try {
+                final int status = connection.getResponseCode();
+                switch (status) {
+                    case HttpStatus.SC_OK:
+                    case HttpStatus.SC_PARTIAL_CONTENT:
+                        if (connection.getContentLength() > dst.capacity()) {
+                            throw new IOException("allocated buffer is too small");
+                        }
+                        is = new BufferedInputStream(connection.getInputStream());
+                        final byte[] bytes = new byte[8192];
+                        int n;
+                        while ((n = is.read(bytes)) != -1) {
+                            dst.put(bytes, 0, n);
+                        }
+                }
+                return status;
+            } finally {
+                connection.disconnect();
+                if (is != null) is.close();
+            }
+        }
     }
 }

@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -77,7 +78,7 @@ public class StreamStorage {
 
         mItems.put(item.urlHash, item);
         try {
-            File indexFile = incompleteIndexFileForUrl(item.url);
+            File indexFile = incompleteIndexFileForUrl(item.url.toString());
             if (indexFile.exists() && !indexFile.delete()) Log.w(LOG_TAG, "could not delete "+indexFile);
             item.toIndexFile(indexFile);
             return true;
@@ -123,6 +124,11 @@ public class StreamStorage {
         data.position(actualRange.start % chunkSize);
         data.limit(actualRange.start % chunkSize + actualRange.length);
         return data;
+    }
+
+
+    public boolean storeData(final URL url, ByteBuffer data, final int chunkIndex) throws IOException {
+        return storeData(url.toString(), data, chunkIndex);
     }
 
     /**
@@ -194,6 +200,10 @@ public class StreamStorage {
             }
         }
         return true;
+    }
+
+    public ByteBuffer getChunkData(URL url, int chunkIndex) throws IOException {
+        return getChunkData(url.toString(), chunkIndex);
     }
 
     public ByteBuffer getChunkData(String url, int chunkIndex) throws IOException {
@@ -423,7 +433,7 @@ public class StreamStorage {
             !existing.etag().equals(item.etag())) {
 
             Log.w(LOG_TAG, "eTag don't match, removing cached data");
-            removeAllDataForItem(item.url);
+            removeAllDataForItem(item.url.toString());
         }
     }
 

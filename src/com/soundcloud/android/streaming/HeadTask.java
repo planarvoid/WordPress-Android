@@ -20,7 +20,7 @@ class HeadTask extends StreamItemTask implements HttpStatus {
     @Override
     public Bundle execute() throws IOException {
         try {
-            Stream stream = api.resolveStreamUrl(item.url);
+            Stream stream = api.resolveStreamUrl(item.url.toString());
             Bundle b = new Bundle();
 //            b.putSerializable("stream", stream);
             item.initializeFromStream(stream);

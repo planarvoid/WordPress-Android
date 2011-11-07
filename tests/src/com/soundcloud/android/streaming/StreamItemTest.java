@@ -38,19 +38,19 @@ public class StreamItemTest {
 
     @Test
     public void testByteRange() throws Exception {
-        StreamItem item = new StreamItem("foo", 1543, null);
+        StreamItem item = new StreamItem("http://foo.com", 1543, null);
         expect(item.byteRange()).toEqual(Range.from(0, 1543));
     }
 
     @Test
     public void testChunkRange() throws Exception {
-        StreamItem item = new StreamItem("foo", 1543, null);
+        StreamItem item = new StreamItem("http://foo.com", 1543, null);
         expect(item.chunkRange(128)).toEqual(Range.from(0, 13));
     }
 
     @Test
     public void shouldWriteAndReadMetadata() throws Exception {
-        StreamItem md = new StreamItem("foo", 100, "etag");
+        StreamItem md = new StreamItem("http://foo.com", 100, "etag");
         md.downloadedChunks.addAll(Arrays.asList(1, 2, 3, 4, 5));
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -66,7 +66,8 @@ public class StreamItemTest {
 
     @Test
     public void shouldGenerateEtagFromFile() throws Exception {
-        StreamItem fred = new StreamItem("fred", new File(getClass().getResource("fred.mp3").getFile()));
+        StreamItem fred = new StreamItem("http://fred.com",
+                new File(getClass().getResource("fred.mp3").getFile()));
         expect(fred.etag()).toEqual("\"ecc03db74b5b8cdb8d64c1cc4d04f68a\"");
     }
 }

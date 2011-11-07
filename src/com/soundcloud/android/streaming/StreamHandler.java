@@ -10,6 +10,7 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 // request pipeline
 class StreamHandler extends Handler {
@@ -44,11 +45,13 @@ class StreamHandler extends Handler {
             final long start = System.currentTimeMillis();
             result.setData(task.execute());
 
-
             if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
                 Log.d(StreamLoader.LOG_TAG, "took "+(System.currentTimeMillis()-start)+ " ms");
 
             mHandler.sendMessage(result);
+        } catch (UnknownHostException e) {
+            // most likely no connection
+            Log.w(StreamLoader.LOG_TAG, "unknown host exception - not retrying");
         } catch (IOException e) {
             Log.w(StreamLoader.LOG_TAG, e);
             if (task.item.isAvailable() && msg.arg1 < mMaxRetries) {

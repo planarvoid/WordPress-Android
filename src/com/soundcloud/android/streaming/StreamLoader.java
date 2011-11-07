@@ -6,13 +6,11 @@ import com.soundcloud.android.utils.NetworkConnectivityListener;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
+import android.os.*;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,7 +20,6 @@ import java.util.Set;
 
 public class StreamLoader {
     static final String LOG_TAG = StreamLoader.class.getSimpleName();
-    static final boolean DEBUG =  true;
 
     static final int CONNECTIVITY_MSG = 0;
     static final int MAX_RETRIES = 3;
@@ -81,7 +78,7 @@ public class StreamLoader {
                             Log.d(LOG_TAG, String.format("Storing %d bytes at index %d for url %s",
                                 t.buffer.limit(), t.chunkRange.start, t.item.url));
                         try {
-                            if (!mStorage.storeData(t.item.url, t.buffer, t.chunkRange.start)) {
+                            if (!mStorage.storeData(t.item.url.toString(), t.buffer, t.chunkRange.start)) {
                                 // try to fulfill callbacks directly if we couldn't store data
                                 // (maybe SD storage was not available)
                                 for (Iterator<StreamFuture> it = mPlayerCallbacks.iterator(); it.hasNext(); ) {
@@ -133,10 +130,10 @@ public class StreamLoader {
 
         mDataHandler = new StreamHandler(context, dataThread.getLooper(), mResultHandler, MAX_RETRIES);
 
-        HandlerThread contentLengthThread = new HandlerThread("streaming-head", android.os.Process.THREAD_PRIORITY_BACKGROUND);
-        contentLengthThread.start();
+        HandlerThread headThread = new HandlerThread("streaming-head", android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        headThread.start();
 
-        mHeadHandler = new StreamHandler(context, contentLengthThread.getLooper(), mResultHandler, MAX_RETRIES);
+        mHeadHandler = new StreamHandler(context, headThread.getLooper(), mResultHandler, MAX_RETRIES);
 
         mPlaycountHandler = new Handler(resultLooper) {
             @Override
@@ -146,6 +143,10 @@ public class StreamLoader {
                 processQueues();
             }
         };
+    }
+
+    public StreamFuture getDataForUrl(URL url, Range range) throws IOException {
+        return getDataForUrl(url.toString(), range);
     }
 
     public StreamFuture getDataForUrl(String url, Range range) throws IOException {
@@ -182,7 +183,7 @@ public class StreamLoader {
         } else {
             if (Log.isLoggable(LOG_TAG, Log.DEBUG))
                 Log.d(LOG_TAG, "Serving item from storage");
-            pc.setByteBuffer(mStorage.fetchStoredDataForUrl(item.url, range));
+            pc.setByteBuffer(mStorage.fetchStoredDataForUrl(item.url.toString(), range));
         }
         return pc;
     }
@@ -267,7 +268,7 @@ public class StreamLoader {
             StreamItem item = future.item;
             Range chunkRange = future.byteRange.chunkRange(mStorage.chunkSize);
 
-            Index missingIndexes = mStorage.getMissingChunksForItem(item.url, chunkRange);
+            Index missingIndexes = mStorage.getMissingChunksForItem(item.url.toString(), chunkRange);
             if (missingIndexes.isEmpty()) {
                 fulfilledCallbacks.add(future);
             } else {
@@ -278,7 +279,7 @@ public class StreamLoader {
 
         for (StreamFuture playerCallback : fulfilledCallbacks) {
             try {
-                playerCallback.setByteBuffer(mStorage.fetchStoredDataForUrl(playerCallback.item.url, playerCallback.byteRange));
+                playerCallback.setByteBuffer(mStorage.fetchStoredDataForUrl(playerCallback.item.url.toString(), playerCallback.byteRange));
                 mPlayerCallbacks.remove(playerCallback);
             } catch (IOException e) {
                 Log.w(LOG_TAG, e);
@@ -299,7 +300,7 @@ public class StreamLoader {
 
 
     private DataTask startDataTask(StreamItem item, Range chunkRange, int prio) {
-        DataTask task = new DataTask(item, chunkRange, chunkRange.byteRange(mStorage.chunkSize), mContext);
+        DataTask task = DataTask.create(item, chunkRange, chunkRange.byteRange(mStorage.chunkSize), mContext);
         Message msg = mDataHandler.obtainMessage(prio, task);
         mDataHandler.sendMessage(msg);
         return task;

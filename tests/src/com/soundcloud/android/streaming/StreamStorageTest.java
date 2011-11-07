@@ -40,7 +40,7 @@ public class StreamStorageTest {
     public void before() {
         CloudUtils.deleteDir(baseDir);
         storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE, 0);
-        item = new StreamItem("fred.mp3", testFile);
+        item = new StreamItem("http://fred.com/", testFile);
 
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
@@ -174,12 +174,12 @@ public class StreamStorageTest {
 
         expect(item.numberOfChunks(storage.chunkSize)).toBe(chunks);
 
-        File assembled = storage.completeFileForUrl(item.url);
+        File assembled = storage.completeFileForUrl(item.url.toString());
         expect(assembled.exists()).toBeTrue();
         expect(assembled.length()).toEqual(item.getContentLength());
 
         // make sure index file is gone
-        expect(storage.incompleteFileForUrl(item.url).exists()).toBeFalse();
+        expect(storage.incompleteFileForUrl(item.url.toString()).exists()).toBeFalse();
         String original = CloudUtils.md5(getClass().getResourceAsStream("fred.mp3"));
         expect(CloudUtils.md5(new FileInputStream(assembled))).toEqual(original);
     }
@@ -189,19 +189,19 @@ public class StreamStorageTest {
         setupChunkArray();
         Collections.shuffle(sampleChunkIndexes);
 
-        StreamItem wrongEtag = new StreamItem(item.url, item.getContentLength(), "deadbeef");
+        StreamItem wrongEtag = new StreamItem(item.url.toString(), item.getContentLength(), "deadbeef");
 
         expect(storage.storeMetadata(wrongEtag)).toBeTrue();
         for (int i : sampleChunkIndexes) {
             storage.storeData(wrongEtag.url, sampleBuffers.get(i), i);
         }
-        File assembled = storage.completeFileForUrl(wrongEtag.url);
+        File assembled = storage.completeFileForUrl(wrongEtag.url.toString());
         expect(assembled.exists()).toBeFalse();
     }
 
     @Test
     public void shouldReturnMissingIndexes() throws Exception {
-        Index index = storage.getMissingChunksForItem(item.url, item.chunkRange(storage.chunkSize));
+        Index index = storage.getMissingChunksForItem(item.url.toString(), item.chunkRange(storage.chunkSize));
         expect(index.size()).toEqual(51);
     }
 

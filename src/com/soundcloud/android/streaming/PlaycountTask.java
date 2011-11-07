@@ -5,7 +5,6 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -24,7 +23,7 @@ public class PlaycountTask extends StreamItemTask {
             Log.d(LOG_TAG, "Logging playcount for item "+item);
 
         // request 1st byte to get counted as play
-        HttpResponse resp = api.get(Request.to(Uri.parse(item.url).getPath()).range(0, 1));
+        HttpResponse resp = api.get(Request.to(item.url.getPath()).range(0, 1));
 
         final int status = resp.getStatusLine().getStatusCode();
         switch (status) {
