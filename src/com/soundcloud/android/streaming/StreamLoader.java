@@ -235,10 +235,8 @@ public class StreamLoader {
         processItemQueue(mLowPriorityQueue, LOW_PRIO);
 
         for (StreamItem item : mItemsNeedingPlaycountRequests) {
-            if (item.isRedirectValid()) {
-                mItemsNeedingPlaycountRequests.remove(item);
-                startPlaycountTask(item, LOW_PRIO);
-            }
+            mItemsNeedingPlaycountRequests.remove(item);
+            startPlaycountTask(item, LOW_PRIO);
         }
     }
 

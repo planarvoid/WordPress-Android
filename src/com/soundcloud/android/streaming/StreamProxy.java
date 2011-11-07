@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
  * orig: http://code.google.com/p/npr-android-app/source/browse/trunk/Npr/src/org/npr/android/news/StreamProxy.java
  */
 public class StreamProxy implements Runnable {
-    private static final String LOG_TAG = StreamProxy.class.getSimpleName();
+    private static final String LOG_TAG = StreamLoader.LOG_TAG;
     public static final int TIMEOUT = 15; // wait this long before closing the connection
 
     public static boolean opencoreClient;

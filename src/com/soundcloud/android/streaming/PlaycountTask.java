@@ -30,7 +30,7 @@ public class PlaycountTask extends StreamItemTask {
         switch (status) {
             case HttpStatus.SC_MOVED_TEMPORARILY:
                 if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
-                    Log.d(LOG_TAG, "logged play count for "+item);
+                    Log.d(LOG_TAG, "logged playcount for "+item);
                 return null;
             default:
                 throw new IOException("invalid status code received:" + resp.getStatusLine());
