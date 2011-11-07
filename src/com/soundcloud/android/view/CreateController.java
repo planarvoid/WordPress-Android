@@ -66,6 +66,7 @@ public class CreateController {
     private RemainingTimeCalculator mRemainingTimeCalculator;
     private Thread mProgressThread;
     private List<Recording> mUnsavedRecordings;
+    private Button mResetButton, mDeleteButton;
 
     private CreateListener mCreateListener;
 
@@ -129,16 +130,21 @@ public class CreateController {
             }
         });
 
-        ((Button) vg.findViewById(R.id.btn_reset)).setText(c.getString(mRecording == null ? R.string.reset : R.string.delete));
-        vg.findViewById(R.id.btn_reset).setOnClickListener(new View.OnClickListener() {
+        mResetButton = ((Button) vg.findViewById(R.id.btn_reset));
+        mResetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (mRecording == null)
-                    mActivity.showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
-                else {
-                    mActivity.showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
-                }
+                mActivity.showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
             }
         });
+
+        mDeleteButton = ((Button) vg.findViewById(R.id.btn_delete));
+        mDeleteButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mActivity.showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
+            }
+        });
+
+        setResetState();
 
         ((Button) vg.findViewById(R.id.btn_save)).setText(c.getString(mRecording == null ? R.string.btn_save : R.string.btn_next));
         vg.findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
@@ -195,6 +201,12 @@ public class CreateController {
         mRecording = null;
         mCurrentState = CreateState.IDLE_RECORD;
         updateUi(true);
+        setResetState();
+    }
+
+    private void setResetState(){
+        mResetButton.setVisibility(mRecording == null ? View.VISIBLE : View.GONE);
+        mDeleteButton.setVisibility(mRecording == null ? View.GONE : View.VISIBLE);
     }
 
     public void setInstructionsText(String s){
@@ -276,6 +288,8 @@ public class CreateController {
                 && mRecordDir != null && mRecordDir.exists() && mPrivateUser == null) {
                 checkUnsavedFiles();
         }
+
+        setResetState();
         updateUi(takeAction);
     }
 

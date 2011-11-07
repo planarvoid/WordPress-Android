@@ -43,15 +43,14 @@
                         android:layout_below="@id/middle_layout"
                         android:layout_centerHorizontal="true"
                         android:layout_width="fill_parent">
-            <com.soundcloud.android.view.ColoredButton android:layout_width="wrap_content"
-                                                       android:text="@string/tour_btn_lets_party"
-                                                       android:id="@+id/btn_done"
-                                                       android:layout_height="wrap_content"
-                                                       android:paddingLeft="30dip"
-                                                       android:paddingRight="30dip"
-                                                       android:layout_centerInParent="true"
-                                                       app:idleMult="#FF4185f4"
-                                                       app:idleText="#FFFFFFFF"/>
+            <Button android:layout_width="wrap_content"
+                    style="@style/btn_dark"
+                    android:text="@string/tour_btn_lets_party"
+                    android:id="@+id/btn_done"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="30dip"
+                    android:paddingRight="30dip"
+                    android:layout_centerInParent="true"/>
         </RelativeLayout>
     </RelativeLayout>
 </LinearLayout>

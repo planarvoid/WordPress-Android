@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:background="@drawable/bg_rec">
@@ -99,24 +98,35 @@
                       android:layout_alignParentBottom="false"
                       android:layout_centerInParent="true">
 
-            <com.soundcloud.android.view.ColoredButton android:id="@+id/btn_reset"
-                                                    android:text="@string/delete"
-                                                    android:layout_weight="1"
-                                                    android:layout_width="0dp"
-                                                    android:padding="15dip"
-                                                    android:layout_height="wrap_content"
-                                                    android:layout_marginLeft="10dip"
-                                                    android:layout_marginRight="15dip"
-                                                    app:idleText="#ff9e9e9e" />
+            <Button android:id="@+id/btn_delete"
+                    style="@style/btn_orange"
+                    android:text="@string/delete"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:padding="15dip"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dip"
+                    android:layout_marginRight="15dip"/>
 
-            <com.soundcloud.android.view.ColoredButton android:id="@+id/btn_save"
-                                                    android:text="@string/save"
-                                                    android:padding="15dip"
-                                                    android:layout_weight="1"
-                                                    android:layout_width="0dp"
-                                                    android:layout_height="wrap_content"
-                                                    android:layout_marginLeft="15dip"
-                                                    android:layout_marginRight="10dip"/>
+            <Button android:id="@+id/btn_reset"
+                    style="@style/btn_dark"
+                    android:text="@string/reset"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:padding="15dip"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dip"
+                    android:layout_marginRight="15dip"/>
+
+            <Button android:id="@+id/btn_save"
+                    style="@style/btn_dark"
+                    android:text="@string/save"
+                    android:padding="15dip"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dip"
+                    android:layout_marginRight="10dip"/>
         </LinearLayout>
     </RelativeLayout>
     <RelativeLayout android:id="@+id/progress_frame"

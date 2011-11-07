@@ -7,6 +7,7 @@
 
     <style name="ScLight" parent="android:Theme.Light">
 		<item name="android:windowNoTitle">true</item>
+        <item name="android:buttonStyle">@style/btn_default</item>
 	</style>
 
     <style name="ScDark">

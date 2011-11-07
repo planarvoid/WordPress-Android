@@ -41,12 +41,13 @@
                      android:layout_width="wrap_content"
                      android:layout_height="wrap_content"/>
     </RadioGroup>
-    <com.soundcloud.android.view.ColoredButton android:layout_width="0dp"
-                                            android:layout_weight="1"
-                                            android:layout_margin="5dp"
-                                            android:singleLine="true"
-                                            android:text="@string/tour_btn_next"
-                                            android:id="@+id/btn_next"
-                                            android:layout_height="wrap_content"  />
+    <Button android:layout_width="0dp"
+            style="btn_dark"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:singleLine="true"
+            android:text="@string/tour_btn_next"
+            android:id="@+id/btn_next"
+            android:layout_height="wrap_content"/>
 
 </LinearLayout>
