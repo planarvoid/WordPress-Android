@@ -20,7 +20,9 @@ public class PlaycountTask extends StreamItemTask {
 
     @Override
     public Bundle execute() throws IOException {
-        Log.d(LOG_TAG, "Logging playcount for item "+item);
+        if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
+            Log.d(LOG_TAG, "Logging playcount for item "+item);
+
         // request 1st byte to get counted as play
         HttpResponse resp = api.get(Request.to(Uri.parse(item.url).getPath()).range(0, 1));
 
