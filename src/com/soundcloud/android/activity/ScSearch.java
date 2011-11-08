@@ -161,7 +161,7 @@ public class ScSearch extends ScActivity {
         if (cursor != null) cursor.close();
 
         for (SearchHistoryItem searchDefault : searchDefaults){
-            history.add(searchDefault);
+            if (!history.contains(searchDefault)) history.add(searchDefault);
         }
 
         mHistoryAdapter.notifyDataSetChanged();

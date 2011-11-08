@@ -26,4 +26,24 @@ public class SearchHistoryItem {
         this.search_type = search_type;
         this.created_at = this.id = -1;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SearchHistoryItem that = (SearchHistoryItem) o;
+
+        if (search_type != that.search_type) return false;
+        if (query != null ? !query.equals(that.query) : that.query != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = search_type;
+        result = 31 * result + (query != null ? query.hashCode() : 0);
+        return result;
+    }
 }
