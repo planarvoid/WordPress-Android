@@ -1133,7 +1133,8 @@ public class CloudPlaybackService extends Service {
                 // as error -1005 (in some implementations). try to reconnect at least twice before giving up
                 if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN &&
                         extra == -1004 /* ERROR_IO */ ||
-                        extra == -1005 /* ERROR_CONNECTION_LOST */) {
+                        extra == -1005 /* ERROR_CONNECTION_LOST */ ||
+                        extra == -2147483648 /* OpenCORE */) {
                     if (mRetries < 3) {
                         Log.d(TAG, "stream disconnected, retrying (try="+(mRetries+1)+")");
                         mRetries++;
