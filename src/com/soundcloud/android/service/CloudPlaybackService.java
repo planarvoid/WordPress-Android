@@ -16,7 +16,6 @@
 
 package com.soundcloud.android.service;
 
-import android.os.*;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -24,31 +23,30 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DatabaseHelper.Content;
-import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.streaming.StreamProxy;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.utils.play.PlayListManager;
-import org.apache.http.StatusLine;
 
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.preference.PreferenceManager;
+import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.PowerManager;
+import android.os.RemoteException;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -129,10 +127,6 @@ public class CloudPlaybackService extends Service {
     private static final long TRACK_EVENT_CHECK_DELAY = 1000; // check for track timestamp events at this frequency
 
     private boolean pausedForBuffering;
-    private NetworkInfo mCurrentNetworkInfo;
-
-    protected int batteryLevel;
-    protected int plugState;
     protected boolean mHeadphonePluggedState;
 
     public boolean mAutoAdvance = true;
@@ -317,13 +311,6 @@ public class CloudPlaybackService extends Service {
             stopSelf(mServiceStartId);
         }
     };
-
-    private boolean isConnected() {
-        if (connectivityListener == null)
-            return false;
-        mCurrentNetworkInfo = connectivityListener.getNetworkInfo();
-        return mCurrentNetworkInfo != null && mCurrentNetworkInfo.isConnected();
-    }
 
     /*
      * Notify the change-receivers that something has changed. The intent that
@@ -559,8 +546,6 @@ public class CloudPlaybackService extends Service {
         stop(true);
     }
 
-    private boolean mCacheOnPause = true;
-
     public void pause() {
         pause(false);
     }
@@ -569,9 +554,6 @@ public class CloudPlaybackService extends Service {
     public void pause(boolean force) {
         synchronized (this) {
             if (isSupposedToBePlaying()) {
-                mCacheOnPause = force
-                        || PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
-                                "bufferOnPause", true);
                 if (mPlayer != null && mPlayer.isInitialized()) {
                     mPlayer.pause();
                 }
@@ -1133,8 +1115,7 @@ public class CloudPlaybackService extends Service {
                 // as error -1005 (in some implementations). try to reconnect at least twice before giving up
                 if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN &&
                         extra == -1004 /* ERROR_IO */ ||
-                        extra == -1005 /* ERROR_CONNECTION_LOST */ ||
-                        extra == -2147483648 /* OpenCORE */) {
+                        extra == -1005 /* ERROR_CONNECTION_LOST */) {
                     if (mRetries < 3) {
                         Log.d(TAG, "stream disconnected, retrying (try="+(mRetries+1)+")");
                         mRetries++;
@@ -1149,10 +1130,11 @@ public class CloudPlaybackService extends Service {
                 mIsAsyncOpening = false;
                 mMediaplayerError = true;
 
-                if (isConnected() && SoundCloudApplication.REPORT_PLAYBACK_ERRORS) {
+                boolean connected = connectivityListener != null && connectivityListener.isConnected();
+                if (connected && SoundCloudApplication.REPORT_PLAYBACK_ERRORS) {
                     if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
                         SoundCloudApplication.handleSilentException("mp error",
-                                new MediaPlayerException(what, extra, mCurrentNetworkInfo));
+                                new MediaPlayerException(what, extra, connectivityListener.getNetworkInfo()));
                     }
                     getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
                 }
@@ -1160,8 +1142,7 @@ public class CloudPlaybackService extends Service {
                 mIsInitialized = false;
                 mPlayingPath = "";
                 mMediaPlayer.reset();
-                mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(isConnected() ?
-                        TRACK_EXCEPTION : STREAM_EXCEPTION));
+                mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(connected ? TRACK_EXCEPTION : STREAM_EXCEPTION));
                 return true;
             }
         };
@@ -1187,20 +1168,6 @@ public class CloudPlaybackService extends Service {
                 if (mHeadphonePluggedState != oldPlugged && !mHeadphonePluggedState
                         && mIsSupposedToBePlaying)
                     pause();
-
-            } else if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
-                int plugState = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
-                int rawlevel = intent.getIntExtra("level", -1);
-                int scale = intent.getIntExtra("scale", -1);
-                int level = -1;
-                if (rawlevel >= 0 && scale > 0) {
-                    level = (rawlevel * 100) / scale;
-                }
-
-                CloudPlaybackService.this.batteryLevel = level;
-                CloudPlaybackService.this.plugState = plugState;
-
-                Log.i(TAG, "Battery Level Remaining: " + level + "%");
 
             } else {
                 if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
@@ -1539,23 +1506,6 @@ public class CloudPlaybackService extends Service {
             sb.append(super.getMessage()).append(" ")
                     .append("networkType: ").append(networkInfo == null ? null : networkInfo.getTypeName())
                     .append(" ");
-            return sb.toString();
-        }
-    }
-
-    static class StatusException extends PlaybackError {
-        private final StatusLine status;
-        public StatusException(StatusLine status, NetworkInfo info) {
-            super(null, info);
-            this.status = status;
-        }
-        @Override
-        public String getMessage() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(super.getMessage());
-            if (status != null) {
-                sb.append(" status: ").append(status.toString());
-            }
             return sb.toString();
         }
     }

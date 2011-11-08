@@ -1,6 +1,7 @@
 package com.soundcloud.android.streaming;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.BatteryListener;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
 import android.os.Handler;
@@ -26,7 +27,8 @@ public class StreamLoader {
     static final int MAX_RETRIES = 3;
     static final Object PRELOAD_TOKEN = new Object();
 
-    private NetworkConnectivityListener mConnectivityListener;
+    private final NetworkConnectivityListener mConnectivityListener;
+    private final BatteryListener mBatteryListener;
     private final SoundCloudApplication mContext;
     private final StreamStorage mStorage;
 
@@ -123,9 +125,12 @@ public class StreamLoader {
                 }
             }
         };
+
         mConnectivityListener = new NetworkConnectivityListener()
                 .registerHandler(mConnHandler, CONNECTIVITY_MSG)
                 .startListening(context);
+
+        mBatteryListener = new BatteryListener(context);
 
         HandlerThread dataThread = new HandlerThread("streaming-data", android.os.Process.THREAD_PRIORITY_BACKGROUND);
         dataThread.start();
@@ -152,7 +157,8 @@ public class StreamLoader {
     }
 
     public void preloadDataForUrl(final String url, final long delay) {
-        if (mConnectivityListener.isWifiConnected()) {
+        // preload data if we have wifi and battery
+         if (mConnectivityListener.isWifiConnected() && mBatteryListener.isOK()) {
             // cancel previous pending preload requests
             mResultHandler.removeCallbacksAndMessages(PRELOAD_TOKEN);
             mResultHandler.postAtTime(new Runnable() {
@@ -214,7 +220,7 @@ public class StreamLoader {
     public void stop() {
         mConnectivityListener.stopListening();
         mConnectivityListener.unregisterHandler(mConnHandler);
-        mConnectivityListener = null;
+        mBatteryListener.stopListening();
     }
 
     private void processQueues() {
