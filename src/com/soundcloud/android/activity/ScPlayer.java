@@ -37,7 +37,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private static final int SEND_CURRENT_QUEUE_POSITION = 2;
 
     public static final int REFRESH_DELAY = 1000;
-    private static final long TRACK_SWIPE_UPDATE_DELAY = 600;
+    private static final long TRACK_SWIPE_UPDATE_DELAY = 1000;
 
     private long mSeekPos = -1;
     private long mLastSeekEventTime = -1;
