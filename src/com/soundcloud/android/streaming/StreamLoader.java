@@ -73,21 +73,27 @@ public class StreamLoader {
                     mHeadTasks.remove(t.item);
                 } else if (msg.obj instanceof DataTask) {
                     DataTask t = (DataTask) msg.obj;
-                    if (t.item.isAvailable() && t.item.isRedirectValid()) {
-                        try {
-                            // for responsiveness, try to fulfill callbacks directly before storing buffer
-                            for (Iterator<StreamFuture> it = mPlayerCallbacks.iterator(); it.hasNext(); ) {
-                                StreamFuture cb = it.next();
-                                if (cb.item.equals(t.item) && cb.byteRange.equals(t.byteRange)) {
-                                    cb.setByteBuffer(t.buffer.asReadOnlyBuffer());
-                                    it.remove();
-                                }
+                    if (!t.item.isRedirectValid()) {
+                        // re-add item to queue, will be retried next time
+                        mHighPriorityQ.addItem(t.item, t.chunkRange.toIndex());
+                    } else if (t.item.isAvailable()) {
+                        // for responsiveness, try to fulfill callbacks directly before storing buffer
+                        for (Iterator<StreamFuture> it = mPlayerCallbacks.iterator(); it.hasNext(); ) {
+                            StreamFuture cb = it.next();
+                            if (cb.item.equals(t.item) && cb.byteRange.equals(t.byteRange)) {
+                                cb.setByteBuffer(t.buffer.asReadOnlyBuffer());
+                                it.remove();
                             }
+                        }
+                        try {
                             mStorage.storeData(t.item.url.toString(), t.buffer, t.chunkRange.start);
                             fulfillPlayerCallbacks();
                         } catch (IOException e) {
                             Log.e(LOG_TAG, "exception storing data", e);
                         }
+                    } else {
+                        // hmm, what now?
+                        Log.w(LOG_TAG, "item no longer available");
                     }
                 }
                 processQueues();
@@ -210,14 +216,6 @@ public class StreamLoader {
         mConnectivityListener = null;
     }
 
-    /* package */ ItemQueue getHighPriorityQueue() {
-        return mHighPriorityQ;
-    }
-
-    /* package */ ItemQueue getLowPriorityQueue() {
-        return mLowPriorityQueue;
-    }
-
     private void processQueues() {
         if (isConnected()) {
             processHighPriorityQueue();
@@ -289,10 +287,10 @@ public class StreamLoader {
             }
         }
 
-        for (StreamFuture playerCallback : fulfilledCallbacks) {
+        for (StreamFuture sf : fulfilledCallbacks) {
             try {
-                playerCallback.setByteBuffer(mStorage.fetchStoredDataForUrl(playerCallback.item.url.toString(), playerCallback.byteRange));
-                mPlayerCallbacks.remove(playerCallback);
+                sf.setByteBuffer(mStorage.fetchStoredDataForUrl(sf.item.url.toString(), sf.byteRange));
+                mPlayerCallbacks.remove(sf);
             } catch (IOException e) {
                 Log.w(LOG_TAG, e);
             }

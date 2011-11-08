@@ -65,5 +65,12 @@ public class DefaultTestRunner extends RobolectricTestRunner {
             e.printStackTrace();
             return 0;
         }
+
+        public static int w(String tag, Throwable e) {
+            System.out.println("[" + tag + "] " + e.getMessage());
+            e.printStackTrace();
+            return 0;
+        }
+
     }
 }

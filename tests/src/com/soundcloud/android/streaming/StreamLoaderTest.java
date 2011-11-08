@@ -102,24 +102,54 @@ public class StreamLoaderTest {
         for (int i : sampleChunkIndexes) storage.storeData(item.url, sampleBuffers.get(i), i);
 
         pendingHeadRequests(testFile);
-        pendingDataRequest("bytes=1024-2047", sampleBuffers.get(missingChunk));
+        pendingDataRequest("bytes=1024-2047", 206, sampleBuffers.get(missingChunk));
         pendingPlaycountRequest(TEST_URL);
 
         final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
         StreamFuture cb = loader.getDataForUrl(item.url, requestedRange);
-
-        expect(loader.getHighPriorityQueue().isEmpty()).toBeTrue();
-        expect(loader.getLowPriorityQueue().isEmpty()).toBeTrue();
 
         expect(cb.isDone()).toBeTrue();
         expect((Buffer)cb.get()).toEqual(sampleBuffers.get(missingChunk).slice().limit(300));
     }
 
     @Test
+    public void shouldRequeueItemIfServerReturns403() throws Exception {
+        setupChunkArray();
+        storage.storeMetadata(item);
+
+        pendingHeadRequests(testFile);
+        pendingDataRequest("bytes=1024-2047", 403, ByteBuffer.allocate(0));
+
+        // expect a retry of the head request
+        pendingHeadRequests(testFile);
+        pendingDataRequest("bytes=1024-2047", 206, sampleBuffers.get(1));
+        pendingPlaycountRequest(TEST_URL);
+
+        final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
+        StreamFuture cb = loader.getDataForUrl(item.url, requestedRange);
+        expect(cb.isDone()).toBeTrue();
+        expect((Buffer)cb.get()).toEqual(sampleBuffers.get(1).slice().limit(300));
+    }
+
+    @Test
+    public void shouldNotRequeueItemIfServerReturns404() throws Exception {
+        setupChunkArray();
+        storage.storeMetadata(item);
+
+        pendingHeadRequests(testFile);
+        pendingDataRequest("bytes=1024-2047", 404, ByteBuffer.allocate(0));
+
+        final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
+        StreamFuture cb = loader.getDataForUrl(item.url, requestedRange);
+        expect(cb.isDone()).toBeFalse();
+        expect(cb.item.isAvailable()).toBeFalse();
+    }
+
+    @Test
     public void requestingTwoDifferentMissingChunks() throws Exception {
         setupChunkArray();
         pendingHeadRequests(testFile);
-        pendingDataRequest("bytes=0-1023", sampleBuffers.get(0));
+        pendingDataRequest("bytes=0-1023", 206, sampleBuffers.get(0));
 
         final Range firstRange = Range.from(0, 700);
         StreamFuture cb = loader.getDataForUrl(item.url, firstRange);
@@ -131,7 +161,7 @@ public class StreamLoaderTest {
 
         expect(actual).toEqual(expected);
 
-        pendingDataRequest("bytes=1024-2047", sampleBuffers.get(1));
+        pendingDataRequest("bytes=1024-2047", 206, sampleBuffers.get(1));
 
         final Range secondRange = Range.from(1024, 500);
         cb = loader.getDataForUrl(item.url, secondRange);
@@ -145,8 +175,8 @@ public class StreamLoaderTest {
         setupChunkArray();
         pendingHeadRequests(testFile);
 
-        pendingDataRequest("bytes=0-1023", sampleBuffers.get(0));
-        pendingDataRequest("bytes=1024-2047", sampleBuffers.get(1));
+        pendingDataRequest("bytes=0-1023", 206, sampleBuffers.get(0));
+        pendingDataRequest("bytes=1024-2047", 206, sampleBuffers.get(1));
 
         // needs a GET of 2 chunks (500-1500)
         StreamFuture cb = loader.getDataForUrl(item.url, Range.from(500, 1000));
@@ -170,13 +200,14 @@ public class StreamLoaderTest {
         return chunks;
     }
 
-    static void pendingDataRequest(String expectedRange, Buffer bytes) {
-        HttpResponse stream = new TestHttpResponse(200, (byte[]) bytes.array());
+    static void pendingDataRequest(String expectedRange, int responseCode, Buffer bytes) {
+        HttpResponse stream = new TestHttpResponse(responseCode, (byte[]) bytes.array());
         FakeHttpLayer.RequestMatcherBuilder b = new FakeHttpLayer.RequestMatcherBuilder();
         if (expectedRange != null) {
             b.header("Range", expectedRange);
         }
-        addHttpResponseRule(b, stream);
+        //addHttpResponseRule(b, stream);
+        addPendingHttpResponse(stream);
     }
 
     static void pendingPlaycountRequest(String url) {

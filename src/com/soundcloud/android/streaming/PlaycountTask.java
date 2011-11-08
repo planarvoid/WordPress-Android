@@ -19,20 +19,27 @@ public class PlaycountTask extends StreamItemTask {
 
     @Override
     public Bundle execute() throws IOException {
-        if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
-            Log.d(LOG_TAG, "Logging playcount for item "+item);
+        if (item.isAvailable()) {
+            if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, "Logging playcount for item "+item);
 
-        // request 1st byte to get counted as play
-        HttpResponse resp = api.get(Request.to(item.url.getPath()).range(0, 1));
+            // request 1st byte to get counted as play
+            HttpResponse resp = api.get(Request.to(item.url.getPath()).range(0, 1));
 
-        final int status = resp.getStatusLine().getStatusCode();
-        switch (status) {
-            case HttpStatus.SC_MOVED_TEMPORARILY:
-                if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
-                    Log.d(LOG_TAG, "logged playcount for "+item);
-                return null;
-            default:
-                throw new IOException("invalid status code received:" + resp.getStatusLine());
+            final int status = resp.getStatusLine().getStatusCode();
+            switch (status) {
+                case HttpStatus.SC_MOVED_TEMPORARILY:
+                    if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
+                        Log.d(LOG_TAG, "logged playcount for "+item);
+                    return null;
+                default:
+                    throw new IOException("invalid status code received:" + resp.getStatusLine());
+            }
+        } else {
+            if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, "Not logging playcount for item "+item+": not available");
+
+            return null;
         }
     }
 }
