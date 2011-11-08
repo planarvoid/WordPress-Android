@@ -165,7 +165,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
         if (forceUpdate || (mTrack == null || track == null || track.id != mTrack.id)) {
 
-            boolean changed = mTrack != track;
+            boolean changed = mTrack == null ? track != null : !mTrack.equals(track);
 
             mTrack = track;
 
@@ -198,7 +198,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             }
 
             if (changed) {
-
                 if (!mLandscape) updateArtwork();
                 mWaveformController.clearTrackComments();
                 mWaveformController.setProgress(0);
