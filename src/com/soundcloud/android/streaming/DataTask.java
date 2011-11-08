@@ -46,15 +46,17 @@ abstract class DataTask extends StreamItemTask {
             return b;
         }
 
+        // need to rewind buffer - request might get retried later.
+        buffer.rewind();
+
         final int status = getData(redirect, byteRange.start, byteRange.end() - 1, buffer);
 
         b.putInt("status", status);
         switch (status) {
             case HttpStatus.SC_OK:
             case HttpStatus.SC_PARTIAL_CONTENT:
-                // handled in getData()
-                buffer.rewind();
-
+                // already handled in getData()
+                buffer.flip();
                 break;
             // link has expired
             case HttpStatus.SC_FORBIDDEN:
@@ -136,8 +138,9 @@ abstract class DataTask extends StreamItemTask {
                 switch (status) {
                     case HttpStatus.SC_OK:
                     case HttpStatus.SC_PARTIAL_CONTENT:
-                        if (connection.getContentLength() > dst.capacity()) {
-                            throw new IOException("allocated buffer is too small");
+                        if (dst.remaining() < connection.getContentLength()) {
+                            throw new IOException(String.format("allocated buffer is too small (%d < %d)",
+                                        dst.remaining(), connection.getContentLength()));
                         }
                         is = new BufferedInputStream(connection.getInputStream());
                         final byte[] bytes = new byte[8192];

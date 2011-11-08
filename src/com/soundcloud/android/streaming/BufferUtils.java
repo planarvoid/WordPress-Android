@@ -48,8 +48,9 @@ public class BufferUtils {
 
         if (entity.getContentLength() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
-        } else if (entity.getContentLength() > target.capacity()) {
-            throw new IOException("allocated buffer is too small");
+        } else if (target.remaining() < entity.getContentLength()) {
+            throw new IOException(String.format("allocated buffer is too small (%d < %d)",
+                    target.remaining(), entity.getContentLength()));
         }
 
         try {

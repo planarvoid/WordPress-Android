@@ -144,7 +144,13 @@ public class NetworkConnectivityListener {
         return mOtherNetworkInfo;
     }
 
-    public boolean isConnected() {
+    public synchronized boolean isConnected() {
+        if (mNetworkInfo == null && mContext != null) {
+            // obtain current network info if no messages have been received yet
+            mNetworkInfo =
+                ((ConnectivityManager)
+                mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+        }
         return mNetworkInfo != null && mNetworkInfo.isConnected();
     }
 
@@ -174,7 +180,6 @@ public class NetworkConnectivityListener {
                     .getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
             mOtherNetworkInfo = (NetworkInfo) intent
                     .getParcelableExtra(ConnectivityManager.EXTRA_OTHER_NETWORK_INFO);
-
 
             if (SoundCloudApplication.DEV_MODE) {
                 Log.d(TAG, "onReceive(): mNetworkInfo="

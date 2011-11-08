@@ -3,10 +3,11 @@ package com.soundcloud.android.streaming;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.*;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.IOException;
@@ -298,19 +299,11 @@ public class StreamLoader {
     }
 
     private boolean isConnected() {
-        if (mForceOnline) {
-            return true;
-        } else {
-            //return mConnectivityListener.isConnected();
-            ConnectivityManager c = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo info = c.getActiveNetworkInfo();
-            return info != null && info.isConnected();
-        }
+        return mForceOnline || mConnectivityListener.isConnected();
     }
 
-
     private DataTask startDataTask(StreamItem item, Range chunkRange, int prio) {
-        DataTask task = DataTask.create(item, chunkRange, chunkRange.byteRange(mStorage.chunkSize), mContext);
+        final DataTask task = DataTask.create(item, chunkRange, chunkRange.byteRange(mStorage.chunkSize), mContext);
         Message msg = mDataHandler.obtainMessage(prio, task);
         if (SoundCloudApplication.DALVIK /* XXX robolectric */ && prio == HI_PRIO) {
             mDataHandler.sendMessageAtFrontOfQueue(msg);
