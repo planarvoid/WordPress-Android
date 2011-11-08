@@ -40,9 +40,14 @@ abstract class DataTask extends StreamItemTask {
         if (Log.isLoggable(LOG_TAG, Log.DEBUG))
             Log.d(LOG_TAG, String.format("fetching chunk %d for item %s with range %s", chunkRange.start, item, byteRange));
 
-        final int status = getData(item.redirectUrl(), byteRange.start, byteRange.end() - 1, buffer);
+        final Bundle b = new Bundle();
+        final URL redirect = item.redirectUrl();
+        if (redirect == null) {
+            return b;
+        }
 
-        Bundle b = new Bundle();
+        final int status = getData(redirect, byteRange.start, byteRange.end() - 1, buffer);
+
         b.putInt("status", status);
         switch (status) {
             case HttpStatus.SC_OK:
@@ -67,7 +72,7 @@ abstract class DataTask extends StreamItemTask {
                 break;
 
             default:
-                throw new IOException("invalid status code received:" + status);
+                throw new IOException("unexpected status code received: " + status);
         }
         return b;
     }
@@ -143,8 +148,8 @@ abstract class DataTask extends StreamItemTask {
                 }
                 return status;
             } finally {
-                connection.disconnect();
                 if (is != null) is.close();
+                connection.disconnect();
             }
         }
     }
