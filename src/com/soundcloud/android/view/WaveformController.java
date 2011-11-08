@@ -226,7 +226,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mIsBuffering = false;
         setProgressInternal(0);
         setSecondaryProgress(0);
-        onStop();
+        onStop(false);
 
         if (hide){
             showWaiting();
@@ -236,15 +236,20 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-     public void onStop() {
-        stopSmoothProgress();
+     public void onStop(boolean stopAvatarLoading) {
+         // timed events
+         stopSmoothProgress();
         cancelAutoCloseComment();
-        if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
+
+         // comment states
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
         if (mCommentLines != null) mCommentLines.setCurrentComment(null);
-         mLastAutoComment = null;
+        mLastAutoComment = null;
         mCurrentShowingComment = null;
         resetCommentDisplay();
+
+         //only performed on activity stop
+         if (mPlayerAvatarBar != null && stopAvatarLoading) mPlayerAvatarBar.onStop();
     }
 
     public void resetCommentDisplay(){
