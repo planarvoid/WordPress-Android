@@ -772,7 +772,12 @@ public class WorkspaceView extends ViewGroup {
         }
         final int scrollX = getScrollX();
         final int screenWidth = getWidth();
-        return (float) scrollX / screenWidth;
+        if (mSeparatorDrawable != null && scrollX > screenWidth){
+            return Math.max(1.0f, (float) scrollX / (screenWidth + mSeparatorDrawable.getIntrinsicWidth()));
+        } else {
+            return (float) scrollX  / screenWidth;
+        }
+
     }
 
     void snapToDestination() {

@@ -31,10 +31,13 @@ import android.widget.RelativeLayout;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener {
+public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
     private static final String TAG = "ScPlayer";
     private static final int REFRESH = 1;
+    private static final int SEND_CURRENT_QUEUE_POSITION = 2;
+
     public static final int REFRESH_DELAY = 1000;
+    private static final long TRACK_SWIPE_UPDATE_DELAY = 600;
 
     private long mSeekPos = -1;
     private long mLastSeekEventTime = -1;
@@ -45,6 +48,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private Track mPlayingTrack;
     private RelativeLayout mContainer;
     private WorkspaceView mTrackWorkspace;
+    private int mCurrentQueuePosition;
     private Drawable mFavoriteDrawable, mFavoritedDrawable;
 
     private ComponentName mRemoteControlResponder;
@@ -78,6 +82,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         mTrackWorkspace = (WorkspaceView) findViewById(R.id.track_view);
         mTrackWorkspace.setVisibility(View.GONE);
         mTrackWorkspace.setOnScreenChangeListener(this);
+        mTrackWorkspace.setOnScrollListener(this, false);
 
         mCommentButton = (ImageButton) findViewById(R.id.btn_comment);
         if (mCommentButton != null) {
@@ -128,21 +133,29 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         return mContainer;
     }
 
-    @Override public void onScreenChanging(View newScreen, int newScreenIndex) {}
+    @Override
+    public void onScroll(float screenFraction) {
+        if (screenFraction != Math.round(screenFraction)){
+            mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
+        }
+    }
+
+    @Override public void onScreenChanging(View newScreen, int newScreenIndex) {
+    }
 
     @Override public void onNextScreenVisible(View newScreen, int newScreenIndex) {}
 
     @Override
     public void onScreenChanged(View newScreen, int newScreenIndex) {
-
         if (newScreen == null) return;
         try {
-            final int currentQueuePos = mPlaybackService.getQueuePosition();
             final int newQueuePos = ((PlayerTrackView) newScreen).getPlayPosition();
 
-            if (newQueuePos != currentQueuePos) {
-                mPlaybackService.setQueuePosition(newQueuePos);
-            }
+
+            mCurrentQueuePosition = newQueuePos;
+            mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
+            mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
+                    TRACK_SWIPE_UPDATE_DELAY);
 
             final long prevTrackId = newQueuePos > 0
                     ? mPlaybackService.getTrackIdAt(newQueuePos -1) : -1;
@@ -460,6 +473,11 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     long next = refreshNow();
                     queueNextRefresh(next);
                     break;
+                case SEND_CURRENT_QUEUE_POSITION:
+                    if (mPlaybackService != null) try {
+                        mPlaybackService.setQueuePosition(mCurrentQueuePosition);
+                    } catch (RemoteException ignore) {}
+                    break;
                 default:
                     break;
             }
@@ -647,15 +665,15 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 return;
             }
 
-            final int currentQueuePosition = mPlaybackService.getQueuePosition();
-            mPlayingTrack = getAndCacheTrack(trackId,currentQueuePosition);
+            mCurrentQueuePosition = mPlaybackService.getQueuePosition();
+            mPlayingTrack = getAndCacheTrack(trackId,mCurrentQueuePosition);
             final boolean first = mTrackWorkspace.getChildCount() == 0;
 
             setFavoriteStatus();
 
             int workspaceIndex = 0;
             final int queueLength = mPlaybackService.getQueueLength();
-            for (int pos = currentQueuePosition -1; pos < currentQueuePosition + 2; pos++){
+            for (int pos = mCurrentQueuePosition -1; pos < mCurrentQueuePosition + 2; pos++){
                 if (pos >= 0 && pos < queueLength){
                     PlayerTrackView ptv;
                     if (mTrackWorkspace.getScreenCount() > workspaceIndex){
@@ -676,10 +694,10 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             if (first){
                 mTrackWorkspace.setVisibility(View.VISIBLE);
-                mTrackWorkspace.initWorkspace(currentQueuePosition > 0 ? 1 : 0);
+                mTrackWorkspace.initWorkspace(mCurrentQueuePosition > 0 ? 1 : 0);
                 mTrackWorkspace.setSeparator(R.drawable.track_view_seperator);
             } else {
-                mTrackWorkspace.setCurrentScreenNow(currentQueuePosition > 0 ? 1 : 0, false);
+                mTrackWorkspace.setCurrentScreenNow(mCurrentQueuePosition > 0 ? 1 : 0, false);
             }
 
             if (mPlaybackService.isBuffering()){

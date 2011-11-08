@@ -645,7 +645,7 @@ public class CloudPlaybackService extends Service {
      */
     public void setQueuePosition(int pos) {
         synchronized (this) {
-            if (mPlayListManager.setCurrentPosition(pos)) {
+            if (mPlayListManager.getCurrentPosition() != pos && mPlayListManager.setCurrentPosition(pos)) {
                 openCurrent();
             }
         }
