@@ -9,6 +9,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.message.BasicLineParser;
 
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -43,6 +44,9 @@ public class StreamProxy implements Runnable {
     public static final int TIMEOUT = 15; // wait this long before closing the connection
 
     public static boolean opencoreClient;
+
+    static final String PARAM_STREAM_URL = "streamUrl";
+    static final String PARAM_NEXT_STREAM_URL = "nextStreamUrl";
 
     private int mPort;
     private boolean mIsRunning = true;
@@ -172,6 +176,15 @@ public class StreamProxy implements Runnable {
         return mPort;
     }
 
+    public Uri createUri(String streamUrl, String nextStreamUrl) {
+        final Uri.Builder builder = Uri.parse("http://127.0.0.1:"+getPort()).buildUpon();
+        builder.appendPath("/");
+        builder.appendQueryParameter(PARAM_STREAM_URL, streamUrl);
+        if (nextStreamUrl != null) {
+            builder.appendQueryParameter(PARAM_NEXT_STREAM_URL, nextStreamUrl);
+        }
+        return builder.build();
+    }
 
     private long firstRequestedByte(HttpRequest request) {
         long startByte = 0;
@@ -186,22 +199,25 @@ public class StreamProxy implements Runnable {
     }
 
     private void processRequest(HttpGet request, Socket client) {
-        final String streamUrl = request.getURI().toString();
+        final Uri uri = Uri.parse(request.getURI().toString());
+        final String streamUrl = uri.getQueryParameter(PARAM_STREAM_URL);
+        final String nextUrl = uri.getQueryParameter(PARAM_NEXT_STREAM_URL);
 
         if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "processRequest: " + streamUrl);
         determineFramework(request);
 
-        final long startByte = firstRequestedByte(request);
-
         try {
+            if (streamUrl == null) throw new IOException("missing stream url parameter");
+
+            final long startByte = firstRequestedByte(request);
             final SocketChannel channel = client.getChannel();
             Map<String, String> headers = headerForItem(streamUrl);
 
             final File completeFile = storage.completeFileForUrl(streamUrl);
             if (completeFile.exists()) {
-                streamCompleteFile(streamUrl, completeFile, startByte, channel, headers);
+                streamCompleteFile(streamUrl, nextUrl, completeFile, startByte, channel, headers);
             } else {
-                writeChunks(streamUrl, startByte, channel, headers);
+                writeChunks(streamUrl, nextUrl, startByte, channel, headers);
             }
         } catch (SocketException e) {
             if ("Connection reset by peer".equals(e.getMessage()) ||
@@ -229,6 +245,12 @@ public class StreamProxy implements Runnable {
         }
     }
 
+    private void queueNextUrl(String nextUrl, long delay) {
+        if (nextUrl != null) {
+            loader.preloadDataForUrl(nextUrl, delay);
+        }
+    }
+
     private ByteBuffer getHeader(long startByte, Map<String, String> headers) throws IOException {
         // write HTTP response header
         StringBuilder sb = new StringBuilder()
@@ -245,7 +267,8 @@ public class StreamProxy implements Runnable {
         return ByteBuffer.wrap(sb.toString().getBytes());
     }
 
-    private void writeChunks(String streamUrl, final long startByte, SocketChannel channel, Map<String, String> headers)
+    private void writeChunks(String streamUrl, String nextUrl, final long startByte, SocketChannel channel,
+                             Map<String, String> headers)
             throws IOException, InterruptedException, TimeoutException {
 
         long offset = startByte;
@@ -269,6 +292,8 @@ public class StreamProxy implements Runnable {
                             String.format("%d-%d/%d", startByte, length - 1, length));
                 }
                 channel.write(getHeader(startByte, headers));
+                // since we already got some data for this track, ready to queue next one
+                queueNextUrl(nextUrl, 3000);
             }
             offset += channel.write(buffer);
             if (offset >= stream.item.getContentLength()) {
@@ -288,7 +313,8 @@ public class StreamProxy implements Runnable {
         return h;
     }
 
-    private void streamCompleteFile(String streamUrl, File file, long offset, SocketChannel channel, Map<String, String> headers) throws IOException {
+    private void streamCompleteFile(String streamUrl, String nextUrl,
+                                    File file, long offset, SocketChannel channel, Map<String, String> headers) throws IOException {
         Log.d(LOG_TAG, "streaming complete file " + file);
         headers.put("Content-Length", String.valueOf(file.length() - offset));
         channel.write(getHeader(offset, headers));
@@ -296,6 +322,8 @@ public class StreamProxy implements Runnable {
         if (!loader.logPlaycount(streamUrl)) {
             Log.w(LOG_TAG, "could not queue playcount log");
         }
+
+        queueNextUrl(nextUrl, 0);
 
         // touch file to prevent it from being collected by the cleaner
         if (!file.setLastModified(System.currentTimeMillis())) {

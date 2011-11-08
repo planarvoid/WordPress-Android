@@ -86,6 +86,14 @@ public class StreamLoaderTest {
     }
 
     @Test
+    public void shouldReturnAReadOnlyBuffer() throws Exception {
+        setupChunkArray();
+        storage.storeMetadata(item);
+        for (int i : sampleChunkIndexes) storage.storeData(item.url, sampleBuffers.get(i), i);
+        expect(loader.getDataForUrl(item.url, Range.from(0, 1000)).get().isReadOnly()).toBeTrue();
+    }
+
+    @Test
     public void shouldReturnAFutureForMissingChunk() throws Exception {
         setupChunkArray();
         final int missingChunk = 1;

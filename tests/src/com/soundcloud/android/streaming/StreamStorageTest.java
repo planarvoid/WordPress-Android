@@ -48,7 +48,7 @@ public class StreamStorageTest {
     private int setupChunkArray() throws IOException {
         FileChannel fc = new FileInputStream(testFile).getChannel();
         int chunks = 0;
-        ByteBuffer buffer = storage.getBuffer();
+        ByteBuffer buffer = ByteBuffer.allocate(storage.chunkSize);
         while (fc.read(buffer) != -1) {
             sampleBuffers.put(chunks, BufferUtils.clone(buffer));
             sampleChunkIndexes.add(chunks);

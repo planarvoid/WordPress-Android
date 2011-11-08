@@ -123,9 +123,8 @@ public class StreamStorage {
         // and adjust offsets
         data.position(actualRange.start % chunkSize);
         data.limit(actualRange.start % chunkSize + actualRange.length);
-        return data;
+        return data.asReadOnlyBuffer();
     }
-
 
     public boolean storeData(final URL url, ByteBuffer data, final int chunkIndex) throws IOException {
         return storeData(url.toString(), data, chunkIndex);
@@ -155,9 +154,17 @@ public class StreamStorage {
             return false;
         }
 
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            Log.d(LOG_TAG, String.format("Storing %d bytes at index %d for url %s",
+                    data.limit(), chunkIndex, url));
+
         final StreamItem item = getMetadata(url);
         // return if it's already in store
-        if (item.downloadedChunks.contains(chunkIndex)) return false;
+        if (item.downloadedChunks.contains(chunkIndex)) {
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, String.format("already got chunk"));
+            return false;
+        }
 
         // Prepare incomplete file
         final File incompleteFile = incompleteFileForUrl(url);
@@ -234,11 +241,6 @@ public class StreamStorage {
                 return missingIndexes;
             }
         }
-    }
-
-
-    /* package */ ByteBuffer getBuffer() {
-        return ByteBuffer.allocate(chunkSize);
     }
 
     /* package */ File completeFileForUrl(String url) {

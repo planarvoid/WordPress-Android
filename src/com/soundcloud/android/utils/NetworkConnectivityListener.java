@@ -148,6 +148,13 @@ public class NetworkConnectivityListener {
         return mNetworkInfo != null && mNetworkInfo.isConnected();
     }
 
+    public boolean isWifiConnected() {
+        return mNetworkInfo != null
+                && mNetworkInfo.isConnected()
+                && (mNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI
+                || mNetworkInfo.getType() == ConnectivityManager.TYPE_WIMAX);
+    }
+
     private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {

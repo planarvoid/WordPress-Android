@@ -48,7 +48,6 @@ public class StreamItem implements Parcelable {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("invalid url",e);
         }
-
         this.urlHash = urlHash(url);
     }
 
@@ -156,12 +155,12 @@ public class StreamItem implements Parcelable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StreamItem that = (StreamItem) o;
-        return !(url != null ? !url.equals(that.url) : that.url != null);
+        return !(url != null ? !url.toString().equals(that.url.toString()) : that.url != null);
     }
 
     @Override
     public int hashCode() {
-        return url != null ? url.hashCode() : 0;
+        return url != null ? url.toString().hashCode() : 0;
     }
 
     // serialization support

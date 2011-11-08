@@ -46,6 +46,7 @@ import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
@@ -914,8 +915,9 @@ public class CloudPlaybackService extends Service {
                 if (mProxy == null) {
                     mProxy = new StreamProxy(getApp()).init().start();
                 }
-                mPlayingPath = String.format("http://127.0.0.1:%d/%s", mProxy.getPort(), path);
 
+                Track next = mPlayListManager.getNextTrack();
+                mPlayingPath = mProxy.createUri(path, next == null ? null : next.stream_url).toString();
                 mMediaPlayer.setDataSource(mPlayingPath);
                 mMediaPlayer.prepareAsync();
 
