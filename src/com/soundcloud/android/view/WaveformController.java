@@ -236,7 +236,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-     public void onStop(boolean stopAvatarLoading) {
+     public void onStop(boolean killLoading) {
          // timed events
          stopSmoothProgress();
         cancelAutoCloseComment();
@@ -249,7 +249,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         resetCommentDisplay();
 
          //only performed on activity stop
-         if (mPlayerAvatarBar != null && stopAvatarLoading) mPlayerAvatarBar.onStop();
+         if (mPlayerAvatarBar != null && killLoading) mPlayerAvatarBar.onStop();
     }
 
     public void resetCommentDisplay(){

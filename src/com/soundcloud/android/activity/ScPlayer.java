@@ -581,7 +581,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
 
         for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
-            ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).onStop();
+            ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).onStop(true);
         }
         mActivityPaused = true;
         mHandler.removeMessages(REFRESH);

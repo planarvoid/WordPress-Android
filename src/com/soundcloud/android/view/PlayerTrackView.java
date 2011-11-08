@@ -613,8 +613,8 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         refreshComments();
     }
 
-    public void onStop() {
-        mWaveformController.onStop();
+    public void onStop(boolean killLoading) {
+        mWaveformController.onStop(killLoading);
     }
 
     public void onBuffering() {
