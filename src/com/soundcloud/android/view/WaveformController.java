@@ -307,7 +307,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             }
             mSuspendTimeDisplay = true;
             mode = TOUCH_MODE_COMMENT_DRAG;
-            mPlayerTouchBar.setSeekPosition((int) ((((float) lastTrackTime) / mDuration) * getWidth()), mPlayerTouchBar.getHeight(), false);
+            mPlayerTouchBar.setSeekPosition((int) ((((float) lastTrackTime) / mDuration) * getWidth()), mPlayerTouchBar.getHeight(), true);
             mCurrentTimeDisplay.setByPercent((((float) lastTrackTime) / mDuration), true);
         } else {
             mSuspendTimeDisplay = false;
@@ -646,8 +646,11 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
 
     public void setComments(List<Comment> comments, boolean animateIn) {
+        setComments(comments,animateIn,false);
+    }
+    public void setComments(List<Comment> comments, boolean animateIn, boolean forceRefresh) {
 
-        if (comments.equals(mCurrentComments)){
+        if (comments.equals(mCurrentComments) && !forceRefresh){
             Log.i(getClass().getSimpleName(),"Same comments found, ignoring setComments");
             return;
         }
@@ -864,7 +867,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             c.calculateXPos(getWidth(), mDuration);
         }
         if (mCurrentCommentPanel != null && mCurrentShowingComment != null) closeComment(false);
-        mCurrentShowingComment = c;
+        mCurrentShowingComment = mLastAutoComment = c;
         showCurrentComment(false);
         mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
     }

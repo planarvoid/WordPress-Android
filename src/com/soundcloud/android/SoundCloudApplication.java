@@ -43,6 +43,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -226,6 +227,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public Track getTrackFromCache(long track_id) {
         return mTrackCache.get(track_id);
     }
+
+     public void addCommentToTrackCache(Comment comment) {
+         final Track track = getTrackFromCache(comment.track_id);
+         if (track != null) {
+             if (track.comments == null) track.comments = new ArrayList<Comment>();
+             track.comments.add(comment);
+         }
+    }
+
+
 
     public Account getAccount() {
         Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));

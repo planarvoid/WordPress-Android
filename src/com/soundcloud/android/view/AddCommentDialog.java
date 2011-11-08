@@ -62,7 +62,6 @@ public class AddCommentDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 if (TextUtils.isEmpty(mInput.getText())) return;
-
                 ((InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE))
                         .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
                 comment.body = mInput.getText().toString();
@@ -71,6 +70,7 @@ public class AddCommentDialog extends Dialog {
                 // cannot simply dismiss, or state will be saved
                 mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
 
+                mActivity.getApp().addCommentToTrackCache(comment);
                 if (mActivity instanceof ScPlayer){
                     ((ScPlayer)mActivity).onNewComment(comment);
                 }

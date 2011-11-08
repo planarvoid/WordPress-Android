@@ -30,6 +30,7 @@ import android.widget.RelativeLayout;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
     private static final String TAG = "ScPlayer";
@@ -125,7 +126,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     mCommentButton.setImageResource(R.drawable.ic_comment_states);
                 }
             }
-
             if (mPlaybackService != null) try {
                 mPlaybackService.setAutoAdvance(!mIsCommenting);
             } catch (RemoteException ignored) {
@@ -274,8 +274,12 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     }
 
     public void onNewComment(Comment comment) {
-        getCurrentTrackView().onNewComment(comment);
+        final PlayerTrackView ptv = getTrackViewById(comment.track_id);
+        if (ptv != null){
+            ptv.onNewComment(comment);
+        }
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle state) {
@@ -737,6 +741,15 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private PlayerTrackView getTrackView(int playPos){
         for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
             if (((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).getPlayPosition() == playPos) {
+                return ((PlayerTrackView) mTrackWorkspace.getScreenAt(i));
+            }
+        }
+        return null;
+    }
+
+    private PlayerTrackView getTrackViewById(long track_id) {
+        for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
+            if (((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).getTrackId() == track_id) {
                 return ((PlayerTrackView) mTrackWorkspace.getScreenAt(i));
             }
         }

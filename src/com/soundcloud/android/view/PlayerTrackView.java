@@ -584,7 +584,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
     public void onNewComment(Comment comment) {
         if (comment.track_id == mTrack.id) {
-            mWaveformController.setComments(mTrack.comments, true);
+            mWaveformController.setComments(mTrack.comments, false, true);
             mWaveformController.showNewComment(comment);
         }
     }
@@ -628,5 +628,9 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
     public void setPlaybackStatus(boolean isPlaying, long position) {
         mWaveformController.setPlaybackStatus(isPlaying,position);
+    }
+
+    public long getTrackId() {
+        return mTrack == null ? -1 : mTrack.id;
     }
 }
