@@ -152,7 +152,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mWaveformHolder.addView(mCommentLines);
 
         mOverlay.setVisibility(View.INVISIBLE);
-        mProgressBar.setVisibility(View.INVISIBLE);
+        //mProgressBar.setVisibility(View.INVISIBLE);
         mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
 
         LightingColorFilter lcf = new LightingColorFilter(1, mPlayer.getResources().getColor(
@@ -231,7 +231,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (hide){
             showWaiting();
             mOverlay.setVisibility(View.INVISIBLE);
-            mProgressBar.setVisibility(View.INVISIBLE);
+            //mProgressBar.setVisibility(View.INVISIBLE);
             mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
         }
     }
@@ -456,13 +456,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             case LOADING:
                 if (!mShowingWaiting) showWaiting();
                 mOverlay.setVisibility(View.INVISIBLE);
-                mProgressBar.setVisibility(View.INVISIBLE);
+                //mProgressBar.setVisibility(View.INVISIBLE);
                 mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
                 break;
             case ERROR:
                 if (!mShowingWaiting) showWaiting();
                 mOverlay.setVisibility(View.INVISIBLE);
-                mProgressBar.setVisibility(View.INVISIBLE);
+                //mProgressBar.setVisibility(View.INVISIBLE);
                 mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
                 onWaveformError();
                 break;
@@ -612,14 +612,14 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
         if (mOverlay.getVisibility() == View.INVISIBLE) {
             mOverlay.setVisibility(View.VISIBLE);
-            mProgressBar.setVisibility(View.VISIBLE);
+            //mProgressBar.setVisibility(View.VISIBLE);
             mCurrentTimeDisplay.setVisibility(View.VISIBLE);
 
             if (animate){
                 AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
                 aa.setDuration(500);
                 mOverlay.startAnimation(aa);
-                mProgressBar.startAnimation(aa);
+                //mProgressBar.startAnimation(aa);
                 mCurrentTimeDisplay.startAnimation(aa);
             }
         }
