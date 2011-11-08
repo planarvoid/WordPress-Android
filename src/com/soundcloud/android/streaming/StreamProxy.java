@@ -41,23 +41,26 @@ import java.util.regex.Pattern;
  */
 public class StreamProxy implements Runnable {
     private static final String LOG_TAG = StreamLoader.LOG_TAG;
-    public static final int TIMEOUT = 15; // wait this long before closing the connection
 
-    public static boolean opencoreClient;
+    private static final int TIMEOUT = 15; // wait this long before closing the connection
+    private static final String CRLF = "\r\n";
 
-    static final String PARAM_STREAM_URL = "streamUrl";
-    static final String PARAM_NEXT_STREAM_URL = "nextStreamUrl";
+    private static final String SERVER  = "SoundCloudStreaming";
 
+    private static final String PARAM_STREAM_URL = "streamUrl";
+    private static final String PARAM_NEXT_STREAM_URL = "nextStreamUrl";
     private int mPort;
+
     private boolean mIsRunning = true;
     private ServerSocketChannel mSocket;
     private Thread mThread;
     /* package */ final StreamLoader loader;
     /* package */ final StreamStorage storage;
-
     public StreamProxy(SoundCloudApplication app) {
         this(app, 0);
     }
+
+    public static boolean opencoreClient;
 
     public StreamProxy(SoundCloudApplication app, int port) {
         storage = new StreamStorage(app, Consts.EXTERNAL_STREAM_DIRECTORY);
@@ -211,7 +214,7 @@ public class StreamProxy implements Runnable {
 
             final long startByte = firstRequestedByte(request);
             final SocketChannel channel = client.getChannel();
-            Map<String, String> headers = headerForItem(streamUrl);
+            Map<String, String> headers = headerMap();
 
             final File completeFile = storage.completeFileForUrl(streamUrl);
             if (completeFile.exists()) {
@@ -255,12 +258,26 @@ public class StreamProxy implements Runnable {
         // write HTTP response header
         StringBuilder sb = new StringBuilder()
                 .append("HTTP/1.1 ")
-                .append(startByte == 0 ? "200 OK" : "206 OK").append("\r\n");
+                .append(startByte == 0 ? "200 OK" : "206 OK").append(CRLF);
 
         for (Map.Entry<String, String> e : headers.entrySet()) {
-            sb.append(e.getKey()).append(':').append(' ').append(e.getValue()).append("\r\n");
+            sb.append(e.getKey()).append(':').append(' ').append(e.getValue()).append(CRLF);
         }
-        sb.append("\r\n");
+        sb.append(CRLF);
+
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+            Log.d(LOG_TAG, "header:" + sb);
+        return ByteBuffer.wrap(sb.toString().getBytes());
+    }
+
+    private ByteBuffer getErrorHeader(int code, String message) {
+        StringBuilder sb = new StringBuilder()
+                .append("HTTP/1.1 ")
+                .append(code).append(' ').append(message).append(CRLF);
+
+        sb.append("Server: ").append(SERVER).append(CRLF)
+          .append("Date: ").append(DateUtils.formatDate(new Date())).append(CRLF)
+          .append(CRLF);
 
         if (Log.isLoggable(LOG_TAG, Log.DEBUG))
             Log.d(LOG_TAG, "header:" + sb);
@@ -273,8 +290,18 @@ public class StreamProxy implements Runnable {
 
         long offset = startByte;
         for (;;) {
+            ByteBuffer buffer;
             StreamFuture stream = loader.getDataForUrl(streamUrl, Range.from(offset, storage.chunkSize));
-            ByteBuffer buffer = stream.get(TIMEOUT, TimeUnit.SECONDS);
+            try {
+                buffer = stream.get(TIMEOUT, TimeUnit.SECONDS);
+            } catch (TimeoutException e) {
+                if (offset == startByte) {
+                    // timeout happened before header write, take the chance to return a proper error code
+                    // some implementations don't use error callbacks otherwise
+                    channel.write(getErrorHeader(503, "Data read timeout"));
+                }
+                throw e;
+            }
 
             if (stream.item.getContentLength() == 0) {
                 // should not happen
@@ -303,9 +330,9 @@ public class StreamProxy implements Runnable {
         }
     }
 
-    /* package */ Map<String, String> headerForItem(String url) {
+    /* package */ Map<String, String> headerMap() {
         Map<String, String> h = new LinkedHashMap<String, String>();
-        h.put("Server", "SoundCloudStreaming");
+        h.put("Server", SERVER);
         h.put("Accept-Ranges", "bytes");
         h.put("Content-Type", "audio/mpeg");
         h.put("Connection", "close");

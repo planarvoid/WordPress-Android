@@ -25,7 +25,7 @@ public class StreamProxyTest {
     public void testCreateHeader() throws Exception {
         StreamProxy proxy = new StreamProxy(DefaultTestRunner.application, 0);
 
-        Map<String, String> h = proxy.headerForItem("http://foo.com/naz");
+        Map<String, String> h = proxy.headerMap();
 
         expect(h.containsKey("Server")).toBeTrue();
         expect(h.containsKey("Content-Type")).toBeTrue();

@@ -930,6 +930,7 @@ public class CloudPlaybackService extends Service {
 
         public void stop() {
             mIsInitialized = false;
+            mRetries = 0;
             mPlayingPath = "";
 
             if (mMediaPlayer == null)
