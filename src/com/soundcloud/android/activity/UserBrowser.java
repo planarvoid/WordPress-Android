@@ -588,11 +588,14 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         if (displayedSomething) {
-            mInfoView.findViewById(R.id.empty_txt).setVisibility(View.GONE);
+            if (mInfoView.findViewById(R.id.empty_txt) != null)
+                mInfoView.findViewById(R.id.empty_txt).setVisibility(View.GONE);
         } else {
             TextView txtEmpty = (TextView) mInfoView.findViewById(R.id.empty_txt);
-            txtEmpty.setText(Html.fromHtml(getString(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you)));
-            txtEmpty.setVisibility(View.VISIBLE);
+            if (txtEmpty != null) {
+                txtEmpty.setText(Html.fromHtml(getString(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you)));
+                txtEmpty.setVisibility(View.VISIBLE);
+            }
         }
     }
 
