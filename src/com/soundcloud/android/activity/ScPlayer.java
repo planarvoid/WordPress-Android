@@ -114,19 +114,25 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     }
 
     public void toggleCommentMode(int playPos) {
-        mIsCommenting = !mIsCommenting;
-        getTrackView(playPos).setCommentMode(mIsCommenting);
-        if (mCommentButton != null) {
-            if (mIsCommenting) {
-                mCommentButton.setImageResource(R.drawable.ic_commenting_states);
-            } else {
-                mCommentButton.setImageResource(R.drawable.ic_comment_states);
+
+        PlayerTrackView ptv = getTrackView(playPos);
+        if (ptv != null) {
+            mIsCommenting = !mIsCommenting;
+            ptv.setCommentMode(mIsCommenting);
+            if (mCommentButton != null) {
+                if (mIsCommenting) {
+                    mCommentButton.setImageResource(R.drawable.ic_commenting_states);
+                } else {
+                    mCommentButton.setImageResource(R.drawable.ic_comment_states);
+                }
+            }
+
+            if (mPlaybackService != null) try {
+                mPlaybackService.setAutoAdvance(!mIsCommenting);
+            } catch (RemoteException ignored) {
             }
         }
 
-        if (mPlaybackService != null) try {
-            mPlaybackService.setAutoAdvance(!mIsCommenting);
-        } catch (RemoteException ignored) { }
     }
 
     public ViewGroup getCommentHolder() {
@@ -169,6 +175,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 if (prevTrack != null){
                     if (mTrackWorkspace.getScreenCount() > 2) {
                         ptv = (PlayerTrackView) mTrackWorkspace.getScreenAt(2);
+                        ptv.getWaveformController().reset(true);
                         mTrackWorkspace.removeViewFromBack();
                     } else {
                         ptv = new PlayerTrackView(this);
@@ -183,6 +190,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 if (nextTrack != null){
                     if (mTrackWorkspace.getScreenCount() > 2) {
                         ptv = (PlayerTrackView) mTrackWorkspace.getScreenAt(0);
+                        ptv.getWaveformController().reset(true);
                         mTrackWorkspace.removeViewFromFront();
                     } else {
                         ptv = new PlayerTrackView(this);
@@ -190,12 +198,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     mTrackWorkspace.addViewToBack(ptv);
                     ptv.setTrack(nextTrack, newQueuePos + 1, false);
                     mTrackWorkspace.setCurrentScreenNow(1, false);
-                }
-            }
-
-            for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++) {
-                if (i != mTrackWorkspace.getCurrentScreen()) {
-                    ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).getWaveformController().reset();
                 }
             }
 
@@ -448,8 +450,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             long pos = mPlaybackService.position();
             long remaining = REFRESH_DELAY - (pos % REFRESH_DELAY);
+            int queuePos = mPlaybackService.getQueuePosition();
 
-            final PlayerTrackView ptv = getTrackView(mPlaybackService.getQueuePosition());
+            final PlayerTrackView ptv = getTrackView(queuePos);
             if (ptv != null){
                 ptv.setProgress(pos, mPlaybackService.loadPercent(), Build.VERSION.SDK_INT >= WaveformController.MINIMUM_SMOOTH_PROGRESS_SDK &&
                         (mPlaybackService.isPlaying() && !mPlaybackService.isBuffering()));
@@ -494,12 +497,15 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 if (currentQueuePosition != queuePos){
                     if (queuePos == currentQueuePosition + 1){
                         mTrackWorkspace.scrollRight();
-                    } else if (queuePos == currentQueuePosition - 1){
-                        mTrackWorkspace.scrollLeft();
-                    } else {
-                        updateTrackDisplay();
                     }
                 }
+
+                for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++) {
+                    if (((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).getPlayPosition() != queuePos) {
+                        ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).getWaveformController().reset(false);
+                    }
+                }
+
                 setPauseButtonImage();
                 try {
                     mPlayingTrack = mPlaybackService.getTrack();
@@ -507,7 +513,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
                 setPauseButtonImage();
-                getWaveformController(queuePos).setPlaybackStatus(false, intent.getLongExtra("position", 0));
+                if (getTrackView(queuePos) != null) getTrackView(queuePos).setPlaybackStatus(false, intent.getLongExtra("position", 0));
             } else if (action.equals(CloudPlaybackService.FAVORITE_SET) ||
                         action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
                         action.equals(Consts.IntentActions.COMMENT_ADDED)) {
@@ -730,10 +736,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 return ((PlayerTrackView) mTrackWorkspace.getScreenAt(i));
             }
         }
-        return ((PlayerTrackView) mTrackWorkspace.getScreenAt(mTrackWorkspace.getCurrentScreen()));
-    }
-
-    private WaveformController getWaveformController(int playPos){
-        return getTrackView(playPos).getWaveformController();
+        return null;
     }
 }

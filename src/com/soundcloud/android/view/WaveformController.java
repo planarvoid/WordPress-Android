@@ -221,21 +221,28 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     }
 
-    public void reset(){
-        hideWaiting();
+    public void reset(boolean hide){
         mWaitingForSeekComplete = false;
         mIsBuffering = false;
         setProgressInternal(0);
         setSecondaryProgress(0);
         onStop();
+
+        if (hide){
+            showWaiting();
+            mOverlay.setVisibility(View.INVISIBLE);
+            mProgressBar.setVisibility(View.INVISIBLE);
+            mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
+        }
     }
 
      public void onStop() {
         stopSmoothProgress();
-         cancelAutoCloseComment();
+        cancelAutoCloseComment();
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.onStop(); //stops avatar loading
         if (mPlayerAvatarBar != null) mPlayerAvatarBar.setCurrentComment(null);
         if (mCommentLines != null) mCommentLines.setCurrentComment(null);
+         mLastAutoComment = null;
         mCurrentShowingComment = null;
         resetCommentDisplay();
     }
@@ -411,7 +418,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (TextUtils.isEmpty(track.waveform_url)){
             waveformResult = BindResult.ERROR;
             mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
-            showWaveform();
+            showWaveform(false);
             return;
         }
 
@@ -432,14 +439,14 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
                         waveformResult = BindResult.OK;
-                        showWaveform();
+                        showWaveform(true);
                     }
                 },new ImageLoader.Options(true,true));
 
 
         switch (waveformResult) {
             case OK:
-                showWaveform();
+                showWaveform(false);
                 break;
             case LOADING:
                 if (!mShowingWaiting) showWaiting();
@@ -589,27 +596,27 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         } else {
             mOverlay.setImageDrawable(mPlayer.getResources()
                     .getDrawable(R.drawable.player_wave_bg));
-            showWaveform();
+            showWaveform(true);
         }
     }
 
 
-    private void showWaveform() {
+    private void showWaveform(boolean animate) {
         mPlayer.onWaveformLoaded();
         if (!mIsBuffering) hideWaiting();
 
         if (mOverlay.getVisibility() == View.INVISIBLE) {
-            AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
-            aa.setDuration(500);
-
-            mOverlay.startAnimation(aa);
             mOverlay.setVisibility(View.VISIBLE);
-
-            mProgressBar.startAnimation(aa);
             mProgressBar.setVisibility(View.VISIBLE);
-
-            mCurrentTimeDisplay.startAnimation(aa);
             mCurrentTimeDisplay.setVisibility(View.VISIBLE);
+
+            if (animate){
+                AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
+                aa.setDuration(500);
+                mOverlay.startAnimation(aa);
+                mProgressBar.startAnimation(aa);
+                mCurrentTimeDisplay.startAnimation(aa);
+            }
         }
     }
 
@@ -623,11 +630,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     protected Comment nextCommentAfterTimestamp(long timestamp) {
-        for (int i = mCurrentTopComments.size() -1; i >= 0; i--){
-            if (mCurrentTopComments.get(i).timestamp > timestamp)
-                return mCurrentTopComments.get(i);
+        if (mCurrentTopComments != null) {
+            for (int i = mCurrentTopComments.size() - 1; i >= 0; i--) {
+                if (mCurrentTopComments.get(i).timestamp > timestamp)
+                    return mCurrentTopComments.get(i);
+            }
         }
-
         return null;
     }
 

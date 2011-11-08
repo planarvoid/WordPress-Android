@@ -268,19 +268,19 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
                 @Override
                 public void onImageLoaded(ImageView view, String url) {
-                    onArtworkSet();
+                    onArtworkSet(true);
                 }
             }, new ImageLoader.Options(true,true))) != ImageLoader.BindResult.OK) {
                 mArtwork.setVisibility(View.INVISIBLE);
             } else {
-                onArtworkSet();
+                onArtworkSet(false);
             }
         }
     }
 
-     private void onArtworkSet() {
+     private void onArtworkSet(boolean animate) {
         if (mArtwork.getVisibility() == View.INVISIBLE || mArtwork.getVisibility() == View.GONE) {
-            AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
+            if (animate) AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
             mArtwork.setVisibility(View.VISIBLE);
         }
 
@@ -625,5 +625,9 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             mWaveformController.onBufferingStart();
             mWaveformController.stopSmoothProgress();
         }
+    }
+
+    public void setPlaybackStatus(boolean isPlaying, long position) {
+        mWaveformController.setPlaybackStatus(isPlaying,position);
     }
 }
