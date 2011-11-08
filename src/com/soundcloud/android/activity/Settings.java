@@ -10,7 +10,6 @@ import com.soundcloud.android.activity.tour.Start;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
-import com.soundcloud.android.streaming.StreamStorage;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 
@@ -92,7 +91,7 @@ public class Settings extends PreferenceActivity {
                                 removeDialog(DIALOG_CACHE_DELETING);
                                 updateClearCacheTitles();
                             }
-                        }.execute(FileCache.getCacheDir(Settings.this));
+                        }.execute(CloudUtils.getCacheDir(Settings.this));
                         return true;
                     }
                 });
@@ -212,7 +211,7 @@ public class Settings extends PreferenceActivity {
     }
 
     private void updateClearCacheTitles() {
-        setClearCacheTitle("clearCache", R.string.pref_clear_cache, FileCache.getCacheDir(this));
+        setClearCacheTitle("clearCache", R.string.pref_clear_cache, CloudUtils.getCacheDir(this));
         setClearCacheTitle("clearStreamCache", R.string.pref_clear_stream_cache, Consts.EXTERNAL_STREAM_DIRECTORY);
     }
 
@@ -232,7 +231,7 @@ public class Settings extends PreferenceActivity {
         new Thread() {
             @Override
             public void run() {
-                final String size = CloudUtils.inMbFormatted(FileCache.dirSizeInMb(dir));
+                final String size = CloudUtils.inMbFormatted(CloudUtils.dirSize(dir) / 1048576d);
                 handler.post(new Runnable() {
                     @Override public void run() {
                         findPreference(pref).setTitle(

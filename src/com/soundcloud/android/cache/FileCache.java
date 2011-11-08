@@ -3,7 +3,6 @@ package com.soundcloud.android.cache;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.filecache.FileResponseCache;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
@@ -29,7 +28,6 @@ import java.util.Map;
  * @author jschmidt
  */
 public class FileCache extends FileResponseCache {
-
     private final Context mContext;
 
     public FileCache(Context context) {
@@ -47,7 +45,7 @@ public class FileCache extends FileResponseCache {
 
     @Override protected File getFile(URI uri, String requestMethod, Map<String, List<String>> requestHeaders, Object cookie) {
         try {
-            File parent = getCacheDir(mContext);
+            File parent = CloudUtils.getCacheDir(mContext);
             MessageDigest digest = MessageDigest.getInstance("MD5");
             digest.update(String.valueOf(uri).getBytes("UTF-8"));
             byte[] output = digest.digest();
@@ -76,14 +74,6 @@ public class FileCache extends FileResponseCache {
             Class<? extends ResponseCache> type = responseCache.getClass();
             Log.e(TAG, "Another ResponseCache has already been installed: " + type);
         }
-    }
-
-    public static double dirSizeInMb(File dir) {
-        return CloudUtils.dirSize(dir) / 1048576d;
-    }
-
-    public static File getCacheDir(Context context) {
-        return CloudUtils.isSDCardAvailable() ? Consts.EXTERNAL_CACHE_DIRECTORY : context.getCacheDir();
     }
 
     public static class DeleteCacheTask extends AsyncTask<File, Integer, Boolean> {

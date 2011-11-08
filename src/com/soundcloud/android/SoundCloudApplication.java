@@ -29,6 +29,7 @@ import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
 import com.soundcloud.android.service.beta.WifiMonitor;
 import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -131,8 +132,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 BETA_MODE ? COMPONENT_ENABLED_STATE_ENABLED : COMPONENT_ENABLED_STATE_DISABLED,
                 DONT_KILL_APP);
 
-         new FileCache.TrimCacheTask(Consts.MAX_IMAGE_CACHE)
-                      .execute(FileCache.getCacheDir(SoundCloudApplication.this));
+        new FileCache.TrimCacheTask(Consts.MAX_IMAGE_CACHE)
+                      .execute(CloudUtils.getCacheDir(this));
     }
 
     public User getLoggedInUser() {
