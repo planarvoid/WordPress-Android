@@ -115,6 +115,7 @@ public final class ImageLoader {
     }
 
     public void unpause(){
+        if (!mPaused) return;
         mPaused = false;
         for (ImageCallback imageCallback : mPendingCallbacks){
             imageCallback.send();

@@ -26,6 +26,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.*;
 import android.widget.Scroller;
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.task.LoadSuggestedUsersTask;
 import com.soundcloud.android.utils.MotionEventUtils;
 import com.soundcloud.android.utils.ReflectionUtils;
@@ -148,7 +149,7 @@ public class WorkspaceView extends ViewGroup {
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
 
         mPagingTouchSlop = ReflectionUtils.callWithDefault(configuration,
-                "getScaledPagingTouchSlop", mTouchSlop * 2);
+                "getScaledPagingTouchSlop", mTouchSlop);
 
         mMinLengthForAFling -= mTouchSlop;
     }
@@ -502,7 +503,7 @@ public class WorkspaceView extends ViewGroup {
                         // Scroll if the user moved far enough along the X axis
                         initialSlop = (int) (mDownMotionX - x);
                         mTouchState = TOUCH_STATE_SCROLLING;
-
+                        setImageLoaderState();
                     }
                     // Either way, cancel any pending longpress
                     if (mAllowLongPress) {
@@ -535,6 +536,7 @@ public class WorkspaceView extends ViewGroup {
                  * being flinged.
                  */
                 mTouchState = mScroller.isFinished() ? TOUCH_STATE_REST : TOUCH_STATE_SCROLLING;
+                setImageLoaderState();
                 break;
             }
 
@@ -542,6 +544,8 @@ public class WorkspaceView extends ViewGroup {
             case MotionEvent.ACTION_UP:
                 // Release the drag
                 mTouchState = TOUCH_STATE_REST;
+                setImageLoaderState();
+
                 mAllowLongPress = false;
                 mActivePointerId = INVALID_POINTER;
                 if (mVelocityTracker == null) {
@@ -670,6 +674,7 @@ public class WorkspaceView extends ViewGroup {
                             initialSlop = (int) (mDownMotionX - x);
                             // Scroll if the user moved far enough along the X axis
                             mTouchState = TOUCH_STATE_SCROLLING;
+                            setImageLoaderState();
                         }
                         // Either way, cancel any pending longpress
                         if (mAllowLongPress) {
@@ -726,6 +731,7 @@ public class WorkspaceView extends ViewGroup {
                 }
                 mTouchState = TOUCH_STATE_REST;
                 mActivePointerId = INVALID_POINTER;
+                setImageLoaderState();
                 // Intentially fall through to cancel
 
             case MotionEvent.ACTION_CANCEL:
@@ -735,6 +741,7 @@ public class WorkspaceView extends ViewGroup {
                     mVelocityTracker.recycle();
                     mVelocityTracker = null;
                 }
+                setImageLoaderState();
                 break;
 
             case MotionEventUtils.ACTION_POINTER_UP:
@@ -743,6 +750,15 @@ public class WorkspaceView extends ViewGroup {
         }
 
         return true;
+    }
+
+    private void setImageLoaderState(){
+        if (mTouchState != TOUCH_STATE_SCROLLING){
+            ImageLoader.get(getContext()).unpause();
+        } else {
+            ImageLoader.get(getContext()).pause();
+        }
+
     }
 
     /**

@@ -198,6 +198,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             }
 
             if (changed) {
+
                 if (!mLandscape) updateArtwork();
                 mWaveformController.clearTrackComments();
                 mWaveformController.setProgress(0);
