@@ -38,11 +38,10 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     public static final int REFRESH_DELAY = 1000;
     private static final long TRACK_SWIPE_UPDATE_DELAY = 1000;
+    private static final long TRACK_NAV_DELAY = 500;
 
     private long mSeekPos = -1;
-    private long mLastSeekEventTime = -1;
-
-    private boolean mWaveformLoaded, mActivityPaused, mIsCommenting, mIsPlaying;
+    private boolean mWaveformLoaded, mActivityPaused, mIsCommenting, mIsPlaying, mChangeTrackFast;
     private Drawable mPlayState, mPauseState;
     private ImageButton mPauseButton, mFavoriteButton, mCommentButton;
     private Track mPlayingTrack;
@@ -146,8 +145,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         }
     }
 
-    @Override public void onScreenChanging(View newScreen, int newScreenIndex) {
-    }
+    @Override public void onScreenChanging(View newScreen, int newScreenIndex) {}
 
     @Override public void onNextScreenVisible(View newScreen, int newScreenIndex) {}
 
@@ -157,11 +155,12 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         try {
             final int newQueuePos = ((PlayerTrackView) newScreen).getPlayPosition();
 
-
             mCurrentQueuePosition = newQueuePos;
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
+
             mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
-                    TRACK_SWIPE_UPDATE_DELAY);
+                        mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
+            mChangeTrackFast = false;
 
             final long prevTrackId = newQueuePos > 0
                     ? mPlaybackService.getTrackIdAt(newQueuePos -1) : -1;
@@ -369,15 +368,14 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     private final View.OnClickListener mPrevListener = new View.OnClickListener() {
         public void onClick(View v) {
-            if (mPlaybackService == null) {
-                return;
-            }
+            if (mPlaybackService == null) return;
+            mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
             try {
-                if (mPlaybackService.position() < 2000) {
-                    mPlaybackService.prev();
+                if (mPlaybackService.position() < 2000 && mCurrentQueuePosition > 0) {
+                    mChangeTrackFast = true;
+                    mTrackWorkspace.scrollLeft();
                 } else if (isSeekable()) {
                     mPlaybackService.seek(0);
-                    // mService.play();
                 } else {
                     mPlaybackService.restart();
                 }
@@ -387,15 +385,22 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         }
     };
 
+
     private final View.OnClickListener mNextListener = new View.OnClickListener() {
         public void onClick(View v) {
-            if (mPlaybackService != null) {
-                try {
-                    mPlaybackService.next();
-                } catch (RemoteException e) {
-                    Log.e(TAG, "error", e);
+            if (mPlaybackService == null) return;
+            mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
+            try {
+                if (mPlaybackService.getQueueLength() > mCurrentQueuePosition + 1) {
+                        mChangeTrackFast = true;
+                        mTrackWorkspace.scrollRight();
                 }
+            } catch (RemoteException e) {
+                Log.e(TAG, "error", e);
             }
+
+
+            mTrackWorkspace.scrollRight();
         }
     };
 
@@ -493,9 +498,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             final int queuePos = intent.getIntExtra("queuePosition", -1);
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
-                final int currentQueuePosition = getCurrentTrackView().getPlayPosition();
-                if (currentQueuePosition != queuePos){
-                    if (queuePos == currentQueuePosition + 1){
+                if (mCurrentQueuePosition != queuePos){
+                    if (queuePos == mCurrentQueuePosition + 1 && !mTrackWorkspace.isScrolling()){ // auto advance
                         mTrackWorkspace.scrollRight();
                     }
                 }
