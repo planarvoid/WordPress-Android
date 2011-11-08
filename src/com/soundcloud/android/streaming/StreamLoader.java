@@ -78,17 +78,18 @@ public class StreamLoader {
                             Log.d(LOG_TAG, String.format("Storing %d bytes at index %d for url %s",
                                 t.buffer.limit(), t.chunkRange.start, t.item.url));
                         try {
-                            if (!mStorage.storeData(t.item.url.toString(), t.buffer, t.chunkRange.start)) {
-                                // try to fulfill callbacks directly if we couldn't store data
-                                // (maybe SD storage was not available)
-                                for (Iterator<StreamFuture> it = mPlayerCallbacks.iterator(); it.hasNext(); ) {
-                                    StreamFuture cb = it.next();
-                                    if (cb.item.equals(t.item) && cb.byteRange.equals(t.byteRange)) {
-                                        cb.setByteBuffer(t.buffer);
-                                        it.remove();
-                                    }
+                            // for responsiveness, try to fulfill callbacks directly before storing them
+                            for (Iterator<StreamFuture> it = mPlayerCallbacks.iterator(); it.hasNext(); ) {
+                                StreamFuture cb = it.next();
+                                if (cb.item.equals(t.item) && cb.byteRange.equals(t.byteRange)) {
+                                    cb.setByteBuffer(t.buffer);
+                                    it.remove();
                                 }
                             }
+                            if (!mStorage.storeData(t.item.url.toString(), t.buffer, t.chunkRange.start)) {
+                                Log.w(LOG_TAG, "error storing data");
+                            }
+
                             fulfillPlayerCallbacks();
                         } catch (IOException e) {
                             Log.e(LOG_TAG, "error storing data", e);
