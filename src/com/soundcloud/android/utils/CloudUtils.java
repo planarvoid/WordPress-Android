@@ -104,15 +104,41 @@ public class CloudUtils {
     }
 
     public static void checkState(Context c) {
-        checkDirs(c);
-        if (Consts.DEPRECATED_DB_ABS_PATH.exists()) {
-            if (Consts.NEW_DB_ABS_PATH.exists()) {
-                if (!Consts.NEW_DB_ABS_PATH.delete()) {
-                    Log.w(TAG, "error deleting "+Consts.NEW_DB_ABS_PATH);
-                }
+        mkdirs(getCacheDir(c));
+        if (isSDCardAvailable()) {
+            // remove old track cache directory if it exists
+            if (Consts.EXTERNAL_TRACK_CACHE_DIRECTORY.exists()) {
+                CloudUtils.deleteDir(Consts.EXTERNAL_TRACK_CACHE_DIRECTORY);
             }
-            if (!Consts.DEPRECATED_DB_ABS_PATH.renameTo(Consts.NEW_DB_ABS_PATH)) {
-                Log.w(TAG, "error renaming "+Consts.DEPRECATED_DB_ABS_PATH);
+
+            // fix deprecated casing
+            if (fileExistsCaseSensitive(Consts.DEPRECATED_EXTERNAL_STORAGE_DIRECTORY)) {
+                boolean renamed = renameCaseSensitive(
+                    Consts.DEPRECATED_EXTERNAL_STORAGE_DIRECTORY, Consts.EXTERNAL_STORAGE_DIRECTORY);
+                Log.d(TAG, "Attempting to rename external storage: " + renamed);
+            }
+
+            // create external storage directory
+            mkdirs(Consts.EXTERNAL_STORAGE_DIRECTORY);
+            mkdirs(Consts.EXTERNAL_STREAM_DIRECTORY);
+
+            // ignore all media below files
+            nomedia(Consts.FILES_PATH);
+        }
+    }
+
+    public static boolean nomedia(File dir) {
+        if (!dir.isDirectory()) return false;
+
+        File nomedia = new File(dir, ".nomedia");
+        if (nomedia.exists() && nomedia.isFile()) {
+            return true;
+        } else {
+            try {
+                return nomedia.createNewFile();
+            } catch (IOException e) {
+                Log.w(TAG, "error creating .nomedia file");
+                return false;
             }
         }
     }
@@ -125,30 +151,6 @@ public class CloudUtils {
     public static void showToast(Context c, CharSequence text) {
         Toast toast = Toast.makeText(c, text, Toast.LENGTH_LONG);
         toast.show();
-    }
-
-    public static void checkDirs(Context c) {
-        // clear out old cache and make a new one
-        if (!getCacheDir(c).exists()) {
-            if (getCacheDir(c).getParentFile().exists())
-                deleteDir(getCacheDir(c).getParentFile());
-        } else {
-            // deleteDir(getCacheDir(c));
-        }
-
-        mkdirs(getCacheDir(c));
-
-        // create external storage directory
-        if (isSDCardAvailable()) {
-            // fix deprecated casing
-            if (fileExistsCaseSensitive(Consts.DEPRECATED_EXTERNAL_STORAGE_DIRECTORY)) {
-                boolean renamed = renameCaseSensitive(
-                    Consts.DEPRECATED_EXTERNAL_STORAGE_DIRECTORY, Consts.EXTERNAL_STORAGE_DIRECTORY);
-                Log.d(TAG, "Attempting to rename external storage: " + renamed);
-            }
-            mkdirs(Consts.EXTERNAL_STORAGE_DIRECTORY);
-        }
-        // do a check??
     }
 
     public static boolean fileExistsCaseSensitive(final File f) {
@@ -252,28 +254,6 @@ public class CloudUtils {
     public static String hexString(byte[] bytes) {
         return String.format("%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
     }
-
-    public static void createTab(TabHost tabHost, String tabId,
-                                 String indicatorText, Drawable indicatorIcon, final ScTabView tabView) {
-        TabHost.TabSpec spec;
-
-        spec = tabHost.newTabSpec(tabId);
-        if (indicatorIcon == null) {
-            spec.setIndicator(indicatorText);
-        } else {
-            spec.setIndicator(indicatorText, indicatorIcon);
-        }
-
-        spec.setContent(new TabHost.TabContentFactory() {
-            public View createTabContent(String tag) {
-                return tabView;
-
-            }
-        });
-
-        tabHost.addTab(spec);
-    }
-
 
     public static String stripProtocol(String url) {
         return url.replace("http://www.", "").replace("http://", "");

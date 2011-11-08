@@ -8,27 +8,29 @@ import java.util.EnumSet;
 
 public final class Consts {
     public static final File DB_PATH = new File("/data/data/com.soundcloud.android/databases/");
-    public static final File DEPRECATED_DB_ABS_PATH = new File(DB_PATH, "Overcast");
-    public static final File NEW_DB_ABS_PATH = new File(DB_PATH, "SoundCloud.db");
 
+    @Deprecated
     public static final File DEPRECATED_EXTERNAL_STORAGE_DIRECTORY =
             new File(Environment.getExternalStorageDirectory(), "Soundcloud");
 
+    // this directory will be preserved across reinstalls - e.g. used for recordings
     public static final File EXTERNAL_STORAGE_DIRECTORY = new File(
             Environment.getExternalStorageDirectory(), "SoundCloud");
 
+    // general purpose storage, removed on reinstall
     public static final File FILES_PATH = new File(
             Environment.getExternalStorageDirectory(),
             "Android/data/com.soundcloud.android/files");
 
+    // dot file to have it excluded from media scanning - also use .nomedia
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH, ".cache");
     public static final File EXTERNAL_STREAM_DIRECTORY = new File(FILES_PATH, "stream");
 
     @Deprecated
     public static final File EXTERNAL_TRACK_CACHE_DIRECTORY = new File(FILES_PATH, ".s");
 
-
     public static final long MAX_IMAGE_CACHE = 5 * 1024  * 1024; // 5  MB
+
 
     public interface IntentActions {
         public static final String CONNECTION_ERROR = "com.soundcloud.android.connectionerror";
@@ -158,7 +160,5 @@ public final class Consts {
         String SETTINGS             = "/settings";
         String TRACKS_BY_TAG        = "/tracks_by_tag/";
         String TRACKS_BY_GENRE      = "/tracks_by_genre/";
-
-        String AUDIO_ENGINE         = "/internal/audioEngine";
     }
 }
