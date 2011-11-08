@@ -381,7 +381,6 @@ public class CloudPlaybackService extends Service {
     }
 
     public void openAsync(final Track track) {
-
         if (track == null) {
             return;
         }
@@ -486,10 +485,9 @@ public class CloudPlaybackService extends Service {
 
         if (mPlayer != null && mPlayer.isInitialized()) {
              mPlayer.start();
-
         } else {
             // must have been a playback error
-            this.restart();
+            restart();
         }
 
         if (!wasPlaying) {
@@ -546,12 +544,8 @@ public class CloudPlaybackService extends Service {
         stop(true);
     }
 
-    public void pause() {
-        pause(false);
-    }
-
     // Pauses playback (call play() to resume)
-    public void pause(boolean force) {
+    public void pause() {
         synchronized (this) {
             if (isSupposedToBePlaying()) {
                 if (mPlayer != null && mPlayer.isInitialized()) {
@@ -844,6 +838,17 @@ public class CloudPlaybackService extends Service {
      * Provides a unified interface for audio control
      */
     private class MultiPlayer {
+        // include/media/stagefright/MediaErrors.h
+        static final int STAGEFRIGHT_ERROR_IO = -1004;
+        static final int STAGEFRIGHT_ERROR_CONNECTION_LOST = -1005;
+
+        // external/opencore/pvmi/pvmf/include/pvmf_return_codes.h
+        // Return code for general failure
+        static final int OPENCORE_PVMFFailure = -1;
+        // Error due to request timing out
+        static final int OPENCORE_PVMFErrTimeout = -11;
+
+
         private MediaPlayer mMediaPlayer;
         private Handler mHandler;
         private boolean mIsInitialized;
@@ -912,7 +917,6 @@ public class CloudPlaybackService extends Service {
 
         public void stop() {
             mIsInitialized = false;
-            mRetries = 0;
             mPlayingPath = "";
 
             if (mMediaPlayer == null)
@@ -1111,11 +1115,14 @@ public class CloudPlaybackService extends Service {
         MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
             public boolean onError(MediaPlayer mp, int what, int extra) {
                 Log.e(TAG, "MP ERROR " + what + " | " + extra);
-                // when the proxy times out it will just close the connection - this gets reported
-                // as error -1005 (in some implementations). try to reconnect at least twice before giving up
+                // when the proxy times out it will just close the connection - different implementations
+                // return different error codes. try to reconnect at least twice before giving up.
                 if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN &&
-                        extra == -1004 /* ERROR_IO */ ||
-                        extra == -1005 /* ERROR_CONNECTION_LOST */) {
+                       (extra == STAGEFRIGHT_ERROR_IO ||
+                        extra == STAGEFRIGHT_ERROR_CONNECTION_LOST ||
+                        extra == OPENCORE_PVMFFailure ||
+                        extra == OPENCORE_PVMFErrTimeout))
+                 {
                     if (mRetries < 3) {
                         Log.d(TAG, "stream disconnected, retrying (try="+(mRetries+1)+")");
                         mRetries++;
@@ -1124,6 +1131,7 @@ public class CloudPlaybackService extends Service {
                         return true;
                     } else {
                         Log.d(TAG, "stream disconnected, giving up");
+                        mRetries = 0;
                     }
                 }
 
@@ -1372,7 +1380,7 @@ public class CloudPlaybackService extends Service {
 
         public void forcePause() {
             if (mService.get() != null)
-                mService.get().pause(true);
+                mService.get().pause();
         }
 
         public void play() {
