@@ -188,6 +188,21 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
     }
 
+    public void markAsPlayed(ContentResolver contentResolver) {
+        Cursor cursor = contentResolver.query(Content.TRACK_PLAYS, null,
+                TrackPlays.TRACK_ID + " = ?", new String[]{
+                Long.toString(id)
+        }, null);
+
+        if (cursor == null || cursor.getCount() == 0) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(TrackPlays.TRACK_ID, id);
+            contentValues.put(TrackPlays.USER_ID, user.id);
+            contentResolver.insert(Content.TRACK_PLAYS, contentValues);
+        }
+        if (cursor != null) cursor.close();
+    }
+
     public static class CreatedWith {
         @JsonView(Views.Full.class) public long id;
         @JsonView(Views.Full.class) public String name;

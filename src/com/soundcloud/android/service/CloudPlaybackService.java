@@ -16,6 +16,7 @@
 
 package com.soundcloud.android.service;
 
+import android.os.*;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -47,13 +48,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.BatteryManager;
-import android.os.Build;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.PowerManager;
-import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -108,6 +102,7 @@ public class CloudPlaybackService extends Service {
     private static final int STREAM_EXCEPTION = 9;
     private static final int CHECK_TRACK_EVENT = 10;
     public static final int START_NEXT_TRACK = 11;
+    public static final int NOTIFY_META = 12;
 
     private MultiPlayer mPlayer;
     private int mLoadPercent = 0;
@@ -345,8 +340,6 @@ public class CloudPlaybackService extends Service {
      * or that the play-state changed (paused/resumed).
      */
     private void notifyChange(String what) {
-
-        Log.i(TAG, "Notify Change " + what + " " + getTrackId() + " " + isSupposedToBePlaying());
         Intent i = new Intent(what);
         i.putExtra("id", getTrackId());
         i.putExtra("track", getTrackName());
@@ -420,7 +413,6 @@ public class CloudPlaybackService extends Service {
             }).start();
         }
 
-
         mLoadPercent = 0;
 
         // if we are already playing this track
@@ -436,40 +428,31 @@ public class CloudPlaybackService extends Service {
         mPlayingData = track;
 
         final User user = getApp().getLoggedInUser();
-
-        Cursor cursor = getContentResolver().query(Content.TRACK_PLAYS, null,
-                TrackPlays.TRACK_ID + " = ?", new String[]{
-                Long.toString(mPlayingData.id)
-        }, null);
-
-        if (cursor == null || cursor.getCount() == 0) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(TrackPlays.TRACK_ID, mPlayingData.id);
-            contentValues.put(TrackPlays.USER_ID, user.id);
-            getContentResolver().insert(Content.TRACK_PLAYS, contentValues);
-        }
-        if (cursor != null) cursor.close();
-
-        mPlayingData.updateFromDb(getContentResolver(), user);
-        if (getApp().getTrackFromCache(mPlayingData.id) == null) {
-            getApp().cacheTrack(mPlayingData);
-        }
+        new Thread(new Runnable() {
+            public void run() {
+                track.markAsPlayed(getContentResolver());
+                if (track.id == mPlayingData.id){
+                    mPlayingData.updateFromDb(getContentResolver(), user);
+                    if (getApp().getTrackFromCache(mPlayingData.id) == null) {
+                        getApp().cacheTrack(mPlayingData);
+                    }
+                    mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(NOTIFY_META));
+                }
+            }
+        }).start();
 
         m10percentStamp = (long) (mPlayingData.duration * .1);
         m10percentStampReached = false;
         m95percentStamp = (long) (mPlayingData.duration * .95);
         m95percentStampReached = false;
 
-        getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TRACK_PLAY,
-                                    mPlayingData.getTrackEventLabel());
-
-        setPlayingStatus();
-
-        // tell the db we played it
-        track.user_played = true;
-
-        // meta has changed
-        notifyChange(META_CHANGED);
+        // notifications and ga events off UI thread
+        new Thread(new Runnable() {
+            public void run() {
+                getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TRACK_PLAY,mPlayingData.getTrackEventLabel());
+                setPlayingStatus();
+            }
+        }).start();
 
         startNextTrack();
     }
@@ -907,7 +890,6 @@ public class CloudPlaybackService extends Service {
         }
 
         public void setDataSourceAsync(String path) {
-
             if (mMediaPlayer == null) refreshMediaplayer();
             mIsAsyncOpening = true;
 
@@ -1140,7 +1122,6 @@ public class CloudPlaybackService extends Service {
                     mResumeId = -1;
                 }
                 pausedForBuffering = false;
-
             }
         };
 
@@ -1295,6 +1276,9 @@ public class CloudPlaybackService extends Service {
             switch (msg.what) {
                 case START_NEXT_TRACK:
                     startNextTrack();
+                    break;
+                case NOTIFY_META:
+                    notifyChange(META_CHANGED);
                     break;
                 case FADEIN:
                     if (!isSupposedToBePlaying()) {
