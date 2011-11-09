@@ -402,49 +402,49 @@ public class CloudPlaybackService extends Service {
 
         mLoadPercent = 0;
 
-        // if we are already playing this track
-        if (mPlayingData != null && mPlayingData.id == track.id) {
-            startNextTrack();
-            return;
-        }
+        // different track ?
+        if (mPlayingData == null || mPlayingData.id != track.id) {
+            //otherwise it will wait for the waveform
+            mWaitingForArtwork = getApp().playerWaitForArtwork;
 
-        //otherwise it will wait for the waveform
-        mWaitingForArtwork = getApp().playerWaitForArtwork;
+            // new play data
+            mPlayingData = track;
 
-        // new play data
-        mPlayingData = track;
+            // new track, reset connections
+            mConnectRetries = 0;
 
-        // new track, reset connections
-        mConnectRetries = 0;
-
-        final User user = getApp().getLoggedInUser();
-        new Thread(new Runnable() {
-            public void run() {
-                track.markAsPlayed(getContentResolver());
-                if (track.id == mPlayingData.id){
-                    mPlayingData.updateFromDb(getContentResolver(), user);
-                    if (getApp().getTrackFromCache(mPlayingData.id) == null) {
-                        getApp().cacheTrack(mPlayingData);
+            final User user = getApp().getLoggedInUser();
+            new Thread(new Runnable() {
+                public void run() {
+                    track.markAsPlayed(getContentResolver());
+                    if (track.id == mPlayingData.id) {
+                        mPlayingData.updateFromDb(getContentResolver(), user);
+                        if (getApp().getTrackFromCache(mPlayingData.id) == null) {
+                            getApp().cacheTrack(mPlayingData);
+                        }
+                        mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(NOTIFY_META));
                     }
-                    mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(NOTIFY_META));
                 }
-            }
-        }).start();
+            }).start();
 
-        m10percentStamp = (long) (mPlayingData.duration * .1);
-        m10percentStampReached = false;
-        m95percentStamp = (long) (mPlayingData.duration * .95);
-        m95percentStampReached = false;
+            m10percentStamp = (long) (mPlayingData.duration * .1);
+            m10percentStampReached = false;
+            m95percentStamp = (long) (mPlayingData.duration * .95);
+            m95percentStampReached = false;
 
-        // notifications and ga events off UI thread
-        new Thread(new Runnable() {
-            public void run() {
-                getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TRACK_PLAY,mPlayingData.getTrackEventLabel());
-                setPlayingStatus();
-            }
-        }).start();
+            // notifications and ga events off UI thread
+            new Thread(new Runnable() {
+                public void run() {
+                    getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TRACK_PLAY, mPlayingData.getTrackEventLabel());
+                    setPlayingStatus();
+                }
+            }).start();
 
-        startNextTrack();
+            startNextTrack();
+        } else {
+            // same track
+            startNextTrack();
+        }
     }
 
     private void stopStreaming() {
@@ -1051,7 +1051,7 @@ public class CloudPlaybackService extends Service {
                 // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
                 Message msg = mMediaplayerHandler.obtainMessage(CLEAR_LAST_SEEK);
                 mMediaplayerHandler.removeMessages(CLEAR_LAST_SEEK);
-                mMediaplayerHandler.sendMessageDelayed(msg,3000);
+                mMediaplayerHandler.sendMessageDelayed(msg, 3000);
                 resumeSeeking = false;
                 notifyChange(SEEK_COMPLETE);
             }
