@@ -26,7 +26,7 @@ object AndroidBuild extends Build {
     "org.acra" % "acra" % "4.3.0-filter-SNAPSHOT",
     "org.codehaus.jackson" % "jackson-core-asl" % jacksonVersion,
     "org.codehaus.jackson" % "jackson-mapper-asl" % jacksonVersion,
-    "com.soundcloud" % "java-api-wrapper" % "1.1.0-SNAPSHOT",
+    "com.soundcloud" % "java-api-wrapper" % "1.1.0",
     "com.google.android" % "filecache" % "r153",
     "com.google.android" % "libGoogleAnalytics" % "1.3",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
@@ -54,7 +54,8 @@ object AndroidBuild extends Build {
   val repos = Seq(
     MavenRepository("sc int repo", "http://files.int.s-cloud.net/maven/"),
     MavenRepository("acra release repository", "http://acra.googlecode.com/svn/repository/releases"),
-    MavenRepository("sonatype snapshots", "https://oss.sonatype.org/content/repositories/snapshots")
+    MavenRepository("sonatype snapshots", "https://oss.sonatype.org/content/repositories/snapshots"),
+    MavenRepository("sonatype releases", "https://oss.sonatype.org/content/repositories/releases")
   )
 
   lazy val soundcloud_android = Project (

@@ -167,7 +167,7 @@
         <dependency>
             <groupId>com.soundcloud</groupId>
             <artifactId>java-api-wrapper</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.1.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -285,6 +285,12 @@
             <id>sonatypesnapshots</id>
             <name>sonatype snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>sonatypereleases</id>
+            <name>sonatype releases</name>
+            <url>https://oss.sonatype.org/content/repositories/releases/</url>
             <layout>default</layout>
         </repository>
         <repository>
