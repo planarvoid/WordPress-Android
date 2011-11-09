@@ -59,7 +59,6 @@ public class StreamProxy implements Runnable {
     public static String userAgent;
 
     /* package */ final StreamLoader loader;
-
     /* package */ final StreamStorage storage;
 
     public StreamProxy(SoundCloudApplication app) {
@@ -124,8 +123,8 @@ public class StreamProxy implements Runnable {
         while (mIsRunning) {
             try {
                 final Socket client = mSocket.socket().accept();
+                client.setKeepAlive(true);
                 Log.d(LOG_TAG, "client connected");
-
                 try {
                     final HttpGet request = readRequest(client);
                     new Thread("handle-proxy-request") {
