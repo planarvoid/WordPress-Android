@@ -673,7 +673,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
             if (getWidth() == 0 && mDuration <= 0) {
                 mCurrentComments.get(i).xPos = -1;
-            } else if (mCurrentComments.get(i).xPos == -1) {
+            } else if (mCurrentComments.get(i).xPos == -1 && mDuration > 0) {
                 mCurrentComments.get(i).calculateXPos(getWidth(), mDuration);
             }
         }
