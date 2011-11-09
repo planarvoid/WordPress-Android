@@ -35,7 +35,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         super(activity);
 
         mUser = user;
-        mRecording = Recording.fromPrivateUserId(mUser.id,mActivity.getContentResolver());
+        mRecording = Recording.pendingFromPrivateUserId(mUser.id,mActivity.getContentResolver());
 
         mViewFlipper = new ViewFlipper(activity);
         addView(mViewFlipper,new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
