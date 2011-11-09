@@ -28,6 +28,12 @@ abstract class DataTask extends StreamItemTask {
         super(item, api);
         if (byteRange == null) throw new IllegalArgumentException("byterange cannot be null");
         if (chunkRange == null) throw new IllegalArgumentException("chunkRange cannot be null");
+        if (item.getContentLength() > 0 &&
+            byteRange.start > item.getContentLength()) {
+
+            Log.w(LOG_TAG, String.format("requested range > contentlength (%d > %d)",
+                    byteRange.start, item.getContentLength()));
+        }
         this.byteRange = byteRange;
         this.chunkRange = chunkRange;
         buffer = ByteBuffer.allocate(byteRange.length);
@@ -134,11 +140,11 @@ abstract class DataTask extends StreamItemTask {
             connection.setRequestProperty("Range",
                     String.format("bytes=%d-%d", start, end));
 
-            connection.setRequestProperty("User-Agent", api.getUserAgent());
             connection.setReadTimeout(READ_TIMEOUT);
             connection.setConnectTimeout(CONNECTION_TIMEOUT);
             connection.setDoInput(true);
             connection.setDoOutput(false);
+            connection.setRequestProperty("User-Agent", api.getUserAgent());
             InputStream is = null;
             try {
                 connection.connect();

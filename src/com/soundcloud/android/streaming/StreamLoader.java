@@ -306,14 +306,24 @@ public class StreamLoader {
     }
 
     private DataTask startDataTask(StreamItem item, Range chunkRange, int prio) {
-        final DataTask task = DataTask.create(item, chunkRange, chunkRange.byteRange(mStorage.chunkSize), mContext);
-        Message msg = mDataHandler.obtainMessage(prio, task);
-        if (SoundCloudApplication.DALVIK /* XXX robolectric */ && prio == HI_PRIO) {
-            mDataHandler.sendMessageAtFrontOfQueue(msg);
+        final Range byteRange = chunkRange.byteRange(mStorage.chunkSize);
+        if (item.getContentLength() > 0 && byteRange.start > item.getContentLength()) {
+            // this can happen during prefetching
+            if (Log.isLoggable(LOG_TAG, Log.DEBUG))
+                Log.d(LOG_TAG, String.format("requested byterange %d > contentlength %d, not queuing task",
+                        byteRange.start, item.getContentLength()));
+
+            return null;
         } else {
-            mDataHandler.sendMessage(msg);
+            final DataTask task = DataTask.create(item, chunkRange, byteRange, mContext);
+            Message msg = mDataHandler.obtainMessage(prio, task);
+            if (SoundCloudApplication.DALVIK /* XXX robolectric */ && prio == HI_PRIO) {
+                mDataHandler.sendMessageAtFrontOfQueue(msg);
+            } else {
+                mDataHandler.sendMessage(msg);
+            }
+            return task;
         }
-        return task;
     }
 
     private PlaycountTask startPlaycountTask(StreamItem item, int prio) {
