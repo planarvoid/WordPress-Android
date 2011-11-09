@@ -619,7 +619,6 @@ public class CloudCreateService extends Service {
 
             // XXX make really, really sure 3rd party uploads don't get deleted
             if (mCurrentUpload.is_native_recording
-                    && params.encode
                     && params.trackFile != null
                     && params.trackFile.exists()) {
                 params.trackFile.delete();
