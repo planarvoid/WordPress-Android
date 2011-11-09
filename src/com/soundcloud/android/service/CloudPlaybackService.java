@@ -797,7 +797,7 @@ public class CloudPlaybackService extends Service {
 
     public boolean isNotSeekablePastBuffer() {
         // Some phones on 2.2 ship with broken opencore
-        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO && StreamProxy.opencoreClient;
+        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO && StreamProxy.isOpenCore();
     }
 
     /**

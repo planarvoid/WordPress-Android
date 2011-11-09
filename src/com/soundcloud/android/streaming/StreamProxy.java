@@ -44,8 +44,6 @@ public class StreamProxy implements Runnable {
 
     private static final int INITIAL_TIMEOUT = 15;   // before receiving the first chunk
     private static final int TRANSFER_TIMEOUT = 120; // subsequent chunks
-
-
     private static final String CRLF = "\r\n";
 
     private static final String SERVER = "SoundCloudStreaming";
@@ -57,14 +55,16 @@ public class StreamProxy implements Runnable {
     private boolean mIsRunning = true;
     private ServerSocketChannel mSocket;
     private Thread mThread;
+
+    public static String userAgent;
+
     /* package */ final StreamLoader loader;
+
     /* package */ final StreamStorage storage;
 
     public StreamProxy(SoundCloudApplication app) {
         this(app, 0);
     }
-
-    public static boolean opencoreClient;
 
     public StreamProxy(SoundCloudApplication app, int port) {
         storage = new StreamStorage(app, Consts.EXTERNAL_STREAM_DIRECTORY);
@@ -211,7 +211,7 @@ public class StreamProxy implements Runnable {
         final String nextUrl = uri.getQueryParameter(PARAM_NEXT_STREAM_URL);
 
         if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "processRequest: " + streamUrl);
-        determineFramework(request);
+        setUserAgent(request);
 
         try {
             if (streamUrl == null) throw new IOException("missing stream url parameter");
@@ -388,14 +388,18 @@ public class StreamProxy implements Runnable {
         }
     }
 
-    private static void determineFramework(HttpRequest r) {
-        // Samsung Galaxy, 2.2: CORE/6.506.4.1 OpenCORE/2.02 (Linux;Android 2.2)
-        // Emulator 2.2: stagefright/1.0 (Linux;Android 2.2)
-        // N1, Cyanogen 7: stagefright/1.1 (Linux;Android 2.3.3)
+    private static void setUserAgent(HttpRequest r) {
         if (r.containsHeader("User-Agent")) {
             String agent = r.getFirstHeader("User-Agent").getValue();
             if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "userAgent:" + agent);
-            opencoreClient = agent.contains("OpenCORE");
+            userAgent = agent;
         }
+    }
+
+    public static boolean isOpenCore() {
+        // Samsung Galaxy, 2.2: CORE/6.506.4.1 OpenCORE/2.02 (Linux;Android 2.2)
+        // Emulator 2.2: stagefright/1.0 (Linux;Android 2.2)
+        // N1, Cyanogen 7: stagefright/1.1 (Linux;Android 2.3.3)
+        return userAgent != null && userAgent.contains("OpenCORE");
     }
 }
