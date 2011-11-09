@@ -221,12 +221,12 @@ public class StreamLoaderTest {
 
     static void pendingHeadRequests(File f) {
         long expires = (System.currentTimeMillis() / 1000L) + 60L;
-        // first HEAD request
+        // first GET request
         addPendingHttpResponse(302, "", headers(
                 "Location", "http://ak-media.soundcloud.com/foo_head.mp3?Expires=" + expires)
         );
 
-        // second HEAD request (to S3/akamai)
+        // then HEAD request (to S3/akamai)
         addPendingHttpResponse(200, "", headers(
                 "Content-Length", String.valueOf(f.length()),
                 "ETag", CloudUtils.md5(f),
@@ -234,11 +234,6 @@ public class StreamLoaderTest {
                 "x-amz-meta-bitrate", "128",
                 "x-amz-meta-duration", "18998"
         ));
-
-        // first GET request - soundcloud
-        addPendingHttpResponse(302, "", headers(
-                "Location", "http://ak-media.soundcloud.com/foo_get.mp3?Expires=" + expires + 1000)
-        );
     }
 
     public static Header[] headers(String... keyValues) {

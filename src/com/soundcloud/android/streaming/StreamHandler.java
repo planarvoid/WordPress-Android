@@ -45,15 +45,10 @@ class StreamHandler extends Handler {
             if (mWifiLock != null) mWifiLock.acquire();
             final long start = System.currentTimeMillis();
             result.setData(task.execute());
-
             if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
                 Log.d(StreamLoader.LOG_TAG, "took "+(System.currentTimeMillis()-start)+ " ms");
 
             mHandler.sendMessage(result);
-        } catch (UnknownHostException e) {
-            // most likely no connection at at all, don't bother retrying
-            Log.w(StreamLoader.LOG_TAG, "unknown host exception - not retrying");
-            mHandler.sendMessage(obtainMessage(msg.what, msg.obj));
         } catch (IOException e) {
             Log.w(StreamLoader.LOG_TAG, e);
             final int numTry = msg.arg1;

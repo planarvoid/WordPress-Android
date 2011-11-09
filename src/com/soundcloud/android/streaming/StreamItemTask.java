@@ -32,10 +32,6 @@ public abstract class StreamItemTask implements Runnable {
 
     public abstract Bundle execute() throws IOException;
 
-    public boolean isExecuted() {
-        return executed;
-    }
-
     @Override
     public String toString() {
         return getClass().getSimpleName()+"{" +

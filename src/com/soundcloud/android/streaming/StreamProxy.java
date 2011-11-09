@@ -97,7 +97,6 @@ public class StreamProxy implements Runnable {
         }
     }
 
-
     public boolean isRunning() {
         return mIsRunning;
     }
@@ -142,7 +141,6 @@ public class StreamProxy implements Runnable {
                 // Do nothing
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error connecting to client", e);
-
             }
         }
         Log.d(LOG_TAG, "Proxy interrupted. Shutting down.");
@@ -341,7 +339,7 @@ public class StreamProxy implements Runnable {
         h.put("Accept-Ranges", "bytes");
         h.put("Content-Type", "audio/mpeg");
         h.put("Connection", "close");
-        h.put("X-SocketTimeout", "0");
+        h.put("X-SocketTimeout", "0");  // stagefright specific
         h.put("Date", DateUtils.formatDate(new Date()));
         return h;
     }
