@@ -222,7 +222,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public void cacheTrack(Track track) {
-        mTrackCache.put(track.id, track);
+        if (track != null) mTrackCache.put(track.id, track);
     }
 
     public Track getTrackFromCache(long track_id) {
