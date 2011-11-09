@@ -42,7 +42,10 @@ import java.util.regex.Pattern;
 public class StreamProxy implements Runnable {
     private static final String LOG_TAG = StreamLoader.LOG_TAG;
 
-    private static final int TIMEOUT = 15; // wait this long before closing the connection
+    private static final int INITIAL_TIMEOUT = 15;   // before receiving the first chunk
+    private static final int TRANSFER_TIMEOUT = 120; // subsequent chunks
+
+
     private static final String CRLF = "\r\n";
 
     private static final String SERVER = "SoundCloudStreaming";
@@ -289,13 +292,12 @@ public class StreamProxy implements Runnable {
                              Map<String, String> headers)
             throws IOException, InterruptedException, TimeoutException {
 
-        long offset = startByte;
-        for (; ; ) {
-            ByteBuffer buffer;
+        ByteBuffer buffer;
+        for (long offset = startByte; ; ) {
             StreamFuture stream = loader.getDataForUrl(streamUrl, Range.from(offset, storage.chunkSize));
             try {
                 if (offset == startByte) {
-                    buffer = stream.get(TIMEOUT, TimeUnit.SECONDS);
+                    buffer = stream.get(INITIAL_TIMEOUT, TimeUnit.SECONDS);
 
                     // first chunk, write header
                     final long length = stream.item.getContentLength();
@@ -307,14 +309,17 @@ public class StreamProxy implements Runnable {
                                 String.format("%d-%d/%d", startByte, length - 1, length));
                     }
                     channel.write(getHeader(startByte, headers));
+
                     // since we already got some data for this track, ready to queue next one
                     queueNextUrl(nextUrl, 3000);
                 } else {
-                    buffer = stream.get();
+                    buffer = stream.get(TRANSFER_TIMEOUT, TimeUnit.SECONDS);
                 }
             } catch (TimeoutException e) {
                 // timeout happened before header write, take the chance to return a proper error code
-                channel.write(getErrorHeader(503, "Data read timeout"));
+                if (offset == startByte) {
+                    channel.write(getErrorHeader(503, "Data read timeout"));
+                }
                 throw e;
             }
 
