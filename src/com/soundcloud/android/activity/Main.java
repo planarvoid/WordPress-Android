@@ -441,7 +441,6 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
    @Override
     public Object onRetainNonConfigurationInstance() {
         return new Object[]{
-                super.onRetainNonConfigurationInstance(),
                 mResolveTask,
                 mLoadTrackTask,
                 mLoadUserTask
