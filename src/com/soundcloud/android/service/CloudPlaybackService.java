@@ -112,6 +112,7 @@ public class CloudPlaybackService extends Service {
     private RemoteViews mNotificationView;
     private long mResumeTime = -1;
     private long mResumeId = -1;
+    private int mConnectRetries = 0;
 
     private int mServiceStartId = -1;
     private boolean mServiceInUse = false;
@@ -126,7 +127,7 @@ public class CloudPlaybackService extends Service {
 
     private static final long TRACK_EVENT_CHECK_DELAY = 1000; // check for track timestamp events at this frequency
 
-    private boolean pausedForBuffering;
+    private boolean pausedForBuffering, resumeSeeking;
     protected boolean mHeadphonePluggedState;
 
     public boolean mAutoAdvance = true;
@@ -413,6 +414,9 @@ public class CloudPlaybackService extends Service {
         // new play data
         mPlayingData = track;
 
+        // new track, reset connections
+        mConnectRetries = 0;
+
         final User user = getApp().getLoggedInUser();
         new Thread(new Runnable() {
             public void run() {
@@ -595,7 +599,6 @@ public class CloudPlaybackService extends Service {
 
     private void gotoIdleState(boolean killBuffer) {
         if (killBuffer) pausedForBuffering = false;
-
         mIsSupposedToBePlaying = false;
         mMediaplayerHandler.removeMessages(CHECK_TRACK_EVENT);
         mMediaplayerHandler.removeMessages(START_NEXT_TRACK);
@@ -741,7 +744,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public boolean isBuffering() {
-        return pausedForBuffering;
+        return pausedForBuffering || resumeSeeking;
     }
 
     /*
@@ -848,13 +851,14 @@ public class CloudPlaybackService extends Service {
         // Error due to request timing out
         static final int OPENCORE_PVMFErrTimeout = -11;
 
+        // Custom error for lack of MP error reporting on buffer run out
+        static final int STAGEFRIGHT_ERROR_BUFFER_EMPTY = 99;
+
 
         private MediaPlayer mMediaPlayer;
         private Handler mHandler;
         private boolean mIsInitialized;
         private boolean mIsAsyncOpening;
-        private String mPlayingPath = "";
-        private int mRetries = 0;
 
         public MultiPlayer() {
             refreshMediaplayer();
@@ -886,8 +890,7 @@ public class CloudPlaybackService extends Service {
                 }
 
                 Track next = mPlayListManager.getNextTrack();
-                mPlayingPath = mProxy.createUri(path, next == null ? null : next.stream_url).toString();
-                mMediaPlayer.setDataSource(mPlayingPath);
+                mMediaPlayer.setDataSource(mProxy.createUri(path, next == null ? null : next.stream_url).toString());
                 mMediaPlayer.prepareAsync();
 
             } catch (IllegalStateException e) {
@@ -917,10 +920,8 @@ public class CloudPlaybackService extends Service {
 
         public void stop() {
             mIsInitialized = false;
-            mPlayingPath = "";
 
-            if (mMediaPlayer == null)
-                return;
+            if (mMediaPlayer == null) return;
 
             final MediaPlayer releasing = mMediaPlayer;
             mMediaPlayer = null;
@@ -1041,7 +1042,6 @@ public class CloudPlaybackService extends Service {
 
         MediaPlayer.OnBufferingUpdateListener bufferinglistener = new MediaPlayer.OnBufferingUpdateListener() {
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                mRetries = 0;
                 mLoadPercent = percent;
             }
         };
@@ -1052,6 +1052,7 @@ public class CloudPlaybackService extends Service {
                 Message msg = mMediaplayerHandler.obtainMessage(CLEAR_LAST_SEEK);
                 mMediaplayerHandler.removeMessages(CLEAR_LAST_SEEK);
                 mMediaplayerHandler.sendMessageDelayed(msg,3000);
+                resumeSeeking = false;
                 notifyChange(SEEK_COMPLETE);
             }
         };
@@ -1063,13 +1064,11 @@ public class CloudPlaybackService extends Service {
                 final long targetPosition = (mSeekPos == -1) ? mMediaPlayer.getCurrentPosition() : mSeekPos;
                 if (mIsInitialized && mPlayingData != null && isSeekable()
                         && getDuration() - targetPosition > 3000) {
+
+                    // track ended prematurely (probably end of buffer, unreported IO error), so try to resume at last time
                     mResumeId = mPlayingData.id;
                     mResumeTime = targetPosition;
-
-                    mMediaPlayer.reset();
-                    mIsInitialized = false;
-                    mRetries = 0;
-                    mPlayingPath = "";
+                    errorListener.onError(mp,MediaPlayer.MEDIA_ERROR_UNKNOWN,STAGEFRIGHT_ERROR_BUFFER_EMPTY);
                     return;
                 }
 
@@ -1093,7 +1092,7 @@ public class CloudPlaybackService extends Service {
             public void onPrepared(MediaPlayer mp) {
                 mIsAsyncOpening = false;
                 mIsInitialized = true;
-                notifyChange(BUFFERING_COMPLETE);
+                pausedForBuffering = false;
 
                 if (!mAutoPause) {
                     if (mIsSupposedToBePlaying) {
@@ -1107,8 +1106,11 @@ public class CloudPlaybackService extends Service {
                     mPlayer.seek(mResumeTime);
                     mResumeTime = -1;
                     mResumeId = -1;
+                    resumeSeeking = true;
+                } else {
+                    notifyChange(BUFFERING_COMPLETE);
                 }
-                pausedForBuffering = false;
+
             }
         };
 
@@ -1120,18 +1122,18 @@ public class CloudPlaybackService extends Service {
                 if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN &&
                        (extra == STAGEFRIGHT_ERROR_IO ||
                         extra == STAGEFRIGHT_ERROR_CONNECTION_LOST ||
+                        extra == STAGEFRIGHT_ERROR_BUFFER_EMPTY ||
                         extra == OPENCORE_PVMFFailure ||
                         extra == OPENCORE_PVMFErrTimeout))
                  {
-                    if (mRetries < 3) {
-                        Log.d(TAG, "stream disconnected, retrying (try="+(mRetries+1)+")");
-                        mRetries++;
-                        mMediaPlayer.reset();
-                        play();
+                    if (mConnectRetries < 3) {
+                        Log.d(TAG, "stream disconnected, retrying (try="+(mConnectRetries +1)+")");
+                        mConnectRetries++;
+                        openCurrent();
                         return true;
                     } else {
                         Log.d(TAG, "stream disconnected, giving up");
-                        mRetries = 0;
+                        mConnectRetries = 0;
                     }
                 }
 
@@ -1148,7 +1150,6 @@ public class CloudPlaybackService extends Service {
                 }
 
                 mIsInitialized = false;
-                mPlayingPath = "";
                 mMediaPlayer.reset();
                 mMediaplayerHandler.sendMessage(mMediaplayerHandler.obtainMessage(connected ? TRACK_EXCEPTION : STREAM_EXCEPTION));
                 return true;
