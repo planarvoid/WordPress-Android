@@ -302,7 +302,7 @@ public class StreamLoader {
     }
 
     private boolean isConnected() {
-        return mForceOnline || mConnectivityListener.isConnected();
+        return mForceOnline || (mConnectivityListener != null && mConnectivityListener.isConnected());
     }
 
     private DataTask startDataTask(StreamItem item, Range chunkRange, int prio) {
