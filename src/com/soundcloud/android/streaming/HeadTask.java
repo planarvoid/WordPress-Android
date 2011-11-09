@@ -26,16 +26,18 @@ class HeadTask extends StreamItemTask implements HttpStatus {
             item.initializeFromStream(stream);
             return b;
         } catch (CloudAPI.ResolverException e) {
-            Log.w(LOG_TAG, "error resolving "+item, e);
+            Log.w(LOG_TAG, "error resolving " + item, e);
 
             switch (e.getStatusCode()) {
                 case SC_PAYMENT_REQUIRED:
                 case SC_NOT_FOUND:
                 case SC_GONE:
                     item.markUnavailable();
-                    break;
+                    return null;
+
+                default:
+                    throw e;
             }
-            return null;
         }
     }
 }
