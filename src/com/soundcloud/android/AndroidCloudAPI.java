@@ -33,10 +33,9 @@ import java.util.TimeZone;
 public interface AndroidCloudAPI extends CloudAPI {
     public static final ObjectMapper Mapper = Wrapper.Mapper;
     URI REDIRECT_URI = URI.create("soundcloud://auth");
-    String OAUTH_TOKEN_PARAMETER = "oauth_token";
 
+    String getUserAgent();
     ObjectMapper getMapper();
-    String addTokenToUrl(String url);
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         public static final ObjectMapper Mapper = createMapper();
@@ -67,17 +66,8 @@ public interface AndroidCloudAPI extends CloudAPI {
             return Mapper;
         }
 
-        @Override protected String getUserAgent() {
+        @Override public String getUserAgent() {
             return userAgent == null ? super.getUserAgent() : userAgent;
-        }
-
-        @Override
-        public String addTokenToUrl(String url) {
-            if (getToken().valid()) {
-                return Request.to(url).with(OAUTH_TOKEN_PARAMETER, getToken().access).toUrl();
-            } else {
-                return url;
-            }
         }
 
         public static ObjectMapper createMapper() {

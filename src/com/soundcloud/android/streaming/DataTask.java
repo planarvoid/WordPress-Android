@@ -121,6 +121,8 @@ abstract class DataTask extends StreamItemTask {
     }
 
     static class HttpURLConnectionDataTask extends DataTask {
+        static final int READ_TIMEOUT = 10 * 1000;
+
         public HttpURLConnectionDataTask(StreamItem item, Range chunkRange, Range byteRange, AndroidCloudAPI api) {
             super(item, chunkRange, byteRange, api);
         }
@@ -131,8 +133,13 @@ abstract class DataTask extends StreamItemTask {
             connection.setRequestProperty("Range",
                     String.format("bytes=%d-%d", start, end));
 
+            connection.setRequestProperty("User-Agent", api.getUserAgent());
+            connection.setReadTimeout(READ_TIMEOUT);
+            connection.setDoInput(true);
+            connection.setDoOutput(false);
             InputStream is = null;
             try {
+                connection.connect();
                 final int status = connection.getResponseCode();
                 switch (status) {
                     case HttpStatus.SC_OK:

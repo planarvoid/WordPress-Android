@@ -16,7 +16,6 @@ public class Http {
         }
     }
 
-
     public static void close(HttpClient client) {
         if (client instanceof AndroidHttpClient) {
             // avoid leak error logging

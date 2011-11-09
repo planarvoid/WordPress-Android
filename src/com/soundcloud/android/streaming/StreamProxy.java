@@ -45,7 +45,7 @@ public class StreamProxy implements Runnable {
     private static final int TIMEOUT = 15; // wait this long before closing the connection
     private static final String CRLF = "\r\n";
 
-    private static final String SERVER  = "SoundCloudStreaming";
+    private static final String SERVER = "SoundCloudStreaming";
 
     private static final String PARAM_STREAM_URL = "streamUrl";
     private static final String PARAM_NEXT_STREAM_URL = "nextStreamUrl";
@@ -56,6 +56,7 @@ public class StreamProxy implements Runnable {
     private Thread mThread;
     /* package */ final StreamLoader loader;
     /* package */ final StreamStorage storage;
+
     public StreamProxy(SoundCloudApplication app) {
         this(app, 0);
     }
@@ -180,7 +181,7 @@ public class StreamProxy implements Runnable {
     }
 
     public Uri createUri(String streamUrl, String nextStreamUrl) {
-        final Uri.Builder builder = Uri.parse("http://127.0.0.1:"+getPort()).buildUpon();
+        final Uri.Builder builder = Uri.parse("http://127.0.0.1:" + getPort()).buildUpon();
         builder.appendPath("/");
         builder.appendQueryParameter(PARAM_STREAM_URL, streamUrl);
         if (nextStreamUrl != null) {
@@ -276,8 +277,8 @@ public class StreamProxy implements Runnable {
                 .append(code).append(' ').append(message).append(CRLF);
 
         sb.append("Server: ").append(SERVER).append(CRLF)
-          .append("Date: ").append(DateUtils.formatDate(new Date())).append(CRLF)
-          .append(CRLF);
+                .append("Date: ").append(DateUtils.formatDate(new Date())).append(CRLF)
+                .append(CRLF);
 
         if (Log.isLoggable(LOG_TAG, Log.DEBUG))
             Log.d(LOG_TAG, "header:" + sb);
@@ -289,18 +290,30 @@ public class StreamProxy implements Runnable {
             throws IOException, InterruptedException, TimeoutException {
 
         long offset = startByte;
-        for (;;) {
+        for (; ; ) {
             ByteBuffer buffer;
             StreamFuture stream = loader.getDataForUrl(streamUrl, Range.from(offset, storage.chunkSize));
             try {
                 if (offset == startByte) {
                     buffer = stream.get(TIMEOUT, TimeUnit.SECONDS);
+
+                    // first chunk, write header
+                    final long length = stream.item.getContentLength();
+                    headers.put("Content-Length", String.valueOf(length));
+                    headers.put("ETag", stream.item.etag());
+
+                    if (startByte != 0) {
+                        headers.put("Content-Range",
+                                String.format("%d-%d/%d", startByte, length - 1, length));
+                    }
+                    channel.write(getHeader(startByte, headers));
+                    // since we already got some data for this track, ready to queue next one
+                    queueNextUrl(nextUrl, 3000);
                 } else {
                     buffer = stream.get();
                 }
             } catch (TimeoutException e) {
                 // timeout happened before header write, take the chance to return a proper error code
-                // some implementations don't use error callbacks otherwise
                 channel.write(getErrorHeader(503, "Data read timeout"));
                 throw e;
             }
@@ -310,20 +323,6 @@ public class StreamProxy implements Runnable {
                 throw new IOException("BUG: content-length is 0");
             }
 
-            if (offset == startByte) {
-                // first chunk, write header
-                final long length = stream.item.getContentLength();
-                headers.put("Content-Length", String.valueOf(length));
-                headers.put("ETag", stream.item.etag());
-
-                if (startByte != 0) {
-                    headers.put("Content-Range",
-                            String.format("%d-%d/%d", startByte, length - 1, length));
-                }
-                channel.write(getHeader(startByte, headers));
-                // since we already got some data for this track, ready to queue next one
-                queueNextUrl(nextUrl, 3000);
-            }
             offset += channel.write(buffer);
             if (offset >= stream.item.getContentLength()) {
                 if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "reached end of stream");
@@ -357,7 +356,7 @@ public class StreamProxy implements Runnable {
 
         // touch file to prevent it from being collected by the cleaner
         if (!file.setLastModified(System.currentTimeMillis())) {
-            Log.w(LOG_TAG, "could not touch file "+file);
+            Log.w(LOG_TAG, "could not touch file " + file);
         }
 
         FileChannel f = new FileInputStream(file).getChannel();
@@ -377,7 +376,10 @@ public class StreamProxy implements Runnable {
                 }
             }
         } finally {
-            try { f.close(); } catch (IOException ignored) { }
+            try {
+                f.close();
+            } catch (IOException ignored) {
+            }
         }
     }
 

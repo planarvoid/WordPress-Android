@@ -237,8 +237,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
          }
     }
 
-
-
     public Account getAccount() {
         Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));
         if (account.length == 0) {
@@ -463,10 +461,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.getMapper();
     }
 
-    public String addTokenToUrl(String url) {
-        return mCloudApi.addTokenToUrl(url);
-    }
-
     public Token authorizationCode(String code) throws IOException {
         return mCloudApi.authorizationCode(code);
     }
@@ -491,6 +485,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     @Override
     public Stream resolveStreamUrl(String uri) throws IOException {
         return mCloudApi.resolveStreamUrl(uri);
+    }
+
+    @Override
+    public String getUserAgent() {
+        return mCloudApi.getUserAgent();
     }
 
     public void clearUserDbData() {
