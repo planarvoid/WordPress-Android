@@ -293,13 +293,15 @@ public class StreamProxy implements Runnable {
             ByteBuffer buffer;
             StreamFuture stream = loader.getDataForUrl(streamUrl, Range.from(offset, storage.chunkSize));
             try {
-                buffer = stream.get(TIMEOUT, TimeUnit.SECONDS);
-            } catch (TimeoutException e) {
                 if (offset == startByte) {
-                    // timeout happened before header write, take the chance to return a proper error code
-                    // some implementations don't use error callbacks otherwise
-                    channel.write(getErrorHeader(503, "Data read timeout"));
+                    buffer = stream.get(TIMEOUT, TimeUnit.SECONDS);
+                } else {
+                    buffer = stream.get();
                 }
+            } catch (TimeoutException e) {
+                // timeout happened before header write, take the chance to return a proper error code
+                // some implementations don't use error callbacks otherwise
+                channel.write(getErrorHeader(503, "Data read timeout"));
                 throw e;
             }
 
@@ -336,6 +338,7 @@ public class StreamProxy implements Runnable {
         h.put("Accept-Ranges", "bytes");
         h.put("Content-Type", "audio/mpeg");
         h.put("Connection", "close");
+        h.put("X-SocketTimeout", "0");
         h.put("Date", DateUtils.formatDate(new Date()));
         return h;
     }

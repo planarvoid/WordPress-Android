@@ -40,7 +40,8 @@ class StreamHandler extends Handler {
 
         StreamItemTask task = (StreamItemTask) msg.obj;
         try {
-            Message result = obtainMessage(msg.what, msg.obj);
+            final Message result = obtainMessage(msg.what, msg.obj);
+
             if (mWifiLock != null) mWifiLock.acquire();
             final long start = System.currentTimeMillis();
             result.setData(task.execute());
@@ -50,11 +51,11 @@ class StreamHandler extends Handler {
 
             mHandler.sendMessage(result);
         } catch (UnknownHostException e) {
-            // most likely no connection
+            // most likely no connection at at all, don't bother retrying
             Log.w(StreamLoader.LOG_TAG, "unknown host exception - not retrying");
+            mHandler.sendMessage(obtainMessage(msg.what, msg.obj));
         } catch (IOException e) {
             Log.w(StreamLoader.LOG_TAG, e);
-
             final int numTry = msg.arg1;
             if (task.item.isAvailable() && numTry < mMaxRetries) {
                 if (Log.isLoggable(StreamLoader.LOG_TAG, Log.DEBUG))
@@ -64,6 +65,10 @@ class StreamHandler extends Handler {
                 sendMessageDelayed(obtainMessage(msg.what, numTry+1, 0, msg.obj), backoff);
             } else {
                 Log.w(StreamLoader.LOG_TAG, "giving up (max tries="+mMaxRetries+")");
+
+                // assume we are not connected, return item to queue and wait
+                // to have the connection again
+                mHandler.sendMessage(obtainMessage(msg.what, msg.obj));
             }
         } finally {
             if (mWifiLock != null) mWifiLock.release();

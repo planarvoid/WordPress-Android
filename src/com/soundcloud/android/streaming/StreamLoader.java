@@ -76,10 +76,10 @@ public class StreamLoader {
                     mHeadTasks.remove(t.item);
                 } else if (msg.obj instanceof DataTask) {
                     DataTask t = (DataTask) msg.obj;
-                    if (!t.item.isRedirectValid()) {
-                        // re-add item to queue, will be retried next time
+                    if (msg.peekData() == null || !msg.getData().containsKey("success")) {
+                        // some failure, re-add item to queue, will be retried next time
                         mHighPriorityQ.addItem(t.item, t.chunkRange.toIndex());
-                    } else if (t.item.isAvailable()) {
+                    } else {
                         // for responsiveness, try to fulfill callbacks directly before storing buffer
                         for (Iterator<StreamFuture> it = mPlayerCallbacks.iterator(); it.hasNext(); ) {
                             StreamFuture cb = it.next();
@@ -94,9 +94,6 @@ public class StreamLoader {
                         } catch (IOException e) {
                             Log.e(LOG_TAG, "exception storing data", e);
                         }
-                    } else {
-                        // hmm, what now?
-                        Log.w(LOG_TAG, "item no longer available");
                     }
                 }
                 processQueues();

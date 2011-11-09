@@ -45,18 +45,17 @@ abstract class DataTask extends StreamItemTask {
         if (redirect == null) {
             return b;
         }
-
         // need to rewind buffer - request might get retried later.
         buffer.rewind();
 
         final int status = getData(redirect, byteRange.start, byteRange.end() - 1, buffer);
-
         b.putInt("status", status);
         switch (status) {
             case HttpStatus.SC_OK:
             case HttpStatus.SC_PARTIAL_CONTENT:
                 // already handled in getData()
                 buffer.flip();
+                b.putBoolean("success", true);
                 break;
             // link has expired
             case HttpStatus.SC_FORBIDDEN:
