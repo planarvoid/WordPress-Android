@@ -707,7 +707,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     }
                 }
             default:
-                mMessager.onActivityResult(requestCode,resultCode,result);
+                if (mMessager != null)  {
+                    mMessager.onActivityResult(requestCode,resultCode,result);
+                }
         }
     }
 
