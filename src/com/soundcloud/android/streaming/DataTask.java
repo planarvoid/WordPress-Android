@@ -130,6 +130,8 @@ abstract class DataTask extends StreamItemTask {
         @Override
         protected int getData(URL url, int start, int end, ByteBuffer dst) throws IOException {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
             connection.setRequestProperty("Range",
                     String.format("bytes=%d-%d", start, end));
 
