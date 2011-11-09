@@ -1275,15 +1275,8 @@ public class CloudPlaybackService extends Service {
                     }
                     break;
                 case SERVER_DIED:
-                    if (mIsSupposedToBePlaying && mAutoAdvance){
-                        next();
-                    } else {
-                        // the server died when we were idle, so just
-                        // reopen the same song (it will start again
-                        // from the beginning though when the user
-                        // restarts)
-                        openCurrent();
-                    }
+                    if (mIsSupposedToBePlaying && mAutoAdvance) mPlayListManager.next();
+                    openCurrent();
                     break;
                 case TRACK_EXCEPTION:
                     gotoIdleState();
@@ -1297,8 +1290,8 @@ public class CloudPlaybackService extends Service {
                     notifyChange(PLAYBACK_COMPLETE);
                     break;
                 case TRACK_ENDED:
-                    if (mAutoAdvance){
-                        next();
+                    if (mAutoAdvance && mPlayListManager.next()){
+                        openCurrent();
                     } else {
                         notifyChange(PLAYBACK_COMPLETE);
                         gotoIdleState();
