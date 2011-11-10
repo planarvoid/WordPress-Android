@@ -1,13 +1,12 @@
 $ 29
   % v current
-     _ 2011-10-XX
-     ! Player Update
-       * New Player UI
-
-  % v 1.4.6
-  _ 2011-09-XX
-  ! New stuff
-    * Set frequency of updates
+     _ 2011-11-10
+     ! v2.0
+       * New player interface
+       * Private user messaging added to User Browser
+       * Improved streaming with local caching of recent plays
+       * Set frequency of dashboard notifications in app settings
+       - tons of bug fixes
 
 $ 28
   % v 1.4.5
