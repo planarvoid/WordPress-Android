@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 
@@ -19,6 +20,8 @@ public class Login extends LoginActivity {
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
         final EditText passwordField = (EditText) findViewById(R.id.txt_password);
         final Button loginBtn = (Button) findViewById(R.id.btn_login);
+
+        emailField.setText(((SoundCloudApplication)getApplication()).suggestEmail());
 
         passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})

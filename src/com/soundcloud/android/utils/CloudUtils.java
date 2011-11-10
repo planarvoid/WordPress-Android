@@ -74,6 +74,7 @@ import java.util.Calendar;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 public class CloudUtils {
     private static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
@@ -882,4 +883,18 @@ public class CloudUtils {
     public static void setTextShadowForGrayBg(TextView tv){
         tv.setShadowLayer(1, 0, 1, Color.WHITE);
     }
+
+    public static boolean checkEmail(CharSequence email) {
+        return EMAIL_ADDRESS_PATTERN.matcher(email).matches();
+    }
+
+    public static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
+            "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}" +
+                    "@" +
+                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
+                    "(" +
+                    "\\." +
+                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
+                    ")+"
+    );
 }

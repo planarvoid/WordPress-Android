@@ -44,9 +44,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
 
 import static android.content.pm.PackageManager.*;
 
@@ -320,6 +319,33 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         } else {
             getAccountManager().setUserData(account, key, value);
             return true;
+        }
+    }
+
+    public String suggestEmail() {
+        Map<String,Integer> counts = new HashMap<String,Integer>();
+        Account[] accounts = AccountManager.get(this).getAccounts();
+        for (Account account : accounts) {
+            if (CloudUtils.checkEmail(account.name)) {
+                if (counts.get(account.name) == null) {
+                    counts.put(account.name, 1);
+                } else {
+                    counts.put(account.name, counts.get(account.name) + 1);
+                }
+            }
+        }
+        if (counts.isEmpty()) {
+            return null;
+        } else {
+            int max = 0;
+            String candidate = null;
+            for (Map.Entry<String,Integer> e : counts.entrySet()) {
+                if (e.getValue() > max) {
+                    max = e.getValue();
+                    candidate = e.getKey();
+                }
+            }
+            return candidate;
         }
     }
 

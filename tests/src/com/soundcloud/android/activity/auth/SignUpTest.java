@@ -1,9 +1,11 @@
 package com.soundcloud.android.activity.auth;
 
+import static com.soundcloud.android.utils.CloudUtils.*;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.utils.CloudUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -12,10 +14,10 @@ import org.junit.runner.RunWith;
 public class SignUpTest {
     @Test
     public void shouldCheckEmail() throws Exception {
-        assertTrue(SignUp.checkEmail("foo@bar.com"));
-        assertTrue(SignUp.checkEmail("Foo+special@bar.com"));
-        assertFalse(SignUp.checkEmail("foo@barcom"));
-        assertFalse(SignUp.checkEmail("foobar.com"));
+        assertTrue(checkEmail("foo@bar.com"));
+        assertTrue(checkEmail("Foo+special@bar.com"));
+        assertFalse(checkEmail("foo@barcom"));
+        assertFalse(checkEmail("foobar.com"));
     }
 
     @Test

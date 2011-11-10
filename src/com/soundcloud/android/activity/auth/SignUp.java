@@ -34,15 +34,6 @@ public class SignUp extends Activity {
     public static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
 
     private static final int MIN_PASSWORD_LENGTH = 4;
-    public static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
-            "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}" +
-                    "@" +
-                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
-                    "(" +
-                    "\\." +
-                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
-                    ")+"
-    );
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -65,7 +56,7 @@ public class SignUp extends Activity {
         final EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
         final Button signupBtn = (Button) findViewById(R.id.btn_signup);
 
-        emailField.setText(suggestEmail());
+        emailField.setText(((SoundCloudApplication)getApplication()).suggestEmail());
 
         repeatPasswordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
@@ -87,7 +78,7 @@ public class SignUp extends Activity {
                         choosePasswordField.getText().length() == 0 ||
                         repeatPasswordField.getText().length() == 0) {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_incomplete_fields);
-                } else if (!checkEmail(emailField.getText())) {
+                } else if (!CloudUtils.checkEmail(emailField.getText())) {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_invalid_email);
                 } else if (!choosePasswordField.getText().toString().equals(repeatPasswordField.getText().toString())) {
                     CloudUtils.showToast(SignUp.this, R.string.authentication_error_password_mismatch);
@@ -181,37 +172,6 @@ public class SignUp extends Activity {
         finish();
     }
 
-
-    private String suggestEmail() {
-        Map<String,Integer> counts = new HashMap<String,Integer>();
-        Account[] accounts = AccountManager.get(this).getAccounts();
-        for (Account account : accounts) {
-            if (checkEmail(account.name)) {
-                if (counts.get(account.name) == null) {
-                    counts.put(account.name, 1);
-                } else {
-                    counts.put(account.name, counts.get(account.name) + 1);
-                }
-            }
-        }
-        if (counts.isEmpty()) {
-            return null;
-        } else {
-            int max = 0;
-            String candidate = null;
-            for (Map.Entry<String,Integer> e : counts.entrySet()) {
-                if (e.getValue() > max) {
-                    max = e.getValue();
-                    candidate = e.getKey();
-                }
-            }
-            return candidate;
-        }
-    }
-
-    static boolean checkEmail(CharSequence email) {
-        return EMAIL_ADDRESS_PATTERN.matcher(email).matches();
-    }
 
     static boolean checkPassword(CharSequence password) {
         return password != null && password.length() >= MIN_PASSWORD_LENGTH;

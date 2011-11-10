@@ -32,6 +32,7 @@ public class ClearText extends EditText{
         final Drawable x = getResources().getDrawable(R.drawable.ic_txt_delete_states);//your x image, this one from standard android images looks pretty good actually
         x.setBounds(0, 0, x.getIntrinsicWidth(), x.getIntrinsicHeight());
         setCompoundDrawables(null, null, value.equals("") ? null : x, null);
+        setCompoundDrawablePadding((int) (getResources().getDisplayMetrics().density * 5));
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {

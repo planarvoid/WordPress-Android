@@ -16,7 +16,7 @@
                   style="@style/txt_auth_title"
                 />
 
-        <EditText android:id="@+id/txt_email_address"
+        <com.soundcloud.android.view.ClearText android:id="@+id/txt_email_address"
                   android:layout_height="wrap_content"
                   android:layout_width="fill_parent"
                   android:hint="@string/authentication_your_email_address"
