@@ -33,7 +33,7 @@ import java.io.InputStream;
 @RunWith(DefaultTestRunner.class)
 public class BetaServiceTest {
     BetaService bs;
-
+/*
     @Before
     public void before() {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
@@ -84,5 +84,5 @@ public class BetaServiceTest {
         }
         return headers;
     }
-
+*/
 }

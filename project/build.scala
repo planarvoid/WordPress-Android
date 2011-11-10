@@ -26,7 +26,7 @@ object AndroidBuild extends Build {
     "org.acra" % "acra" % "4.3.0-filter-SNAPSHOT",
     "org.codehaus.jackson" % "jackson-core-asl" % jacksonVersion,
     "org.codehaus.jackson" % "jackson-mapper-asl" % jacksonVersion,
-    "com.soundcloud" % "java-api-wrapper" % "1.1.0",
+    "com.soundcloud" % "java-api-wrapper" % "1.1.1-SNAPSHOT",
     "com.google.android" % "filecache" % "r153",
     "com.google.android" % "libGoogleAnalytics" % "1.3",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
