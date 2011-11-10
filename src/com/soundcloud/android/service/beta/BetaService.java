@@ -37,7 +37,7 @@ import java.util.List;
 
 /**
  * A service to automatically download SoundCloud betas + prompt the user to install them.
- *
+ * <p/>
  * Expects to find apks in the S3 bucket {@link BetaService#BETA_BUCKET} with the following filename convention:
  * <code>packagename-versioncode.apk</code>.
  */
@@ -51,7 +51,9 @@ public class BetaService extends Service {
     public static final String PREF_BETA_VERSION = "beta.beta_version";
 
 
-    /** How often should the update check run */
+    /**
+     * How often should the update check run
+     */
     public static final long INTERVAL = AlarmManager.INTERVAL_HALF_DAY;
     public static final String EXTRA_MANUAL = "com.soundcloud.android.extra.beta.manual";
     private static final String USER_AGENT = "SoundCloud Android BetaService";
@@ -96,7 +98,7 @@ public class BetaService extends Service {
     }
 
     private static boolean isManual(Intent intent) {
-        return intent.getBooleanExtra(EXTRA_MANUAL, false);
+        return intent != null && intent.getBooleanExtra(EXTRA_MANUAL, false);
     }
 
     @Override
@@ -108,18 +110,22 @@ public class BetaService extends Service {
         Http.close(mClient);
     }
 
-
-    private void checkForUpdates(final Intent intent) {
+    /* package */ void checkForUpdates(final Intent intent) {
         new GetS3ContentTask(mClient) {
             @Override
             protected void onPostExecute(List<Content> contents) {
                 if (contents != null) {
                     Content recent = selectVersion(contents);
-
-                    if (recent != null && !recent.isDownloaded()) {
-                        download(recent, intent);
-                    } else {
+                     if (recent != null) {
+                        if (!recent.isDownloaded()) {
+                            download(recent, intent);
+                        } else if (!recent.isUptodate(BetaService.this)) {
+                            // nag user to install new beta version
+                            notifyNewVersion(recent);
+                        }
                         Log.d(TAG, "nothing to download");
+                        stopSelf();
+                    } else {
                         stopSelf();
                     }
                 } else {
@@ -161,9 +167,9 @@ public class BetaService extends Service {
     private void skip(Content content, String reason, Intent intent) {
         String message;
         if (content == null) {
-            message = "skipping betaservice run: "+reason;
+            message = "skipping betaservice run: " + reason;
         } else {
-            message = "skipping download of " + content + ": " +reason;
+            message = "skipping download of " + content + ": " + reason;
         }
         Log.d(TAG, message);
         if (isManual(intent)) notifySkipped(message);
@@ -199,7 +205,8 @@ public class BetaService extends Service {
                                 }
 
                                 new CleanupBetaTask() {
-                                    @Override protected void onPostExecute(List<File> files) {
+                                    @Override
+                                    protected void onPostExecute(List<File> files) {
                                         stopSelf();
                                     }
                                 }.execute(file);
@@ -228,7 +235,7 @@ public class BetaService extends Service {
                 if (content != null) {
                     next.execute(content);
                 } else {
-                    Log.w(TAG, "could not retrieve metadata for "+content);
+                    Log.w(TAG, "could not retrieve metadata for " + content);
                     if (isManual(intent)) {
                         notifyDownloadFailure(content);
                     }
@@ -240,12 +247,12 @@ public class BetaService extends Service {
 
 
     private void notifyNewVersion(Content apk) {
-        String title   = getString(R.string.pref_beta_new_version_downloaded);
+        String title = getString(R.string.pref_beta_new_version_downloaded);
         String content = getString(R.string.pref_beta_new_version_downloaded_content,
                 apk.getVersionName(),
                 getElapsedTimeString(getResources(), apk.lastmodified, true));
 
-        String ticker  = getString(R.string.pref_beta_new_version_downloaded_ticker);
+        String ticker = getString(R.string.pref_beta_new_version_downloaded_ticker);
 
         Notification n = new Notification(R.drawable.statusbar, ticker, apk.lastmodified);
         n.flags |= defaultNotificationFlags();
@@ -257,25 +264,25 @@ public class BetaService extends Service {
 
     private void notifyLowStorage(Content content) {
         String title = getString(R.string.pref_beta_not_enough_storage_title);
-        String ncontent = getString(R.string.pref_beta_not_enough_storage_content,  content.key);
+        String ncontent = getString(R.string.pref_beta_not_enough_storage_content, content.key);
         Intent intent = new Intent(android.provider.Settings.ACTION_MEMORY_CARD_SETTINGS);
 
         Notification n = new Notification(R.drawable.statusbar, title, System.currentTimeMillis());
         n.flags |= defaultNotificationFlags();
-        n.setLatestEventInfo(this, title, ncontent, PendingIntent.getActivity(this, 0, intent ,0 ));
+        n.setLatestEventInfo(this, title, ncontent, PendingIntent.getActivity(this, 0, intent, 0));
         NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mgr.notify(Consts.Notifications.BETA_NOTIFY_ID, n);
     }
 
-     private void notifyDownloadFailure(Content content) {
+    private void notifyDownloadFailure(Content content) {
         String title = getString(R.string.pref_beta_download_failed_title);
-        String ncontent = getString(R.string.pref_beta_download_failed_content,  content.key);
+        String ncontent = getString(R.string.pref_beta_download_failed_content, content.key);
         Intent intent = new Intent(this, Settings.class)
-                 .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
         Notification n = new Notification(R.drawable.statusbar, title, System.currentTimeMillis());
         n.flags |= defaultNotificationFlags();
-        n.setLatestEventInfo(this, title, ncontent, PendingIntent.getActivity(this, 0, intent ,0 ));
+        n.setLatestEventInfo(this, title, ncontent, PendingIntent.getActivity(this, 0, intent, 0));
         NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mgr.notify(Consts.Notifications.BETA_NOTIFY_ID, n);
     }
@@ -294,9 +301,9 @@ public class BetaService extends Service {
     }
 
     static int defaultNotificationFlags() {
-       return Notification.FLAG_ONLY_ALERT_ONCE |
-              Notification.FLAG_AUTO_CANCEL |
-              Notification.DEFAULT_LIGHTS;
+        return Notification.FLAG_ONLY_ALERT_ONCE |
+                Notification.FLAG_AUTO_CANCEL |
+                Notification.DEFAULT_LIGHTS;
     }
 
     public static boolean checkNow(Context context) {
@@ -307,7 +314,7 @@ public class BetaService extends Service {
     public static void scheduleCheck(Context context, boolean exact) {
         AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         final PendingIntent pi = PendingIntent.getService(context, 0,
-                        new Intent(context, BetaService.class), 0);
+                new Intent(context, BetaService.class), 0);
 
         alarm.cancel(pi);
 
@@ -325,15 +332,15 @@ public class BetaService extends Service {
                     pi);
         }
 
-        Log.d(TAG, "BETA mode enabled, scheduling update checks "+
-                "(every "+BetaService.INTERVAL/1000/60+" minutes, exact="+exact+")");
+        Log.d(TAG, "BETA mode enabled, scheduling update checks " +
+                "(every " + BetaService.INTERVAL / 1000 / 60 + " minutes, exact=" + exact + ")");
     }
 
     public static void scheduleNow(Context context, long delay) {
         AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarm.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+delay,
+        alarm.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay,
                 PendingIntent.getService(context, 0,
-                                        new Intent(context, BetaService.class), 0));
+                        new Intent(context, BetaService.class), 0));
     }
 
 
@@ -344,7 +351,7 @@ public class BetaService extends Service {
 
     private boolean isWifi() {
         boolean requireWifi = PreferenceManager.getDefaultSharedPreferences(this)
-                                               .getBoolean(PREF_REQUIRE_WIFI, true);
+                .getBoolean(PREF_REQUIRE_WIFI, true);
 
         if (!requireWifi || SoundCloudApplication.EMULATOR) {
             return true;
@@ -352,8 +359,8 @@ public class BetaService extends Service {
             ConnectivityManager c = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             WifiManager wMgr = (WifiManager) getSystemService(WIFI_SERVICE);
             return (wMgr.isWifiEnabled() &&
-                c.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null &&
-                c.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected());
+                    c.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null &&
+                    c.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected());
         }
     }
 
@@ -371,7 +378,7 @@ public class BetaService extends Service {
                     try {
                         contents.add(Content.fromJSON(f));
                     } catch (IOException e) {
-                        Log.w(TAG, "unreadable metadata: "+f);
+                        Log.w(TAG, "unreadable metadata: " + f);
                     }
                 }
                 return contents;
@@ -409,7 +416,7 @@ public class BetaService extends Service {
             WifiManager wMgr = (WifiManager) getSystemService(Context.WIFI_SERVICE);
             mWifiLock = wMgr.createWifiLock(TAG);
         }
-        mWifiLock.acquire();
+        if (mWifiLock != null) mWifiLock.acquire();
     }
 
     private void releaseWifiLock() {
@@ -438,16 +445,16 @@ public class BetaService extends Service {
 
     public static void setPendingBeta(Context context, String version) {
         PreferenceManager.getDefaultSharedPreferences(context)
-                         .edit()
-                         .putString(PREF_BETA_VERSION, version)
-                         .commit();
+                .edit()
+                .putString(PREF_BETA_VERSION, version)
+                .commit();
     }
 
     public static void clearPendingBeta(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context)
-                         .edit()
-                         .remove(PREF_BETA_VERSION)
-                         .commit();
+                .edit()
+                .remove(PREF_BETA_VERSION)
+                .commit();
     }
 }
 

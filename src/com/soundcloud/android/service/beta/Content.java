@@ -2,6 +2,7 @@ package com.soundcloud.android.service.beta;
 
 import static com.soundcloud.android.utils.CloudUtils.*;
 
+import com.soundcloud.android.SoundCloudApplication;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -63,9 +64,14 @@ public class Content implements Comparable<Content>, Parcelable {
     }
 
     public boolean isEnoughStorageLeft() {
-        StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
-        final long free = (long) fs.getAvailableBlocks() * (long) fs.getBlockSize();
-        return (size * 3l) < free;
+        // XXX
+        if (SoundCloudApplication.DALVIK)  {
+            StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
+            final long free = (long) fs.getAvailableBlocks() * (long) fs.getBlockSize();
+            return (size * 3l) < free;
+        } else {
+            return true;
+        }
     }
 
     public int getVersionCode() {
