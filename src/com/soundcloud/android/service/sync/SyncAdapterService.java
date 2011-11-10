@@ -40,7 +40,7 @@ public class SyncAdapterService extends Service {
 
     public static final int NOTIFICATION_MAX = 100;
     public static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
-    private static final long DEFAULT_POLL_FREQUENCY = 3600;
+    private static final long DEFAULT_POLL_FREQUENCY = 14400; //60*60*4
 
     @Override
     public void onCreate() {

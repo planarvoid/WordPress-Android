@@ -13,7 +13,7 @@
                 android:title="@string/pref_notifications_frequency"
                 android:summary="@string/pref_notifications_frequency_description"
                 android:key="notificationsFrequency"
-                android:defaultValue="3600"
+                android:defaultValue="14400"
                 android:entries="@array/pref_notifications_frequency"
                 android:entryValues="@array/pref_notifications_frequency_values"/>
      <PreferenceCategory android:title="@string/pref_notifications_stream">
