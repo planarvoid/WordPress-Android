@@ -91,6 +91,7 @@ public class CloudPlaybackService extends Service {
     public static final String PREVIOUS_ACTION = "com.soundcloud.android.musicservicecommand.previous";
     public static final String NEXT_ACTION = "com.soundcloud.android.musicservicecommand.next";
     public static final String ONE_SHOT_PLAY = "com.soundcloud.android.musicservicecommand.oneshotplay";
+    public static final String RESET_ALL = "com.soundcloud.android.musicservicecommand.resetall";
 
     private static final int TRACK_ENDED = 1;
     private static final int SERVER_DIED = 3;
@@ -142,6 +143,7 @@ public class CloudPlaybackService extends Service {
 
     private StreamProxy mProxy;
 
+
     public CloudPlaybackService() {
     }
 
@@ -163,6 +165,7 @@ public class CloudPlaybackService extends Service {
         commandFilter.addAction(PREVIOUS_ACTION);
         commandFilter.addAction(ADD_FAVORITE);
         commandFilter.addAction(REMOVE_FAVORITE);
+        commandFilter.addAction(RESET_ALL);
         registerReceiver(mIntentReceiver, commandFilter);
         registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
@@ -262,7 +265,11 @@ public class CloudPlaybackService extends Service {
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
             } else if (ONE_SHOT_PLAY.equals(action)) {
                 oneShotPlay(intent.<Track>getParcelableExtra("track"));
+            } else if (RESET_ALL.equals(action)) {
+                stop();
+                mPlayListManager.clear();
             }
+
         }
 
         // make sure the service will shut down on its own if it was
@@ -1208,6 +1215,9 @@ public class CloudPlaybackService extends Service {
                     setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
                 } else if (REMOVE_FAVORITE.equals(action)) {
                     setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
+                } else if (RESET_ALL.equals(action)) {
+                    stop();
+                    mPlayListManager.clear();
                 }
             }
         }

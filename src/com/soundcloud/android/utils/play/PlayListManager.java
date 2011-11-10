@@ -192,6 +192,13 @@ public class PlayListManager {
         return -1;
     }
 
+    public void clear() {
+        PreferenceManager.getDefaultSharedPreferences(mPlaybackService).edit().remove("queue").commit();
+        mPlayListCache = null;
+        mPlayList = new long[0];
+        mPlayListLen = 0;
+    }
+
     public class CommitPlaylistTask extends CommitTracksTask {
         private long[] currentPlaylist;
 
