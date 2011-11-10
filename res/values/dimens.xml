@@ -20,7 +20,7 @@
     <dimen name="user_browser_info_username_margin_bottom">0dip</dimen>
 
     <!-- can't change one of these without change them all -->
-    <dimen name="player_time_height">20dip</dimen>
+    <dimen name="player_time_height">18dip</dimen>
     <dimen name="player_portrait_wave_height">100dp</dimen>
     <dimen name="player_portrait_half_wave_height">50dip</dimen>
     <dimen name="player_portrait_waveform_margin_bottom">-50dip</dimen>

@@ -75,7 +75,7 @@ public class CommentPanel extends RelativeLayout {
         mLinePaint.setStyle(Paint.Style.STROKE);
 
         final float density = getResources().getDisplayMetrics().density;
-        setPadding(0, (int) (5 * density), 0, isLandscape ? (int) (5 * density) : (int) (25 * density));
+        setPadding(0, (int) (5 * density), 0, isLandscape ? (int) (5 * density) : (int) (30 * density));
 
         mIcon = (ImageView) findViewById(R.id.icon);
         mIcon.setOnClickListener(new OnClickListener() {
