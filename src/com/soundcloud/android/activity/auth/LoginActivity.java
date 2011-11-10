@@ -24,6 +24,7 @@ import android.os.Bundle;
 import java.io.IOException;
 
 public abstract class LoginActivity extends Activity {
+    public static final String SCOPES_TO_REQUEST = Token.SCOPE_NON_EXPIRING+" "+Token.SCOPE_PLAYCOUNT;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -42,8 +43,8 @@ public abstract class LoginActivity extends Activity {
 
     protected void login(final Bundle data) {
         if (data.getString("scope") == null) {
-            // default to non-expiring scope
-            data.putString("scope", Token.SCOPE_NON_EXPIRING);
+            // default to non-expiring scope+playcount
+            data.putString("scope", SCOPES_TO_REQUEST);
         }
 
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
