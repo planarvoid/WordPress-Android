@@ -1,21 +1,21 @@
 
 package com.soundcloud.android.view;
 
+import android.graphics.Bitmap;
+import android.util.Log;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import com.soundcloud.android.utils.ListAlphaAnimation;
 
 public abstract class LazyRow extends FrameLayout {
     protected ScActivity mActivity;
@@ -23,6 +23,7 @@ public abstract class LazyRow extends FrameLayout {
     protected LazyBaseAdapter mAdapter;
     protected ImageLoader mImageLoader;
     protected ImageView mIcon;
+    protected String mCurrentImageUri;
 
     protected int mCurrentPosition;
     protected ImageLoader.Options mIconOptions;
@@ -56,13 +57,39 @@ public abstract class LazyRow extends FrameLayout {
         if (TextUtils.isEmpty(iconUri)){
             mImageLoader.unbind(mIcon);
             mIcon.setImageDrawable(null);
+            mIcon.setVisibility(View.GONE);
+            if (mIcon.getAnimation() != null) mIcon.clearAnimation();
             return;
         }
 
         if (CloudUtils.checkIconShouldLoad(iconUri)) {
-            mImageLoader.bind(mAdapter, mIcon, iconUri, mIconOptions);
+            final Bitmap bmp = mImageLoader.getBitmap(iconUri,null,new ImageLoader.Options(false));
+            if (bmp != null){
+
+                 mIcon.setImageBitmap(bmp);
+
+                ListAlphaAnimation anim = (ListAlphaAnimation) mAdapter.getIconAnimation(position);
+
+                if (anim == null){
+                    anim = new ListAlphaAnimation();
+                    mAdapter.setIconAnimation(position,anim);
+                    mIcon.startAnimation(anim);
+
+                } else {
+                    long startTime = anim.getStartTime();
+                    mIcon.setAnimation(anim);
+                    anim.setStartTime(startTime);
+                }
+
+            } else {
+                if (mIcon.getAnimation() != null) mIcon.clearAnimation();
+                mImageLoader.bind(mAdapter, mIcon, iconUri, mIconOptions);
+            }
         } else {
             mImageLoader.unbind(mIcon);
+            if (mIcon.getAnimation() != null) mIcon.clearAnimation();
+            mIcon.setImageDrawable(null);
+            mIcon.setVisibility(View.GONE);
         }
     }
 

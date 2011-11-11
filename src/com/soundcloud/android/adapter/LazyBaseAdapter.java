@@ -1,7 +1,9 @@
 
 package com.soundcloud.android.adapter;
 
+import android.view.animation.Animation;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.utils.ListAlphaAnimation;
 import com.soundcloud.android.view.LazyRow;
 
 import android.os.Parcelable;
@@ -9,7 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class LazyBaseAdapter extends BaseAdapter {
     protected ScActivity mActivity;
@@ -18,6 +22,7 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
     protected int mPage = 1;
     private Class<?> mLoadModel;
 
+    protected Map<Integer, ListAlphaAnimation> mIconAnimations = new HashMap<Integer, ListAlphaAnimation>();
 
     @SuppressWarnings("unchecked")
     public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data, Class<?> model) {
@@ -67,6 +72,7 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
     public void reset() {
         mData.clear();
         mPage = 1;
+        mIconAnimations.clear();
     }
 
     public Class<?> getLoadModel() {
@@ -81,5 +87,13 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
 
     public void addItem(Parcelable newItem) {
         getData().add(newItem);
+    }
+
+    public Animation getIconAnimation(int position){
+        return mIconAnimations.get(position);
+    }
+
+    public ListAlphaAnimation setIconAnimation(Integer position, ListAlphaAnimation animation){
+        return mIconAnimations.put(position, animation);
     }
 }
