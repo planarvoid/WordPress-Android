@@ -123,6 +123,8 @@ public class StreamProxy implements Runnable {
             try {
                 final Socket client = mSocket.socket().accept();
                 client.setKeepAlive(true);
+                client.setSendBufferSize(storage.chunkSize);
+
                 Log.d(LOG_TAG, "client connected");
                 try {
                     final HttpGet request = readRequest(client);
