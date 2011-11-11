@@ -82,7 +82,7 @@ public class PlayListManager {
             newTrack = getTrackAt(newPos);
         }
 
-        if (newTrack.isStreamable()){
+        if (newTrack != null && newTrack.isStreamable()){
             mPlayPos = newPos;
             return true;
         }
@@ -101,7 +101,7 @@ public class PlayListManager {
             newTrack = getTrackAt(newPos);
         }
 
-        if (newTrack.isStreamable()){
+        if (newTrack != null && newTrack.isStreamable()){
             mPlayPos = newPos;
             return true;
         }
