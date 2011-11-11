@@ -255,7 +255,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public void resetCommentDisplay(){
         if (mCurrentCommentPanel != null) {
             if (mCurrentCommentPanel.getAnimation() != null){
-                mCurrentCommentPanel.getAnimation().cancel();
+                if (Build.VERSION.SDK_INT > 7) mCurrentCommentPanel.getAnimation().cancel();
                 mCurrentCommentPanel.clearAnimation();
             }
             if (mCurrentCommentPanel.getParent() == mWaveformFrame){

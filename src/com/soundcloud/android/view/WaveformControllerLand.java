@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import android.graphics.Matrix;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
@@ -246,7 +247,7 @@ public class WaveformControllerLand extends WaveformController {
             }
 
         } else if (!visible && mCommentPanelVisible && mCommentPanel.getParent() == this) {
-            if (mCommentPanel.getAnimation() != null) mCommentPanel.getAnimation().cancel();
+            if (mCommentPanel.getAnimation() != null && Build.VERSION.SDK_INT > 7) mCommentPanel.getAnimation().cancel();
             mCommentPanelVisible = false;
             Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
                     Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
@@ -305,7 +306,7 @@ public class WaveformControllerLand extends WaveformController {
     @Override
     public void resetCommentDisplay(){
         if (mCommentPanel != null && mCommentPanel.getParent() == this) {
-            if (mCommentPanel.getAnimation() != null) mCommentPanel.getAnimation().cancel();
+            if (mCommentPanel.getAnimation() != null && Build.VERSION.SDK_INT > 7) mCommentPanel.getAnimation().cancel();
             mCommentPanelVisible = false;
             removeView(mCommentPanel);
         }
