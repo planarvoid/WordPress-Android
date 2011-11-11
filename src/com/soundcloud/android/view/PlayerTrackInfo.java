@@ -171,7 +171,9 @@ public class PlayerTrackInfo extends RelativeLayout{
         } else {
             addView(CloudUtils.buildEmptyView(mPlayer,getResources().getString(R.string.info_error)), getChildCount() - 2);
         }
-        findViewById(R.id.info_view).setVisibility(View.GONE);
+        if (findViewById(R.id.info_view) != null){
+            findViewById(R.id.info_view).setVisibility(View.GONE);
+        }
     }
 
     public void onInfoLoadSuccess() {
