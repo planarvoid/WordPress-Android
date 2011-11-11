@@ -159,6 +159,8 @@ public class CommentPanel extends RelativeLayout {
     protected void showComment(Comment currentShowingComment) {
         mComment = currentShowingComment;
 
+        if (mComment == null) return;
+
         mTxtUsername.setText(mComment.user.username);
         mTxtTimestamp.setText(String.format(at_timestamp, CloudUtils.formatTimestamp(mComment.timestamp)));
         mTxtComment.setText(mComment.body);
