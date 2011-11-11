@@ -181,7 +181,9 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
     public void setEmptyText(CharSequence text) {
-        ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(text);
+        if (mEmptyView != null && mEmptyView.findViewById(R.id.empty_txt) != null){
+            ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(text);
+        }
     }
 
     @Override
