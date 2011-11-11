@@ -856,11 +856,11 @@ public class CreateController {
     }
 
     public static long getPrivateUserIdFromPath(String path){
-        if (path.indexOf("_") == -1){
+        if (!path.contains("_") || path.indexOf("_") + 1 >= path.length()){
             return -1;
         } else {
             try {
-                return Long.valueOf(path.substring(path.indexOf("_")+1,path.indexOf(".")));
+                return Long.valueOf(path.substring(path.indexOf("_")+1,path.contains(".") ? path.indexOf(".") : path.length()));
             } catch (NumberFormatException e){
                 return -1;
             }
