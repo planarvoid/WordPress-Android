@@ -320,9 +320,11 @@ public class StreamProxy implements Runnable {
                 throw e;
             }
 
-            if (stream.item.getContentLength() == 0) {
+            if (stream.item == null || stream.item.getContentLength() == 0) {
                 // should not happen
-                throw new IOException("BUG: content-length is 0");
+                IOException e = new IOException("BUG: "+(stream.item == null ? "item is null" : "content-length is 0"));
+                SoundCloudApplication.handleSilentException(null, e);
+                throw e;
             }
 
             offset += channel.write(buffer);
