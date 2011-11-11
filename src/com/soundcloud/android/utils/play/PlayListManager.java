@@ -77,7 +77,7 @@ public class PlayListManager {
 
         int newPos = mPlayPos -1;
         Track newTrack = getTrackAt(newPos);
-        while (newPos > 0 && !newTrack.isStreamable()){
+        while (newPos > 0 && (newTrack == null || !newTrack.isStreamable())){
             newPos--;
             newTrack = getTrackAt(newPos);
         }
@@ -96,7 +96,7 @@ public class PlayListManager {
 
         int newPos = mPlayPos + 1;
         Track newTrack = getTrackAt(newPos);
-        while (newPos < mPlayListLen - 1 && !newTrack.isStreamable()){
+        while (newPos < mPlayListLen - 1 && (newTrack == null || !newTrack.isStreamable())){
             newPos++;
             newTrack = getTrackAt(newPos);
         }
