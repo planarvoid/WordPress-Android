@@ -117,6 +117,7 @@ public final class ImageLoader {
     public void unpause(){
         if (!mPaused) return;
         mPaused = false;
+        flushRequests();
         for (ImageCallback imageCallback : mPendingCallbacks){
             imageCallback.send();
         }
@@ -399,6 +400,7 @@ public final class ImageLoader {
      * empty or {@link #mMaxTaskCount} is reached.
      */
     void flushRequests() {
+        if (!mPaused)
         while (mActiveTaskCount < mMaxTaskCount && !mRequests.isEmpty()) {
             new ImageTask().executeOnThreadPool(mRequests.poll());
         }
