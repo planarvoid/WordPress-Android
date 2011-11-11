@@ -56,6 +56,8 @@ public class QuickTrackMenu extends QuickAction {
 
     public void show(View anchor, final Track track, final int itemPosition) {
 
+        if (track == null) return;
+
         mPlayActionItem.setVisibility(track.isStreamable() ? View.VISIBLE : View.GONE);
         mPlayActionItem.setIcon((track.id == ((ITracklistAdapter) mAdapter).getPlayingId() && ((ITracklistAdapter) mAdapter).isPlaying())
                 ? getPauseDrawable() : getPlayDrawable());
