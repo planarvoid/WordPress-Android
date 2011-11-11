@@ -73,7 +73,7 @@ public class Connect extends Activity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                progress.dismiss();
+                if (!isFinishing() && progress.isShowing()) progress.dismiss();
             }
 
             @Override
