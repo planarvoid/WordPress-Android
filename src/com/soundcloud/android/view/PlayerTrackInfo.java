@@ -144,14 +144,16 @@ public class PlayerTrackInfo extends RelativeLayout{
             mPlayingTrack.fillTags(mTrackTags, mPlayer);
 
             TextView txtInfo = (TextView) findViewById(R.id.txtInfo);
-            txtInfo.setText(Html.fromHtml(mPlayingTrack.trackInfo()));
-            Linkify.addLinks(txtInfo, Linkify.WEB_URLS);
+            if (txtInfo != null && mPlayingTrack != null){ // should never be null, but sure enough it is in rare cases. Maybe not inflated yet??
+                txtInfo.setText(Html.fromHtml(mPlayingTrack.trackInfo()));
+                Linkify.addLinks(txtInfo, Linkify.WEB_URLS);
 
-            // for some reason this needs to be set to support links
-            // http://www.mail-archive.com/android-beginners@googlegroups.com/msg04465.html
-            MovementMethod mm = txtInfo.getMovementMethod();
-            if (!(mm instanceof LinkMovementMethod)) {
-                txtInfo.setMovementMethod(LinkMovementMethod.getInstance());
+                // for some reason this needs to be set to support links
+                // http://www.mail-archive.com/android-beginners@googlegroups.com/msg04465.html
+                MovementMethod mm = txtInfo.getMovementMethod();
+                if (!(mm instanceof LinkMovementMethod)) {
+                    txtInfo.setMovementMethod(LinkMovementMethod.getInstance());
+                }
             }
             mTrackInfoFilled = true;
         }
