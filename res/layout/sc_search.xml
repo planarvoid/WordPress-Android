@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ViewFlipper
+<com.soundcloud.android.view.SafeViewFlipper
         android:id="@+id/vf_search"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
@@ -76,4 +76,4 @@
                  android:layout_height="fill_parent"
                  android:background="@color/white">
     </FrameLayout>
-</ViewFlipper>
+</com.soundcloud.android.view.SafeViewFlipper>

@@ -24,7 +24,7 @@ import com.soundcloud.android.utils.ImageUtils;
 
 public class PrivateMessager extends ScTabView implements CreateController.CreateListener{
 
-    private ViewFlipper mViewFlipper;
+    private SafeViewFlipper mViewFlipper;
     private User mUser;
     private Recording mRecording;
 
@@ -37,7 +37,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         mUser = user;
         mRecording = Recording.pendingFromPrivateUserId(mUser.id,mActivity.getContentResolver());
 
-        mViewFlipper = new ViewFlipper(activity);
+        mViewFlipper = new SafeViewFlipper(activity);
         addView(mViewFlipper,new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 
         View v = new View(activity);
