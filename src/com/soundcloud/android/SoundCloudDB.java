@@ -43,7 +43,7 @@ public class SoundCloudDB {
         Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = ?",
                 new String[]{Long.toString(trackId)}, null);
 
-        if (cursor.getCount() != 0) {
+        if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
             Track track = new Track(cursor, false);
             cursor.close();
@@ -57,7 +57,7 @@ public class SoundCloudDB {
             return track;
         }
 
-        cursor.close();
+        if (cursor != null) cursor.close();
         return null;
     }
 
