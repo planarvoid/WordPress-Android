@@ -191,44 +191,12 @@ public class Recording extends ModelBase implements PageTrackable {
         return cv;
     }
 
-    /* package */ File generateUploadFilename(String title) {
-        switch (audio_profile) {
-            case Profile.ENCODED_LOW:
-            case Profile.ENCODED_HIGH:
-                return new File(audio_path.getParentFile(), generateFilename(
-                    title,
-                    audio_path.getName().contains(".") ? audio_path.getName().substring(
-                            audio_path.getName().lastIndexOf(".") + 1) : "mp4"));
-
-            case Profile.RAW:
-                return new File(encodeDir(), generateFilename(title, "ogg"));
-
-            default:
-                return null;
-        }
-    }
-
-    private File encodeDir() {
-        File encodeDir = new File(audio_path.getParentFile(), ".encode");
-        if (!encodeDir.exists()) {
-            mkdirs(encodeDir);
-        }
-        return encodeDir;
-    }
-
     public static boolean isRawFilename(String filename) {
         return RAW_PATTERN.matcher(filename).matches();
     }
 
     public static boolean isCompressedFilename(String filename){
         return COMPRESSED_PATTERN.matcher(filename).matches();
-    }
-
-    private String generateFilename(String title, String extension) {
-        return String.format("%s_%s.%s",
-                URLEncoder.encode(title.replace(" ", "_")),
-                dateFormat.format(new Date(timestamp)),
-                extension);
     }
 
     public String sharingNote(Resources res) {
