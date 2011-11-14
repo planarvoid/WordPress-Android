@@ -72,6 +72,10 @@ public class TracklistRow extends LazyRow {
         return (Track) p;
     }
 
+    @Override public String getDebugName(int position) {
+        return getTrackFromParcelable((Parcelable) mAdapter.getItem(position)).title;
+    }
+
     @Override
     public String getIconRemoteUri() {
         if (mTrack == null){

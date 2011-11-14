@@ -1,9 +1,8 @@
 
 package com.soundcloud.android.adapter;
 
-import android.view.animation.Animation;
+import android.graphics.drawable.TransitionDrawable;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.utils.ListAlphaAnimation;
 import com.soundcloud.android.view.LazyRow;
 
 import android.os.Parcelable;
@@ -22,7 +21,7 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
     protected int mPage = 1;
     private Class<?> mLoadModel;
 
-    protected Map<Integer, ListAlphaAnimation> mIconAnimations = new HashMap<Integer, ListAlphaAnimation>();
+    protected Map<Integer, TransitionDrawable> mIconAnimations = new HashMap<Integer, TransitionDrawable>();
 
     @SuppressWarnings("unchecked")
     public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data, Class<?> model) {
@@ -89,11 +88,12 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
         getData().add(newItem);
     }
 
-    public Animation getIconAnimation(int position){
+    public TransitionDrawable getDrawableFromPosition(int position){
         return mIconAnimations.get(position);
     }
 
-    public ListAlphaAnimation setIconAnimation(Integer position, ListAlphaAnimation animation){
-        return mIconAnimations.put(position, animation);
+    public void assignDrawableToPosition(Integer position, TransitionDrawable drawable){
+        mIconAnimations.put(position, drawable);
     }
+
 }

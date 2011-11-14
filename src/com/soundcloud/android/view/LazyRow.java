@@ -2,6 +2,9 @@
 package com.soundcloud.android.view;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.util.Log;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
@@ -10,12 +13,9 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import com.soundcloud.android.utils.ListAlphaAnimation;
 
 public abstract class LazyRow extends FrameLayout {
     protected ScActivity mActivity;
@@ -52,45 +52,37 @@ public abstract class LazyRow extends FrameLayout {
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
         mCurrentPosition = position;
-
         final String iconUri = getIconRemoteUri();
-        if (TextUtils.isEmpty(iconUri)){
-            mImageLoader.unbind(mIcon);
-            mIcon.setImageDrawable(null);
-            mIcon.setVisibility(View.GONE);
-            if (mIcon.getAnimation() != null) mIcon.clearAnimation();
-            return;
-        }
-
         if (CloudUtils.checkIconShouldLoad(iconUri)) {
             final Bitmap bmp = mImageLoader.getBitmap(iconUri,null,new ImageLoader.Options(false));
             if (bmp != null){
-
-                 mIcon.setImageBitmap(bmp);
-
-                ListAlphaAnimation anim = (ListAlphaAnimation) mAdapter.getIconAnimation(position);
-
-                if (anim == null){
-                    anim = new ListAlphaAnimation();
-                    mAdapter.setIconAnimation(position,anim);
-                    mIcon.startAnimation(anim);
-
-                } else {
-                    long startTime = anim.getStartTime();
-                    mIcon.setAnimation(anim);
-                    anim.setStartTime(startTime);
+                TransitionDrawable drawable = mAdapter.getDrawableFromPosition(position);
+                if (drawable == null){
+                    drawable = new TransitionDrawable(new Drawable[]{mIcon.getBackground(),new BitmapDrawable(bmp)});
+                    drawable.setCrossFadeEnabled(true);
+                    drawable.setCallback(new android.graphics.drawable.Drawable.Callback(){
+                        @Override public void invalidateDrawable(Drawable drawable) { mIcon.invalidate(); }
+                        @Override public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) { }
+                        @Override public void unscheduleDrawable(Drawable drawable, Runnable runnable) { }
+                    });
+                    drawable.startTransition(400);
+                    mAdapter.assignDrawableToPosition(position, drawable);
                 }
-
+                mIcon.setImageDrawable(drawable);
             } else {
-                if (mIcon.getAnimation() != null) mIcon.clearAnimation();
+                if (mIcon.getAnimation() != null) mIcon.setAnimation(null);
                 mImageLoader.bind(mAdapter, mIcon, iconUri, mIconOptions);
             }
+
         } else {
             mImageLoader.unbind(mIcon);
-            if (mIcon.getAnimation() != null) mIcon.clearAnimation();
             mIcon.setImageDrawable(null);
-            mIcon.setVisibility(View.GONE);
+            if (mIcon.getAnimation() != null) mIcon.setAnimation(null);
         }
+    }
+
+    public String getDebugName(int position) {
+        return "name";
     }
 
     public String getIconRemoteUri() {
