@@ -3,14 +3,14 @@ package com.soundcloud.android.activity;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.tour.Start;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.service.beta.BetaPreferences;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 
@@ -23,12 +23,18 @@ import android.os.Handler;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public class Settings extends PreferenceActivity {
-    private static final int DIALOG_CACHE_DELETING      = 0;
+    private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_DELETE_CONFIRM = 1;
 
     private ProgressDialog mDeleteDialog;
@@ -76,11 +82,13 @@ public class Settings extends PreferenceActivity {
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         new FileCache.DeleteCacheTask(false) {
-                            @Override protected void onPreExecute() {
+                            @Override
+                            protected void onPreExecute() {
                                 safeShowDialog(DIALOG_CACHE_DELETING);
                             }
 
-                            @Override protected void onProgressUpdate(Integer... progress) {
+                            @Override
+                            protected void onProgressUpdate(Integer... progress) {
                                 if (mDeleteDialog != null) {
                                     mDeleteDialog.setIndeterminate(false);
                                     mDeleteDialog.setProgress(progress[0]);
@@ -88,7 +96,8 @@ public class Settings extends PreferenceActivity {
                                 }
                             }
 
-                            @Override protected void onPostExecute(Boolean result) {
+                            @Override
+                            protected void onPostExecute(Boolean result) {
                                 removeDialog(DIALOG_CACHE_DELETING);
                                 updateClearCacheTitles();
                             }
@@ -101,11 +110,13 @@ public class Settings extends PreferenceActivity {
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         new FileCache.DeleteCacheTask(true) {
-                            @Override protected void onPreExecute() {
+                            @Override
+                            protected void onPreExecute() {
                                 safeShowDialog(DIALOG_CACHE_DELETING);
                             }
 
-                            @Override protected void onProgressUpdate(Integer... progress) {
+                            @Override
+                            protected void onProgressUpdate(Integer... progress) {
                                 if (mDeleteDialog != null) {
                                     mDeleteDialog.setIndeterminate(false);
                                     mDeleteDialog.setProgress(progress[0]);
@@ -113,7 +124,8 @@ public class Settings extends PreferenceActivity {
                                 }
                             }
 
-                            @Override protected void onPostExecute(Boolean result) {
+                            @Override
+                            protected void onPostExecute(Boolean result) {
                                 removeDialog(DIALOG_CACHE_DELETING);
                                 updateClearCacheTitles();
                             }
@@ -121,7 +133,6 @@ public class Settings extends PreferenceActivity {
                         return true;
                     }
                 });
-
 
 
         findPreference("wireless").setOnPreferenceClickListener(
@@ -202,6 +213,29 @@ public class Settings extends PreferenceActivity {
                             }
                         }
                     });
+
+            findPreference("dev.http.proxy").setOnPreferenceChangeListener(
+                    new Preference.OnPreferenceChangeListener() {
+                        @Override public boolean onPreferenceChange(Preference preference, Object s) {
+                            if (!TextUtils.isEmpty(s.toString())) {
+                                try {
+                                    URL proxy = new URL(s.toString());
+                                    if (!"https".equals(proxy.getProtocol()) &&
+                                        !"http".equals(proxy.getProtocol()))  {
+                                        throw new MalformedURLException("Need http/https url");
+                                    }
+                                } catch (MalformedURLException e) {
+                                    Toast.makeText(Settings.this, R.string.pref_dev_http_proxy_invalid_url, Toast.LENGTH_SHORT).show();
+                                    return false;
+                                }
+                            }
+                            final Intent intent = new Intent(AndroidCloudAPI.Wrapper.CHANGE_PROXY_ACTION);
+                            if (!TextUtils.isEmpty(s.toString())) intent.putExtra("proxy", s.toString());
+                            sendBroadcast(intent);
+                            return true;
+                        }
+                    }
+            );
         }
     }
 
@@ -234,7 +268,8 @@ public class Settings extends PreferenceActivity {
             public void run() {
                 final String size = CloudUtils.inMbFormatted(CloudUtils.dirSize(dir) / 1048576d);
                 handler.post(new Runnable() {
-                    @Override public void run() {
+                    @Override
+                    public void run() {
                         findPreference(pref).setTitle(
                                 getResources().getString(key) +
                                         " [" + size + " MB]");

@@ -116,5 +116,10 @@
             android:title="@string/pref_dev_crash"
             android:summary="@string/pref_dev_crash_summary"
             android:key="dev.crash"/>
+
+        <EditTextPreference
+            android:title="@string/pref_dev_http_proxy"
+            android:summary="@string/pref_dev_http_proxy_summary"
+            android:key="dev.http.proxy"/>
     </PreferenceCategory>
 </PreferenceScreen>
