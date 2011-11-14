@@ -11,7 +11,7 @@
                android:layout_height="@dimen/list_icon_height"
                android:layout_marginLeft="@dimen/list_icon_margin_left"
                android:layout_marginRight="@dimen/list_icon_margin_right"
-               android:background="@drawable/artwork_badge"
+               android:background="@drawable/avatar_badge"
                android:scaleType="centerCrop"/>
     <RelativeLayout
             android:layout_toRightOf="@+id/icon"
