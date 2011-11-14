@@ -12,16 +12,18 @@ import java.io.IOException;
 
 class HeadTask extends StreamItemTask implements HttpStatus {
     static final String LOG_TAG = StreamLoader.LOG_TAG;
+    private final boolean skipLogging;
 
-    public HeadTask(StreamItem item, AndroidCloudAPI api) {
+    public HeadTask(StreamItem item, AndroidCloudAPI api, boolean skipPlayLogging) {
         super(item, api);
+        this.skipLogging = skipPlayLogging;
     }
 
     @Override
     public Bundle execute() throws IOException {
         Bundle b = new Bundle();
         try {
-            Stream stream = api.resolveStreamUrl(item.url.toString(), false);
+            Stream stream = api.resolveStreamUrl(item.url.toString(), skipLogging);
 //            b.putSerializable("stream", stream);
             item.initializeFromStream(stream);
             b.putBoolean("success", true);

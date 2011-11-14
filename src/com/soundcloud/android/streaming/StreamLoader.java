@@ -187,14 +187,12 @@ public class StreamLoader {
                 @Override public void run() {
                     mPlayerCallbacks.add(pc);
                     if (mLowPriorityQueue.contains(item)) mLowPriorityQueue.remove(item);
-                    if (!item.equals(mCurrentItem)) {
-                        // If we won't request the 0th byte
-                        // (by either having it already OR jumping into the middle of a new track)
-                        if (!missing.get(0)) {
-                            mItemsNeedingPlaycountRequests.add(item);
-                        }
-                        mCurrentItem = item;
 
+                    if (!item.equals(mCurrentItem)) {
+                        // always request playcounts when switching tracks
+                        mItemsNeedingPlaycountRequests.add(item);
+
+                        mCurrentItem = item;
                         // remove low prio messages from handler
                         mDataHandler.removeMessages(LOW_PRIO);
                     }
@@ -338,7 +336,7 @@ public class StreamLoader {
                 synchronized (mHeadTasks) {
                     if (!mHeadTasks.contains(item)) {
                         mHeadTasks.add(item);
-                        HeadTask ht = new HeadTask(item, mContext);
+                        HeadTask ht = new HeadTask(item, mContext, true);
                         Message msg = mHeadHandler.obtainMessage(prio, ht);
                         mHeadHandler.sendMessage(msg);
                         return ht;
