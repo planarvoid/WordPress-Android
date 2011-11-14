@@ -467,6 +467,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.resolve(uri);
     }
 
+
     public void setToken(Token token) {
         mCloudApi.setToken(token);
     }
@@ -509,8 +510,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     @Override
-    public Stream resolveStreamUrl(String uri) throws IOException {
-        return mCloudApi.resolveStreamUrl(uri);
+    public Stream resolveStreamUrl(String uri, boolean skipLogging) throws IOException {
+        return mCloudApi.resolveStreamUrl(uri, skipLogging);
     }
 
     @Override

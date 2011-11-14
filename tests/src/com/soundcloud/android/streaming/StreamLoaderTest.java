@@ -37,7 +37,7 @@ import java.util.Map;
 @RunWith(DefaultTestRunner.class)
 public class StreamLoaderTest {
     public static final String TEST_MP3 = "fred.mp3";
-    public static final String TEST_URL = "https://api.soundcloud.com/tracks/12345";
+    public static final String TEST_URL = "https://api.soundcloud.com/tracks/12345/stream";
     public static final int TEST_CHUNK_SIZE = 1024;
 
     File baseDir = new File(System.getProperty("java.io.tmpdir"), "storage-test");
@@ -81,7 +81,7 @@ public class StreamLoaderTest {
         setupChunkArray();
         storage.storeMetadata(item);
         for (int i : sampleChunkIndexes) storage.storeData(item.url, sampleBuffers.get(i), i);
-        expect((Buffer)loader.getDataForUrl(item.url, Range.from(0, testFile.length())).get())
+        expect((Buffer) loader.getDataForUrl(item.url, Range.from(0, testFile.length())).get())
                 .toEqual(readToByteBuffer(testFile));
     }
 
@@ -109,7 +109,7 @@ public class StreamLoaderTest {
         StreamFuture cb = loader.getDataForUrl(item.url, requestedRange);
 
         expect(cb.isDone()).toBeTrue();
-        expect((Buffer)cb.get()).toEqual(sampleBuffers.get(missingChunk).slice().limit(300));
+        expect((Buffer) cb.get()).toEqual(sampleBuffers.get(missingChunk).slice().limit(300));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class StreamLoaderTest {
         final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
         StreamFuture cb = loader.getDataForUrl(item.url, requestedRange);
         expect(cb.isDone()).toBeTrue();
-        expect((Buffer)cb.get()).toEqual(sampleBuffers.get(1).slice().limit(300));
+        expect((Buffer) cb.get()).toEqual(sampleBuffers.get(1).slice().limit(300));
     }
 
     @Test
@@ -221,12 +221,12 @@ public class StreamLoaderTest {
 
     static void pendingHeadRequests(File f) {
         long expires = (System.currentTimeMillis() / 1000L) + 60L;
-        // first GET request
+        // first HEAD request
         addPendingHttpResponse(302, "", headers(
                 "Location", "http://ak-media.soundcloud.com/foo_head.mp3?Expires=" + expires)
         );
 
-        // then HEAD request (to S3/akamai)
+        // second HEAD request (to S3/akamai)
         addPendingHttpResponse(200, "", headers(
                 "Content-Length", String.valueOf(f.length()),
                 "ETag", CloudUtils.md5(f),
@@ -234,6 +234,11 @@ public class StreamLoaderTest {
                 "x-amz-meta-bitrate", "128",
                 "x-amz-meta-duration", "18998"
         ));
+
+        // first GET request - soundcloud
+        addPendingHttpResponse(302, "", headers(
+                "Location", "http://ak-media.soundcloud.com/foo_get.mp3?Expires=" + expires + 1000)
+        );
     }
 
     public static Header[] headers(String... keyValues) {

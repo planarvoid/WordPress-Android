@@ -3,10 +3,12 @@ package com.soundcloud.android.model;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.utils.record.CloudRecorder;
 import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +16,7 @@ import org.junit.runner.RunWith;
 import android.content.res.Resources;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -96,12 +99,13 @@ public class RecordingTest {
 
     @Test
     public void shouldGenerateAnUploadFilename() throws Exception {
-        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(),
-                equalTo("/tmp/A_Title_2001-02-15-02-31-01.mp4"));
-
-        r.audio_profile = CloudRecorder.Profile.RAW;
-        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(),
-                equalTo("/tmp/.encode/A_Title_2001-02-15-02-31-01.ogg"));
+        fail("fix me!");
+//        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(),
+//                equalTo("/tmp/A_Title_2001-02-15-02-31-01.mp4"));
+//
+//        r.audio_profile = CloudRecorder.Profile.RAW;
+//        assertThat(r.generateUploadFilename("A Title").getAbsolutePath(),
+//                equalTo("/tmp/.encode/A_Title_2001-02-15-02-31-01.ogg"));
     }
 
 

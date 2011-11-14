@@ -99,7 +99,17 @@ end
             sh "adb #{flag} push #{package}_preferences.xml #{pref_path}"
           end
       end
-    end
+
+      namespace :logging do
+        %w(verbose debug info warn error).each do |level|
+          task level do
+            %w(StreamLoader StreamStorage).each do |tag|
+              sh "adb #{flag} shell setprop log.tag.#{tag} #{level.upcase}"
+            end
+          end
+        end
+      end
+   end
 end
 
 def manifest
@@ -131,6 +141,7 @@ namespace :release do
     end
   end
 end
+
 
 namespace :beta do
   BUCKET = "soundcloud-android-beta"

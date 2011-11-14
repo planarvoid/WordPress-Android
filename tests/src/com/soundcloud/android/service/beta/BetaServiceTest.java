@@ -31,6 +31,7 @@ import java.io.InputStream;
 
 
 @RunWith(DefaultTestRunner.class)
+@Ignore
 public class BetaServiceTest {
     BetaService bs;
 /*

@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class StreamItem implements Parcelable {
     public final Index missingChunks = new Index();
@@ -32,6 +34,7 @@ public class StreamItem implements Parcelable {
 
     public final URL url;
     public final String urlHash;
+    public final long trackId;
 
     private boolean mUnavailable;  // http status 402, 404, 410
     private long mContentLength;
@@ -41,6 +44,8 @@ public class StreamItem implements Parcelable {
 
     private File mCachedFile;
 
+    private static final Pattern STREAM_PATTERN = Pattern.compile("/(\\d+)/stream$");
+
     public StreamItem(String url) {
         if (TextUtils.isEmpty(url)) throw new IllegalArgumentException();
         try {
@@ -48,6 +53,8 @@ public class StreamItem implements Parcelable {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("invalid url",e);
         }
+        trackId = getTrackId(url);
+        if (trackId == -1) throw new IllegalArgumentException("could not get track id from "+url);
         this.urlHash = urlHash(url);
     }
 
@@ -131,6 +138,20 @@ public class StreamItem implements Parcelable {
 
     public static String urlHash(String url) {
         return CloudUtils.md5(url);
+    }
+
+
+    public static long getTrackId(String url) {
+        Matcher m = STREAM_PATTERN.matcher(url);
+        if (m.find()) {
+            try {
+                return Long.parseLong(m.group(1));
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        } else {
+            return -1;
+        }
     }
 
     @Override
@@ -230,6 +251,7 @@ public class StreamItem implements Parcelable {
     public StreamItem(Parcel in) throws MalformedURLException {
         Bundle data = in.readBundle(getClass().getClassLoader());
         url = new URL(data.getString("url"));
+        trackId = getTrackId(url.toString());
         urlHash = urlHash(url.toString());
         mRedirectedUrl = new URL(data.getString("redirectedUrl"));
         mEtag = data.getString("etag");

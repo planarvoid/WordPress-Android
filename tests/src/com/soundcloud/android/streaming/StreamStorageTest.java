@@ -40,7 +40,7 @@ public class StreamStorageTest {
     public void before() {
         CloudUtils.deleteDir(baseDir);
         storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE, 0);
-        item = new StreamItem("http://fred.com/", testFile);
+        item = new StreamItem("https://api.soundcloud.com/tracks/1234/stream", testFile);
 
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }

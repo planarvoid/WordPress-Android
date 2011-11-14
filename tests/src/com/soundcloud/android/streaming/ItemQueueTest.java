@@ -12,19 +12,19 @@ public class ItemQueueTest {
     @Test
     public void testAddItem() throws Exception {
         ItemQueue q = new ItemQueue();
-        expect(q.addItem(new StreamItem("http://foo.com"), Index.create(1))).toBeTrue();
+        expect(q.addItem(new StreamItem("https://api.soundcloud.com/tracks/12345/stream"), Index.create(1))).toBeTrue();
     }
 
     @Test
     public void shouldNotAddItemsWithoutChunksToDownload() throws Exception {
         ItemQueue q = new ItemQueue();
-        expect(q.addItem(new StreamItem("http://foo.com"), Index.empty())).toBeFalse();
+        expect(q.addItem(new StreamItem("https://api.soundcloud.com/tracks/12345/stream"), Index.empty())).toBeFalse();
     }
 
     @Test
     public void testRemoveIfCompletedItem() throws Exception {
         ItemQueue q = new ItemQueue();
-        StreamItem item = new StreamItem("http://foo.com");
+        StreamItem item = new StreamItem("https://api.soundcloud.com/tracks/12345/stream");
 
         expect(q.addItem(item, Index.create(1, 3))).toBeTrue();
         expect(q.addItem(item, Index.create(1, 3))).toBeFalse();
@@ -37,23 +37,23 @@ public class ItemQueueTest {
     @Test
     public void testIteratorShouldIterateOverCopyOfQueue() throws Exception {
         ItemQueue q = new ItemQueue();
-        q.addItem(new StreamItem("http://1"), Index.create(1));
-        q.addItem(new StreamItem("http://2"), Index.create(1));
-        q.addItem(new StreamItem("http://3"), Index.create(1));
+        q.addItem(new StreamItem("https://api.soundcloud.com/tracks/1/stream"), Index.create(1));
+        q.addItem(new StreamItem("https://api.soundcloud.com/tracks/2/stream"), Index.create(1));
+        q.addItem(new StreamItem("https://api.soundcloud.com/tracks/2/stream"), Index.create(1));
 
         for (StreamItem i : q) {
-            q.addItem(new StreamItem("http://0"), Index.create(0));
+            q.addItem(new StreamItem("https://api.soundcloud.com/tracks/0/stream"), Index.create(0));
             q.removeIfCompleted(i, Index.create(1));
         }
 
         expect(q.size()).toBe(1);
-        expect(q.head()).toEqual(new StreamItem("http://0"));
+        expect(q.head()).toEqual(new StreamItem("https://api.soundcloud.com/tracks/0/stream"));
     }
 
     @Test
     public void shouldNotAddUnavailableItemToQueue() throws Exception {
         ItemQueue q = new ItemQueue();
-        StreamItem item = new StreamItem("http://foo.com");
+        StreamItem item = new StreamItem("https://api.soundcloud.com/tracks/12345/stream");
         item.markUnavailable();
         expect(q.addItem(item, Index.create(1))).toBeFalse();
     }
