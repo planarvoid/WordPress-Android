@@ -23,7 +23,6 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -103,7 +102,7 @@ public class StreamLoaderTest {
 
         pendingHeadRequests(testFile);
         pendingDataRequest("bytes=1024-2047", 206, sampleBuffers.get(missingChunk));
-        pendingPlaycountRequest(TEST_URL);
+        pendingPlaycountRequest(item);
 
         final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
         StreamFuture cb = loader.getDataForUrl(item.url, requestedRange);
@@ -123,7 +122,7 @@ public class StreamLoaderTest {
         // expect a retry of the head request
         pendingHeadRequests(testFile);
         pendingDataRequest("bytes=1024-2047", 206, sampleBuffers.get(1));
-        pendingPlaycountRequest(TEST_URL);
+        pendingPlaycountRequest(item);
 
         final Range requestedRange = Range.from(TEST_CHUNK_SIZE, 300);
         StreamFuture cb = loader.getDataForUrl(item.url, requestedRange);
@@ -150,6 +149,7 @@ public class StreamLoaderTest {
         setupChunkArray();
         pendingHeadRequests(testFile);
         pendingDataRequest("bytes=0-1023", 206, sampleBuffers.get(0));
+        pendingPlaycountRequest(item);
 
         final Range firstRange = Range.from(0, 700);
         StreamFuture cb = loader.getDataForUrl(item.url, firstRange);
@@ -177,6 +177,7 @@ public class StreamLoaderTest {
 
         pendingDataRequest("bytes=0-1023", 206, sampleBuffers.get(0));
         pendingDataRequest("bytes=1024-2047", 206, sampleBuffers.get(1));
+        pendingPlaycountRequest(item);
 
         // needs a GET of 2 chunks (500-1500)
         StreamFuture cb = loader.getDataForUrl(item.url, Range.from(500, 1000));
@@ -210,13 +211,11 @@ public class StreamLoaderTest {
         addPendingHttpResponse(stream);
     }
 
-    static void pendingPlaycountRequest(String url) {
-        String path = URI.create(url).getPath();
-        HttpResponse stream = new TestHttpResponse(302, "");
+    static void pendingPlaycountRequest(StreamItem item) {
+        HttpResponse stream = new TestHttpResponse(202, "");
         addHttpResponseRule(new FakeHttpLayer.RequestMatcherBuilder()
-//                .header("Range", "bytes=0-1")
-                .method("GET")
-                .path(path.substring(1, path.length())), stream);
+                .method("POST")
+                .path("tracks/"+item.trackId+"/plays"), stream);
     }
 
     static void pendingHeadRequests(File f) {
