@@ -534,6 +534,18 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+
+
+    <style name="txt_empty_collection_message">
+    	<item name="android:textColor">#ff000000</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="txt_empty_collection_link" parent="txt_empty_collection_message">
+        <item name="android:textSize">12sp</item>
+    </style>
+
     <style name="txt_tour_title" parent="txt_tour_start">
     	<item name="android:textColor">#ffffffff</item>
         <item name="android:textSize">22sp</item>
