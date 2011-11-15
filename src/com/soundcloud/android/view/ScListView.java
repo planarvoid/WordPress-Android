@@ -156,6 +156,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         mEmptyView.setBackgroundColor(0xFFFFFFFF);
 
         setLongClickable(false);
+        setScrollingCacheEnabled(false);
         setOnItemClickListener(mOnItemClickListener);
         setOnTouchListener(new FingerTracker());
     }
@@ -475,7 +476,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             case 0:
                 Debug.stopMethodTracing();
                 break;
-        }   */
+        }*/
 
         if (mCurrentScrollState == SCROLL_STATE_FLING && scrollState != SCROLL_STATE_FLING) {
             final Handler handler = mScrollHandler;
@@ -693,6 +694,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             switch (msg.what) {
                 case MESSAGE_UPDATE_LIST_ICONS:
                     //if (BaseAdapter.class.isAssignableFrom(getAdapter())) ((BaseAdapter) getAdapter()).notifyDataSetChanged();
+                    Log.i("asdf","ON FLING DONE");
                     if (mListener != null)
                         mListener.onFlingDone();
                     break;
