@@ -7,6 +7,7 @@ import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.api.Endpoints;
@@ -42,7 +43,11 @@ public class Dashboard extends ScActivity {
         if (getIntent().hasExtra("tab")) {
             String tab = getIntent().getStringExtra("tab");
             ScTabView trackListView;
+            EmptyCollection ec = new EmptyCollection(this);
             if (Tabs.STREAM.equalsIgnoreCase(tab)) {
+
+                ec.setMessageText(R.string.list_empty_stream_message);
+
                 trackListView = createList(getIncomingRequest(),
                         Event.class,
                         R.string.empty_incoming_text,

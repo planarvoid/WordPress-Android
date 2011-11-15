@@ -8,6 +8,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.utils.ClickSpan;
+import com.soundcloud.android.utils.CloudUtils;
 
 public class EmptyCollection extends FrameLayout {
 
@@ -21,15 +23,6 @@ public class EmptyCollection extends FrameLayout {
         init();
     }
 
-    public EmptyCollection(Context context, int imageId, int messageId, int linkId, OnClickListener listener) {
-        super(context);
-        init();
-        setImage(imageId);
-        setMessageText(messageId);
-        setLinkText(linkId);
-        setActionListener(listener);
-    }
-
     private void init(){
         ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.empty_collection, this);
@@ -40,19 +33,21 @@ public class EmptyCollection extends FrameLayout {
         mImage = (ImageView) findViewById(R.id.img_1);
     }
 
-    protected void setImage(int imageId){
+    public void setImage(int imageId){
         mImage.setImageResource(imageId);
     }
 
-    protected void setMessageText(int messageId){
+    public void setMessageText(int messageId){
         mTxtMessage.setText(messageId);
     }
 
-    protected void setLinkText(int linkId){
-        mTxtLink.setText(Html.fromHtml(getResources().getString(linkId)));
+    public void setSecondary(int secondaryTextId, ClickSpan.OnClickListener listener){
+        mTxtLink.setText(secondaryTextId);
+        CloudUtils.clickify(mTxtLink, mTxtLink.getText().toString(), listener,true);
     }
 
-    protected void setActionListener(OnClickListener listener){
+    public void setAction(int textId, OnClickListener listener){
+        mBtnAction.setText(textId);
         mBtnAction.setOnClickListener(listener);
     }
 
