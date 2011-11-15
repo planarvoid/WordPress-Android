@@ -105,6 +105,8 @@ public class ScUpload extends ScActivity {
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                trackEvent(Consts.Tracking.Categories.RECORDING, Consts.Tracking.Actions.RECORD_ANOTHER);
+
                 startActivity((new Intent(Actions.RECORD))
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
@@ -114,6 +116,8 @@ public class ScUpload extends ScActivity {
         findViewById(R.id.btn_upload).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                trackEvent(Consts.Tracking.Categories.RECORDING, Consts.Tracking.Actions.UPLOAD_AND_SHARE);
+
                 if (mRecording != null) {
                     mapToRecording(mRecording);
                     trackPage(mRecording.pageTrack());

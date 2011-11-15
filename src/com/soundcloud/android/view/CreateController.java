@@ -133,6 +133,7 @@ public class CreateController {
         mResetButton = ((Button) vg.findViewById(R.id.btn_reset));
         mResetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, Consts.Tracking.Actions.RESET);
                 mActivity.showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
             }
         });
@@ -149,6 +150,7 @@ public class CreateController {
         ((Button) vg.findViewById(R.id.btn_save)).setText(c.getString(mRecording == null ? R.string.btn_save : R.string.btn_next));
         vg.findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, Consts.Tracking.Actions.SAVE);
                 if (mRecording == null){
                     Recording r = new Recording(mRecordFile);
                     r.audio_profile = mAudioProfile;
@@ -459,10 +461,10 @@ public class CreateController {
     private void startRecording() {
         if (mPrivateUser == null){
             mActivity.trackPage(Consts.Tracking.RECORD_RECORDING);
-            mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, "start");
+            mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, Consts.Tracking.Actions.START);
         } else {
             mActivity.trackPage(Consts.Tracking.AUDIO_MESSAGE_RECORDING);
-            mActivity.trackEvent(Consts.Tracking.Categories.AUDIO_MESSAGE, "start");
+            mActivity.trackEvent(Consts.Tracking.Categories.AUDIO_MESSAGE, Consts.Tracking.Actions.START);
         }
 
 

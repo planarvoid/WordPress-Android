@@ -137,6 +137,12 @@ public final class Consts {
             String TEN_PERCENT = "10percent";
             String NINTY_FIVE_PERCENT = "95percent";
             String TRACK_COMPLETE = "Track Complete";
+
+            String START = "start";
+            String SAVE = "save";
+            String RESET = "reset";
+            String RECORD_ANOTHER = "recordAnother";
+            String UPLOAD_AND_SHARE = "uploadAndShare";
         }
 
         String STREAM   = "/incoming";
