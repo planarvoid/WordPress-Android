@@ -74,7 +74,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
             }
         });
 
-        if (getIntent() != null && getIntent().getBooleanExtra("facebook_connected", false)) {
+        if (getIntent() != null && getIntent().getBooleanExtra(Start.FB_CONNECTED_EXTRA, false)) {
             facebookBtn.setVisibility(View.GONE);
             addFriendsSection();
         }

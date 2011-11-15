@@ -1,17 +1,7 @@
 package com.soundcloud.android;
 
-import android.accounts.*;
-import android.app.Activity;
-import android.app.Application;
-import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.pm.PackageInfo;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.os.StrictMode;
-import android.text.TextUtils;
-import android.util.Log;
+import static android.content.pm.PackageManager.*;
+
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
@@ -41,13 +31,32 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
+import android.app.Activity;
+import android.app.Application;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.pm.PackageInfo;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.os.StrictMode;
+import android.text.TextUtils;
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URI;
-import java.util.*;
-import java.util.regex.Pattern;
-
-import static android.content.pm.PackageManager.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ReportsCrashes(
         formUri = "https://bugsense.appspot.com/api/acra?api_key=03cbd584",
@@ -427,16 +436,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.get(resource);
     }
 
-    public Token clientCredentials() throws IOException {
-        return mCloudApi.clientCredentials();
+    public Token clientCredentials(String... scopes) throws IOException {
+        return mCloudApi.clientCredentials(scopes);
     }
 
-    public Token clientCredentials(String scope) throws IOException {
-        return mCloudApi.clientCredentials(scope);
+    public Token extensionGrantType(String grantType, String... scopes) throws IOException {
+        return mCloudApi.extensionGrantType(grantType, scopes);
     }
 
-    public Token login(String username, String password) throws IOException {
-        return mCloudApi.login(username, password);
+    public Token login(String username, String password, String... scopes) throws IOException {
+        return mCloudApi.login(username, password, scopes);
     }
 
     public URI authorizationCodeUrl(String... options) {
@@ -488,16 +497,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.getMapper();
     }
 
-    public Token authorizationCode(String code) throws IOException {
-        return mCloudApi.authorizationCode(code);
-    }
-
-    public Token login(String username, String password, String scope) throws IOException {
-        return mCloudApi.login(username, password, scope);
-    }
-
-    public Token authorizationCode(String code, String scope) throws IOException {
-        return mCloudApi.authorizationCode(code, scope);
+    public Token authorizationCode(String code, String... scopes) throws IOException {
+        return mCloudApi.authorizationCode(code, scopes);
     }
 
     public void setDefaultContentType(String contentType) {

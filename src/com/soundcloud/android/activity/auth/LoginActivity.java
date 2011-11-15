@@ -24,7 +24,14 @@ import android.os.Bundle;
 import java.io.IOException;
 
 public abstract class LoginActivity extends Activity {
-    public static final String SCOPES_TO_REQUEST = Token.SCOPE_NON_EXPIRING+" "+Token.SCOPE_PLAYCOUNT;
+    public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING, Token.SCOPE_PLAYCOUNT };
+    public static final String SCOPES_EXTRA = "scopes";
+    public static final String SIGNED_UP_EXTRA = "signed_up";
+
+    public static final String CODE_EXTRA = "code";
+    public static final String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";
+    public static final String USERNAME_EXTRA = "username";
+    public static final String PASSWORD_EXTRA = "password";
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -36,15 +43,22 @@ public abstract class LoginActivity extends Activity {
 
     protected void login(String username, String password) {
         final Bundle param = new Bundle();
-        param.putString("username", username);
-        param.putString("password", password);
+        param.putString(USERNAME_EXTRA, username);
+        param.putString(PASSWORD_EXTRA, password);
+        login(param);
+    }
+
+
+    protected void loginExtensionGrantype(String grantType) {
+        final Bundle param = new Bundle();
+        param.putString(EXTENSION_GRANT_TYPE_EXTRA, grantType);
         login(param);
     }
 
     protected void login(final Bundle data) {
-        if (data.getString("scope") == null) {
+        if (data.getString(SCOPES_EXTRA) == null) {
             // default to non-expiring scope+playcount
-            data.putString("scope", SCOPES_TO_REQUEST);
+            data.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);
         }
 
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
@@ -71,11 +85,13 @@ public abstract class LoginActivity extends Activity {
                                 app.trackPage(Consts.Tracking.LOGIN);
                                 dismissDialog(progress);
                                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
-                                setResult(RESULT_OK,
-                                        new Intent().putExtras(data)
-                                                    .putExtra("user",  user)
-                                                    .putExtra("token", token));
 
+
+                                setResult(RESULT_OK,
+                                        new Intent().putExtra(SIGNED_UP_EXTRA, token.getSignup())
+                                                .putExtra("user", user)
+                                                .putExtra("token", token)
+                                                .putExtras(data));
                                 finish();
                             } else { // user request failed
                                 showError(null);
