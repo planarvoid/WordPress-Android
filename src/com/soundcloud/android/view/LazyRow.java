@@ -66,7 +66,7 @@ public abstract class LazyRow extends FrameLayout {
                             @Override public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) { }
                             @Override public void unscheduleDrawable(Drawable drawable, Runnable runnable) { }
                         });
-                        tDrawable.startTransition(400);
+                        tDrawable.startTransition(300);
                     } else {
                         drawable = new BitmapDrawable(bmp);
                     }
