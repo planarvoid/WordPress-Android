@@ -39,6 +39,11 @@ import java.util.Set;
 @RunWith(DefaultTestRunner.class)
 public class SyncAdapterServiceTest extends ApiTests {
 
+    @After
+    public void after() {
+        expect(Robolectric.getFakeHttpLayer().hasPendingResponses()).toBeFalse();
+    }
+
     @Test
     public void testGetNewIncomingEvents() throws Exception {
         addCannedEvents(
@@ -175,8 +180,6 @@ public class SyncAdapterServiceTest extends ApiTests {
         expect(result.notifications.size()).toEqual(2);
 
         addCannedEvents(
-            "empty_events.json",
-            "empty_events.json",
             "empty_events.json"
         );
 
@@ -356,7 +359,6 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldNotNotifyOnFirstSync() throws Exception {
-        addCannedEvents("incoming_2.json");
         expect(doPerformSync(DefaultTestRunner.application, true).notifications.size()).toEqual(0);
     }
 

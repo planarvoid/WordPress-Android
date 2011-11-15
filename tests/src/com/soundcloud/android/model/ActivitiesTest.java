@@ -188,4 +188,11 @@ public class ActivitiesTest {
         assertThat(filtered.size(), is(1));
         assertTrue(filtered.get(0).created_at.after(start));
     }
+
+    @Test
+    public void testGetNextRequest() throws Exception {
+        Activities a1 = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
+        assertTrue(a1.hasMore());
+        assertThat(a1.getNextRequest().toUrl(), equalTo("/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738"));
+    }
 }
