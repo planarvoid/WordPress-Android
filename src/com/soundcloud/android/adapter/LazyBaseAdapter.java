@@ -1,7 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
-import android.graphics.drawable.TransitionDrawable;
+import android.graphics.drawable.Drawable;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.LazyRow;
 
@@ -10,9 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class LazyBaseAdapter extends BaseAdapter {
     protected ScActivity mActivity;
@@ -21,7 +19,8 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
     protected int mPage = 1;
     private Class<?> mLoadModel;
 
-    protected Map<Integer, TransitionDrawable> mIconAnimations = new HashMap<Integer, TransitionDrawable>();
+    protected Map<Integer, Drawable> mIconAnimations = new HashMap<Integer, Drawable>();
+    protected Set<Integer> mLoadingIcons = new HashSet<Integer>();
 
     @SuppressWarnings("unchecked")
     public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data, Class<?> model) {
@@ -72,6 +71,7 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
         mData.clear();
         mPage = 1;
         mIconAnimations.clear();
+        mLoadingIcons.clear();
     }
 
     public Class<?> getLoadModel() {
@@ -88,12 +88,19 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
         getData().add(newItem);
     }
 
-    public TransitionDrawable getDrawableFromPosition(int position){
+    public Drawable getDrawableFromPosition(int position){
         return mIconAnimations.get(position);
     }
 
-    public void assignDrawableToPosition(Integer position, TransitionDrawable drawable){
+    public void assignDrawableToPosition(Integer position, Drawable drawable){
         mIconAnimations.put(position, drawable);
     }
 
+    public Boolean getIconLoading(int position){
+        return mLoadingIcons.contains(position);
+    }
+
+    public void setIconLoading(Integer position){
+        mLoadingIcons.add(position);
+    }
 }

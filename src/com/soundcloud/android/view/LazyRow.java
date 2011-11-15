@@ -56,28 +56,30 @@ public abstract class LazyRow extends FrameLayout {
         if (CloudUtils.checkIconShouldLoad(iconUri)) {
             final Bitmap bmp = mImageLoader.getBitmap(iconUri,null,new ImageLoader.Options(false));
             if (bmp != null){
-                TransitionDrawable drawable = mAdapter.getDrawableFromPosition(position);
+                Drawable drawable = mAdapter.getDrawableFromPosition(position);
                 if (drawable == null){
-                    drawable = new TransitionDrawable(new Drawable[]{mIcon.getBackground(),new BitmapDrawable(bmp)});
-                    drawable.setCrossFadeEnabled(true);
-                    drawable.setCallback(new android.graphics.drawable.Drawable.Callback(){
-                        @Override public void invalidateDrawable(Drawable drawable) { mIcon.invalidate(); }
-                        @Override public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) { }
-                        @Override public void unscheduleDrawable(Drawable drawable, Runnable runnable) { }
-                    });
-                    drawable.startTransition(400);
-                    mAdapter.assignDrawableToPosition(position, drawable);
+                    if (mAdapter.getIconLoading(position)){
+                        TransitionDrawable tDrawable = (TransitionDrawable) (drawable = new TransitionDrawable(new Drawable[]{mIcon.getBackground(),new BitmapDrawable(bmp)}));
+                        tDrawable.setCrossFadeEnabled(true);
+                        tDrawable.setCallback(new android.graphics.drawable.Drawable.Callback(){
+                            @Override public void invalidateDrawable(Drawable drawable) { mIcon.invalidate(); }
+                            @Override public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) { }
+                            @Override public void unscheduleDrawable(Drawable drawable, Runnable runnable) { }
+                        });
+                        tDrawable.startTransition(400);
+                    } else {
+                        drawable = new BitmapDrawable(bmp);
+                    }
                 }
+                mAdapter.assignDrawableToPosition(position, drawable);
                 mIcon.setImageDrawable(drawable);
             } else {
-                if (mIcon.getAnimation() != null) mIcon.setAnimation(null);
+                mAdapter.setIconLoading(position);
                 mImageLoader.bind(mAdapter, mIcon, iconUri, mIconOptions);
             }
-
         } else {
             mImageLoader.unbind(mIcon);
             mIcon.setImageDrawable(null);
-            if (mIcon.getAnimation() != null) mIcon.setAnimation(null);
         }
     }
 
