@@ -752,8 +752,8 @@ public class CreateController {
 
             cursor = mActivity.getContentResolver().query(DatabaseHelper.Content.RECORDINGS,
                     columns,
-                    DatabaseHelper.Recordings.AUDIO_PATH + "='" + f.getAbsolutePath() + "'",
-                    null, null);
+                    DatabaseHelper.Recordings.AUDIO_PATH + " = ?",
+                    new String[]{f.getAbsolutePath()}, null);
 
             // XXX TODO exclude currently uploading file!
             if ((cursor == null || cursor.getCount() == 0)) {
