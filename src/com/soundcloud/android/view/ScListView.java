@@ -693,10 +693,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MESSAGE_UPDATE_LIST_ICONS:
-                    //if (BaseAdapter.class.isAssignableFrom(getAdapter())) ((BaseAdapter) getAdapter()).notifyDataSetChanged();
-                    Log.i("asdf","ON FLING DONE");
-                    if (mListener != null)
-                        mListener.onFlingDone();
+                    if (mListener != null) mListener.onFlingDone();
                     break;
             }
         }
