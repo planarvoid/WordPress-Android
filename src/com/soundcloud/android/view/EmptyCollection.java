@@ -34,10 +34,10 @@ public class EmptyCollection extends FrameLayout {
         mBtnAction = (Button) findViewById(R.id.btn_action);
         mImage = (ImageView) findViewById(R.id.img_1);
 
-        mBtnAction.setOnClickListener(new OnClickListener(){
+        mBtnAction.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mActionListener != null){
+                if (mActionListener != null) {
                     mActionListener.onAction();
                 }
             }
@@ -54,22 +54,27 @@ public class EmptyCollection extends FrameLayout {
         return this;
     }
 
+    public void setMessageText(String s) {
+        mTxtMessage.setText(s);
+    }
+
     public EmptyCollection setSecondaryText(int secondaryTextId){
         mTxtLink.setText(secondaryTextId);
         mTxtLink.setVisibility(View.VISIBLE);
         CloudUtils.clickify(mTxtLink, mTxtLink.getText().toString(), new ClickSpan.OnClickListener() {
             @Override
             public void onClick() {
-                if (mActionListener != null){
+                if (mActionListener != null) {
                     mActionListener.onSecondaryAction();
                 }
             }
-        },true);
+        }, true);
         return this;
     }
 
     public EmptyCollection setActionText(int textId){
         mBtnAction.setText(textId);
+        mBtnAction.setVisibility(View.VISIBLE);
         return this;
 
     }

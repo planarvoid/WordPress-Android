@@ -23,6 +23,7 @@
                   style="@style/txt_empty_collection_message"/>
         <Button android:layout_width="wrap_content"
                 android:layout_centerHorizontal="true"
+                android:visibility="invisible"
                 android:id="@+id/btn_action"
                 android:layout_height="wrap_content"
                 style="@style/btn_empty_collection" />

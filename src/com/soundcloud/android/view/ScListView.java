@@ -180,16 +180,16 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         return mEmptyView;
     }
 
-    public void setEmptyText(CharSequence text) {
-        if (mEmptyView != null && mEmptyView.findViewById(R.id.empty_txt) != null){
-            ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(text);
-        }
-    }
-
     @Override
     public void setEmptyView(View emptyView) {
         mEmptyView = emptyView;
-        requestLayout();
+        if (getHeight() > 0) {
+            emptyView.findViewById(R.id.sizer).getLayoutParams().height = getHeight();
+            emptyView.findViewById(R.id.sizer).setMinimumHeight(getHeight());
+            emptyView.findViewById(R.id.sizer).requestLayout();
+        } else {
+            requestLayout();
+        }
     }
 
     @Override
@@ -414,8 +414,9 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         super.onLayout(changed, l, t, r, b);
         if (changed) {
             if (getHeight() > 0 && mEmptyView != null && mEmptyView.findViewById(R.id.sizer) != null) {
+                mEmptyView.findViewById(R.id.sizer).getLayoutParams().height = getHeight();
                 mEmptyView.findViewById(R.id.sizer).setMinimumHeight(getHeight());
-                mEmptyView.requestLayout();
+                mEmptyView.findViewById(R.id.sizer).requestLayout();
             }
         }
     }

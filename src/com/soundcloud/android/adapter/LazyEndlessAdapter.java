@@ -55,6 +55,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     private static final int ITEM_TYPE_LOADING = -1;
     private EmptyCollection mEmptyView;
+    private EmptyCollection mDefaultEmptyView;
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
         this(activity,wrapped,request,true);
@@ -69,6 +70,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
         mAllowInitialLoading = autoAppend;
         mKeepOnAppending.set(autoAppend);
+
     }
 
     /**
@@ -91,14 +93,16 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
      * Set the current text of the adapter, based on if we are currently dealing
      * with an error
      */
-    public void applyEmptyText() {
+    public void applyEmptyView() {
         if (mListView != null) {
-            if (mEmptyView != null){
+            if (mEmptyView != null && !mError){
                 mListView.setEmptyView(mEmptyView);
-            } else if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
-                mListView.setEmptyText(Html.fromHtml(mEmptyViewText));
             } else {
-                mListView.setEmptyText(getEmptyText());
+                if (mDefaultEmptyView == null){
+                    mDefaultEmptyView = new EmptyCollection(mActivity);
+                }
+                mDefaultEmptyView.setMessageText((!mError && !TextUtils.isEmpty(mEmptyViewText)) ? mEmptyViewText : getEmptyText());
+                mListView.setEmptyView(mDefaultEmptyView);
             }
         }
 
@@ -223,7 +227,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mError = restore[1] == 1;
 
         if (!mKeepOnAppending.get()) {
-            applyEmptyText();
+            applyEmptyView();
         }
 
     }
@@ -337,7 +341,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         }
         mPendingView = null;
         // configure the empty view depending on possible exceptions
-        applyEmptyText();
+        applyEmptyView();
         notifyDataSetChanged();
     }
 
@@ -352,7 +356,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             }
         }
 
-        applyEmptyText();
+        applyEmptyView();
         notifyDataSetChanged();
 
         if (mListView != null) {
