@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import android.content.Context;
 import android.text.Html;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -17,6 +18,7 @@ public class EmptyCollection extends FrameLayout {
     private TextView mTxtLink;
     private ImageView mImage;
     private Button mBtnAction;
+    private ActionListener mActionListener;
 
     public EmptyCollection(Context context) {
         super(context);
@@ -31,24 +33,54 @@ public class EmptyCollection extends FrameLayout {
         mTxtLink = (TextView) findViewById(R.id.txt_link);
         mBtnAction = (Button) findViewById(R.id.btn_action);
         mImage = (ImageView) findViewById(R.id.img_1);
+
+        mBtnAction.setOnClickListener(new OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if (mActionListener != null){
+                    mActionListener.onAction();
+                }
+            }
+        });
     }
 
-    public void setImage(int imageId){
+    public EmptyCollection setImage(int imageId){
         mImage.setImageResource(imageId);
+        return this;
     }
 
-    public void setMessageText(int messageId){
+    public EmptyCollection setMessageText(int messageId){
         mTxtMessage.setText(messageId);
+        return this;
     }
 
-    public void setSecondary(int secondaryTextId, ClickSpan.OnClickListener listener){
+    public EmptyCollection setSecondaryText(int secondaryTextId){
         mTxtLink.setText(secondaryTextId);
-        CloudUtils.clickify(mTxtLink, mTxtLink.getText().toString(), listener,true);
+        CloudUtils.clickify(mTxtLink, mTxtLink.getText().toString(), new ClickSpan.OnClickListener() {
+            @Override
+            public void onClick() {
+                if (mActionListener != null){
+                    mActionListener.onSecondaryAction();
+                }
+            }
+        },true);
+        return this;
     }
 
-    public void setAction(int textId, OnClickListener listener){
+    public EmptyCollection setActionText(int textId){
         mBtnAction.setText(textId);
-        mBtnAction.setOnClickListener(listener);
+        return this;
+
+    }
+
+    public EmptyCollection setActionListener(ActionListener listener){
+        mActionListener = listener;
+        return this;
+    }
+
+    public interface ActionListener {
+        void onAction();
+        void onSecondaryAction();
     }
 
 }

@@ -91,12 +91,35 @@
     <string name="suggested_users_no_friends_msg">You\'re the first of your friends to join SoundCloud. Check out new sounds from our Suggested People.</string>
 
     <string name='list_empty_stream_message'>
-        Hmm. You don’t have any sounds in your Stream.\n\nStart following people to listen to their sounds!
+        Hmm. You don’t have any sounds in your Stream.\n\n
+        Start following people to listen to their sounds!
     </string>
     <string name='list_empty_stream_action'>
         Find people to follow
     </string>
     <string name='list_empty_stream_secondary'>
         On Facebook? Connect with friends already on SoundCloud!
+    </string>
+
+    <string name='list_empty_activity_message'>
+        Oh no! Your sounds don’t have any comments or likes. But you can change that by making your sounds social!\n\n
+        Share your sounds with friends and social networks to get Activity on your sounds.
+    </string>
+    <string name='list_empty_activity_action'>
+        Make your sounds social
+    </string>
+    <string name='list_empty_activity_secondary'>
+        Find out more about sharing sounds with our 101s
+    </string>
+
+    <string name='list_empty_activity_notracks_message'>
+        This is where you’ll see who’s liked and commented on your sounds. But you need to create some sounds first!\n\n
+        Record your first sound and share it with friends and to your social networks.
+    </string>
+    <string name='list_empty_activity_notracks_action'>
+        Record your first sound
+    </string>
+    <string name='list_empty_activity_notracks_secondary'>
+        Find out more about sharing sounds with our 101s
     </string>
 </resources>

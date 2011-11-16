@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import android.net.Uri;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -44,20 +45,53 @@ public class Dashboard extends ScActivity {
             String tab = getIntent().getStringExtra("tab");
             ScTabView trackListView;
             EmptyCollection ec = new EmptyCollection(this);
-            if (Tabs.STREAM.equalsIgnoreCase(tab)) {
 
-                ec.setMessageText(R.string.list_empty_stream_message);
+            if (Tabs.STREAM.equalsIgnoreCase(tab)) {
+                ec.setMessageText(R.string.list_empty_stream_message)
+                        .setActionText(R.string.list_empty_stream_action)
+                        .setSecondaryText(R.string.list_empty_stream_secondary)
+                        .setActionListener(new EmptyCollection.ActionListener() {
+                            @Override public void onAction() { goToFriendFinder(); }
+                            @Override public void onSecondaryAction() { goToFriendFinder(); }
+                        });
 
                 trackListView = createList(getIncomingRequest(),
                         Event.class,
-                        R.string.empty_incoming_text,
+                        ec,
                         Consts.ListId.LIST_STREAM, false);
                 mTrackingPath = Consts.Tracking.STREAM;
             } else if (Tabs.ACTIVITY.equalsIgnoreCase(tab)) {
                 mIsActivityTab = true;
+
+                if (getApp().getLoggedInUser() == null || getApp().getLoggedInUser().track_count > 0){
+                    ec.setMessageText(R.string.list_empty_activity_message)
+                        .setActionText(R.string.list_empty_activity_action)
+                        .setSecondaryText(R.string.list_empty_activity_secondary)
+                        .setActionListener(new EmptyCollection.ActionListener() {
+                            @Override public void onAction() {
+                                startActivity(new Intent(Actions.USER_BROWSER)
+                                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                        .putExtra("userBrowserTag", UserBrowser.TabTags.tracks));
+                            }
+                            @Override public void onSecondaryAction() { goTo101s(); }
+                        });
+                } else {
+                    ec.setMessageText(R.string.list_empty_activity_notracks_message)
+                        .setActionText(R.string.list_empty_activity_notracks_action)
+                        .setSecondaryText(R.string.list_empty_activity_notracks_secondary)
+                        .setActionListener(new EmptyCollection.ActionListener() {
+                            @Override public void onAction() {
+                                startActivity(new Intent(Actions.RECORD)
+                                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                            }
+                            @Override public void onSecondaryAction() { goTo101s(); }
+                        });
+                }
+
+
                 trackListView = createList(Request.to(Endpoints.MY_NEWS),
                         Event.class,
-                        R.string.empty_news_text,
+                        ec,
                         Consts.ListId.LIST_ACTIVITY, true);
                 mTrackingPath = Consts.Tracking.ACTIVITY;
             } else {
@@ -72,6 +106,17 @@ public class Dashboard extends ScActivity {
         if (mPreviousState != null) {
             mListView.getWrapper().restoreState(mPreviousState);
         }
+    }
+
+    private void goToFriendFinder() {
+        trackPage(Consts.Tracking.PEOPLE_FINDER);
+        startActivity(new Intent(Actions.USER_BROWSER)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                .putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder));
+    }
+
+    private void goTo101s() {
+        startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101")));
     }
 
     private Request getIncomingRequest() {
@@ -91,16 +136,13 @@ public class Dashboard extends ScActivity {
                         Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
     }
 
-    protected ScTabView createList(Request endpoint, Class<?> model, int emptyText, int listId, boolean isNews) {
+    protected ScTabView createList(Request endpoint, Class<?> model, EmptyCollection emptyView, int listId, boolean isNews) {
         EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), isNews, model);
         EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint);
 
-        if (emptyText != -1) {
-            adpWrap.setEmptyViewText(getResources().getString(emptyText));
-        }
-
         final ScTabView view = new ScTabView(this);
         mListView = view.setLazyListView(buildList(!isNews), adpWrap, listId, true);
+        mListView.setEmptyView(emptyView);
         return view;
     }
 
