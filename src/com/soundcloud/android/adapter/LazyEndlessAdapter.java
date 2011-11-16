@@ -17,6 +17,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.task.RefreshTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
@@ -53,6 +54,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     private String mFirstPageEtag;
 
     private static final int ITEM_TYPE_LOADING = -1;
+    private EmptyCollection mEmptyView;
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
         this(activity,wrapped,request,true);
@@ -81,13 +83,19 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mEmptyViewText = str;
     }
 
+    public void setEmptyView(EmptyCollection emptyView) {
+        mEmptyView = emptyView;
+    }
+
     /**
      * Set the current text of the adapter, based on if we are currently dealing
      * with an error
      */
     public void applyEmptyText() {
         if (mListView != null) {
-            if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
+            if (mEmptyView != null){
+                mListView.setEmptyView(mEmptyView);
+            } else if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
                 mListView.setEmptyText(Html.fromHtml(mEmptyViewText));
             } else {
                 mListView.setEmptyText(getEmptyText());

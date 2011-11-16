@@ -56,6 +56,7 @@ public class EmptyCollection extends FrameLayout {
 
     public EmptyCollection setSecondaryText(int secondaryTextId){
         mTxtLink.setText(secondaryTextId);
+        mTxtLink.setVisibility(View.VISIBLE);
         CloudUtils.clickify(mTxtLink, mTxtLink.getText().toString(), new ClickSpan.OnClickListener() {
             @Override
             public void onClick() {

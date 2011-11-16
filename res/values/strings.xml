@@ -112,14 +112,59 @@
         Find out more about sharing sounds with our 101s
     </string>
 
-    <string name='list_empty_activity_notracks_message'>
+    <string name='list_empty_activity_nosounds_message'>
         This is where you’ll see who’s liked and commented on your sounds. But you need to create some sounds first!\n\n
         Record your first sound and share it with friends and to your social networks.
     </string>
-    <string name='list_empty_activity_notracks_action'>
+    <string name='list_empty_activity_nosounds_action'>
         Record your first sound
     </string>
-    <string name='list_empty_activity_notracks_secondary'>
+    <string name='list_empty_activity_nosounds_secondary'>
         Find out more about sharing sounds with our 101s
     </string>
+
+    <string name='list_empty_user_sounds_message'>
+        Okay! It’s time to make some sounds.\n\n
+        Create a memo, message or melody and share it with the world!
+    </string>
+    <string name='list_empty_user_sounds_action'>
+        Record your first sound
+    </string>
+
+    <string name='list_empty_user_followers_message'>
+        You don’t have any followers yet. But you can change that!
+        The best way to get people to follow you is to share your sounds with others.
+    </string>
+    <string name='list_empty_user_followers_action'>
+        Share your sounds
+    </string>
+    <string name='list_empty_user_followers_secondary'>
+        Check your settings to automatically share your original sounds to your social networks
+    </string>
+
+    <string name='list_empty_user_followers_nosounds_message'>
+        You don’t have any followers yet. But you can change that! Create sounds for people to listen to and you\'ll have followers in no time.
+    </string>
+    <string name='list_empty_user_followers_nosounds_action'>
+        Record your first sound
+    </string>
+    <string name='list_empty_user_followers_nosounds_secondary'>
+        Check your settings to automatically share your original sounds to your social networks
+    </string>
+
+    <string name='list_empty_user_following_message'>
+        Hey! SoundCloud is much more fun when you follow people! Find interesting people to follow to listen to their latest sounds.
+    </string>
+    <string name='list_empty_user_following_action'>
+        Find people to follow
+    </string>
+
+    <string name='list_empty_user_likes_message'>
+        You haven’t liked any sounds yet. Click the little heart button to show some love to other people\’s sounds.\n\n
+        Not hearing sounds you like? Try the Suggested People for interesting new sounds
+    </string>
+    <string name='list_empty_user_likes_action'>
+        Find people with great sounds
+    </string>
+
 </resources>

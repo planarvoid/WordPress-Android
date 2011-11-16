@@ -76,9 +76,9 @@ public class Dashboard extends ScActivity {
                             @Override public void onSecondaryAction() { goTo101s(); }
                         });
                 } else {
-                    ec.setMessageText(R.string.list_empty_activity_notracks_message)
-                        .setActionText(R.string.list_empty_activity_notracks_action)
-                        .setSecondaryText(R.string.list_empty_activity_notracks_secondary)
+                    ec.setMessageText(R.string.list_empty_activity_nosounds_message)
+                        .setActionText(R.string.list_empty_activity_nosounds_action)
+                        .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
                         .setActionListener(new EmptyCollection.ActionListener() {
                             @Override public void onAction() {
                                 startActivity(new Intent(Actions.RECORD)

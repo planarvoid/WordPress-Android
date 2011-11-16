@@ -548,12 +548,16 @@
     </style>
 
     <style name="txt_empty_collection_link" parent="txt_empty_collection_message">
+        <item name="android:layout_marginTop">10dp</item>
         <item name="android:textSize">12sp</item>
     </style>
     <style name="btn_empty_collection" parent="txt_empty_collection_message">
         <item name="android:paddingLeft">30dp</item>
         <item name="android:paddingRight">30dp</item>
-        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginRight">10dp</item>
     </style>
 
     <style name="txt_tour_title" parent="txt_tour_start">

@@ -21,10 +21,7 @@ import android.widget.*;
 import android.widget.ImageView.ScaleType;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.*;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.adapter.*;
 import com.soundcloud.android.cache.Connections;
@@ -361,7 +358,16 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_tracks_text));
+
+            adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
+                    .setActionText(R.string.list_empty_user_sounds_action)
+                    .setActionListener(new EmptyCollection.ActionListener() {
+                        @Override public void onAction() {
+                            startActivity(new Intent(Actions.RECORD)
+                                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                        }
+                        @Override public void onSecondaryAction() {}
+                    }));
         }
 
         mMyTracksView = new ScTabView(this);
@@ -378,7 +384,16 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_favorites_text));
+            adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_likes_message)
+                    .setActionText(R.string.list_empty_user_likes_action)
+                    .setActionListener(new EmptyCollection.ActionListener() {
+                        @Override public void onAction() {
+                            mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
+                        }
+                        @Override public void onSecondaryAction() {
+                            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
+                        }
+                    }));
         }
 
         ScTabView favoritesView = new ScTabView(this);
@@ -396,7 +411,14 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followings_text));
+            adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
+                    .setActionText(R.string.list_empty_user_following_action)
+                    .setActionListener(new EmptyCollection.ActionListener() {
+                        @Override public void onAction() {
+                            mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
+                        }
+                        @Override public void onSecondaryAction() {}
+                    }));
         }
 
         final ScTabView followingsView = new ScTabView(this);
@@ -414,7 +436,32 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followers_text));
+            if (mUser.track_count == 0){
+                adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
+                    .setActionText(R.string.list_empty_user_followers_action)
+                    .setSecondaryText(R.string.list_empty_user_followers_secondary)
+                    .setActionListener(new EmptyCollection.ActionListener() {
+                        @Override public void onAction() {
+                            mUserlistBrowser.setCurrentScreenByTag(TabTags.tracks);
+                        }
+                        @Override public void onSecondaryAction() {
+                            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
+                        }
+                    }));
+            } else {
+                adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_nosounds_message)
+                    .setActionText(R.string.list_empty_user_followers_nosounds_action)
+                    .setSecondaryText(R.string.list_empty_user_followers_nosounds_secondary)
+                    .setActionListener(new EmptyCollection.ActionListener() {
+                        @Override public void onAction() {
+                            startActivity(new Intent(Actions.RECORD).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                        }
+                        @Override public void onSecondaryAction() {
+                            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
+                        }
+                    }));
+            }
+
         }
 
         final ScTabView followersView = new ScTabView(this);
