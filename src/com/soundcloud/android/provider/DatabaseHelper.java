@@ -19,7 +19,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "ScContentProvider";
     private static final String DATABASE_NAME = "SoundCloud";
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
 
 
     public enum Tables {
@@ -28,17 +28,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         USERS("Users", DATABASE_CREATE_USERS),
         TRACK_PLAYS("TrackPlays", DATABASE_CREATE_TRACK_PLAYS),
         EVENTS("Events", DATABASE_CREATE_EVENTS),
-        SEARCHES("Searches", DATABASE_CREATE_SEARCHES);
+        SEARCHES("Searches", DATABASE_CREATE_SEARCHES),
 
+        TRACKVIEW("TracklistView", null);
+        //TRACKLISTVIEW("TracklistView", DATABASE_CREATE_TRACKLIST_VIEW),
+        //EVENTLISTVIEW("EventlistView", DATABASE_CREATE_EVENTLIST_VIEW);
 
         public final String tableName;
-        public final Uri uri;
         public final String createString;
 
 
         Tables(String name, String create) {
             tableName = name;
-            uri = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/"+tableName);
             createString = create;
         }
 
@@ -49,18 +50,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
             return null;
         }
-    }
-
-    public interface Content {
-        Uri TRACKS  = Tables.TRACKS.uri;
-        Uri USERS = Tables.USERS.uri;
-        Uri RECORDINGS = Tables.RECORDINGS.uri;
-        Uri TRACK_PLAYS = Tables.TRACK_PLAYS.uri;
-        Uri EVENTS = Tables.EVENTS.uri;
-        Uri SEARCHES = Tables.SEARCHES.uri;
-
-        Uri INCOMING_TRACKS = Uri.parse("content://" + ScContentProvider.AUTHORITY + "/Events/Incoming/Tracks");
-        Uri EXCLUSIVE_TRACKS = Uri.parse("content://" + ScContentProvider.AUTHORITY + "/Events/Incoming/Tracks");
     }
 
 
@@ -76,6 +65,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(DATABASE_CREATE_USERS);
             db.execSQL(DATABASE_CREATE_RECORDINGS);
             db.execSQL(DATABASE_CREATE_SEARCHES);
+            createTrackView(db);
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during onCreate()", e);
         }
@@ -105,6 +95,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             break;
                         case 8:
                             success = upgradeTo8(db, oldVersion);
+                            break;
+                        case 9:
+                            success = upgradeTo9(db, oldVersion);
                             break;
                         default:
                             break;
@@ -206,6 +199,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             try {
                 db.execSQL(DATABASE_CREATE_SEARCHES);
                 return true;
+            } catch (SQLException e) {
+                SoundCloudApplication.handleSilentException("error during upgrade8 " +
+                        "(from "+oldVersion+")", e);
+            }
+            return false;
+        }
+
+    private boolean upgradeTo9(SQLiteDatabase db, int oldVersion) {
+            try {
+                return createTrackView(db);
             } catch (SQLException e) {
                 SoundCloudApplication.handleSilentException("error during upgrade8 " +
                         "(from "+oldVersion+")", e);
@@ -604,4 +607,79 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public static final String ALIAS_CREATED_AT = Tables.SEARCHES + "_" + CREATED_AT;
         public static final String ALIAS_QUERY = Tables.SEARCHES + "_" + QUERY;
     }
+
+    private boolean createTrackView(SQLiteDatabase db){
+        db.execSQL("DROP VIEW IF EXISTS Tracks");
+
+        // setup conflicts
+        StringBuilder columns = new StringBuilder(Tracks.CONCRETE_ID + " as " + Tracks.ID + ", " +
+                                                  Tracks.CONCRETE_PERMALINK + " as " + Tracks.PERMALINK + ", " +
+                                                  Users.CONCRETE_ID + " as " + Tracks.USER_ID);
+
+        Cursor ti = db.rawQuery("PRAGMA table_info("+ Tables.TRACKS.tableName + ")", null);
+        if ( ti.moveToFirst() ) {
+            do {
+                if (!(ti.getString(1).contentEquals("_id") ||
+                        ti.getString(1).contentEquals("permalink"))){
+                    columns.append(", ").append(ti.getString(1));
+                }
+            } while (ti.moveToNext());
+        }
+
+        String SQL = "CREATE VIEW " + Tables.TRACKVIEW +
+                " AS SELECT " + columns + " FROM " + Tables.TRACKS
+                + " JOIN " + Tables.USERS + " ON("
+                + Tracks.CONCRETE_USER_ID + " = " + Users.CONCRETE_ID + ")"
+                + " LEFT OUTER JOIN " + Tables.TRACK_PLAYS + " ON("
+                + Tracks.CONCRETE_ID + " = " + TrackPlays.CONCRETE_TRACK_ID + ")";
+
+        Log.i("asdf","SQL: " + SQL);
+        return false;
+    }
+
+    /*
+    static final String DATABASE_CREATE_TRACKLIST_VIEW = "CREATE VIEW " + Tables.TRACKLISTVIEW +
+            " AS SELECT "
+                + Tracks.CONCRETE_ID + " as " + Tracks.ALIAS_ID + ","
+                + Tracks.CONCRETE_TITLE + " as " + Tracks.ALIAS_TITLE + ","
+                + Users.CONCRETE_USERNAME + " as " + Users.ALIAS_USERNAME + ","
+                + Users.CONCRETE_ID + " as " + Users.ALIAS_ID + ","
+                + Tracks.CONCRETE_STREAMABLE + " as " + Tracks.ALIAS_STREAMABLE + ","
+                + Tracks.CONCRETE_STREAM_URL + " as " + Tracks.ALIAS_STREAM_URL + ","
+                + Tracks.CONCRETE_ARTWORK_URL + " as " + Tracks.ALIAS_ARTWORK_URL + ","
+                + Tracks.CONCRETE_SHARING + " as " + Tracks.ALIAS_SHARING + ","
+                + Tracks.CONCRETE_CREATED_AT + " as " + Tracks.ALIAS_CREATED_AT + ","
+                + Tracks.CONCRETE_USER_FAVORITE + " as " + Tracks.ALIAS_USER_FAVORITE + ","
+                + Tracks.CONCRETE_DURATION + " as " + Tracks.ALIAS_DURATION
+                + " FROM " + Tables.TRACKS
+                + " JOIN " + Tables.USERS + " ON("
+                + Tracks.CONCRETE_USER_ID + " = " + Users.CONCRETE_ID + ")"
+                + " LEFT OUTER JOIN " + Tables.TRACK_PLAYS + " ON("
+                + Tracks.CONCRETE_ID + " = " + TrackPlays.CONCRETE_TRACK_ID + ")";
+
+    static final String DATABASE_CREATE_EVENTLIST_VIEW = "CREATE VIEW " + Tables.EVENTLISTVIEW +
+            " AS SELECT "
+                + Events.CONCRETE_ID + " as " + Events.ALIAS_ID + ","
+                + Events.CONCRETE_USER_ID + " as " + Events.ALIAS_USER_ID + ","
+                + Events.CONCRETE_EXCLUSIVE + " as " + Events.ALIAS_EXCLUSIVE + ","
+                + Events.CONCRETE_NEXT_CURSOR + " as " + Events.ALIAS_NEXT_CURSOR + ","
+                + Tracks.CONCRETE_ID + " as " + Tracks.ALIAS_ID + ","
+                + Tracks.CONCRETE_TITLE + " as " + Tracks.ALIAS_TITLE + ","
+                + Users.CONCRETE_USERNAME + " as " + Users.ALIAS_USERNAME + ","
+                + Users.CONCRETE_ID + " as " + Users.ALIAS_ID + ","
+                + Tracks.CONCRETE_STREAMABLE + " as " + Tracks.ALIAS_STREAMABLE + ","
+                + Tracks.CONCRETE_STREAM_URL + " as " + Tracks.ALIAS_STREAM_URL + ","
+                + Tracks.CONCRETE_ARTWORK_URL + " as " + Tracks.ALIAS_ARTWORK_URL + ","
+                + Tracks.CONCRETE_SHARING + " as " + Tracks.ALIAS_SHARING + ","
+                + Tracks.CONCRETE_CREATED_AT + " as " + Tracks.ALIAS_CREATED_AT + ","
+                + Tracks.CONCRETE_USER_FAVORITE + " as " + Tracks.ALIAS_USER_FAVORITE + ","
+                + Tracks.CONCRETE_DURATION + " as " + Tracks.ALIAS_DURATION
+                + " FROM " + Tables.EVENTS
+                + " JOIN " + Tables.TRACKS + " ON("
+                + Events.CONCRETE_ORIGIN_ID + " = " + Tracks.CONCRETE_ID + ")"
+                + " JOIN " + Tables.USERS + " ON("
+                + Tracks.CONCRETE_USER_ID + " = " + Users.CONCRETE_ID + ")"
+                + " LEFT OUTER JOIN " + Tables.TRACK_PLAYS + " ON("
+                + Tracks.CONCRETE_ID + " = " + TrackPlays.CONCRETE_TRACK_ID + ")";
+                */
 }

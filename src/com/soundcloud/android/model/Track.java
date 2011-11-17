@@ -6,14 +6,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.TracksByTag;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tables;
 import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
 import com.soundcloud.android.provider.DatabaseHelper.Tracks;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -35,7 +34,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -160,7 +158,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public static Uri toUri(long id) {
-        return Content.TRACKS.buildUpon().appendPath(String.valueOf(id)).build();
+        return ScContentProvider.Content.TRACKS.buildUpon().appendPath(String.valueOf(id)).build();
     }
 
     @Override @JsonIgnore
@@ -189,7 +187,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public void markAsPlayed(ContentResolver contentResolver) {
-        Cursor cursor = contentResolver.query(Content.TRACK_PLAYS, null,
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.TRACK_PLAYS, null,
                 TrackPlays.TRACK_ID + " = ?", new String[]{
                 Long.toString(id)
         }, null);
@@ -198,7 +196,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
             ContentValues contentValues = new ContentValues();
             contentValues.put(TrackPlays.TRACK_ID, id);
             contentValues.put(TrackPlays.USER_ID, user.id);
-            contentResolver.insert(Content.TRACK_PLAYS, contentValues);
+            contentResolver.insert(ScContentProvider.Content.TRACK_PLAYS, contentValues);
         }
         if (cursor != null) cursor.close();
     }
@@ -265,7 +263,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public void updateFromDb(ContentResolver resolver, long currentUserId) {
-        Cursor cursor = resolver.query(Content.TRACKS, null, Tracks.ID + " = ?",
+        Cursor cursor = resolver.query(ScContentProvider.Content.TRACKS, null, Tracks.ID + " = ?",
                 new String[] { Long.toString(id) }, null);
 
         if (cursor != null) {
@@ -302,7 +300,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public boolean updateUserPlayedFromDb(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID
                 + "= ? AND " + TrackPlays.USER_ID + " = ?", new String[] {
                 String.valueOf(id), String.valueOf(userId)
         }, null);

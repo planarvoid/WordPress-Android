@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -162,4 +163,49 @@ public class ScContentProvider extends ContentProvider {
             ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
         }
     }
+
+
+    public interface Content {
+
+        Uri TRACKS  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks");
+        Uri TRACK_ITEM  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/*");
+        Uri USERS = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users");
+        Uri USER_ITEM  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*");
+        Uri RECORDINGS = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/recordings");
+        Uri RECORDING_ITEM  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/recordings/*");
+        Uri EVENTS = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/events");
+        Uri EVENT_ITEM = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/events/*");
+        Uri SEARCHES = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches");
+
+        Uri TRACK_PLAYS = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/track_plays");
+
+        Uri INCOMING_TRACKS = Uri.parse("content://" + AUTHORITY + "/Events/Incoming/Tracks");
+        Uri EXCLUSIVE_TRACKS = Uri.parse("content://" + AUTHORITY + "/Events/Incoming/Tracks");
+    }
+
+    private static final int TRACK = 100;
+	private static final int TRACK_ID = 101;
+	private static final int USER = 200;
+	private static final int USER_ID = 201;
+	private static final int EVENT = 300;
+	private static final int TWEET_USER_ID = 301;
+	private static final int ID_INFORMATION = 400;
+	private static final int ID_INFORMATION_ID = 401;
+
+	public static final String CONTENT_TYPE_HASHTAG = "vnd.android.cursor.dir/vnd.net.clov3r.elig.hashtag";
+	public static final String CONTENT_ITEM_TYPE_HASHTAG = "vnd.android.cursor.item/vnd.net.clov3r.elig.hashtag";
+	public static final String CONTENT_TYPE_TWEET = "vnd.android.cursor.dir/vnd.net.clov3r.elig.tweet";
+	public static final String CONTENT_ITEM_TYPE_TWEET = "vnd.android.cursor.item/vnd.net.clov3r.elig.tweet";
+	public static final String CONTENT_TYPE_TWEET_USER = "vnd.android.cursor.dir/vnd.net.clov3r.elig.tweet_user";
+	public static final String CONTENT_ITEM_TYPE_TWEET_USER = "vnd.android.cursor.item/vnd.net.clov3r.elig.tweet_user";
+	public static final String CONTENT_TYPE_ID_INFORMATION = "vnd.android.cursor.dir/vnd.net.clov3r.elig.id_information";
+	public static final String CONTENT_ITEM_TYPE_ID_INFORMATION = "vnd.android.cursor.item/vnd.net.clov3r.elig.id_information";
+
+    private static UriMatcher buildMatcher() {
+		UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
+		//matcher.addURI(ScContentProvider.AUTHORITY, "tracks", HASHTAG);
+		return matcher;
+
+	}
+
 }

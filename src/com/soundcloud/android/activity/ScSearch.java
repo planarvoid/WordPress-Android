@@ -1,13 +1,11 @@
 package com.soundcloud.android.activity;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.*;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
@@ -19,6 +17,7 @@ import com.soundcloud.android.model.SearchHistoryItem;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.ScListView;
@@ -26,7 +25,6 @@ import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static android.widget.FrameLayout.LayoutParams.FILL_PARENT;
@@ -141,7 +139,7 @@ public class ScSearch extends ScActivity {
 
     private void refreshHistory() {
 
-        Cursor cursor = getContentResolver().query(DatabaseHelper.Content.SEARCHES,
+        Cursor cursor = getContentResolver().query(ScContentProvider.Content.SEARCHES,
                 new String[]{DatabaseHelper.Searches.ID, DatabaseHelper.Searches.SEARCH_TYPE, DatabaseHelper.Searches.QUERY, DatabaseHelper.Searches.CREATED_AT},
                 DatabaseHelper.Searches.USER_ID + " = ?",
                 new String[]{Long.toString(getCurrentUserId())},
@@ -253,7 +251,7 @@ public class ScSearch extends ScActivity {
 
         // check for a duplicate to update
         if (updateId == -1) {
-            Cursor cursor = getContentResolver().query(DatabaseHelper.Content.SEARCHES,
+            Cursor cursor = getContentResolver().query(ScContentProvider.Content.SEARCHES,
                     new String[]{DatabaseHelper.Searches.ID},
                     DatabaseHelper.Searches.USER_ID + " = ? AND " + DatabaseHelper.Searches.QUERY + " = ? AND " + DatabaseHelper.Searches.SEARCH_TYPE + " = ?",
                     new String[]{Long.toString(getCurrentUserId()), query, String.valueOf(searchType)}, null);

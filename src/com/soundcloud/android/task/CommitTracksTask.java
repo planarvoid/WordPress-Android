@@ -3,13 +3,13 @@ package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.DatabaseHelper.Content;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
+import com.soundcloud.android.provider.ScContentProvider;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,11 +56,11 @@ public class CommitTracksTask extends AsyncTask<Track, Parcelable, Boolean> {
         // builk insert uses replace (insert or update) instead of insert,
         // so it won't fail from a unique key constraint
         if (tracksCV.size() > 0) {
-            contentResolver.bulkInsert(Content.TRACKS,
+            contentResolver.bulkInsert(ScContentProvider.Content.TRACKS,
                     tracksCV.toArray(new ContentValues[tracksCV.size()]));
         }
         if (usersCV.size() > 0) {
-            contentResolver.bulkInsert(Content.USERS,
+            contentResolver.bulkInsert(ScContentProvider.Content.USERS,
                     usersCV.toArray(new ContentValues[usersCV.size()]));
         }
 

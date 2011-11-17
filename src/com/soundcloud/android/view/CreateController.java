@@ -10,7 +10,6 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -24,11 +23,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScUpload;
-import com.soundcloud.android.activity.tour.Record;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.utils.CloudUtils;
@@ -168,7 +166,7 @@ public class CreateController {
                     } catch (RemoteException ignored) {
                     }
 
-                    Uri newRecordingUri = mActivity.getContentResolver().insert(DatabaseHelper.Content.RECORDINGS, r.buildContentValues());
+                    Uri newRecordingUri = mActivity.getContentResolver().insert(ScContentProvider.Content.RECORDINGS, r.buildContentValues());
                     mRecording = r;
                     mRecording.id = Long.parseLong(newRecordingUri.getLastPathSegment());
 
@@ -752,7 +750,7 @@ public class CreateController {
         })) {
             if (f.equals(mRecordFile) || getPrivateUserIdFromPath(f.getAbsolutePath()) != -1) continue; // ignore current file
 
-            cursor = mActivity.getContentResolver().query(DatabaseHelper.Content.RECORDINGS,
+            cursor = mActivity.getContentResolver().query(ScContentProvider.Content.RECORDINGS,
                     columns,
                     DatabaseHelper.Recordings.AUDIO_PATH + " = ?",
                     new String[]{f.getAbsolutePath()}, null);
@@ -918,7 +916,7 @@ public class CreateController {
                                 if (mUnsavedRecordings != null) {
                                     for (int i = 0; i < mUnsavedRecordings.size(); i++){
                                         if (checked[i]){
-                                            mActivity.getContentResolver().insert(DatabaseHelper.Content.RECORDINGS,mUnsavedRecordings.get(i).buildContentValues());
+                                            mActivity.getContentResolver().insert(ScContentProvider.Content.RECORDINGS,mUnsavedRecordings.get(i).buildContentValues());
                                         } else {
                                             mUnsavedRecordings.get(i).delete(null);
                                         }

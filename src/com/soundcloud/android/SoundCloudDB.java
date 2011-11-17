@@ -2,13 +2,12 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.provider.DatabaseHelper.Users;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.util.Log;
+import com.soundcloud.android.provider.ScContentProvider;
 
 public class SoundCloudDB {
     private static final String TAG = "SoundCloudDB";
@@ -23,10 +22,10 @@ public class SoundCloudDB {
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
                     if (writeState == WriteState.update_only || writeState == WriteState.all)
-                        contentResolver.update(Content.TRACKS, track.buildContentValues(), Tracks.ID
+                        contentResolver.update(ScContentProvider.Content.TRACKS, track.buildContentValues(), Tracks.ID
                                 + "='" + track.id + "'", null);
                 } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                    contentResolver.insert(Content.TRACKS, track.buildContentValues());
+                    contentResolver.insert(ScContentProvider.Content.TRACKS, track.buildContentValues());
                 }
 
                 cursor.close();
@@ -40,7 +39,7 @@ public class SoundCloudDB {
     // ---Make sure the database is up to date with this track info---
     public static Track getTrackById(ContentResolver contentResolver, long trackId, long currentUserId) {
 
-        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = ?",
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.TRACKS, null, Tracks.ID + " = ?",
                 new String[]{Long.toString(trackId)}, null);
 
         if (cursor != null && cursor.getCount() != 0) {
@@ -63,7 +62,7 @@ public class SoundCloudDB {
 
     public static boolean isTrackInDb(ContentResolver contentResolver, long id) {
         boolean ret = false;
-        Cursor cursor = contentResolver.query(Content.TRACKS, null, Tracks.ID + " = ?",new String[]{Long.toString(id)}, null);
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.TRACKS, null, Tracks.ID + " = ?",new String[]{Long.toString(id)}, null);
         if (null != cursor && cursor.moveToNext()) {
             ret = true;
         }
@@ -78,16 +77,16 @@ public class SoundCloudDB {
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 if (writeState == WriteState.update_only || writeState == WriteState.all)
-                    contentResolver.update(Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0), Users.ID + "='" + user.id + "'", null);
+                    contentResolver.update(ScContentProvider.Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0), Users.ID + "='" + user.id + "'", null);
             } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                contentResolver.insert(Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0));
+                contentResolver.insert(ScContentProvider.Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0));
             }
             cursor.close();
         }
     }
 
     public static User getUserById(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + "= ?",new String[]{Long.toString(userId)}, null);
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.USERS, null, Users.ID + "= ?",new String[]{Long.toString(userId)}, null);
         User user = null;
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -98,7 +97,7 @@ public class SoundCloudDB {
     }
 
     public static User getUserByUsername(ContentResolver contentResolver, String username) {
-        Cursor cursor = contentResolver.query(Content.USERS, null, Users.USERNAME + "= ?",new String[]{username}, null);
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.USERS, null, Users.USERNAME + "= ?",new String[]{username}, null);
         User user = null;
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -109,7 +108,7 @@ public class SoundCloudDB {
     }
 
     public static String getUsernameById(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(Content.USERS, new String[]{Users.CONCRETE_USERNAME}, Users.ID + "= ?",new String[]{Long.toString(userId)}, null);
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.USERS, new String[]{Users.CONCRETE_USERNAME}, Users.ID + "= ?",new String[]{Long.toString(userId)}, null);
         String username = null;
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -121,7 +120,7 @@ public class SoundCloudDB {
 
     public static boolean isUserInDb(ContentResolver contentResolver, long id) {
         boolean ret = false;
-        Cursor cursor = contentResolver.query(Content.USERS, null, Users.ID + " = ?",new String[]{Long.toString(id)}, null);
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.USERS, null, Users.ID + " = ?",new String[]{Long.toString(id)}, null);
         if (null != cursor && cursor.moveToNext()) {
             ret = true;
         }
