@@ -95,7 +95,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
      */
     public void applyEmptyView() {
         if (mListView != null) {
-            if (mEmptyView != null && !mError){
+            if (mEmptyView != null){
                 mListView.setEmptyView(mEmptyView);
             } else {
                 if (mDefaultEmptyView == null){

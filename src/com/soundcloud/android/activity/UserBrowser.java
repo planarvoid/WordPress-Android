@@ -361,6 +361,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
                     .setActionText(R.string.list_empty_user_sounds_action)
+                    .setImage(R.drawable.empty_rec)
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override public void onAction() {
                             startActivity(new Intent(Actions.RECORD)
@@ -386,6 +387,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         } else {
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_likes_message)
                     .setActionText(R.string.list_empty_user_likes_action)
+                    .setImage(R.drawable.empty_like)
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override public void onAction() {
                             mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
@@ -413,6 +415,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         } else {
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
                     .setActionText(R.string.list_empty_user_following_action)
+                    .setImage(R.drawable.empty_follow_small)
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override public void onAction() {
                             mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
@@ -439,25 +442,27 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             if (mUser.track_count == 0){
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
                     .setActionText(R.string.list_empty_user_followers_action)
-                    .setSecondaryText(R.string.list_empty_user_followers_secondary)
+                    .setImage(R.drawable.empty_rec)
+                    //.setSecondaryText(R.string.list_empty_user_followers_secondary)
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override public void onAction() {
                             mUserlistBrowser.setCurrentScreenByTag(TabTags.tracks);
                         }
                         @Override public void onSecondaryAction() {
-                            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
+                            //startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
                         }
                     }));
             } else {
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_nosounds_message)
                     .setActionText(R.string.list_empty_user_followers_nosounds_action)
-                    .setSecondaryText(R.string.list_empty_user_followers_nosounds_secondary)
+                    .setImage(R.drawable.empty_share)
+                    //.setSecondaryText(R.string.list_empty_user_followers_nosounds_secondary)
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override public void onAction() {
                             startActivity(new Intent(Actions.RECORD).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
                         }
                         @Override public void onSecondaryAction() {
-                            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
+                            //startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
                         }
                     }));
             }

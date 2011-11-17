@@ -48,11 +48,19 @@ public class Dashboard extends ScActivity {
 
             if (Tabs.STREAM.equalsIgnoreCase(tab)) {
                 ec.setMessageText(R.string.list_empty_stream_message)
+                        .setImage(R.drawable.empty_follow)
                         .setActionText(R.string.list_empty_stream_action)
                         .setSecondaryText(R.string.list_empty_stream_secondary)
                         .setActionListener(new EmptyCollection.ActionListener() {
-                            @Override public void onAction() { goToFriendFinder(); }
-                            @Override public void onSecondaryAction() { goToFriendFinder(); }
+                            @Override
+                            public void onAction() {
+                                goToFriendFinder();
+                            }
+
+                            @Override
+                            public void onSecondaryAction() {
+                                goToFriendFinder();
+                            }
                         });
 
                 trackListView = createList(getIncomingRequest(),
@@ -65,27 +73,39 @@ public class Dashboard extends ScActivity {
 
                 if (getApp().getLoggedInUser() == null || getApp().getLoggedInUser().track_count > 0){
                     ec.setMessageText(R.string.list_empty_activity_message)
-                        .setActionText(R.string.list_empty_activity_action)
-                        .setSecondaryText(R.string.list_empty_activity_secondary)
-                        .setActionListener(new EmptyCollection.ActionListener() {
-                            @Override public void onAction() {
-                                startActivity(new Intent(Actions.USER_BROWSER)
-                                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                        .putExtra("userBrowserTag", UserBrowser.TabTags.tracks));
-                            }
-                            @Override public void onSecondaryAction() { goTo101s(); }
-                        });
+                            .setImage(R.drawable.empty_share)
+                            .setActionText(R.string.list_empty_activity_action)
+                            .setSecondaryText(R.string.list_empty_activity_secondary)
+                            .setActionListener(new EmptyCollection.ActionListener() {
+                                @Override
+                                public void onAction() {
+                                    startActivity(new Intent(Actions.USER_BROWSER)
+                                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                            .putExtra("userBrowserTag", UserBrowser.TabTags.tracks));
+                                }
+
+                                @Override
+                                public void onSecondaryAction() {
+                                    goTo101s();
+                                }
+                            });
                 } else {
                     ec.setMessageText(R.string.list_empty_activity_nosounds_message)
-                        .setActionText(R.string.list_empty_activity_nosounds_action)
-                        .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
-                        .setActionListener(new EmptyCollection.ActionListener() {
-                            @Override public void onAction() {
-                                startActivity(new Intent(Actions.RECORD)
-                                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
-                            }
-                            @Override public void onSecondaryAction() { goTo101s(); }
-                        });
+                            .setImage(R.drawable.empty_rec)
+                            .setActionText(R.string.list_empty_activity_nosounds_action)
+                            .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
+                            .setActionListener(new EmptyCollection.ActionListener() {
+                                @Override
+                                public void onAction() {
+                                    startActivity(new Intent(Actions.RECORD)
+                                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                                }
+
+                                @Override
+                                public void onSecondaryAction() {
+                                    goTo101s();
+                                }
+                            });
                 }
 
 
@@ -142,7 +162,7 @@ public class Dashboard extends ScActivity {
 
         final ScTabView view = new ScTabView(this);
         mListView = view.setLazyListView(buildList(!isNews), adpWrap, listId, true);
-        mListView.setEmptyView(emptyView);
+        adpWrap.setEmptyView(emptyView);
         return view;
     }
 
