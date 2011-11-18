@@ -17,6 +17,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.task.RefreshTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
@@ -53,6 +54,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     private String mFirstPageEtag;
 
     private static final int ITEM_TYPE_LOADING = -1;
+    private EmptyCollection mEmptyView;
+    private EmptyCollection mDefaultEmptyView;
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
         this(activity,wrapped,request,true);
@@ -67,6 +70,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
         mAllowInitialLoading = autoAppend;
         mKeepOnAppending.set(autoAppend);
+
     }
 
     /**
@@ -81,16 +85,25 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mEmptyViewText = str;
     }
 
+    public void setEmptyView(EmptyCollection emptyView) {
+        mEmptyView = emptyView;
+    }
+
     /**
      * Set the current text of the adapter, based on if we are currently dealing
      * with an error
      */
-    public void applyEmptyText() {
+    public void applyEmptyView() {
         if (mListView != null) {
-            if (!TextUtils.isEmpty(mEmptyViewText) && !mError) {
-                mListView.setEmptyText(Html.fromHtml(mEmptyViewText));
+            if (mEmptyView != null && !mError){
+                mListView.setEmptyView(mEmptyView);
             } else {
-                mListView.setEmptyText(getEmptyText());
+                if (mDefaultEmptyView == null){
+                    mDefaultEmptyView = new EmptyCollection(mActivity);
+                }
+                mDefaultEmptyView.setImage(mError ? R.drawable.empty_connection : R.drawable.empty_collection);
+                mDefaultEmptyView.setMessageText((!mError && !TextUtils.isEmpty(mEmptyViewText)) ? mEmptyViewText : getEmptyText());
+                mListView.setEmptyView(mDefaultEmptyView);
             }
         }
 
@@ -215,7 +228,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mError = restore[1] == 1;
 
         if (!mKeepOnAppending.get()) {
-            applyEmptyText();
+            applyEmptyView();
         }
 
     }
@@ -329,7 +342,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         }
         mPendingView = null;
         // configure the empty view depending on possible exceptions
-        applyEmptyText();
+        applyEmptyView();
         notifyDataSetChanged();
     }
 
@@ -344,7 +357,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             }
         }
 
-        applyEmptyText();
+        applyEmptyView();
         notifyDataSetChanged();
 
         if (mListView != null) {

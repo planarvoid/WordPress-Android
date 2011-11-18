@@ -1,13 +1,11 @@
 package com.soundcloud.android.view;
 
-import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.FriendFinderAdapter;
-import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Connection;
@@ -116,6 +114,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     }
 
     public void setState(int state, boolean refresh) {
+        mCurrentState = state;
         switch (state) {
             case States.LOADING:
                 if (mFriendList == null) {
@@ -123,12 +122,12 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                     createList();
                 }
                 mFriendList.getWrapper().setEmptyViewText(" ");
-                mFriendList.getWrapper().applyEmptyText();
+                mFriendList.getWrapper().applyEmptyView();
                 if (refresh){
                     mFriendList.prepareForRefresh();
                     mFriendList.setSelection(0);
                 }
-                break;
+                return;
 
             case States.CONNECTION_ERROR:
                 if (mFriendList != null && !mFriendList.getWrapper().isEmpty()) {
@@ -139,8 +138,9 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                     createList();
                 }
 
+                mFriendList.getWrapper().configureViews(mFriendList);
                 mFriendList.getWrapper().setEmptyViewText(mActivity.getString(R.string.error_loading_connections));
-                mFriendList.getWrapper().applyEmptyText();
+                mFriendList.getWrapper().applyEmptyView();
                 mFriendList.getWrapper().reset(false, true);
                 break;
 
@@ -151,11 +151,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 }
 
                 mFriendList.getWrapper().configureViews(mFriendList);
-                if (refresh){
-                    if (mSeen) mFriendList.getWrapper().allowInitialLoading();
-                    mFriendList.getWrapper().refresh(false);
-                    mFriendList.prepareForRefresh();
-                }
                 mFriendList.setVisibility(View.VISIBLE);
                 break;
 
@@ -166,11 +161,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                     createList();
                 }
                 mFriendList.getWrapper().configureViews(mFriendList);
-                if (refresh){
-                    if (mSeen) mFriendList.getWrapper().allowInitialLoading();
-                    mFriendList.getWrapper().refresh(false);
-                    mFriendList.prepareForRefresh();
-                }
                 mFriendList.setVisibility(View.VISIBLE);
                 break;
 
@@ -178,8 +168,12 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 throw new IllegalArgumentException(("Improper setState parameter"));
         }
 
-        mCurrentState = state;
 
+        if (refresh) {
+            if (mSeen) mFriendList.getWrapper().allowInitialLoading();
+            mFriendList.getWrapper().refresh(false);
+            mFriendList.prepareForRefresh();
+        }
     }
 
     public void onVisible() {
