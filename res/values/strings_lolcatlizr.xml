@@ -250,9 +250,6 @@
   <string name="image_where">How would you like to add an image?</string>
   <string name="info_comments_add_comment">Add a comment</string>
   <string name="info_comments_comments">Comments</string>
-  <string name="info_empty">No info available</string>
-  <string name="info_empty_other">This person hasn\'t added a profile description yet.</string>
-  <string name="info_empty_you">Your profile is empty. Let people know about you! Go to SoundCloud.com/settings to add your profile info.</string>
   <string name="info_error">Unable to get info</string>
   <string name="list_header_fb_friends">Your Facebook Friends</string>
   <string name="list_header_suggested_users">Suggested People</string>

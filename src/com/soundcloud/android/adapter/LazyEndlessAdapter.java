@@ -95,12 +95,13 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
      */
     public void applyEmptyView() {
         if (mListView != null) {
-            if (mEmptyView != null){
+            if (mEmptyView != null && !mError){
                 mListView.setEmptyView(mEmptyView);
             } else {
                 if (mDefaultEmptyView == null){
                     mDefaultEmptyView = new EmptyCollection(mActivity);
                 }
+                mDefaultEmptyView.setImage(mError ? R.drawable.empty_connection : R.drawable.empty_collection);
                 mDefaultEmptyView.setMessageText((!mError && !TextUtils.isEmpty(mEmptyViewText)) ? mEmptyViewText : getEmptyText());
                 mListView.setEmptyView(mDefaultEmptyView);
             }

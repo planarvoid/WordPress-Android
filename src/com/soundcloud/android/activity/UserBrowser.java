@@ -46,6 +46,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private String mIconURL;
     private ImageLoader.BindResult avatarResult;
 
+    private EmptyCollection mEmptyInfoView;
+
     private ScTabView mMyTracksView;
     private FrameLayout mInfoView;
     private FriendFinderView mFriendFinderView;
@@ -363,11 +365,15 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     .setActionText(R.string.list_empty_user_sounds_action)
                     .setImage(R.drawable.empty_rec)
                     .setActionListener(new EmptyCollection.ActionListener() {
-                        @Override public void onAction() {
+                        @Override
+                        public void onAction() {
                             startActivity(new Intent(Actions.RECORD)
-                                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
                         }
-                        @Override public void onSecondaryAction() {}
+
+                        @Override
+                        public void onSecondaryAction() {
+                        }
                     }));
         }
 
@@ -389,10 +395,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     .setActionText(R.string.list_empty_user_likes_action)
                     .setImage(R.drawable.empty_like)
                     .setActionListener(new EmptyCollection.ActionListener() {
-                        @Override public void onAction() {
+                        @Override
+                        public void onAction() {
                             mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
                         }
-                        @Override public void onSecondaryAction() {
+
+                        @Override
+                        public void onSecondaryAction() {
                             startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
                         }
                     }));
@@ -417,10 +426,14 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     .setActionText(R.string.list_empty_user_following_action)
                     .setImage(R.drawable.empty_follow_small)
                     .setActionListener(new EmptyCollection.ActionListener() {
-                        @Override public void onAction() {
+                        @Override
+                        public void onAction() {
                             mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
                         }
-                        @Override public void onSecondaryAction() {}
+
+                        @Override
+                        public void onSecondaryAction() {
+                        }
                     }));
         }
 
@@ -640,14 +653,36 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         if (displayedSomething) {
+            if (mEmptyInfoView != null){
+                if (mEmptyInfoView.getParent() == mInfoView){
+                    mInfoView.removeView(mEmptyInfoView);
+                }
+            }
             if (mInfoView.findViewById(R.id.empty_txt) != null)
                 mInfoView.findViewById(R.id.empty_txt).setVisibility(View.GONE);
         } else {
-            TextView txtEmpty = (TextView) mInfoView.findViewById(R.id.empty_txt);
-            if (txtEmpty != null) {
-                txtEmpty.setText(Html.fromHtml(getString(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you)));
-                txtEmpty.setVisibility(View.VISIBLE);
+            if (mEmptyInfoView == null){
+                mEmptyInfoView = new EmptyCollection(this);
+                if (isOtherUser()){
+                    mEmptyInfoView.setMessageText(R.string.info_empty_other_message);
+                } else {
+                    mEmptyInfoView.setMessageText(R.string.info_empty_you_message);
+                    mEmptyInfoView.setActionText(R.string.info_empty_you_action);
+                    mEmptyInfoView.setActionListener(new EmptyCollection.ActionListener(){
+
+                        @Override
+                        public void onAction() {
+                            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings")));
+                        }
+
+                        @Override
+                        public void onSecondaryAction() {
+                        }
+                    });
+                }
+
             }
+            mInfoView.addView(mEmptyInfoView);
         }
     }
 
