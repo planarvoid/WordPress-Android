@@ -102,7 +102,9 @@ public interface AndroidCloudAPI extends CloudAPI {
         }
 
         @Override protected SSLSocketFactory getSSLSocketFactory() {
-            if (SoundCloudApplication.DALVIK && Build.VERSION.SDK_INT >= 8) {
+            if (SoundCloudApplication.DALVIK &&
+                SoundCloudApplication.API_PRODUCTION &&
+                Build.VERSION.SDK_INT >= 8) {
                 // make use of android's implementation
                 return SSLCertificateSocketFactory.getHttpSocketFactory(ApiWrapper.TIMEOUT,
                         new SSLSessionCache(mContext));

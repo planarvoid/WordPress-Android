@@ -3,14 +3,14 @@ import Keys._
 import AndroidKeys._
 
 object General {
-  val settings = Defaults.defaultSettings ++ Seq (
-    version := "1.4.5-SNAPSHOT",
+  val settings = Defaults.defaultSettings ++ Seq(
+    version := "2.0.1-SNAPSHOT",
     organization := "com.soundcloud"
   )
 
   val androidSettings =
     settings ++
-    Seq (
+    Seq(
       platformName := "android-10"
     )
 
