@@ -73,15 +73,22 @@ public class EmptyCollection extends FrameLayout {
     }
 
     public EmptyCollection setActionText(int textId){
-        mBtnAction.setText(textId);
-        mBtnAction.setVisibility(View.VISIBLE);
+        if (textId > 0){
+            mBtnAction.setVisibility(View.VISIBLE);
+            mBtnAction.setText(textId);
+        } else {
+            mBtnAction.setVisibility(View.INVISIBLE);
+        }
         return this;
-
     }
 
     public EmptyCollection setActionListener(ActionListener listener){
         mActionListener = listener;
         return this;
+    }
+
+    public void setImageVisibility(boolean visible) {
+        mImage.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     public interface ActionListener {

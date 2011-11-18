@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,8 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Config;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +50,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private ImageLoader.BindResult avatarResult;
 
     private EmptyCollection mEmptyInfoView;
+    boolean mDisplayedInfo, mInfoError;
 
     private ScTabView mMyTracksView;
     private FrameLayout mInfoView;
@@ -334,9 +338,16 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         @Override
         protected void onPostExecute(User user) {
             if (user != null) {
+                mInfoError = false;
                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all,
                         getApp().getCurrentUserId());
                 setUser(user);
+            } else {
+                mInfoError = true;
+                if (!mDisplayedInfo){
+
+                    configureEmptyView();
+                }
             }
         }
     }
@@ -568,8 +579,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             mFullName.setText(user.full_name);
             mFullName.setVisibility(View.VISIBLE);
         }
-        mFollowerCount.setText(Integer.toString(user.followers_count));
-        mTrackCount.setText(Integer.toString(user.track_count));
+        mFollowerCount.setText(Integer.toString(Math.max(0,user.followers_count)));
+        mTrackCount.setText(Integer.toString(Math.max(0,user.track_count)));
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
@@ -581,9 +592,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         }
 
-        boolean displayedSomething = false;
         if (!TextUtils.isEmpty(user.website)) {
-            displayedSomething = true;
+            mDisplayedInfo = true;
             mWebsite.setText(
                     TextUtils.isEmpty(user.website_title) ?
                     CloudUtils.stripProtocol(user.website) : user.website_title);
@@ -602,7 +612,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         if (!TextUtils.isEmpty(user.discogs_name)) {
-            displayedSomething = true;
+            mDisplayedInfo = true;
             mDiscogsName.setMovementMethod(LinkMovementMethod.getInstance());
             mDiscogsName.setVisibility(View.VISIBLE);
             mDiscogsName.setFocusable(true);
@@ -620,7 +630,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         if (!TextUtils.isEmpty(user.myspace_name)) {
-            displayedSomething = true;
+            mDisplayedInfo = true;
             mMyspaceName.setMovementMethod(LinkMovementMethod.getInstance());
             mMyspaceName.setVisibility(View.VISIBLE);
             mMyspaceName.setFocusable(true);
@@ -639,7 +649,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         final String location = user.getLocation();
         if (!TextUtils.isEmpty(location)) {
-            displayedSomething = true;
+            mDisplayedInfo = true;
             mLocation.setText(getString(R.string.from)+" "+location);
             mLocation.setVisibility(View.VISIBLE);
         } else {
@@ -647,43 +657,49 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         if (!TextUtils.isEmpty(user.description)) {
-            displayedSomething = true;
+            mDisplayedInfo = true;
             mDescription.setText(Html.fromHtml((user).description.replace(System.getProperty("line.separator"), "<br/>")));
             mDescription.setMovementMethod(LinkMovementMethod.getInstance());
         }
+        configureEmptyView();
+    }
 
-        if (displayedSomething) {
-            if (mEmptyInfoView != null){
-                if (mEmptyInfoView.getParent() == mInfoView){
-                    mInfoView.removeView(mEmptyInfoView);
-                }
-            }
-            if (mInfoView.findViewById(R.id.empty_txt) != null)
-                mInfoView.findViewById(R.id.empty_txt).setVisibility(View.GONE);
-        } else {
-            if (mEmptyInfoView == null){
-                mEmptyInfoView = new EmptyCollection(this);
-                if (isOtherUser()){
+    private void configureEmptyView(){
+        if (mDisplayedInfo && mEmptyInfoView != null && mEmptyInfoView.getParent() == mInfoView) {
+            mInfoView.removeView(mEmptyInfoView);
+        } else if (!mDisplayedInfo) {
+            if (mEmptyInfoView == null) mEmptyInfoView = new EmptyCollection(this);
+            if (mInfoError) {
+                mEmptyInfoView.setMessageText(mInfoError ? R.string.info_error : R.string.info_empty_other_message);
+                mEmptyInfoView.setImage(R.drawable.empty_connection);
+                mEmptyInfoView.setActionText(-1);
+            } else {
+                if (isOtherUser()) {
                     mEmptyInfoView.setMessageText(R.string.info_empty_other_message);
+                    mEmptyInfoView.setActionText(-1);
                 } else {
                     mEmptyInfoView.setMessageText(R.string.info_empty_you_message);
                     mEmptyInfoView.setActionText(R.string.info_empty_you_action);
-                    mEmptyInfoView.setActionListener(new EmptyCollection.ActionListener(){
-
-                        @Override
-                        public void onAction() {
+                    mEmptyInfoView.setActionListener(new EmptyCollection.ActionListener() {
+                        @Override public void onAction() {
                             startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings")));
                         }
-
-                        @Override
-                        public void onSecondaryAction() {
-                        }
+                        @Override public void onSecondaryAction() {}
                     });
                 }
-
             }
-            mInfoView.addView(mEmptyInfoView);
+
+            if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+                // won't fit in most landscape views
+                mEmptyInfoView.setImageVisibility(false);
+                mEmptyInfoView.setActionText(-1);
+            }
+
+            if (mEmptyInfoView.getParent() != mInfoView) {
+                mInfoView.addView(mEmptyInfoView);
+            }
         }
+
     }
 
     private void reloadAvatar() {
@@ -715,61 +731,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                         .putExtra("recordingUri", recording.toUri().toString())
                         .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
             }
-            //showRecordingDialog(recording);
         }
-    }
-
-    private void showRecordingDialog(final Recording recording) {
-        final CharSequence[] curr_items = recording.external_upload ? EXTERNAL_RECORDING_ITEMS : RECORDING_ITEMS;
-
-        new AlertDialog.Builder(this)
-            .setInverseBackgroundForced(true)
-            .setTitle(recording.sharingNote(getResources()))
-            .setNegativeButton(getString(android.R.string.cancel), null)
-            .setItems(curr_items, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int item) {
-                    if (curr_items[item].equals(RECORDING_ITEMS[0])) {
-                        if (recording.private_user_id <= 0){
-                            startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.toUri()));
-                        } else {
-                            startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
-                                            .putExtra("edit",true)
-                                            .putExtra("recordingUri", recording.toUri().toString())
-                                            .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
-                        }
-
-                    } else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
-                        if (recording.private_user_id <= 0){
-                            startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
-                        } else {
-                            startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
-                                    .putExtra("edit", false)
-                                    .putExtra("recordingUri", recording.toUri().toString())
-                                    .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
-                        }
-
-
-
-                    } else if (curr_items[item].equals(RECORDING_ITEMS[2])) {
-                        startUpload(recording);
-                    } else if (curr_items[item].equals(RECORDING_ITEMS[3])) {
-                        new AlertDialog.Builder(UserBrowser.this)
-                                .setTitle(R.string.dialog_confirm_delete_recording_title)
-                                .setMessage(R.string.dialog_confirm_delete_recording_message)
-                                .setPositiveButton(getString(R.string.btn_yes),
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                            recording.delete(getContentResolver());
-                                        }
-                                    })
-                                .setNegativeButton(getString(R.string.btn_no), null)
-                                .create()
-                                .show();
-                    }
-                }
-            })
-            .create()
-            .show();
     }
 
     @Override
@@ -823,10 +785,12 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         c.workspaceIndex = mUserlistBrowser.getCurrentWorkspaceIndex();
         c.adapterStates = mAdapterStates;
         c.friendFinderState = mFriendFinderView != null ? mFriendFinderView.getCurrentState() : -1;
+        c.infoError = mInfoError;
         return c;
     }
 
     private void fromConfiguration(Configuration c){
+        mInfoError = c.infoError;
         setUser(c.user);
         build(); //build here because the rest of the state needs a constructed userlist browser
 
@@ -847,6 +811,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         int workspaceIndex;
         Object[] adapterStates;
         int friendFinderState;
+        boolean infoError;
     }
 
 }
