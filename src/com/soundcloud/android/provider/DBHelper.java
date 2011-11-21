@@ -64,13 +64,14 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         try {
-            Log.i("asdf","Making trackview "+ DATABASE_CREATE_TRACK_VIEW);
             db.execSQL(DATABASE_CREATE_TRACKS);
             db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
             db.execSQL(DATABASE_CREATE_USERS);
             db.execSQL(DATABASE_CREATE_RECORDINGS);
             db.execSQL(DATABASE_CREATE_SEARCHES);
             db.execSQL(DATABASE_CREATE_USER_FAVORITES);
+            db.execSQL(DATABASE_CREATE_USER_FOLLOWERS);
+            db.execSQL(DATABASE_CREATE_USER_FOLLOWING);
             db.execSQL(DATABASE_CREATE_TRACK_VIEW);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -356,7 +357,7 @@ public class DBHelper extends SQLiteOpenHelper {
     static final String DATABASE_CREATE_USER_FAVORITES = "create table UserFavorites (_id INTEGER primary key AUTOINCREMENT, "
             + "track_id INTEGER null, " + "user_id INTEGER null);";
 
-    static final String DATABASE_CREATE_USER_FOLLOWING = "create table UserFollowings (_id INTEGER primary key AUTOINCREMENT, "
+    static final String DATABASE_CREATE_USER_FOLLOWING = "create table UserFollowing (_id INTEGER primary key AUTOINCREMENT, "
             + "user_id INTEGER null, " + "following_id INTEGER null);";
 
     static final String DATABASE_CREATE_USER_FOLLOWERS = "create table UserFollowers (_id INTEGER primary key AUTOINCREMENT, "
@@ -403,24 +404,6 @@ public class DBHelper extends SQLiteOpenHelper {
           public static final String CONCRETE_SHARING = Tables.TRACKS.tableName + "." + SHARING;
           public static final String CONCRETE_USER_ID = Tables.TRACKS.tableName + "." + USER_ID;
           public static final String CONCRETE_FILELENGTH = Tables.TRACKS.tableName + "." + FILELENGTH;
-
-          public static final String ALIAS_ID = Tables.TRACKS.tableName + "_" + ID;
-          public static final String ALIAS_PERMALINK = Tables.TRACKS.tableName + "_" + PERMALINK;
-          public static final String ALIAS_CREATED_AT = Tables.TRACKS.tableName + "_" + CREATED_AT;
-          public static final String ALIAS_DURATION = Tables.TRACKS.tableName + "_" + DURATION;
-          public static final String ALIAS_TAG_LIST = Tables.TRACKS.tableName + "_" + TAG_LIST;
-          public static final String ALIAS_TRACK_TYPE = Tables.TRACKS.tableName + "_" + TRACK_TYPE;
-          public static final String ALIAS_TITLE = Tables.TRACKS.tableName + "_" + TITLE;
-          public static final String ALIAS_PERMALINK_URL = Tables.TRACKS.tableName + "_" + PERMALINK_URL;
-          public static final String ALIAS_ARTWORK_URL = Tables.TRACKS.tableName + "_" + ARTWORK_URL;
-          public static final String ALIAS_WAVEFORM_URL = Tables.TRACKS.tableName + "_" + WAVEFORM_URL;
-          public static final String ALIAS_DOWNLOADABLE = Tables.TRACKS.tableName + "_" + DOWNLOADABLE;
-          public static final String ALIAS_DOWNLOAD_URL = Tables.TRACKS.tableName + "_" + DOWNLOAD_URL;
-          public static final String ALIAS_STREAM_URL = Tables.TRACKS.tableName + "_" + STREAM_URL;
-          public static final String ALIAS_STREAMABLE = Tables.TRACKS.tableName + "_" + STREAMABLE;
-          public static final String ALIAS_SHARING = Tables.TRACKS.tableName + "_" + SHARING;
-          public static final String ALIAS_USER_ID = Tables.TRACKS.tableName + "_" + USER_ID;
-          public static final String ALIAS_FILELENGTH = Tables.TRACKS.tableName + "_" + FILELENGTH;
       }
 
       public static final class TrackPlays implements BaseColumns {
@@ -435,10 +418,6 @@ public class DBHelper extends SQLiteOpenHelper {
           public static final String CONCRETE_ID = Tables.TRACK_PLAYS.tableName + "." + _ID;
           public static final String CONCRETE_TRACK_ID = Tables.TRACK_PLAYS.tableName + "." + TRACK_ID;
           public static final String CONCRETE_USER_ID = Tables.TRACK_PLAYS.tableName + "." + USER_ID;
-
-          public static final String ALIAS_ID = Tables.TRACK_PLAYS.tableName + "_" + _ID;
-          public static final String ALIAS_TRACK_ID = Tables.TRACK_PLAYS.tableName + "_" + TRACK_ID;
-          public static final String ALIAS_USER_ID = Tables.TRACK_PLAYS.tableName + "_" + USER_ID;
       }
 
     public static final class UserFavorites implements BaseColumns {
@@ -453,10 +432,6 @@ public class DBHelper extends SQLiteOpenHelper {
           public static final String CONCRETE_ID = Tables.USER_FAVORITES.tableName + "." + _ID;
           public static final String CONCRETE_TRACK_ID = Tables.USER_FAVORITES.tableName + "." + TRACK_ID;
           public static final String CONCRETE_USER_ID = Tables.USER_FAVORITES.tableName + "." + USER_ID;
-
-          public static final String ALIAS_ID = Tables.USER_FAVORITES.tableName + "_" + _ID;
-          public static final String ALIAS_TRACK_ID = Tables.USER_FAVORITES.tableName + "_" + TRACK_ID;
-          public static final String ALIAS_USER_ID = Tables.USER_FAVORITES.tableName + "_" + USER_ID;
       }
 
     public static final class UserFollowing implements BaseColumns {
@@ -471,10 +446,6 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String CONCRETE_ID = Tables.USER_FOLLOWING.tableName + "." + _ID;
         public static final String CONCRETE_USER_ID = Tables.USER_FOLLOWING.tableName + "." + USER_ID;
         public static final String CONCRETE_FOLLOWING_ID = Tables.USER_FOLLOWING.tableName + "." + FOLLOWING_ID;
-
-        public static final String ALIAS_ID = Tables.USER_FOLLOWING.tableName + "_" + _ID;
-        public static final String ALIAS_USER_ID = Tables.USER_FOLLOWING.tableName + "_" + USER_ID;
-        public static final String ALIAS_FOLLOWING_ID = Tables.USER_FOLLOWING.tableName + "_" + FOLLOWING_ID;
     }
     
     public static final class UserFollowers implements BaseColumns {
@@ -489,10 +460,6 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String CONCRETE_ID = Tables.USER_FOLLOWERS.tableName + "." + _ID;
         public static final String CONCRETE_USER_ID = Tables.USER_FOLLOWERS.tableName + "." + USER_ID;
         public static final String CONCRETE_FOLLOWER_ID = Tables.USER_FOLLOWERS.tableName + "." + FOLLOWER_ID;
-
-        public static final String ALIAS_ID = Tables.USER_FOLLOWERS.tableName + "_" + _ID;
-        public static final String ALIAS_USER_ID = Tables.USER_FOLLOWERS.tableName + "_" + USER_ID;
-        public static final String ALIAS_FOLLOWER_ID = Tables.USER_FOLLOWERS.tableName + "_" + FOLLOWER_ID;
     }
 
 
@@ -532,22 +499,6 @@ public class DBHelper extends SQLiteOpenHelper {
           public static final String CONCRETE_WEBSITE = Tables.USERS.tableName + "." + WEBSITE;
           public static final String CONCRETE_WEBSITE_TITLE = Tables.USERS.tableName + "." + WEBSITE_TITLE;
           public static final String CONCRETE_DESCRIPTION = Tables.USERS.tableName + "." + DESCRIPTION;
-
-          public static final String ALIAS_ID = Tables.USERS.tableName + "_" + _ID;
-          public static final String ALIAS_USERNAME = Tables.USERS.tableName + "_" + USERNAME;
-          public static final String ALIAS_PERMALINK = Tables.USERS.tableName + "_" + PERMALINK;
-          public static final String ALIAS_AVATAR_URL = Tables.USERS.tableName + "_" + AVATAR_URL;
-          public static final String ALIAS_CITY = Tables.USERS.tableName + "_" + CITY;
-          public static final String ALIAS_COUNTRY = Tables.USERS.tableName + "_" + COUNTRY;
-          public static final String ALIAS_DISCOGS_NAME = Tables.USERS.tableName + "_" + DISCOGS_NAME;
-          public static final String ALIAS_FOLLOWERS_COUNT = Tables.USERS.tableName + "_" + FOLLOWERS_COUNT;
-          public static final String ALIAS_FOLLOWINGS_COUNT = Tables.USERS.tableName + "_" + FOLLOWINGS_COUNT;
-          public static final String ALIAS_FULL_NAME = Tables.USERS.tableName + "_" + FULL_NAME;
-          public static final String ALIAS_MYSPACE_NAME = Tables.USERS.tableName + "_" + MYSPACE_NAME;
-          public static final String ALIAS_TRACK_COUNT = Tables.USERS.tableName + "_" + TRACK_COUNT;
-          public static final String ALIAS_WEBSITE = Tables.USERS.tableName + "_" + WEBSITE;
-          public static final String ALIAS_WEBSITE_TITLE = Tables.USERS.tableName + "_" + WEBSITE_TITLE;
-          public static final String ALIAS_DESCRIPTION = Tables.USERS.tableName + "_" + DESCRIPTION;
       }
 
       public static final class Recordings implements BaseColumns {
@@ -596,28 +547,6 @@ public class DBHelper extends SQLiteOpenHelper {
           public static final String CONCRETE_AUDIO_PROFILE = Tables.RECORDINGS.tableName + "." + AUDIO_PROFILE;
           public static final String CONCRETE_UPLOAD_STATUS = Tables.RECORDINGS.tableName + "." + UPLOAD_STATUS;
           public static final String CONCRETE_UPLOAD_ERROR = Tables.RECORDINGS.tableName + "." + UPLOAD_ERROR;
-
-          public static final String ALIAS_ID = Tables.RECORDINGS.tableName + "_" + ID;
-          public static final String ALIAS_USER_ID = Tables.RECORDINGS.tableName + "_" + USER_ID;
-          public static final String ALIAS_TIMESTAMP = Tables.RECORDINGS.tableName + "_" + TIMESTAMP;
-          public static final String ALIAS_LONGITUDE = Tables.RECORDINGS.tableName + "_" + LONGITUDE;
-          public static final String ALIAS_LATITUDE = Tables.RECORDINGS.tableName + "_" + LATITUDE;
-          public static final String ALIAS_WHAT_TEXT = Tables.RECORDINGS.tableName + "_" + WHAT_TEXT;
-          public static final String ALIAS_WHERE_TEXT = Tables.RECORDINGS.tableName + "_" + WHERE_TEXT;
-          public static final String ALIAS_AUDIO_PATH = Tables.RECORDINGS.tableName + "_" + AUDIO_PATH;
-          public static final String ALIAS_DURATION = Tables.RECORDINGS.tableName + "_" + DURATION;
-          public static final String ALIAS_ARTWORK_PATH = Tables.RECORDINGS.tableName + "_" + ARTWORK_PATH;
-          public static final String ALIAS_FOUR_SQUARE_VENUE_ID = Tables.RECORDINGS.tableName + "_" + FOUR_SQUARE_VENUE_ID;
-          public static final String ALIAS_SHARED_EMAILS = Tables.RECORDINGS.tableName + "_" + SHARED_EMAILS;
-          public static final String ALIAS_SHARED_IDS = Tables.RECORDINGS.tableName + "_" + SHARED_IDS;
-          public static final String ALIAS_PRIVATE_USER_ID = Tables.RECORDINGS.tableName + "_" + PRIVATE_USER_ID;
-          public static final String ALIAS_SERVICE_IDS = Tables.RECORDINGS.tableName + "_" + SERVICE_IDS;
-          public static final String ALIAS_IS_PRIVATE = Tables.RECORDINGS.tableName + "_" + IS_PRIVATE;
-          public static final String ALIAS_EXTERNAL_UPLOAD = Tables.RECORDINGS.tableName + "_" + EXTERNAL_UPLOAD;
-          public static final String ALIAS_AUDIO_PROFILE = Tables.RECORDINGS.tableName + "_" + AUDIO_PROFILE;
-          public static final String ALIAS_UPLOAD_STATUS = Tables.RECORDINGS.tableName + "_" + UPLOAD_STATUS;
-          public static final String ALIAS_UPLOAD_ERROR = Tables.RECORDINGS.tableName + "_" + UPLOAD_ERROR;
-
       }
 
       public static final class Events implements BaseColumns {
@@ -646,16 +575,6 @@ public class DBHelper extends SQLiteOpenHelper {
           public static final String CONCRETE_LABEL = Tables.EVENTS.tableName + "." + LABEL;
           public static final String CONCRETE_ORIGIN_ID = Tables.EVENTS.tableName + "." + ORIGIN_ID;
           public static final String CONCRETE_NEXT_CURSOR = Tables.EVENTS.tableName + "." + NEXT_CURSOR;
-
-          public static final String ALIAS_ID = Tables.EVENTS.tableName + "_" + ID;
-          public static final String ALIAS_USER_ID = Tables.EVENTS.tableName + "_" + USER_ID;
-          public static final String ALIAS_TYPE = Tables.EVENTS.tableName + "_" + TYPE;
-          public static final String ALIAS_CREATED_AT = Tables.EVENTS.tableName + "_" + CREATED_AT;
-          public static final String ALIAS_EXCLUSIVE = Tables.EVENTS.tableName + "_" + EXCLUSIVE;
-          public static final String ALIAS_TAGS = Tables.EVENTS.tableName + "_" + TAGS;
-          public static final String ALIAS_LABEL = Tables.EVENTS.tableName + "_" + LABEL;
-          public static final String ALIAS_ORIGIN_ID = Tables.EVENTS.tableName + "_" + ORIGIN_ID;
-          public static final String ALIAS_NEXT_CURSOR = Tables.EVENTS.tableName + "_" + NEXT_CURSOR;
       }
 
     public static final class Searches implements BaseColumns {
@@ -737,8 +656,6 @@ public class DBHelper extends SQLiteOpenHelper {
             + " FROM " + Tables.TRACKS
             + " JOIN " + Tables.USERS + " ON("
             + Tracks.CONCRETE_USER_ID + " = " + Users.CONCRETE_ID + ")";
-
-
 
     /*
 

@@ -61,16 +61,15 @@ public class User extends ModelBase implements PageTrackable {
         primary_email_confirmed = scApp.getAccountDataBoolean(DataKeys.EMAIL_CONFIRMED);
     }
 
-    public User(Cursor cursor, boolean aliasesOnly) {
+    public User(Cursor cursor) {
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
-            if (aliasesOnly && !key.contains(Tables.USERS + "_")) continue;
-            if (key.contentEquals(aliasesOnly ? Users.ALIAS_ID : Users.ID)) {
+            if (key.contentEquals(Users.ID)) {
                 id = cursor.getLong(cursor.getColumnIndex(key));
             } else {
                 try {
                     setFieldFromCursor(this,
-                            User.class.getDeclaredField(aliasesOnly ? key.substring(6) : key),
+                            User.class.getDeclaredField(key),
                             cursor, key);
                 } catch (SecurityException e) {
                     Log.e(TAG, "error", e);

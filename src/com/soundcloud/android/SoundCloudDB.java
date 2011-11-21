@@ -77,7 +77,7 @@ public class SoundCloudDB {
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 if (writeState == WriteState.update_only || writeState == WriteState.all)
-                    contentResolver.update(ScContentProvider.Content.USER_ITEM, user.buildContentValues(currentUserId.compareTo(user.id) == 0), Users.ID + "='" + user.id + "'", null);
+                    contentResolver.update(user.toUri(), user.buildContentValues(currentUserId.compareTo(user.id) == 0), null, null);
             } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
                 contentResolver.insert(ScContentProvider.Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0));
             }
@@ -86,26 +86,27 @@ public class SoundCloudDB {
     }
 
     public static User getUserById(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(ScContentProvider.Content.USER_ITEM, null, Users.ID + "= ?",new String[]{Long.toString(userId)}, null);
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.USERS.buildUpon().appendPath(String.valueOf(userId)).build(), null, null,null, null);
         User user = null;
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
-            user = new User(cursor, false);
+            user = new User(cursor);
         }
         if (cursor != null) cursor.close();
         return user;
     }
 
     public static User getUserByUsername(ContentResolver contentResolver, String username) {
-        Cursor cursor = contentResolver.query(ScContentProvider.Content.USER_ITEM, null, Users.USERNAME + "= ?",new String[]{username}, null);
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.USERS, null, Users.USERNAME + "= ?",new String[]{username}, null);
         User user = null;
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
-            user = new User(cursor, false);
+            user = new User(cursor);
         }
         if (cursor != null) cursor.close();
         return user;
     }
+
 
     public static String getUsernameById(ContentResolver contentResolver, long userId) {
         Cursor cursor = contentResolver.query(ScContentProvider.Content.USER_ITEM, new String[]{Users.CONCRETE_USERNAME}, Users.ID + "= ?",new String[]{Long.toString(userId)}, null);

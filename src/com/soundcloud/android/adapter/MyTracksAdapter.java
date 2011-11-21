@@ -58,8 +58,7 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     private void refreshCursor() {
         mCursor = mActivity.getContentResolver().query(ScContentProvider.Content.RECORDINGS, null,
-                Recordings.USER_ID + "= ? AND " + Recordings.UPLOAD_STATUS + " < 2", new String[] {Long.toString(mActivity.getCurrentUserId())},
-                Recordings.TIMESTAMP + " DESC");
+                Recordings.UPLOAD_STATUS + " < 2", null, Recordings.TIMESTAMP + " DESC");
 
         if (mCursor != null) {
             mDataValid = true;

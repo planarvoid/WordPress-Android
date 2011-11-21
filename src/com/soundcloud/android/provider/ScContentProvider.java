@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 
 import java.util.regex.Matcher;
@@ -57,20 +56,35 @@ public class ScContentProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
         final long userId = getUserId();
         SCQueryBuilder qb = new SCQueryBuilder();
-        String query;
+        String whereAppend;
+
+        // TODO
+        //(SELECT 1 FROM NOTES_IN_NOTES n2 WHERE n2.parent_note_id = n0._id)
+
         switch (sUriMatcher.match(uri)) {
+            case TRACKS:
+                qb.setTables(TRACKVIEW_FAVORITE_JOIN);
+                whereAppend = DBHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
             case TRACK_ITEM:
-                qb.setTables(DBHelper.Tables.TRACKS.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
-                        " ON (" + DBHelper.Tracks.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_TRACK_ID+ ")");
-                selection = selection == null ? DBHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId :
-                        selection + " AND " + DBHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
+                qb.setTables(TRACKVIEW_FAVORITE_JOIN);
+                whereAppend = DBHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId + " AND "
+                        + DBHelper.TrackView._ID + " = " + uri.getLastPathSegment();
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+
+            case USERS:
+                qb.setTables(USER_FOLLOWING_JOIN);
+                whereAppend = DBHelper.UserFollowing.CONCRETE_USER_ID + " = "+ userId;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
             case USER_ITEM:
-                Log.i("asdf","We bot a user itemmm");
-                qb.setTables(DBHelper.Tables.USERS.tableName);
-                selection = selection == null ? DBHelper.Users.ID + " = "+ userId :
-                        selection + " AND " + DBHelper.Users.ID + " = " + userId;
+                qb.setTables(USER_FOLLOWING_JOIN);
+                whereAppend = DBHelper.UserFollowing.CONCRETE_USER_ID + " = "+ userId + " AND "
+                        + DBHelper.Users.CONCRETE_ID + " = " + uri.getLastPathSegment();
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
             case ME_FAVORITES:
@@ -79,6 +93,19 @@ public class ScContentProvider extends ContentProvider {
                 selection = selection == null ? DBHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId :
                         selection + " AND " + DBHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
                 break;
+
+            case RECORDINGS:
+                qb.setTables(DBHelper.Tables.RECORDINGS.tableName);
+                whereAppend = DBHelper.Recordings.CONCRETE_USER_ID + " = "+ userId;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+
+            case RECORDING_ITEM:
+                qb.setTables(DBHelper.Tables.RECORDINGS.tableName);
+                whereAppend = DBHelper.Recordings.CONCRETE_ID + " = "+ uri.getLastPathSegment();
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+
 
             default:
                 throw new IllegalArgumentException("No query available for: " + uri);
@@ -385,6 +412,12 @@ public class ScContentProvider extends ContentProvider {
 		return matcher;
 
 	}
+
+    static String TRACKVIEW_FAVORITE_JOIN = DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
+                        " ON (" + DBHelper.Tracks.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_TRACK_ID+ ")";
+
+    static String USER_FOLLOWING_JOIN = DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.USER_FOLLOWING.tableName +
+                        " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.CONCRETE_FOLLOWING_ID+ ")";
 
     private long getUserId(){
         SoundCloudApplication app = (SoundCloudApplication) getContext().getApplicationContext();

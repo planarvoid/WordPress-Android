@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Events;
 import com.soundcloud.android.provider.DBHelper.Tables;
 import com.soundcloud.android.utils.CloudUtils;
@@ -36,16 +37,15 @@ public class Event extends ModelBase implements Origin {
         readFromParcel(in);
     }
 
-    public Event(Cursor cursor, boolean aliasesOnly) {
+    public Event(Cursor cursor) {
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
-            if (aliasesOnly && !key.contains(Tables.EVENTS + "_")) continue;
-            if (key.contentEquals(aliasesOnly ? Events.ALIAS_ID : Events.ID)) {
+            if (key.contentEquals(Events.ID)) {
                 id = cursor.getLong(cursor.getColumnIndex(key));
             } else {
                 try {
                     setFieldFromCursor(this,
-                            this.getClass().getDeclaredField(aliasesOnly ? key.substring(7) : key),
+                            Event.class.getDeclaredField(key),
                             cursor, key);
                 } catch (SecurityException e) {
                     Log.e(TAG, "error", e);
