@@ -4,7 +4,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import com.soundcloud.android.provider.DatabaseHelper;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +33,7 @@ public class UserTest {
         u.buildContentValues(true);
         u.id = 1000L;
         ContentValues cv = u.buildContentValues(false);
-        assertThat(cv.getAsLong(DatabaseHelper.Users.ID), is(1000L));
+        assertThat(cv.getAsLong(DBHelper.Users.ID), is(1000L));
     }
 
     @Test

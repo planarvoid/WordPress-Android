@@ -3,7 +3,7 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.provider.DatabaseHelper.Recordings;
+import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;

@@ -11,7 +11,7 @@ import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Upload;
-import com.soundcloud.android.provider.DatabaseHelper.Recordings;
+import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.task.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;

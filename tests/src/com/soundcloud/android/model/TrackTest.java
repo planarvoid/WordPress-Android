@@ -6,11 +6,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
-import com.soundcloud.android.provider.DatabaseHelper;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
-import org.junit.matchers.JUnitMatchers;
 import org.junit.runner.RunWith;
 
 import android.content.ContentValues;
@@ -93,7 +91,7 @@ public class TrackTest {
         t.id = 1000;
         ContentValues v = t.buildContentValues();
         assertNotNull(v);
-        assertThat(v.getAsLong(DatabaseHelper.Tracks.ID), is(1000L));
+        assertThat(v.getAsLong(DBHelper.Tracks.ID), is(1000L));
     }
 
     @Test

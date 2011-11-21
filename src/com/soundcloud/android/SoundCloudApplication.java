@@ -23,7 +23,7 @@ import com.soundcloud.android.cache.LruCache;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DatabaseHelper;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URI;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static android.content.pm.PackageManager.*;
 
@@ -520,7 +519,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public void clearUserDbData() {
-        getContentResolver().delete(DatabaseHelper.Searches.CONTENT_URI,DatabaseHelper.Searches.USER_ID + " = ?",new String[]{String.valueOf(getCurrentUserId())});
+        getContentResolver().delete(DBHelper.Searches.CONTENT_URI, DBHelper.Searches.USER_ID + " = ?",new String[]{String.valueOf(getCurrentUserId())});
     }
 
     public static interface RecordListener {
@@ -594,7 +593,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
      * @return       the thread used to submit the msg
      */
     public static Thread handleSilentException(String msg, Exception e) {
-        if (EMULATOR) return null; // acra is disabled on emulator
+        if (EMULATOR || !DALVIK) return null; // acra is disabled on emulator
         if (msg != null) {
            Log.w(TAG, "silentException: "+msg, e);
            ACRA.getErrorReporter().putCustomData("message", msg);

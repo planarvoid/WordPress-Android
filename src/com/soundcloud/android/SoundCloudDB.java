@@ -2,8 +2,8 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DatabaseHelper.Tracks;
-import com.soundcloud.android.provider.DatabaseHelper.Users;
+import com.soundcloud.android.provider.DBHelper.Tracks;
+import com.soundcloud.android.provider.DBHelper.Users;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -79,7 +79,7 @@ public class SoundCloudDB {
                 if (writeState == WriteState.update_only || writeState == WriteState.all)
                     contentResolver.update(ScContentProvider.Content.USER_ITEM, user.buildContentValues(currentUserId.compareTo(user.id) == 0), Users.ID + "='" + user.id + "'", null);
             } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                contentResolver.insert(ScContentProvider.Content.USER_ITEM, user.buildContentValues(currentUserId.compareTo(user.id) == 0));
+                contentResolver.insert(ScContentProvider.Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0));
             }
             cursor.close();
         }

@@ -1,1144 +1,817 @@
-{
-  "collection": [
-    {
-      "type": "favoriting",
-      "created_at": "2011\/07\/29 22:30:59 +0000",
-      "origin": {
-        "track": {
-          "id": 13090155,
-          "permalink": "p-watzlawick-anleitung-zum",
-          "title": "P. Watzlawick - Anleitung zum Ungl\u00fccklichsein",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/13090155",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/p-watzlawick-anleitung-zum",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/13090155\/stream"
-        },
-        "user": {
-          "id": 6311652,
-          "permalink": "paulko",
-          "username": "Paul Ko",
-          "uri": "https:\/\/api.soundcloud.com\/users\/6311652",
-          "permalink_url": "http:\/\/soundcloud.com\/paulko",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000005077051-ttwttz-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+[
+   {
+    "id": 27583938,
+    "created_at": "2011/11/09 16:31:22 +0000",
+    "user_id": 172720,
+    "duration": 13980,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "private",
+    "tag_list": "foursquare:venue=4adf72d6f964a520ab7a21e3 geo:lat=52.527508175 geo:lon=13.402823737500002 soundcloud:source=android-record",
+    "permalink": "orange-hands-at-soundcloud-hq",
+    "description": null,
+    "streamable": true,
+    "downloadable": false,
+    "genre": null,
+    "release": null,
+    "purchase_url": null,
+    "label_id": null,
+    "label_name": null,
+    "isrc": null,
+    "video_url": null,
+    "track_type": "recording",
+    "key_signature": null,
+    "bpm": null,
+    "title": "Orange Hands at SoundCloud HQ",
+    "release_year": null,
+    "release_month": null,
+    "release_day": null,
+    "original_format": "raw",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/27583938",
+    "permalink_url": "http://soundcloud.com/jonathanschmidt/orange-hands-at-soundcloud-hq",
+    "artwork_url": "http://i1.sndcdn.com/artworks-000013793174-2lkhr4-large.jpg?6485e1c",
+    "waveform_url": "http://w1.sndcdn.com/hkXYOgjFDsLH_m.png",
+    "user":  {
+      "id": 172720,
+      "permalink": "jonathanschmidt",
+      "username": "j_schmidt",
+      "uri": "https://api.soundcloud.com/users/172720",
+      "permalink_url": "http://soundcloud.com/jonathanschmidt",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000001910306-9s3u92-large.jpg?6485e1c"
     },
-    {
-      "type": "comment",
-      "created_at": "2011\/07\/29 15:26:44 +0000",
-      "origin": {
-        "id": 22140210,
-        "created_at": "2011\/07\/29 15:26:44 +0000",
-        "user_id": 1360,
-        "track_id": 20023414,
-        "timestamp": null,
-        "body": "Hach, Fernweh.",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/22140210",
-        "user": {
-          "id": 1360,
-          "permalink": "jensnikolaus",
-          "username": "jensnikolaus",
-          "uri": "https:\/\/api.soundcloud.com\/users\/1360",
-          "permalink_url": "http:\/\/soundcloud.com\/jensnikolaus",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003534540-77he5z-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 20023414,
-          "permalink": "sounds-from-dalston-kingsland",
-          "title": "Sounds from Dalston Kingsland Railway Station (DLK)",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/20023414",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sounds-from-dalston-kingsland",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/20023414\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000009823303-xte9r2-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own, affiliated"
+    "stream_url": "https://api.soundcloud.com/tracks/27583938/stream",
+    "shared_to_count": 1,
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 1,
+    "download_count": 0,
+    "favoritings_count": 1,
+    "comment_count": 0,
+    "created_with":  {
+      "id": 3152,
+      "name": "SoundCloud Android",
+      "uri": "https://api.soundcloud.com/apps/3152",
+      "permalink_url": "http://soundcloud.com/apps/android"
     },
-    {
-      "type": "comment",
-      "created_at": "2011\/07\/23 11:52:29 +0000",
-      "origin": {
-        "id": 21623911,
-        "created_at": "2011\/07\/23 11:52:28 +0000",
-        "user_id": 4253183,
-        "track_id": 19446062,
-        "timestamp": 58982,
-        "body": "its a very quiet lullaby....eddie...",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/21623911",
-        "user": {
-          "id": 4253183,
-          "permalink": "eddiesongwriter",
-          "username": "EddieSongWriter",
-          "uri": "https:\/\/api.soundcloud.com\/users\/4253183",
-          "permalink_url": "http:\/\/soundcloud.com\/eddiesongwriter",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003378812-m83f4d-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 19446062,
-          "permalink": "lullaby",
-          "title": "lullaby",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/19446062",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/lullaby",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/19446062\/stream"
-        }
-      },
-      "tags": "own"
+    "attachments_uri": "https://api.soundcloud.com/tracks/27583938/attachments"
+  },
+   {
+    "id": 27424166,
+    "created_at": "2011/11/07 19:29:13 +0000",
+    "user_id": 3767964,
+    "duration": 624485,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "",
+    "permalink": "twis-31-oct-nov-4th",
+    "description": "",
+    "streamable": true,
+    "downloadable": true,
+    "genre": "",
+    "release": "",
+    "purchase_url": null,
+    "label_id": null,
+    "label_name": "",
+    "isrc": "",
+    "video_url": null,
+    "track_type": "",
+    "key_signature": "",
+    "bpm": null,
+    "title": "TWiS - 31-4 November 2011",
+    "release_year": null,
+    "release_month": null,
+    "release_day": null,
+    "original_format": "mp3",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/27424166",
+    "permalink_url": "http://soundcloud.com/community-team/twis-31-oct-nov-4th",
+    "artwork_url": "http://i1.sndcdn.com/artworks-000013710021-k0d0ut-large.jpg?6485e1c",
+    "waveform_url": "http://w1.sndcdn.com/17YEbJXEQIn8_m.png",
+    "user":  {
+      "id": 3767964,
+      "permalink": "community-team",
+      "username": "SoundCloud Community Team",
+      "uri": "https://api.soundcloud.com/users/3767964",
+      "permalink_url": "http://soundcloud.com/community-team",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000004899721-stgk2j-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/07\/22 17:12:46 +0000",
-      "origin": {
-        "track": {
-          "id": 5848128,
-          "permalink": "william-gibson-cory-doctorow-on-zero-history",
-          "title": "William Gibson & Cory Doctorow on 'Zero History'",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5848128",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/william-gibson-cory-doctorow-on-zero-history",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5848128\/stream"
-        },
-        "user": {
-          "id": 4462218,
-          "permalink": "changmangoo",
-          "username": "changmangoo",
-          "uri": "https:\/\/api.soundcloud.com\/users\/4462218",
-          "permalink_url": "http:\/\/soundcloud.com\/changmangoo",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003571226-xdhfqb-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+    "stream_url": "https://api.soundcloud.com/tracks/27424166/stream",
+    "download_url": "https://api.soundcloud.com/tracks/27424166/download",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 1430,
+    "download_count": 11,
+    "favoritings_count": 12,
+    "comment_count": 41,
+    "attachments_uri": "https://api.soundcloud.com/tracks/27424166/attachments"
+  },
+   {
+    "id": 27071215,
+    "created_at": "2011/11/03 12:31:27 +0000",
+    "user_id": 658453,
+    "duration": 153188,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": ""FatCat Demoplayer" "FatCat Records" 2011 "Kevin Brusha"",
+    "permalink": "kevin-brusha-carry-on",
+    "description": "This demo popped into our mailbox this summer. 18 year old Kevin Brusha from the Philadelphia suburbs has just completed his third album and is currently preparing for an upcoming tour. Cool stuff!\r\n\r\nTo hear more from Kevin Brusha, visit his site: http://kevinbrusha.bandcamp.com/\r\n",
+    "streamable": true,
+    "downloadable": true,
+    "genre": "Folkrock",
+    "release": "",
+    "purchase_url": null,
+    "label_id": null,
+    "label_name": "",
+    "isrc": "",
+    "video_url": null,
+    "track_type": "demo",
+    "key_signature": "",
+    "bpm": null,
+    "title": "Kevin Brusha - Carry On",
+    "release_year": null,
+    "release_month": null,
+    "release_day": null,
+    "original_format": "mp3",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/27071215",
+    "permalink_url": "http://soundcloud.com/fatcatrecords/kevin-brusha-carry-on",
+    "artwork_url": "http://i1.sndcdn.com/artworks-000013528848-q91mn2-large.jpg?6485e1c",
+    "waveform_url": "http://w1.sndcdn.com/WRkL8HWxbpNt_m.png",
+    "user":  {
+      "id": 658453,
+      "permalink": "fatcatrecords",
+      "username": "Fat Cat Records",
+      "uri": "https://api.soundcloud.com/users/658453",
+      "permalink_url": "http://soundcloud.com/fatcatrecords",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000000964791-ui0vai-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/07\/20 23:55:30 +0000",
-      "origin": {
-        "track": {
-          "id": 19446062,
-          "permalink": "lullaby",
-          "title": "lullaby",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/19446062",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/lullaby",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/19446062\/stream"
-        },
-        "user": {
-          "id": 1360,
-          "permalink": "jensnikolaus",
-          "username": "jensnikolaus",
-          "uri": "https:\/\/api.soundcloud.com\/users\/1360",
-          "permalink_url": "http:\/\/soundcloud.com\/jensnikolaus",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003534540-77he5z-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own, affiliated"
+    "stream_url": "https://api.soundcloud.com/tracks/27071215/stream",
+    "download_url": "https://api.soundcloud.com/tracks/27071215/download",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 2131,
+    "download_count": 39,
+    "favoritings_count": 23,
+    "comment_count": 15,
+    "attachments_uri": "https://api.soundcloud.com/tracks/27071215/attachments"
+  },
+   {
+    "id": 27024053,
+    "created_at": "2011/11/02 21:20:08 +0000",
+    "user_id": 3439653,
+    "duration": 478561,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "Radiolab "Robert Krulwich" "Jad Abumrad" Shakespeare",
+    "permalink": "shorts-the-four-groans",
+    "description": "Ron Rosenbaum, author of The Shakespeare Wars, tells us about a very small variation in the text of Hamlet that makes a huge difference about how Shakespeare envisioned Hamlet’s dying moment. Then, we pay a visit to Tony Award-winning actor Mark Rylance to get his take on encountering the edge of consciousness.",
+    "streamable": true,
+    "downloadable": true,
+    "genre": "Radio",
+    "release": "",
+    "purchase_url": null,
+    "label_id": null,
+    "label_name": "",
+    "isrc": "",
+    "video_url": null,
+    "track_type": "podcast",
+    "key_signature": "",
+    "bpm": null,
+    "title": "Shorts: The Four Groans",
+    "release_year": null,
+    "release_month": null,
+    "release_day": null,
+    "original_format": "mp3",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/27024053",
+    "permalink_url": "http://soundcloud.com/radiolab/shorts-the-four-groans",
+    "artwork_url": "http://i1.sndcdn.com/artworks-000013504698-0bqeba-large.jpg?6485e1c",
+    "waveform_url": "http://w1.sndcdn.com/LHBp2kppPnFT_m.png",
+    "user":  {
+      "id": 3439653,
+      "permalink": "radiolab",
+      "username": "Radiolab",
+      "uri": "https://api.soundcloud.com/users/3439653",
+      "permalink_url": "http://soundcloud.com/radiolab",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000002829552-ln24rt-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/06\/10 22:42:16 +0000",
-      "origin": {
-        "track": {
-          "id": 16111648,
-          "permalink": "sleeping-at-mtv",
-          "title": "Sleeping at MTV",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/16111648",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sleeping-at-mtv",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/16111648\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000007695739-1bkuev-large.jpg?0dfc9e6"
-        },
-        "user": {
-          "id": 3498080,
-          "permalink": "freenerd",
-          "username": "Freenerd",
-          "uri": "https:\/\/api.soundcloud.com\/users\/3498080",
-          "permalink_url": "http:\/\/soundcloud.com\/freenerd",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000002860642-a8gj43-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+    "stream_url": "https://api.soundcloud.com/tracks/27024053/stream",
+    "download_url": "https://api.soundcloud.com/tracks/27024053/download",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 1156,
+    "download_count": 20,
+    "favoritings_count": 6,
+    "comment_count": 3,
+    "attachments_uri": "https://api.soundcloud.com/tracks/27024053/attachments"
+  },
+   {
+    "id": 22365800,
+    "created_at": "2011/09/01 13:40:30 +0000",
+    "user_id": 627054,
+    "duration": 229729,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "",
+    "permalink": "plaid-missing",
+    "description": "Download 'missing' and watch the video for '35 summers' at http://scintilli.com\r\n\r\nPre-order the album now at Bleep: http://bit.ly/pTkEeo",
+    "streamable": true,
+    "downloadable": false,
+    "genre": "",
+    "release": "WARP215",
+    "purchase_url": "http://bleep.com/index.php?page=release_details&releaseid=31369",
+    "label_id": 627054,
+    "label_name": "Warp Records",
+    "isrc": "",
+    "video_url": null,
+    "track_type": "",
+    "key_signature": "",
+    "bpm": null,
+    "title": "Plaid - missing (taken from new album Scintilli)",
+    "release_year": 2011,
+    "release_month": 9,
+    "release_day": 26,
+    "original_format": "mp3",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/22365800",
+    "permalink_url": "http://soundcloud.com/warp-records/plaid-missing",
+    "artwork_url": "http://i1.sndcdn.com/artworks-000011057286-raejvn-large.jpg?6485e1c",
+    "waveform_url": "http://w1.sndcdn.com/UzC5GYhCBb2V_m.png",
+    "user":  {
+      "id": 627054,
+      "permalink": "warp-records",
+      "username": "Warp Records",
+      "uri": "https://api.soundcloud.com/users/627054",
+      "permalink_url": "http://soundcloud.com/warp-records",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000000943888-ale3hf-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/05\/29 11:54:10 +0000",
-      "origin": {
-        "track": {
-          "id": 16111648,
-          "permalink": "sleeping-at-mtv",
-          "title": "Sleeping at MTV",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/16111648",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sleeping-at-mtv",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/16111648\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000007695739-1bkuev-large.jpg?0dfc9e6"
-        },
-        "user": {
-          "id": 375367,
-          "permalink": "fronx",
-          "username": "fronx",
-          "uri": "https:\/\/api.soundcloud.com\/users\/375367",
-          "permalink_url": "http:\/\/soundcloud.com\/fronx",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003575192-wqnp00-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own, affiliated"
+    "label":  {
+      "id": 627054,
+      "permalink": "warp-records",
+      "username": "Warp Records",
+      "uri": "https://api.soundcloud.com/users/627054",
+      "permalink_url": "http://soundcloud.com/warp-records",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000000943888-ale3hf-large.jpg?6485e1c"
     },
-    {
-      "type": "comment",
-      "created_at": "2011\/05\/29 11:53:09 +0000",
-      "origin": {
-        "id": 17485296,
-        "created_at": "2011\/05\/29 11:51:16 +0000",
-        "user_id": 375367,
-        "track_id": 16110503,
-        "timestamp": null,
-        "body": "heh :)",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/17485296",
-        "user": {
-          "id": 375367,
-          "permalink": "fronx",
-          "username": "fronx",
-          "uri": "https:\/\/api.soundcloud.com\/users\/375367",
-          "permalink_url": "http:\/\/soundcloud.com\/fronx",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003575192-wqnp00-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 16110503,
-          "permalink": "autotune-at-mtv",
-          "title": "Autotune at MTV",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/16110503",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/autotune-at-mtv",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/16110503\/stream"
-        }
-      },
-      "tags": "own, affiliated"
+    "stream_url": "https://api.soundcloud.com/tracks/22365800/stream",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 10574,
+    "download_count": 0,
+    "favoritings_count": 340,
+    "comment_count": 84,
+    "attachments_uri": "https://api.soundcloud.com/tracks/22365800/attachments"
+  },
+   {
+    "id": 21169368,
+    "created_at": "2011/08/15 16:16:56 +0000",
+    "user_id": 627054,
+    "duration": 250530,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "",
+    "permalink": "cant-believe",
+    "description": "Believe is taken from the forthcoming debut album by CANT (aka Chris Taylor of Grizzly Bear) - Dreams Come True\r\n\r\nDreams Come True will be released on Sept 12/13 via Terrible Records (N.America) and Terrible Records/Warp Records (everywhere else)\r\n\r\nMore information + US tour details: http://www.terriblerecordsus.com\r\nAdditional information + UK/Eu tour details: http://warp.net/cant",
+    "streamable": true,
+    "downloadable": false,
+    "genre": "",
+    "release": "WARP219",
+    "purchase_url": null,
+    "label_id": 627054,
+    "label_name": "Warp Records",
+    "isrc": "",
+    "video_url": null,
+    "track_type": "",
+    "key_signature": "",
+    "bpm": null,
+    "title": "CANT - Believe (taken from Dreams Come True - Terrible Records / Warp Records)",
+    "release_year": 2011,
+    "release_month": 9,
+    "release_day": 12,
+    "original_format": "mp3",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/21169368",
+    "permalink_url": "http://soundcloud.com/warp-records/cant-believe",
+    "artwork_url": "http://i1.sndcdn.com/artworks-000010427037-14m1u7-large.jpg?6485e1c",
+    "waveform_url": "http://w1.sndcdn.com/bm28Wk6mVrer_m.png",
+    "user":  {
+      "id": 627054,
+      "permalink": "warp-records",
+      "username": "Warp Records",
+      "uri": "https://api.soundcloud.com/users/627054",
+      "permalink_url": "http://soundcloud.com/warp-records",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000000943888-ale3hf-large.jpg?6485e1c"
     },
-    {
-      "type": "comment",
-      "created_at": "2011\/05\/28 22:38:49 +0000",
-      "origin": {
-        "id": 17459485,
-        "created_at": "2011\/05\/28 22:38:47 +0000",
-        "user_id": 4126,
-        "track_id": 16111648,
-        "timestamp": null,
-        "body": "best track evar. public please :)",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/17459485",
-        "user": {
-          "id": 4126,
-          "permalink": "diskodna",
-          "username": "Disko DNA",
-          "uri": "https:\/\/api.soundcloud.com\/users\/4126",
-          "permalink_url": "http:\/\/soundcloud.com\/diskodna",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000002113655-c6vf7r-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 16111648,
-          "permalink": "sleeping-at-mtv",
-          "title": "Sleeping at MTV",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/16111648",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sleeping-at-mtv",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/16111648\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000007695739-1bkuev-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own, affiliated"
+    "label":  {
+      "id": 627054,
+      "permalink": "warp-records",
+      "username": "Warp Records",
+      "uri": "https://api.soundcloud.com/users/627054",
+      "permalink_url": "http://soundcloud.com/warp-records",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000000943888-ale3hf-large.jpg?6485e1c"
     },
-    {
-      "type": "comment",
-      "created_at": "2011\/05\/26 21:46:22 +0000",
-      "origin": {
-        "id": 17218792,
-        "created_at": "2011\/05\/26 21:46:19 +0000",
-        "user_id": 375367,
-        "track_id": 15999948,
-        "timestamp": null,
-        "body": "nice! sounds like a place i should visit.",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/17218792",
-        "user": {
-          "id": 375367,
-          "permalink": "fronx",
-          "username": "fronx",
-          "uri": "https:\/\/api.soundcloud.com\/users\/375367",
-          "permalink_url": "http:\/\/soundcloud.com\/fronx",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003575192-wqnp00-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 15999948,
-          "permalink": "jam-at-16-doors",
-          "title": "Jam at 16 Doors",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/15999948",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/jam-at-16-doors",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/15999948\/stream"
-        }
-      },
-      "tags": "own, affiliated"
+    "stream_url": "https://api.soundcloud.com/tracks/21169368/stream",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 31263,
+    "download_count": 0,
+    "favoritings_count": 325,
+    "comment_count": 72,
+    "attachments_uri": "https://api.soundcloud.com/tracks/21169368/attachments"
+  },
+   {
+    "id": 20682449,
+    "created_at": "2011/08/08 12:56:45 +0000",
+    "user_id": 5687414,
+    "duration": 390913,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "private",
+    "tag_list": "soundcloud:source=android-record",
+    "permalink": "sounds-from-monday-afternoon",
+    "description": null,
+    "streamable": true,
+    "downloadable": false,
+    "genre": null,
+    "release": null,
+    "purchase_url": null,
+    "label_id": null,
+    "label_name": null,
+    "isrc": null,
+    "video_url": null,
+    "track_type": "recording",
+    "key_signature": null,
+    "bpm": null,
+    "title": "Sounds from Monday afternoon",
+    "release_year": null,
+    "release_month": null,
+    "release_day": null,
+    "original_format": "raw",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/20682449",
+    "permalink_url": "http://soundcloud.com/soundcloud-android/sounds-from-monday-afternoon",
+    "artwork_url": null,
+    "waveform_url": "http://w1.sndcdn.com/HlviUh3A6Iai_m.png",
+    "user":  {
+      "id": 5687414,
+      "permalink": "soundcloud-android",
+      "username": "SoundCloud Android",
+      "uri": "https://api.soundcloud.com/users/5687414",
+      "permalink_url": "http://soundcloud.com/soundcloud-android",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000004509813-93to0m-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/05\/12 05:24:44 +0000",
-      "origin": {
-        "track": {
-          "id": 5848128,
-          "permalink": "william-gibson-cory-doctorow-on-zero-history",
-          "title": "William Gibson & Cory Doctorow on 'Zero History'",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5848128",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/william-gibson-cory-doctorow-on-zero-history",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5848128\/stream"
-        },
-        "user": {
-          "id": 1181005,
-          "permalink": "technykalbeatsplz",
-          "username": "TechNYKALBeatsPLZ",
-          "uri": "https:\/\/api.soundcloud.com\/users\/1181005",
-          "permalink_url": "http:\/\/soundcloud.com\/technykalbeatsplz",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000001894495-2iy7o0-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+    "stream_url": "https://api.soundcloud.com/tracks/20682449/stream",
+    "download_url": "https://api.soundcloud.com/tracks/20682449/download",
+    "downloads_remaining": 100,
+    "secret_token": "s-XhaoV",
+    "secret_uri": "https://api.soundcloud.com/tracks/20682449?secret_token=s-XhaoV",
+    "shared_to_count": 1,
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 26,
+    "download_count": 0,
+    "favoritings_count": 1,
+    "comment_count": 5,
+    "created_with":  {
+      "id": 3152,
+      "name": "SoundCloud Android",
+      "uri": "https://api.soundcloud.com/apps/3152",
+      "permalink_url": "http://soundcloud.com/apps/android"
     },
-    {
-      "type": "comment",
-      "created_at": "2011\/05\/07 23:20:12 +0000",
-      "origin": {
-        "id": 15658446,
-        "created_at": "2011\/05\/07 23:20:12 +0000",
-        "user_id": 313065,
-        "track_id": 13090155,
-        "timestamp": null,
-        "body": "http:\/\/www.amazon.com\/Against-Happiness-Melancholy-Eric-Wilson\/dp\/0374240663\n\nby a professor i had during my undergrad days. ",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/15658446",
-        "user": {
-          "id": 313065,
-          "permalink": "blnporr",
-          "username": "blnporr",
-          "uri": "https:\/\/api.soundcloud.com\/users\/313065",
-          "permalink_url": "http:\/\/soundcloud.com\/blnporr",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000000706357-66per5-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 13090155,
-          "permalink": "p-watzlawick-anleitung-zum",
-          "title": "P. Watzlawick - Anleitung zum Ungl\u00fccklichsein",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/13090155",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/p-watzlawick-anleitung-zum",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/13090155\/stream"
-        }
-      },
-      "tags": "conversation, own, affiliated"
+    "attachments_uri": "https://api.soundcloud.com/tracks/20682449/attachments"
+  },
+   {
+    "id": 20514458,
+    "created_at": "2011/08/05 19:02:19 +0000",
+    "user_id": 527845,
+    "duration": 220190,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "",
+    "permalink": "blitzen-trapper-love-the-way",
+    "description": "Blitzen Trapper on Sub Pop http://www.subpop.com/artists/blitzen_trapper \r\n\r\n"Love the Way You Walk Away" from the 9/13/11 album American Goldwing\r\nhttp://www.subpop.com/releases/blitzen_trapper/full_lengths/american_goldwing",
+    "streamable": true,
+    "downloadable": true,
+    "genre": "",
+    "release": "SP949",
+    "purchase_url": "http://www.subpop.com/releases/blitzen_trapper/full_lengths/american_goldwing",
+    "label_id": null,
+    "label_name": "Sub Pop",
+    "isrc": "",
+    "video_url": null,
+    "track_type": "original",
+    "key_signature": "",
+    "bpm": null,
+    "title": "Blitzen Trapper - Love The Way You Walk Away",
+    "release_year": 2011,
+    "release_month": 9,
+    "release_day": 13,
+    "original_format": "mp3",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/20514458",
+    "permalink_url": "http://soundcloud.com/subpop/blitzen-trapper-love-the-way",
+    "artwork_url": "http://i1.sndcdn.com/artworks-000010082948-n3vxrq-large.jpg?6485e1c",
+    "waveform_url": "http://w1.sndcdn.com/zZI9xjkpjUrh_m.png",
+    "user":  {
+      "id": 527845,
+      "permalink": "subpop",
+      "username": "subpop",
+      "uri": "https://api.soundcloud.com/users/527845",
+      "permalink_url": "http://soundcloud.com/subpop",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000001573218-k3suh1-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/05\/04 00:23:31 +0000",
-      "origin": {
-        "track": {
-          "id": 12385402,
-          "permalink": "sounds-from-tuesday-night-1",
-          "title": "T\u00fcr schlie\u00dft",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/12385402",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sounds-from-tuesday-night-1",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/12385402\/stream"
-        },
-        "user": {
-          "id": 1534718,
-          "permalink": "diorella",
-          "username": "diorella",
-          "uri": "https:\/\/api.soundcloud.com\/users\/1534718",
-          "permalink_url": "http:\/\/soundcloud.com\/diorella",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000005179745-29ucaa-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+    "stream_url": "https://api.soundcloud.com/tracks/20514458/stream",
+    "download_url": "https://api.soundcloud.com/tracks/20514458/download",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 23963,
+    "download_count": 3322,
+    "favoritings_count": 109,
+    "comment_count": 31,
+    "attachments_uri": "https://api.soundcloud.com/tracks/20514458/attachments"
+  },
+   {
+    "id": 20504866,
+    "created_at": "2011/08/05 16:18:57 +0000",
+    "user_id": 2490,
+    "duration": 214153,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "soundcloud:source=iphone-record geo:lat=52.521917 geo:lon=13.388615 foursquare:venue=4e0d7698a8099e1525ff4cf2",
+    "permalink": "band-playing-during",
+    "description": null,
+    "streamable": true,
+    "downloadable": true,
+    "genre": null,
+    "release": null,
+    "purchase_url": null,
+    "label_id": null,
+    "label_name": null,
+    "isrc": null,
+    "video_url": null,
+    "track_type": "recording",
+    "key_signature": null,
+    "bpm": null,
+    "title": "Band playing during intermediates of the podcast I'm speaking at at Amen World HQ",
+    "release_year": null,
+    "release_month": null,
+    "release_day": null,
+    "original_format": "m4a",
+    "license": "cc-by-nc-sa",
+    "uri": "https://api.soundcloud.com/tracks/20504866",
+    "permalink_url": "http://soundcloud.com/david/band-playing-during",
+    "artwork_url": "http://i1.sndcdn.com/artworks-000010077638-msoohn-large.jpg?6485e1c",
+    "waveform_url": "http://w1.sndcdn.com/88RnSDRwa5Yy_m.png",
+    "user":  {
+      "id": 2490,
+      "permalink": "david",
+      "username": "David Noël",
+      "uri": "https://api.soundcloud.com/users/2490",
+      "permalink_url": "http://soundcloud.com/david",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000004390655-itlofv-large.jpg?6485e1c"
     },
-    {
-      "type": "comment",
-      "created_at": "2011\/04\/23 15:49:33 +0000",
-      "origin": {
-        "id": 14715162,
-        "created_at": "2011\/04\/23 15:49:33 +0000",
-        "user_id": 173438,
-        "track_id": 12324892,
-        "timestamp": null,
-        "body": "This is actually Aphex Twin's \"Cockv10\" - Omgyjya Switch was later in the program.",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/14715162",
-        "user": {
-          "id": 173438,
-          "permalink": "christhompson",
-          "username": "christhompson",
-          "uri": "https:\/\/api.soundcloud.com\/users\/173438",
-          "permalink_url": "http:\/\/soundcloud.com\/christhompson",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000000618993-kqvnnl-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 12324892,
-          "permalink": "alarm-will-sound-at",
-          "title": "Alarm Will Sound at Philharmonie Berlin",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/12324892",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/alarm-will-sound-at",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/12324892\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000005739055-f4ik7x-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+    "stream_url": "https://api.soundcloud.com/tracks/20504866/stream",
+    "download_url": "https://api.soundcloud.com/tracks/20504866/download",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 151,
+    "download_count": 1,
+    "favoritings_count": 2,
+    "comment_count": 2,
+    "created_with":  {
+      "id": 124,
+      "name": "SoundCloud iPhone",
+      "uri": "https://api.soundcloud.com/apps/124",
+      "permalink_url": "http://soundcloud.com/apps/iphone"
     },
-    {
-      "type": "comment",
-      "created_at": "2011\/04\/05 17:14:59 +0000",
-      "origin": {
-        "id": 13622249,
-        "created_at": "2011\/04\/05 15:36:43 +0000",
-        "user_id": 515350,
-        "track_id": 13090155,
-        "timestamp": 2298615,
-        "body": "Track 16",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/13622249",
-        "user": {
-          "id": 515350,
-          "permalink": "hopit",
-          "username": "HopIt!",
-          "uri": "https:\/\/api.soundcloud.com\/users\/515350",
-          "permalink_url": "http:\/\/soundcloud.com\/hopit",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000001735044-efiv28-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 13090155,
-          "permalink": "p-watzlawick-anleitung-zum",
-          "title": "P. Watzlawick - Anleitung zum Ungl\u00fccklichsein",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/13090155",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/p-watzlawick-anleitung-zum",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/13090155\/stream"
-        }
-      },
-      "tags": "conversation, own, affiliated"
+    "attachments_uri": "https://api.soundcloud.com/tracks/20504866/attachments"
+  },
+   {
+    "id": 20238047,
+    "created_at": "2011/08/01 21:33:59 +0000",
+    "user_id": 251687,
+    "duration": 219511,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "",
+    "permalink": "three_instrumentals-digital-11",
+    "description": null,
+    "streamable": true,
+    "downloadable": false,
+    "genre": null,
+    "release": "GI-55",
+    "purchase_url": "http://theghostlystore.com/products/dabrye-two-three-instrumentals",
+    "label_id": null,
+    "label_name": "Ghostly International",
+    "isrc": null,
+    "video_url": null,
+    "track_type": null,
+    "key_signature": null,
+    "bpm": null,
+    "title": "Dabrye - Get Live (Instrumental)",
+    "release_year": 2006,
+    "release_month": 10,
+    "release_day": 3,
+    "original_format": "mp3",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/20238047",
+    "permalink_url": "http://soundcloud.com/ghostly/three_instrumentals-digital-11",
+    "artwork_url": null,
+    "waveform_url": "http://w1.sndcdn.com/zOdPwVQEumqx_m.png",
+    "user":  {
+      "id": 251687,
+      "permalink": "ghostly",
+      "username": "ghostly",
+      "uri": "https://api.soundcloud.com/users/251687",
+      "permalink_url": "http://soundcloud.com/ghostly",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000000681138-8nvd2h-large.jpg?6485e1c"
     },
-    {
-      "type": "comment",
-      "created_at": "2011\/04\/05 16:29:52 +0000",
-      "origin": {
-        "id": 13620507,
-        "created_at": "2011\/04\/05 15:03:05 +0000",
-        "user_id": 515350,
-        "track_id": 13090155,
-        "timestamp": 2670450,
-        "body": "einleitung??",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/13620507",
-        "user": {
-          "id": 515350,
-          "permalink": "hopit",
-          "username": "HopIt!",
-          "uri": "https:\/\/api.soundcloud.com\/users\/515350",
-          "permalink_url": "http:\/\/soundcloud.com\/hopit",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000001735044-efiv28-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 13090155,
-          "permalink": "p-watzlawick-anleitung-zum",
-          "title": "P. Watzlawick - Anleitung zum Ungl\u00fccklichsein",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/13090155",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/p-watzlawick-anleitung-zum",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/13090155\/stream"
-        }
-      },
-      "tags": "own, affiliated"
+    "stream_url": "https://api.soundcloud.com/tracks/20238047/stream",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 2835,
+    "download_count": 0,
+    "favoritings_count": 46,
+    "comment_count": 11,
+    "created_with":  {
+      "id": 158,
+      "name": "Scup",
+      "uri": "https://api.soundcloud.com/apps/158",
+      "permalink_url": "http://soundcloud.com/apps/scup"
     },
-    {
-      "type": "comment",
-      "created_at": "2011\/04\/05 16:02:52 +0000",
-      "origin": {
-        "id": 13619485,
-        "created_at": "2011\/04\/05 14:42:28 +0000",
-        "user_id": 515350,
-        "track_id": 13090155,
-        "timestamp": 1616918,
-        "body": "hm weird transition, sure files got correctly merged??",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/13619485",
-        "user": {
-          "id": 515350,
-          "permalink": "hopit",
-          "username": "HopIt!",
-          "uri": "https:\/\/api.soundcloud.com\/users\/515350",
-          "permalink_url": "http:\/\/soundcloud.com\/hopit",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000001735044-efiv28-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 13090155,
-          "permalink": "p-watzlawick-anleitung-zum",
-          "title": "P. Watzlawick - Anleitung zum Ungl\u00fccklichsein",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/13090155",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/p-watzlawick-anleitung-zum",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/13090155\/stream"
-        }
-      },
-      "tags": "own, affiliated"
+    "attachments_uri": "https://api.soundcloud.com/tracks/20238047/attachments"
+  },
+   {
+    "id": 19658312,
+    "created_at": "2011/07/24 03:47:57 +0000",
+    "user_id": 3160,
+    "duration": 215409,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "",
+    "permalink": "nazca",
+    "description": "A tune born of today's buzz, intoxicated by ancient cultures, histories, and wine, and feeling full of kinetic energy.",
+    "streamable": true,
+    "downloadable": false,
+    "genre": "",
+    "release": "",
+    "purchase_url": null,
+    "label_id": null,
+    "label_name": "",
+    "isrc": "",
+    "video_url": null,
+    "track_type": "",
+    "key_signature": "",
+    "bpm": null,
+    "title": "Nazca",
+    "release_year": null,
+    "release_month": null,
+    "release_day": null,
+    "original_format": "wav",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/19658312",
+    "permalink_url": "http://soundcloud.com/mr-squirrel/nazca",
+    "artwork_url": "http://i1.sndcdn.com/artworks-000009629553-931wjc-large.jpg?6485e1c",
+    "waveform_url": "http://w1.sndcdn.com/naySgCLrsMiv_m.png",
+    "user":  {
+      "id": 3160,
+      "permalink": "mr-squirrel",
+      "username": "Mr. Squirrel",
+      "uri": "https://api.soundcloud.com/users/3160",
+      "permalink_url": "http://soundcloud.com/mr-squirrel",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000002875212-3p9g6x-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/03\/25 04:33:44 +0000",
-      "origin": {
-        "track": {
-          "id": 12393971,
-          "permalink": "sitting-on-the-dock-of-the-bay",
-          "title": "Sitting on the dock of the bay at Das Edelweiss",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/12393971",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sitting-on-the-dock-of-the-bay",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/12393971\/stream"
-        },
-        "user": {
-          "id": 1925599,
-          "permalink": "luiladias",
-          "username": "luiladias",
-          "uri": "https:\/\/api.soundcloud.com\/users\/1925599",
-          "permalink_url": "http:\/\/soundcloud.com\/luiladias",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000001940551-nt6y77-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+    "stream_url": "https://api.soundcloud.com/tracks/19658312/stream",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 157,
+    "download_count": 1,
+    "favoritings_count": 5,
+    "comment_count": 5,
+    "attachments_uri": "https://api.soundcloud.com/tracks/19658312/attachments"
+  },
+   {
+    "id": 18571159,
+    "created_at": "2011/07/07 14:06:06 +0000",
+    "user_id": 4963,
+    "duration": 642281,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "clone rotterdam dj deep club series jovonn djdeep",
+    "permalink": "ccs03-dj-deep",
+    "description": "New Clone Club Series with a forgotten gem by Dj Deep and Jovonn. two house legends teaming up back in 1999.  Cat#CCS03  - Set for release early september 2011",
+    "streamable": true,
+    "downloadable": false,
+    "genre": "House",
+    "release": "Clone Club Series 03",
+    "purchase_url": "http://clone.nl/item20809.html",
+    "label_id": 4963,
+    "label_name": "clone records",
+    "isrc": "",
+    "video_url": null,
+    "track_type": "",
+    "key_signature": "",
+    "bpm": null,
+    "title": "CCS03 Dj Deep and Jovonn - Back In The Dark",
+    "release_year": null,
+    "release_month": null,
+    "release_day": null,
+    "original_format": "aiff",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/18571159",
+    "permalink_url": "http://soundcloud.com/clone-nl/ccs03-dj-deep",
+    "artwork_url": null,
+    "waveform_url": "http://w1.sndcdn.com/Hx0EOzCdrnd4_m.png",
+    "user":  {
+      "id": 4963,
+      "permalink": "clone-nl",
+      "username": "clone records",
+      "uri": "https://api.soundcloud.com/users/4963",
+      "permalink_url": "http://soundcloud.com/clone-nl",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000000648436-p2c1mf-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/03\/25 04:33:09 +0000",
-      "origin": {
-        "track": {
-          "id": 11355861,
-          "permalink": "charles-aznavour-voyez-cest-le",
-          "title": "Charles Aznavour \u2013 Voyez, C'est Le Printemps",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/11355861",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/charles-aznavour-voyez-cest-le",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/11355861\/stream"
-        },
-        "user": {
-          "id": 1925599,
-          "permalink": "luiladias",
-          "username": "luiladias",
-          "uri": "https:\/\/api.soundcloud.com\/users\/1925599",
-          "permalink_url": "http:\/\/soundcloud.com\/luiladias",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000001940551-nt6y77-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+    "label":  {
+      "id": 4963,
+      "permalink": "clone-nl",
+      "username": "clone records",
+      "uri": "https://api.soundcloud.com/users/4963",
+      "permalink_url": "http://soundcloud.com/clone-nl",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000000648436-p2c1mf-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/03\/21 16:56:55 +0000",
-      "origin": {
-        "track": {
-          "id": 12137966,
-          "permalink": "sounds-from-king-kong-klub",
-          "title": "Sounds from King Kong Klub",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/12137966",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sounds-from-king-kong-klub",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/12137966\/stream"
-        },
-        "user": {
-          "id": 57318,
-          "permalink": "robb",
-          "username": "robb",
-          "uri": "https:\/\/api.soundcloud.com\/users\/57318",
-          "permalink_url": "http:\/\/soundcloud.com\/robb",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000000797858-14ftvf-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+    "stream_url": "https://api.soundcloud.com/tracks/18571159/stream",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 1235,
+    "download_count": 1,
+    "favoritings_count": 46,
+    "comment_count": 37,
+    "attachments_uri": "https://api.soundcloud.com/tracks/18571159/attachments"
+  },
+   {
+    "id": 18213041,
+    "created_at": "2011/07/01 15:09:15 +0000",
+    "user_id": 133201,
+    "duration": 17926,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "soundcloud:source=android-record foursquare:venue=4adf72d6f964a520ab7a21e3 geo:lat=52.527504914285714 geo:lon=13.402928528571428",
+    "permalink": "sounds-from-soundcloud-hq-1",
+    "description": "",
+    "streamable": true,
+    "downloadable": false,
+    "genre": "",
+    "release": "",
+    "purchase_url": null,
+    "label_id": null,
+    "label_name": "",
+    "isrc": "",
+    "video_url": null,
+    "track_type": "recording",
+    "key_signature": "",
+    "bpm": null,
+    "title": "Canada!",
+    "release_year": null,
+    "release_month": null,
+    "release_day": null,
+    "original_format": "m4a",
+    "license": "cc-by-nc-sa",
+    "uri": "https://api.soundcloud.com/tracks/18213041",
+    "permalink_url": "http://soundcloud.com/jberkel/sounds-from-soundcloud-hq-1",
+    "artwork_url": null,
+    "waveform_url": "http://w1.sndcdn.com/aT1RoQTNaYKq_m.png",
+    "user":  {
+      "id": 133201,
+      "permalink": "jberkel",
+      "username": "jberkel",
+      "uri": "https://api.soundcloud.com/users/133201",
+      "permalink_url": "http://soundcloud.com/jberkel",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000004552734-zedz5x-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/03\/21 15:41:43 +0000",
-      "origin": {
-        "track": {
-          "id": 12138747,
-          "permalink": "nachtbus",
-          "title": "Nachtbus",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/12138747",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/nachtbus",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/12138747\/stream"
-        },
-        "user": {
-          "id": 57318,
-          "permalink": "robb",
-          "username": "robb",
-          "uri": "https:\/\/api.soundcloud.com\/users\/57318",
-          "permalink_url": "http:\/\/soundcloud.com\/robb",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000000797858-14ftvf-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+    "stream_url": "https://api.soundcloud.com/tracks/18213041/stream",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 25,
+    "download_count": 0,
+    "favoritings_count": 1,
+    "comment_count": 0,
+    "created_with":  {
+      "id": 3152,
+      "name": "SoundCloud Android",
+      "uri": "https://api.soundcloud.com/apps/3152",
+      "permalink_url": "http://soundcloud.com/apps/android"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/03\/19 03:06:52 +0000",
-      "origin": {
-        "track": {
-          "id": 12190466,
-          "permalink": "sounds-from-saturday-morning",
-          "title": "Sounds from Saturday morning",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/12190466",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sounds-from-saturday-morning",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/12190466\/stream"
-        },
-        "user": {
-          "id": 3101348,
-          "permalink": "osipova",
-          "username": "osipova",
-          "uri": "https:\/\/api.soundcloud.com\/users\/3101348",
-          "permalink_url": "http:\/\/soundcloud.com\/osipova",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003141696-kr6nzm-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+    "attachments_uri": "https://api.soundcloud.com/tracks/18213041/attachments"
+  },
+   {
+    "id": 18071729,
+    "created_at": "2011/06/29 12:23:50 +0000",
+    "user_id": 28700,
+    "duration": 171061,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "fizic de dans 50weapons",
+    "permalink": "fizic-dedans-fiftyweapons",
+    "description": "Juno Records: Fresh from ruling the Red Bull tent at this year's Sonar Festival, the ever excellent Cosmin TRG adds to his annus mirabulus. We've waxed lyrical about the Romanian's deviations towards a distinctly unique take on the techno thump for Rush Hour and Hessle this year, and both tracks here continue to demonstrate his growing talent for productions in this area. "Fizic" arrives in a swell of purple synth flourishes, finding a bumping low end groove that fights its way through a relentless shower of neon stabs and rough industrial textures. Complementing this is the more euphoria inducing "De Dans" which takes full effect when the skittering array of kicks and snares drop into place. The playful way that subaqueous synth lines are introduced adds to the energy filled sensation. In a word, big!\n",
+    "streamable": true,
+    "downloadable": false,
+    "genre": "Techno",
+    "release": "50WEAPONS013",
+    "purchase_url": "http://boomkat.com/downloads/412193-cosmin-trg-fizic-de-dans",
+    "label_id": null,
+    "label_name": "50 Weapons",
+    "isrc": "",
+    "video_url": null,
+    "track_type": "original",
+    "key_signature": "",
+    "bpm": null,
+    "title": "Fizic.DeDans.FiftyWeapons",
+    "release_year": 2011,
+    "release_month": 6,
+    "release_day": 17,
+    "original_format": "mp3",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/18071729",
+    "permalink_url": "http://soundcloud.com/trg/fizic-dedans-fiftyweapons",
+    "artwork_url": "http://i1.sndcdn.com/artworks-000008737571-libm1u-large.jpg?6485e1c",
+    "waveform_url": "http://w1.sndcdn.com/hAbuG60AVxpE_m.png",
+    "user":  {
+      "id": 28700,
+      "permalink": "trg",
+      "username": "CosminTRG",
+      "uri": "https://api.soundcloud.com/users/28700",
+      "permalink_url": "http://soundcloud.com/trg",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000002513450-n1gpsq-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/03\/18 21:23:44 +0000",
-      "origin": {
-        "track": {
-          "id": 10374512,
-          "permalink": "wonderwall",
-          "title": "Wonderwall",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/10374512",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/wonderwall",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/10374512\/stream"
-        },
-        "user": {
-          "id": 1534718,
-          "permalink": "diorella",
-          "username": "diorella",
-          "uri": "https:\/\/api.soundcloud.com\/users\/1534718",
-          "permalink_url": "http:\/\/soundcloud.com\/diorella",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000005179745-29ucaa-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
+    "stream_url": "https://api.soundcloud.com/tracks/18071729/stream",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 2780,
+    "download_count": 0,
+    "favoritings_count": 74,
+    "comment_count": 43,
+    "attachments_uri": "https://api.soundcloud.com/tracks/18071729/attachments"
+  },
+   {
+    "id": 13403434,
+    "created_at": "2011/04/11 10:35:03 +0000",
+    "user_id": 4126213,
+    "duration": 183580,
+    "commentable": true,
+    "state": "finished",
+    "sharing": "public",
+    "tag_list": "",
+    "permalink": "dont-sit-down-cause-ive-moved-your-chair",
+    "description": "",
+    "streamable": true,
+    "downloadable": false,
+    "genre": "",
+    "release": "",
+    "purchase_url": "http://www.smarturl.it/dontsitdown",
+    "label_id": null,
+    "label_name": "",
+    "isrc": "",
+    "video_url": null,
+    "track_type": "",
+    "key_signature": "",
+    "bpm": null,
+    "title": "Don't Sit Down 'Cause I've Moved Your Chair",
+    "release_year": null,
+    "release_month": null,
+    "release_day": null,
+    "original_format": "wav",
+    "license": "all-rights-reserved",
+    "uri": "https://api.soundcloud.com/tracks/13403434",
+    "permalink_url": "http://soundcloud.com/arcticmonkeys/dont-sit-down-cause-ive-moved-your-chair",
+    "artwork_url": null,
+    "waveform_url": "http://w1.sndcdn.com/P6gCmJucCENk_m.png",
+    "user":  {
+      "id": 4126213,
+      "permalink": "arcticmonkeys",
+      "username": "ArcticMonkeys",
+      "uri": "https://api.soundcloud.com/users/4126213",
+      "permalink_url": "http://soundcloud.com/arcticmonkeys",
+      "avatar_url": "http://i1.sndcdn.com/avatars-000003298081-ruwl1o-large.jpg?6485e1c"
     },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/03\/18 17:41:55 +0000",
-      "origin": {
-        "track": {
-          "id": 11355861,
-          "permalink": "charles-aznavour-voyez-cest-le",
-          "title": "Charles Aznavour \u2013 Voyez, C'est Le Printemps",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/11355861",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/charles-aznavour-voyez-cest-le",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/11355861\/stream"
-        },
-        "user": {
-          "id": 1534718,
-          "permalink": "diorella",
-          "username": "diorella",
-          "uri": "https:\/\/api.soundcloud.com\/users\/1534718",
-          "permalink_url": "http:\/\/soundcloud.com\/diorella",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000005179745-29ucaa-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/03\/18 16:15:44 +0000",
-      "origin": {
-        "track": {
-          "id": 10374512,
-          "permalink": "wonderwall",
-          "title": "Wonderwall",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/10374512",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/wonderwall",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/10374512\/stream"
-        },
-        "user": {
-          "id": 3522436,
-          "permalink": "morgan-wells",
-          "username": "morgan wells",
-          "uri": "https:\/\/api.soundcloud.com\/users\/3522436",
-          "permalink_url": "http:\/\/soundcloud.com\/morgan-wells",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003149674-tey1qi-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
-    },
-    {
-      "type": "comment",
-      "created_at": "2011\/03\/18 13:11:55 +0000",
-      "origin": {
-        "id": 12547518,
-        "created_at": "2011\/03\/18 13:11:54 +0000",
-        "user_id": 476254,
-        "track_id": 12137966,
-        "timestamp": 5302,
-        "body": "yeah! King Kong Klub rulez!",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/12547518",
-        "user": {
-          "id": 476254,
-          "permalink": "yvg",
-          "username": "yvg",
-          "uri": "https:\/\/api.soundcloud.com\/users\/476254",
-          "permalink_url": "http:\/\/soundcloud.com\/yvg",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000001628508-nrec32-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 12137966,
-          "permalink": "sounds-from-king-kong-klub",
-          "title": "Sounds from King Kong Klub",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/12137966",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sounds-from-king-kong-klub",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/12137966\/stream"
-        }
-      },
-      "tags": "own, affiliated"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/02\/11 13:40:35 +0000",
-      "origin": {
-        "track": {
-          "id": 10374512,
-          "permalink": "wonderwall",
-          "title": "Wonderwall",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/10374512",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/wonderwall",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/10374512\/stream"
-        },
-        "user": {
-          "id": 287170,
-          "permalink": "der-elegante-rest",
-          "username": "Der Elegante Rest",
-          "uri": "https:\/\/api.soundcloud.com\/users\/287170",
-          "permalink_url": "http:\/\/soundcloud.com\/der-elegante-rest",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000000679702-znc23a-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/02\/09 21:38:05 +0000",
-      "origin": {
-        "track": {
-          "id": 10164173,
-          "permalink": "recording-on-sunday",
-          "title": "explaining the soundcloud android app to my dad",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/10164173",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/recording-on-sunday",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/10164173\/stream"
-        },
-        "user": {
-          "id": 2090198,
-          "permalink": "hello_joe",
-          "username": "hello_joe",
-          "uri": "https:\/\/api.soundcloud.com\/users\/2090198",
-          "permalink_url": "http:\/\/soundcloud.com\/hello_joe",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000002006559-xs974j-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2011\/02\/09 20:28:17 +0000",
-      "origin": {
-        "track": {
-          "id": 10164173,
-          "permalink": "recording-on-sunday",
-          "title": "explaining the soundcloud android app to my dad",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/10164173",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/recording-on-sunday",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/10164173\/stream"
-        },
-        "user": {
-          "id": 313065,
-          "permalink": "blnporr",
-          "username": "blnporr",
-          "uri": "https:\/\/api.soundcloud.com\/users\/313065",
-          "permalink_url": "http:\/\/soundcloud.com\/blnporr",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000000706357-66per5-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own, affiliated"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2010\/11\/22 21:05:07 +0000",
-      "origin": {
-        "track": {
-          "id": 5848128,
-          "permalink": "william-gibson-cory-doctorow-on-zero-history",
-          "title": "William Gibson & Cory Doctorow on 'Zero History'",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5848128",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/william-gibson-cory-doctorow-on-zero-history",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5848128\/stream"
-        },
-        "user": {
-          "id": 8638,
-          "permalink": "demus",
-          "username": "demus",
-          "uri": "https:\/\/api.soundcloud.com\/users\/8638",
-          "permalink_url": "http:\/\/soundcloud.com\/demus",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000000042924-31f924-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2010\/10\/26 01:58:09 +0000",
-      "origin": {
-        "track": {
-          "id": 5611941,
-          "permalink": "cloud-sculptors-of-coral-d",
-          "title": "Cloud Sculptors Of Coral D",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5611941",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/cloud-sculptors-of-coral-d",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5611941\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000002453567-7xlyd7-large.jpg?0dfc9e6"
-        },
-        "user": {
-          "id": 57067,
-          "permalink": "pixel82music",
-          "username": "PIXEL82",
-          "uri": "https:\/\/api.soundcloud.com\/users\/57067",
-          "permalink_url": "http:\/\/soundcloud.com\/pixel82music",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000002183035-zkweww-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own, affiliated"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2010\/10\/06 15:41:07 +0000",
-      "origin": {
-        "track": {
-          "id": 5848128,
-          "permalink": "william-gibson-cory-doctorow-on-zero-history",
-          "title": "William Gibson & Cory Doctorow on 'Zero History'",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5848128",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/william-gibson-cory-doctorow-on-zero-history",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5848128\/stream"
-        },
-        "user": {
-          "id": 285684,
-          "permalink": "quietmusic",
-          "username": "quietmusic",
-          "uri": "https:\/\/api.soundcloud.com\/users\/285684",
-          "permalink_url": "http:\/\/soundcloud.com\/quietmusic",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000000679078-i6luhe-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2010\/10\/06 15:28:19 +0000",
-      "origin": {
-        "track": {
-          "id": 5848128,
-          "permalink": "william-gibson-cory-doctorow-on-zero-history",
-          "title": "William Gibson & Cory Doctorow on 'Zero History'",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5848128",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/william-gibson-cory-doctorow-on-zero-history",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5848128\/stream"
-        },
-        "user": {
-          "id": 102707,
-          "permalink": "primusluta",
-          "username": "primusluta",
-          "uri": "https:\/\/api.soundcloud.com\/users\/102707",
-          "permalink_url": "http:\/\/soundcloud.com\/primusluta",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000000584989-zjl4or-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2010\/10\/06 12:41:01 +0000",
-      "origin": {
-        "track": {
-          "id": 5848128,
-          "permalink": "william-gibson-cory-doctorow-on-zero-history",
-          "title": "William Gibson & Cory Doctorow on 'Zero History'",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5848128",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/william-gibson-cory-doctorow-on-zero-history",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5848128\/stream"
-        },
-        "user": {
-          "id": 9239,
-          "permalink": "stretta",
-          "username": "stretta",
-          "uri": "https:\/\/api.soundcloud.com\/users\/9239",
-          "permalink_url": "http:\/\/soundcloud.com\/stretta",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000000044636-dbb606-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2010\/10\/06 12:24:33 +0000",
-      "origin": {
-        "track": {
-          "id": 5848128,
-          "permalink": "william-gibson-cory-doctorow-on-zero-history",
-          "title": "William Gibson & Cory Doctorow on 'Zero History'",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5848128",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/william-gibson-cory-doctorow-on-zero-history",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5848128\/stream"
-        },
-        "user": {
-          "id": 9031,
-          "permalink": "stigi",
-          "username": "stigi",
-          "uri": "https:\/\/api.soundcloud.com\/users\/9031",
-          "permalink_url": "http:\/\/soundcloud.com\/stigi",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000002637008-u1sudg-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own, affiliated"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2010\/09\/28 18:27:50 +0000",
-      "origin": {
-        "track": {
-          "id": 5611941,
-          "permalink": "cloud-sculptors-of-coral-d",
-          "title": "Cloud Sculptors Of Coral D",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5611941",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/cloud-sculptors-of-coral-d",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5611941\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000002453567-7xlyd7-large.jpg?0dfc9e6"
-        },
-        "user": {
-          "id": 1074292,
-          "permalink": "sohm",
-          "username": "Sebastian Ohm",
-          "uri": "https:\/\/api.soundcloud.com\/users\/1074292",
-          "permalink_url": "http:\/\/soundcloud.com\/sohm",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000001276110-q5410e-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own"
-    },
-    {
-      "type": "favoriting",
-      "created_at": "2010\/09\/28 14:46:16 +0000",
-      "origin": {
-        "track": {
-          "id": 5611941,
-          "permalink": "cloud-sculptors-of-coral-d",
-          "title": "Cloud Sculptors Of Coral D",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/5611941",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/cloud-sculptors-of-coral-d",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/5611941\/stream",
-          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000002453567-7xlyd7-large.jpg?0dfc9e6"
-        },
-        "user": {
-          "id": 9031,
-          "permalink": "stigi",
-          "username": "stigi",
-          "uri": "https:\/\/api.soundcloud.com\/users\/9031",
-          "permalink_url": "http:\/\/soundcloud.com\/stigi",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000002637008-u1sudg-large.jpg?0dfc9e6"
-        }
-      },
-      "tags": "own, affiliated"
-    },
-    {
-      "type": "comment",
-      "created_at": "2010\/04\/26 20:56:50 +0000",
-      "origin": {
-        "id": 2139080,
-        "created_at": "2010\/04\/26 20:56:50 +0000",
-        "user_id": 313065,
-        "track_id": 2621017,
-        "timestamp": 99928,
-        "body": "paloma bar",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/2139080",
-        "user": {
-          "id": 313065,
-          "permalink": "blnporr",
-          "username": "blnporr",
-          "uri": "https:\/\/api.soundcloud.com\/users\/313065",
-          "permalink_url": "http:\/\/soundcloud.com\/blnporr",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000000706357-66per5-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 2621017,
-          "permalink": "chant-of-the-raw-material",
-          "title": "Ole L. - Chant Of The Raw Material",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/2621017",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/chant-of-the-raw-material",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/2621017\/stream"
-        }
-      },
-      "tags": "conversation, own, affiliated"
-    },
-    {
-      "type": "comment",
-      "created_at": "2010\/04\/26 19:01:52 +0000",
-      "origin": {
-        "id": 2137010,
-        "created_at": "2010\/04\/26 19:01:52 +0000",
-        "user_id": 133201,
-        "track_id": 2621017,
-        "timestamp": 86825,
-        "body": "...king-sized crustaceans crawling from the sewers",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/2137010",
-        "user": {
-          "id": 133201,
-          "permalink": "jberkel",
-          "username": "jberkel",
-          "uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000004552734-zedz5x-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 2621017,
-          "permalink": "chant-of-the-raw-material",
-          "title": "Ole L. - Chant Of The Raw Material",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/2621017",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/chant-of-the-raw-material",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/2621017\/stream"
-        }
-      },
-      "tags": "own"
-    },
-    {
-      "type": "comment",
-      "created_at": "2010\/04\/24 14:51:29 +0000",
-      "origin": {
-        "id": 2107198,
-        "created_at": "2010\/04\/24 14:51:29 +0000",
-        "user_id": 354865,
-        "track_id": 539076,
-        "timestamp": 124138,
-        "body": "Nice Intro:)",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/2107198",
-        "user": {
-          "id": 354865,
-          "permalink": "robokopbeats",
-          "username": "Robokop",
-          "uri": "https:\/\/api.soundcloud.com\/users\/354865",
-          "permalink_url": "http:\/\/soundcloud.com\/robokopbeats",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000004202083-fzl2h8-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 539076,
-          "permalink": "artists-only",
-          "title": "Artists Only",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/539076",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/artists-only",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/539076\/stream"
-        }
-      },
-      "tags": "own, affiliated"
-    },
-    {
-      "type": "comment",
-      "created_at": "2010\/02\/17 08:50:24 +0000",
-      "origin": {
-        "id": 1281365,
-        "created_at": "2010\/02\/17 08:50:24 +0000",
-        "user_id": 327051,
-        "track_id": 539076,
-        "timestamp": 31830,
-        "body": "Funky! Niiiice.",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/1281365",
-        "user": {
-          "id": 327051,
-          "permalink": "ianhooper",
-          "username": "Ian Hooper",
-          "uri": "https:\/\/api.soundcloud.com\/users\/327051",
-          "permalink_url": "http:\/\/soundcloud.com\/ianhooper",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000002166613-dix72d-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 539076,
-          "permalink": "artists-only",
-          "title": "Artists Only",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/539076",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/artists-only",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/539076\/stream"
-        }
-      },
-      "tags": "own, affiliated"
-    }
-  ],
-  "next_href": "https:\/\/api.soundcloud.com\/me\/activities\/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738",
-  "future_href": "https:\/\/api.soundcloud.com\/me\/activities\/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"
-}
+    "stream_url": "https://api.soundcloud.com/tracks/13403434/stream",
+    "user_playback_count": 1,
+    "user_favorite": true,
+    "playback_count": 255826,
+    "download_count": 0,
+    "favoritings_count": 1090,
+    "comment_count": 225,
+    "attachments_uri": "https://api.soundcloud.com/tracks/13403434/attachments"
+  }
+]

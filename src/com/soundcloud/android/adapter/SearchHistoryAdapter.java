@@ -2,7 +2,6 @@ package com.soundcloud.android.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.SearchHistoryItem;
-import com.soundcloud.android.provider.DatabaseHelper;
-import com.soundcloud.android.utils.CloudUtils;
 
 import java.util.ArrayList;
 

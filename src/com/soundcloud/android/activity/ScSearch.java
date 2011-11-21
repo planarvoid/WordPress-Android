@@ -16,7 +16,7 @@ import com.soundcloud.android.adapter.*;
 import com.soundcloud.android.model.SearchHistoryItem;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DatabaseHelper;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
@@ -140,10 +140,10 @@ public class ScSearch extends ScActivity {
     private void refreshHistory() {
 
         Cursor cursor = getContentResolver().query(ScContentProvider.Content.SEARCHES,
-                new String[]{DatabaseHelper.Searches.ID, DatabaseHelper.Searches.SEARCH_TYPE, DatabaseHelper.Searches.QUERY, DatabaseHelper.Searches.CREATED_AT},
-                DatabaseHelper.Searches.USER_ID + " = ?",
+                new String[]{DBHelper.Searches.ID, DBHelper.Searches.SEARCH_TYPE, DBHelper.Searches.QUERY, DBHelper.Searches.CREATED_AT},
+                DBHelper.Searches.USER_ID + " = ?",
                 new String[]{Long.toString(getCurrentUserId())},
-                DatabaseHelper.Searches.CREATED_AT + " DESC");
+                DBHelper.Searches.CREATED_AT + " DESC");
 
         ArrayList<SearchHistoryItem> history = mHistoryAdapter.getData();
         history.clear();
@@ -218,9 +218,9 @@ public class ScSearch extends ScActivity {
         rdoUser.setVisibility(View.GONE);
 
         ContentValues cv = new ContentValues();
-        cv.put(DatabaseHelper.Searches.CREATED_AT, System.currentTimeMillis());
-        cv.put(DatabaseHelper.Searches.USER_ID, getCurrentUserId());
-        cv.put(DatabaseHelper.Searches.QUERY, query);
+        cv.put(DBHelper.Searches.CREATED_AT, System.currentTimeMillis());
+        cv.put(DBHelper.Searches.USER_ID, getCurrentUserId());
+        cv.put(DBHelper.Searches.QUERY, query);
         int searchType;
         if (type == 0) {
             mTrackAdpWrapper.clearSections();
@@ -246,14 +246,14 @@ public class ScSearch extends ScActivity {
             trackPage(Consts.Tracking.SEARCH_USERS + query);
         }
 
-        cv.put(DatabaseHelper.Searches.SEARCH_TYPE, searchType);
+        cv.put(DBHelper.Searches.SEARCH_TYPE, searchType);
 
 
         // check for a duplicate to update
         if (updateId == -1) {
             Cursor cursor = getContentResolver().query(ScContentProvider.Content.SEARCHES,
-                    new String[]{DatabaseHelper.Searches.ID},
-                    DatabaseHelper.Searches.USER_ID + " = ? AND " + DatabaseHelper.Searches.QUERY + " = ? AND " + DatabaseHelper.Searches.SEARCH_TYPE + " = ?",
+                    new String[]{DBHelper.Searches.ID},
+                    DBHelper.Searches.USER_ID + " = ? AND " + DBHelper.Searches.QUERY + " = ? AND " + DBHelper.Searches.SEARCH_TYPE + " = ?",
                     new String[]{Long.toString(getCurrentUserId()), query, String.valueOf(searchType)}, null);
 
             if (cursor != null && cursor.getCount() != 0) {
@@ -264,10 +264,10 @@ public class ScSearch extends ScActivity {
         }
 
         if (updateId > 0) {
-            getContentResolver().update(DatabaseHelper.Searches.CONTENT_URI, cv, DatabaseHelper.Searches.ID + " = ?",
+            getContentResolver().update(DBHelper.Searches.CONTENT_URI, cv, DBHelper.Searches.ID + " = ?",
                     new String[]{Long.toString(updateId)});
         } else {
-            getContentResolver().insert(DatabaseHelper.Searches.CONTENT_URI, cv);
+            getContentResolver().insert(DBHelper.Searches.CONTENT_URI, cv);
         }
         refreshHistory();
 

@@ -5,13 +5,11 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.DatabaseHelper.Events;
-import com.soundcloud.android.provider.DatabaseHelper.Tables;
+import com.soundcloud.android.provider.DBHelper.Events;
+import com.soundcloud.android.provider.DBHelper.Tables;
 import com.soundcloud.android.utils.CloudUtils;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.Context;
 import android.database.Cursor;

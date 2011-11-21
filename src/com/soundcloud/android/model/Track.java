@@ -6,9 +6,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.TracksByTag;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.DatabaseHelper.Tables;
-import com.soundcloud.android.provider.DatabaseHelper.TrackPlays;
-import com.soundcloud.android.provider.DatabaseHelper.Tracks;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.DBHelper.TrackPlays;
+import com.soundcloud.android.provider.DBHelper.Tracks;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
@@ -42,6 +42,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Track extends ModelBase implements PageTrackable, Origin {
     private static final String TAG = "Track";
+
+    public static class TrackHolder extends CollectionHolder<Track> {}
 
     // API fields
     @JsonView(Views.Full.class) public Date created_at;
@@ -241,21 +243,28 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public Track(Cursor cursor, boolean aliasesOnly ) {
-        String[] keys = cursor.getColumnNames();
-        for (String key : keys) {
-            if (aliasesOnly && !key.contains(Tables.TRACKS+"_")) continue;
-            if (key.contentEquals(aliasesOnly ? Tracks.ALIAS_ID : Tracks.ID)){
-                id = cursor.getLong(cursor.getColumnIndex(key));
-            } else {
-                    try {
-                        setFieldFromCursor(this,Track.class.getDeclaredField(aliasesOnly ? key.substring(7) : key),cursor,key);
-                    } catch (SecurityException e) {
-                        Log.e(TAG, "error", e);
-                    } catch (NoSuchFieldException e) {
-                        Log.e(TAG, "error", e);
-                    }
-            }
-        }
+
+        // TODO : simplify booleans
+
+        if (cursor.getColumnIndex(DBHelper.TrackView._ID) != -1)              id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView._ID));
+        if (cursor.getColumnIndex(DBHelper.TrackView.PERMALINK) != -1)        permalink = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.PERMALINK));
+        if (cursor.getColumnIndex(DBHelper.TrackView.DURATION) != -1)         duration = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DURATION));
+        if (cursor.getColumnIndex(DBHelper.TrackView.CREATED_AT) != -1)       created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.CREATED_AT)));
+        if (cursor.getColumnIndex(DBHelper.TrackView.TAG_LIST) != -1)         tag_list = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TAG_LIST));
+        if (cursor.getColumnIndex(DBHelper.TrackView.TRACK_TYPE) != -1)       track_type = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TRACK_TYPE));
+        if (cursor.getColumnIndex(DBHelper.TrackView.TITLE) != -1)            title = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TITLE));
+        if (cursor.getColumnIndex(DBHelper.TrackView.PERMALINK_URL) != -1)    permalink_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.PERMALINK_URL));
+        if (cursor.getColumnIndex(DBHelper.TrackView.ARTWORK_URL) != -1)      artwork_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.ARTWORK_URL));
+        if (cursor.getColumnIndex(DBHelper.TrackView.WAVEFORM_URL) != -1)     waveform_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.WAVEFORM_URL));
+        if (cursor.getColumnIndex(DBHelper.TrackView.DOWNLOADABLE) != -1)     downloadable = getBooleanFromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOADABLE)));
+        if (cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_URL) != -1)     download_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_URL));
+        if (cursor.getColumnIndex(DBHelper.TrackView.STREAMABLE) != -1)       streamable = getBooleanFromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STREAMABLE)));
+        if (cursor.getColumnIndex(DBHelper.TrackView.STREAM_URL) != -1)       stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STREAM_URL));
+        if (cursor.getColumnIndex(DBHelper.TrackView.SHARING) != -1)          sharing = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.SHARING));
+        if (cursor.getColumnIndex(DBHelper.TrackView.USER_ID) != -1)          user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
+        if (cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE) != -1)    user_favorite = getBooleanFromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE)));
+        if (cursor.getColumnIndex(DBHelper.TrackView.FILELENGTH) != -1)       filelength = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.FILELENGTH));
+        user = User.fromTrackView(cursor);
     }
 
     public void updateFromDb(ContentResolver resolver, User user) {
@@ -346,8 +355,8 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         if (sharing != null) cv.put(Tracks.SHARING, sharing);
         // app level, only add these 2 if they have been set, otherwise they
         // might overwrite valid db values
-        if (user_favorite) cv.put(Tracks.USER_FAVORITE, user_favorite);
         if (filelength > 0) cv.put(Tracks.FILELENGTH, filelength);
+
         return cv;
     }
 
@@ -503,4 +512,5 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     public boolean hasAvatar() {
         return user != null && !TextUtils.isEmpty(user.avatar_url);
     }
+
 }

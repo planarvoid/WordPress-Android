@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.model.User;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 
@@ -50,5 +51,9 @@ public class TestApplication extends SoundCloudApplication {
     @Override
     public String getAccountData(String key) {
         return accountData.get(key);
+    }
+
+    public void setCurrentUserId(long id) {
+        setAccountData(User.DataKeys.USER_ID, id);
     }
 }

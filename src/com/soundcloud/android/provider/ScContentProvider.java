@@ -1,7 +1,6 @@
 package com.soundcloud.android.provider;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -13,10 +12,9 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import com.soundcloud.android.R;
-import com.soundcloud.android.model.User;
+import android.util.Log;
+import com.soundcloud.android.SoundCloudApplication;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,10 +26,10 @@ public class ScContentProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher = buildMatcher();
 
-    private DatabaseHelper dbHelper;
+    private DBHelper dbHelper;
 
     static class TableInfo {
-        DatabaseHelper.Tables table;
+        DBHelper.Tables table;
         long id = -1;
 
         public String where(String where) {
@@ -49,7 +47,7 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        dbHelper = new DatabaseHelper(getContext());
+        dbHelper = new DBHelper(getContext());
         return true;
     }
 
@@ -57,49 +55,81 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
-
         final long userId = getUserId();
-        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-
+        SCQueryBuilder qb = new SCQueryBuilder();
+        String query;
         switch (sUriMatcher.match(uri)) {
+            case TRACK_ITEM:
+                qb.setTables(DBHelper.Tables.TRACKS.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
+                        " ON (" + DBHelper.Tracks.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_TRACK_ID+ ")");
+                selection = selection == null ? DBHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId :
+                        selection + " AND " + DBHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
+                break;
+
+            case USER_ITEM:
+                Log.i("asdf","We bot a user itemmm");
+                qb.setTables(DBHelper.Tables.USERS.tableName);
+                selection = selection == null ? DBHelper.Users.ID + " = "+ userId :
+                        selection + " AND " + DBHelper.Users.ID + " = " + userId;
+                break;
+
             case ME_FAVORITES:
-                qb.setTables(DatabaseHelper.Tables.TRACKS.tableName + " INNER JOIN " + DatabaseHelper.Tables.USER_FAVORITES.tableName +
-                        " ON (" + DatabaseHelper.Tracks.CONCRETE_ID + " = " + DatabaseHelper.UserFavorites.CONCRETE_TRACK_ID+ ")");
-                selection = selection == null ? DatabaseHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId :
-                        selection + " AND " + DatabaseHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
+                qb.setTables(DBHelper.Tables.TRACKS.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
+                        " ON (" + DBHelper.Tracks.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_TRACK_ID+ ")");
+                selection = selection == null ? DBHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId :
+                        selection + " AND " + DBHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
                 break;
 
             default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+                throw new IllegalArgumentException("No query available for: " + uri);
         }
 
+
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c = qb.query(db, columns, selection, selectionArgs, null, null, sortOrder);
+        String q = qb.buildQuery(columns, selection, selectionArgs, null, null, sortOrder, null);
+        System.out.println(q);
+        Cursor c = db.rawQuery(q, null);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
-
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final long userId = getUserId();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
+        long id;
+        Uri result;
+
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         switch (sUriMatcher.match(uri)) {
+            case TRACKS:
+                id = db.insertWithOnConflict(DBHelper.Tables.TRACKS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                getContext().getContentResolver().notifyChange(result, null);
+                return result;
+
+            case USERS:
+                System.out.println("Inserting id " + values.get("_id"));
+                id = db.insertWithOnConflict(DBHelper.Tables.USERS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                getContext().getContentResolver().notifyChange(result, null);
+                return result;
+
             case ME_FAVORITES:
-                long id = db.replace(DatabaseHelper.Tables.TRACKS.tableName, null, values);
+                id = db.insertWithOnConflict(DBHelper.Tables.TRACKS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
-                    cv.put(DatabaseHelper.UserFavorites.USER_ID, userId);
-                    cv.put(DatabaseHelper.UserFavorites.TRACK_ID, id);
-                    id = db.replace(DatabaseHelper.Tables.USER_FAVORITES.tableName, null, cv);
-                    final Uri result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                    cv.put(DBHelper.UserFavorites.USER_ID, userId);
+                    cv.put(DBHelper.UserFavorites.TRACK_ID, (Long) values.get(DBHelper.Tracks._ID));
+                    id = db.insertWithOnConflict(DBHelper.Tables.USER_FAVORITES.tableName, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+                    result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null);
                     return result;
                 } else {
-                    throw new SQLException("Failed to insert row into " + uri);
+                    throw new SQLException("No insert available for: " + uri);
                 }
+
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -143,15 +173,15 @@ public class ScContentProvider extends ContentProvider {
         return values.length;
     }
 
-    static DatabaseHelper.Tables getTable(Uri u) {
+    static DBHelper.Tables getTable(Uri u) {
         return getTable(u.toString());
     }
 
-    static DatabaseHelper.Tables getTable(String s) {
-        DatabaseHelper.Tables table = null;
+    static DBHelper.Tables getTable(String s) {
+        DBHelper.Tables table = null;
         Matcher m = URL_PATTERN.matcher(s);
         if (m.matches()) {
-            table = DatabaseHelper.Tables.get(m.group(1));
+            table = DBHelper.Tables.get(m.group(1));
         }
         if (table != null) {
             return table;
@@ -212,11 +242,13 @@ public class ScContentProvider extends ContentProvider {
         Uri ME_GROUPS                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/groups");
         Uri ME_PLAYLISTS                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/playlists");
 
+        Uri TRACKS                      = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks");
         Uri TRACK_ITEM                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/*");
         Uri TRACK_COMMENTS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/*/comments");
         Uri TRACK_PERMISSIONS           = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/*/permissions");
         Uri TRACK_SECRET_TOKEN          = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/*/secret-token");
 
+        Uri USERS                       = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users");
         Uri USER_ITEM                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*");
         Uri USER_TRACKS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*/tracks");
         Uri USER_FAVORITES              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*/favorites");
@@ -261,11 +293,13 @@ public class ScContentProvider extends ContentProvider {
     private static final int ME_GROUPS              = 109;
     private static final int ME_PLAYLISTS           = 110;
 
+    private static final int TRACKS                 = 201;
     private static final int TRACK_ITEM             = 202;
     private static final int TRACK_COMMENTS         = 203;
     private static final int TRACK_PERMISSIONS      = 204;
     private static final int TRACK_SECRET_TOKEN     = 205;
 
+    private static final int USERS                  = 301;
     private static final int USER_ITEM              = 302;
     private static final int USER_TRACKS            = 303;
     private static final int USER_FAVORITES         = 304;
@@ -311,11 +345,13 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "me/groups", ME_GROUPS);
         matcher.addURI(ScContentProvider.AUTHORITY, "me/playlists", ME_PLAYLISTS);
 
+        matcher.addURI(ScContentProvider.AUTHORITY, "tracks", TRACKS);
         matcher.addURI(ScContentProvider.AUTHORITY, "tracks/*", TRACK_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "tracks/*/comments", TRACK_COMMENTS);
         matcher.addURI(ScContentProvider.AUTHORITY, "tracks/*/permissions", TRACK_PERMISSIONS);
         matcher.addURI(ScContentProvider.AUTHORITY, "tracks/*/secret-token", TRACK_SECRET_TOKEN);
 
+        matcher.addURI(ScContentProvider.AUTHORITY, "users", USERS);
         matcher.addURI(ScContentProvider.AUTHORITY, "users/*", USER_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "users/*/tracks", USER_TRACKS);
         matcher.addURI(ScContentProvider.AUTHORITY, "users/*/favorites", USER_FAVORITES);
@@ -350,23 +386,9 @@ public class ScContentProvider extends ContentProvider {
 
 	}
 
-    private Account getAccount() {
-        Account[] account = AccountManager.get(getContext()).getAccountsByType(getContext().getString(R.string.account_type));
-        if (account.length == 0) {
-            return null;
-        } else {
-            return account[0];
-        }
-    }
-
     private long getUserId(){
-        final Account account = getAccount();
-        if (account == null){
-            return -1;
-        } else {
-            final String data = AccountManager.get(getContext()).getUserData(account, User.DataKeys.USER_ID);
-            return data == null ? -1 : Long.parseLong(data);
-        }
+        SoundCloudApplication app = (SoundCloudApplication) getContext().getApplicationContext();
+        return app.getCurrentUserId();
     }
 
 }

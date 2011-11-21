@@ -4,7 +4,7 @@ package com.soundcloud.android.adapter;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.provider.DatabaseHelper.Recordings;
+import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;

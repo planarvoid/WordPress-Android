@@ -25,7 +25,7 @@ import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DatabaseHelper;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.service.ICloudCreateService;
@@ -735,7 +735,7 @@ public class CreateController {
     };
 
     private void checkUnsavedFiles() {
-        String[] columns = { DatabaseHelper.Recordings.ID };
+        String[] columns = { DBHelper.Recordings.ID };
         Cursor cursor;
 
         // XXX background thread?
@@ -752,7 +752,7 @@ public class CreateController {
 
             cursor = mActivity.getContentResolver().query(ScContentProvider.Content.RECORDINGS,
                     columns,
-                    DatabaseHelper.Recordings.AUDIO_PATH + " = ?",
+                    DBHelper.Recordings.AUDIO_PATH + " = ?",
                     new String[]{f.getAbsolutePath()}, null);
 
             // XXX TODO exclude currently uploading file!

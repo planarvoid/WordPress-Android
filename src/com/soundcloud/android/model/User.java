@@ -5,8 +5,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.DatabaseHelper.Tables;
-import com.soundcloud.android.provider.DatabaseHelper.Users;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.DBHelper.Tables;
+import com.soundcloud.android.provider.DBHelper.Users;
 import com.soundcloud.android.provider.ScContentProvider;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
@@ -182,7 +183,7 @@ public class User extends ModelBase implements PageTrackable {
     }
 
     public Uri toUri() {
-        return ScContentProvider.Content.USER_ITEM.buildUpon().appendPath(String.valueOf(id)).build();
+        return ScContentProvider.Content.USERS.buildUpon().appendPath(String.valueOf(id)).build();
     }
 
 
@@ -220,6 +221,15 @@ public class User extends ModelBase implements PageTrackable {
         } else {
             return "";
         }
+    }
+
+    public static User fromTrackView(Cursor cursor) {
+        User u = new User();
+        u.id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
+        u.username = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USERNAME));
+        u.permalink = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_PERMALINK));
+        u.avatar_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_AVATAR_URL));
+        return u;
     }
 
     public static interface DataKeys {
