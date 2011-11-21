@@ -56,11 +56,11 @@ public class CommitTracksTask extends AsyncTask<Track, Parcelable, Boolean> {
         // builk insert uses replace (insert or update) instead of insert,
         // so it won't fail from a unique key constraint
         if (tracksCV.size() > 0) {
-            contentResolver.bulkInsert(ScContentProvider.Content.TRACKS,
+            contentResolver.bulkInsert(ScContentProvider.Content.TRACK_ITEM,
                     tracksCV.toArray(new ContentValues[tracksCV.size()]));
         }
         if (usersCV.size() > 0) {
-            contentResolver.bulkInsert(ScContentProvider.Content.USERS,
+            contentResolver.bulkInsert(ScContentProvider.Content.USER_ITEM,
                     usersCV.toArray(new ContentValues[usersCV.size()]));
         }
 

@@ -1,6 +1,7 @@
 package com.soundcloud.android.provider;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -14,6 +15,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import com.soundcloud.android.R;
+import com.soundcloud.android.model.User;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,16 +53,20 @@ public class ScContentProvider extends ContentProvider {
         return true;
     }
 
+
+
     @Override
     public Cursor query(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
 
+        final long userId = getUserId();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         switch (sUriMatcher.match(uri)) {
-            case ME:
-                getContext()
-                qb.setTables("Tracks INNER JOIN UserFavorites ON (Tracks._id = UserFavorites.track_id)");
-                selection = selection == null ? "UserFavorites.user_id=";
+            case ME_FAVORITES:
+                qb.setTables(DatabaseHelper.Tables.TRACKS.tableName + " INNER JOIN " + DatabaseHelper.Tables.USER_FAVORITES.tableName +
+                        " ON (" + DatabaseHelper.Tracks.CONCRETE_ID + " = " + DatabaseHelper.UserFavorites.CONCRETE_TRACK_ID+ ")");
+                selection = selection == null ? DatabaseHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId :
+                        selection + " AND " + DatabaseHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
                 break;
 
             default:
@@ -67,37 +74,35 @@ public class ScContentProvider extends ContentProvider {
         }
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
-
+        Cursor c = qb.query(db, columns, selection, selectionArgs, null, null, sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
-
-        /*
-
-        TableInfo info = getTableInfo(uri);
-        if (info.id != -1) {
-            selection = selection == null ? "_id=" + info.id : selection + " AND _id=" + info.id;
-        }
-
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c = db.query(info.table.tableName, columns, selection, selectionArgs, null, null, sortOrder);
-        c.setNotificationUri(getContext().getContentResolver(), uri);
-        return c;
-        */
     }
 
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
+        final long userId = getUserId();
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        final DatabaseHelper.Tables table = getTable(uri);
-        long id = db.insert(table.tableName, null, values);
-        if (id >= 0) {
-            final Uri result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-            getContext().getContentResolver().notifyChange(result, null);
-            return result;
-        } else {
-            throw new SQLException("Failed to insert row into " + uri);
+        switch (sUriMatcher.match(uri)) {
+            case ME_FAVORITES:
+                long id = db.replace(DatabaseHelper.Tables.TRACKS.tableName, null, values);
+                if (id >= 0) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(DatabaseHelper.UserFavorites.USER_ID, userId);
+                    cv.put(DatabaseHelper.UserFavorites.TRACK_ID, id);
+                    id = db.replace(DatabaseHelper.Tables.USER_FAVORITES.tableName, null, cv);
+                    final Uri result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                    getContext().getContentResolver().notifyChange(result, null);
+                    return result;
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
     }
 
@@ -294,7 +299,7 @@ public class ScContentProvider extends ContentProvider {
 	private static UriMatcher buildMatcher() {
 		UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-        matcher.addURI(ScContentProvider.AUTHORITY, "me",ME)
+        matcher.addURI(ScContentProvider.AUTHORITY, "me",ME);
         matcher.addURI(ScContentProvider.AUTHORITY, "me/tracks", ME_TRACKS);
         matcher.addURI(ScContentProvider.AUTHORITY, "me/comments", ME_COMMENTS);
         matcher.addURI(ScContentProvider.AUTHORITY, "me/followings", ME_FOLLOWINGS);
@@ -344,5 +349,24 @@ public class ScContentProvider extends ContentProvider {
 		return matcher;
 
 	}
+
+    private Account getAccount() {
+        Account[] account = AccountManager.get(getContext()).getAccountsByType(getContext().getString(R.string.account_type));
+        if (account.length == 0) {
+            return null;
+        } else {
+            return account[0];
+        }
+    }
+
+    private long getUserId(){
+        final Account account = getAccount();
+        if (account == null){
+            return -1;
+        } else {
+            final String data = AccountManager.get(getContext()).getUserData(account, User.DataKeys.USER_ID);
+            return data == null ? -1 : Long.parseLong(data);
+        }
+    }
 
 }

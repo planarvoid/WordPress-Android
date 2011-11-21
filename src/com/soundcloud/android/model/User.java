@@ -96,7 +96,7 @@ public class User extends ModelBase implements PageTrackable {
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
-        Cursor cursor = contentResolver.query(ScContentProvider.Content.USERS, null, Users.ID + "= ?",new String[]{Long.toString(id)},
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.USER_ITEM, null, Users.ID + "= ?",new String[]{Long.toString(id)},
                 null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -182,7 +182,7 @@ public class User extends ModelBase implements PageTrackable {
     }
 
     public Uri toUri() {
-        return ScContentProvider.Content.USERS.buildUpon().appendPath(String.valueOf(id)).build();
+        return ScContentProvider.Content.USER_ITEM.buildUpon().appendPath(String.valueOf(id)).build();
     }
 
 

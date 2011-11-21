@@ -158,7 +158,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public static Uri toUri(long id) {
-        return ScContentProvider.Content.TRACKS.buildUpon().appendPath(String.valueOf(id)).build();
+        return ScContentProvider.Content.TRACK_ITEM.buildUpon().appendPath(String.valueOf(id)).build();
     }
 
     @Override @JsonIgnore
@@ -263,7 +263,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public void updateFromDb(ContentResolver resolver, long currentUserId) {
-        Cursor cursor = resolver.query(ScContentProvider.Content.TRACKS, null, Tracks.ID + " = ?",
+        Cursor cursor = resolver.query(ScContentProvider.Content.TRACK_ITEM, null, Tracks.ID + " = ?",
                 new String[] { Long.toString(id) }, null);
 
         if (cursor != null) {

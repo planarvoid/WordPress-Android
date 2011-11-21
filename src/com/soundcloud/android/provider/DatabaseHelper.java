@@ -30,6 +30,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         EVENTS("Events", DATABASE_CREATE_EVENTS),
         SEARCHES("Searches", DATABASE_CREATE_SEARCHES),
 
+        USER_FAVORITES("UserFavorites", DATABASE_CREATE_USER_FAVORITES),
+
         TRACKVIEW("TracklistView", null);
         //TRACKLISTVIEW("TracklistView", DATABASE_CREATE_TRACKLIST_VIEW),
         //EVENTLISTVIEW("EventlistView", DATABASE_CREATE_EVENTLIST_VIEW);
@@ -208,6 +210,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private boolean upgradeTo9(SQLiteDatabase db, int oldVersion) {
             try {
+                db.execSQL("DROP TABLE IF EXISTS " + Tables.USER_FAVORITES);
+                db.execSQL(DATABASE_CREATE_USER_FAVORITES);
+
                 return createTrackView(db);
             } catch (SQLException e) {
                 SoundCloudApplication.handleSilentException("error during upgrade8 " +
@@ -335,6 +340,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + "query string null, "
             + "search_type integer null);";
 
+    static final String DATABASE_CREATE_USER_FAVORITES = "create table UserFavorites (_id integer primary key AUTOINCREMENT, "
+            + "track_id integer null, " + "user_id integer null);";
+
 
     public static final class Tracks implements BaseColumns {
 
@@ -419,6 +427,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
           public static final String ALIAS_TRACK_ID = Tables.TRACK_PLAYS + "_" + TRACK_ID;
           public static final String ALIAS_USER_ID = Tables.TRACK_PLAYS + "_" + USER_ID;
       }
+
+    public static final class UserFavorites implements BaseColumns {
+
+          public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.user_favorites";
+          public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.user_favorites";
+
+          public static final String ID = "_id";
+          public static final String TRACK_ID = "track_id";
+          public static final String USER_ID = "user_id";
+
+          public static final String CONCRETE_ID = Tables.USER_FAVORITES + "." + _ID;
+          public static final String CONCRETE_TRACK_ID = Tables.USER_FAVORITES + "." + TRACK_ID;
+          public static final String CONCRETE_USER_ID = Tables.USER_FAVORITES + "." + USER_ID;
+
+          public static final String ALIAS_ID = Tables.USER_FAVORITES + "_" + _ID;
+          public static final String ALIAS_TRACK_ID = Tables.USER_FAVORITES + "_" + TRACK_ID;
+          public static final String ALIAS_USER_ID = Tables.USER_FAVORITES + "_" + USER_ID;
+      }
+
 
       public static final class Users implements BaseColumns {
 
