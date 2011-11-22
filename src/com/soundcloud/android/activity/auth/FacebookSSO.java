@@ -89,10 +89,6 @@ public class FacebookSSO extends LoginActivity {
                     System.currentTimeMillis() + Integer.parseInt(expiresIn) * 1000 : 0;
 
             if (token != null && System.currentTimeMillis() < expires) {
-                Log.d(TAG, "Login Success! access_token="
-                        + token + " expires="
-                        + expiresIn);
-
                 return token;
             } else {
                 throw new SSOException("session is not valid");
