@@ -103,7 +103,7 @@ end
       namespace :logging do
         %w(verbose debug info warn error).each do |level|
           task level do
-            %w(StreamLoader StreamStorage).each do |tag|
+            %w(AwesomePlayer NuHTTPDataSource NuCachedSource2 StreamLoader StreamStorage).each do |tag|
               sh "adb #{flag} shell setprop log.tag.#{tag} #{level.upcase}"
             end
           end
