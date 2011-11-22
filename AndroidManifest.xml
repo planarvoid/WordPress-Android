@@ -124,6 +124,7 @@
         <activity android:name=".activity.tour.Comment" android:screenOrientation="portrait" />
         <activity android:name=".activity.tour.You" android:screenOrientation="portrait" />
         <activity android:name=".activity.tour.Finish" android:screenOrientation="portrait" />
+        {com.soundcloud.android/com.soundcloud.android.activity.TestActivity}; have you declared this activity in your AndroidManifest.xml?
 
         <activity android:name=".activity.TrackFavoriters" />
         <activity android:name=".activity.TrackComments" />
@@ -138,6 +139,7 @@
         <activity android:name=".activity.EmailConfirm"/>
         <activity android:name=".activity.ScCreate"/>
         <activity android:name=".activity.UploadMonitor" android:launchMode="singleTask" />
+        <activity android:name=".activity.TestActivity" android:windowSoftInputMode="adjustPan" />
         <activity android:name=".activity.ScUpload" android:windowSoftInputMode="adjustPan">
 
             <intent-filter>

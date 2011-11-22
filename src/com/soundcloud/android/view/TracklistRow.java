@@ -1,13 +1,17 @@
 
 package com.soundcloud.android.view;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.text.TextUtils;
 import android.view.animation.Transformation;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.ITracklistAdapter;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.MyTracksAdapter;
+import com.soundcloud.android.adapter.ScCursorAdapter;
+import com.soundcloud.android.adapter.UserFavoritesAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -21,8 +25,8 @@ public class TracklistRow extends LazyRow {
     private final TrackInfoBar mTrackInfoBar;
     protected final ImageView mCloseIcon;
 
-    public TracklistRow(ScActivity _activity, LazyBaseAdapter _adapter) {
-        super(_activity, _adapter);
+    public TracklistRow(Context context, IScAdapter adapter) {
+        super(context, adapter);
 
         mCloseIcon = (ImageView) findViewById(R.id.close_icon);
         mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
@@ -38,7 +42,7 @@ public class TracklistRow extends LazyRow {
         }
     }
 
-     @Override
+    @Override
     protected boolean getChildStaticTransformation(View child, Transformation t) {
          super.getChildStaticTransformation(child, t);
          t.setAlpha((float) 0.4);
@@ -56,8 +60,11 @@ public class TracklistRow extends LazyRow {
 
     /** update the views with the data corresponding to selection index */
     @Override
-    public void display(int position) {
-        final Parcelable p = (Parcelable) mAdapter.getItem(position);
+    public void display(Cursor cursor) {
+        display(cursor.getPosition(), new Track(cursor, false));
+    }
+    @Override
+    public void display(int position, Parcelable p) {
         mTrack = getTrackFromParcelable(p);
         super.display(position);
         if (mTrack.isStreamable()) {
@@ -65,15 +72,11 @@ public class TracklistRow extends LazyRow {
         } else {
             setStaticTransformationsEnabled(true);
         }
-        mTrackInfoBar.display(p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false, mActivity.getCurrentUserId());
+        mTrackInfoBar.display(p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false, mCurrentUserId);
     }
 
     protected Track getTrackFromParcelable(Parcelable p) {
         return (Track) p;
-    }
-
-    @Override public String getDebugName(int position) {
-        return getTrackFromParcelable((Parcelable) mAdapter.getItem(position)).title;
     }
 
     @Override
@@ -82,7 +85,7 @@ public class TracklistRow extends LazyRow {
            return "";
         } else {
             final String iconUrl = mTrack.getArtwork();
-            return TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(mActivity,mTrack.getArtwork());
+            return TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(getContext(),mTrack.getArtwork());
         }
     }
 }

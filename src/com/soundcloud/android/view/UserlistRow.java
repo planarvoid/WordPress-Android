@@ -1,10 +1,13 @@
 
 package com.soundcloud.android.view;
 
+import android.database.Cursor;
+import android.os.Parcelable;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.IUserlistAdapter;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ImageUtils;
@@ -30,7 +33,9 @@ public class UserlistRow extends LazyRow {
 
     protected Boolean _isFollowing;
 
-    public UserlistRow(ScActivity _activity,LazyBaseAdapter _adapter) {
+
+
+    public UserlistRow(ScActivity _activity, IScAdapter _adapter) {
         super(_activity, _adapter);
 
         mUsername = (TextView) findViewById(R.id.username);
@@ -59,6 +64,7 @@ public class UserlistRow extends LazyRow {
                 }
             });
         }
+
     }
 
     @Override
@@ -76,8 +82,12 @@ public class UserlistRow extends LazyRow {
 
 
     /** update the views with the data corresponding to selection index */
+     @Override
+    public void display(Cursor cursor) {
+        display(cursor.getPosition(), new User(cursor));
+    }
     @Override
-    public void display(int position) {
+    public void display(int position, Parcelable p) {
         mUser = ((IUserlistAdapter) mAdapter).getUserAt(position);
         super.display(position);
         mUsername.setText(mUser.username);
@@ -90,7 +100,7 @@ public class UserlistRow extends LazyRow {
     public void setFollowingStatus(boolean enabled) {
         boolean following = FollowStatus.get().isFollowing(mUser);
 
-        if (mUser.id == mActivity.getCurrentUserId()) {
+        if (mUser.id == mCurrentUserId) {
             mFollowingBtn.setVisibility(View.GONE);
             mFollowBtn.setVisibility(View.GONE);
         } else {
@@ -105,7 +115,7 @@ public class UserlistRow extends LazyRow {
     @Override
     public String getIconRemoteUri() {
         if (mUser.avatar_url == null) return "";
-        return ImageUtils.formatGraphicsUriForList(mActivity, mUser.avatar_url);
+        return ImageUtils.formatGraphicsUriForList(getContext(), mUser.avatar_url);
     }
 
     protected void setTrackCount() {
@@ -117,12 +127,17 @@ public class UserlistRow extends LazyRow {
     }
 
     public void toggleFollowing(final long userId) {
-        FollowStatus.get().toggleFollowing(userId, mActivity.getApp(), new Handler() {
-            @Override public void handleMessage(Message msg) {
-                setFollowingStatus(true);
-                if (msg.arg1 == 1) mAdapter.notifyDataSetChanged();
-            }
-        });
-        setFollowingStatus(false);
+        SoundCloudApplication app = SoundCloudApplication.fromContext(getContext());
+        if (app != null) {
+            FollowStatus.get().toggleFollowing(userId, app, new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    setFollowingStatus(true);
+                    //if (msg.arg1 == 1) mAdapter.notifyDataSetChanged();
+                }
+            });
+
+            setFollowingStatus(false);
+        }
     }
 }

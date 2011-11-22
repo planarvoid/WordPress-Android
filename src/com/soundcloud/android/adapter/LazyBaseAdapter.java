@@ -12,7 +12,7 @@ import android.widget.BaseAdapter;
 
 import java.util.*;
 
-public abstract class LazyBaseAdapter extends BaseAdapter {
+public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter{
     protected ScActivity mActivity;
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
@@ -61,7 +61,7 @@ public abstract class LazyBaseAdapter extends BaseAdapter {
     public View getView(int index, View row, ViewGroup parent) {
         LazyRow rowView = row instanceof LazyRow ? (LazyRow) row : createRow(index);
         // update the cell renderer, and handle selection state
-        rowView.display(index);
+        rowView.display(index, getData().get(index));
         return rowView;
     }
 

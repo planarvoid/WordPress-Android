@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.database.Cursor;
 import android.os.Parcelable;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -57,9 +58,9 @@ public class ActivityRow extends LazyRow {
                 final User u = getOriginUser();
                 if (u == null) return;
 
-                Intent intent = new Intent(mActivity, UserBrowser.class);
+                Intent intent = new Intent(getContext(), UserBrowser.class);
                 intent.putExtra("user", u);
-                mActivity.startActivity(intent);
+                getContext().startActivity(intent);
             }
         });
         mIcon.setFocusable(false);
@@ -111,7 +112,7 @@ public class ActivityRow extends LazyRow {
     @Override
     public String getIconRemoteUri() {
         if (mEvent == null || mEvent.getUser() == null || mEvent.getUser().avatar_url == null) return "";
-        return ImageUtils.formatGraphicsUriForList(mActivity, mEvent.getUser().avatar_url);
+        return ImageUtils.formatGraphicsUriForList(getContext(), mEvent.getUser().avatar_url);
     }
 
     // end override
@@ -122,10 +123,13 @@ public class ActivityRow extends LazyRow {
         return R.layout.activity_list_row;
     }
 
-    /** update the views with the data corresponding to selection index */
+     @Override
+    public void display(Cursor cursor) {
+        display(cursor.getPosition(), new Track(cursor, false));
+    }
     @Override
-    public void display(int position) {
-        boolean isNull = !fillParcelable((Parcelable) mAdapter.getItem(position));
+    public void display(int position, Parcelable p) {
+        boolean isNull = !fillParcelable(p);
 
         super.display(position);
 
@@ -136,7 +140,7 @@ public class ActivityRow extends LazyRow {
         setImageSpan();
         
         mUser.setText(getOriginUser().username);
-        mCreatedAt.setText(CloudUtils.getTimeElapsed(mActivity.getResources(), getOriginCreatedAt().getTime()));
+        mCreatedAt.setText(CloudUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
 
     }
 

@@ -3,12 +3,16 @@ package com.soundcloud.android.view;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.database.Cursor;
+import android.os.Parcelable;
 import android.text.TextUtils;
+import android.widget.BaseAdapter;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.graphics.drawable.Drawable;
@@ -53,9 +57,13 @@ public class MyTracklistRow extends TracklistRow {
         return mVeryPrivateBgDrawable;
     }
 
+     @Override
+    public void display(Cursor cursor) {
+        display(cursor.getPosition(), new Track(cursor, false));
+    }
     @Override
-    public void display(int position) {
-        Recording recording = ((Recording) mAdapter.getItem(position));
+    public void display(int position, Parcelable p) {
+        Recording recording = ((Recording) p);
 
         mTitle.setText(recording.sharingNote(getResources()));
 
@@ -81,8 +89,8 @@ public class MyTracklistRow extends TracklistRow {
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
 
-        mCreatedAt.setTextColor(mActivity.getResources().getColor(R.color.listTxtRecSecondary));
-        mCreatedAt.setText(recording.getStatus(mActivity.getResources()));
+        mCreatedAt.setTextColor(getContext().getResources().getColor(R.color.listTxtRecSecondary));
+        mCreatedAt.setText(recording.getStatus(getContext().getResources()));
 
         mCloseIcon.setVisibility(recording.upload_status == 1 ? View.VISIBLE : View.GONE);
 
@@ -98,7 +106,7 @@ public class MyTracklistRow extends TracklistRow {
             } catch (IOException e) {
                 Log.w(TAG, "error", e);
             }
-            mImageLoader.bind(mAdapter, mIcon, recording.artwork_path.getAbsolutePath(), options);
+            mImageLoader.bind((BaseAdapter) mAdapter, mIcon, recording.artwork_path.getAbsolutePath(), options);
         }
     }
 }

@@ -549,8 +549,16 @@ public abstract class ScActivity extends Activity {
                 menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
         }
 
+
+
         menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
                 .setIcon(android.R.drawable.ic_menu_preferences);
+
+        if (SoundCloudApplication.DEV_MODE){
+            menu.add(menu.size(), Consts.OptionsMenu.SECRET_DEV_BUTTON, menu.size(), "Super Secret Dev Button")
+                .setIcon(android.R.drawable.ic_menu_compass);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -589,6 +597,10 @@ public abstract class ScActivity extends Activity {
             case Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD:
                 safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
+            case Consts.OptionsMenu.SECRET_DEV_BUTTON:
+                startActivity(new Intent(this,TestActivity.class));
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

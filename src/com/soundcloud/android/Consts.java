@@ -57,6 +57,7 @@ public final class Consts {
         int FRIEND_FINDER = 205;
         int UPLOAD_FILE = 206;
         int FILTER = 207;
+        int SECRET_DEV_BUTTON = 208;
     }
 
     public interface TourActivityIndexes {

@@ -1,15 +1,22 @@
 
 package com.soundcloud.android.view;
 
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Parcelable;
 import android.util.Log;
+import android.widget.BaseAdapter;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.ScCursorAdapter;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
@@ -18,25 +25,24 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 public abstract class LazyRow extends FrameLayout {
-    protected ScActivity mActivity;
 
-    protected LazyBaseAdapter mAdapter;
+    protected IScAdapter mAdapter;
     protected ImageLoader mImageLoader;
     protected ImageView mIcon;
     protected String mCurrentImageUri;
 
     protected int mCurrentPosition;
     protected ImageLoader.Options mIconOptions;
+    protected long mCurrentUserId;
 
-    public LazyRow(ScActivity activity, LazyBaseAdapter adapter) {
-        super(activity);
-        mActivity = activity;
+    public LazyRow(Context context, IScAdapter adapter) {
+        super(context);
         mAdapter = adapter;
 
         if (mIconOptions == null) mIconOptions = new ImageLoader.Options();
-        if (mActivity != null) mImageLoader = ImageLoader.get(mActivity);
+        if (context != null) mImageLoader = ImageLoader.get(context);
 
-        LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(getRowResourceId(), this);
         mIcon = (ImageView) findViewById(R.id.icon);
 
@@ -44,13 +50,20 @@ public abstract class LazyRow extends FrameLayout {
             mIcon.getLayoutParams().width  = 67;
             mIcon.getLayoutParams().height = 67;
         }
+
+        // if we ever do not rebuild the app on logout, this will need to be changed to account for changing user ids
+        mCurrentUserId = SoundCloudApplication.getUserIdFromContext(getContext());
     }
 
 
     protected abstract int getRowResourceId();
 
+    public abstract void display(Cursor cursor);
+
+    public abstract void display(int position, Parcelable p);
+
     /** update the views with the data corresponding to selection index */
-    public void display(int position) {
+    protected void display(int position) {
         mCurrentPosition = position;
         final String iconUri = getIconRemoteUri();
         if (CloudUtils.checkIconShouldLoad(iconUri)) {
@@ -75,7 +88,7 @@ public abstract class LazyRow extends FrameLayout {
                 mIcon.setImageDrawable(drawable);
             } else {
                 mAdapter.setIconLoading(position);
-                mImageLoader.bind(mAdapter, mIcon, iconUri, mIconOptions);
+                mImageLoader.bind((BaseAdapter) mAdapter, mIcon, iconUri, mIconOptions);
             }
         } else {
             mImageLoader.unbind(mIcon);

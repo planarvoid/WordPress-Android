@@ -84,6 +84,6 @@ public class CommentRow extends ActivityRow {
     @Override
     public String getIconRemoteUri() {
         if (mComment == null || mComment.getUser() == null || mComment.getUser().avatar_url == null) return "";
-        return ImageUtils.formatGraphicsUriForList(mActivity, mComment.getUser().avatar_url);
+        return ImageUtils.formatGraphicsUriForList(getContext(), mComment.getUser().avatar_url);
     }
 }

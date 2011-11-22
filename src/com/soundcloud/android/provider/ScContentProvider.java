@@ -55,21 +55,9 @@ public class ScContentProvider extends ContentProvider {
     }
 
 
-    public static String[] fullTrackColumns = new String[]{
-            DBHelper.Tables.TRACKVIEW.tableName + ".*",
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FAVORITES.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.TRACK_ID + " and " + DBHelper.UserFavorites.USER_ID + " = ?) as " + DBHelper.TrackView.USER_FAVORITE,
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.TRACK_PLAYS.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.TrackPlays.TRACK_ID + " and " + DBHelper.TrackPlays.USER_ID + " = ?) as " + DBHelper.TrackView.USER_PLAYED,
-    };
-
-    public static String[] fullUserColumns = new String[]{
-            DBHelper.Tables.USERS.tableName + ".*",
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWING.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.FOLLOWING_ID + " and " + DBHelper.UserFollowing.USER_ID + " = ?) as "  + DBHelper.Users.USER_FOLLOWING,
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWERS.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowers.FOLLOWER_ID + " and " + DBHelper.UserFollowing.USER_ID + " = ?) as " + DBHelper.Users.USER_FOLLOWER
-    };
-
     @Override
     public Cursor query(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
-        final long userId = getUserId();
+        final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
         SCQueryBuilder qb = new SCQueryBuilder();
         String whereAppend;
 
@@ -150,7 +138,7 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        final long userId = getUserId();
+        final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
         long id;
@@ -297,6 +285,18 @@ public class ScContentProvider extends ContentProvider {
             ContentResolver.removePeriodicSync(account, AUTHORITY, new Bundle());
         }
     }
+
+    public static String[] fullTrackColumns = new String[]{
+            DBHelper.Tables.TRACKVIEW.tableName + ".*",
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FAVORITES.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.TRACK_ID + " and " + DBHelper.UserFavorites.USER_ID + " = ?) as " + DBHelper.TrackView.USER_FAVORITE,
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.TRACK_PLAYS.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.TrackPlays.TRACK_ID + " and " + DBHelper.TrackPlays.USER_ID + " = ?) as " + DBHelper.TrackView.USER_PLAYED,
+    };
+
+    public static String[] fullUserColumns = new String[]{
+            DBHelper.Tables.USERS.tableName + ".*",
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWING.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.FOLLOWING_ID + " and " + DBHelper.UserFollowing.USER_ID + " = ?) as "  + DBHelper.Users.USER_FOLLOWING,
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWERS.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowers.FOLLOWER_ID + " and " + DBHelper.UserFollowing.USER_ID + " = ?) as " + DBHelper.Users.USER_FOLLOWER
+    };
 
 
     public interface Content {
@@ -467,9 +467,6 @@ public class ScContentProvider extends ContentProvider {
     static String USER_FOLLOWING_JOIN = DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.USER_FOLLOWING.tableName +
                         " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.CONCRETE_FOLLOWING_ID+ ")";
 
-    private long getUserId(){
-        SoundCloudApplication app = (SoundCloudApplication) getContext().getApplicationContext();
-        return app.getCurrentUserId();
-    }
+
 
 }
