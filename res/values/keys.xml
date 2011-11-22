@@ -9,9 +9,9 @@
     <string name='ga_tracking_beta'>UA-2519404-19</string>
 
 
-    <!-- jan test app -->
-    <!--<string name='facebook_app_id'>174220222672677</string>-->
+    <!-- production fb sc app id -->
+    <string name='production_facebook_app_id'>19507961798</string>
 
-    <!-- sandbox sc -->
-    <string name='facebook_app_id'>18665667761</string>
+    <!-- sandbox fb sc app id -->
+    <string name='sandbox_facebook_app_id'>18665667761</string>
 </resources>

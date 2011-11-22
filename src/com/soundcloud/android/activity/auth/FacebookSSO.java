@@ -3,6 +3,7 @@ package com.soundcloud.android.activity.auth;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.api.CloudAPI;
 
 import android.content.Context;
@@ -107,7 +108,9 @@ public class FacebookSSO extends LoginActivity {
     }
 
     static Intent getAuthIntent(Context context, String... permissions) {
-        String applicationId = context.getString(R.string.facebook_app_id);
+        String applicationId = context.getString(SoundCloudApplication.API_PRODUCTION ?
+                R.string.production_facebook_app_id : R.string.sandbox_facebook_app_id);
+
         Intent intent = new Intent();
         intent.setClassName("com.facebook.katana", "com.facebook.katana.ProxyAuth");
         intent.putExtra(FB_CLIENT_ID_EXTRA, applicationId);

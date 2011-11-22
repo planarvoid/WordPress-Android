@@ -2,6 +2,8 @@ package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.SoundCloudApplication;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,7 +19,7 @@ public class Facebook extends Activity {
 
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        if (clientSupportsSSO()) {
+        if (isSSOEnabled() && clientSupportsSSO()) {
             startSSOFlow();
         } else {
             Log.d(TAG, "SSO not possible, falling back to webview login");
@@ -27,6 +29,11 @@ public class Facebook extends Activity {
 
     /* package */ boolean clientSupportsSSO() {
         return FacebookSSO.validateAppSignatureForIntent(this, FacebookSSO.getAuthIntent(this));
+    }
+
+
+    /* package */ boolean isSSOEnabled() {
+        return SoundCloudApplication.BETA_MODE || SoundCloudApplication.DEV_MODE;
     }
 
     @Override
