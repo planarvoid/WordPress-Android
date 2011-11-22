@@ -183,7 +183,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     @Override
     public void setEmptyView(View emptyView) {
         mEmptyView = emptyView;
-        if (getHeight() > 0) {
+        if (getHeight() > 0 && emptyView.findViewById(R.id.sizer) != null) {
             emptyView.findViewById(R.id.sizer).setMinimumHeight(getHeight());
             emptyView.findViewById(R.id.sizer).requestLayout();
         } else {
