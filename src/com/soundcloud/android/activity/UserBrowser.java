@@ -463,7 +463,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            if (mUser.track_count == 0){
+            if (mUser.track_count > 0){
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
                     .setActionText(R.string.list_empty_user_followers_action)
                     .setImage(R.drawable.empty_rec)
