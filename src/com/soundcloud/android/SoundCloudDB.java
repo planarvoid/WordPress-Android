@@ -25,7 +25,7 @@ public class SoundCloudDB {
                         contentResolver.update(ScContentProvider.Content.TRACK_ITEM, track.buildContentValues(), Tracks.ID
                                 + "='" + track.id + "'", null);
                 } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                    contentResolver.insert(ScContentProvider.Content.TRACK_ITEM, track.buildContentValues());
+                    contentResolver.insert(ScContentProvider.Content.TRACKS, track.buildContentValues());
                 }
 
                 cursor.close();
@@ -36,11 +36,11 @@ public class SoundCloudDB {
             }
     }
 
+
     // ---Make sure the database is up to date with this track info---
     public static Track getTrackById(ContentResolver contentResolver, long trackId, long currentUserId) {
 
-        Cursor cursor = contentResolver.query(ScContentProvider.Content.TRACK_ITEM, null, Tracks.ID + " = ?",
-                new String[]{Long.toString(trackId)}, null);
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.TRACKS.buildUpon().appendPath(Long.toString(trackId)).build(), null, null,null, null);
 
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -62,10 +62,11 @@ public class SoundCloudDB {
 
     public static boolean isTrackInDb(ContentResolver contentResolver, long id) {
         boolean ret = false;
-        Cursor cursor = contentResolver.query(ScContentProvider.Content.TRACK_ITEM, null, Tracks.ID + " = ?",new String[]{Long.toString(id)}, null);
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.TRACKS.buildUpon().appendPath(Long.toString(id)).build(), null, null,null, null);
         if (null != cursor && cursor.moveToNext()) {
             ret = true;
         }
+
 
         if (cursor != null)
             cursor.close();
@@ -119,9 +120,9 @@ public class SoundCloudDB {
         return username;
     }
 
-    public static boolean isUserInDb(ContentResolver contentResolver, long id) {
+    public static boolean isUserInDb(ContentResolver contentResolver, long userId) {
         boolean ret = false;
-        Cursor cursor = contentResolver.query(ScContentProvider.Content.USER_ITEM, null, Users.ID + " = ?",new String[]{Long.toString(id)}, null);
+        Cursor cursor = contentResolver.query(ScContentProvider.Content.USERS.buildUpon().appendPath(String.valueOf(userId)).build(), null, null,null, null);
         if (null != cursor && cursor.moveToNext()) {
             ret = true;
         }

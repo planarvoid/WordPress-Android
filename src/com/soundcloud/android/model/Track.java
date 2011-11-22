@@ -156,17 +156,14 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public Uri toUri() {
-        return toUri(id);
-    }
-
-    public static Uri toUri(long id) {
-        return ScContentProvider.Content.TRACK_ITEM.buildUpon().appendPath(String.valueOf(id)).build();
+        return appendIdToUri(ScContentProvider.Content.TRACKS);
     }
 
     @Override @JsonIgnore
     public Track getTrack() {
         return this;
     }
+
 
     @Override @JsonIgnore
     public User getUser() {
@@ -272,8 +269,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public void updateFromDb(ContentResolver resolver, long currentUserId) {
-        Cursor cursor = resolver.query(ScContentProvider.Content.TRACK_ITEM, null, Tracks.ID + " = ?",
-                new String[] { Long.toString(id) }, null);
+        Cursor cursor = resolver.query(appendIdToUri(ScContentProvider.Content.TRACKS), null, null,null, null);
 
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -309,10 +305,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public boolean updateUserPlayedFromDb(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(ScContentProvider.Content.TRACK_PLAYS, null, TrackPlays.TRACK_ID
-                + "= ? AND " + TrackPlays.USER_ID + " = ?", new String[] {
-                String.valueOf(id), String.valueOf(userId)
-        }, null);
+        Cursor cursor = contentResolver.query(appendIdToUri(ScContentProvider.Content.TRACK_PLAYS), null, null, null, null);
 
         if (cursor != null) {
             user_played = cursor.getCount() > 0;

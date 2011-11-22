@@ -13,12 +13,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ScContentProvider extends ContentProvider {
+    private static final String LOG_TAG = ScContentProvider.class.getSimpleName();
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
     public static final Pattern URL_PATTERN = Pattern.compile("^content://" + AUTHORITY + "/(\\w+)(?:/(-?\\d+))?$");
     public static final long DEFAULT_POLL_FREQUENCY = 3600l; // 1h
@@ -26,6 +28,7 @@ public class ScContentProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildMatcher();
 
     private DBHelper dbHelper;
+
 
     static class TableInfo {
         DBHelper.Tables table;
@@ -70,9 +73,10 @@ public class ScContentProvider extends ContentProvider {
             case TRACK_ITEM:
                 qb.setTables(TRACKVIEW_FAVORITE_JOIN);
                 whereAppend = DBHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId + " AND "
-                        + DBHelper.TrackView._ID + " = " + uri.getLastPathSegment();
+                        + DBHelper.TrackView.CONCRETE_ID + " = " + uri.getLastPathSegment();
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
+
 
             case USERS:
                 qb.setTables(USER_FOLLOWING_JOIN);
@@ -94,6 +98,19 @@ public class ScContentProvider extends ContentProvider {
                         selection + " AND " + DBHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
                 break;
 
+            case TRACK_PLAYS:
+                qb.setTables(DBHelper.Tables.TRACK_PLAYS.tableName);
+                whereAppend = DBHelper.TrackPlays.CONCRETE_USER_ID + " = "+ userId;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+
+            case TRACK_PLAYS_ITEM:
+                qb.setTables(DBHelper.Tables.TRACK_PLAYS.tableName);
+                whereAppend = DBHelper.TrackPlays.CONCRETE_USER_ID + " = "+ userId + " AND "
+                        + DBHelper.TrackPlays.CONCRETE_TRACK_ID + " = " + uri.getLastPathSegment();
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+
             case RECORDINGS:
                 qb.setTables(DBHelper.Tables.RECORDINGS.tableName);
                 whereAppend = DBHelper.Recordings.CONCRETE_USER_ID + " = "+ userId;
@@ -107,6 +124,8 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
 
+
+
             default:
                 throw new IllegalArgumentException("No query available for: " + uri);
         }
@@ -115,6 +134,7 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String q = qb.buildQuery(columns, selection, selectionArgs, null, null, sortOrder, null);
         System.out.println(q);
+        Log.i(LOG_TAG, "Query:" + q);
         Cursor c = db.rawQuery(q, null);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
@@ -132,6 +152,12 @@ public class ScContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case TRACKS:
                 id = db.insertWithOnConflict(DBHelper.Tables.TRACKS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                getContext().getContentResolver().notifyChange(result, null);
+                return result;
+
+            case TRACK_PLAYS:
+                id = db.insertWithOnConflict(DBHelper.Tables.TRACK_PLAYS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null);
                 return result;
@@ -156,7 +182,6 @@ public class ScContentProvider extends ContentProvider {
                 } else {
                     throw new SQLException("No insert available for: " + uri);
                 }
-
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -186,8 +211,19 @@ public class ScContentProvider extends ContentProvider {
     public int bulkInsert(Uri uri, ContentValues[] values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
-        String tblName = getTableInfo(uri).table.tableName;
+
         try {
+            String tblName;
+            switch (sUriMatcher.match(uri)) {
+                case TRACKS:
+                    tblName = DBHelper.Tables.TRACKS.tableName;
+                    break;
+                case USERS:
+                    tblName = DBHelper.Tables.USERS.tableName;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown URI " + uri);
+            }
             int numValues = values.length;
             for (int i = 0; i < numValues; i++) {
                 if (db.replace(tblName, null, values[i]) < 0) return 0;
@@ -196,6 +232,7 @@ public class ScContentProvider extends ContentProvider {
         } finally {
             db.endTransaction();
         }
+
         getContext().getContentResolver().notifyChange(uri, null);
         return values.length;
     }
@@ -351,10 +388,12 @@ public class ScContentProvider extends ContentProvider {
 
     private static final int RECORDINGS             = 1000;
     private static final int RECORDING_ITEM         = 1001;
-    private static final int EVENTS                 = 1002;
-    private static final int EVENT_ITEM             = 1003;
-    private static final int SEARCHES               = 1004;
-    private static final int TRACK_PLAYS            = 1005;
+    private static final int EVENTS                 = 1100;
+    private static final int EVENT_ITEM             = 1101;
+    private static final int TRACK_PLAYS            = 1200;
+    private static final int TRACK_PLAYS_ITEM       = 1201;
+    private static final int SEARCHES               = 1300;
+
 
 
 	private static UriMatcher buildMatcher() {
@@ -406,15 +445,16 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "recordings/#", RECORDING_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "events", EVENTS);
         matcher.addURI(ScContentProvider.AUTHORITY, "events/#", EVENT_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "searches", SEARCHES);
         matcher.addURI(ScContentProvider.AUTHORITY, "track_plays", TRACK_PLAYS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "track_plays/#", TRACK_PLAYS_ITEM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "searches", SEARCHES);
         
 		return matcher;
 
 	}
 
     static String TRACKVIEW_FAVORITE_JOIN = DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
-                        " ON (" + DBHelper.Tracks.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_TRACK_ID+ ")";
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_TRACK_ID+ ")";
 
     static String USER_FOLLOWING_JOIN = DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.USER_FOLLOWING.tableName +
                         " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.CONCRETE_FOLLOWING_ID+ ")";

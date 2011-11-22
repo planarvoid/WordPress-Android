@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.net.Uri;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import org.codehaus.jackson.map.annotate.JsonView;
@@ -148,6 +149,10 @@ public abstract class ModelBase implements Parcelable {
     @Override
     public int hashCode() {
         return (int) (id ^ (id >>> 32));
+    }
+
+    public Uri appendIdToUri(Uri baseUri){
+        return baseUri.buildUpon().appendPath(Long.toString(id)).build();
     }
 
     protected boolean getBooleanFromInt(int value){

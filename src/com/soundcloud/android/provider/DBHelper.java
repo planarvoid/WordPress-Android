@@ -595,12 +595,6 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String CONCRETE_TYPE = Tables.SEARCHES.tableName + "." + SEARCH_TYPE;
         public static final String CONCRETE_CREATED_AT = Tables.SEARCHES.tableName + "." + CREATED_AT;
         public static final String CONCRETE_QUERY = Tables.SEARCHES.tableName + "." + QUERY;
-
-        public static final String ALIAS_ID = Tables.SEARCHES.tableName + "_" + ID;
-        public static final String ALIAS_USER_ID = Tables.SEARCHES.tableName + "_" + USER_ID;
-        public static final String ALIAS_TYPE = Tables.SEARCHES.tableName + "_" + SEARCH_TYPE;
-        public static final String ALIAS_CREATED_AT = Tables.SEARCHES.tableName + "_" + CREATED_AT;
-        public static final String ALIAS_QUERY = Tables.SEARCHES.tableName + "_" + QUERY;
     }
 
     public static final class TrackView implements BaseColumns {
@@ -628,7 +622,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
         public static final String USER_FAVORITE = "user_favorite";
         public static final String USER_PLAYED = "user_played";
-      }
+
+        public static final String CONCRETE_ID = Tables.TRACKVIEW.tableName+ "." + _ID;
+
+    }
 
 
     static final String DATABASE_CREATE_TRACK_VIEW = "CREATE VIEW " + Tables.TRACKVIEW.tableName +

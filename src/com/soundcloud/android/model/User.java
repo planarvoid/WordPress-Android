@@ -6,7 +6,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.DBHelper.Tables;
 import com.soundcloud.android.provider.DBHelper.Users;
 import com.soundcloud.android.provider.ScContentProvider;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -96,8 +95,7 @@ public class User extends ModelBase implements PageTrackable {
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
-        Cursor cursor = contentResolver.query(ScContentProvider.Content.USER_ITEM, null, Users.ID + "= ?",new String[]{Long.toString(id)},
-                null);
+        Cursor cursor = contentResolver.query(appendIdToUri(ScContentProvider.Content.USERS), null, null, null, null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
