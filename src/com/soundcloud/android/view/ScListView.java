@@ -152,8 +152,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         measureView(mRefreshView);
         mRefreshViewHeight = mRefreshView.getMeasuredHeight();
 
-        mEmptyView = inflater.inflate(R.layout.empty_list, null);
-        mEmptyView.setBackgroundColor(0xFFFFFFFF);
+        mEmptyView = new EmptyCollection(getContext());
 
         setLongClickable(false);
         setScrollingCacheEnabled(false);
@@ -181,16 +180,15 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         return mEmptyView;
     }
 
-    public void setEmptyText(CharSequence text) {
-        if (mEmptyView != null && mEmptyView.findViewById(R.id.empty_txt) != null){
-            ((TextView) mEmptyView.findViewById(R.id.empty_txt)).setText(text);
-        }
-    }
-
     @Override
     public void setEmptyView(View emptyView) {
         mEmptyView = emptyView;
-        requestLayout();
+        if (getHeight() > 0 && emptyView.findViewById(R.id.sizer) != null) {
+            emptyView.findViewById(R.id.sizer).setMinimumHeight(getHeight());
+            emptyView.findViewById(R.id.sizer).requestLayout();
+        } else {
+            requestLayout();
+        }
     }
 
     @Override
@@ -414,9 +412,9 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         if (changed) {
-            if (getHeight() > 0 && mEmptyView != null) {
-                mEmptyView.findViewById(R.id.empty_txt).getLayoutParams().height = getHeight() + 30;
-                mEmptyView.findViewById(R.id.empty_txt).invalidate();
+            if (getHeight() > 0 && mEmptyView != null && mEmptyView.findViewById(R.id.sizer) != null) {
+                mEmptyView.findViewById(R.id.sizer).setMinimumHeight(getHeight());
+                mEmptyView.findViewById(R.id.sizer).requestLayout();
             }
         }
     }

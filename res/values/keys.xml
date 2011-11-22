@@ -7,4 +7,11 @@
 
     <string name='ga_tracking_market'>UA-2519404-11</string>
     <string name='ga_tracking_beta'>UA-2519404-19</string>
+
+
+    <!-- production fb sc app id -->
+    <string name='production_facebook_app_id'>19507961798</string>
+
+    <!-- sandbox fb sc app id -->
+    <string name='sandbox_facebook_app_id'>18665667761</string>
 </resources>

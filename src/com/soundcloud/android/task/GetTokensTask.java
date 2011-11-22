@@ -3,6 +3,7 @@ package com.soundcloud.android.task;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.activity.auth.LoginActivity;
 import com.soundcloud.api.Token;
 
 import android.os.Bundle;
@@ -21,12 +22,16 @@ public class GetTokensTask extends AsyncApiTask<Bundle, Void, Token> {
     protected Token doInBackground(Bundle... params) {
         Bundle param = params[0];
         try {
-            final String scope = param.getString("scope");
+            final String[] scopes = param.getStringArray(LoginActivity.SCOPES_EXTRA);
 
-            if (param.containsKey("code")) {
-                return mApi.authorizationCode(param.getString("code"), scope);
-            } else if (param.containsKey("username") && param.containsKey("password")) {
-                return mApi.login(param.getString("username"), param.getString("password"), scope);
+            if (param.containsKey(LoginActivity.CODE_EXTRA)) {
+                return mApi.authorizationCode(param.getString(LoginActivity.CODE_EXTRA), scopes);
+            } else if (param.containsKey(LoginActivity.USERNAME_EXTRA)
+                    && param.containsKey(LoginActivity.PASSWORD_EXTRA)) {
+                return mApi.login(param.getString(LoginActivity.USERNAME_EXTRA),
+                        param.getString(LoginActivity.PASSWORD_EXTRA), scopes);
+            } else if (param.containsKey(LoginActivity.EXTENSION_GRANT_TYPE_EXTRA)) {
+                return mApi.extensionGrantType(param.getString(LoginActivity.EXTENSION_GRANT_TYPE_EXTRA), scopes);
             } else {
                 throw new IllegalArgumentException("invalid param " + param);
             }

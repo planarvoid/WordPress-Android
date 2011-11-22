@@ -499,6 +499,9 @@ public class DBHelper extends SQLiteOpenHelper {
           public static final String CONCRETE_WEBSITE = Tables.USERS.tableName + "." + WEBSITE;
           public static final String CONCRETE_WEBSITE_TITLE = Tables.USERS.tableName + "." + WEBSITE_TITLE;
           public static final String CONCRETE_DESCRIPTION = Tables.USERS.tableName + "." + DESCRIPTION;
+
+          public static final String USER_FOLLOWING = "user_following";
+          public static final String USER_FOLLOWER = "user_follower";
       }
 
       public static final class Recordings implements BaseColumns {

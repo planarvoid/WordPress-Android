@@ -136,9 +136,9 @@ public class SignUp extends Activity {
                             if (token != null) {
                                 app.trackPage(Consts.Tracking.LOGIN);
                                 startActivityForResult(new Intent(SignUp.this, AddInfo.class)
-                                        .putExtra("signed_up", signedUp ? "native" : null)
-                                        .putExtra("user", user)
-                                        .putExtra("token", token), 0);
+                                    .putExtra(LoginActivity.SIGNED_UP_EXTRA, signedUp ? "native" : null)
+                                    .putExtra("user", user)
+                                    .putExtra("token", token), 0);
                             } else {
                                 signupFail(null);
                             }

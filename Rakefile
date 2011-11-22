@@ -336,3 +336,16 @@ namespace :lol do
     sh "curl #{url} > res/values/strings_lolcatlizr.xml"
   end
 end
+
+namespace :keyhash do
+  {
+    :debug => { :alias => 'androiddebugkey', :keystore => '~/.android/debug.keystore' },
+    :beta  => { :alias => 'beta-key', :keystore => 'soundcloud_sign/soundcloud.ks' },
+    :production  => { :alias => 'jons keystore', :keystore => 'soundcloud_sign/soundcloud.ks' }
+  }.each do |type, config|
+    desc "show keyhash for #{type}"
+    task type do
+     sh "keytool -exportcert -alias '#{config[:alias]}' -keystore #{config[:keystore]} | openssl sha1 -binary | openssl base64"
+    end
+  end
+end

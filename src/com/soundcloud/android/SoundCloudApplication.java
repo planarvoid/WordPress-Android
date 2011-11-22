@@ -30,11 +30,7 @@ import com.soundcloud.android.service.beta.C2DMReceiver;
 import com.soundcloud.android.service.beta.WifiMonitor;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Env;
-import com.soundcloud.api.Request;
-import com.soundcloud.api.Stream;
-import com.soundcloud.api.Token;
+import com.soundcloud.api.*;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.apache.http.HttpResponse;
@@ -47,6 +43,7 @@ import java.net.URI;
 import java.util.*;
 
 import static android.content.pm.PackageManager.*;
+
 
 @ReportsCrashes(
         formUri = "https://bugsense.appspot.com/api/acra?api_key=03cbd584",
@@ -426,16 +423,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.get(resource);
     }
 
-    public Token clientCredentials() throws IOException {
-        return mCloudApi.clientCredentials();
+    public Token clientCredentials(String... scopes) throws IOException {
+        return mCloudApi.clientCredentials(scopes);
     }
 
-    public Token clientCredentials(String scope) throws IOException {
-        return mCloudApi.clientCredentials(scope);
+    public Token extensionGrantType(String grantType, String... scopes) throws IOException {
+        return mCloudApi.extensionGrantType(grantType, scopes);
     }
 
-    public Token login(String username, String password) throws IOException {
-        return mCloudApi.login(username, password);
+    public Token login(String username, String password, String... scopes) throws IOException {
+        return mCloudApi.login(username, password, scopes);
     }
 
     public URI authorizationCodeUrl(String... options) {
@@ -487,16 +484,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.getMapper();
     }
 
-    public Token authorizationCode(String code) throws IOException {
-        return mCloudApi.authorizationCode(code);
-    }
-
-    public Token login(String username, String password, String scope) throws IOException {
-        return mCloudApi.login(username, password, scope);
-    }
-
-    public Token authorizationCode(String code, String scope) throws IOException {
-        return mCloudApi.authorizationCode(code, scope);
+    public Token authorizationCode(String code, String... scopes) throws IOException {
+        return mCloudApi.authorizationCode(code, scopes);
     }
 
     public void setDefaultContentType(String contentType) {

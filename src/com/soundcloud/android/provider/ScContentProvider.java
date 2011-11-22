@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
@@ -54,6 +55,17 @@ public class ScContentProvider extends ContentProvider {
     }
 
 
+    public static String[] fullTrackColumns = new String[]{
+            DBHelper.Tables.TRACKVIEW.tableName + ".*",
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FAVORITES.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.TRACK_ID + " and " + DBHelper.UserFavorites.USER_ID + " = ?) as " + DBHelper.TrackView.USER_FAVORITE,
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.TRACK_PLAYS.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.TrackPlays.TRACK_ID + " and " + DBHelper.TrackPlays.USER_ID + " = ?) as " + DBHelper.TrackView.USER_PLAYED,
+    };
+
+    public static String[] fullUserColumns = new String[]{
+            DBHelper.Tables.USERS.tableName + ".*",
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWING.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.FOLLOWING_ID + " and " + DBHelper.UserFollowing.USER_ID + " = ?) as "  + DBHelper.Users.USER_FOLLOWING,
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWERS.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowers.FOLLOWER_ID + " and " + DBHelper.UserFollowing.USER_ID + " = ?) as " + DBHelper.Users.USER_FOLLOWER
+    };
 
     @Override
     public Cursor query(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
@@ -62,18 +74,17 @@ public class ScContentProvider extends ContentProvider {
         String whereAppend;
 
         // TODO
-        //(SELECT 1 FROM NOTES_IN_NOTES n2 WHERE n2.parent_note_id = n0._id)
+        // SELECT TrackView._id, EXISTS (SELECT 1 FROM UserFavorites where TrackView._id = UserFavorites.track_id and UserFavorites.user_id = 1) as favorite, EXISTS (SELECT 1 FROM TrackPlays where TrackView._id = TrackPlays.track_id and TrackPlays.user_id = 1) as played FROM TrackView;
 
         switch (sUriMatcher.match(uri)) {
             case TRACKS:
-                qb.setTables(TRACKVIEW_FAVORITE_JOIN);
-                whereAppend = DBHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                if (columns == null) columns = fullTrackColumns;
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName);
                 break;
             case TRACK_ITEM:
-                qb.setTables(TRACKVIEW_FAVORITE_JOIN);
-                whereAppend = DBHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId + " AND "
-                        + DBHelper.TrackView.CONCRETE_ID + " = " + uri.getLastPathSegment();
+                if (columns == null) columns = fullTrackColumns;
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName);
+                whereAppend = DBHelper.TrackView.CONCRETE_ID + " = " + uri.getLastPathSegment();
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
@@ -122,9 +133,6 @@ public class ScContentProvider extends ContentProvider {
                 whereAppend = DBHelper.Recordings.CONCRETE_ID + " = "+ uri.getLastPathSegment();
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
-
-
-
 
             default:
                 throw new IllegalArgumentException("No query available for: " + uri);
@@ -237,10 +245,6 @@ public class ScContentProvider extends ContentProvider {
         return values.length;
     }
 
-    static DBHelper.Tables getTable(Uri u) {
-        return getTable(u.toString());
-    }
-
     static DBHelper.Tables getTable(String s) {
         DBHelper.Tables table = null;
         Matcher m = URL_PATTERN.matcher(s);
@@ -253,6 +257,8 @@ public class ScContentProvider extends ContentProvider {
             throw new IllegalArgumentException("unknown uri " + s);
         }
     }
+
+
 
     static TableInfo getTableInfo(Uri uri) {
         return getTableInfo(uri.toString());
@@ -267,6 +273,8 @@ public class ScContentProvider extends ContentProvider {
         }
         return result;
     }
+
+
 
 
     @Override

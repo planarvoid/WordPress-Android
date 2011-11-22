@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,8 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Config;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +24,7 @@ import android.widget.*;
 import android.widget.ImageView.ScaleType;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.*;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.adapter.*;
 import com.soundcloud.android.cache.Connections;
@@ -48,6 +48,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private ImageView mIcon;
     private String mIconURL;
     private ImageLoader.BindResult avatarResult;
+
+    private EmptyCollection mEmptyInfoView;
+    boolean mDisplayedInfo, mInfoError;
 
     private ScTabView mMyTracksView;
     private FrameLayout mInfoView;
@@ -335,9 +338,16 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         @Override
         protected void onPostExecute(User user) {
             if (user != null) {
+                mInfoError = false;
                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all,
                         getApp().getCurrentUserId());
                 setUser(user);
+            } else {
+                mInfoError = true;
+                if (!mDisplayedInfo){
+
+                    configureEmptyView();
+                }
             }
         }
     }
@@ -361,7 +371,21 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_tracks_text));
+
+            adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
+                    .setActionText(R.string.list_empty_user_sounds_action)
+                    .setImage(R.drawable.empty_rec)
+                    .setActionListener(new EmptyCollection.ActionListener() {
+                        @Override
+                        public void onAction() {
+                            startActivity(new Intent(Actions.RECORD)
+                                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                        }
+
+                        @Override
+                        public void onSecondaryAction() {
+                        }
+                    }));
         }
 
         mMyTracksView = new ScTabView(this);
@@ -378,7 +402,20 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_favorites_text));
+            adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_likes_message)
+                    .setActionText(R.string.list_empty_user_likes_action)
+                    .setImage(R.drawable.empty_like)
+                    .setActionListener(new EmptyCollection.ActionListener() {
+                        @Override
+                        public void onAction() {
+                            mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
+                        }
+
+                        @Override
+                        public void onSecondaryAction() {
+                            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
+                        }
+                    }));
         }
 
         ScTabView favoritesView = new ScTabView(this);
@@ -396,7 +433,19 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followings_text));
+            adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
+                    .setActionText(R.string.list_empty_user_following_action)
+                    .setImage(R.drawable.empty_follow_small)
+                    .setActionListener(new EmptyCollection.ActionListener() {
+                        @Override
+                        public void onAction() {
+                            mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
+                        }
+
+                        @Override
+                        public void onSecondaryAction() {
+                        }
+                    }));
         }
 
         final ScTabView followingsView = new ScTabView(this);
@@ -414,7 +463,34 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setEmptyViewText(getResources().getString(R.string.empty_my_followers_text));
+            if (mUser.track_count == 0){
+                adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
+                    .setActionText(R.string.list_empty_user_followers_action)
+                    .setImage(R.drawable.empty_rec)
+                    //.setSecondaryText(R.string.list_empty_user_followers_secondary)
+                    .setActionListener(new EmptyCollection.ActionListener() {
+                        @Override public void onAction() {
+                            mUserlistBrowser.setCurrentScreenByTag(TabTags.tracks);
+                        }
+                        @Override public void onSecondaryAction() {
+                            //startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
+                        }
+                    }));
+            } else {
+                adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_nosounds_message)
+                    .setActionText(R.string.list_empty_user_followers_nosounds_action)
+                    .setImage(R.drawable.empty_share)
+                    //.setSecondaryText(R.string.list_empty_user_followers_nosounds_secondary)
+                    .setActionListener(new EmptyCollection.ActionListener() {
+                        @Override public void onAction() {
+                            startActivity(new Intent(Actions.RECORD).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                        }
+                        @Override public void onSecondaryAction() {
+                            //startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
+                        }
+                    }));
+            }
+
         }
 
         final ScTabView followersView = new ScTabView(this);
@@ -503,8 +579,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             mFullName.setText(user.full_name);
             mFullName.setVisibility(View.VISIBLE);
         }
-        mFollowerCount.setText(Integer.toString(user.followers_count));
-        mTrackCount.setText(Integer.toString(user.track_count));
+        mFollowerCount.setText(Integer.toString(Math.max(0,user.followers_count)));
+        mTrackCount.setText(Integer.toString(Math.max(0,user.track_count)));
 
         setFollowingButtonText();
         if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
@@ -516,9 +592,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         }
 
-        boolean displayedSomething = false;
         if (!TextUtils.isEmpty(user.website)) {
-            displayedSomething = true;
+            mDisplayedInfo = true;
             mWebsite.setText(
                     TextUtils.isEmpty(user.website_title) ?
                     CloudUtils.stripProtocol(user.website) : user.website_title);
@@ -537,7 +612,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         if (!TextUtils.isEmpty(user.discogs_name)) {
-            displayedSomething = true;
+            mDisplayedInfo = true;
             mDiscogsName.setMovementMethod(LinkMovementMethod.getInstance());
             mDiscogsName.setVisibility(View.VISIBLE);
             mDiscogsName.setFocusable(true);
@@ -555,7 +630,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         if (!TextUtils.isEmpty(user.myspace_name)) {
-            displayedSomething = true;
+            mDisplayedInfo = true;
             mMyspaceName.setMovementMethod(LinkMovementMethod.getInstance());
             mMyspaceName.setVisibility(View.VISIBLE);
             mMyspaceName.setFocusable(true);
@@ -574,7 +649,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         final String location = user.getLocation();
         if (!TextUtils.isEmpty(location)) {
-            displayedSomething = true;
+            mDisplayedInfo = true;
             mLocation.setText(getString(R.string.from)+" "+location);
             mLocation.setVisibility(View.VISIBLE);
         } else {
@@ -582,21 +657,49 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         if (!TextUtils.isEmpty(user.description)) {
-            displayedSomething = true;
+            mDisplayedInfo = true;
             mDescription.setText(Html.fromHtml((user).description.replace(System.getProperty("line.separator"), "<br/>")));
             mDescription.setMovementMethod(LinkMovementMethod.getInstance());
         }
+        configureEmptyView();
+    }
 
-        if (displayedSomething) {
-            if (mInfoView.findViewById(R.id.empty_txt) != null)
-                mInfoView.findViewById(R.id.empty_txt).setVisibility(View.GONE);
-        } else {
-            TextView txtEmpty = (TextView) mInfoView.findViewById(R.id.empty_txt);
-            if (txtEmpty != null) {
-                txtEmpty.setText(Html.fromHtml(getString(isOtherUser() ? R.string.info_empty_other : R.string.info_empty_you)));
-                txtEmpty.setVisibility(View.VISIBLE);
+    private void configureEmptyView(){
+        if (mDisplayedInfo && mEmptyInfoView != null && mEmptyInfoView.getParent() == mInfoView) {
+            mInfoView.removeView(mEmptyInfoView);
+        } else if (!mDisplayedInfo) {
+            if (mEmptyInfoView == null) mEmptyInfoView = new EmptyCollection(this);
+            if (mInfoError) {
+                mEmptyInfoView.setMessageText(mInfoError ? R.string.info_error : R.string.info_empty_other_message);
+                mEmptyInfoView.setImage(R.drawable.empty_connection);
+                mEmptyInfoView.setActionText(-1);
+            } else {
+                if (isOtherUser()) {
+                    mEmptyInfoView.setMessageText(R.string.info_empty_other_message);
+                    mEmptyInfoView.setActionText(-1);
+                } else {
+                    mEmptyInfoView.setMessageText(R.string.info_empty_you_message);
+                    mEmptyInfoView.setActionText(R.string.info_empty_you_action);
+                    mEmptyInfoView.setActionListener(new EmptyCollection.ActionListener() {
+                        @Override public void onAction() {
+                            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings")));
+                        }
+                        @Override public void onSecondaryAction() {}
+                    });
+                }
+            }
+
+            if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+                // won't fit in most landscape views
+                mEmptyInfoView.setImageVisibility(false);
+                mEmptyInfoView.setActionText(-1);
+            }
+
+            if (mEmptyInfoView.getParent() != mInfoView) {
+                mInfoView.addView(mEmptyInfoView);
             }
         }
+
     }
 
     private void reloadAvatar() {
@@ -628,61 +731,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                         .putExtra("recordingUri", recording.toUri().toString())
                         .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
             }
-            //showRecordingDialog(recording);
         }
-    }
-
-    private void showRecordingDialog(final Recording recording) {
-        final CharSequence[] curr_items = recording.external_upload ? EXTERNAL_RECORDING_ITEMS : RECORDING_ITEMS;
-
-        new AlertDialog.Builder(this)
-            .setInverseBackgroundForced(true)
-            .setTitle(recording.sharingNote(getResources()))
-            .setNegativeButton(getString(android.R.string.cancel), null)
-            .setItems(curr_items, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int item) {
-                    if (curr_items[item].equals(RECORDING_ITEMS[0])) {
-                        if (recording.private_user_id <= 0){
-                            startActivity(new Intent(UserBrowser.this, ScUpload.class).setData(recording.toUri()));
-                        } else {
-                            startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
-                                            .putExtra("edit",true)
-                                            .putExtra("recordingUri", recording.toUri().toString())
-                                            .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
-                        }
-
-                    } else if (curr_items[item].equals(RECORDING_ITEMS[1])) {
-                        if (recording.private_user_id <= 0){
-                            startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
-                        } else {
-                            startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
-                                    .putExtra("edit", false)
-                                    .putExtra("recordingUri", recording.toUri().toString())
-                                    .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
-                        }
-
-
-
-                    } else if (curr_items[item].equals(RECORDING_ITEMS[2])) {
-                        startUpload(recording);
-                    } else if (curr_items[item].equals(RECORDING_ITEMS[3])) {
-                        new AlertDialog.Builder(UserBrowser.this)
-                                .setTitle(R.string.dialog_confirm_delete_recording_title)
-                                .setMessage(R.string.dialog_confirm_delete_recording_message)
-                                .setPositiveButton(getString(R.string.btn_yes),
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                            recording.delete(getContentResolver());
-                                        }
-                                    })
-                                .setNegativeButton(getString(R.string.btn_no), null)
-                                .create()
-                                .show();
-                    }
-                }
-            })
-            .create()
-            .show();
     }
 
     @Override
@@ -736,10 +785,12 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         c.workspaceIndex = mUserlistBrowser.getCurrentWorkspaceIndex();
         c.adapterStates = mAdapterStates;
         c.friendFinderState = mFriendFinderView != null ? mFriendFinderView.getCurrentState() : -1;
+        c.infoError = mInfoError;
         return c;
     }
 
     private void fromConfiguration(Configuration c){
+        mInfoError = c.infoError;
         setUser(c.user);
         build(); //build here because the rest of the state needs a constructed userlist browser
 
@@ -760,6 +811,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         int workspaceIndex;
         Object[] adapterStates;
         int friendFinderState;
+        boolean infoError;
     }
 
 }

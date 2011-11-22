@@ -24,6 +24,7 @@ public class Start extends AccountAuthenticatorActivity {
     private static final int RECOVER_CODE = 1;
     private static final int SUGGESTED_USERS = 2;
 
+    public static final String FB_CONNECTED_EXTRA = "facebook_connected";
     private final Handler mHandler = new Handler();
 
     @Override
@@ -32,25 +33,28 @@ public class Start extends AccountAuthenticatorActivity {
         setContentView(R.layout.start);
 
         findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
                 startActivityForResult(new Intent(Start.this, Facebook.class), 0);
             }
         });
 
         findViewById(R.id.login_btn).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
                 startActivityForResult(new Intent(Start.this, Login.class), 0);
             }
         });
 
         findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
                 startActivityForResult(new Intent(Start.this, SignUp.class), 0);
             }
         });
 
         Button forgotBtn = (Button) this.findViewById(R.id.forgot_btn);
-        forgotBtn.setText(Html.fromHtml("<u>"+getResources().getString(R.string.authentication_I_forgot_my_password)
+        forgotBtn.setText(Html.fromHtml("<u>" + getResources().getString(R.string.authentication_I_forgot_my_password)
                 + "</u>"));
         forgotBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,7 +73,7 @@ public class Start extends AccountAuthenticatorActivity {
 
             mHandler.postDelayed(new Runnable() {
                 public void run() {
-                    if (!Start.this.isFinishing()){
+                    if (!Start.this.isFinishing()) {
                         findViewById(R.id.animation_holder).setVisibility(View.VISIBLE);
                     }
                 }
@@ -93,10 +97,11 @@ public class Start extends AccountAuthenticatorActivity {
             case 0:
                 SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
-                User user = data.getParcelableExtra("user");
-                Token token = (Token) data.getSerializableExtra("token");
+                final User user = data.getParcelableExtra("user");
+                final Token token = (Token) data.getSerializableExtra("token");
 
-                String signed_up = data.getStringExtra("signed_up");
+                /* native|facebook:(access-token|web-flow) */
+                String signed_up = data.getStringExtra(LoginActivity.SIGNED_UP_EXTRA);
 
                 // native signup will already have created the account
                 if ("native".equals(signed_up) || app.addUserAccount(user, token)) {
@@ -105,9 +110,9 @@ public class Start extends AccountAuthenticatorActivity {
                     result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
                     setAccountAuthenticatorResult(result);
                     if (signed_up != null) {
-                        Intent i = new Intent(this, SuggestedUsers.class);
-                        i.putExtra("facebook_connected","facebook".equals(signed_up));
-                        startActivityForResult(i, SUGGESTED_USERS);
+                        startActivityForResult(new Intent(this, SuggestedUsers.class)
+                                .putExtra(FB_CONNECTED_EXTRA, signed_up.contains("facebook")),
+                                SUGGESTED_USERS);
                     } else {
                         finish();
                     }
@@ -136,9 +141,9 @@ public class Start extends AccountAuthenticatorActivity {
         } else {
             String error = data.getStringExtra("error");
             CloudUtils.showToast(context,
-                        error == null ?
-                        context.getString(R.string.authentication_recover_password_failure) :
-                        context.getString(R.string.authentication_recover_password_failure_reason, error));
+                    error == null ?
+                            context.getString(R.string.authentication_recover_password_failure) :
+                            context.getString(R.string.authentication_recover_password_failure_reason, error));
         }
     }
 }
