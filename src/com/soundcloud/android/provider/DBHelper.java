@@ -218,15 +218,17 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private boolean upgradeTo9(SQLiteDatabase db, int oldVersion) {
             try {
+                db.execSQL("DROP TABLE IF EXISTS " + Tables.TRACKS.tableName);
                 db.execSQL("DROP TABLE IF EXISTS " + Tables.USER_FAVORITES.tableName);
                 db.execSQL("DROP TABLE IF EXISTS " + Tables.USER_FOLLOWERS.tableName);
                 db.execSQL("DROP TABLE IF EXISTS " + Tables.USER_FOLLOWING.tableName);
                 db.execSQL("DROP VIEW IF EXISTS " + Tables.TRACKVIEW.tableName);
+                db.execSQL(DATABASE_CREATE_TRACKS);
                 db.execSQL(DATABASE_CREATE_USER_FAVORITES);
                 db.execSQL(DATABASE_CREATE_USER_FOLLOWERS);
                 db.execSQL(DATABASE_CREATE_USER_FOLLOWING);
                 db.execSQL(DATABASE_CREATE_TRACK_VIEW);
-                return false;
+                return true;
 
             } catch (SQLException e) {
                 SoundCloudApplication.handleSilentException("error during upgrade8 " +
@@ -637,7 +639,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String FILELENGTH = Tracks.FILELENGTH;
 
         public static final String USER_ID = Tracks.USER_ID;
-        public static final String USERNAME = "filelength";
+        public static final String USERNAME = "username";
         public static final String USER_PERMALINK = "user_permalink";
         public static final String USER_AVATAR_URL = "user_avatar_url";
 
