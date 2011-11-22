@@ -61,7 +61,6 @@ public class ScContentProvider extends ContentProvider {
         SCQueryBuilder qb = new SCQueryBuilder();
         String whereAppend;
 
-        // TODO
         // SELECT TrackView._id, EXISTS (SELECT 1 FROM UserFavorites where TrackView._id = UserFavorites.track_id and UserFavorites.user_id = 1) as favorite, EXISTS (SELECT 1 FROM TrackPlays where TrackView._id = TrackPlays.track_id and TrackPlays.user_id = 1) as played FROM TrackView;
 
         switch (sUriMatcher.match(uri)) {
@@ -187,19 +186,41 @@ public class ScContentProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        TableInfo tableInfo = getTableInfo(uri);
-        int count = db.delete(tableInfo.table.tableName, tableInfo.where(where), tableInfo.whereArgs(whereArgs));
-        getContext().getContentResolver().notifyChange(uri, null);
-        return count;
+        int count;
+        switch (sUriMatcher.match(uri)) {
+            case TRACK_ITEM:
+                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                count = db.delete(DBHelper.Tables.TRACKS.tableName, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return count;
+            case USER_ITEM:
+                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                count = db.delete(DBHelper.Tables.USERS.tableName, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return count;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        TableInfo tableInfo = getTableInfo(uri);
-        int count = db.update(tableInfo.table.tableName, values, tableInfo.where(where), tableInfo.whereArgs(whereArgs));
-        getContext().getContentResolver().notifyChange(uri, null);
-        return count;
+        int count;
+        switch (sUriMatcher.match(uri)) {
+            case TRACK_ITEM:
+                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                count = db.update(DBHelper.Tables.TRACKS.tableName, values, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return count;
+            case USER_ITEM:
+                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                count = db.update(DBHelper.Tables.USERS.tableName, values, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return count;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
     }
 
     @Override

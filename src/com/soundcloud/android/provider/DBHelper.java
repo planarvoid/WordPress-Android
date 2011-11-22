@@ -304,9 +304,14 @@ public class DBHelper extends SQLiteOpenHelper {
             + "stream_url VARCHAR(255) null, "
             + "streamable VARCHAR(255) null, "
             + "sharing VARCHAR(255) null, "
+            + "playback_count INTEGER null, "
+            + "download_count INTEGER null, "
+            + "comment_count INTEGER null, "
+            + "favoritings_count INTEGER null, "
             + "user_id INTEGER null, "
             + "user_favorite BOOLEAN DEFAULT FALSE, "
             + "filelength INTEGER null);";
+
 
     static final String DATABASE_CREATE_TRACK_PLAYS = "create table TrackPlays (_id INTEGER primary key AUTOINCREMENT, "
             + "track_id INTEGER null, " + "user_id INTEGER null);";
@@ -366,45 +371,54 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final class Tracks implements BaseColumns {
 
-          public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.tracks";
-          public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.tracks";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.tracks";
+        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.tracks";
 
-          public static final String ID = "_id";
-          public static final String PERMALINK = "permalink";
-          public static final String CREATED_AT = "created_at";
-          public static final String DURATION = "duration";
-          public static final String TAG_LIST = "tag_list";
-          public static final String TRACK_TYPE = "track_type";
-          public static final String TITLE = "title";
-          public static final String PERMALINK_URL = "permalink_url";
-          public static final String ARTWORK_URL = "artwork_url";
-          public static final String WAVEFORM_URL = "waveform_url";
-          public static final String DOWNLOADABLE = "downloadable";
-          public static final String DOWNLOAD_URL = "download_url";
-          public static final String STREAM_URL = "stream_url";
-          public static final String STREAMABLE = "streamable";
-          public static final String SHARING = "sharing";
-          public static final String USER_ID = "user_id";
-          public static final String FILELENGTH = "filelength";
+        public static final String ID = "_id";
+        public static final String PERMALINK = "permalink";
+        public static final String CREATED_AT = "created_at";
+        public static final String DURATION = "duration";
+        public static final String TAG_LIST = "tag_list";
+        public static final String TRACK_TYPE = "track_type";
+        public static final String TITLE = "title";
+        public static final String PERMALINK_URL = "permalink_url";
+        public static final String ARTWORK_URL = "artwork_url";
+        public static final String WAVEFORM_URL = "waveform_url";
+        public static final String DOWNLOADABLE = "downloadable";
+        public static final String DOWNLOAD_URL = "download_url";
+        public static final String STREAM_URL = "stream_url";
+        public static final String STREAMABLE = "streamable";
+        public static final String SHARING = "sharing";
+        public static final String PLAYBACK_COUNT = "playback_count";
+        public static final String DOWNLOAD_COUNT = "download_count";
+        public static final String COMMENT_COUNT = "comment_count";
+        public static final String FAVORITINGS_COUNT = "favoritings_count";
+        public static final String USER_ID = "user_id";
+        public static final String FILELENGTH = "filelength";
 
-          public static final String CONCRETE_ID = Tables.TRACKS.tableName + "." + ID;
-          public static final String CONCRETE_PERMALINK = Tables.TRACKS.tableName + "." + PERMALINK;
-          public static final String CONCRETE_CREATED_AT = Tables.TRACKS.tableName + "." + CREATED_AT;
-          public static final String CONCRETE_DURATION = Tables.TRACKS.tableName + "." + DURATION;
-          public static final String CONCRETE_TAG_LIST = Tables.TRACKS.tableName + "." + TAG_LIST;
-          public static final String CONCRETE_TRACK_TYPE = Tables.TRACKS.tableName + "." + TRACK_TYPE;
-          public static final String CONCRETE_TITLE = Tables.TRACKS.tableName + "." + TITLE;
-          public static final String CONCRETE_PERMALINK_URL = Tables.TRACKS.tableName + "." + PERMALINK_URL;
-          public static final String CONCRETE_ARTWORK_URL = Tables.TRACKS.tableName + "." + ARTWORK_URL;
-          public static final String CONCRETE_WAVEFORM_URL = Tables.TRACKS.tableName + "." + WAVEFORM_URL;
-          public static final String CONCRETE_DOWNLOADABLE = Tables.TRACKS.tableName + "." + DOWNLOADABLE;
-          public static final String CONCRETE_DOWNLOAD_URL = Tables.TRACKS.tableName + "." + DOWNLOAD_URL;
-          public static final String CONCRETE_STREAM_URL = Tables.TRACKS.tableName + "." + STREAM_URL;
-          public static final String CONCRETE_STREAMABLE = Tables.TRACKS.tableName + "." + STREAMABLE;
-          public static final String CONCRETE_SHARING = Tables.TRACKS.tableName + "." + SHARING;
-          public static final String CONCRETE_USER_ID = Tables.TRACKS.tableName + "." + USER_ID;
-          public static final String CONCRETE_FILELENGTH = Tables.TRACKS.tableName + "." + FILELENGTH;
-      }
+
+        public static final String CONCRETE_ID = Tables.TRACKS.tableName + "." + ID;
+        public static final String CONCRETE_PERMALINK = Tables.TRACKS.tableName + "." + PERMALINK;
+        public static final String CONCRETE_CREATED_AT = Tables.TRACKS.tableName + "." + CREATED_AT;
+        public static final String CONCRETE_DURATION = Tables.TRACKS.tableName + "." + DURATION;
+        public static final String CONCRETE_TAG_LIST = Tables.TRACKS.tableName + "." + TAG_LIST;
+        public static final String CONCRETE_TRACK_TYPE = Tables.TRACKS.tableName + "." + TRACK_TYPE;
+        public static final String CONCRETE_TITLE = Tables.TRACKS.tableName + "." + TITLE;
+        public static final String CONCRETE_PERMALINK_URL = Tables.TRACKS.tableName + "." + PERMALINK_URL;
+        public static final String CONCRETE_ARTWORK_URL = Tables.TRACKS.tableName + "." + ARTWORK_URL;
+        public static final String CONCRETE_WAVEFORM_URL = Tables.TRACKS.tableName + "." + WAVEFORM_URL;
+        public static final String CONCRETE_DOWNLOADABLE = Tables.TRACKS.tableName + "." + DOWNLOADABLE;
+        public static final String CONCRETE_DOWNLOAD_URL = Tables.TRACKS.tableName + "." + DOWNLOAD_URL;
+        public static final String CONCRETE_STREAM_URL = Tables.TRACKS.tableName + "." + STREAM_URL;
+        public static final String CONCRETE_STREAMABLE = Tables.TRACKS.tableName + "." + STREAMABLE;
+        public static final String CONCRETE_SHARING = Tables.TRACKS.tableName + "." + SHARING;
+        public static final String CONCRETE_PLAYBACK_COUNT = Tables.TRACKS.tableName + "." + PLAYBACK_COUNT;
+        public static final String CONCRETE_DOWNLOAD_COUNT = Tables.TRACKS.tableName + "." + DOWNLOAD_COUNT;
+        public static final String CONCRETE_COMMENT_COUNT = Tables.TRACKS.tableName + "." + COMMENT_COUNT;
+        public static final String CONCRETE_FAVORITINGS_COUNT = Tables.TRACKS.tableName + "." + FAVORITINGS_COUNT;
+        public static final String CONCRETE_USER_ID = Tables.TRACKS.tableName + "." + USER_ID;
+        public static final String CONCRETE_FILELENGTH = Tables.TRACKS.tableName + "." + FILELENGTH;
+    }
 
       public static final class TrackPlays implements BaseColumns {
 
@@ -616,6 +630,10 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String STREAM_URL = Tracks.STREAM_URL;
         public static final String STREAMABLE = Tracks.STREAMABLE;
         public static final String SHARING = Tracks.SHARING;
+        public static final String PLAYBACK_COUNT = Tracks.PLAYBACK_COUNT;
+        public static final String DOWNLOAD_COUNT = Tracks.DOWNLOAD_COUNT;
+        public static final String COMMENT_COUNT = Tracks.COMMENT_COUNT;
+        public static final String FAVORITINGS_COUNT = Tracks.FAVORITINGS_COUNT;
         public static final String FILELENGTH = Tracks.FILELENGTH;
 
         public static final String USER_ID = Tracks.USER_ID;
@@ -648,6 +666,10 @@ public class DBHelper extends SQLiteOpenHelper {
             + Tracks.CONCRETE_STREAM_URL + " as " + TrackView.STREAM_URL + ","
             + Tracks.CONCRETE_STREAMABLE + " as " + TrackView.STREAMABLE + ","
             + Tracks.CONCRETE_SHARING + " as " + TrackView.SHARING + ","
+            + Tracks.CONCRETE_PLAYBACK_COUNT + " as " + TrackView.PLAYBACK_COUNT + ","
+            + Tracks.CONCRETE_DOWNLOAD_COUNT + " as " + TrackView.DOWNLOAD_COUNT + ","
+            + Tracks.CONCRETE_COMMENT_COUNT + " as " + TrackView.COMMENT_COUNT + ","
+            + Tracks.CONCRETE_FAVORITINGS_COUNT + " as " + TrackView.FAVORITINGS_COUNT + ","
             + Tracks.CONCRETE_FILELENGTH + " as " + TrackView.FILELENGTH + ","
             + Users.CONCRETE_ID + " as " + TrackView.USER_ID + ","
             + Users.CONCRETE_USERNAME + " as " + TrackView.USERNAME + ","

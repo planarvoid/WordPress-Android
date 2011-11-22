@@ -258,6 +258,10 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         if (cursor.getColumnIndex(DBHelper.TrackView.STREAMABLE) != -1)       streamable = getBooleanFromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STREAMABLE)));
         if (cursor.getColumnIndex(DBHelper.TrackView.STREAM_URL) != -1)       stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STREAM_URL));
         if (cursor.getColumnIndex(DBHelper.TrackView.SHARING) != -1)          sharing = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.SHARING));
+        if (cursor.getColumnIndex(DBHelper.TrackView.PLAYBACK_COUNT) != -1)   playback_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.PLAYBACK_COUNT));
+        if (cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_COUNT) != -1)   download_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_COUNT));
+        if (cursor.getColumnIndex(DBHelper.TrackView.COMMENT_COUNT) != -1)    comment_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENT_COUNT));
+        if (cursor.getColumnIndex(DBHelper.TrackView.FAVORITINGS_COUNT) != -1)favoritings_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.FAVORITINGS_COUNT));
         if (cursor.getColumnIndex(DBHelper.TrackView.USER_ID) != -1)          user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
         if (cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE) != -1)    user_favorite = getBooleanFromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE)));
         if (cursor.getColumnIndex(DBHelper.TrackView.FILELENGTH) != -1)       filelength = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.FILELENGTH));
@@ -346,6 +350,10 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         if (download_url != null) cv.put(Tracks.DOWNLOAD_URL, download_url);
         if (streamable) cv.put(Tracks.STREAMABLE, streamable);
         if (sharing != null) cv.put(Tracks.SHARING, sharing);
+        if (playback_count != -1) cv.put(Tracks.PLAYBACK_COUNT, playback_count);
+        if (download_count != -1) cv.put(Tracks.DOWNLOAD_COUNT, download_count);
+        if (comment_count != -1) cv.put(Tracks.COMMENT_COUNT, comment_count);
+        if (favoritings_count != -1) cv.put(Tracks.FAVORITINGS_COUNT, favoritings_count);
         // app level, only add these 2 if they have been set, otherwise they
         // might overwrite valid db values
         if (filelength > 0) cv.put(Tracks.FILELENGTH, filelength);

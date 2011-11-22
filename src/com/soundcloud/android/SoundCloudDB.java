@@ -22,8 +22,7 @@ public class SoundCloudDB {
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
                     if (writeState == WriteState.update_only || writeState == WriteState.all)
-                        contentResolver.update(ScContentProvider.Content.TRACK_ITEM, track.buildContentValues(), Tracks.ID
-                                + "='" + track.id + "'", null);
+                        contentResolver.update(track.toUri(), track.buildContentValues(), null,null);
                 } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
                     contentResolver.insert(ScContentProvider.Content.TRACKS, track.buildContentValues());
                 }
