@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -29,11 +30,11 @@ public class CommentRow extends ActivityRow {
     private Comment mComment;
     private Track mTrack;
 
-    public CommentRow(ScActivity activity, LazyBaseAdapter adapter) {
+    public CommentRow(Context activity, LazyBaseAdapter adapter) {
         super(activity, adapter);
     }
 
-    public CommentRow(ScActivity mActivity, SectionedCommentAdapter sectionedCommentAdapter, Track track) {
+    public CommentRow(Context mActivity, SectionedCommentAdapter sectionedCommentAdapter, Track track) {
         super(mActivity, sectionedCommentAdapter);
         mTrack = track;
     }

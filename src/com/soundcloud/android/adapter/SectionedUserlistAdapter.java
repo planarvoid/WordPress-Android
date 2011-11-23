@@ -31,6 +31,6 @@ public class SectionedUserlistAdapter extends SectionedAdapter implements IUserl
     }
 
     @Override protected LazyRow createRow(int position) {
-        return new UserlistSectionedRow(mActivity, this);
+        return new UserlistSectionedRow(mContext, this);
     }
 }

@@ -1,6 +1,8 @@
 package com.soundcloud.android.adapter;
 
 import android.view.View;
+
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Friend;
@@ -31,7 +33,7 @@ public class SectionedTracklistAdapter extends SectionedAdapter implements ITrac
     }
 
     @Override protected LazyRow createRow(int position) {
-        return new TracklistSectionedRow(mActivity, this);
+        return new TracklistSectionedRow(mContext, this);
     }
 
     public Track getTrackAt(int index) {
@@ -54,21 +56,27 @@ public class SectionedTracklistAdapter extends SectionedAdapter implements ITrac
     }
 
     public void addFavorite(Track track) {
-        FavoriteAddTask f = new FavoriteAddTask(mActivity.getApp());
+        SoundCloudApplication app = SoundCloudApplication.fromContext(mContext);
+        if (app != null){
+            FavoriteAddTask f = new FavoriteAddTask(app);
+            f.setOnFavoriteListener(mFavoriteListener);
+            f.execute(track);
+        }
+
+    }
+
+    public void removeFavorite(Track track) {
+        SoundCloudApplication app = SoundCloudApplication.fromContext(mContext);
+        if (app != null){
+        FavoriteRemoveTask f = new FavoriteRemoveTask(app);
         f.setOnFavoriteListener(mFavoriteListener);
         f.execute(track);
+        }
     }
 
     @Override
     public QuickTrackMenu getQuickTrackMenu() {
         return mQuickTrackMenu;
-    }
-
-
-    public void removeFavorite(Track track) {
-        FavoriteRemoveTask f = new FavoriteRemoveTask(mActivity.getApp());
-        f.setOnFavoriteListener(mFavoriteListener);
-        f.execute(track);
     }
 
     private FavoriteTask.FavoriteListener mFavoriteListener = new FavoriteTask.FavoriteListener() {

@@ -17,6 +17,6 @@ public class SectionedCommentAdapter extends SectionedAdapter {
     }
 
     @Override protected LazyRow createRow(int position) {
-        return new CommentSectionedRow(mActivity, this, mTrack);
+        return new CommentSectionedRow(mContext, this, mTrack);
     }
 }

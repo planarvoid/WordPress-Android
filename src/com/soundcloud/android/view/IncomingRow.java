@@ -6,10 +6,11 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 
+import android.content.Context;
 import android.os.Parcelable;
 
 public class IncomingRow extends TracklistRow {
-    public IncomingRow(ScActivity _activity, LazyBaseAdapter _adapter) {
+    public IncomingRow(Context _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
     }
 

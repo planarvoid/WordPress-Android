@@ -5,16 +5,16 @@ import android.content.Intent;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 
-public class RemoteService extends IntentService{
+public class ApiService extends IntentService{
 
-    static final String LOG_TAG = RemoteService.class.getSimpleName();
+    static final String LOG_TAG = ApiService.class.getSimpleName();
 
     public interface Actions {
-        String SYNC_FAVORITES = RemoteService.class.getName() + ".sync_favorites";
+        String SYNC_FAVORITES = ApiService.class.getName() + ".sync_favorites";
     }
 
-    public RemoteService() {
-        super("RemoteService");
+    public ApiService() {
+        super("ApiService");
     }
 
     @Override

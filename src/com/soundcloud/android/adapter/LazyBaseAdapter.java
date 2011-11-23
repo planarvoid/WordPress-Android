@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.LazyRow;
@@ -13,7 +14,7 @@ import android.widget.BaseAdapter;
 import java.util.*;
 
 public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter{
-    protected ScActivity mActivity;
+    protected Context mContext;
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
     protected int mPage = 1;
@@ -23,9 +24,9 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter{
     protected Set<Integer> mLoadingIcons = new HashSet<Integer>();
 
     @SuppressWarnings("unchecked")
-    public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data, Class<?> model) {
+    public LazyBaseAdapter(Context context, List<? extends Parcelable> data, Class<?> model) {
         mData = (List<Parcelable>) data;
-        mActivity = activity;
+        mContext = context;
         mLoadModel = model;
     }
 
