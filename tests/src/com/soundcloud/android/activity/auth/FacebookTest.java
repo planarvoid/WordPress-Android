@@ -27,6 +27,11 @@ public class FacebookTest {
             @Override boolean clientSupportsSSO() {
                 return true;
             }
+
+            @Override
+            boolean isSSOEnabled() {
+                return true;
+            }
         };
         ShadowActivity shadow = shadowOf(fb);
         fb.onCreate(null);
