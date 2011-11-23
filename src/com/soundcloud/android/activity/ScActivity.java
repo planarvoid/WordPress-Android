@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.support.v4.app.FragmentActivity;
 import android.view.*;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
@@ -58,7 +59,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class ScActivity extends Activity {
+public abstract class ScActivity extends FragmentActivity {
     private Boolean mIsConnected;
 
     protected Object[] mPreviousState;

@@ -58,7 +58,7 @@ public class TracksByTag extends ScActivity implements SectionedEndlessAdapter.S
     }
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         if (mListView != null) {
             return  mListView.getWrapper().saveState();
         }

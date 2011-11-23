@@ -89,7 +89,7 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
     abstract protected SectionedAdapter.Section createSection();
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         if (mListView != null) {
             return  mListView.getWrapper().saveState();
         }

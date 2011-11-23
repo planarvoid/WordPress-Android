@@ -6,5 +6,5 @@
         android:id="@+id/listFragment"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        class="com.soundcloud.android.fragment.MyFavoritesFragment" />
+        class="com.soundcloud.android.fragment.UserFavoritesFragment" />
 </FrameLayout>

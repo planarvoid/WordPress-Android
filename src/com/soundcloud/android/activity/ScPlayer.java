@@ -294,7 +294,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     }
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         return new Object[] {mPlayingTrack};
     }
 

@@ -163,9 +163,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 savePagingData(),
                 saveExtraData(),
                 mListView == null ? null : mListView.getLastUpdated(),
-                mListView == null ? null : mListView.getFirstVisiblePosition() == 0 ? 1 : mListView.getFirstVisiblePosition(),
-                mListView == null ? null : mListView.getChildAt(0) == null ||
-                        mListView.getFirstVisiblePosition() == 0 ? 0 : mListView.getChildAt(0).getTop()
         };
     }
 
@@ -177,7 +174,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (state[3] != null) restorePagingData((int[]) state[3]);
         if (state[4] != null) restoreExtraData((String) state[4]);
         if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
-        if (state[6] != null) mListView.postSelect(Integer.valueOf(state[6].toString()),Integer.valueOf(state[7].toString()), true);
     }
 
 

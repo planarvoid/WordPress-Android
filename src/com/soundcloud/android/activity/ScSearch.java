@@ -166,7 +166,7 @@ public class ScSearch extends ScActivity {
     }
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         return new Object[]{
                 mList.getWrapper().getLoadModel(true),
                 mList.getVisibility(),

@@ -167,7 +167,7 @@ public class Dashboard extends ScActivity {
     }
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         if (mListView != null && mListView.getWrapper() != null){
             return mListView.getWrapper().saveState();
         } else {

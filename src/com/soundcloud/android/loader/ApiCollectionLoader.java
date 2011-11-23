@@ -13,7 +13,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserlistItem;
-import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -22,7 +21,6 @@ import org.apache.http.HttpStatus;
 import android.content.Context;
 import android.os.Parcelable;
 import android.support.v4.content.AsyncTaskLoader;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -31,76 +29,64 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApiCollectionLoader extends AsyncTaskLoader<List<Parcelable>> {
+public class ApiCollectionLoader extends AsyncTaskLoader<ApiCollectionLoader.ApiResult> {
 
     private SoundCloudApplication mApp;
     protected WeakReference<LazyEndlessAdapter> mAdapterReference;
-    /* package */ List<Parcelable> mResults = new ArrayList<Parcelable>();
 
-    protected String mNextHref;
-    protected int mResponseCode;
+    private ApiResult mLastResult;
+    private ApiResult mPendingResult;
 
     private Request mInitialRequest;
     private Class<?> mLoadModel;
 
+    private boolean mLoading;
 
     public int pageSize;
-    protected String eTag;
 
-    public ApiCollectionLoader(SoundCloudApplication app, Request initialRequest, Class<?> loadModel) {
+    public ApiCollectionLoader(SoundCloudApplication app, Request initialRequest, Class<?> loadModel, ApiResult lastResult) {
         super(app);
 
         mApp = app;
         mInitialRequest = initialRequest;
         mLoadModel = loadModel;
+        mLastResult = lastResult;
     }
 
-    public boolean hasNextPage(){
-        return (!TextUtils.isEmpty(mNextHref));
-    }
-
-    public boolean nextPage(){
-        if (hasNextPage()){
-
-            forceLoad();
-        }
-        return false;
-    }
-
-    @Override public List<Parcelable> loadInBackground() {
+    @Override public ApiResult loadInBackground() {
 
         final Context context = getContext();
 
-        final Request req = TextUtils.isEmpty(mNextHref) ? mInitialRequest : new Request(mNextHref);
+        final Request req = mInitialRequest;
         if (req == null) throw new IllegalArgumentException("No request provided");
 
+        ApiResult apiResponse = new ApiResult();
         try {
-
             HttpResponse resp = mApp.get(req);
 
-            mResponseCode = resp.getStatusLine().getStatusCode();
-            if (mResponseCode == HttpStatus.SC_NOT_MODIFIED) {
+            apiResponse.responseCode = resp.getStatusLine().getStatusCode();
+            if (apiResponse.responseCode == HttpStatus.SC_NOT_MODIFIED) {
                 return null;
-            } else if (mResponseCode != HttpStatus.SC_OK) {
+            } else if (apiResponse.responseCode != HttpStatus.SC_OK) {
                 throw new IOException("Invalid response: " + resp.getStatusLine());
             }
-            eTag = Http.etag(resp);
+
+            apiResponse.eTag = Http.etag(resp);
 
             InputStream is = resp.getEntity().getContent();
-
-            CollectionHolder holder = getCollection(is, mResults);
-            mNextHref = holder == null ? null : holder.next_href;
-
-            if (mResults != null) {
-                for (Parcelable p : mResults) {
-                    ((ModelBase)p).resolve(mApp);
-                }
+            List<Parcelable> results = new ArrayList<Parcelable>();
+            CollectionHolder holder = getCollection(is, results);
+            for (Parcelable p : results) {
+                ((ModelBase) p).resolve(mApp);
             }
-            return mResults;
+            apiResponse.nextHref = holder == null ? null : holder.next_href;
+            apiResponse.items = results;
+
+            return apiResponse;
 
         } catch (IOException e) {
             Log.e(TAG, "error", e);
-            return null;
+            return apiResponse;
         }
 
     }
@@ -110,29 +96,27 @@ public class ApiCollectionLoader extends AsyncTaskLoader<List<Parcelable>> {
      * super class will take care of delivering it; the implementation
      * here just adds a little more logic.
      */
-    @Override public void deliverResult(List<Parcelable> apps) {
+    @Override public void deliverResult(ApiResult result) {
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
-            if (apps != null) {
-                onReleaseResources(apps);
-            }
+
+            // do nothing for now, possible use this later
         }
 
-        List<Parcelable> oldApps = apps;
-        mResults = apps;
+        if (mLastResult != null){
+            mLastResult.items.addAll(result.items);
+            result.items = mLastResult.items;
+            mLastResult = null;
+        }
+
 
         if (isStarted()) {
             // If the Loader is currently started, we can immediately
             // deliver its results.
-            super.deliverResult(apps);
-        }
-
-        // At this point we can release the resources associated with
-        // 'oldApps' if needed; now that the new result is delivered we
-        // know that it is no longer in use.
-        if (oldApps != null) {
-            onReleaseResources(oldApps);
+            super.deliverResult(result);
+        } else {
+            mPendingResult = result;
         }
     }
 
@@ -140,14 +124,15 @@ public class ApiCollectionLoader extends AsyncTaskLoader<List<Parcelable>> {
      * Handles a request to start the Loader.
      */
     @Override protected void onStartLoading() {
-        if (mResults != null) {
+        if (mPendingResult != null) {
             // If we currently have a result available, deliver it
             // immediately.
-            deliverResult(mResults);
+            deliverResult(mPendingResult);
         }
 
 
-        if (takeContentChanged() || mResults == null) {
+
+        if (takeContentChanged() || mLastResult != null) {
             // If the data has changed since the last time it was loaded
             // or is not currently available, start a load.
             forceLoad();
@@ -165,9 +150,8 @@ public class ApiCollectionLoader extends AsyncTaskLoader<List<Parcelable>> {
     /**
      * Handles a request to cancel a load.
      */
-    @Override public void onCanceled(List<Parcelable> results) {
-        super.onCanceled(results);
-        onReleaseResources(results);
+    @Override public void onCanceled(ApiResult response) {
+        super.onCanceled(response);
     }
 
     /**
@@ -175,55 +159,63 @@ public class ApiCollectionLoader extends AsyncTaskLoader<List<Parcelable>> {
      */
     @Override protected void onReset() {
         super.onReset();
-
-        if (mResults != null){
-            onReleaseResources(mResults);
-        }
         onStopLoading();
     }
 
-    protected void onReleaseResources(List<Parcelable> results) {
-        // For a simple List<> there is nothing to do.  For something
-        // like a Cursor, we would close it here.
-    }
-
-
      /* package */ CollectionHolder getCollection(InputStream is, List<? super Parcelable> items) throws IOException {
-        CollectionHolder holder = null;
-        if (Track.class.equals(mLoadModel)) {
-            holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
-            for (TracklistItem t : (TracklistItemHolder) holder) {
-                items.add(new Track(t));
-            }
-        } else if (User.class.equals(mLoadModel)) {
-            holder = mApp.getMapper().readValue(is, UserlistItemHolder.class);
-            for (UserlistItem u : (UserlistItemHolder) holder) {
-                items.add(new User(u));
-            }
-        } else if (Event.class.equals(mLoadModel)) {
-            holder = mApp.getMapper().readValue(is, EventsHolder.class);
-            for (Event e : (EventsHolder) holder) {
-                items.add(e);
-            }
-        } else if (Friend.class.equals(mLoadModel)) {
-            holder = mApp.getMapper().readValue(is, FriendHolder.class);
-            for (Friend f : (FriendHolder) holder) {
-                items.add(f);
-            }
-        } else if (Comment.class.equals(mLoadModel)) {
-            holder = mApp.getMapper().readValue(is, CommentHolder.class);
-            for (Comment f : (CommentHolder) holder) {
-                items.add(f);
-            }
-        }
-        return holder;
-    }
+
+         CollectionHolder holder = null;
+         if (Track.class.equals(mLoadModel)) {
+             holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
+             for (TracklistItem t : (TracklistItemHolder) holder) {
+                 items.add(new Track(t));
+             }
+         } else if (User.class.equals(mLoadModel)) {
+             holder = mApp.getMapper().readValue(is, UserlistItemHolder.class);
+             for (UserlistItem u : (UserlistItemHolder) holder) {
+                 items.add(new User(u));
+             }
+         } else if (Event.class.equals(mLoadModel)) {
+             holder = mApp.getMapper().readValue(is, EventsHolder.class);
+             for (Event e : (EventsHolder) holder) {
+                 items.add(e);
+             }
+         } else if (Friend.class.equals(mLoadModel)) {
+             holder = mApp.getMapper().readValue(is, FriendHolder.class);
+             for (Friend f : (FriendHolder) holder) {
+                 items.add(f);
+             }
+         } else if (Comment.class.equals(mLoadModel)) {
+             holder = mApp.getMapper().readValue(is, CommentHolder.class);
+             for (Comment f : (CommentHolder) holder) {
+                 items.add(f);
+             }
+         }
+         return holder;
+     }
 
     public static class EventsHolder extends CollectionHolder<Event> {}
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
     public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
     public static class FriendHolder extends CollectionHolder<Friend> {}
     public static class CommentHolder extends CollectionHolder<Comment> {}
+
+
+    public class ApiResult {
+        public List<Parcelable> items;
+        public String nextHref;
+        public int responseCode;
+        public boolean keepGoing;
+        public String eTag;
+
+        public ApiResult(){}
+        public ApiResult(List<Parcelable> items, String nextHref, int responseCode, boolean keepGoing) {
+            this.items = items;
+            this.nextHref = nextHref;
+            this.responseCode = responseCode;
+            this.keepGoing = keepGoing;
+        }
+    }
 
 
 }

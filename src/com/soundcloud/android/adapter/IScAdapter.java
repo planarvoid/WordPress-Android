@@ -13,4 +13,6 @@ public interface IScAdapter {
     void assignDrawableToPosition(Integer position, Drawable drawable);
 
     void setIconLoading(Integer position);
+
+    void onEndOfList();
 }

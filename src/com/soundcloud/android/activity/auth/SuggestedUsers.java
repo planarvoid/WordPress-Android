@@ -100,7 +100,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         if (mListView != null) {
             return  mListView.getWrapper().saveState();
         }

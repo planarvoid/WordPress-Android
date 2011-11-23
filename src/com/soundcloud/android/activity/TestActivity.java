@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import com.soundcloud.android.R;
 
-public class TestActivity extends FragmentActivity {
+public class TestActivity extends ScActivity {
 
      @Override
     protected void onCreate(Bundle state) {

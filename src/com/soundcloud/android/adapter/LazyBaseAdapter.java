@@ -7,13 +7,14 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.LazyRow;
 
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import java.util.*;
 
-public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter{
+public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter {
     protected Context mContext;
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
@@ -44,11 +45,11 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter{
 
     public void setData(List<Parcelable> data) {
         mData = data;
-        reset();
+        notifyDataSetChanged();
     }
 
     public int getCount() {
-        return mData.size();
+        return mData == null ? 0 : mData.size();
     }
 
     public Object getItem(int location) {
@@ -103,5 +104,9 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter{
 
     public void setIconLoading(Integer position){
         mLoadingIcons.add(position);
+    }
+
+    public void onEndOfList(){
+
     }
 }
