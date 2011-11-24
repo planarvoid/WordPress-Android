@@ -24,6 +24,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ServerSocketChannel;
@@ -138,8 +140,10 @@ public class StreamProxy implements Runnable {
                 } catch (IOException e) {
                     Log.w(LOG_TAG, "error reading request");
                     client.close();
+                } catch (URISyntaxException e) {
+                    Log.w(LOG_TAG, "error reading request - URI malformed", e);
+                    client.close();
                 }
-
             } catch (SocketTimeoutException e) {
                 // Do nothing
             } catch (IOException e) {
@@ -149,7 +153,7 @@ public class StreamProxy implements Runnable {
         Log.d(LOG_TAG, "Proxy interrupted. Shutting down.");
     }
 
-    /* package */ static HttpGet readRequest(InputStream is) throws IOException {
+    /* package */ static HttpGet readRequest(InputStream is) throws IOException, URISyntaxException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is), 8192);
         String line = reader.readLine();
 
@@ -166,7 +170,8 @@ public class StreamProxy implements Runnable {
         String uri = st.nextToken();
         String realUri = uri.substring(1);
 
-        final HttpGet request = new HttpGet(realUri);
+
+        final HttpGet request = new HttpGet(new URI(realUri));
         while ((line = reader.readLine()) != null) {
             if ("".equals(line)) break;
             // copy original headers in new request

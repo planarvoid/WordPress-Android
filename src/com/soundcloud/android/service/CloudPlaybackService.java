@@ -103,7 +103,7 @@ public class CloudPlaybackService extends Service {
     public static final int START_NEXT_TRACK = 11;
     public static final int NOTIFY_META = 12;
 
-    private MultiPlayer mPlayer;
+    private MultiPlayer mMultiPlayer;
     private int mLoadPercent = 0;
     private boolean mAutoPause = false;
     protected NetworkConnectivityListener connectivityListener;
@@ -153,8 +153,8 @@ public class CloudPlaybackService extends Service {
 
         // Needs to be done in this thread, since otherwise
         // ApplicationContext.getPowerManager() crashes.
-        mPlayer = new MultiPlayer();
-        mPlayer.setHandler(mMediaplayerHandler);
+        mMultiPlayer = new MultiPlayer();
+        mMultiPlayer.setHandler(mMediaplayerHandler);
 
 
         IntentFilter commandFilter = new IntentFilter();
@@ -197,8 +197,8 @@ public class CloudPlaybackService extends Service {
         gotoIdleState();
 
         // release all MediaPlayer resources, including the native player and wakelocks
-        mPlayer.release();
-        mPlayer = null;
+        mMultiPlayer.release();
+        mMultiPlayer = null;
 
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -399,10 +399,10 @@ public class CloudPlaybackService extends Service {
             setPlayingStatus();
         }
 
-        if (mPlayer != null && (mPlayer.isInitialized() || mPlayer.isAsyncOpening())) {
+        if (mMultiPlayer != null && (mMultiPlayer.isInitialized() || mMultiPlayer.isAsyncOpening())) {
             new Thread(new Runnable() {
                 public void run() {
-                    mPlayer.stop();
+                    mMultiPlayer.stop();
                 }
             }).start();
         }
@@ -458,8 +458,8 @@ public class CloudPlaybackService extends Service {
         // stop checking buffer
         pausedForBuffering = false;
         // stop playing
-        if (mPlayer != null && (mPlayer.isInitialized() || mPlayer.isAsyncOpening())) {
-            mPlayer.stop();
+        if (mMultiPlayer != null && (mMultiPlayer.isInitialized() || mMultiPlayer.isAsyncOpening())) {
+            mMultiPlayer.stop();
         }
     }
 
@@ -471,7 +471,7 @@ public class CloudPlaybackService extends Service {
 
                 // commit updated track (user played update only)
                 mPlayListManager.commitTrackToDb(mPlayingData);
-                mPlayer.setDataSourceAsync(mPlayingData.stream_url);
+                mMultiPlayer.setDataSourceAsync(mPlayingData.stream_url);
             } else {
                 sendStreamException(0);
                 gotoIdleState();
@@ -494,8 +494,8 @@ public class CloudPlaybackService extends Service {
         boolean wasPlaying = mIsSupposedToBePlaying;
         mIsSupposedToBePlaying = true;
 
-        if (mPlayer != null && mPlayer.isInitialized()) {
-             mPlayer.start();
+        if (mMultiPlayer != null && mMultiPlayer.isInitialized()) {
+             mMultiPlayer.start();
         } else {
             // must have been a playback error
             restart();
@@ -537,7 +537,7 @@ public class CloudPlaybackService extends Service {
     }
 
     private void stop(boolean remove_status_icon) {
-        if (mPlayer != null && mPlayer.isInitialized()) {
+        if (mMultiPlayer != null && mMultiPlayer.isInitialized()) {
             stopStreaming();
         }
 
@@ -559,8 +559,8 @@ public class CloudPlaybackService extends Service {
     public void pause() {
         synchronized (this) {
             if (isSupposedToBePlaying()) {
-                if (mPlayer != null && mPlayer.isInitialized()) {
-                    mPlayer.pause();
+                if (mMultiPlayer != null && mMultiPlayer.isInitialized()) {
+                    mMultiPlayer.pause();
                 }
                 gotoIdleState(false);
                 notifyChange(PLAYSTATE_CHANGED);
@@ -573,7 +573,7 @@ public class CloudPlaybackService extends Service {
     }
 
     public boolean isPlaying() {
-        return mPlayer.isPlaying();
+        return mMultiPlayer.isPlaying();
     }
 
     public void prev() {
@@ -776,8 +776,8 @@ public class CloudPlaybackService extends Service {
      * Returns the current playback position in milliseconds
      */
     public long position() {
-        if (mPlayer != null && mPlayer.isInitialized()) {
-            return mPlayer.position();
+        if (mMultiPlayer != null && mMultiPlayer.isInitialized()) {
+            return mMultiPlayer.position();
         } else if (mPlayingData != null && mResumeId == mPlayingData.id) {
             return mResumeTime; // either -1 or a valid resume time
         } else return 0;
@@ -788,7 +788,7 @@ public class CloudPlaybackService extends Service {
      * returns -1 for the duration of MIDI files.
      */
     public int loadPercent() {
-        if (mPlayer != null && mPlayer.isInitialized()) {
+        if (mMultiPlayer != null && mMultiPlayer.isInitialized()) {
             return mLoadPercent;
         }
         return 0;
@@ -796,9 +796,9 @@ public class CloudPlaybackService extends Service {
 
     public boolean isSeekable() {
         return (Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK
-                && mPlayer != null
-                && mPlayer.isInitialized()
-                && !mPlayer.isAsyncOpening()
+                && mMultiPlayer != null
+                && mMultiPlayer.isInitialized()
+                && !mMultiPlayer.isAsyncOpening()
                 && mPlayingData != null);
     }
 
@@ -821,7 +821,7 @@ public class CloudPlaybackService extends Service {
                     pos = 0;
                 }
 
-                return mPlayer.seek(pos);
+                return mMultiPlayer.seek(pos);
             }
             return -1;
         }
@@ -839,7 +839,7 @@ public class CloudPlaybackService extends Service {
             if (pos <= 0) {
                 pos = 0;
             }
-            return mPlayer.getSeekResult(pos);
+            return mMultiPlayer.getSeekResult(pos);
         }
         return -1;
     }
@@ -897,7 +897,7 @@ public class CloudPlaybackService extends Service {
                 }
 
                 Track next = mPlayListManager.getNextTrack();
-                mMediaPlayer.setDataSource(mProxy.createUri(path, next == null ? null : next.stream_url).toString());
+                mMediaPlayer.setDataSource(CloudPlaybackService.this, mProxy.createUri(path, next == null ? null : next.stream_url));
                 mMediaPlayer.prepareAsync();
 
             } catch (IllegalStateException e) {
@@ -954,12 +954,12 @@ public class CloudPlaybackService extends Service {
         }
 
         public long seek(long whereto) {
-            if (mPlayer == null) return -1;
+            if (mMultiPlayer == null) return -1;
             else if (isNotSeekablePastBuffer() && isPastBuffer(whereto)) {
                 Log.d(TAG, "MediaPlayer bug: cannot seek past buffer");
                 return -1;
             }
-            else if (whereto != mPlayer.position()) {
+            else if (whereto != mMultiPlayer.position()) {
                 mSeekPos = whereto;
                 mMediaPlayer.seekTo((int) whereto);
             }
@@ -975,9 +975,9 @@ public class CloudPlaybackService extends Service {
         }
 
         public long getSeekResult(long whereto, boolean resumeSeek) {
-            if (mPlayer == null) return -1;
+            if (mMultiPlayer == null) return -1;
             else if (isNotSeekablePastBuffer() && isPastBuffer(whereto)) {
-                return mPlayer.position();
+                return mMultiPlayer.position();
             }
             long maxSeek;
             if (!resumeSeek) {
@@ -985,8 +985,8 @@ public class CloudPlaybackService extends Service {
 
                 // don't go before the playhead if they are trying to seek
                 // beyond, just maintain their current position
-                if (whereto > mPlayer.position() && maxSeek < mPlayer.position())
-                    return mPlayer.position();
+                if (whereto > mMultiPlayer.position() && maxSeek < mMultiPlayer.position())
+                    return mMultiPlayer.position();
 
                 if (whereto > maxSeek) {
                     whereto = maxSeek;
@@ -1103,14 +1103,14 @@ public class CloudPlaybackService extends Service {
 
                 if (!mAutoPause) {
                     if (mIsSupposedToBePlaying) {
-                        mPlayer.setVolume(0);
+                        mMultiPlayer.setVolume(0);
                         play();
                         startAndFadeIn();
                     }
                 }
 
                 if (mResumeId == mPlayingData.id) {
-                    mPlayer.seek(mResumeTime);
+                    mMultiPlayer.seek(mResumeTime);
                     mResumeTime = -1;
                     mResumeId = -1;
                     resumeSeeking = true;
@@ -1271,7 +1271,7 @@ public class CloudPlaybackService extends Service {
                 case FADEIN:
                     if (!isSupposedToBePlaying()) {
                         mCurrentVolume = 0f;
-                        mPlayer.setVolume(mCurrentVolume);
+                        mMultiPlayer.setVolume(mCurrentVolume);
                         play();
                         sendEmptyMessageDelayed(FADEIN, 10);
                     } else {
@@ -1281,7 +1281,7 @@ public class CloudPlaybackService extends Service {
                         } else {
                             mCurrentVolume = 1.0f;
                         }
-                        mPlayer.setVolume(mCurrentVolume);
+                        mMultiPlayer.setVolume(mCurrentVolume);
                     }
                     break;
                 case SERVER_DIED:

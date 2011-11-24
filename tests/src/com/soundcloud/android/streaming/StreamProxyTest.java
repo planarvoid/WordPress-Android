@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 @RunWith(DefaultTestRunner.class)
@@ -60,5 +61,17 @@ public class StreamProxyTest {
     @Test(expected = IOException.class)
     public void shouldThrowIOWhenInputIsEmpty() throws Exception {
         StreamProxy.readRequest(new ByteArrayInputStream("".getBytes()));
+    }
+
+    @Test(expected = URISyntaxException.class)
+    public void shouldHandleInvalidUris() throws Exception {
+       StreamProxy.readRequest(new ByteArrayInputStream("GET /dasdas\u0005?? HTTP/1.1".getBytes()));
+    }
+
+    @Test
+    public void testCreateUri() throws Exception {
+        StreamProxy proxy = new StreamProxy(DefaultTestRunner.application, 0);
+        expect(proxy.createUri("https://api.soundcloud.com/tracks/3232/stream", null).toString())
+                .toEqual("http://127.0.0.1:0/%2F?streamUrl=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F3232%2Fstream");
     }
 }
