@@ -226,8 +226,8 @@ public class ScSearch extends ScActivity {
         int searchType;
         if (type == 0) {
             mTrackAdpWrapper.clearSections();
-            mTrackAdpWrapper.addSection(new SectionedAdapter.Section(String.format(getString(R.string.list_header_track_results_for,
-                    query)), Track.class, new ArrayList<Parcelable>(),
+            mTrackAdpWrapper.addSection(new SectionedAdapter.Section(getString(R.string.list_header_track_results_for,
+                    query), Track.class, new ArrayList<Parcelable>(),
                     Request.to(Endpoints.TRACKS).with("q", query)));
 
             setListType(false);
@@ -237,8 +237,8 @@ public class ScSearch extends ScActivity {
             trackPage(Consts.Tracking.SEARCH_TRACKS + query);
         } else {
             mUserAdpWrapper.clearSections();
-            mUserAdpWrapper.addSection(new SectionedAdapter.Section(String.format(getString(R.string.list_header_user_results_for,
-                    query)), User.class, new ArrayList<Parcelable>(),
+            mUserAdpWrapper.addSection(new SectionedAdapter.Section(getString(R.string.list_header_user_results_for,
+                    query), User.class, new ArrayList<Parcelable>(),
                     Request.to(Endpoints.USERS).with("q", query)));
 
             setListType(true);
