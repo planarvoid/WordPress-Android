@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
+import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.message.BasicLineParser;
@@ -127,7 +128,7 @@ public class StreamProxy implements Runnable {
 
                 Log.d(LOG_TAG, "client connected");
                 try {
-                    final HttpGet request = readRequest(client);
+                    final HttpGet request = readRequest(client.getInputStream());
                     new Thread("handle-proxy-request") {
                         @Override
                         public void run() {
@@ -148,8 +149,7 @@ public class StreamProxy implements Runnable {
         Log.d(LOG_TAG, "Proxy interrupted. Shutting down.");
     }
 
-    private HttpGet readRequest(Socket client) throws IOException {
-        InputStream is = client.getInputStream();
+    /* package */ static HttpGet readRequest(InputStream is) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is), 8192);
         String line = reader.readLine();
 
@@ -170,9 +170,13 @@ public class StreamProxy implements Runnable {
         while ((line = reader.readLine()) != null) {
             if ("".equals(line)) break;
             // copy original headers in new request
-            Header h = BasicLineParser.parseHeader(line, BasicLineParser.DEFAULT);
-            if (!h.getName().equalsIgnoreCase("host")) {
-                request.addHeader(h);
+            try {
+                Header h = BasicLineParser.parseHeader(line, BasicLineParser.DEFAULT);
+                if (!h.getName().equalsIgnoreCase("host")) {
+                    request.addHeader(h);
+                }
+            } catch (ParseException e) {
+                Log.w(LOG_TAG, "error parsing header", e);
             }
         }
         return request;
