@@ -16,7 +16,7 @@
         Playback in progress. Press stop to end the playback or select the playback notification to view it.
     </string>
     <string name='private_message_title'>
-        Send a private message
+        Record a sound for %s
     </string>
     <string name='private_message_upload_title'>
         Your sound message got saved.
