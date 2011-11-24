@@ -1,12 +1,18 @@
-$ 29
+$ 30
   % v current
-     _ 2011-11-10
-     ! v2.0
-       * New player interface
-       * Private user messaging added to User Browser
-       * Improved streaming with local caching of recent plays
-       * Set frequency of dashboard notifications in app settings
-       - tons of bug fixes
+  _ 2011-11-23
+  ! Maintenance release
+    * New empty screens
+    * Bug fixes
+$ 29
+  % v 2.0.0
+  _ 2011-11-10
+  ! v2.0
+    * New player interface
+    * Private user messaging added to User Browser
+    * Improved streaming with local caching of recent plays
+    * Set frequency of dashboard notifications in app settings
+    - tons of bug fixes
 
 $ 28
   % v 1.4.5

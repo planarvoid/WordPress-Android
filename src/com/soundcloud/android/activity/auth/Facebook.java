@@ -38,24 +38,17 @@ public class Facebook extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case SSO:
-                if (data == null || data.hasExtra("error")) {
-                    Log.d(TAG, "error using SSO: '"+
-                            (data == null ? "<none>" : data.getStringExtra("error"))
-                            +"', falling back to webview-based login");
-                    startWebFlow();
-                } else {
-                    setResult(resultCode, data);
-                    finish();
-                }
+        if (resultCode == RESULT_OK
+            && requestCode == SSO
+            && (data == null || data.hasExtra("error"))) {
+                Log.d(TAG, "error using SSO: '" +
+                        (data == null ? "<none>" : data.getStringExtra("error"))
+                        + "', falling back to webview-based login");
 
-                break;
-            /* WebFlow result, just forward back to caller */
-            default:
-                setResult(resultCode, data);
-                finish();
-                break;
+                startWebFlow();
+        } else {
+            setResult(resultCode, data);
+            finish();
         }
     }
 

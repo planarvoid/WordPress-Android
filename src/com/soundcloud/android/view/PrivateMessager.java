@@ -46,7 +46,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
 
         ViewGroup createLayout = (ViewGroup) activity.getLayoutInflater().inflate(R.layout.sc_create, null);
         mCreateController = new CreateController(activity, createLayout, mRecording, mUser);
-        mCreateController.setInstructionsText(activity.getString(R.string.private_message_title));
+        mCreateController.setInstructionsText(activity.getString(R.string.private_message_title, mUser.username));
         mCreateController.setListener(this);
         mViewFlipper.addView(createLayout);
 
