@@ -8,7 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.RemoteControlReceiver;
 import com.soundcloud.android.view.PlayerTrackView;
 import com.soundcloud.android.view.WaveformController;
@@ -30,7 +30,6 @@ import android.widget.RelativeLayout;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 
 public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
     private static final String TAG = "ScPlayer";

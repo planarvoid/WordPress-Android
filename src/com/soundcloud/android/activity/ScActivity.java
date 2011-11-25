@@ -8,7 +8,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.tour.Start;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
@@ -19,15 +18,13 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.service.CloudCreateService;
-import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
-import com.soundcloud.android.service.ICloudPlaybackService;
-import com.soundcloud.android.task.AddCommentTask;
+import com.soundcloud.android.service.playback.ICloudPlaybackService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.ScListView;
-import org.json.JSONException;
 
 import android.accounts.Account;
 import android.app.Activity;
@@ -52,8 +49,6 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.ViewGroup.LayoutParams;
 
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -276,8 +271,9 @@ public abstract class ScActivity extends Activity {
         playTrack(track.id, trackList, 0, goToPlayer);
     }
     public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer) {
-        playTrack(trackId,list,playPos,goToPlayer,false);
+        playTrack(trackId, list, playPos, goToPlayer, false);
     }
+
     public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer, boolean commentMode) {
         // find out if this track is already playing. If it is, just go to the player
         try {
@@ -302,10 +298,13 @@ public abstract class ScActivity extends Activity {
         // we are just passing pointers
         // XXX ^^ this is assuming service and activity run in the same process
         getApp().cachePlaylist(list);
+
         if (goToPlayer) getApp().playerWaitForArtwork = true;
 
         try {
-            mPlaybackService.playFromAppCache(playPos);
+            if (mPlaybackService != null) {
+                mPlaybackService.playFromAppCache(playPos);
+            }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }

@@ -2,13 +2,13 @@
 package com.soundcloud.android.utils.play;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceScreen;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.CommitTracksTask;
 
 import android.content.ContentResolver;
@@ -17,7 +17,6 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.io.PipedOutputStream;
 import java.util.List;
 
 public class PlayListManager {
@@ -66,12 +65,12 @@ public class PlayListManager {
                         ((SoundCloudApplication) mPlaybackService.getApplication())
                                 .getCurrentUserId());
             }
-        } else
+        } else {
             return null;
-
+        }
     }
 
-    public Boolean prev() {
+    public boolean prev() {
         if (mPlayPos == 0)
             return false;
 

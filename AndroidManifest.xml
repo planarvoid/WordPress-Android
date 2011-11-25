@@ -174,7 +174,7 @@
         <provider android:name=".provider.ScContentProvider"
                   android:authorities="com.soundcloud.android.provider.ScContentProvider"/>
 
-        <service android:name=".service.CloudPlaybackService"
+        <service android:name=".service.playback.CloudPlaybackService"
                  android:exported="true">
           <intent-filter>
             <action android:name=".service.CloudPlaybackService" />
@@ -211,7 +211,7 @@
         <service android:name=".service.beta.BetaService" android:exported="false"/>
 
         <receiver android:label="SoundCloud Player"
-                  android:name=".service.PlayerAppWidgetProvider">
+                  android:name=".service.playback.PlayerAppWidgetProvider">
           <intent-filter>
               <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
           </intent-filter>

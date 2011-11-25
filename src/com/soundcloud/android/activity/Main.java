@@ -26,7 +26,7 @@ import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.AuthenticatorService;
-import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.*;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
@@ -35,7 +35,6 @@ import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;

@@ -2,6 +2,9 @@ package com.soundcloud.android.service;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.ICloudPlaybackService;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.service;
+package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -23,7 +23,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     public static final String CMDAPPWIDGETUPDATE = "playerwidgetupdate";
     static final ComponentName THIS_APPWIDGET =
             new ComponentName("com.soundcloud.android",
-                    "com.soundcloud.android.service.PlayerAppWidgetProvider");
+                    "com.soundcloud.android.service.playback.PlayerAppWidgetProvider");
 
     private static PlayerAppWidgetProvider sInstance;
 
