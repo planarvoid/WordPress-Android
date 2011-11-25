@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.FavoriteAddTask;
@@ -8,6 +9,7 @@ import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.TracklistRow;
 
+import android.content.Context;
 import android.os.Parcelable;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 
@@ -20,14 +22,17 @@ public class TracklistAdapter extends LazyBaseAdapter implements ITracklistAdapt
     private boolean mIsPlaying = false;
     private QuickTrackMenu mQuickTrackMenu;
 
-    public TracklistAdapter(ScActivity activity, ArrayList<Parcelable> data, Class<?> model) {
-        super(activity, data, model);
-        mQuickTrackMenu = new QuickTrackMenu(activity, this);
+    public TracklistAdapter(Context c, ArrayList<Parcelable> data, Class<?> model) {
+        super(c, data, model);
+        if (ScActivity.class.isAssignableFrom(c.getClass())){
+            mQuickTrackMenu = new QuickTrackMenu((ScActivity) c, this);
+        }
+
     }
 
     @Override
     protected LazyRow createRow(int position) {
-        return new TracklistRow(mActivity, this);
+        return new TracklistRow(mContext, this);
     }
 
     @Override
@@ -51,20 +56,27 @@ public class TracklistAdapter extends LazyBaseAdapter implements ITracklistAdapt
     }
 
     public void addFavorite(Track track) {
-        FavoriteAddTask f = new FavoriteAddTask(mActivity.getApp());
+        SoundCloudApplication app = SoundCloudApplication.fromContext(mContext);
+        if (app != null){
+            FavoriteAddTask f = new FavoriteAddTask(app);
+            f.setOnFavoriteListener(mFavoriteListener);
+            f.execute(track);
+        }
+
+    }
+
+    public void removeFavorite(Track track) {
+        SoundCloudApplication app = SoundCloudApplication.fromContext(mContext);
+        if (app != null){
+        FavoriteRemoveTask f = new FavoriteRemoveTask(app);
         f.setOnFavoriteListener(mFavoriteListener);
         f.execute(track);
+        }
     }
 
     @Override
     public QuickTrackMenu getQuickTrackMenu() {
         return mQuickTrackMenu;
-    }
-
-    public void removeFavorite(Track track) {
-        FavoriteRemoveTask f = new FavoriteRemoveTask(mActivity.getApp());
-        f.setOnFavoriteListener(mFavoriteListener);
-        f.execute(track);
     }
 
     private FavoriteTask.FavoriteListener mFavoriteListener = new FavoriteTask.FavoriteListener() {

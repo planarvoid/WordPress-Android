@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -29,7 +30,7 @@ public class MyTracklistRow extends TracklistRow {
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
 
-    public MyTracklistRow(ScActivity activity, LazyBaseAdapter adapter) {
+    public MyTracklistRow(Context activity, LazyBaseAdapter adapter) {
         super(activity, adapter);
         mTitle = (TextView) findViewById(R.id.track);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);

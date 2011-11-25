@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
+
 import com.soundcloud.android.activity.ScActivity;
 
 import java.util.HashMap;
@@ -45,6 +47,10 @@ public abstract class ScCursorAdapter extends CursorAdapter implements IScAdapte
     @Override
     public void setIconLoading(Integer position) {
         mLoadingIcons.add(position);
+    }
+
+    public void onEndOfList(){
+
     }
 
 

@@ -286,7 +286,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         build();
     }
 
-
     private void loadUserById(long userId) {
         setUser(SoundCloudDB.getUserById(getContentResolver(), userId));
         if (mUser == null) {
@@ -302,7 +301,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         build();
         FollowStatus.get().requestUserFollowings(getApp(), this, false);
     }
-
 
     private void loadDetails() {
         if (!mUpdateInfo) return;

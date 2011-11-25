@@ -1,19 +1,21 @@
 
 package com.soundcloud.android.adapter;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.LazyRow;
 
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import java.util.*;
 
-public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter{
-    protected ScActivity mActivity;
+public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter {
+    protected Context mContext;
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
     protected int mPage = 1;
@@ -23,9 +25,9 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter{
     protected Set<Integer> mLoadingIcons = new HashSet<Integer>();
 
     @SuppressWarnings("unchecked")
-    public LazyBaseAdapter(ScActivity activity, List<? extends Parcelable> data, Class<?> model) {
+    public LazyBaseAdapter(Context context, List<? extends Parcelable> data, Class<?> model) {
         mData = (List<Parcelable>) data;
-        mActivity = activity;
+        mContext = context;
         mLoadModel = model;
     }
 
@@ -43,11 +45,11 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter{
 
     public void setData(List<Parcelable> data) {
         mData = data;
-        reset();
+        notifyDataSetChanged();
     }
 
     public int getCount() {
-        return mData.size();
+        return mData == null ? 0 : mData.size();
     }
 
     public Object getItem(int location) {
@@ -102,5 +104,9 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter{
 
     public void setIconLoading(Integer position){
         mLoadingIcons.add(position);
+    }
+
+    public void onEndOfList(){
+
     }
 }

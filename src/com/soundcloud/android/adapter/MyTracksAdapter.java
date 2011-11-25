@@ -49,7 +49,7 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     @Override
     protected LazyRow createRow(int position) {
-        return getItemViewType(position) == TYPE_PENDING_RECORDING ? new MyTracklistRow(mActivity, this) : new TracklistRow(mActivity,this);
+        return getItemViewType(position) == TYPE_PENDING_RECORDING ? new MyTracklistRow(mContext, this) : new TracklistRow(mContext,this);
     }
 
     public int getPendingRecordingsCount(){
@@ -57,7 +57,7 @@ public class MyTracksAdapter extends TracklistAdapter {
     }
 
     private void refreshCursor() {
-        mCursor = mActivity.getContentResolver().query(ScContentProvider.Content.RECORDINGS, null,
+        mCursor = mContext.getContentResolver().query(ScContentProvider.Content.RECORDINGS, null,
                 Recordings.UPLOAD_STATUS + " < 2", null, Recordings.TIMESTAMP + " DESC");
 
         if (mCursor != null) {
@@ -78,7 +78,7 @@ public class MyTracksAdapter extends TracklistAdapter {
             while (cursor.moveToNext()) {
                 Recording rec = new Recording(cursor);
                 if (rec.private_user_id > 0){
-                    rec.private_username = SoundCloudDB.getUsernameById(mActivity.getContentResolver(),rec.private_user_id);
+                    rec.private_username = SoundCloudDB.getUsernameById(mContext.getContentResolver(),rec.private_user_id);
                 }
                 recordings.add(rec);
             }
@@ -96,7 +96,7 @@ public class MyTracksAdapter extends TracklistAdapter {
         for (Recording r : mRecordingData) {
             if (r.upload_status == 1 && uploadId != r.id) {
                 r.upload_status = 0;
-                mActivity.getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
+                mContext.getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
                 changed = true;
             }
         }
@@ -158,7 +158,7 @@ public class MyTracksAdapter extends TracklistAdapter {
     }
 
     public void onDestroy(){
-        mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);
+        mContext.getContentResolver().unregisterContentObserver(mChangeObserver);
     }
 
     private class ChangeObserver extends ContentObserver {

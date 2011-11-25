@@ -1,20 +1,13 @@
 package com.soundcloud.android.activity;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.app.FragmentActivity;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ListView;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.*;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.view.ScListView;
-import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 

@@ -31,7 +31,7 @@ public class TracklistRow extends LazyRow {
         mCloseIcon = (ImageView) findViewById(R.id.close_icon);
         mTrackInfoBar = (TrackInfoBar) findViewById(R.id.track_info_bar);
 
-        if (mIcon != null) {
+        if (mIcon != null && ((ITracklistAdapter) mAdapter).getQuickTrackMenu() != null) {
             mIcon.setFocusable(false);
             mIcon.setOnClickListener(new OnClickListener() {
                 @Override

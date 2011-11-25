@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.content.Context;
 import android.os.Parcelable;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -16,12 +17,12 @@ public class CommentSectionedRow extends CommentRow {
     private Comment mComment;
     private Track mTrack;
 
-    public CommentSectionedRow(ScActivity activity, LazyBaseAdapter adapter) {
-        super(activity, adapter);
+    public CommentSectionedRow(Context context, LazyBaseAdapter adapter) {
+        super(context, adapter);
     }
 
-    public CommentSectionedRow(ScActivity mActivity, SectionedCommentAdapter sectionedCommentAdapter, Track track) {
-        super(mActivity, sectionedCommentAdapter, track);
+    public CommentSectionedRow(Context context, SectionedCommentAdapter sectionedCommentAdapter, Track track) {
+        super(context, sectionedCommentAdapter, track);
     }
 
     @Override

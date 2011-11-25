@@ -4,11 +4,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 
+import android.content.Context;
+
 public class UserlistSectionedRow extends UserlistRow {
 
     private static final String TAG = "UserlistSectionedRow";
 
-    public UserlistSectionedRow(ScActivity _activity, LazyBaseAdapter _adapter) {
+    public UserlistSectionedRow(Context _activity, LazyBaseAdapter _adapter) {
         super(_activity, _adapter);
 
     }

@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcelable;
 import com.soundcloud.android.R;
@@ -35,7 +36,7 @@ public class UserlistRow extends LazyRow {
 
 
 
-    public UserlistRow(ScActivity _activity, IScAdapter _adapter) {
+    public UserlistRow(Context _activity, IScAdapter _adapter) {
         super(_activity, _adapter);
 
         mUsername = (TextView) findViewById(R.id.username);
