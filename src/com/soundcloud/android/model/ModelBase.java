@@ -168,7 +168,5 @@ public abstract class ModelBase implements Parcelable {
         return null;
     }
 
-    public Uri assertInDb(SoundCloudApplication app) {
-        return null;
-    }
+    public void assertInDb(SoundCloudApplication app) { }
 }

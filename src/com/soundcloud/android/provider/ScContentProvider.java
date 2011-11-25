@@ -110,16 +110,16 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_FOLLOWERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                qb.setTables(DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
                 whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + userId
                         + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWER;
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
             case USER_FOLLOWERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                qb.setTables(DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
                 whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + uri.getPathSegments().get(1)
                         + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWER;
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
@@ -158,10 +158,12 @@ public class ScContentProvider extends ContentProvider {
 
 
             case USERS:
+                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(DBHelper.Tables.USERS.tableName);
                 break;
 
             case USER_ITEM:
+                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(DBHelper.Tables.USERS.tableName);
                 break;
 
@@ -242,8 +244,9 @@ public class ScContentProvider extends ContentProvider {
 
             case USERS:
                 System.out.println("Inserting id " + values.get("_id"));
-                id = db.insertWithOnConflict(DBHelper.Tables.USERS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = db.insertWithOnConflict(DBHelper.Tables.USERS.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                System.out.println("Insert got " + result);
                 getContext().getContentResolver().notifyChange(result, null);
                 return result;
 
@@ -254,7 +257,7 @@ public class ScContentProvider extends ContentProvider {
                     cv.put(DBHelper.ResourceItems.USER_ID, userId);
                     cv.put(DBHelper.ResourceItems.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
                     cv.put(DBHelper.ResourceItems.RESOURCE_TYPE, ResourceItemTypes.FAVORITE);
-                    id = db.insertWithOnConflict(DBHelper.Tables.RESOURCE_ITEMS.tableName, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+                    id = db.insertWithOnConflict(DBHelper.Tables.RESOURCE_ITEMS.tableName, null, cv, SQLiteDatabase.CONFLICT_ABORT);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null);
                     return result;
@@ -331,6 +334,7 @@ public class ScContentProvider extends ContentProvider {
                     tblName = DBHelper.Tables.TRACKS.tableName;
                     break;
                 case USERS:
+                    Log.i("asdf","Bulk inserting a user ");
                     tblName = DBHelper.Tables.USERS.tableName;
                     break;
                 case ME_TRACKS:

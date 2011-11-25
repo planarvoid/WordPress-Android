@@ -97,7 +97,7 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                 Uri inserted = mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCES, cv);
                 if (inserted != null) localResourceId = Integer.parseInt(inserted.getLastPathSegment());
             } else {
-
+                Log.i("asdf","We have a local resource id");
                 // get the entry for the requested page
                 c = mApp.getContentResolver().query(ScContentProvider.Content.RESOURCE_PAGES, null,
                         DBHelper.ResourcePages.RESOURCE_ID + " = ? AND " + DBHelper.ResourcePages.PAGE_INDEX + " = ?",
@@ -105,6 +105,7 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
 
 
                 if (c != null && c.moveToFirst()) {
+                    Log.i("asdf","We have a local page id");
                     localPageEtag = c.getString(c.getColumnIndex(DBHelper.ResourcePages.ETAG));
                     localPageId = c.getInt(c.getColumnIndex(DBHelper.ResourcePages.ID));
                     localPageSize = c.getInt(c.getColumnIndex(DBHelper.ResourcePages.SIZE));
@@ -115,7 +116,6 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
 
         boolean remoteLoad = (contentUri == null || localPageId == -1);
         if (remoteLoad || refresh) {
-            Log.i("asdf","SETTING ETAG TO " + localPageEtag);
             if (!TextUtils.isEmpty(localPageEtag)) request.ifNoneMatch(localPageEtag);
             try {
                 HttpResponse resp = mApp.get(request);
@@ -163,7 +163,7 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                         int i = 0;
                         ContentValues[] bulkValues = new ContentValues[mNewItems.size()];
                         for (Parcelable p : mNewItems) {
-                            Uri row = ((ModelBase) p).assertInDb(mApp);
+                            ((ModelBase) p).assertInDb(mApp);
 
                             ContentValues itemCv = new ContentValues();
                             itemCv.put(DBHelper.ResourceItems.RESOURCE_PAGE_ID,uri.getLastPathSegment());
@@ -172,8 +172,10 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                             itemCv.put(DBHelper.ResourceItems.ITEM_ID,((ModelBase) p).id);
                             bulkValues[i] = itemCv;
                             i++;
+
                         }
                         int inserted = mApp.getContentResolver().bulkInsert(contentUri,bulkValues);
+                        Log.i("asdf","Inserted rows " + inserted);
                         return true;
                     }
                 }
@@ -195,7 +197,9 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
 
             // wipe it out and remote load ?? if (c.getCount() == localPageSize){ }
             mNewItems = new ArrayList<Parcelable>();
+            Log.i("asdf","cursor is ");
             if (itemsCursor != null && itemsCursor.moveToFirst()) {
+                Log.i("asdf","we have cursor items!! ");
                 do {
                     if (Track.class.equals(loadModel)) {
                         mNewItems.add(new Track(itemsCursor));

@@ -4,6 +4,7 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
@@ -94,8 +95,8 @@ public class User extends ModelBase implements PageTrackable {
         this.private_tracks_count = userlistItem.private_tracks_count;
     }
 
-    public Uri assertInDb(SoundCloudApplication app) {
-        return app.getContentResolver().insert(ScContentProvider.Content.USERS, buildContentValues());
+    public void assertInDb(SoundCloudApplication app) {
+        SoundCloudDB.writeUser(app.getContentResolver(), this, SoundCloudDB.WriteState.insert_only,app.getCurrentUserId());
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {

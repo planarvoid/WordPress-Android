@@ -4,6 +4,7 @@ package com.soundcloud.android.model;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.TracksByTag;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
@@ -268,9 +269,9 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         user = User.fromTrackView(cursor);
     }
 
-    public Uri assertInDb(SoundCloudApplication app) {
+    public void assertInDb(SoundCloudApplication app) {
         if (user != null) user.assertInDb(app);
-        return app.getContentResolver().insert(ScContentProvider.Content.TRACKS, buildContentValues());
+        SoundCloudDB.writeTrack(app.getContentResolver(), this, SoundCloudDB.WriteState.insert_only, app.getCurrentUserId());
     }
 
     public void updateFromDb(ContentResolver resolver, User user) {

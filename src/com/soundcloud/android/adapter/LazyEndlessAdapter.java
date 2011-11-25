@@ -256,7 +256,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     @Override
     public int getCount() {
-        if (mAllowInitialLoading && CloudUtils.isTaskFinished(mRefreshTask) && (mKeepOnAppending.get() || getWrappedAdapter().getCount() == 0)) {
+        if (mAllowInitialLoading && mRefreshTask == null && (mKeepOnAppending.get() || getWrappedAdapter().getCount() == 0)) {
             return super.getCount() + 1;
         } else {
             return super.getCount();
@@ -360,19 +360,18 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mPendingView = null;
         // configure the empty view depending on possible exceptions
         applyEmptyView();
+        mRefreshTask = null;
+        mAppendTask = null;
         notifyDataSetChanged();
     }
 
     public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
-        Log.i("asdf","On Post refresh " + responseCode);
-        if (handleResponseCode(responseCode)) {
-            if (newItems != null && newItems.size() > 0) {
-                reset(true, false);
-                onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
+        if (handleResponseCode(responseCode) || (newItems != null && newItems.size() > 0)) {
+            reset(true, false);
+            onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
             //} else if (eTag != null){
-            } else {
-                onEmptyRefresh();
-            }
+        } else {
+            onEmptyRefresh();
         }
 
         applyEmptyView();
