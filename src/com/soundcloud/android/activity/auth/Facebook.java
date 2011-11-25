@@ -33,7 +33,7 @@ public class Facebook extends Activity {
 
 
     /* package */ boolean isSSOEnabled() {
-        return SoundCloudApplication.BETA_MODE || SoundCloudApplication.DEV_MODE;
+        return SoundCloudApplication.DEV_MODE;
     }
 
     @Override
