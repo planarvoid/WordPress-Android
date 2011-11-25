@@ -30,15 +30,16 @@ public class DBHelper extends SQLiteOpenHelper {
         EVENTS("Events", DATABASE_CREATE_EVENTS),
         SEARCHES("Searches", DATABASE_CREATE_SEARCHES),
 
-        USER_FAVORITES("UserFavorites", DATABASE_CREATE_USER_FAVORITES),
+        /*USER_FAVORITES("UserFavorites", DATABASE_CREATE_USER_FAVORITES),
         USER_FOLLOWING("UserFollowing", DATABASE_CREATE_USER_FOLLOWING),
-        USER_FOLLOWERS("UserFollowers", DATABASE_CREATE_USER_FOLLOWERS),
+        USER_FOLLOWERS("UserFollowers", DATABASE_CREATE_USER_FOLLOWERS),*/
 
         TRACKVIEW("TrackView", null),
         //TRACKLISTVIEW("TracklistView", DATABASE_CREATE_TRACKLIST_VIEW),
         //EVENTLISTVIEW("EventlistView", DATABASE_CREATE_EVENTLIST_VIEW);
 
         RESOURCES("Resources", DATABASE_CREATE_RESOURCES),
+        RESOURCE_ITEMS("ResourceItems", DATABASE_CREATE_RESOURCE_ITEMS),
         RESOURCE_PAGES("ResourcePages", DATABASE_CREATE_RESOURCE_PAGES);
 
         public final String tableName;
@@ -58,7 +59,6 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-
     DBHelper(Context scApp) {
         super(scApp, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -71,12 +71,10 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL(DATABASE_CREATE_USERS);
             db.execSQL(DATABASE_CREATE_RECORDINGS);
             db.execSQL(DATABASE_CREATE_SEARCHES);
-            db.execSQL(DATABASE_CREATE_USER_FAVORITES);
-            db.execSQL(DATABASE_CREATE_USER_FOLLOWERS);
-            db.execSQL(DATABASE_CREATE_USER_FOLLOWING);
             db.execSQL(DATABASE_CREATE_TRACK_VIEW);
             db.execSQL(DATABASE_CREATE_RESOURCES);
             db.execSQL(DATABASE_CREATE_RESOURCE_PAGES);
+            db.execSQL(DATABASE_CREATE_RESOURCE_ITEMS);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -224,18 +222,12 @@ public class DBHelper extends SQLiteOpenHelper {
     private boolean upgradeTo9(SQLiteDatabase db, int oldVersion) {
             try {
                 db.execSQL("DROP TABLE IF EXISTS " + Tables.TRACKS.tableName);
-                db.execSQL("DROP TABLE IF EXISTS " + Tables.USER_FAVORITES.tableName);
-                db.execSQL("DROP TABLE IF EXISTS " + Tables.USER_FOLLOWERS.tableName);
-                db.execSQL("DROP TABLE IF EXISTS " + Tables.USER_FOLLOWING.tableName);
                 db.execSQL("DROP VIEW IF EXISTS " + Tables.TRACKVIEW.tableName);
                 db.execSQL(DATABASE_CREATE_TRACKS);
-                db.execSQL(DATABASE_CREATE_USER_FAVORITES);
-                db.execSQL(DATABASE_CREATE_USER_FOLLOWERS);
-                db.execSQL(DATABASE_CREATE_USER_FOLLOWING);
                 db.execSQL(DATABASE_CREATE_TRACK_VIEW);
                 db.execSQL(DATABASE_CREATE_RESOURCES);
                 db.execSQL(DATABASE_CREATE_RESOURCE_PAGES);
-
+                db.execSQL(DATABASE_CREATE_RESOURCE_ITEMS);
                 return true;
 
             } catch (SQLException e) {
@@ -383,14 +375,10 @@ public class DBHelper extends SQLiteOpenHelper {
             + "size INTEGER null, "
             + "page_index INTEGER)";
 
-    static final String DATABASE_CREATE_USER_FAVORITES =
-            "create table UserFavorites (_id INTEGER primary key AUTOINCREMENT, user_id INTEGER, item_id INTEGER, resource_page_index INTEGER null, resource_page_id INTEGER null);";
-    static final String DATABASE_CREATE_USER_FOLLOWING =
-            "create table UserFollowing (_id INTEGER primary key AUTOINCREMENT, user_id INTEGER, item_id INTEGER, resource_page_index INTEGER null, resource_page_id INTEGER null);";
-    static final String DATABASE_CREATE_USER_FOLLOWERS =
-            "create table UserFollowers (_id INTEGER primary key AUTOINCREMENT, user_id INTEGER, item_id INTEGER, resource_page_index INTEGER null, resource_page_id INTEGER null);";
+    //TODO, these should be in 1 table, duplication galore here
 
-
+    static final String DATABASE_CREATE_RESOURCE_ITEMS =
+            "create table ResourceItems (_id INTEGER primary key AUTOINCREMENT, user_id INTEGER, item_id INTEGER, resource_type INTEGER, resource_page_index INTEGER null, resource_page_id INTEGER null);";
 
     public static final class Tracks implements BaseColumns {
 
@@ -458,50 +446,21 @@ public class DBHelper extends SQLiteOpenHelper {
       }
 
 
-    public static final class UserFavorites implements UserCollectionItem {
-        public static final String FAVORITE_ID = ITEM_ID;
-        public static final String CONCRETE_USER_ID = Tables.USER_FAVORITES.tableName + "." + USER_ID;
-        public static final String CONCRETE_FAVORITE_ID = Tables.USER_FAVORITES.tableName + "." + ITEM_ID;
-    }
 
-    public static final class UserFollowing implements UserCollectionItem {
-        public static final String FOLLOWING_ID = ITEM_ID;
-        public static final String CONCRETE_USER_ID = Tables.USER_FOLLOWING.tableName + "." + USER_ID;
-        public static final String CONCRETE_FOLLOWING_ID = Tables.USER_FOLLOWING.tableName + "." + ITEM_ID;
-    }
-    
-    public static final class UserFollowers implements UserCollectionItem {
-        public static final String FOLLOWER_ID = ITEM_ID;
-        public static final String CONCRETE_USER_ID = Tables.USER_FOLLOWERS.tableName + "." + USER_ID;
-        public static final String CONCRETE_FOLLOWER_ID = Tables.USER_FOLLOWERS.tableName + "." + ITEM_ID;
-    }
+    public static final class ResourceItems {
+           public static final String RESOURCE_PAGE_ID = "resource_page_id";
+           public static final String RESOURCE_PAGE_INDEX = "resource_page_index";
+           public static final String ITEM_ID = "item_id";
+           public static final String USER_ID = "user_id";
+           public static final String RESOURCE_TYPE = "resource_type";
 
-    public interface UserCollectionItem {
-        /**
-         * The unique ID for a resource page.
-         * <P>Type: INTEGER (long)</P>
-         */
-        public static final String RESOURCE_PAGE_ID = "resource_page_id";
+           public static final String CONCRETE_RESOURCE_PAGE_ID = Tables.RESOURCE_ITEMS.tableName + "." + RESOURCE_PAGE_ID;
+           public static final String CONCRETE_RESOURCE_PAGE_INDEX = Tables.RESOURCE_ITEMS.tableName + "." + RESOURCE_PAGE_INDEX;
+           public static final String CONCRETE_ITEM_ID = Tables.RESOURCE_ITEMS.tableName + "." + ITEM_ID;
+           public static final String CONCRETE_USER_ID = Tables.RESOURCE_ITEMS.tableName + "." + USER_ID;
+           public static final String CONCRETE_RESOURCE_TYPE = Tables.RESOURCE_ITEMS.tableName + "." + RESOURCE_TYPE;
+       }
 
-        /**
-         * The resource page index
-         * <P>Type: INTEGER</P>
-         */
-        public static final String RESOURCE_PAGE_INDEX = "resource_page_index";
-
-        /**
-         * The unique ID for the item
-         * <P>Type: INTEGER (long)</P>
-         */
-        public static final String ITEM_ID = "item_id";
-
-        /**
-         * The unique ID for the user
-         * <P>Type: INTEGER (long)</P>
-         */
-        public static final String USER_ID = "user_id";
-
-    }
 
       public static final class Users implements BaseColumns {
 

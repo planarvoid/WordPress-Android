@@ -29,6 +29,7 @@ public class TestActivity extends ScActivity {
 
         mListView = buildList();
         mListView.setAdapter(adpWrap);
+        adpWrap.configureViews(mListView);
         frameLayout.addView(mListView);
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();

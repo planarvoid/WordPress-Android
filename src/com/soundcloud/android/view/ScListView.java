@@ -203,7 +203,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             getWrapper().notifyDataSetChanged();
         }
         if (mOnRefreshListener != null) {
-            Log.i("asdf","On RefreshListener " + mOnRefreshListener);
             if (mOnRefreshListener.isRefreshing()) {
                 prepareForRefresh();
                 if (getFirstVisiblePosition() != 0) {

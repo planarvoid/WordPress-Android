@@ -83,7 +83,6 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
         Cursor c = null;
 
         if (contentUri != null){
-
             // get the current Uri data
             c = mApp.getContentResolver().query(ScContentProvider.Content.RESOURCES, null, "uri = ?", new String[]{contentUri.toString()}, null);
             if (c != null && c.moveToFirst()) {
@@ -98,6 +97,7 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                 Uri inserted = mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCES, cv);
                 if (inserted != null) localResourceId = Integer.parseInt(inserted.getLastPathSegment());
             } else {
+
                 // get the entry for the requested page
                 c = mApp.getContentResolver().query(ScContentProvider.Content.RESOURCE_PAGES, null,
                         DBHelper.ResourcePages.RESOURCE_ID + " = ? AND " + DBHelper.ResourcePages.PAGE_INDEX + " = ?",
@@ -111,12 +111,11 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                     mNextHref = c.getString(c.getColumnIndex(DBHelper.ResourcePages.NEXT_HREF));
                 }
             }
-
-
         }
 
         boolean remoteLoad = (contentUri == null || localPageId == -1);
         if (remoteLoad || refresh) {
+            Log.i("asdf","SETTING ETAG TO " + localPageEtag);
             if (!TextUtils.isEmpty(localPageEtag)) request.ifNoneMatch(localPageEtag);
             try {
                 HttpResponse resp = mApp.get(request);
@@ -134,11 +133,17 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                     InputStream is = resp.getEntity().getContent();
 
                     CollectionHolder holder = getCollection(is, mNewItems);
-                    keepGoing = !TextUtils.isEmpty(mNextHref);
                     mNextHref = holder == null || TextUtils.isEmpty(holder.next_href) ? null : holder.next_href;
+                    keepGoing = !TextUtils.isEmpty(mNextHref);
+
+                    for (Parcelable p : mNewItems) {
+                        ((ModelBase) p).resolve(mApp);
+                    }
+                    publishProgress(mNewItems);
 
 
-                    if (mNewItems != null) {
+                    // store items if we have items and a content uri
+                    if (contentUri != null && mNewItems != null) {
 
                         ContentValues cv = new ContentValues();
                         cv.put(DBHelper.ResourcePages.RESOURCE_ID, localResourceId);
@@ -147,13 +152,7 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                         cv.put(DBHelper.ResourcePages.SIZE, mNewItems.size());
                         if (mNextHref != null) {
                             cv.put(DBHelper.ResourcePages.NEXT_HREF, mNextHref);
-                            keepGoing = true;
                         }
-
-                        for (Parcelable p : mNewItems) {
-                            ((ModelBase) p).resolve(mApp);
-                        }
-                        publishProgress(mNewItems);
 
                         // insert new page
                         Uri uri = mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCE_PAGES, cv);
@@ -167,14 +166,14 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                             Uri row = ((ModelBase) p).assertInDb(mApp);
 
                             ContentValues itemCv = new ContentValues();
-                            itemCv.put(DBHelper.UserCollectionItem.RESOURCE_PAGE_ID,uri.getLastPathSegment());
-                            itemCv.put(DBHelper.UserCollectionItem.USER_ID, getCollectionOwner());
-                            itemCv.put(DBHelper.UserCollectionItem.RESOURCE_PAGE_INDEX,i);
-                            itemCv.put(DBHelper.UserCollectionItem.ITEM_ID,row.getLastPathSegment());
+                            itemCv.put(DBHelper.ResourceItems.RESOURCE_PAGE_ID,uri.getLastPathSegment());
+                            itemCv.put(DBHelper.ResourceItems.USER_ID, getCollectionOwner());
+                            itemCv.put(DBHelper.ResourceItems.RESOURCE_PAGE_INDEX,i);
+                            itemCv.put(DBHelper.ResourceItems.ITEM_ID,((ModelBase) p).id);
                             bulkValues[i] = itemCv;
                             i++;
                         }
-                        mApp.getContentResolver().bulkInsert(contentUri,bulkValues);
+                        int inserted = mApp.getContentResolver().bulkInsert(contentUri,bulkValues);
                         return true;
                     }
                 }
@@ -191,11 +190,10 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
 
         if (contentUri != null){
             Cursor itemsCursor = mApp.getContentResolver().query(contentUri, null,
-                DBHelper.UserCollectionItem.RESOURCE_PAGE_ID + " = ?",
-                new String[]{String.valueOf(localPageId)}, DBHelper.UserCollectionItem.RESOURCE_PAGE_INDEX);
+                DBHelper.ResourceItems.RESOURCE_PAGE_ID + " = ?",
+                new String[]{String.valueOf(localPageId)}, DBHelper.ResourceItems.RESOURCE_PAGE_INDEX);
 
             // wipe it out and remote load ?? if (c.getCount() == localPageSize){ }
-
             mNewItems = new ArrayList<Parcelable>();
             if (itemsCursor != null && itemsCursor.moveToFirst()) {
                 do {
@@ -246,6 +244,9 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
         }
         return holder;
     }
+
+
+
 
     public static class EventsHolder extends CollectionHolder<Event> {}
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}

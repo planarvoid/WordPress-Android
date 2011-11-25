@@ -356,7 +356,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 new ArrayList<Parcelable>(), Track.class);
 
         LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_TRACKS, mUser.id), isMe()
-                ? ScContentProvider.Content.ME_TRACKS : ScContentProvider.Content.USER_TRACKS, false);
+                ? ScContentProvider.Content.ME_TRACKS : CloudUtils.replaceWildcard(ScContentProvider.Content.USER_TRACKS, mUser.id), false);
         if (isOtherUser()) {
             if (mUser != null) {
                 adpWrap.setEmptyViewText(getResources().getString(

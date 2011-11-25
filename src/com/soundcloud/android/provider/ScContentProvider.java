@@ -74,20 +74,76 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_TRACKS:
+                // TODO : This info is already available in the track, doesnt need to use the resources table...
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_FAVORITE_ID+ ")");
-                whereAppend = DBHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + userId
+                        + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.TRACK;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+            case USER_TRACKS:
+                if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + uri.getPathSegments().get(1)
+                        + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.TRACK;
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
             case ME_FAVORITES:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_FAVORITE_ID+ ")");
-                whereAppend = DBHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + userId
+                        + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FAVORITE;
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
+            case USER_FAVORITES:
+                if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + uri.getPathSegments().get(1)
+                        + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FAVORITE;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+
+            case ME_FOLLOWERS:
+                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + userId
+                        + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWER;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+            case USER_FOLLOWERS:
+                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + uri.getPathSegments().get(1)
+                        + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWER;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+
+            case ME_FOLLOWINGS:
+                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + userId
+                        + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWING;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+            case USER_FOLLOWINGS:
+                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + uri.getPathSegments().get(1)
+                        + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWING;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+
+
+
 
             case TRACKS:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
@@ -102,16 +158,11 @@ public class ScContentProvider extends ContentProvider {
 
 
             case USERS:
-                qb.setTables(USER_FOLLOWING_JOIN);
-                whereAppend = DBHelper.UserFollowing.CONCRETE_USER_ID + " = "+ userId;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.setTables(DBHelper.Tables.USERS.tableName);
                 break;
 
             case USER_ITEM:
-                qb.setTables(USER_FOLLOWING_JOIN);
-                whereAppend = DBHelper.UserFollowing.CONCRETE_USER_ID + " = "+ userId + " AND "
-                        + DBHelper.Users.CONCRETE_ID + " = " + uri.getLastPathSegment();
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.setTables(DBHelper.Tables.USERS.tableName);
                 break;
 
 
@@ -147,8 +198,9 @@ public class ScContentProvider extends ContentProvider {
 
         String q = qb.buildQuery(columns, selection, selectionArgs, null, null, sortOrder, null);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Log.i("asdf","QUERYING " + q + " " + selectionArgs);
+        Log.i("asdf","QUerying " + sUriMatcher.match(uri) + " " + uri + " " + q);
         Cursor c = db.rawQuery(q, selectionArgs);
+
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
@@ -199,9 +251,10 @@ public class ScContentProvider extends ContentProvider {
                 id = db.insertWithOnConflict(DBHelper.Tables.TRACKS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
-                    cv.put(DBHelper.UserFavorites.USER_ID, userId);
-                    cv.put(DBHelper.UserFavorites.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
-                    id = db.insertWithOnConflict(DBHelper.Tables.USER_FAVORITES.tableName, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+                    cv.put(DBHelper.ResourceItems.USER_ID, userId);
+                    cv.put(DBHelper.ResourceItems.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
+                    cv.put(DBHelper.ResourceItems.RESOURCE_TYPE, ResourceItemTypes.FAVORITE);
+                    id = db.insertWithOnConflict(DBHelper.Tables.RESOURCE_ITEMS.tableName, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null);
                     return result;
@@ -269,6 +322,8 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
 
+        String[] extraCV = null;
+
         try {
             String tblName;
             switch (sUriMatcher.match(uri)) {
@@ -278,24 +333,34 @@ public class ScContentProvider extends ContentProvider {
                 case USERS:
                     tblName = DBHelper.Tables.USERS.tableName;
                     break;
+                case ME_TRACKS:
+                case USER_TRACKS:
+                    tblName = DBHelper.Tables.RESOURCE_ITEMS.tableName;
+                    extraCV = new String[]{DBHelper.ResourceItems.RESOURCE_TYPE, String.valueOf(ResourceItemTypes.TRACK)};
+                    break;
                 case ME_FAVORITES:
                 case USER_FAVORITES:
-                    tblName = DBHelper.Tables.USER_FAVORITES.tableName;
+                    tblName = DBHelper.Tables.RESOURCE_ITEMS.tableName;
+                    extraCV = new String[]{DBHelper.ResourceItems.RESOURCE_TYPE, String.valueOf(ResourceItemTypes.FAVORITE)};
                     break;
                 case ME_FOLLOWERS:
                 case USER_FOLLOWERS:
-                    tblName = DBHelper.Tables.USER_FOLLOWERS.tableName;
+                    tblName = DBHelper.Tables.RESOURCE_ITEMS.tableName;
+                    extraCV = new String[]{DBHelper.ResourceItems.RESOURCE_TYPE, String.valueOf(ResourceItemTypes.FOLLOWER)};
                     break;
                 case ME_FOLLOWINGS:
                 case USER_FOLLOWINGS:
-                    tblName = DBHelper.Tables.USER_FOLLOWING.tableName;
+                    tblName = DBHelper.Tables.RESOURCE_ITEMS.tableName;
+                    extraCV = new String[]{DBHelper.ResourceItems.RESOURCE_TYPE, String.valueOf(ResourceItemTypes.FOLLOWING)};
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
+
+
             int numValues = values.length;
             for (int i = 0; i < numValues; i++) {
-                Log.i("asdf","Bulk Inserting");
+                if (extraCV != null) values[i].put(extraCV[0],extraCV[1]);
                 if (db.replace(tblName, null, values[i]) < 0) return 0;
             }
             db.setTransactionSuccessful();
@@ -306,7 +371,6 @@ public class ScContentProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return values.length;
     }
-
 
     static DBHelper.Tables getTable(String s) {
         DBHelper.Tables table = null;
@@ -373,16 +437,31 @@ public class ScContentProvider extends ContentProvider {
 
     public static String[] fullTrackColumns = new String[]{
             DBHelper.Tables.TRACKVIEW.tableName + ".*",
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FAVORITES.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_FAVORITE_ID + " and " + DBHelper.UserFavorites.USER_ID + " = $$$) as " + DBHelper.TrackView.USER_FAVORITE,
-            //"EXISTS (SELECT 1 FROM " + DBHelper.Tables.TRACK_PLAYS.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.TrackPlays.TRACK_ID + " and " + DBHelper.TrackPlays.USER_ID + " = $$$) as " + DBHelper.TrackView.USER_PLAYED,
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.RESOURCE_ITEMS.tableName
+                    + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID
+                    + " and " + DBHelper.ResourceItems.RESOURCE_TYPE + " = " + ResourceItemTypes.FAVORITE
+                    + " and " + DBHelper.ResourceItems.USER_ID + " = $$$) as " + DBHelper.TrackView.USER_FAVORITE,
     };
 
     public static String[] fullUserColumns = new String[]{
             DBHelper.Tables.USERS.tableName + ".*",
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWING.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.CONCRETE_FOLLOWING_ID + " and " + DBHelper.UserFollowing.USER_ID + " = $$$) as "  + DBHelper.Users.USER_FOLLOWING,
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWERS.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowers.CONCRETE_FOLLOWER_ID + " and " + DBHelper.UserFollowing.USER_ID + " = $$$) as " + DBHelper.Users.USER_FOLLOWER
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.RESOURCE_ITEMS.tableName
+                    + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID
+                    + " and " + DBHelper.ResourceItems.RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWING
+                    + " and " + DBHelper.ResourceItems.USER_ID + " = $$$) as "  + DBHelper.Users.USER_FOLLOWING,
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.RESOURCE_ITEMS.tableName
+                    + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID
+                    + " and " + DBHelper.ResourceItems.RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWER
+                    + " and " + DBHelper.ResourceItems.USER_ID + " = $$$) as " + DBHelper.Users.USER_FOLLOWER
     };
 
+
+    public interface ResourceItemTypes {
+        int TRACK = 1;
+        int FAVORITE = 2;
+        int FOLLOWING = 3;
+        int FOLLOWER = 4;
+    }
 
     public interface Content {
 
@@ -404,20 +483,20 @@ public class ScContentProvider extends ContentProvider {
         Uri ME_ACTIVITIES               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/activities/all/own");
 
         Uri TRACKS                      = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks");
-        Uri TRACK_ITEM                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/*");
-        Uri TRACK_COMMENTS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/*/comments");
-        Uri TRACK_PERMISSIONS           = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/*/permissions");
-        Uri TRACK_SECRET_TOKEN          = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/*/secret-token");
+        Uri TRACK_ITEM                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/#");
+        Uri TRACK_COMMENTS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/#/comments");
+        Uri TRACK_PERMISSIONS           = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/#/permissions");
+        Uri TRACK_SECRET_TOKEN          = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/#/secret-token");
 
         Uri USERS                       = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users");
-        Uri USER_ITEM                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*");
-        Uri USER_TRACKS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*/tracks");
-        Uri USER_FAVORITES              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*/favorites");
-        Uri USER_FOLLOWERS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*/followers");
-        Uri USER_FOLLOWINGS             = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*/followings");
-        Uri USER_COMMENTS               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*/comments");
-        Uri USER_GROUPS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*/groups");
-        Uri USER_PLAYLISTS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/*/playlists");
+        Uri USER_ITEM                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#");
+        Uri USER_TRACKS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/tracks");
+        Uri USER_FAVORITES              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/favorites");
+        Uri USER_FOLLOWERS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/followers");
+        Uri USER_FOLLOWINGS             = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/followings");
+        Uri USER_COMMENTS               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/comments");
+        Uri USER_GROUPS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/groups");
+        Uri USER_PLAYLISTS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/playlists");
 
         Uri COMMENT_ITEM                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/comments/#");
 
@@ -521,14 +600,13 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "me/activities/tracks/exclusive", ME_EXCLUSIVE_STREAM);
         matcher.addURI(ScContentProvider.AUTHORITY, "me/activities/all/own", ME_ACTIVITIES);
 
-        matcher.addURI(ScContentProvider.AUTHORITY, "tracks", TRACKS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#", TRACK_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#/comments", TRACK_COMMENTS);
         matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#/permissions", TRACK_PERMISSIONS);
         matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#/secret-token", TRACK_SECRET_TOKEN);
+        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#", TRACK_ITEM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "tracks", TRACKS);
 
-        matcher.addURI(ScContentProvider.AUTHORITY, "users", USERS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/#", USER_ITEM);
+
         matcher.addURI(ScContentProvider.AUTHORITY, "users/#/tracks", USER_TRACKS);
         matcher.addURI(ScContentProvider.AUTHORITY, "users/#/favorites", USER_FAVORITES);
         matcher.addURI(ScContentProvider.AUTHORITY, "users/#/followers", USER_FOLLOWERS);
@@ -536,41 +614,43 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "users/#/comments", USER_COMMENTS);
         matcher.addURI(ScContentProvider.AUTHORITY, "users/#/groups", USER_GROUPS);
         matcher.addURI(ScContentProvider.AUTHORITY, "users/#/playlists", USER_PLAYLISTS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "users/#", USER_ITEM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "users", USERS);
 
         matcher.addURI(ScContentProvider.AUTHORITY, "comments/#", COMMENT_ITEM);
 
-        matcher.addURI(ScContentProvider.AUTHORITY, "playlists", PLAYLISTS);
         matcher.addURI(ScContentProvider.AUTHORITY, "playlists/#", PLAYLIST_ITEM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "playlists", PLAYLISTS);
 
-        matcher.addURI(ScContentProvider.AUTHORITY, "groups", GROUPS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "groups/#", GROUP_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/users", GROUP_USERS);
         matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/moderators", GROUP_MODERATORS);
         matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/members", GROUP_MEMBERS);
         matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/contributors", GROUP_CONTRIBUTORS);
         matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/tracks", GROUP_TRACKS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "groups/#", GROUP_ITEM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "groups", GROUPS);
 
         matcher.addURI(ScContentProvider.AUTHORITY, "resources", RESOURCES);
         matcher.addURI(ScContentProvider.AUTHORITY, "resource_pages", RESOURCE_PAGES);
 
-        matcher.addURI(ScContentProvider.AUTHORITY, "recordings", RECORDINGS);
         matcher.addURI(ScContentProvider.AUTHORITY, "recordings/#", RECORDING_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "events", EVENTS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "recordings", RECORDINGS);
         matcher.addURI(ScContentProvider.AUTHORITY, "events/#", EVENT_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "track_plays", TRACK_PLAYS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "events", EVENTS);
         matcher.addURI(ScContentProvider.AUTHORITY, "track_plays/#", TRACK_PLAYS_ITEM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "track_plays", TRACK_PLAYS);
         matcher.addURI(ScContentProvider.AUTHORITY, "searches", SEARCHES);
 
 		return matcher;
 
 	}
 
-    static String TRACKVIEW_FAVORITE_JOIN = DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
+    /*static String TRACKVIEW_FAVORITE_JOIN = DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
                         " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_FAVORITE_ID+ ")";
 
     static String USER_FOLLOWING_JOIN = DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.USER_FOLLOWING.tableName +
                         " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.CONCRETE_FOLLOWING_ID+ ")";
-
+      */
 
 
 }
