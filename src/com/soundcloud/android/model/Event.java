@@ -70,10 +70,6 @@ public class Event extends ModelBase implements Origin {
 
     @Override
     public void resolve(SoundCloudApplication application) {
-        if (getTrack() != null) {
-            getTrack().updateUserPlayedFromDb(application.getContentResolver(), application.getLoggedInUser());
-        }
-
         if (origin instanceof Comment) {
             Comment c = (Comment)origin;
             if (c.track.user == null) {

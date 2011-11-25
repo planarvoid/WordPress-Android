@@ -17,6 +17,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 
+import java.lang.reflect.Array;
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,12 +66,35 @@ public class ScContentProvider extends ContentProvider {
         // SELECT TrackView._id, EXISTS (SELECT 1 FROM UserFavorites where TrackView._id = UserFavorites.track_id and UserFavorites.user_id = 1) as favorite, EXISTS (SELECT 1 FROM TrackPlays where TrackView._id = TrackPlays.track_id and TrackPlays.user_id = 1) as played FROM TrackView;
 
         switch (sUriMatcher.match(uri)) {
+            case RESOURCES:
+                qb.setTables(DBHelper.Tables.RESOURCES.tableName);
+                break;
+            case RESOURCE_PAGES:
+                qb.setTables(DBHelper.Tables.RESOURCE_PAGES.tableName);
+                break;
+
+            case ME_TRACKS:
+                if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_FAVORITE_ID+ ")");
+                whereAppend = DBHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+
+            case ME_FAVORITES:
+                if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
+                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_FAVORITE_ID+ ")");
+                whereAppend = DBHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+
             case TRACKS:
-                if (columns == null) columns = fullTrackColumns;
+                if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(DBHelper.Tables.TRACKVIEW.tableName);
                 break;
             case TRACK_ITEM:
-                if (columns == null) columns = fullTrackColumns;
+                if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(DBHelper.Tables.TRACKVIEW.tableName);
                 whereAppend = DBHelper.TrackView.CONCRETE_ID + " = " + uri.getLastPathSegment();
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
@@ -89,12 +114,7 @@ public class ScContentProvider extends ContentProvider {
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
-            case ME_FAVORITES:
-                qb.setTables(DBHelper.Tables.TRACKS.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
-                        " ON (" + DBHelper.Tracks.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_TRACK_ID+ ")");
-                selection = selection == null ? DBHelper.UserFavorites.CONCRETE_USER_ID + " = "+ userId :
-                        selection + " AND " + DBHelper.UserFavorites.CONCRETE_USER_ID + " = " + userId;
-                break;
+
 
             case TRACK_PLAYS:
                 qb.setTables(DBHelper.Tables.TRACK_PLAYS.tableName);
@@ -125,12 +145,10 @@ public class ScContentProvider extends ContentProvider {
                 throw new IllegalArgumentException("No query available for: " + uri);
         }
 
-
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
         String q = qb.buildQuery(columns, selection, selectionArgs, null, null, sortOrder, null);
-        System.out.println(q);
-        Log.i(LOG_TAG, "Query:" + q);
-        Cursor c = db.rawQuery(q, null);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Log.i("asdf","QUERYING " + q + " " + selectionArgs);
+        Cursor c = db.rawQuery(q, selectionArgs);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
@@ -145,6 +163,19 @@ public class ScContentProvider extends ContentProvider {
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         switch (sUriMatcher.match(uri)) {
+
+            case RESOURCES:
+                id = db.insertWithOnConflict(DBHelper.Tables.RESOURCES.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                getContext().getContentResolver().notifyChange(result, null);
+                return result;
+
+            case RESOURCE_PAGES:
+                id = db.insertWithOnConflict(DBHelper.Tables.RESOURCE_PAGES.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                getContext().getContentResolver().notifyChange(result, null);
+                return result;
+
             case TRACKS:
                 id = db.insertWithOnConflict(DBHelper.Tables.TRACKS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
@@ -169,7 +200,7 @@ public class ScContentProvider extends ContentProvider {
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.UserFavorites.USER_ID, userId);
-                    cv.put(DBHelper.UserFavorites.TRACK_ID, (Long) values.get(DBHelper.Tracks._ID));
+                    cv.put(DBHelper.UserFavorites.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
                     id = db.insertWithOnConflict(DBHelper.Tables.USER_FAVORITES.tableName, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null);
@@ -188,6 +219,14 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
         switch (sUriMatcher.match(uri)) {
+            case RESOURCES:
+                count = db.delete(DBHelper.Tables.RESOURCES.tableName, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return count;
+            case RESOURCE_PAGES:
+                count = db.delete(DBHelper.Tables.RESOURCE_PAGES.tableName, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return count;
             case TRACK_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.delete(DBHelper.Tables.TRACKS.tableName, where, whereArgs);
@@ -201,6 +240,7 @@ public class ScContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+
     }
 
     @Override
@@ -238,11 +278,24 @@ public class ScContentProvider extends ContentProvider {
                 case USERS:
                     tblName = DBHelper.Tables.USERS.tableName;
                     break;
+                case ME_FAVORITES:
+                case USER_FAVORITES:
+                    tblName = DBHelper.Tables.USER_FAVORITES.tableName;
+                    break;
+                case ME_FOLLOWERS:
+                case USER_FOLLOWERS:
+                    tblName = DBHelper.Tables.USER_FOLLOWERS.tableName;
+                    break;
+                case ME_FOLLOWINGS:
+                case USER_FOLLOWINGS:
+                    tblName = DBHelper.Tables.USER_FOLLOWING.tableName;
+                    break;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
             int numValues = values.length;
             for (int i = 0; i < numValues; i++) {
+                Log.i("asdf","Bulk Inserting");
                 if (db.replace(tblName, null, values[i]) < 0) return 0;
             }
             db.setTransactionSuccessful();
@@ -253,6 +306,7 @@ public class ScContentProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return values.length;
     }
+
 
     static DBHelper.Tables getTable(String s) {
         DBHelper.Tables table = null;
@@ -286,6 +340,8 @@ public class ScContentProvider extends ContentProvider {
 
 
 
+
+
     @Override
     public String getType(Uri uri) {
         return null;
@@ -307,16 +363,24 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
+    public static String[] formatWithUser(String[] columns, long userId){
+
+        for (int i = 0; i < columns.length; i++){
+            columns[i] = columns[i].replace("$$$",String.valueOf(userId));
+        }
+        return columns;
+    }
+
     public static String[] fullTrackColumns = new String[]{
             DBHelper.Tables.TRACKVIEW.tableName + ".*",
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FAVORITES.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.TRACK_ID + " and " + DBHelper.UserFavorites.USER_ID + " = ?) as " + DBHelper.TrackView.USER_FAVORITE,
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.TRACK_PLAYS.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.TrackPlays.TRACK_ID + " and " + DBHelper.TrackPlays.USER_ID + " = ?) as " + DBHelper.TrackView.USER_PLAYED,
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FAVORITES.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_FAVORITE_ID + " and " + DBHelper.UserFavorites.USER_ID + " = $$$) as " + DBHelper.TrackView.USER_FAVORITE,
+            //"EXISTS (SELECT 1 FROM " + DBHelper.Tables.TRACK_PLAYS.tableName + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.TrackPlays.TRACK_ID + " and " + DBHelper.TrackPlays.USER_ID + " = $$$) as " + DBHelper.TrackView.USER_PLAYED,
     };
 
     public static String[] fullUserColumns = new String[]{
             DBHelper.Tables.USERS.tableName + ".*",
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWING.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.FOLLOWING_ID + " and " + DBHelper.UserFollowing.USER_ID + " = ?) as "  + DBHelper.Users.USER_FOLLOWING,
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWERS.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowers.FOLLOWER_ID + " and " + DBHelper.UserFollowing.USER_ID + " = ?) as " + DBHelper.Users.USER_FOLLOWER
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWING.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.CONCRETE_FOLLOWING_ID + " and " + DBHelper.UserFollowing.USER_ID + " = $$$) as "  + DBHelper.Users.USER_FOLLOWING,
+            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.USER_FOLLOWERS.tableName + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowers.CONCRETE_FOLLOWER_ID + " and " + DBHelper.UserFollowing.USER_ID + " = $$$) as " + DBHelper.Users.USER_FOLLOWER
     };
 
 
@@ -334,6 +398,10 @@ public class ScContentProvider extends ContentProvider {
         Uri ME_FAVORITES_ITEM           = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/favorites/#");
         Uri ME_GROUPS                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/groups");
         Uri ME_PLAYLISTS                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/playlists");
+
+        Uri ME_SOUND_STREAM             = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/activities/tracks");
+        Uri ME_EXCLUSIVE_STREAM         = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/activities/tracks/exclusive");
+        Uri ME_ACTIVITIES               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/activities/all/own");
 
         Uri TRACKS                      = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks");
         Uri TRACK_ITEM                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/*");
@@ -365,6 +433,9 @@ public class ScContentProvider extends ContentProvider {
         Uri GROUP_TRACKS                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/groups/#/tracks");
 
         /** LOCAL URIS **/
+        Uri RESOURCES                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/resources");
+        Uri RESOURCE_PAGES              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/resource_pages");
+
         Uri RECORDINGS                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/recordings");
         Uri RECORDING_ITEM              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/recordings/#");
         Uri EVENTS                      = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/events");
@@ -385,6 +456,9 @@ public class ScContentProvider extends ContentProvider {
     private static final int ME_FAVORITES_ITEM      = 108;
     private static final int ME_GROUPS              = 109;
     private static final int ME_PLAYLISTS           = 110;
+    private static final int ME_SOUND_STREAM        = 111;
+    private static final int ME_EXCLUSIVE_STREAM    = 112;
+    private static final int ME_ACTIVITIES          = 113;
 
     private static final int TRACKS                 = 201;
     private static final int TRACK_ITEM             = 202;
@@ -415,17 +489,20 @@ public class ScContentProvider extends ContentProvider {
     private static final int GROUP_CONTRIBUTORS     = 606;
     private static final int GROUP_TRACKS           = 607;
 
-    private static final int RECORDINGS             = 1000;
-    private static final int RECORDING_ITEM         = 1001;
-    private static final int EVENTS                 = 1100;
-    private static final int EVENT_ITEM             = 1101;
-    private static final int TRACK_PLAYS            = 1200;
-    private static final int TRACK_PLAYS_ITEM       = 1201;
-    private static final int SEARCHES               = 1300;
+    private static final int RESOURCES              = 1000;
+    private static final int RESOURCE_PAGES         = 1001;
+
+    private static final int RECORDINGS             = 1100;
+    private static final int RECORDING_ITEM         = 1101;
+    private static final int EVENTS                 = 1200;
+    private static final int EVENT_ITEM             = 1201;
+    private static final int TRACK_PLAYS            = 1300;
+    private static final int TRACK_PLAYS_ITEM       = 1301;
+    private static final int SEARCHES               = 1400;
 
 
 
-	private static UriMatcher buildMatcher() {
+	public static UriMatcher buildMatcher() {
 		UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
 
         matcher.addURI(ScContentProvider.AUTHORITY, "me",ME);
@@ -440,21 +517,25 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "me/groups", ME_GROUPS);
         matcher.addURI(ScContentProvider.AUTHORITY, "me/playlists", ME_PLAYLISTS);
 
+        matcher.addURI(ScContentProvider.AUTHORITY, "me/activities/tracks", ME_SOUND_STREAM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "me/activities/tracks/exclusive", ME_EXCLUSIVE_STREAM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "me/activities/all/own", ME_ACTIVITIES);
+
         matcher.addURI(ScContentProvider.AUTHORITY, "tracks", TRACKS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/*", TRACK_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/*/comments", TRACK_COMMENTS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/*/permissions", TRACK_PERMISSIONS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/*/secret-token", TRACK_SECRET_TOKEN);
+        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#", TRACK_ITEM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#/comments", TRACK_COMMENTS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#/permissions", TRACK_PERMISSIONS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#/secret-token", TRACK_SECRET_TOKEN);
 
         matcher.addURI(ScContentProvider.AUTHORITY, "users", USERS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/*", USER_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/*/tracks", USER_TRACKS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/*/favorites", USER_FAVORITES);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/*/followers", USER_FOLLOWERS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/*/followings", USER_FOLLOWINGS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/*/comments", USER_COMMENTS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/*/groups", USER_GROUPS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/*/playlists", USER_PLAYLISTS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "users/#", USER_ITEM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/tracks", USER_TRACKS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/favorites", USER_FAVORITES);
+        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/followers", USER_FOLLOWERS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/followings", USER_FOLLOWINGS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/comments", USER_COMMENTS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/groups", USER_GROUPS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/playlists", USER_PLAYLISTS);
 
         matcher.addURI(ScContentProvider.AUTHORITY, "comments/#", COMMENT_ITEM);
 
@@ -469,6 +550,8 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/contributors", GROUP_CONTRIBUTORS);
         matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/tracks", GROUP_TRACKS);
 
+        matcher.addURI(ScContentProvider.AUTHORITY, "resources", RESOURCES);
+        matcher.addURI(ScContentProvider.AUTHORITY, "resource_pages", RESOURCE_PAGES);
 
         matcher.addURI(ScContentProvider.AUTHORITY, "recordings", RECORDINGS);
         matcher.addURI(ScContentProvider.AUTHORITY, "recordings/#", RECORDING_ITEM);
@@ -477,13 +560,13 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "track_plays", TRACK_PLAYS);
         matcher.addURI(ScContentProvider.AUTHORITY, "track_plays/#", TRACK_PLAYS_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "searches", SEARCHES);
-        
+
 		return matcher;
 
 	}
 
     static String TRACKVIEW_FAVORITE_JOIN = DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.USER_FAVORITES.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_TRACK_ID+ ")";
+                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_FAVORITE_ID+ ")";
 
     static String USER_FOLLOWING_JOIN = DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.USER_FOLLOWING.tableName +
                         " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.CONCRETE_FOLLOWING_ID+ ")";

@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.content.ContentValues;
 import android.net.Uri;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
@@ -161,5 +162,13 @@ public abstract class ModelBase implements Parcelable {
 
     protected boolean getBooleanFromString(String value){
         return (!TextUtils.isEmpty(value) && value.equalsIgnoreCase("true"));
+    }
+
+    public ContentValues buildContentValues() {
+        return null;
+    }
+
+    public Uri assertInDb(SoundCloudApplication app) {
+        return null;
     }
 }

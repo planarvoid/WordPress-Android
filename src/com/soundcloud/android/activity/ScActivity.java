@@ -256,7 +256,7 @@ public abstract class ScActivity extends Activity {
         super.onResume();
 
         mIsForeground = true;
-
+        Log.i("asdf","ON RESUME " + mLists);
         if (mLists != null) {
             for (final ScListView l : mLists) {
                 l.onResume();

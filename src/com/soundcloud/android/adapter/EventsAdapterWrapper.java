@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import android.net.Uri;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
@@ -12,8 +13,8 @@ import android.os.Parcelable;
 import java.util.List;
 
 public class EventsAdapterWrapper extends LazyEndlessAdapter {
-    public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
-        super(activity, wrapped, request);
+    public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Request request, Uri contentUri) {
+        super(activity, wrapped, request, contentUri);
     }
 
      @Override

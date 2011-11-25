@@ -54,7 +54,7 @@ public class ScContentProviderTest {
         assertThat(tracks.size(), is(c.getCount()));
         if (c != null && c.moveToFirst()){
             do {
-                System.out.println(new Track(c, false).toString());
+                System.out.println(new Track(c).toString());
             } while (c.moveToNext());
         }
     }

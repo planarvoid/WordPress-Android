@@ -21,7 +21,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     }
 
     public SectionedEndlessAdapter(ScActivity activity, SectionedAdapter wrapped, boolean autoAppend) {
-        super(activity, wrapped, null, autoAppend);
+        super(activity, wrapped, null, null, autoAppend);
         mListeners = new ArrayList<WeakReference<SectionListener>>();
     }
 
@@ -126,16 +126,6 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
             mKeepOnAppending.set(false);
         }
         notifyDataSetChanged();
-    }
-
-    @Override
-    protected void setNewEtag(String eTag){
-
-    }
-
-    @Override
-    protected String getCurrentEtag(){
-        return "";
     }
 
     @Override

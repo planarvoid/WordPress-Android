@@ -6,6 +6,7 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.UriMatcher;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -71,6 +72,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public boolean playerWaitForArtwork;
     public Comment pendingComment;
+    private UriMatcher mContentUriMatcher;
 
     @Override
     public void onCreate() {
@@ -601,6 +603,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static long getUserIdFromContext(Context c){
         SoundCloudApplication app = fromContext(c);
         return app == null ? -1 : app.getCurrentUserId();
+    }
+
+    public UriMatcher getContentUriMatcher(){
+        if (mContentUriMatcher == null) mContentUriMatcher = ScContentProvider.buildMatcher();
+        return mContentUriMatcher;
     }
 
 

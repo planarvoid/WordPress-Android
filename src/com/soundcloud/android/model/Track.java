@@ -87,7 +87,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     @JsonView(Views.Full.class) public String original_format;
     @JsonView(Views.Full.class) public String license;
 
-    @JsonView(Views.Mini.class) public String uri;
+    @JsonView(Views.Mini.class) public Uri uri;
     @JsonView(Views.Mini.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public String user_uri;
     @JsonView(Views.Mini.class) public String permalink_url;
@@ -239,7 +239,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         shared_to_count = tracklistItem.shared_to_count;
     }
 
-    public Track(Cursor cursor, boolean aliasesOnly ) {
+    public Track(Cursor cursor) {
 
         // TODO : simplify booleans
 
@@ -266,6 +266,11 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         if (cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE) != -1)    user_favorite = getBooleanFromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE)));
         if (cursor.getColumnIndex(DBHelper.TrackView.FILELENGTH) != -1)       filelength = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.FILELENGTH));
         user = User.fromTrackView(cursor);
+    }
+
+    public Uri assertInDb(SoundCloudApplication app) {
+        if (user != null) user.assertInDb(app);
+        return app.getContentResolver().insert(ScContentProvider.Content.TRACKS, buildContentValues());
     }
 
     public void updateFromDb(ContentResolver resolver, User user) {
@@ -482,11 +487,6 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         }
 
         return mElapsedTime;
-    }
-
-    @Override
-    public void resolve(SoundCloudApplication application) {
-        updateUserPlayedFromDb(application.getContentResolver(), application.getCurrentUserId());
     }
 
     @Override

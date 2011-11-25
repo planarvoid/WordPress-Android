@@ -43,7 +43,7 @@ public class SoundCloudDB {
 
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
-            Track track = new Track(cursor, false);
+            Track track = new Track(cursor);
             cursor.close();
             track.updateUserPlayedFromDb(contentResolver, currentUserId);
 

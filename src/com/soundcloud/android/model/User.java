@@ -94,6 +94,10 @@ public class User extends ModelBase implements PageTrackable {
         this.private_tracks_count = userlistItem.private_tracks_count;
     }
 
+    public Uri assertInDb(SoundCloudApplication app) {
+        return app.getContentResolver().insert(ScContentProvider.Content.USERS, buildContentValues());
+    }
+
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
         Cursor cursor = contentResolver.query(appendIdToUri(ScContentProvider.Content.USERS), null, null, null, null);
         if (cursor != null) {
@@ -128,6 +132,10 @@ public class User extends ModelBase implements PageTrackable {
             return new User[size];
         }
     };
+
+    public ContentValues buildContentValues(){
+        return buildContentValues(false);
+    }
 
     public ContentValues buildContentValues(boolean isCurrentUser){
         ContentValues cv = new ContentValues();

@@ -65,16 +65,13 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
-import java.util.Date;
+import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class CloudUtils {
@@ -899,4 +896,45 @@ public class CloudUtils {
                     "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
                     ")+"
     );
+
+    public static Uri replaceWildcard(Uri uri, String value){
+        return Uri.parse(uri.toString().replace("*",value));
+    }
+    public static Uri replaceWildcard(Uri uri, int value){
+        return Uri.parse(uri.toString().replace("#",String.valueOf(value)));
+    }
+    public static Uri replaceWildcard(Uri uri, long value) {
+        return Uri.parse(uri.toString().replace("#",String.valueOf(value)));
+    }
+
+    /**
+     * Return new URI with wildcards replaced. This ignores the wildcard type
+     * @param uri
+     * @param values
+     * @return
+     */
+    public static Uri replaceWildcards(Uri uri, String[] values){
+        final List<String> pathSegments = uri.getPathSegments();
+        final int li = pathSegments.size();
+
+        if ((li == 0 && uri.getAuthority() == null) || values== null  || values.length == 0) {
+            return uri;
+        }
+
+        Uri.Builder b = uri.buildUpon();
+        int valueIndex = 0;
+        for (int i = 0; i < li; i++) {
+            String u = pathSegments.get(i);
+            if (u.equals("#") || u.equals("*")) {
+                b.appendPath(values[valueIndex]);
+                if (valueIndex == values.length - 1) break;
+                valueIndex++;
+            } else {
+                b.appendPath(u);
+            }
+        }
+
+        return b.build();
+
+    }
 }

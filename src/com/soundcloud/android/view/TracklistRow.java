@@ -61,7 +61,7 @@ public class TracklistRow extends LazyRow {
     /** update the views with the data corresponding to selection index */
     @Override
     public void display(Cursor cursor) {
-        display(cursor.getPosition(), new Track(cursor, false));
+        display(cursor.getPosition(), new Track(cursor));
     }
     @Override
     public void display(int position, Parcelable p) {

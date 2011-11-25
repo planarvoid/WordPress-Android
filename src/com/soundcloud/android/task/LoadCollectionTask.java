@@ -2,9 +2,15 @@ package com.soundcloud.android.task;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.*;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
@@ -27,7 +33,7 @@ import java.util.List;
  * data. Mostly, this code delegates to the subclass, to append the data in
  * the background thread and rebind the pending view once that is done.
  */
-public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> {
+public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelable>, Boolean> {
     private SoundCloudApplication mApp;
     protected WeakReference<LazyEndlessAdapter> mAdapterReference;
     /* package */ List<Parcelable> mNewItems = new ArrayList<Parcelable>();
@@ -37,13 +43,19 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
 
     public Class<?> loadModel;
 
+    public Uri contentUri;
+    public int pageIndex;
+
+
+    public Request request;
+    public boolean refresh;
+    public boolean keepGoing;
+
     public int pageSize;
-    protected String eTag;
 
     public LoadCollectionTask(SoundCloudApplication app, Class<?> loadModel) {
         mApp = app;
         this.loadModel = loadModel;
-        Request.to(Endpoints.SUGGESTED_USERS);
     }
 
     /**
@@ -59,38 +71,150 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
     }
 
     @Override
-    protected Boolean doInBackground(Request... request) {
-        final Request req = request[0];
-        if (req == null) return false;
-        try {
-            HttpResponse resp = mApp.get(req);
+    protected void onProgressUpdate(List<? super Parcelable>... values) {
 
-            mResponseCode = resp.getStatusLine().getStatusCode();
-            if (mResponseCode == HttpStatus.SC_NOT_MODIFIED) {
-                return false;
-            } else if (mResponseCode != HttpStatus.SC_OK) {
-                throw new IOException("Invalid response: " + resp.getStatusLine());
-            }
-            eTag = Http.etag(resp);
-
-            InputStream is = resp.getEntity().getContent();
-
-            CollectionHolder holder = getCollection(is, mNewItems);
-            mNextHref = holder == null ? null : holder.next_href;
-
-            if (mNewItems != null) {
-                for (Parcelable p : mNewItems) {
-                    ((ModelBase)p).resolve(mApp);
-                }
-                return !TextUtils.isEmpty(mNextHref);
-            } else {
-                return false;
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "error", e);
-            return false;
-        }
     }
+
+    @Override
+    protected Boolean doInBackground(String... params) {
+
+        int localPageSize, localResourceId = -1, localPageId = -1;
+        String localPageEtag = "";
+        Cursor c = null;
+
+        if (contentUri != null){
+
+            // get the current Uri data
+            c = mApp.getContentResolver().query(ScContentProvider.Content.RESOURCES, null, "uri = ?", new String[]{contentUri.toString()}, null);
+            if (c != null && c.moveToFirst()) {
+                localResourceId = c.getInt(c.getColumnIndex(DBHelper.Resources.ID));
+            }
+            if (c != null) c.close();
+
+            if (localResourceId == -1) {
+                // insert if not there
+                ContentValues cv = new ContentValues();
+                cv.put(DBHelper.Resources.URI, contentUri.toString());
+                Uri inserted = mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCES, cv);
+                if (inserted != null) localResourceId = Integer.parseInt(inserted.getLastPathSegment());
+            } else {
+                // get the entry for the requested page
+                c = mApp.getContentResolver().query(ScContentProvider.Content.RESOURCE_PAGES, null,
+                        DBHelper.ResourcePages.RESOURCE_ID + " = ? AND " + DBHelper.ResourcePages.PAGE_INDEX + " = ?",
+                        new String[]{String.valueOf(localResourceId), String.valueOf(pageIndex)}, null);
+
+
+                if (c != null && c.moveToFirst()) {
+                    localPageEtag = c.getString(c.getColumnIndex(DBHelper.ResourcePages.ETAG));
+                    localPageId = c.getInt(c.getColumnIndex(DBHelper.ResourcePages.ID));
+                    localPageSize = c.getInt(c.getColumnIndex(DBHelper.ResourcePages.SIZE));
+                    mNextHref = c.getString(c.getColumnIndex(DBHelper.ResourcePages.NEXT_HREF));
+                }
+            }
+
+
+        }
+
+        boolean remoteLoad = (contentUri == null || localPageId == -1);
+        if (remoteLoad || refresh) {
+            if (!TextUtils.isEmpty(localPageEtag)) request.ifNoneMatch(localPageEtag);
+            try {
+                HttpResponse resp = mApp.get(request);
+                mResponseCode = resp.getStatusLine().getStatusCode();
+                if (mResponseCode != HttpStatus.SC_OK && mResponseCode != HttpStatus.SC_NOT_MODIFIED) {
+                    throw new IOException("Invalid response: " + resp.getStatusLine());
+                }
+                if (mResponseCode == HttpStatus.SC_OK) {
+
+                    // we have new content. wipe out everything for now (or it gets tricky)
+                    mApp.getContentResolver().delete(ScContentProvider.Content.RESOURCE_PAGES,
+                            DBHelper.ResourcePages.RESOURCE_ID + " = ? AND " + DBHelper.ResourcePages.PAGE_INDEX + " > ?",
+                            new String[]{String.valueOf(localResourceId), String.valueOf(pageIndex)});
+
+                    InputStream is = resp.getEntity().getContent();
+
+                    CollectionHolder holder = getCollection(is, mNewItems);
+                    keepGoing = !TextUtils.isEmpty(mNextHref);
+                    mNextHref = holder == null || TextUtils.isEmpty(holder.next_href) ? null : holder.next_href;
+
+
+                    if (mNewItems != null) {
+
+                        ContentValues cv = new ContentValues();
+                        cv.put(DBHelper.ResourcePages.RESOURCE_ID, localResourceId);
+                        cv.put(DBHelper.ResourcePages.PAGE_INDEX, pageIndex);
+                        cv.put(DBHelper.ResourcePages.ETAG, Http.etag(resp));
+                        cv.put(DBHelper.ResourcePages.SIZE, mNewItems.size());
+                        if (mNextHref != null) {
+                            cv.put(DBHelper.ResourcePages.NEXT_HREF, mNextHref);
+                            keepGoing = true;
+                        }
+
+                        for (Parcelable p : mNewItems) {
+                            ((ModelBase) p).resolve(mApp);
+                        }
+                        publishProgress(mNewItems);
+
+                        // insert new page
+                        Uri uri = mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCE_PAGES, cv);
+
+                        // insert/update the items
+                        // TODO, use Bulk Insert for everything
+
+                        int i = 0;
+                        ContentValues[] bulkValues = new ContentValues[mNewItems.size()];
+                        for (Parcelable p : mNewItems) {
+                            Uri row = ((ModelBase) p).assertInDb(mApp);
+
+                            ContentValues itemCv = new ContentValues();
+                            itemCv.put(DBHelper.UserCollectionItem.RESOURCE_PAGE_ID,uri.getLastPathSegment());
+                            itemCv.put(DBHelper.UserCollectionItem.USER_ID, getCollectionOwner());
+                            itemCv.put(DBHelper.UserCollectionItem.RESOURCE_PAGE_INDEX,i);
+                            itemCv.put(DBHelper.UserCollectionItem.ITEM_ID,row.getLastPathSegment());
+                            bulkValues[i] = itemCv;
+                            i++;
+                        }
+                        mApp.getContentResolver().bulkInsert(contentUri,bulkValues);
+                        return true;
+                    }
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "error", e);
+            }
+        } else {
+
+        }
+
+        // if we get this far, we either failed, or our etags matched up.
+
+        keepGoing = !TextUtils.isEmpty(mNextHref);
+
+        if (contentUri != null){
+            Cursor itemsCursor = mApp.getContentResolver().query(contentUri, null,
+                DBHelper.UserCollectionItem.RESOURCE_PAGE_ID + " = ?",
+                new String[]{String.valueOf(localPageId)}, DBHelper.UserCollectionItem.RESOURCE_PAGE_INDEX);
+
+            // wipe it out and remote load ?? if (c.getCount() == localPageSize){ }
+
+            mNewItems = new ArrayList<Parcelable>();
+            if (itemsCursor != null && itemsCursor.moveToFirst()) {
+                do {
+                    if (Track.class.equals(loadModel)) {
+                        mNewItems.add(new Track(itemsCursor));
+                    } else if (User.class.equals(loadModel)) {
+                        mNewItems.add(new User(itemsCursor));
+                    } else if (Event.class.equals(loadModel)) {
+                        mNewItems.add(new Event(itemsCursor));
+                    }
+                } while (itemsCursor.moveToNext());
+            }
+            publishProgress(mNewItems);
+            if (itemsCursor != null) itemsCursor.close();
+        }
+        return true;
+    }
+
+
 
     /* package */ CollectionHolder getCollection(InputStream is, List<? super Parcelable> items) throws IOException {
         CollectionHolder holder = null;
@@ -128,4 +252,15 @@ public class LoadCollectionTask extends AsyncTask<Request, Parcelable, Boolean> 
     public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
     public static class FriendHolder extends CollectionHolder<Friend> {}
     public static class CommentHolder extends CollectionHolder<Comment> {}
+
+    private long getCollectionOwner(){
+        final int uriCode = mApp.getContentUriMatcher().match(contentUri);
+        if (uriCode < 200){ // mine
+            return mApp.getCurrentUserId();
+        } else if (contentUri.getPathSegments().size() > 2){
+            return Long.parseLong(contentUri.getPathSegments().get(1));
+        } else{
+            return -1;
+        }
+    }
 }

@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Event;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
@@ -64,6 +65,8 @@ public class Dashboard extends ScActivity {
                         });
 
                 trackListView = createList(getIncomingRequest(),
+                        //getIncomingContent(),
+                        null,
                         Event.class,
                         ec,
                         Consts.ListId.LIST_STREAM, false);
@@ -110,6 +113,8 @@ public class Dashboard extends ScActivity {
 
 
                 trackListView = createList(Request.to(Endpoints.MY_NEWS),
+                        //ScContentProvider.Content.ME_ACTIVITIES,
+                        null,
                         Event.class,
                         ec,
                         Consts.ListId.LIST_ACTIVITY, true);
@@ -145,6 +150,13 @@ public class Dashboard extends ScActivity {
                 : Request.to(Endpoints.MY_ACTIVITIES);
     }
 
+    private Uri getIncomingContent() {
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(EXCLUSIVE_ONLY_KEY, false)
+                ? ScContentProvider.Content.ME_EXCLUSIVE_STREAM
+                : ScContentProvider.Content.ME_SOUND_STREAM;
+    }
+
+
     @Override
     public void onResume() {
         super.onResume();
@@ -156,9 +168,9 @@ public class Dashboard extends ScActivity {
                         Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
     }
 
-    protected ScTabView createList(Request endpoint, Class<?> model, EmptyCollection emptyView, int listId, boolean isNews) {
+    protected ScTabView createList(Request endpoint, Uri contentUri, Class<?> model, EmptyCollection emptyView, int listId, boolean isNews) {
         EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), isNews, model);
-        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint);
+        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint, contentUri);
 
         final ScTabView view = new ScTabView(this);
         mListView = view.setLazyListView(buildList(!isNews), adpWrap, listId, true);

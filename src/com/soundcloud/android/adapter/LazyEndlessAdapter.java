@@ -4,6 +4,7 @@ package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.net.Uri;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -47,8 +48,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     protected Boolean mError = false;
     private String mEmptyViewText = "";
 
+    private Uri mContentUri;
     private Request mRequest;
     private String mNextHref;
+    private int mPageIndex;
     private RefreshTask mRefreshTask;
     private boolean mAllowInitialLoading;
     private String mFirstPageEtag;
@@ -57,15 +60,18 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     private EmptyCollection mEmptyView;
     private EmptyCollection mDefaultEmptyView;
 
-    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
-        this(activity,wrapped,request,true);
+
+    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request, Uri contentUri) {
+        this(activity,wrapped,request,contentUri, true);
     }
 
-    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request, boolean autoAppend) {
+    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request, Uri contentUri, boolean autoAppend) {
         super(wrapped);
 
         mActivity = activity;
+
         mRequest = request;
+        mContentUri = contentUri;
         wrapped.setWrapper(this);
 
         mAllowInitialLoading = autoAppend;
@@ -218,6 +224,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         int[] ret = new int[3];
         ret[0] = (mKeepOnAppending.get()) ? 1 : 0;
         ret[1] = mError ? 1 : 0;
+        ret[2] = mPageIndex;
+
 
         return ret;
 
@@ -226,6 +234,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     protected void restorePagingData(int[] restore) {
         mKeepOnAppending.set(restore[0] == 1);
         mError = restore[1] == 1;
+        mPageIndex = restore[2];
 
         if (!mKeepOnAppending.get()) {
             applyEmptyView();
@@ -279,11 +288,17 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 if (convertView == null){
                     mPendingView = ((LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_loading_item,null,false);
                     if (CloudUtils.isTaskFinished(mAppendTask)) {
-                        mAppendTask = new AppendTask(mActivity.getApp());
-                        mAppendTask.loadModel = getLoadModel(false);
-                        mAppendTask.pageSize =  getPageSize();
+                        mAppendTask = new AppendTask(mActivity.getApp()){
+                            {
+                                loadModel = getLoadModel(false);
+                                pageSize = getPageSize();
+                                request = buildRequest(false);
+                                contentUri = mContentUri;
+                                pageIndex = mPageIndex;
+                             }
+                        };
                         mAppendTask.setAdapter(this);
-                        mAppendTask.execute(buildRequest(false));
+                        mAppendTask.execute();
                     }
                 } else {
                     mPendingView = convertView;
@@ -328,9 +343,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
-        if (responseCode == HttpStatus.SC_OK){
+        if (responseCode == HttpStatus.SC_OK || responseCode == HttpStatus.SC_NOT_MODIFIED){
             mKeepOnAppending.set(keepGoing);
             mNextHref = nextHref;
+            mPageIndex++;
         } else {
             handleResponseCode(responseCode);
         }
@@ -346,13 +362,13 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         notifyDataSetChanged();
     }
 
-    public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing, String eTag) {
+    public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
         if (handleResponseCode(responseCode)) {
             if (newItems != null && newItems.size() > 0) {
-                setNewEtag(eTag);
                 reset(true, false);
                 onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
-            } else if (eTag != null){
+            //} else if (eTag != null){
+            } else {
                 onEmptyRefresh();
             }
         }
@@ -363,14 +379,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (mListView != null) {
             mListView.onRefreshComplete(responseCode == HttpStatus.SC_OK);
         }
-    }
-
-    protected void setNewEtag(String eTag){
-        mFirstPageEtag = eTag;
-    }
-
-    protected String getCurrentEtag(){
-        return mFirstPageEtag;
     }
 
     protected void onEmptyRefresh(){
@@ -407,8 +415,12 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             {
                 loadModel = getLoadModel(false);
                 pageSize  = getPageSize();
+                contentUri = mContentUri;
+                pageIndex = mPageIndex;
                 setAdapter(LazyEndlessAdapter.this);
-                execute(buildRequest(true));
+                request = buildRequest(true);
+                refresh = true;
+                execute();
             }
         };
         notifyDataSetChanged();
@@ -460,7 +472,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (request != null) {
             request.add("linked_partitioning", "1");
             request.add("limit", getPageSize());
-            if (refresh && getCurrentEtag() != null) request.ifNoneMatch(getCurrentEtag());
         }
         return request;
     }

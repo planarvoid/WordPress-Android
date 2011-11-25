@@ -50,8 +50,12 @@ public class AppendTask extends LoadCollectionTask {
      */
     @Override
     protected void onPostExecute(Boolean keepGoing) {
-        LazyEndlessAdapter adapter = mAdapterReference.get();
 
+    }
+
+    @Override
+    protected void onProgressUpdate(List<? super Parcelable>... values) {
+        LazyEndlessAdapter adapter = mAdapterReference.get();
         if (adapter != null) {
             adapter.onPostTaskExecute(mNewItems, mNextHref, mResponseCode, keepGoing);
         }

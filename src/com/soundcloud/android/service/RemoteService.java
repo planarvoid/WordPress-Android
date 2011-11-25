@@ -36,7 +36,8 @@ public class RemoteService extends IntentService{
     }
 
     private void syncFavorites(){
-
+        // go to lightweight endpoint, get state of favorites
+        // check against local state
     }
 
     private SoundCloudApplication getApp() {

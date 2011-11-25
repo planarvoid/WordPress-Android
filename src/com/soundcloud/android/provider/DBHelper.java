@@ -34,13 +34,15 @@ public class DBHelper extends SQLiteOpenHelper {
         USER_FOLLOWING("UserFollowing", DATABASE_CREATE_USER_FOLLOWING),
         USER_FOLLOWERS("UserFollowers", DATABASE_CREATE_USER_FOLLOWERS),
 
-        TRACKVIEW("TrackView", null);
+        TRACKVIEW("TrackView", null),
         //TRACKLISTVIEW("TracklistView", DATABASE_CREATE_TRACKLIST_VIEW),
         //EVENTLISTVIEW("EventlistView", DATABASE_CREATE_EVENTLIST_VIEW);
 
+        RESOURCES("Resources", DATABASE_CREATE_RESOURCES),
+        RESOURCE_PAGES("ResourcePages", DATABASE_CREATE_RESOURCE_PAGES);
+
         public final String tableName;
         public final String createString;
-
 
         Tables(String name, String create) {
             tableName = name;
@@ -73,6 +75,9 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL(DATABASE_CREATE_USER_FOLLOWERS);
             db.execSQL(DATABASE_CREATE_USER_FOLLOWING);
             db.execSQL(DATABASE_CREATE_TRACK_VIEW);
+            db.execSQL(DATABASE_CREATE_RESOURCES);
+            db.execSQL(DATABASE_CREATE_RESOURCE_PAGES);
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
             //SoundCloudApplication.handleSilentException("error during onCreate()", e);
@@ -228,6 +233,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 db.execSQL(DATABASE_CREATE_USER_FOLLOWERS);
                 db.execSQL(DATABASE_CREATE_USER_FOLLOWING);
                 db.execSQL(DATABASE_CREATE_TRACK_VIEW);
+                db.execSQL(DATABASE_CREATE_RESOURCES);
+                db.execSQL(DATABASE_CREATE_RESOURCE_PAGES);
+
                 return true;
 
             } catch (SQLException e) {
@@ -361,14 +369,27 @@ public class DBHelper extends SQLiteOpenHelper {
             + "query VARCHAR(255) null, "
             + "search_type INTEGER null);";
 
-    static final String DATABASE_CREATE_USER_FAVORITES = "create table UserFavorites (_id INTEGER primary key AUTOINCREMENT, "
-            + "track_id INTEGER null, " + "user_id INTEGER null);";
+    static final String DATABASE_CREATE_RESOURCES = "create table Resources (_id INTEGER primary key AUTOINCREMENT, "
+            + "uri VARCHAR(255) null, "
+            + "last_addition VARCHAR(255) null, "
+            + "size INTEGER null, "
+            + "last_refresh INTEGER null, "
+            + "status INTEGER null);";
 
-    static final String DATABASE_CREATE_USER_FOLLOWING = "create table UserFollowing (_id INTEGER primary key AUTOINCREMENT, "
-            + "user_id INTEGER null, " + "following_id INTEGER null);";
+    static final String DATABASE_CREATE_RESOURCE_PAGES = "create table ResourcePages (_id INTEGER primary key AUTOINCREMENT, "
+            + "resource_id VARCHAR(255) null, "
+            + "etag VARCHAR(255) null, "
+            + "next_href VARCHAR(255) null, "
+            + "size INTEGER null, "
+            + "page_index INTEGER)";
 
-    static final String DATABASE_CREATE_USER_FOLLOWERS = "create table UserFollowers (_id INTEGER primary key AUTOINCREMENT, "
-            + "user_id INTEGER null, " + "follower_id INTEGER null);";
+    static final String DATABASE_CREATE_USER_FAVORITES =
+            "create table UserFavorites (_id INTEGER primary key AUTOINCREMENT, user_id INTEGER, item_id INTEGER, resource_page_index INTEGER null, resource_page_id INTEGER null);";
+    static final String DATABASE_CREATE_USER_FOLLOWING =
+            "create table UserFollowing (_id INTEGER primary key AUTOINCREMENT, user_id INTEGER, item_id INTEGER, resource_page_index INTEGER null, resource_page_id INTEGER null);";
+    static final String DATABASE_CREATE_USER_FOLLOWERS =
+            "create table UserFollowers (_id INTEGER primary key AUTOINCREMENT, user_id INTEGER, item_id INTEGER, resource_page_index INTEGER null, resource_page_id INTEGER null);";
+
 
 
     public static final class Tracks implements BaseColumns {
@@ -436,48 +457,51 @@ public class DBHelper extends SQLiteOpenHelper {
           public static final String CONCRETE_USER_ID = Tables.TRACK_PLAYS.tableName + "." + USER_ID;
       }
 
-    public static final class UserFavorites implements BaseColumns {
 
-          public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.user_favorites";
-          public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.user_favorites";
+    public static final class UserFavorites implements UserCollectionItem {
+        public static final String FAVORITE_ID = ITEM_ID;
+        public static final String CONCRETE_USER_ID = Tables.USER_FAVORITES.tableName + "." + USER_ID;
+        public static final String CONCRETE_FAVORITE_ID = Tables.USER_FAVORITES.tableName + "." + ITEM_ID;
+    }
 
-          public static final String ID = "_id";
-          public static final String TRACK_ID = "track_id";
-          public static final String USER_ID = "user_id";
-
-          public static final String CONCRETE_ID = Tables.USER_FAVORITES.tableName + "." + _ID;
-          public static final String CONCRETE_TRACK_ID = Tables.USER_FAVORITES.tableName + "." + TRACK_ID;
-          public static final String CONCRETE_USER_ID = Tables.USER_FAVORITES.tableName + "." + USER_ID;
-      }
-
-    public static final class UserFollowing implements BaseColumns {
-
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.user_favorites";
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.user_favorites";
-
-        public static final String ID = "_id";
-        public static final String USER_ID = "user_id";
-        public static final String FOLLOWING_ID = "following_id";
-
-        public static final String CONCRETE_ID = Tables.USER_FOLLOWING.tableName + "." + _ID;
+    public static final class UserFollowing implements UserCollectionItem {
+        public static final String FOLLOWING_ID = ITEM_ID;
         public static final String CONCRETE_USER_ID = Tables.USER_FOLLOWING.tableName + "." + USER_ID;
-        public static final String CONCRETE_FOLLOWING_ID = Tables.USER_FOLLOWING.tableName + "." + FOLLOWING_ID;
+        public static final String CONCRETE_FOLLOWING_ID = Tables.USER_FOLLOWING.tableName + "." + ITEM_ID;
     }
     
-    public static final class UserFollowers implements BaseColumns {
-
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.user_favorites";
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.user_favorites";
-
-        public static final String ID = "_id";
-        public static final String USER_ID = "user_id";
-        public static final String FOLLOWER_ID = "following_id";
-
-        public static final String CONCRETE_ID = Tables.USER_FOLLOWERS.tableName + "." + _ID;
+    public static final class UserFollowers implements UserCollectionItem {
+        public static final String FOLLOWER_ID = ITEM_ID;
         public static final String CONCRETE_USER_ID = Tables.USER_FOLLOWERS.tableName + "." + USER_ID;
-        public static final String CONCRETE_FOLLOWER_ID = Tables.USER_FOLLOWERS.tableName + "." + FOLLOWER_ID;
+        public static final String CONCRETE_FOLLOWER_ID = Tables.USER_FOLLOWERS.tableName + "." + ITEM_ID;
     }
 
+    public interface UserCollectionItem {
+        /**
+         * The unique ID for a resource page.
+         * <P>Type: INTEGER (long)</P>
+         */
+        public static final String RESOURCE_PAGE_ID = "resource_page_id";
+
+        /**
+         * The resource page index
+         * <P>Type: INTEGER</P>
+         */
+        public static final String RESOURCE_PAGE_INDEX = "resource_page_index";
+
+        /**
+         * The unique ID for the item
+         * <P>Type: INTEGER (long)</P>
+         */
+        public static final String ITEM_ID = "item_id";
+
+        /**
+         * The unique ID for the user
+         * <P>Type: INTEGER (long)</P>
+         */
+        public static final String USER_ID = "user_id";
+
+    }
 
       public static final class Users implements BaseColumns {
 
@@ -650,6 +674,50 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
+    public static final class Resources implements BaseColumns {
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + ScContentProvider.AUTHORITY + "/Resources");
+
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.resources";
+        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.resources";
+
+        public static final String ID = "_id";
+        public static final String URI = "uri";
+        public static final String LAST_ADDITION = "last_addition";
+        public static final String LAST_REFRESH = "last_refresh";
+        public static final String SIZE = "size";
+        public static final String STATUS = "status";
+
+        public static final String CONCRETE_ID = Tables.RESOURCES.tableName + "." + ID;
+        public static final String CONCRETE_URI = Tables.RESOURCES.tableName + "." + URI;
+        public static final String CONCRETE_LAST_ADDITION = Tables.RESOURCES.tableName + "." + LAST_ADDITION;
+        public static final String CONCRETE_SIZE = Tables.RESOURCES.tableName + "." + SIZE;
+        public static final String CONCRETE_STATUS = Tables.RESOURCES.tableName + "." + STATUS;
+
+    }
+
+    public static final class ResourcePages implements BaseColumns {
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + ScContentProvider.AUTHORITY + "/ResourcePages");
+
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.resource_pages";
+        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.resource_pages";
+
+        public static final String ID = "_id";
+        public static final String RESOURCE_ID = "resource_id";
+        public static final String ETAG = "etag";
+        public static final String NEXT_HREF = "next_href";
+        public static final String SIZE = "size";
+        public static final String PAGE_INDEX = "page_index";
+
+        public static final String CONCRETE_ID = Tables.RESOURCE_PAGES.tableName + "." + ID;
+        public static final String CONCRETE_RESOURCE_ID = Tables.RESOURCE_PAGES.tableName + "." + RESOURCE_ID;
+        public static final String CONCRETE_ETAG = Tables.RESOURCE_PAGES.tableName + "." + ETAG;
+        public static final String CONCRETE_NEXT_HREF = Tables.RESOURCE_PAGES.tableName + "." + NEXT_HREF;
+        public static final String CONCRETE_SIZE = Tables.RESOURCE_PAGES.tableName + "." + SIZE;
+        public static final String CONCRETE_PAGE_INDEX = Tables.RESOURCE_PAGES.tableName + "." + PAGE_INDEX;
+
+    }
 
     static final String DATABASE_CREATE_TRACK_VIEW = "CREATE VIEW " + Tables.TRACKVIEW.tableName +
             " AS SELECT "
