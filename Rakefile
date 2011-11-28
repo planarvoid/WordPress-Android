@@ -331,6 +331,7 @@ namespace :c2dm do
 end
 
 namespace :lol do
+  desc "download lolcatlizr manged string resources"
   task :fetch do
     url = "http://lol.iriscouch.com/lolcatlizr/_design/lolcatlizr/_list/android/android?key=%22%22"
     sh "curl #{url} > res/values/strings_lolcatlizr.xml"

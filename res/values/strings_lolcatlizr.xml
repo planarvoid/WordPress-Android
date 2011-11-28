@@ -1,4 +1,4 @@
-<!-- generated with lolcatlizr at Tue Oct 04 2011 16:09:12 GMT+0000 (UTC) -->
+<!-- generated with lolcatlizr at Mon Nov 28 2011 15:24:20 GMT+0000 (UTC) -->
 
 <resources xmlns:xliff="http://schemas.android.com/apk/res/android">
   <string name="about">About</string>
@@ -7,6 +7,7 @@
   <string name="account_type">com.soundcloud.android.account</string>
   <string name="add_image">Add\nImage</string>
   <string name="app_name">SoundCloud</string>
+  <string name="at_timestamp">at %s</string>
   <string name="audio_file_picker_empty">No files or directories</string>
   <string name="audio_file_picker_label">Local file</string>
   <string name="authentication_I_forgot_my_password">I forgot my password</string>
@@ -48,8 +49,10 @@
   <string name="authentication_terms_of_use">Terms of Use</string>
   <string name="authentication_your_email_address">Your email address</string>
   <string name="authentication_your_password">Your password</string>
+  <string name="btn_back">Back</string>
   <string name="btn_done">Done</string>
   <string name="btn_login">Log In</string>
+  <string name="btn_next">Next</string>
   <string name="btn_no">No</string>
   <string name="btn_ok">Ok</string>
   <string name="btn_reply">Reply</string>
@@ -85,6 +88,7 @@
   <string name="comment_hint_reply">Reply to %1$s at %2$s</string>
   <string name="comment_hint_timed">Add comment at %s</string>
   <string name="comment_hint_untimed">Add a comment</string>
+  <string name="comment_panel_read_on">&lt;u&gt;Read on&lt;/u&gt;</string>
   <string name="commentslist_error">Unable to get comments</string>
   <string name="compressed">Compressed</string>
   <string name="configure">Configure</string>
@@ -250,12 +254,41 @@
   <string name="image_where">How would you like to add an image?</string>
   <string name="info_comments_add_comment">Add a comment</string>
   <string name="info_comments_comments">Comments</string>
+  <string name="info_empty_other_message">This person hasn\'t added a profile description yet.</string>
+  <string name="info_empty_you_action">Edit your profile</string>
+  <string name="info_empty_you_message">Your profile is empty. Let people know about you!</string>
   <string name="info_error">Unable to get info</string>
+  <string name="list_empty_activity_action">Make your sounds social</string>
+  <string name="list_empty_activity_message">Oh no! Your sounds don’t have any comments or likes. But you can change that by making your sounds social!\n\n        Share your sounds with friends and social networks to get Activity on your sounds.</string>
+  <string name="list_empty_activity_nosounds_action">Record your first sound</string>
+  <string name="list_empty_activity_nosounds_message">Activity is where you can see who\'s liked and commented on your sounds.  Get started by recording a sound and sharing it with your friends and social networks.</string>
+  <string name="list_empty_activity_nosounds_secondary">Find out more about sharing sounds with our 101s</string>
+  <string name="list_empty_activity_secondary">Find out more about sharing sounds with our 101s</string>
+  <string name="list_empty_stream_action">Find people to follow</string>
+  <string name="list_empty_stream_message">Hmm. You don’t have any sounds in your Stream.\n\n        Start following people to listen to their sounds!</string>
+  <string name="list_empty_stream_secondary">On Facebook? Connect with friends already on SoundCloud!</string>
+  <string name="list_empty_user_followers_action">Share your sounds</string>
+  <string name="list_empty_user_followers_message">You don’t have any followers yet. But you can change that!
+        The best way to get people to follow you is to share your sounds with others.</string>
+  <string name="list_empty_user_followers_nosounds_action">Record your first sound</string>
+  <string name="list_empty_user_followers_nosounds_message">You don’t have any followers yet. But you can change that! Create sounds for people to listen to and you\'ll have followers in no time.</string>
+  <string name="list_empty_user_followers_nosounds_secondary">Check your settings to automatically share your original sounds to your social networks</string>
+  <string name="list_empty_user_followers_secondary">Check your settings to automatically share your original sounds to your social networks</string>
+  <string name="list_empty_user_following_action">Find people to follow</string>
+  <string name="list_empty_user_following_message">Hey! SoundCloud is much more fun when you follow people! Find interesting people to follow to listen to their latest sounds.</string>
+  <string name="list_empty_user_likes_action">Find people with great sounds</string>
+  <string name="list_empty_user_likes_message">You haven’t liked any sounds yet. Click the little heart button to show some love to other people\’s sounds.\n\n        Not loving any of these sounds? Try Suggested People for some new sounds!</string>
+  <string name="list_empty_user_sounds_action">Record your first sound</string>
+  <string name="list_empty_user_sounds_message">Okay! It’s time to make some sounds.\n\n
+        Create a memo, message or melody and share it with the world!</string>
   <string name="list_header_fb_friends">Your Facebook Friends</string>
   <string name="list_header_suggested_users">Suggested People</string>
-  <string name="list_header_track_favoriters">People who favorited this track</string>
+  <string name="list_header_track_comments">Comments on this sound</string>
+  <string name="list_header_track_favoriters">People who liked this sound</string>
+  <string name="list_header_track_results_for">Sound results for %s</string>
   <string name="list_header_tracks_by_genre">Other tracks with the genre %s</string>
   <string name="list_header_tracks_by_tag">Other tracks tagged with %s</string>
+  <string name="list_header_user_results_for">User results for %s</string>
   <string name="location_picker_go_to_settings">Go to settings</string>
   <string name="location_picker_no_providers_enabled">No location providers enabled.</string>
   <string name="low">Low</string>
@@ -287,6 +320,7 @@
   <string name="myspace">Myspace</string>
   <string name="new_connection_error">There was a problem adding the network</string>
   <string name="playback_error_no_sdcard">Playback not possible because SD card not available</string>
+  <string name="playback_in_progress">Playback in progress. Press stop to end the playback or select the playback notification to view it.</string>
   <string name="player_error">There was a playback error</string>
   <string name="player_not_streamable">This sound cannot be played</string>
   <string name="player_stream_error">There was a problem connecting to the stream</string>
@@ -300,6 +334,8 @@
   <string name="pref_change_log_desc">See the latest changes for this release</string>
   <string name="pref_clear_cache">Clear Cache</string>
   <string name="pref_clear_cache_desc">Clear the application cache to free up memory</string>
+  <string name="pref_clear_stream_cache">Clear Stream Cache</string>
+  <string name="pref_clear_stream_cache_desc">Clear the stream cache</string>
   <string name="pref_connection_and_data">Connection and data</string>
   <string name="pref_dev_crash">Crash</string>
   <string name="pref_dev_crash_summary">Crashes the app. Yes, really.</string>
@@ -314,6 +350,8 @@
   <string name="pref_notifications_exclusive_description">Receive updates on new private sounds shared with you</string>
   <string name="pref_notifications_favoritings">Likes</string>
   <string name="pref_notifications_favoritings_description">Receive updates on new likes on your sounds</string>
+  <string name="pref_notifications_frequency">Notifications Frequency</string>
+  <string name="pref_notifications_frequency_description">Set the frequency between updates</string>
   <string name="pref_notifications_incoming">Incoming Sounds</string>
   <string name="pref_notifications_incoming_description">Receive updates on new public sounds shared with you</string>
   <string name="pref_notifications_stream">Stream</string>
@@ -327,6 +365,12 @@
   <string name="pref_revoke_desc">Log out current user</string>
   <string name="pref_take_tour">SoundCloud tour</string>
   <string name="pref_take_tour_desc">Take a quick tour of the app</string>
+  <string name="private_message">Private message</string>
+  <string name="private_message_btn_send">Send</string>
+  <string name="private_message_for">Private message for %s</string>
+  <string name="private_message_title">Record a sound for %s</string>
+  <string name="private_message_upload_message">Before we send it out privately to %s, maybe you want to add some more info?</string>
+  <string name="private_message_upload_title">Your sound message got saved.</string>
   <string name="pull_to_refresh_last_updated">updated %1$s</string>
   <string name="pull_to_refresh_pull_label">Pull to refresh...</string>
   <string name="pull_to_refresh_refreshing_label">Loading...</string>
@@ -343,6 +387,7 @@
   <string name="recorded_evening">%s evening</string>
   <string name="recorded_morning">%s morning</string>
   <string name="recorded_night">%s night</string>
+  <string name="recording_in_progress">Recording in progress. Press stop to end the recording or select to the recording notification to view it.</string>
   <string name="recording_not_found">Recording not found</string>
   <string name="reset">Reset</string>
   <string name="save">Save</string>
@@ -374,7 +419,8 @@
   <string name="share_uploading">Uploading...</string>
   <string name="sounds_from">Sounds from %s</string>
   <string name="suggested_users">Suggested People</string>
-  <string name="suggested_users_msg">Welcome! Thanks for joining SoundCloud. Feel free to follow some of our Suggested People to find new sounds.</string>
+  <string name="suggested_users_msg">Welcome! Thanks for joining SoundCloud. Find you Facebook friends or follow Suggested People to listen to their sounds.</string>
+  <string name="suggested_users_no_friends_msg">You\'re the first of your friends to join SoundCloud. Check out new sounds from our Suggested People.</string>
   <string name="tab_activity">Activity</string>
   <string name="tab_exclusive">Exclusive</string>
   <string name="tab_favorites">Favorites</string>
@@ -420,8 +466,18 @@
   <string name="track">sound</string>
   <string name="track_by">by</string>
   <string name="track_count">number of sounds</string>
+  <plurals name="track_info_commenters">
+    <item quantity="one">1 comment on this sound</item>
+    <item quantity="other">%d comments on this sound</item>
+  </plurals>
+  <plurals name="track_info_favoriters">
+    <item quantity="one">1 person liked it</item>
+    <item quantity="other">%d people liked it</item>
+  </plurals>
   <string name="tracklist_empty">No sounds available</string>
   <string name="tracklist_error">Unable to get sounds</string>
+  <string name="tracklist_item_shared_count_unavailable">Private</string>
+  <string name="tracklist_item_shared_with_1_person">1 Person</string>
   <string name="tracklist_item_shared_with_x_people">%d People</string>
   <string name="tracklist_item_shared_with_you">You</string>
   <string name="upload">Upload</string>
@@ -429,6 +485,13 @@
   <string name="use_existing_image">Use existing image</string>
   <string name="use_existing_image_error">Could not use existing image</string>
   <string name="user">person</string>
+  <string name="user_browser_tab_followers">Followers</string>
+  <string name="user_browser_tab_followings">Following</string>
+  <string name="user_browser_tab_friend_finder">Find Friends</string>
+  <string name="user_browser_tab_info">Info</string>
+  <string name="user_browser_tab_likes">Likes</string>
+  <string name="user_browser_tab_message">Message</string>
+  <string name="user_browser_tab_sounds">Sounds</string>
   <string name="userlist_empty">No people available</string>
   <string name="userlist_error">Unable to get people</string>
   <string name="username">username</string>
