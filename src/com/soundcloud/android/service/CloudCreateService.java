@@ -613,7 +613,7 @@ public class CloudCreateService extends Service {
             mCurrentUpload.upload_status = Upload.UploadStatus.UPLOADED;
             mCurrentUpload.upload_error = false;
             notificationTitle = getString(R.string.cloud_uploader_notification_finished_title);
-            notificationMessage = String.format(getString(R.string.cloud_uploader_notification_finished_message),
+            notificationMessage = getString(R.string.cloud_uploader_notification_finished_message,
                     params.get(com.soundcloud.api.Params.Track.TITLE));
 
             // XXX make really, really sure 3rd party uploads don't get deleted
@@ -642,7 +642,7 @@ public class CloudCreateService extends Service {
             mCurrentUpload.upload_status = Upload.UploadStatus.NOT_YET_UPLOADED;
             mCurrentUpload.upload_error = true;
             notificationTitle = getString(R.string.cloud_uploader_notification_error_title);
-            notificationMessage = String.format(getString(R.string.cloud_uploader_notification_error_message),
+            notificationMessage = getString(R.string.cloud_uploader_notification_error_message,
                     params.get(com.soundcloud.api.Params.Track.TITLE));
 
             Intent broadcastIntent = new Intent(UPLOAD_ERROR);

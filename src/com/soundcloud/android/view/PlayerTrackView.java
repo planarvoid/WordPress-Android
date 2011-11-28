@@ -124,7 +124,9 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                 if (mTrack == null || !mTrack.sharing.contentEquals("public")) return;
                 Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
                 shareIntent.setType("text/plain");
-                shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, mTrack.title + " by " + mTrack.user.username + " on SoundCloud");
+                shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, mTrack.title +
+                        (mTrack.user != null ?
+                        " by " + mTrack.user.username : "") + " on SoundCloud");
                 shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, mTrack.permalink_url);
                 getContext().startActivity(Intent.createChooser(shareIntent, "Share: " + mTrack.title));
             }

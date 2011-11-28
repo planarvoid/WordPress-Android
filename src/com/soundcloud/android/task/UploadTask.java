@@ -83,7 +83,6 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                  }
             }
 
-
             final String fileName;
             if (is_native_recording) {
                 final String title = map.get(com.soundcloud.api.Params.Track.TITLE) == null ? "unknown" :
