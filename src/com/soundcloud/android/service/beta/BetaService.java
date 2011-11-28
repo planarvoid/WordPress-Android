@@ -122,9 +122,11 @@ public class BetaService extends Service {
                         } else if (!recent.isUptodate(BetaService.this)) {
                             // nag user to install new beta version
                             notifyNewVersion(recent);
+                            stopSelf();
+                        } else {
+                            Log.d(TAG, "nothing to download");
+                            stopSelf();
                         }
-                        Log.d(TAG, "nothing to download");
-                        stopSelf();
                     } else {
                         stopSelf();
                     }
