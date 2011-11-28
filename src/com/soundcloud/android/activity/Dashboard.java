@@ -27,6 +27,7 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import javax.xml.transform.Source;
 import java.util.ArrayList;
 
 public class Dashboard extends ScActivity {
@@ -155,6 +156,7 @@ public class Dashboard extends ScActivity {
                 ? ScContentProvider.Content.ME_EXCLUSIVE_STREAM
                 : ScContentProvider.Content.ME_SOUND_STREAM;
     }
+
 
 
     @Override

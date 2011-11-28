@@ -16,6 +16,7 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.api.Endpoints;
 
 import java.lang.reflect.Array;
 import java.net.URI;
@@ -56,12 +57,13 @@ public class ScContentProvider extends ContentProvider {
         return true;
     }
 
-
     @Override
     public Cursor query(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
         final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
         SCQueryBuilder qb = new SCQueryBuilder();
         String whereAppend;
+
+        Log.i(LOG_TAG,"Querying URI: " + uri.toString());
 
         // SELECT TrackView._id, EXISTS (SELECT 1 FROM UserFavorites where TrackView._id = UserFavorites.track_id and UserFavorites.user_id = 1) as favorite, EXISTS (SELECT 1 FROM TrackPlays where TrackView._id = TrackPlays.track_id and TrackPlays.user_id = 1) as played FROM TrackView;
 
@@ -74,7 +76,6 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_TRACKS:
-                // TODO : This info is already available in the track, doesnt need to use the resources table...
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
                         " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
@@ -82,6 +83,7 @@ public class ScContentProvider extends ContentProvider {
                         + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.TRACK;
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
+
             case USER_TRACKS:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
@@ -127,16 +129,16 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_FOLLOWINGS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                qb.setTables(DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
                 whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + userId
                         + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWING;
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
             case USER_FOLLOWINGS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
+                qb.setTables(DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.RESOURCE_ITEMS.tableName +
+                        " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.ResourceItems.ITEM_ID+ ")");
                 whereAppend = DBHelper.ResourceItems.CONCRETE_USER_ID + " = " + uri.getPathSegments().get(1)
                         + " AND " + DBHelper.ResourceItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWING;
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
@@ -165,6 +167,8 @@ public class ScContentProvider extends ContentProvider {
             case USER_ITEM:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(DBHelper.Tables.USERS.tableName);
+                whereAppend = DBHelper.Users.CONCRETE_ID + " = " + uri.getLastPathSegment();
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
 
@@ -200,7 +204,6 @@ public class ScContentProvider extends ContentProvider {
 
         String q = qb.buildQuery(columns, selection, selectionArgs, null, null, sortOrder, null);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Log.i("asdf","QUerying " + sUriMatcher.match(uri) + " " + uri + " " + q);
         Cursor c = db.rawQuery(q, selectionArgs);
 
         c.setNotificationUri(getContext().getContentResolver(), uri);
@@ -334,7 +337,6 @@ public class ScContentProvider extends ContentProvider {
                     tblName = DBHelper.Tables.TRACKS.tableName;
                     break;
                 case USERS:
-                    Log.i("asdf","Bulk inserting a user ");
                     tblName = DBHelper.Tables.USERS.tableName;
                     break;
                 case ME_TRACKS:

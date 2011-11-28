@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener {
+    public static final int ROW_APPEND_BUFFER = 3;
     protected View mPendingView = null;
     private AppendTask mAppendTask;
 
@@ -276,33 +277,28 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (position == super.getCount() && canShowEmptyView()){
-            Log.i("asdf","SHOW THIS " + mListView);
-            if (mListView.getEmptyView() == null) applyEmptyView(); // TODO HACKKKK@@@
             return mListView.getEmptyView();
+        }
+
+        if (position >= Math.max(0,super.getCount() - ROW_APPEND_BUFFER) && mKeepOnAppending.get() && mAppendTask == null) {
+            mAppendTask = new AppendTask(mActivity.getApp()) {
+                {
+                    loadModel = getLoadModel(false);
+                    pageSize = getPageSize();
+                    contentUri = mContentUri;
+                    pageIndex = mPageIndex;
+                    setAdapter(LazyEndlessAdapter.this);
+                    request = buildRequest(false);
+                    refresh = false;
+                    execute();
+                }
+            };
         }
 
         if (position == super.getCount() && mKeepOnAppending.get() && CloudUtils.isTaskFinished(mRefreshTask)) {
             if (mPendingView == null) {
-                if (convertView == null){
-                    mPendingView = ((LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_loading_item,null,false);
-                    if (CloudUtils.isTaskFinished(mAppendTask)) {
-                        Log.i("asdf","Kicking off an append task");
-                        mAppendTask = new AppendTask(mActivity.getApp()){
-                            {
-                                loadModel = getLoadModel(false);
-                                pageSize  = getPageSize();
-                                contentUri = mContentUri;
-                                pageIndex = mPageIndex;
-                                setAdapter(LazyEndlessAdapter.this);
-                                request = buildRequest(false);
-                                refresh = false;
-                                execute();
-                             }
-                        };
-                    }
-                } else {
-                    mPendingView = convertView;
-                }
+                mPendingView = (convertView != null) ? convertView :
+                            ((LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_loading_item,null,false);
             }
             return mPendingView;
         } else if (convertView == mPendingView) {
@@ -343,7 +339,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
-        Log.i("asdf","On Post task " + responseCode + " " + keepGoing + " " + newItems);
         if ((newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK){
             mKeepOnAppending.set(keepGoing);
             mNextHref = nextHref;
@@ -411,7 +406,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         } else {
             reset();
         }
-        Log.i("asdf","Kicking off a refresh task");
+
         mRefreshTask = new RefreshTask(mActivity.getApp()) {
             {
                 loadModel = getLoadModel(false);

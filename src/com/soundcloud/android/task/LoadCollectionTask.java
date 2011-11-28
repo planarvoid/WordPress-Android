@@ -1,6 +1,7 @@
 package com.soundcloud.android.task;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.SoundCloudApplication.fromContext;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -22,11 +23,15 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import javax.xml.transform.Source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.nio.channels.SelectableChannel;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A background task that will be run when there is a need to append more
@@ -97,7 +102,6 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                 Uri inserted = mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCES, cv);
                 if (inserted != null) localResourceId = Integer.parseInt(inserted.getLastPathSegment());
             } else {
-                Log.i("asdf","We have a local resource id");
                 // get the entry for the requested page
                 c = mApp.getContentResolver().query(ScContentProvider.Content.RESOURCE_PAGES, null,
                         DBHelper.ResourcePages.RESOURCE_ID + " = ? AND " + DBHelper.ResourcePages.PAGE_INDEX + " = ?",
@@ -105,7 +109,6 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
 
 
                 if (c != null && c.moveToFirst()) {
-                    Log.i("asdf","We have a local page id");
                     localPageEtag = c.getString(c.getColumnIndex(DBHelper.ResourcePages.ETAG));
                     localPageId = c.getInt(c.getColumnIndex(DBHelper.ResourcePages.ID));
                     localPageSize = c.getInt(c.getColumnIndex(DBHelper.ResourcePages.SIZE));
@@ -116,6 +119,7 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
 
         boolean remoteLoad = (contentUri == null || localPageId == -1);
         if (remoteLoad || refresh) {
+
             if (!TextUtils.isEmpty(localPageEtag)) request.ifNoneMatch(localPageEtag);
             try {
                 HttpResponse resp = mApp.get(request);
@@ -124,23 +128,18 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                     throw new IOException("Invalid response: " + resp.getStatusLine());
                 }
                 if (mResponseCode == HttpStatus.SC_OK) {
-
                     // we have new content. wipe out everything for now (or it gets tricky)
                     mApp.getContentResolver().delete(ScContentProvider.Content.RESOURCE_PAGES,
                             DBHelper.ResourcePages.RESOURCE_ID + " = ? AND " + DBHelper.ResourcePages.PAGE_INDEX + " > ?",
                             new String[]{String.valueOf(localResourceId), String.valueOf(pageIndex)});
-
                     InputStream is = resp.getEntity().getContent();
-
                     CollectionHolder holder = getCollection(is, mNewItems);
                     mNextHref = holder == null || TextUtils.isEmpty(holder.next_href) ? null : holder.next_href;
                     keepGoing = !TextUtils.isEmpty(mNextHref);
-
                     for (Parcelable p : mNewItems) {
                         ((ModelBase) p).resolve(mApp);
                     }
                     publishProgress(mNewItems);
-
 
                     // store items if we have items and a content uri
                     if (contentUri != null && mNewItems != null) {
@@ -157,13 +156,23 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                         // insert new page
                         Uri uri = mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCE_PAGES, cv);
 
-                        // insert/update the items
-                        // TODO, use Bulk Insert for everything
-
                         int i = 0;
                         ContentValues[] bulkValues = new ContentValues[mNewItems.size()];
+                        Set<User> usersToInsert = new HashSet<User>();
+                        Set<Track> tracksToInsert = new HashSet<Track>();
+
                         for (Parcelable p : mNewItems) {
-                            ((ModelBase) p).assertInDb(mApp);
+                            if (User.class.equals(loadModel)) {
+                                usersToInsert.add((User)p);
+                            } else if (Track.class.equals(loadModel)) {
+                                usersToInsert.add(((Track)p).user);
+                                tracksToInsert.add((Track) p);
+                            } else if (Event.class.equals(loadModel)) {
+                                if (((Event)p).getUser() != null) usersToInsert.add(((Event)p).getUser());
+                                if (((Event)p).getTrack() != null) tracksToInsert.add(((Event)p).getTrack());
+                            }
+
+                            //((ModelBase) p).assertInDb(mApp);
 
                             ContentValues itemCv = new ContentValues();
                             itemCv.put(DBHelper.ResourceItems.RESOURCE_PAGE_ID,uri.getLastPathSegment());
@@ -172,10 +181,24 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                             itemCv.put(DBHelper.ResourceItems.ITEM_ID,((ModelBase) p).id);
                             bulkValues[i] = itemCv;
                             i++;
-
                         }
-                        int inserted = mApp.getContentResolver().bulkInsert(contentUri,bulkValues);
-                        Log.i("asdf","Inserted rows " + inserted);
+
+                        ContentValues[] tracksCv = new ContentValues[tracksToInsert.size()];
+                        i = 0;
+                        for (Track t : tracksToInsert){
+                            tracksCv[i] = t.buildContentValues();
+                            i++;
+                        }
+                        ContentValues[] usersCv = new ContentValues[usersToInsert.size()];
+                        i = 0;
+                        for (User u : usersToInsert){
+                            usersCv[i] = u.buildContentValues();
+                            i++;
+                        }
+
+                        mApp.getContentResolver().bulkInsert(ScContentProvider.Content.TRACKS,tracksCv);
+                        mApp.getContentResolver().bulkInsert(ScContentProvider.Content.USERS,usersCv);
+                        mApp.getContentResolver().bulkInsert(contentUri,bulkValues);
                         return true;
                     }
                 }
@@ -216,8 +239,6 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
         return true;
     }
 
-
-
     /* package */ CollectionHolder getCollection(InputStream is, List<? super Parcelable> items) throws IOException {
         CollectionHolder holder = null;
         if (Track.class.equals(loadModel)) {
@@ -248,8 +269,6 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
         }
         return holder;
     }
-
-
 
 
     public static class EventsHolder extends CollectionHolder<Event> {}

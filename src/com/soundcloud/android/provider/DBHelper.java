@@ -35,6 +35,8 @@ public class DBHelper extends SQLiteOpenHelper {
         USER_FOLLOWERS("UserFollowers", DATABASE_CREATE_USER_FOLLOWERS),*/
 
         TRACKVIEW("TrackView", null),
+        //EVENTVIEW("EventView", null),
+
         //TRACKLISTVIEW("TracklistView", DATABASE_CREATE_TRACKLIST_VIEW),
         //EVENTLISTVIEW("EventlistView", DATABASE_CREATE_EVENTLIST_VIEW);
 
@@ -707,6 +709,7 @@ public class DBHelper extends SQLiteOpenHelper {
             + " FROM " + Tables.TRACKS
             + " JOIN " + Tables.USERS + " ON("
             + Tracks.CONCRETE_USER_ID + " = " + Users.CONCRETE_ID + ")";
+
 
     /*
 

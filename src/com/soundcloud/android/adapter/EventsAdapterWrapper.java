@@ -7,8 +7,10 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.User;
 import com.soundcloud.api.Request;
+import org.apache.http.HttpStatus;
 
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.List;
 
