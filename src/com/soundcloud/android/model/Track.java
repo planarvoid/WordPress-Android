@@ -521,10 +521,10 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        User user = (User) o;
+        Track t = (Track) o;
 
-        if (id != user.id) return false;
-        if (permalink != null ? !permalink.equals(user.permalink) : user.permalink != null) return false;
+        if (id != t.id) return false;
+        if (permalink != null ? !permalink.equals(t.permalink) : t.permalink != null) return false;
 
         return true;
     }
