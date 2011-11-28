@@ -72,5 +72,9 @@ public class DefaultTestRunner extends RobolectricTestRunner {
             return 0;
         }
 
+        public static int w(String tag, String msg) {
+            System.out.println("[" + tag + "] " + msg);
+            return 0;
+        }
     }
 }

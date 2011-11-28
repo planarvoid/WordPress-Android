@@ -113,19 +113,28 @@ public class BetaService extends Service {
     /* package */ void checkForUpdates(final Intent intent) {
         new GetS3ContentTask(mClient) {
             @Override
-            protected void onPostExecute(List<Content> contents) {
-                if (contents != null) {
-                    Content recent = selectVersion(contents);
+            protected void onPostExecute(List<Beta> betas) {
+                if (betas != null) {
+                    Beta recent = selectVersion(betas);
                      if (recent != null) {
-                        if (!recent.isDownloaded()) {
+                         if (!recent.isDownloaded()) {
                             download(recent, intent);
-                        } else if (!recent.isUptodate(BetaService.this)) {
-                            // nag user to install new beta version
-                            notifyNewVersion(recent);
-                        }
-                        Log.d(TAG, "nothing to download");
-                        stopSelf();
-                    } else {
+                        } else {
+                             try {
+                                 Beta local = Beta.fromJSON(recent.getMetaDataFile());
+                                 if (!local.isInstalled(BetaService.this)) {
+                                     // nag user to install the new beta version
+                                     notifyNewVersion(local);
+                                     Log.d(TAG, "new version downloaded but not installed");
+                                 } else {
+                                     Log.d(TAG, "nothing to download");
+                                 }
+                             } catch (IOException e) {
+                                 Log.w(TAG, e);
+                             }
+                             stopSelf();
+                         }
+                     } else {
                         stopSelf();
                     }
                 } else {
@@ -140,12 +149,12 @@ public class BetaService extends Service {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(PREF_CHECK_UPDATES, true);
     }
 
-    private Content selectVersion(List<Content> available) {
+    private Beta selectVersion(List<Beta> available) {
         if (available.isEmpty()) {
             return null;
         } else {
             Collections.sort(available);
-            Content first = available.get(0);
+            Beta first = available.get(0);
 
             if (first.getVersionCode() >= getAppVersionCode(this, -1)) {
                 return first;
@@ -155,35 +164,35 @@ public class BetaService extends Service {
         }
     }
 
-    private void download(final Content content, Intent intent) {
-        if (!content.isEnoughStorageLeft()) {
-            notifyLowStorage(content);
-            skip(content, "not enough diskspace", intent);
+    private void download(final Beta beta, Intent intent) {
+        if (!beta.isEnoughStorageLeft()) {
+            notifyLowStorage(beta);
+            skip(beta, "not enough diskspace", intent);
         } else {
-            doDownload(content, intent);
+            doDownload(beta, intent);
         }
     }
 
-    private void skip(Content content, String reason, Intent intent) {
+    private void skip(Beta beta, String reason, Intent intent) {
         String message;
-        if (content == null) {
+        if (beta == null) {
             message = "skipping betaservice run: " + reason;
         } else {
-            message = "skipping download of " + content + ": " + reason;
+            message = "skipping download of " + beta + ": " + reason;
         }
         Log.d(TAG, message);
         if (isManual(intent)) notifySkipped(message);
         stopSelf();
     }
 
-    private void doDownload(final Content content, final Intent intent) {
-        fetchMetadata(content, intent,
-                new DownloadContentTask(mClient) {
+    private void doDownload(final Beta beta, final Intent intent) {
+        fetchMetadata(beta, intent,
+                new DownloadBetaTask(mClient) {
                     private long start;
 
                     @Override
                     protected void onPreExecute() {
-                        Log.d(TAG, "downloading " + content);
+                        Log.d(TAG, "downloading " + beta);
                         start = System.currentTimeMillis();
                     }
 
@@ -194,14 +203,14 @@ public class BetaService extends Service {
                                     " in " + ((System.currentTimeMillis() - start) / 1000L) + " secs");
 
                             try {
-                                content.touch();
-                                content.persist();
+                                beta.touch();
+                                beta.persist();
                                 clearPendingBeta(BetaService.this);
 
-                                if (!content.isUptodate(BetaService.this)) {
-                                    notifyNewVersion(content);
+                                if (!beta.isInstalled(BetaService.this)) {
+                                    notifyNewVersion(beta);
                                 } else {
-                                    Log.d(TAG, "version is uptodate, not notifying");
+                                    Log.d(TAG, "version is already installed, not notifying");
                                 }
 
                                 new CleanupBetaTask() {
@@ -211,27 +220,27 @@ public class BetaService extends Service {
                                     }
                                 }.execute(file);
                             } catch (IOException e) {
-                                Log.w(TAG, "could not persist " + content);
-                                content.deleteFiles();
+                                Log.w(TAG, "could not persist " + beta);
+                                beta.deleteFiles();
                                 stopSelf();
                             }
                         } else {
-                            Log.w(TAG, "could not download " + content);
+                            Log.w(TAG, "could not download " + beta);
                             if (isManual(intent)) {
-                                notifyDownloadFailure(content);
+                                notifyDownloadFailure(beta);
                             }
 
-                            content.deleteFiles();
+                            beta.deleteFiles();
                             stopSelf();
                         }
                     }
                 });
     }
 
-    private void fetchMetadata(final Content content, final Intent intent, final AsyncTask<Content, Void, File> next) {
+    private void fetchMetadata(final Beta beta, final Intent intent, final AsyncTask<Beta, Void, File> next) {
         new GetS3MetadataTask(mClient) {
             @Override
-            protected void onPostExecute(Content content) {
+            protected void onPostExecute(Beta content) {
                 if (content != null) {
                     next.execute(content);
                 } else {
@@ -242,11 +251,11 @@ public class BetaService extends Service {
                     stopSelf();
                 }
             }
-        }.execute(content);
+        }.execute(beta);
     }
 
 
-    private void notifyNewVersion(Content apk) {
+    private void notifyNewVersion(Beta apk) {
         String title = getString(R.string.pref_beta_new_version_downloaded);
         String content = getString(R.string.pref_beta_new_version_downloaded_content,
                 apk.getVersionName(),
@@ -262,9 +271,9 @@ public class BetaService extends Service {
     }
 
 
-    private void notifyLowStorage(Content content) {
+    private void notifyLowStorage(Beta beta) {
         String title = getString(R.string.pref_beta_not_enough_storage_title);
-        String ncontent = getString(R.string.pref_beta_not_enough_storage_content, content.key);
+        String ncontent = getString(R.string.pref_beta_not_enough_storage_content, beta.key);
         Intent intent = new Intent(android.provider.Settings.ACTION_MEMORY_CARD_SETTINGS);
 
         Notification n = new Notification(R.drawable.statusbar, title, System.currentTimeMillis());
@@ -274,9 +283,9 @@ public class BetaService extends Service {
         mgr.notify(Consts.Notifications.BETA_NOTIFY_ID, n);
     }
 
-    private void notifyDownloadFailure(Content content) {
+    private void notifyDownloadFailure(Beta beta) {
         String title = getString(R.string.pref_beta_download_failed_title);
-        String ncontent = getString(R.string.pref_beta_download_failed_content, content.key);
+        String ncontent = getString(R.string.pref_beta_download_failed_content, beta.key);
         Intent intent = new Intent(this, Settings.class)
                 .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
@@ -364,24 +373,24 @@ public class BetaService extends Service {
         }
     }
 
-    static List<Content> getContents() {
+    static List<Beta> getBetas() {
         if (CloudUtils.isSDCardAvailable()) {
             File[] md = APK_PATH.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File file, String s) {
-                    return s.endsWith(Content.META_DATA_EXT);
+                    return s.endsWith(Beta.META_DATA_EXT);
                 }
             });
             if (md != null) {
-                List<Content> contents = new ArrayList<Content>(md.length);
+                List<Beta> betas = new ArrayList<Beta>(md.length);
                 for (File f : md) {
                     try {
-                        contents.add(Content.fromJSON(f));
+                        betas.add(Beta.fromJSON(f));
                     } catch (IOException e) {
                         Log.w(TAG, "unreadable metadata: " + f);
                     }
                 }
-                return contents;
+                return betas;
             } else {
                 return Collections.emptyList();
             }
@@ -390,15 +399,15 @@ public class BetaService extends Service {
         }
     }
 
-    static Content getMostRecentContent() {
-        List<Content> contents = getContents();
-        Collections.sort(contents);
-        return contents.isEmpty() ? null : contents.get(0);
+    static Beta getMostRecentContent() {
+        List<Beta> betas = getBetas();
+        Collections.sort(betas);
+        return betas.isEmpty() ? null : betas.get(0);
     }
 
     static boolean isUptodate(Context context) {
-        Content recent = getMostRecentContent();
-        return recent == null || recent.isUptodate(context);
+        Beta recent = getMostRecentContent();
+        return recent == null || recent.isInstalled(context);
     }
 
     private synchronized void acquireLocks() {

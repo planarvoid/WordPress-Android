@@ -101,7 +101,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 try {
                     int versionCode    = Integer.parseInt(parts[0]);
                     String versionName = parts[1];
-                    if (!Content.isUptodate(context, versionCode, versionName)) {
+                    if (!Beta.isInstalled(context, versionCode, versionName)) {
                         //notifyNewVersion(context, versionName + "  ("+versionCode+")");
                         setPendingBeta(context, versionName);
                         BetaService.scheduleNow(context, 2000l);

@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 
 @JsonAutoDetect(JsonMethod.NONE)
-public class Content implements Comparable<Content>, Parcelable {
+public class Beta implements Comparable<Beta>, Parcelable {
     @JsonProperty String key;
     @JsonProperty long lastmodified;
     @JsonProperty String etag;
@@ -64,8 +64,7 @@ public class Content implements Comparable<Content>, Parcelable {
     }
 
     public boolean isEnoughStorageLeft() {
-        // XXX
-        if (SoundCloudApplication.DALVIK)  {
+        if (SoundCloudApplication.DALVIK)  { // XXX
             StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
             final long free = (long) fs.getAvailableBlocks() * (long) fs.getBlockSize();
             return (size * 3l) < free;
@@ -110,11 +109,11 @@ public class Content implements Comparable<Content>, Parcelable {
         }
     }
 
-    public boolean isUptodate(Context context) {
-        return isUptodate(context, getVersionCode(), getVersionName());
+    public boolean isInstalled(Context context) {
+        return isInstalled(context, getVersionCode(), getVersionName());
     }
 
-    public static boolean isUptodate(Context context, int newVersionCode, String newVersionName) {
+    public static boolean isInstalled(Context context, int newVersionCode, String newVersionName) {
         return isUptodate(
                 getAppVersionCode(context, -1),
                 getAppVersion(context, ""),
@@ -146,7 +145,7 @@ public class Content implements Comparable<Content>, Parcelable {
     }
 
     @Override
-    public int compareTo(Content content) {
+    public int compareTo(Beta content) {
         return getVersionCode() == content.getVersionCode() ? 0 :
                getVersionCode()  > content.getVersionCode() ? -1 : 1;
     }
@@ -167,24 +166,24 @@ public class Content implements Comparable<Content>, Parcelable {
     }
 
     /** @noinspection unchecked*/
-    public static Creator<Content> CREATOR = new Parcelable.Creator<Content>() {
+    public static Creator<Beta> CREATOR = new Parcelable.Creator<Beta>() {
         @Override
-        public Content createFromParcel(final Parcel source) {
-            return new Content() {
+        public Beta createFromParcel(final Parcel source) {
+            return new Beta() {
                 {
                     key = source.readString();
                     lastmodified = source.readLong();
                     etag = source.readString();
                     size = source.readLong();
                     storageClass = source.readString();
-                    metadata = source.readHashMap(Content.class.getClassLoader());
+                    metadata = source.readHashMap(Beta.class.getClassLoader());
                 }
             };
         }
 
         @Override
-        public Content[] newArray(int size) {
-            return new Content[size];
+        public Beta[] newArray(int size) {
+            return new Beta[size];
         }
     };
 
@@ -205,12 +204,12 @@ public class Content implements Comparable<Content>, Parcelable {
         return mapper.writeValueAsString(this);
     }
 
-    public static Content fromJSON(String json) throws IOException {
-        return mapper.readValue(json, Content.class);
+    public static Beta fromJSON(String json) throws IOException {
+        return mapper.readValue(json, Beta.class);
     }
 
-    public static Content fromJSON(File json) throws IOException {
-        return mapper.readValue(json, Content.class);
+    public static Beta fromJSON(File json) throws IOException {
+        return mapper.readValue(json, Beta.class);
     }
 
     public void persist() throws IOException {

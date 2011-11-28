@@ -18,7 +18,7 @@ public class CleanupBetaTask extends AsyncTask<File, Void, List<File>> {
         List<File> deleted = new ArrayList<File>();
         if (files != null) {
             for (File f : files) {
-                if (!f.equals(downloaded) && !f.getName().endsWith(Content.META_DATA_EXT)) {
+                if (!f.equals(downloaded) && !f.getName().endsWith(Beta.META_DATA_EXT)) {
                     Log.d(TAG, "deleting "+f);
                     deleteFile(f);
                     deleted.add(f);
