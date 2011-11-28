@@ -64,8 +64,7 @@ public class Content implements Comparable<Content>, Parcelable {
     }
 
     public boolean isEnoughStorageLeft() {
-        // XXX
-        if (SoundCloudApplication.DALVIK)  {
+        if (SoundCloudApplication.DALVIK)  { // XXX
             StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
             final long free = (long) fs.getAvailableBlocks() * (long) fs.getBlockSize();
             return (size * 3l) < free;

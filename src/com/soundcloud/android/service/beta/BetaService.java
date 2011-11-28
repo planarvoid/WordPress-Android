@@ -117,17 +117,24 @@ public class BetaService extends Service {
                 if (contents != null) {
                     Content recent = selectVersion(contents);
                      if (recent != null) {
-                        if (!recent.isDownloaded()) {
+                         if (!recent.isDownloaded()) {
                             download(recent, intent);
-                        } else if (!recent.isUptodate(BetaService.this)) {
-                            // nag user to install new beta version
-                            notifyNewVersion(recent);
-                            stopSelf();
                         } else {
-                            Log.d(TAG, "nothing to download");
-                            stopSelf();
-                        }
-                    } else {
+                             try {
+                                 Content local = Content.fromJSON(recent.getMetaDataFile());
+                                 if (!local.isUptodate(BetaService.this)) {
+                                     // nag user to install the new beta version
+                                     notifyNewVersion(recent);
+                                     Log.d(TAG, "new version downloaded but not installed");
+                                 } else {
+                                     Log.d(TAG, "nothing to download");
+                                 }
+                             } catch (IOException e) {
+                                 Log.w(TAG, e);
+                             }
+                             stopSelf();
+                         }
+                     } else {
                         stopSelf();
                     }
                 } else {
