@@ -20,14 +20,14 @@ public class GetS3ContentTaskTest {
     @Test
     public void testTask() throws Exception {
         Robolectric.addPendingHttpResponse(200, resource("bucket_contents.xml"));
-        List<Content> content = new GetS3ContentTask(new DefaultHttpClient()).doInBackground(BetaService.BETA_BUCKET);
+        List<Beta> content = new GetS3ContentTask(new DefaultHttpClient()).doInBackground(BetaService.BETA_BUCKET);
         assertThat(content.size(), is(2));
     }
 
     @Test
     public void testTaskFailure() throws Exception {
         Robolectric.addPendingHttpResponse(503, "error");
-        List<Content> content = new GetS3ContentTask(new DefaultHttpClient()).doInBackground(BetaService.BETA_BUCKET);
+        List<Beta> content = new GetS3ContentTask(new DefaultHttpClient()).doInBackground(BetaService.BETA_BUCKET);
         assertThat(content, nullValue());
     }
 

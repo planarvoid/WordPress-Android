@@ -14,7 +14,7 @@ import android.util.Log;
 
 import java.io.IOException;
 
-public class GetS3MetadataTask extends AsyncTask<Content, Void, Content> {
+public class GetS3MetadataTask extends AsyncTask<Beta, Void, Beta> {
     public static final String AMZ_META_PREFIX = "x-amz-meta-";
     private HttpClient mClient;
 
@@ -23,8 +23,8 @@ public class GetS3MetadataTask extends AsyncTask<Content, Void, Content> {
     }
 
     @Override
-    protected Content doInBackground(Content... params) {
-        final Content content = params[0];
+    protected Beta doInBackground(Beta... params) {
+        final Beta content = params[0];
 
         HttpUriRequest request = new HttpHead(content.getURI().toString());
         try {

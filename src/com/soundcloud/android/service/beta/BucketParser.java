@@ -24,12 +24,12 @@ public class BucketParser {
         DATE_FORMAT_ISO8601.setTimeZone(gmt);
     }
 
-    public static List<Content> getContent(InputStream body) throws IOException {
+    public static List<Beta> getContent(InputStream body) throws IOException {
         try {
-            final List<Content> content;
+            final List<Beta> content;
             XmlPullParser parser = getParser();
             parser.setInput(body, "UTF-8");
-            content = new ArrayList<Content>();
+            content = new ArrayList<Beta>();
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
@@ -47,8 +47,8 @@ public class BucketParser {
         }
     }
 
-    private static Content parseContent(XmlPullParser parser) throws IOException, XmlPullParserException {
-        final Content c = new Content();
+    private static Beta parseContent(XmlPullParser parser) throws IOException, XmlPullParserException {
+        final Beta c = new Beta();
         int eventType;
         while ((eventType = parser.next()) != XmlPullParser.END_TAG && !"Contents".equals(parser.getName())) {
             if (eventType == XmlPullParser.START_TAG) {
@@ -77,7 +77,7 @@ public class BucketParser {
         }
     }
 
-    public static List<Content> getContent(String body) throws IOException {
+    public static List<Beta> getContent(String body) throws IOException {
         return getContent(new ByteArrayInputStream(body.getBytes()));
     }
 

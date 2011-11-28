@@ -4,7 +4,6 @@ import static com.soundcloud.android.service.beta.BetaService.TAG;
 import static com.soundcloud.android.utils.CloudUtils.hexString;
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
-import com.soundcloud.android.utils.CloudUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -19,22 +18,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class DownloadContentTask extends AsyncTask<Content, Void, File> {
+public class DownloadBetaTask extends AsyncTask<Beta, Void, File> {
     private HttpClient mClient;
 
-    public DownloadContentTask(HttpClient client) {
+    public DownloadBetaTask(HttpClient client) {
         this.mClient = client;
     }
 
     @Override
-    protected File doInBackground(Content... params) {
-        final Content content = params[0];
-        HttpUriRequest request = new HttpGet(content.getURI().toString());
-        final File dest = new File(BetaService.APK_PATH, content.key);
+    protected File doInBackground(Beta... params) {
+        final Beta beta = params[0];
+        HttpUriRequest request = new HttpGet(beta.getURI().toString());
+        final File dest = new File(BetaService.APK_PATH, beta.key);
         final File tmp = new File(dest.getAbsolutePath()+".tmp") {{ deleteOnExit(); }};
 
         mkdirs(BetaService.APK_PATH);
@@ -58,8 +56,8 @@ public class DownloadContentTask extends AsyncTask<Content, Void, File> {
                 is.close();
 
                 final String hex = hexString(digest.digest());
-                if (!hex.equals(content.etag)) {
-                    Log.w(TAG, "MD5 sums don't match: " + hex + "!=" + content.etag);
+                if (!hex.equals(beta.etag)) {
+                    Log.w(TAG, "MD5 sums don't match: " + hex + "!=" + beta.etag);
                     return null;
                 } else if (!tmp.renameTo(dest)) {
                     Log.w(TAG, "could not rename file");
@@ -72,7 +70,7 @@ public class DownloadContentTask extends AsyncTask<Content, Void, File> {
                 return null;
             }
         } catch (IOException e) {
-            Log.w(TAG, "error downloading " + content, e);
+            Log.w(TAG, "error downloading " + beta, e);
             return null;
         } catch (NoSuchAlgorithmException e) {
             // WTF

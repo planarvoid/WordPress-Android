@@ -86,17 +86,17 @@ public class BetaPreferences {
         }
     }
 
-    public static Dialog getUpdateDialog(final Context context, final Content content) {
+    public static Dialog getUpdateDialog(final Context context, final Beta beta) {
         String message = "";
-        if (content != null) {
-            if (content.isUptodate(context)) {
+        if (beta != null) {
+            if (beta.isInstalled(context)) {
                 message += "Your beta version is up to date. ";
             } else {
                 message += String.format("Last downloaded beta:\n%s, version: %s (%d),\nupdated %s. ",
-                        getElapsedTimeString(context.getResources(), content.downloadTime(), true),
-                        content.getVersionName(),
-                        content.getVersionCode(),
-                        getElapsedTimeString(context.getResources(), content.lastmodified, true)
+                        getElapsedTimeString(context.getResources(), beta.downloadTime(), true),
+                        beta.getVersionName(),
+                        beta.getVersionCode(),
+                        getElapsedTimeString(context.getResources(), beta.lastmodified, true)
                 );
             }
         } else {
@@ -126,11 +126,11 @@ public class BetaPreferences {
                     }
                 });
 
-        if (content != null && !content.isUptodate(context)) {
+        if (beta != null && !beta.isInstalled(context)) {
             b.setNeutralButton(R.string.pref_beta_install_now, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    context.startActivity(content.getInstallIntent());
+                    context.startActivity(beta.getInstallIntent());
                 }
             });
         }
