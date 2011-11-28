@@ -124,7 +124,7 @@ public class BetaService extends Service {
                                  Content local = Content.fromJSON(recent.getMetaDataFile());
                                  if (!local.isUptodate(BetaService.this)) {
                                      // nag user to install the new beta version
-                                     notifyNewVersion(recent);
+                                     notifyNewVersion(local);
                                      Log.d(TAG, "new version downloaded but not installed");
                                  } else {
                                      Log.d(TAG, "nothing to download");
