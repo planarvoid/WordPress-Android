@@ -105,7 +105,7 @@ public class QuickTrackMenu extends QuickAction {
                         break;
                     case 4:
                         Intent intent = new Intent(mActivity, UserBrowser.class);
-                        intent.putExtra("userId", track.user.id);
+                        intent.putExtra("user", track.user);
                         mActivity.startActivity(intent);
 
                         break;
