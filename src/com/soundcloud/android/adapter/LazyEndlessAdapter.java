@@ -398,7 +398,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     @SuppressWarnings("unchecked")
-    public void refresh(boolean userRefresh) {
+    public void refresh(final boolean userRefresh) {
         if (userRefresh) {
             if (FollowStatus.Listener.class.isAssignableFrom(getWrappedAdapter().getClass())) {
                 FollowStatus.get().requestUserFollowings(mActivity.getApp(), (FollowStatus.Listener) getWrappedAdapter(), true);
@@ -415,7 +415,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 pageIndex = mPageIndex;
                 setAdapter(LazyEndlessAdapter.this);
                 request = buildRequest(true);
-                refresh = true;
+                refresh = userRefresh;
                 execute();
             }
         };
