@@ -117,14 +117,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.tour.Start" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.Record" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.Share" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.Follow" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.Comment" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.You" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.Finish" android:screenOrientation="portrait" />
-
+        <activity android:name=".activity.Tour" android:screenOrientation="portrait" />
         <activity android:name=".activity.TrackFavoriters" />
         <activity android:name=".activity.TrackComments" />
         <activity android:name=".activity.TracksByTag" />
