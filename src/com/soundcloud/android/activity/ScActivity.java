@@ -257,15 +257,16 @@ public abstract class ScActivity extends Activity {
 
         mIsForeground = true;
 
-        if (mLists != null) {
-            for (final ScListView l : mLists) {
-                l.onResume();
-            }
-        }
-
         Account account = getApp().getAccount();
         if (account == null) {
             finish();
+        } else {
+            if (mLists != null) {
+                for (final ScListView l : mLists) {
+                    l.onResume();
+                }
+
+            }
         }
     }
 
@@ -462,7 +463,9 @@ public abstract class ScActivity extends Activity {
         if (isConnected) {
             // clear image loading errors
             ImageLoader.get(ScActivity.this).clearErrors();
-            for (ScListView lv : mLists) { lv.onConnected(mIsForeground); }
+            if (getApp().getAccount() != null){
+                for (ScListView lv : mLists) { lv.onConnected(mIsForeground); }
+            }
         }
     }
 
