@@ -3,7 +3,7 @@
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
               android:id="@+id/sizer"
-              android:padding="10dp"
+              android:padding="5dp"
               android:orientation="vertical">
     <ImageView android:src="@drawable/empty_collection"
                android:layout_height="0dp"
