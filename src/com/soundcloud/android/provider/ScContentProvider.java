@@ -296,11 +296,16 @@ public class ScContentProvider extends ContentProvider {
                 count = db.delete(DBHelper.Tables.USERS.tableName, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null);
                 return count;
+            case SEARCHES:
+                count = db.delete(DBHelper.Tables.SEARCHES.tableName, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return count;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
     }
+
 
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
