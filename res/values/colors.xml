@@ -65,8 +65,8 @@
 	<!-- For settings framework -->
 	<color name="darker_gray">#aaa</color>
 
-    <color name="blue_gradient_1">#d4e7fc</color>
+    <color name="blue_gradient_1">#ffffff</color>
     <color name="blue_gradient_half">#f0f6fe</color>
-    <color name="blue_gradient_2">#ffffff</color>
+    <color name="blue_gradient_2">#ccccff</color>
 
 </resources>
