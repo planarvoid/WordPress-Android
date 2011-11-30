@@ -13,7 +13,6 @@ import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
-import com.soundcloud.android.utils.play.PlayListManager;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -90,7 +89,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
     protected NetworkConnectivityListener connectivityListener;
-    /* package */ PlayListManager mPlayListManager = new PlayListManager(this);
+    /* package */ PlaylistManager mPlayListManager = new PlaylistManager(this);
     private Track mCurrentTrack;
     private RemoteViews mNotificationView;
     private AudioManager mAudioManager;

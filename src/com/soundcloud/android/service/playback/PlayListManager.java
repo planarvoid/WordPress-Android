@@ -1,5 +1,4 @@
-
-package com.soundcloud.android.utils.play;
+package com.soundcloud.android.service.playback;
 
 import android.content.SharedPreferences;
 
@@ -8,7 +7,6 @@ import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.CommitTracksTask;
 
 import android.content.ContentResolver;
@@ -19,8 +17,7 @@ import android.util.Log;
 
 import java.util.List;
 
-public class PlayListManager {
-
+public class PlaylistManager  {
     private static final String TAG = "PlayListManager";
 
     private CloudPlaybackService mPlaybackService;
@@ -30,7 +27,7 @@ public class PlayListManager {
     // used before tracks get committed to db
     private Track[] mPlayListCache;
 
-    public PlayListManager(CloudPlaybackService service) {
+    public PlaylistManager(CloudPlaybackService service) {
         mPlaybackService = service;
     }
 
@@ -139,16 +136,15 @@ public class PlayListManager {
         mPlayPos = playPos;
         mPlayListLen = i;
 
-        new CommitPlaylistTask(mPlaybackService.getContentResolver(),
-                ((SoundCloudApplication) mPlaybackService.getApplication()).getCurrentUserId(),
-                mPlayList).execute(mPlayListCache);
+        new CommitPlaylistTask(mPlaybackService.getContentResolver()
+        ).execute(mPlayListCache);
     }
 
     public void commitTrackToDb(final Track t) {
         new Thread() {
             @Override
             public void run() {
-                synchronized(PlayListManager.this){
+                synchronized(PlaylistManager.this){
                     SoundCloudDB.writeTrack(mPlaybackService.getContentResolver(), t, WriteState.all,
                         ((SoundCloudApplication) mPlaybackService.getApplication()).getCurrentUserId());
                 }
@@ -159,29 +155,17 @@ public class PlayListManager {
     public Track getPrevTrack() {
          if (mPlayPos > 0) {
             return getTrackAt(mPlayPos - 1);
-        }
-        return null;
+        } else {
+            return null;
+         }
     }
 
     public Track getNextTrack() {
          if (mPlayPos < mPlayListLen - 1) {
             return getTrackAt(mPlayPos + 1);
-        }
-        return null;
-    }
-
-    public long getPrevTrackId() {
-         if (mPlayPos > 0) {
-            return mPlayList[mPlayPos - 1];
-        }
-        return -1;
-    }
-
-    public long getNextTrackId() {
-         if (mPlayPos < mPlayListLen - 1) {
-            return mPlayList[mPlayPos + 1];
-        }
-        return -1;
+        } else {
+            return null;
+         }
     }
 
     public long getTrackIdAt(int pos) {
@@ -199,17 +183,14 @@ public class PlayListManager {
     }
 
     public class CommitPlaylistTask extends CommitTracksTask {
-        private long[] currentPlaylist;
-
-        public CommitPlaylistTask(ContentResolver contentResolver, Long long1, long[] currentPlaylist) {
+        public CommitPlaylistTask(ContentResolver contentResolver) {
             super(contentResolver);
-            this.currentPlaylist = currentPlaylist;
         }
 
         @Override
         protected Boolean doInBackground(Track... params) {
             Boolean ret;
-            synchronized (PlayListManager.this){
+            synchronized (PlaylistManager.this){
                 ret = super.doInBackground(params);
             }
             return ret;
@@ -223,7 +204,7 @@ public class PlayListManager {
         @Override
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
-            synchronized (PlayListManager.this) {
+            synchronized (PlaylistManager.this) {
                 mPlayListCache = null;
             }
         }
@@ -236,9 +217,7 @@ public class PlayListManager {
             // insert
             long[] newlist = new long[size * 2];
             int len = mPlayList != null ? mPlayList.length : mPlayListLen;
-            for (int i = 0; i < len; i++) {
-                newlist[i] = mPlayList[i];
-            }
+            System.arraycopy(mPlayList, 0, newlist, 0, len);
             mPlayList = newlist;
         }
         // FIXME: shrink the array when the needed size is much smaller
@@ -282,7 +261,7 @@ public class PlayListManager {
                     q.append(";");
                 }
             }
-            Log.i("@@@@ service", "created queue string in " + (System.currentTimeMillis() - start)
+            Log.d(TAG, "created queue string in " + (System.currentTimeMillis() - start)
                     + " ms");
             ed.putString("queue", q.toString());
 
@@ -291,7 +270,7 @@ public class PlayListManager {
         ed.putLong("seekpos", seekPos);
         ed.commit();
 
-        Log.i("@@@@ service", "saved state in " + (System.currentTimeMillis() - start) + " ms");
+        Log.d(TAG, "saved state in " + (System.currentTimeMillis() - start) + " ms");
     }
 
     public long reloadQueue() {
@@ -300,7 +279,7 @@ public class PlayListManager {
 
         int qlen = q != null ? q.length() : 0;
         if (qlen > 1) {
-            Log.i("@@@@ service", "loaded queue: " + q + " " + qlen);
+            Log.d(TAG, "loaded queue: " + q + " " + qlen);
             int plen = 0;
             int n = 0;
             int shift = 0;
