@@ -12,16 +12,18 @@
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
                 android:gravity="center">
-        <RadioButton android:id="@+id/rdo_tour_rec"
+        <RadioButton android:id="@+id/rdo_tour_start"
                      style="@style/rdo_tour"
                      android:checked="true"/>
+        <RadioButton android:id="@+id/rdo_tour_rec"
+                     style="@style/rdo_tour"/>
         <RadioButton android:id="@+id/rdo_tour_share"
                      style="@style/rdo_tour"/>
         <RadioButton android:id="@+id/rdo_tour_follow"
                      style="@style/rdo_tour"/>
         <RadioButton android:id="@+id/rdo_tour_comment"
                      style="@style/rdo_tour"/>
-        <RadioButton android:id="@+id/rdo_tour_you"
+        <RadioButton android:id="@+id/rdo_tour_finish"
                      style="@style/rdo_tour"/>
     </RadioGroup>
 </LinearLayout>

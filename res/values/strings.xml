@@ -1,3 +1,4 @@
 <resources>
     <string name="tour_title">Welcome</string>
+    <string name="tour_btn_done">Done</string>
 </resources>

@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:background="@drawable/orange_gradient"
+<LinearLayout android:background="@drawable/orange_gradient"
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
+                android:orientation="vertical"
                 android:paddingBottom="@dimen/tour_bottom_bar_height">
     <ImageView android:src="@drawable/cloud_no_logo"
                android:layout_height="0dp"
+               android:layout_weight="1"
                android:layout_width="fill_parent"
                android:id="@+id/imageView1"
-               android:layout_alignParentTop="true"
-               android:layout_above="@+id/middle_layout"
-               android:scaleType="centerInside"
-               android:layout_margin="20dp"/>
+               android:scaleType="centerInside" />
     <RelativeLayout android:layout_width="fill_parent"
                     android:id="@+id/middle_layout"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true">
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
         <TextView android:id="@+id/textView1"
                   android:text="@string/tour_start_hello"
                   android:layout_width="wrap_content"
                   style="@style/txt_tour_start_1"
                   android:layout_height="wrap_content"
-                  android:layout_below="@+id/imageView1"
                   android:layout_centerHorizontal="true"/>
         <TextView android:id="@+id/textView2"
                   android:text="@string/tour_start_welcome"
@@ -41,18 +39,5 @@
                   android:layout_alignParentLeft="true"
                   android:layout_marginTop="19dp"/>
     </RelativeLayout>
-    <RelativeLayout android:layout_height="0dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_below="@id/middle_layout"
-                    android:layout_centerHorizontal="true"
-                    android:layout_width="fill_parent">
-        <Button android:layout_width="wrap_content"
-                android:text="@string/tour_start_btn_enter"
-                android:id="@+id/btn_enter"
-                android:layout_height="wrap_content"
-                android:paddingLeft="30dip"
-                android:paddingRight="30dip"
-                android:layout_centerInParent="true"/>
-    </RelativeLayout>
-</RelativeLayout>
+</LinearLayout>
 

@@ -13,6 +13,10 @@ import com.soundcloud.android.view.tour.TourLayout;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 public class Tour extends Activity {
 
@@ -31,6 +35,46 @@ public class Tour extends Activity {
         mWorkspaceView.addView(new Comment(this));
         mWorkspaceView.addView(new Finish(this));
         mWorkspaceView.initWorkspace(0);
+
+        final Button btnDone = (Button) findViewById(R.id.btn_done);
+        final Button btnNext = (Button) findViewById(R.id.btn_next);
+
+        btnDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mWorkspaceView.scrollRight();
+            }
+        });
+
+        mWorkspaceView.setOnScreenChangeListener(new WorkspaceView.OnScreenChangeListener() {
+            @Override
+            public void onScreenChanged(View newScreen, int newScreenIndex) {
+                ((RadioButton) ((RadioGroup) findViewById(R.id.rdo_tour_step)).getChildAt(newScreenIndex)).setChecked(true);
+                if (newScreenIndex < mWorkspaceView.getScreenCount()-1){
+                    btnDone.setVisibility(View.GONE);
+                    btnNext.setVisibility(View.VISIBLE);
+                } else {
+                    btnDone.setVisibility(View.VISIBLE);
+                    btnNext.setVisibility(View.GONE);
+                }
+
+            }
+
+            @Override
+            public void onScreenChanging(View newScreen, int newScreenIndex) {
+            }
+
+            @Override
+            public void onNextScreenVisible(View newScreen, int newScreenIndex) {
+            }
+        }, false);
     }
 
     @Override

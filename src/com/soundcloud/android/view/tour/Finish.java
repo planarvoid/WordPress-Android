@@ -19,16 +19,8 @@ public class Finish extends TourLayout {
                 .inflate(R.layout.tour_finish, this);
 
         init(getContext().getString(R.string.tour_finish_title));
-        //((TextView) findViewById(R.id.txt_message)).setText(Html.fromHtml(getContext().getString(R.string.tour_finish_message)));
-        //((TextView) findViewById(R.id.txt_message)).setMovementMethod(LinkMovementMethod.getInstance());
-        /*findViewById(R.id.btn_done).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getApp().trackEvent(Consts.Tracking.Categories.TOUR, "completed");
-                finish();
-            }
-        });*/
-
+        ((TextView) findViewById(R.id.txt_message)).setText(Html.fromHtml(getContext().getString(R.string.tour_finish_message)));
+        ((TextView) findViewById(R.id.txt_message)).setMovementMethod(LinkMovementMethod.getInstance());
     }
 
 
