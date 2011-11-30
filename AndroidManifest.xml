@@ -153,12 +153,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="org.acra.CrashReportDialog"
-            android:theme="@android:style/Theme.Dialog"
-            android:launchMode="singleInstance"
-            android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true"/>
-
         <activity android:name=".activity.About"/>
 
         <activity android:label="@string/audio_file_picker_label" android:name=".activity.AudioFilePicker">
@@ -176,17 +170,11 @@
 
         <service android:name=".service.playback.CloudPlaybackService"
                  android:exported="true">
-          <intent-filter>
-            <action android:name=".service.CloudPlaybackService" />
-          </intent-filter>
         </service>
 
         <service
             android:name=".service.CloudCreateService"
             android:exported="true">
-            <intent-filter>
-                <action android:name=".service.ICloudCreateService" />
-            </intent-filter>
         </service>
 
         <service android:name=".service.AuthenticatorService"
@@ -235,7 +223,7 @@
         <receiver android:name=".service.RemoteControlReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
-                <action android:name="android.intent.action.ACTION_AUDIO_BECOMING_NOISY"/>
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
         </receiver>
 

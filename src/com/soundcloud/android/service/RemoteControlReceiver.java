@@ -16,12 +16,12 @@ import android.view.KeyEvent;
 public class RemoteControlReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        ICloudPlaybackService svc = (ICloudPlaybackService) peekService(context,
+                new Intent(context, CloudPlaybackService.class));
+
         if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
             KeyEvent event = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
             if (event != null && event.getAction() == KeyEvent.ACTION_UP) {
-                ICloudPlaybackService svc = (ICloudPlaybackService) peekService(context,
-                        new Intent(context, CloudPlaybackService.class));
-
                 if (svc != null) {
                     try {
                         switch (event.getKeyCode()) {
@@ -42,6 +42,13 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     } catch (RemoteException ignored) {
                         Log.w(TAG, ignored);
                     }
+                }
+            }
+        } else if ("android.media.AUDIO_BECOMING_NOISY".equals(intent.getAction())) {
+            if (svc != null) {
+                try {
+                    if (svc.isPlaying()) svc.pause();
+                } catch (RemoteException ignored) {
                 }
             }
         }

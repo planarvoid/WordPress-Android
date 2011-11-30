@@ -109,7 +109,7 @@ public class PlayListManager {
     }
 
     public void oneShotTrack(Track track) {
-        mPlayList = new long[]{track.id};
+        mPlayList = new long[] {track.id };
         mPlayPos = 0;
         mPlayListLen = 1;
     }
