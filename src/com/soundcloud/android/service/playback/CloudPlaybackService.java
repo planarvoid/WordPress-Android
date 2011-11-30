@@ -563,28 +563,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
     }
 
-    /* package */String getUserName() {
-        return mCurrentTrack != null && mCurrentTrack.user != null ? mCurrentTrack.user.username : null;
-    }
-
-    /* package */ String getUserPermalink() {
-        return mCurrentTrack == null ? null : mCurrentTrack.user.permalink;
-    }
-
-    /* package */ long getTrackId() {
-        return mCurrentTrack == null ? -1 : mCurrentTrack.id;
-    }
-
-    /* package */ boolean getDownloadable() {
-        return mCurrentTrack != null && mCurrentTrack.downloadable;
-    }
-
     /* package */ Track getTrack() {
         return mCurrentTrack == null ? mPlayListManager.getCurrentTrack() : mCurrentTrack;
-    }
-
-    /* package */ String getTrackName() {
-        return mCurrentTrack == null ? null : mCurrentTrack.title;
     }
 
     /* package */ int getDuration() {
@@ -593,10 +573,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     /* package */ boolean isBuffering() {
         return state == PAUSED_FOR_BUFFERING || resumeSeeking;
-    }
-
-    /* package */ String getWaveformUrl() {
-        return mCurrentTrack == null ? "" : mCurrentTrack.waveform_url;
     }
 
     /*
@@ -626,11 +602,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     /* package */ boolean isNotSeekablePastBuffer() {
         // Some phones on 2.2 ship with broken opencore
         return Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO && StreamProxy.isOpenCore();
-    }
-
-
-    private boolean isPastBuffer(long pos) {
-        return (pos / (double) mCurrentTrack.duration) * 100 > mLoadPercent;
     }
 
     /* package */ long seek(long pos, boolean performSeek) {
@@ -667,6 +638,34 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
     }
 
+    /* package */ boolean isPlaying() {
+        try {
+            return mMediaPlayer != null && mMediaPlayer.isPlaying() && isSupposedToBePlaying();
+        } catch (IllegalStateException e) {
+            return false;
+        }
+    }
+
+    /* package */ void setAutoAdvance(boolean autoAdvance) {
+        mAutoAdvance = autoAdvance;
+    }
+
+    private String getUserName() {
+        return mCurrentTrack != null && mCurrentTrack.user != null ? mCurrentTrack.user.username : null;
+    }
+
+    private long getTrackId() {
+        return mCurrentTrack == null ? -1 : mCurrentTrack.id;
+    }
+
+    private String getTrackName() {
+        return mCurrentTrack == null ? null : mCurrentTrack.title;
+    }
+
+    private boolean isPastBuffer(long pos) {
+        return (pos / (double) mCurrentTrack.duration) * 100 > mLoadPercent;
+    }
+
     private void setVolume(float vol) {
         if (mMediaPlayer != null && state != ERROR) {
             try {
@@ -677,20 +676,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
     }
 
-    /* package */ boolean isPlaying() {
-        try {
-            return mMediaPlayer != null && mMediaPlayer.isPlaying() && isSupposedToBePlaying();
-        } catch (IllegalStateException e) {
-            return false;
-        }
-    }
-
     private boolean isConnected() {
         return connectivityListener != null && connectivityListener.isConnected();
-    }
-
-    /* package */ void setAutoAdvance(boolean autoAdvance) {
-        mAutoAdvance = autoAdvance;
     }
 
     private void addFavorite() {
@@ -949,7 +936,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     final MediaPlayer.OnSeekCompleteListener seekListener = new MediaPlayer.OnSeekCompleteListener() {
         public void onSeekComplete(MediaPlayer mp) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onSeekComplete()");
+                Log.d(TAG, "onSeekComplete(state="+state+")");
             }
 
             if (mMediaPlayer == mp) {
@@ -1022,7 +1009,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
         public boolean onError(MediaPlayer mp, int what, int extra) {
-            Log.e(TAG, "onError("+what+ ", "+extra+")");
+            Log.e(TAG, "onError("+what+ ", "+extra+", state="+state+")");
 
             if (mp == mMediaPlayer && state != STOPPED) {
                 // when the proxy times out it will just close the connection - different implementations

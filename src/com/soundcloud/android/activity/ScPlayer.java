@@ -300,8 +300,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         super.onServiceBound();
 
         try {
-            if (mPlaybackService.getTrackId() != -1) {
-                updateTrackDisplay();
+            final Track track = mPlaybackService.getTrack();
+            if (track != null) {
+                updateTrackDisplay(track);
                 setPauseButtonImage();
                 long next = refreshNow();
                 queueNextRefresh(next);
@@ -582,20 +583,13 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         return getApp().getTrackFromCache(trackId);
     }
 
-    private void updateTrackDisplay() {
-        if (mPlaybackService == null)
+    private void updateTrackDisplay(final Track track) {
+        if (mPlaybackService == null || track ==null)
             return;
 
         try {
-            final long trackId = mPlaybackService.getTrackId();
-
-            if (trackId == -1) {
-                mPlayingTrack = null;
-                return;
-            }
-
             mCurrentQueuePosition = mPlaybackService.getQueuePosition();
-            mPlayingTrack = getAndCacheTrack(trackId,mCurrentQueuePosition);
+            mPlayingTrack = getAndCacheTrack(track.id, mCurrentQueuePosition);
             final boolean first = mTrackWorkspace.getChildCount() == 0;
 
             setFavoriteStatus();

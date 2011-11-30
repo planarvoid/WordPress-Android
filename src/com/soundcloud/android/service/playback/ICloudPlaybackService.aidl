@@ -27,12 +27,6 @@ interface ICloudPlaybackService
 
     // metadata
     Track getTrack();
-    String getTrackName();
-    long getTrackId();
-    String getUserName();
-    String getUserPermalink();
-    String getWaveformUrl();
-    boolean getDownloadable();
 
     // favoriting
     void setFavoriteStatus(long trackId, boolean favoriteStatus);

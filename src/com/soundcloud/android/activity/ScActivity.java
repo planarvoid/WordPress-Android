@@ -100,7 +100,10 @@ public abstract class ScActivity extends Activity {
 
         } else {
             try {
-                setPlayingTrack(mPlaybackService.getTrackId(), mPlaybackService.isPlaying());
+                final Track track = mPlaybackService != null ? mPlaybackService.getTrack() : null;
+                if (track != null) {
+                    setPlayingTrack(track.id, mPlaybackService.isPlaying());
+                }
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
             }
@@ -217,13 +220,13 @@ public abstract class ScActivity extends Activity {
 
         CloudUtils.bindToService(this, CloudPlaybackService.class, osc);
         CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
-
-        if (mPlaybackService != null) {
-            try {
-                setPlayingTrack(mPlaybackService.getTrackId(), mPlaybackService.isPlaying());
-            } catch (Exception e) {
-                Log.e(TAG, "error", e);
+        try {
+            final Track track = mPlaybackService != null ? mPlaybackService.getTrack() : null;
+            if (track != null) {
+                setPlayingTrack(track.id, mPlaybackService.isPlaying());
             }
+        } catch (Exception e) {
+            Log.e(TAG, "error", e);
         }
     }
 
@@ -277,9 +280,8 @@ public abstract class ScActivity extends Activity {
     public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer, boolean commentMode) {
         // find out if this track is already playing. If it is, just go to the player
         try {
-            if (mPlaybackService != null
-                    && mPlaybackService.getTrackId() != -1
-                    && mPlaybackService.getTrackId() == trackId) {
+            final Track track = mPlaybackService != null ? mPlaybackService.getTrack() : null;
+            if (track != null && track.id == trackId) {
                 if (goToPlayer) {
                     // skip the enqueuing, its already playing
                     launchPlayer(commentMode);

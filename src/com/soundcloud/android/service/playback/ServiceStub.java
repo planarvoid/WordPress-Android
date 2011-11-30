@@ -97,42 +97,6 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     }
 
     @Override
-    public String getTrackName() {
-        CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.getTrackName() : null;
-    }
-
-    @Override
-    public long getTrackId() {
-        CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.getTrackId() : -1;
-    }
-
-    @Override
-    public String getUserName() {
-        CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.getUserName() : null;
-    }
-
-    @Override
-    public String getUserPermalink() {
-        CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.getUserPermalink() : null;
-    }
-
-    @Override
-    public String getWaveformUrl() {
-        CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.getWaveformUrl() : null;
-    }
-
-    @Override
-    public boolean getDownloadable() {
-        CloudPlaybackService svc = mService.get();
-        return svc != null && svc.getDownloadable();
-    }
-
-    @Override
     public boolean isBuffering() {
         CloudPlaybackService svc = mService.get();
         return svc != null && svc.isBuffering();
