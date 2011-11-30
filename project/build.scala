@@ -18,7 +18,9 @@ object General {
     androidSettings ++
     AndroidProject.androidSettings ++
     PlainJavaProject.settings ++
-    AndroidMarketPublish.settings
+    AndroidMarketPublish.settings ++
+    Github.settings ++
+    PasswordManager.settings
 }
 
 object AndroidBuild extends Build {
@@ -65,6 +67,8 @@ object AndroidBuild extends Build {
     settings = General.androidProjectSettings ++ Seq (
       keyalias in Android := "jons keystore",
       keystorePath in Android <<= (baseDirectory) (_ / "soundcloud_sign" / "soundcloud.ks"),
+      githubRepo in Android := "soundcloud/SoundCloud-Android",
+      cachePasswords in Android := true,
       unmanagedBase <<= baseDirectory / "lib-unmanaged",
       libraryDependencies ++= coreDependencies ++ providedDependencies ++ testDependencies,
       resolvers ++= repos,
