@@ -1,7 +1,6 @@
 package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.*;
 
 import android.os.RemoteException;
 
@@ -62,8 +61,15 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     }
 
     @Override
-    public void forcePause() {
-        pause();
+    public void toggle() throws RemoteException {
+        CloudPlaybackService svc = mService.get();
+        if (svc != null) {
+            if (svc.isSupposedToBePlaying()) {
+                svc.pause();
+            } else {
+                svc.play();
+            }
+        }
     }
 
     @Override
@@ -74,7 +80,6 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
 
     @Override
     public void prev() {
-
         CloudPlaybackService svc = mService.get();
         if (svc != null) svc.prev();
     }
@@ -143,7 +148,7 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     @Override
     public long duration() {
         CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.duration() : 0;
+        return svc != null ? svc.getDuration() : 0;
 
     }
 
@@ -154,15 +159,9 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     }
 
     @Override
-    public long seek(long pos) {
+    public long seek(long pos, boolean perform) {
         CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.seek(pos) : 0;
-    }
-
-    @Override
-    public long getSeekResult(long pos) {
-        CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.getSeekResult(pos) : 0;
+        return svc != null ? svc.seek(pos, perform) : 0;
     }
 
     @Override
@@ -209,8 +208,8 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     }
 
     @Override
-    public void setAutoAdvance(boolean autoAdvance) throws RemoteException {
+    public void setAutoAdvance(boolean auto) throws RemoteException {
         CloudPlaybackService svc = mService.get();
-        if (svc != null) svc.setAutoAdvance(autoAdvance);
+        if (svc != null) svc.setAutoAdvance(auto);
     }
 }

@@ -322,7 +322,9 @@ public class CloudUtils {
     public static boolean bindToService(Activity context, Class<? extends Service> service, ServiceConnection callback) {
         //http://blog.tourizo.com/2009/04/binding-services-while-in-activitygroup.html
         context.startService(new Intent(context, service));
-        if (sConnectionMap.get(context) == null) sConnectionMap.put(context, new HashMap<Class<? extends Service>,ServiceConnection>());
+        if (sConnectionMap.get(context) == null) {
+            sConnectionMap.put(context, new HashMap<Class<? extends Service>, ServiceConnection>());
+        }
         sConnectionMap.get(context).put(service, callback);
 
         boolean success =  context.getApplicationContext().bindService(

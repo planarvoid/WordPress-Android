@@ -96,7 +96,7 @@ public abstract class ScActivity extends Activity {
 
     protected void onServiceBound() {
         if (getApp().getToken() == null) {
-            pause(true);
+            pause();
 
         } else {
             try {
@@ -128,7 +128,7 @@ public abstract class ScActivity extends Activity {
         return false;
     }
 
-    private ServiceConnection osc = new ServiceConnection() {
+    private final ServiceConnection osc = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName classname, IBinder obj) {
             mPlaybackService = ICloudPlaybackService.Stub.asInterface(obj);
@@ -143,7 +143,7 @@ public abstract class ScActivity extends Activity {
     };
 
 
-    private ServiceConnection createOsc = new ServiceConnection() {
+    private final ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
             mCreateService = (ICloudCreateService) binder;
             onCreateServiceBound();
@@ -260,7 +260,6 @@ public abstract class ScActivity extends Activity {
                 for (final ScListView l : mLists) {
                     l.onResume();
                 }
-
             }
         }
     }
@@ -270,6 +269,7 @@ public abstract class ScActivity extends Activity {
         trackList.add(track);
         playTrack(track.id, trackList, 0, goToPlayer);
     }
+
     public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer) {
         playTrack(trackId, list, playPos, goToPlayer, false);
     }
@@ -299,8 +299,6 @@ public abstract class ScActivity extends Activity {
         // XXX ^^ this is assuming service and activity run in the same process
         getApp().cachePlaylist(list);
 
-        if (goToPlayer) getApp().playerWaitForArtwork = true;
-
         try {
             if (mPlaybackService != null) {
                 mPlaybackService.playFromAppCache(playPos);
@@ -323,16 +321,10 @@ public abstract class ScActivity extends Activity {
     }
 
 
-    public void pause(boolean force) {
+    public void pause() {
         try {
             if (mPlaybackService != null) {
-                if (mPlaybackService.isPlaying()) {
-                    if (force) {
-                        mPlaybackService.forcePause();
-                    } else {
-                        mPlaybackService.pause();
-                    }
-                }
+                mPlaybackService.pause();
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -439,12 +431,6 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    public void handleException(Exception e) {
-        if (CloudUtils.isConnectionException(e)) {
-            safeShowDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
-        }
-    }
-
     public void safeShowDialog(int dialogId) {
         if (!isFinishing()) {
             showDialog(dialogId);
@@ -537,11 +523,6 @@ public abstract class ScActivity extends Activity {
 
         menu.add(menu.size(), Consts.OptionsMenu.FRIEND_FINDER, menu.size(), R.string.menu_friend_finder)
                 .setIcon(R.drawable.ic_menu_friendfinder);
-
-        /*if (this instanceof ScCreate) {
-            menu.add(menu.size(), Consts.OptionsMenu.UPLOAD_FILE, 0, R.string.menu_upload_file).setIcon(
-                android.R.drawable.ic_menu_upload);
-        }*/
 
          if (this instanceof ScPlayer) {
             menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(

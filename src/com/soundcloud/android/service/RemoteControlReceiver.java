@@ -56,11 +56,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
     }
 
     private void handleToggle(Context context, ICloudPlaybackService svc) throws RemoteException {
-        if (svc.isPlaying()) {
-            svc.pause();
-        } else {
-            svc.play();
-        }
+        svc.toggle();
     }
 
     private void handleNextTrack(Context context, ICloudPlaybackService svc) throws RemoteException {

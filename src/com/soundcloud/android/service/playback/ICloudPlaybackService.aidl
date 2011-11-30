@@ -3,36 +3,48 @@ package com.soundcloud.android.service.playback;
 import com.soundcloud.android.model.Track;
 interface ICloudPlaybackService
 {
+    // controls
+    void play();
+    void pause();
+    void toggle();
+    void stop();
+    void prev();
+    long seek(long pos, boolean performSeek);
+    void next();
+    void restart();
+
     void playFromAppCache(int playPos);
-    int getQueuePosition();
+
+    // state
     boolean isSeekable();
     boolean isPlaying();
     boolean isSupposedToBePlaying();
-    void stop();
-    void pause();
-    void forcePause();
-    void play();
-    void prev();
-    void next();
-    void restart();
+    boolean isBuffering();
+    int loadPercent();
+
     long duration();
     long position();
-    int loadPercent();
-    long seek(long pos);
-    long getSeekResult(long pos);
+
+    // metadata
     Track getTrack();
     String getTrackName();
     long getTrackId();
     String getUserName();
     String getUserPermalink();
     String getWaveformUrl();
-    boolean isBuffering();
+    boolean getDownloadable();
+
+    // favoriting
     void setFavoriteStatus(long trackId, boolean favoriteStatus);
     void setQueuePosition(int index);
-    boolean getDownloadable();
+
+    // modal
     void setClearToPlay(boolean clearToPlay);
     void setAutoAdvance(boolean autoAdvance);
+
+    // queue
     int getQueueLength();
     Track getTrackAt(int pos);
     long getTrackIdAt(int pos);
+    int getQueuePosition();
 }

@@ -1,35 +1,34 @@
 
 package com.soundcloud.android.activity;
 
-import android.os.*;
-import android.view.WindowManager;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.RemoteControlReceiver;
+import com.soundcloud.android.service.playback.FocusHelper;
 import com.soundcloud.android.view.PlayerTrackView;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.android.view.WorkspaceView;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
     private static final String TAG = "ScPlayer";
@@ -50,15 +49,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private int mCurrentQueuePosition;
     private Drawable mFavoriteDrawable, mFavoritedDrawable;
 
-    private ComponentName mRemoteControlResponder;
-    private AudioManager mAudioManager;
-
-    private static Method mRegisterMediaButtonEventReceiver;
-    private static Method mUnregisterMediaButtonEventReceiver;
-
-    static {
-        initializeRemoteControlRegistrationMethods();
-    }
 
     public interface PlayerError {
         int PLAYBACK_ERROR = 0;
@@ -100,8 +90,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             });
         }
 
-        mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-        mRemoteControlResponder = new ComponentName(getPackageName(), RemoteControlReceiver.class.getName());
 
         mPauseState = getResources().getDrawable(R.drawable.ic_pause_states);
         mPlayState = getResources().getDrawable(R.drawable.ic_play_states);
@@ -207,14 +195,13 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     public long setSeekMarker(float seekPercent) {
         try {
             if (mPlaybackService != null) {
-
                 if (!mPlaybackService.isSeekable()) {
                     mSeekPos = -1;
                     return mPlaybackService.position();
                 } else {
                     if (mPlayingTrack != null) {
                         // where would we be if we had seeked
-                        mSeekPos = mPlaybackService.getSeekResult((long) (mPlayingTrack.duration * seekPercent));
+                        mSeekPos = mPlaybackService.seek((long) (mPlayingTrack.duration * seekPercent), false);
                         return mSeekPos;
                     }
                 }
@@ -231,7 +218,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 return -1;
             }
             mSeekPos = -1;
-            return mPlaybackService.seek((long) (mPlayingTrack.duration * seekPercent));
+            return mPlaybackService.seek(
+                    (long) (mPlayingTrack.duration * seekPercent),
+                    true);
 
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -241,7 +230,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     public void onWaveformLoaded(){
         mWaveformLoaded = true;
-
         try {
             if (mPlaybackService != null) mPlaybackService.setClearToPlay(true);
         } catch (RemoteException e) {
@@ -260,11 +248,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     public boolean toggleFavorite(Track track) {
         if (track == null) return false;
         try {
-            if (track.user_favorite) {
-                    mPlaybackService.setFavoriteStatus(track.id, false);
-            } else {
-                mPlaybackService.setFavoriteStatus(track.id, true);
-            }
+            mPlaybackService.setFavoriteStatus(track.id, !track.user_favorite);
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
             return false;
@@ -329,7 +313,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                             toggleCommentMode(getCurrentTrackView().getPlayPosition());
                         }
                     }, 200l);
-
                     getIntent().putExtra("commentMode", false);
                 }
 
@@ -378,7 +361,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     mChangeTrackFast = true;
                     mTrackWorkspace.scrollLeft();
                 } else if (isSeekable()) {
-                    mPlaybackService.seek(0);
+                    mPlaybackService.seek(0, true);
                 } else {
                     mPlaybackService.restart();
                 }
@@ -410,12 +393,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private void doPauseResume() {
         try {
             if (mPlaybackService != null) {
-                if (mPlaybackService.isSupposedToBePlaying()) {
-                    mPlaybackService.pause();
-                } else {
-                    mPlaybackService.play();
-                    if (mWaveformLoaded) mPlaybackService.setClearToPlay(true);
-                }
+                mPlaybackService.toggle();
+                if (mWaveformLoaded) mPlaybackService.setClearToPlay(true);
                 long next = refreshNow();
                 queueNextRefresh(next);
                 setPauseButtonImage();
@@ -427,7 +406,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     private void setPauseButtonImage() {
         if (mPauseButton == null) return;
-
         try {
             if (mPlaybackService != null && mPlaybackService.isSupposedToBePlaying()) {
                 mPauseButton.setImageDrawable(mPauseState);
@@ -501,8 +479,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             final int queuePos = intent.getIntExtra("queuePosition", -1);
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
-                if (mCurrentQueuePosition != queuePos){
-                    if (queuePos == mCurrentQueuePosition + 1 && !mTrackWorkspace.isScrolling()){ // auto advance
+                if (mCurrentQueuePosition != queuePos) {
+                    if (queuePos == mCurrentQueuePosition + 1 && !mTrackWorkspace.isScrolling()) { // auto advance
                         mTrackWorkspace.scrollRight();
                     }
                 }
@@ -543,9 +521,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     @Override
     protected void onStart() {
         super.onStart();
-
         mActivityPaused = false;
-        getApp().playerWaitForArtwork = true;
 
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
@@ -565,12 +541,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     @Override
     protected void onResume() {
         trackPage(Consts.Tracking.PLAYER);
-
         super.onResume();
 
-        registerHeadphoneRemoteControl();
-
-
+        FocusHelper.registerHeadphoneRemoteControl(this);
         setPauseButtonImage();
 
         long next = refreshNow();
@@ -581,14 +554,11 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     protected void onStop() {
         super.onStop();
 
-        // no longer have to wait for artwork to load
         try {
             if (mPlaybackService != null) mPlaybackService.setClearToPlay(true);
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
-        getApp().playerWaitForArtwork = false;
-
 
         for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
             ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).onStop(true);
@@ -599,64 +569,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         mPlaybackService = null;
     }
 
-    // http://android-developers.blogspot.com/2010/06/allowing-applications-to-play-nicer.html
-    private static void initializeRemoteControlRegistrationMethods() {
-        try {
-            if (mRegisterMediaButtonEventReceiver == null) {
-                mRegisterMediaButtonEventReceiver = AudioManager.class.getMethod(
-                        "registerMediaButtonEventReceiver",
-                        new Class[] { ComponentName.class });
-            }
-            if (mUnregisterMediaButtonEventReceiver == null) {
-                mUnregisterMediaButtonEventReceiver = AudioManager.class.getMethod(
-                        "unregisterMediaButtonEventReceiver",
-                        new Class[] { ComponentName.class });
-            }
-        } catch (NoSuchMethodException ignored) {
-            // Android < 2.2
-        }
-    }
 
-    private void registerHeadphoneRemoteControl() {
-        if (mRegisterMediaButtonEventReceiver == null ||
-            mAudioManager == null ||
-            mRemoteControlResponder == null) return;
-
-        try {
-            mRegisterMediaButtonEventReceiver.invoke(mAudioManager, mRemoteControlResponder);
-        } catch (InvocationTargetException ite) {
-            Throwable cause = ite.getCause();
-            if (cause instanceof RuntimeException) {
-                throw (RuntimeException) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else {
-                throw new RuntimeException(ite);
-            }
-        } catch (IllegalAccessException ie) {
-            Log.e(TAG, "unexpected", ie);
-        }
-    }
-
-    @SuppressWarnings({"UnusedDeclaration"})
-    private void unregisterRemoteControl() {
-        if (mUnregisterMediaButtonEventReceiver == null) return;
-
-        try {
-            mUnregisterMediaButtonEventReceiver.invoke(mAudioManager, mRemoteControlResponder);
-        } catch (InvocationTargetException ite) {
-            Throwable cause = ite.getCause();
-            if (cause instanceof RuntimeException) {
-                throw (RuntimeException) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else {
-                throw new RuntimeException(ite);
-            }
-        } catch (IllegalAccessException ie) {
-            Log.e(TAG, "unexpected", ie);
-        }
-    }
 
     private Track getAndCacheTrack(long trackId, int queuePos) {
         if (getApp().getTrackFromCache(trackId) == null) {

@@ -42,7 +42,6 @@ import android.widget.ViewFlipper;
 import java.util.List;
 
 public class PlayerTrackView extends LinearLayout implements View.OnTouchListener, LoadTrackInfoTask.LoadTrackInfoListener, LoadCommentsTask.LoadCommentsListener {
-
     private ScPlayer mPlayer;
 
     private ImageView mArtwork, mAvatar;
@@ -55,7 +54,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     private TrackInfoBar mTrackInfoBar;
     private ViewFlipper mTrackFlipper;
     private PlayerTrackInfo mTrackInfo;
-    private FlowLayout mTrackTags;
 
     private boolean mDraggingLabel = false;
     private int mInitialX = -1;
