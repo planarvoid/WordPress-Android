@@ -1,7 +1,8 @@
 package com.soundcloud.android.activity;
 
 import static junit.framework.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -11,7 +12,7 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.service.ICloudCreateService;
+import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.api.Params;
 import org.junit.Before;
 import org.junit.Test;

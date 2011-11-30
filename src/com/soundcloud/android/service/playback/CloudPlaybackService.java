@@ -366,7 +366,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             if (mMediaPlayer == null) {
                 mMediaPlayer = new MediaPlayer();
             }
-            notifyChange(BUFFERING);
 
             // commit updated track (user played update only)
             mPlayListManager.commitTrackToDb(track);
@@ -413,6 +412,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 Track next = mPlayListManager.getNextTrack();
                 mMediaPlayer.setDataSource(mProxy.createUri(mCurrentTrack.stream_url, next == null ? null : next.stream_url).toString());
                 mMediaPlayer.prepareAsync();
+                notifyChange(BUFFERING);
 
             } catch (IllegalStateException e) {
                 Log.e(TAG, "error", e);
