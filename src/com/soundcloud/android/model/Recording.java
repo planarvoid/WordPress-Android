@@ -1,14 +1,10 @@
 
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
-
-import android.provider.SyncStateContract;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
-import com.soundcloud.android.service.CloudCreateService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 
@@ -24,11 +20,9 @@ import android.util.Log;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Map;
 import java.util.regex.Pattern;
 

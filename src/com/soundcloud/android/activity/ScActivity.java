@@ -17,7 +17,7 @@ import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.Upload;
-import com.soundcloud.android.service.CloudCreateService;
+import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.service.playback.ICloudPlaybackService;

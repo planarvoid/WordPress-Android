@@ -1,4 +1,4 @@
-package com.soundcloud.android.service;
+package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 

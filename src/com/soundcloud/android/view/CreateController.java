@@ -26,7 +26,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper;
-import com.soundcloud.android.service.CloudCreateService;
+import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.ICloudCreateService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;

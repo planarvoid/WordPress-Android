@@ -173,7 +173,7 @@
         </service>
 
         <service
-            android:name=".service.CloudCreateService"
+            android:name=".service.record.CloudCreateService"
             android:exported="true">
         </service>
 
@@ -209,7 +209,7 @@
         </receiver>
 
         <receiver android:label="SoundCloud Recorder"
-              android:name=".service.RecordAppWidgetProvider">
+              android:name=".service.record.RecordAppWidgetProvider">
 
              <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -220,7 +220,7 @@
         </receiver>
 
         <!-- headphone remote control -->
-        <receiver android:name=".service.RemoteControlReceiver">
+        <receiver android:name=".service.playback.RemoteControlReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />

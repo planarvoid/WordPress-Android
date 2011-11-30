@@ -1,8 +1,6 @@
 package com.soundcloud.android.service.playback;
 
 
-import com.soundcloud.android.service.RemoteControlReceiver;
-
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;

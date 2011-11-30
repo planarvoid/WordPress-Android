@@ -1,5 +1,4 @@
-
-package com.soundcloud.android.service;
+package com.soundcloud.android.service.record;
 
 import static com.soundcloud.android.Consts.Notifications.*;
 import static com.soundcloud.android.utils.CloudUtils.isTaskFinished;
@@ -11,7 +10,6 @@ import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Upload;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper.Content;
 import com.soundcloud.android.provider.DatabaseHelper.Recordings;
 import com.soundcloud.android.task.OggEncoderTask;
@@ -40,14 +38,12 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.os.RemoteException;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 public class CloudCreateService extends Service {
@@ -170,7 +166,7 @@ public class CloudCreateService extends Service {
         Log.i(TAG, "upload Service shutdown complete.");
     }
 
-    private void startRecording(String path, int mode) {
+    /* package */ void startRecording(String path, int mode) {
         Log.v(TAG, "startRecording("+path+", "+mode+")");
 
         acquireWakeLock();
@@ -263,7 +259,7 @@ public class CloudCreateService extends Service {
         if (frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker();
     }
 
-    private void stopRecording() {
+    /* package */ void stopRecording() {
         if (mRecorder != null) {
             mRecorder.stop();
             mRecorder.release();
@@ -273,11 +269,11 @@ public class CloudCreateService extends Service {
         gotoIdleState();
     }
 
-    private boolean isRecording() {
+    /* package */ boolean isRecording() {
         return mRecording;
     }
 
-    private void updateRecordTicker() {
+    /* package */ void updateRecordTicker() {
         mRecordNotification.setLatestEventInfo(getApplicationContext(), mRecordEventTitle, CloudUtils
                 .formatString(mRecordEventMessage, (int)(System.currentTimeMillis() - mRecordStartTime)/1000), mRecordPendingIntent);
 
@@ -394,7 +390,7 @@ public class CloudCreateService extends Service {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean startUpload(final Upload upload) {
+    /* package */  boolean startUpload(final Upload upload) {
         if (mCurrentUpload!= null && mCurrentUpload.upload_status == Upload.UploadStatus.UPLOADING) return false;
         acquireWakeLock();
 
@@ -468,7 +464,7 @@ public class CloudCreateService extends Service {
         @Override
         protected void onProgressUpdate(Integer... progress) {
             if (!isCancelled()) {
-                final int currentProgress = (int) Math.min(100, (100 * progress[0]) / progress[1]);
+                final int currentProgress = Math.min(100, (100 * progress[0]) / progress[1]);
                 mUploadNotificationView.setProgressBar(R.id.progress_bar, progress[1], progress[0], false);
                 mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, currentProgress));
                 nm.notify(UPLOAD_NOTIFY_ID, mUploadNotification);
@@ -675,7 +671,7 @@ public class CloudCreateService extends Service {
         return (mOggTask != null || mResizeTask != null || mUploadTask != null);
     }
 
-    private void cancelUploadById(long id) {
+    /* package */  void cancelUploadById(long id) {
         if (mCurrentUpload == null) return;
         // eventually add support for cancelling queued uploads, but not necessary yet
         if (id == mCurrentUpload.id) cancelUpload();
@@ -728,7 +724,7 @@ public class CloudCreateService extends Service {
                 ? mCurrentUpload.local_recording_id : 0;
     }
 
-    private Upload getUploadById(long id) {
+    /* package */ Upload getUploadById(long id) {
         return mUploadMap.get(id);
     }
 
@@ -772,147 +768,6 @@ public class CloudCreateService extends Service {
             return true;
         }
     };
-
-    /*
-     * By making this a static class with a WeakReference to the Service, we
-     * ensure that the Service can be GCd even when the system process still has
-     * a remote reference to the stub.
-     */
-    static class ServiceStub extends ICloudCreateService.Stub {
-        WeakReference<CloudCreateService> mService;
-
-        public ServiceStub(CloudCreateService cloudUploaderService) {
-            mService = new WeakReference<CloudCreateService>(cloudUploaderService);
-        }
-
-        @Override
-        public void startRecording(String path, int mode) throws RemoteException {
-            final CloudCreateService service = mService.get();
-            if (service != null) service.startRecording(path, mode);
-        }
-
-        @Override
-        public boolean isRecording() throws RemoteException {
-            final CloudCreateService service = mService.get();
-            return service != null && service.isRecording();
-        }
-
-        @Override
-        public String getRecordingPath() throws RemoteException {
-            final CloudCreateService service = mService.get();
-            return service != null ? service.getRecordingPath() : null;
-        }
-
-        @Override
-        public void stopRecording() throws RemoteException {
-            final CloudCreateService service = mService.get();
-            if (service != null) service.stopRecording();
-        }
-
-        @Override
-        public void updateRecordTicker() throws RemoteException {
-            final CloudCreateService service = mService.get();
-            if (service != null) service.updateRecordTicker();
-        }
-
-        @Override
-        public void loadPlaybackTrack(String playbackFile) {
-            final CloudCreateService service = mService.get();
-            if (service != null) service.loadPlaybackTrack(playbackFile);
-        }
-
-        @Override
-        public boolean isPlayingBack() {
-            final CloudCreateService service = mService.get();
-            return service != null && service.isPlaying();
-        }
-
-        @Override
-        public void startPlayback() {
-            final CloudCreateService service = mService.get();
-            if (service != null) service.startPlayback();
-        }
-
-        @Override
-        public void pausePlayback() {
-            final CloudCreateService service = mService.get();
-            if (service != null) service.pausePlayback();
-        }
-
-        @Override
-        public void stopPlayback() {
-            final CloudCreateService service = mService.get();
-            if (service != null) service.stopPlayback();
-        }
-
-        @Override
-        public int getCurrentPlaybackPosition() {
-            final CloudCreateService service = mService.get();
-            return service != null ? service.getCurrentPlaybackPosition() : 0;
-        }
-
-        @Override
-        public int getPlaybackDuration() {
-            final CloudCreateService service = mService.get();
-            return service != null ? service.getPlaybackDuration() : -1;
-        }
-
-        @Override
-        public void seekTo(int position) {
-            final CloudCreateService service = mService.get();
-            if (service != null) service.seekTo(position);
-        }
-
-        @Override
-        public boolean startUpload(Upload upload) throws RemoteException {
-            final CloudCreateService service = mService.get();
-            return (service != null) && service.startUpload(upload);
-
-        }
-
-        @Override
-        public boolean isUploading() throws RemoteException {
-            final CloudCreateService service = mService.get();
-            return service != null && service.isUploading();
-        }
-
-        @Override
-        public void cancelUpload() throws RemoteException {
-            final CloudCreateService service = mService.get();
-            if (service != null) service.cancelUpload();
-        }
-
-        @Override
-        public void cancelUploadById(long id) throws RemoteException {
-            final CloudCreateService service = mService.get();
-            if (service != null) service.cancelUploadById(id);
-        }
-
-        @Override
-        public String getPlaybackPath() throws RemoteException {
-            final CloudCreateService service = mService.get();
-            return service != null ? service.getCurrentPlaybackPath() : null;
-        }
-
-        @Override
-        public Upload getUploadById(long id) throws RemoteException {
-            final CloudCreateService service = mService.get();
-            return service != null ? service.getUploadById(id) : null;
-        }
-
-        @Override
-        public long getUploadLocalId() throws RemoteException {
-            final CloudCreateService service = mService.get();
-            return service != null ? service.getUploadLocalId() : 0;
-        }
-
-        @Override
-        public long getPlaybackLocalId() throws RemoteException {
-            final CloudCreateService service = mService.get();
-            return service != null ? service.getPlaybackLocalId() : 0;
-        }
-
-    }
 
     private final IBinder mBinder = new ServiceStub(this);
 }
