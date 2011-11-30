@@ -13,7 +13,6 @@ import com.soundcloud.android.provider.DatabaseHelper.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -35,7 +34,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

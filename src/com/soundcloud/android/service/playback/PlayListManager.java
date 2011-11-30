@@ -17,7 +17,7 @@ import android.util.Log;
 
 import java.util.List;
 
-public class PlaylistManager  {
+/* package */ class PlaylistManager  {
     private static final String TAG = "PlayListManager";
 
     private CloudPlaybackService mPlaybackService;
