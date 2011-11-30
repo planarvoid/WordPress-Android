@@ -197,7 +197,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             if (mPlaybackService != null) {
                 if (!mPlaybackService.isSeekable()) {
                     mSeekPos = -1;
-                    return mPlaybackService.position();
+                    return mPlaybackService.getPosition();
                 } else {
                     if (mPlayingTrack != null) {
                         // where would we be if we had seeked
@@ -358,7 +358,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             if (mPlaybackService == null) return;
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
             try {
-                if (mPlaybackService.position() < 2000 && mCurrentQueuePosition > 0) {
+                if (mPlaybackService.getPosition() < 2000 && mCurrentQueuePosition > 0) {
                     mChangeTrackFast = true;
                     mTrackWorkspace.scrollLeft();
                 } else if (isSeekable()) {
@@ -435,7 +435,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 mIsPlaying = true;
             }
 
-            long pos = mPlaybackService.position();
+            long pos = mPlaybackService.getPosition();
             long remaining = REFRESH_DELAY - (pos % REFRESH_DELAY);
             int queuePos = mPlaybackService.getQueuePosition();
 

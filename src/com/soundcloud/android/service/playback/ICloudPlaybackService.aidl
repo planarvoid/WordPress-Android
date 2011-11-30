@@ -22,8 +22,8 @@ interface ICloudPlaybackService
     boolean isBuffering();
     int loadPercent();
 
-    long duration();
-    long position();
+    long getDuration();
+    long getPosition();
 
     // metadata
     Track getTrack();

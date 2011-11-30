@@ -203,7 +203,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public boolean onUnbind(Intent intent) {
         mServiceInUse = false;
 
-        mPlayListManager.saveQueue(true, mCurrentTrack == null ? 0 : position());
+        mPlayListManager.saveQueue(true, mCurrentTrack == null ? 0 : getPosition());
 
         if (isSupposedToBePlaying() || mResumeAfterCall) {
             // something is currently playing, or will be playing once
@@ -287,14 +287,14 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             .putExtra("isPlaying", isPlaying())
             .putExtra("isSupposedToBePlaying", isSupposedToBePlaying())
             .putExtra("isBuffering", isBuffering())
-            .putExtra("position", position())
+            .putExtra("position", getPosition())
             .putExtra("queuePosition", mPlayListManager.getCurrentPosition());
         if (FAVORITE_SET.equals(what)) {
             i.putExtra("isFavorite", mCurrentTrack.user_favorite);
         }
 
         sendBroadcast(i);
-        mPlayListManager.saveQueue(what.equals(QUEUE_CHANGED), mCurrentTrack == null ? 0 : position());
+        mPlayListManager.saveQueue(what.equals(QUEUE_CHANGED), mCurrentTrack == null ? 0 : getPosition());
 
         // Share this notification directly with our widgets
         mAppWidgetProvider.notifyChange(this, i.putExtra("trackParcel", getTrack()));
@@ -417,6 +417,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             } catch (IllegalStateException e) {
                 Log.e(TAG, "error", e);
                 state = ERROR;
+
+                gotoIdleState();
             } catch (IOException e) {
                 Log.e(TAG, "error", e);
                 errorListener.onError(mMediaPlayer, 0, 0);
@@ -578,7 +580,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     /*
      * Returns the current playback position in milliseconds
      */
-    /* package */ long position() {
+    /* package */ long getPosition() {
         if (mMediaPlayer != null && (state == PLAYING || state == PAUSED)) {
             return mMediaPlayer.getCurrentPosition();
         } else if (mCurrentTrack != null && mResumeTrackId == mCurrentTrack.id) {
@@ -609,7 +611,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             if (pos <= 0) {
                 pos = 0;
             }
-            final long currentPos = position();
+            final long currentPos = getPosition();
             // workaround for devices which can't do content-range requests
             if (isNotSeekablePastBuffer() && isPastBuffer(pos)) {
                 Log.d(TAG, "MediaPlayer bug: cannot seek past buffer");
@@ -750,7 +752,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     Log.d(TAG, "DelayedStopHandler: stopping service");
                 }
 
-                mPlayListManager.saveQueue(true, mCurrentTrack == null ? 0 : position());
+                mPlayListManager.saveQueue(true, mCurrentTrack == null ? 0 : getPosition());
                 stopSelf(mServiceStartId);
             }
         }
@@ -873,7 +875,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     break;
                 case CHECK_TRACK_EVENT:
                     if (mCurrentTrack != null) {
-                        final long pos = position();
+                        final long pos = getPosition();
                         // account for lack of accuracy in actual delay between checks
                         final long window = (long) (TRACK_EVENT_CHECK_DELAY * 1.5);
 

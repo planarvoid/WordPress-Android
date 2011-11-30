@@ -103,14 +103,14 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     }
 
     @Override
-    public long position() {
+    public long getPosition() {
         CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.position() : 0;
+        return svc != null ? svc.getPosition() : 0;
 
     }
 
     @Override
-    public long duration() {
+    public long getDuration() {
         CloudPlaybackService svc = mService.get();
         return svc != null ? svc.getDuration() : 0;
 
