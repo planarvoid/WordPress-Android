@@ -20,6 +20,10 @@ import java.util.List;
 /* package */ class PlaylistManager  {
     private static final String TAG = "PlayListManager";
 
+    private final static char HEXDIGITS[] = new char[] {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
+
     private CloudPlaybackService mPlaybackService;
     private long[] mPlayList = new long[0];
     private int mPlayPos, mPlayListLen;
@@ -31,15 +35,19 @@ import java.util.List;
         mPlaybackService = service;
     }
 
-    public int getCurrentLength() {
+    public int length() {
         return mPlayListLen;
     }
 
-    public int getCurrentPosition() {
+    public boolean isEmpty() {
+        return mPlayListLen == 0;
+    }
+
+    public int getPosition() {
         return mPlayPos;
     }
 
-    public Boolean setCurrentPosition(int playPos) {
+    public boolean setPosition(int playPos) {
         if (playPos < mPlayListLen) {
             mPlayPos = playPos;
             return true;
@@ -47,7 +55,7 @@ import java.util.List;
         return false;
     }
 
-    public Track getCurrentTrack() {
+    public Track getTrack() {
         return getTrackAt(mPlayPos);
     }
 
@@ -81,12 +89,12 @@ import java.util.List;
         if (newTrack != null && newTrack.isStreamable()){
             mPlayPos = newPos;
             return true;
+        } else {
+            return false;
         }
-
-        return false;
     }
 
-    public Boolean next() {
+    public boolean next() {
         if (mPlayPos >= mPlayListLen - 1)
             return false;
 
@@ -100,9 +108,9 @@ import java.util.List;
         if (newTrack != null && newTrack.isStreamable()){
             mPlayPos = newPos;
             return true;
+        } else {
+            return false;
         }
-
-        return false;
     }
 
     public void oneShotTrack(Track track) {
@@ -114,7 +122,6 @@ import java.util.List;
     public void loadPlaylist(List<Parcelable> playlist, int playPos) {
         // cache a new tracklist
         mPlayListCache = new Track[playlist.size()];
-
         mPlayList = new long[playlist.size()];
 
         int i = 0;
@@ -135,9 +142,7 @@ import java.util.List;
 
         mPlayPos = playPos;
         mPlayListLen = i;
-
-        new CommitPlaylistTask(mPlaybackService.getContentResolver()
-        ).execute(mPlayListCache);
+        new CommitPlaylistTask(mPlaybackService.getContentResolver()).execute(mPlayListCache);
     }
 
     public void commitTrackToDb(final Track t) {
@@ -171,8 +176,9 @@ import java.util.List;
     public long getTrackIdAt(int pos) {
         if (pos >= 0 && pos < mPlayListLen) {
             return mPlayList[pos];
+        } else {
+            return -1;
         }
-        return -1;
     }
 
     public void clear() {
@@ -182,7 +188,7 @@ import java.util.List;
         mPlayListLen = 0;
     }
 
-    public class CommitPlaylistTask extends CommitTracksTask {
+    private class CommitPlaylistTask extends CommitTracksTask {
         public CommitPlaylistTask(ContentResolver contentResolver) {
             super(contentResolver);
         }
@@ -190,21 +196,16 @@ import java.util.List;
         @Override
         protected Boolean doInBackground(Track... params) {
             Boolean ret;
-            synchronized (PlaylistManager.this){
+            synchronized (CommitPlaylistTask.class){
                 ret = super.doInBackground(params);
             }
             return ret;
         }
 
         @Override
-        protected void afterCommitInBg() {
-
-        }
-
-        @Override
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
-            synchronized (PlaylistManager.this) {
+            synchronized (CommitPlaylistTask.class) {
                 mPlayListCache = null;
             }
         }
@@ -224,9 +225,6 @@ import java.util.List;
         // than the allocated size
     }
 
-    private final char hexdigits[] = new char[] {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-    };
 
     public void saveQueue(boolean full, long seekPos) {
         Editor ed = PreferenceManager.getDefaultSharedPreferences(mPlaybackService).edit();
@@ -256,7 +254,7 @@ import java.util.List;
                     while (n != 0) {
                         int digit = (int) (n & 0xf);
                         n >>= 4;
-                        q.append(hexdigits[digit]);
+                        q.append(HEXDIGITS[digit]);
                     }
                     q.append(";");
                 }

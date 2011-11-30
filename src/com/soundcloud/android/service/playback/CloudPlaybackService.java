@@ -89,7 +89,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
     protected NetworkConnectivityListener connectivityListener;
-    /* package */ PlaylistManager mPlayListManager = new PlaylistManager(this);
+    /* package */ PlaylistManager mPlaylistManager = new PlaylistManager(this);
     private Track mCurrentTrack;
     private RemoteViews mNotificationView;
     private AudioManager mAudioManager;
@@ -159,8 +159,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         // system will relaunch it. Make sure it gets stopped again in that case.
         scheduleServiceShutdownCheck();
 
-        mResumeTime = mPlayListManager.reloadQueue();
-        mCurrentTrack = mPlayListManager.getCurrentTrack();
+        mResumeTime = mPlaylistManager.reloadQueue();
+        mCurrentTrack = mPlaylistManager.getTrack();
         if (mCurrentTrack != null && mResumeTime > 0) {
             mResumeTrackId = mCurrentTrack.id;
         }
@@ -202,7 +202,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public boolean onUnbind(Intent intent) {
         mServiceInUse = false;
 
-        mPlayListManager.saveQueue(true, mCurrentTrack == null ? 0 : getPosition());
+        mPlaylistManager.saveQueue(true, mCurrentTrack == null ? 0 : getPosition());
 
         if (isSupposedToBePlaying() || mResumeAfterCall) {
             // something is currently playing, or will be playing once
@@ -213,7 +213,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         // before stopping the service, so that pause/resume isn't slow.
         // Also delay stopping the service if we're transitioning between
         // tracks.
-        if (mPlayListManager.getCurrentLength() > 0 || mPlayerHandler.hasMessages(TRACK_ENDED)) {
+        if (!mPlaylistManager.isEmpty() || mPlayerHandler.hasMessages(TRACK_ENDED)) {
             Message msg = mDelayedStopHandler.obtainMessage();
             mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
             return true;
@@ -287,13 +287,13 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             .putExtra("isSupposedToBePlaying", isSupposedToBePlaying())
             .putExtra("isBuffering", isBuffering())
             .putExtra("position", getPosition())
-            .putExtra("queuePosition", mPlayListManager.getCurrentPosition());
+            .putExtra("queuePosition", mPlaylistManager.getPosition());
         if (FAVORITE_SET.equals(what)) {
             i.putExtra("isFavorite", mCurrentTrack.user_favorite);
         }
 
         sendBroadcast(i);
-        mPlayListManager.saveQueue(what.equals(QUEUE_CHANGED), mCurrentTrack == null ? 0 : getPosition());
+        mPlaylistManager.saveQueue(what.equals(QUEUE_CHANGED), mCurrentTrack == null ? 0 : getPosition());
 
         // Share this notification directly with our widgets
         mAppWidgetProvider.notifyChange(this, i.putExtra("trackParcel", getTrack()));
@@ -301,13 +301,13 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     /* package */ void oneShotPlay(Track track) {
         if (track != null) {
-            mPlayListManager.oneShotTrack(track);
+            mPlaylistManager.oneShotTrack(track);
             openCurrent();
         }
     }
 
     /* package */ void playFromAppCache(int playPos) {
-        mPlayListManager.loadPlaylist(getApp().flushCachePlaylist(), playPos);
+        mPlaylistManager.loadPlaylist(getApp().flushCachePlaylist(), playPos);
         openCurrent();
     }
 
@@ -315,7 +315,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "openCurrent(state="+state+")");
         }
-        final Track track = mPlayListManager.getCurrentTrack();
+        final Track track = mPlaylistManager.getTrack();
         if (track != null) {
 
             if (mAutoPause) {
@@ -367,7 +367,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             }
 
             // commit updated track (user played update only)
-            mPlayListManager.commitTrackToDb(track);
+            mPlaylistManager.commitTrackToDb(track);
 
             switch (state) {
                 case PREPARING:
@@ -408,7 +408,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mMediaPlayer.setOnErrorListener(errorListener);
                 mMediaPlayer.setOnBufferingUpdateListener(bufferingListener);
                 mMediaPlayer.setOnInfoListener(infolistener);
-                Track next = mPlayListManager.getNextTrack();
+                Track next = mPlaylistManager.getNextTrack();
                 mMediaPlayer.setDataSource(mProxy.createUri(mCurrentTrack.stream_url, next == null ? null : next.stream_url).toString());
                 mMediaPlayer.prepareAsync();
                 notifyChange(BUFFERING);
@@ -510,11 +510,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ void prev() {
-        if (mPlayListManager.prev()) openCurrent();
+        if (mPlaylistManager.prev()) openCurrent();
     }
 
     /* package */ void next() {
-        if (mPlayListManager.next()) openCurrent();
+        if (mPlaylistManager.next()) openCurrent();
     }
 
 
@@ -545,8 +545,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     /* package */ void setQueuePosition(int pos) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setQueuePosition("+pos+")");
 
-        if (mPlayListManager.getCurrentPosition() != pos &&
-            mPlayListManager.setCurrentPosition(pos)) {
+        if (mPlaylistManager.getPosition() != pos &&
+            mPlaylistManager.setPosition(pos)) {
             openCurrent();
         }
     }
@@ -565,7 +565,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ Track getTrack() {
-        return mCurrentTrack == null ? mPlayListManager.getCurrentTrack() : mCurrentTrack;
+        return mCurrentTrack == null ? mPlaylistManager.getTrack() : mCurrentTrack;
     }
 
     /* package */ int getDuration() {
@@ -751,7 +751,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     Log.d(TAG, "DelayedStopHandler: stopping service");
                 }
 
-                mPlayListManager.saveQueue(true, mCurrentTrack == null ? 0 : getPosition());
+                mPlaylistManager.saveQueue(true, mCurrentTrack == null ? 0 : getPosition());
                 stopSelf(mServiceStartId);
             }
         }
@@ -802,7 +802,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 oneShotPlay(intent.<Track>getParcelableExtra("track"));
             } else if (RESET_ALL.equals(action)) {
                 stop();
-                mPlayListManager.clear();
+                mPlaylistManager.clear();
             }
         }
     };

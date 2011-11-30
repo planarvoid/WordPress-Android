@@ -21,7 +21,7 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     @Override
     public int getQueuePosition() {
         CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.mPlayListManager.getCurrentPosition() : 0;
+        return svc != null ? svc.mPlaylistManager.getPosition() : 0;
     }
 
     @Override
@@ -138,19 +138,19 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
 
     public Track getTrackAt(int pos) throws RemoteException {
         CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.mPlayListManager.getTrackAt(pos) : null;
+        return svc != null ? svc.mPlaylistManager.getTrackAt(pos) : null;
     }
 
     @Override
     public long getTrackIdAt(int pos) throws RemoteException {
         CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.mPlayListManager.getTrackIdAt(pos) : -1;
+        return svc != null ? svc.mPlaylistManager.getTrackIdAt(pos) : -1;
     }
 
     @Override
     public int getQueueLength() throws RemoteException {
         CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.mPlayListManager.getCurrentLength() : 0;
+        return svc != null ? svc.mPlaylistManager.length() : 0;
     }
 
     @Override
