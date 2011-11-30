@@ -1,22 +1,18 @@
 
 package com.soundcloud.android.view;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.text.TextUtils;
-import android.view.animation.Transformation;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.ITracklistAdapter;
-import com.soundcloud.android.adapter.ScCursorAdapter;
-import com.soundcloud.android.adapter.UserFavoritesAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ImageUtils;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.view.View;
+import android.view.animation.Transformation;
 import android.widget.ImageView;
 
 public class TracklistRow extends LazyRow {

@@ -161,7 +161,8 @@ public abstract class ModelBase implements Parcelable {
     }
 
     protected boolean getBooleanFromString(String value){
-        return (!TextUtils.isEmpty(value) && value.equalsIgnoreCase("true"));
+        return Boolean.getBoolean(value);
+        //return (!TextUtils.isEmpty(value) && value.equalsIgnoreCase("true"));
     }
 
     public ContentValues buildContentValues() {

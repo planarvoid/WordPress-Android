@@ -238,28 +238,6 @@ public class User extends ModelBase implements PageTrackable {
         return u;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        User user = (User) o;
-
-        if (id != user.id) return false;
-        if (permalink != null ? !permalink.equals(user.permalink) : user.permalink != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (permalink != null ? permalink.hashCode() : 0);
-        result = 31 * result + (int) (id ^ (id >>> 32));
-        return result;
-    }
-
     public static interface DataKeys {
         String USERNAME = "currentUsername";
         String USER_ID = "currentUserId";

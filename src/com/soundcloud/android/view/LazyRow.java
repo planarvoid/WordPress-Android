@@ -1,26 +1,21 @@
 
 package com.soundcloud.android.view;
 
+import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.utils.CloudUtils;
+
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Parcelable;
-import android.util.Log;
-import android.widget.BaseAdapter;
-import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.ScCursorAdapter;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.utils.CloudUtils;
-
-import android.content.Context;
 import android.view.LayoutInflater;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
