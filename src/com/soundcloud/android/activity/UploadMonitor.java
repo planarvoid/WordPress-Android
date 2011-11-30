@@ -5,7 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.service.record.CloudCreateService;
-import com.soundcloud.android.service.ICloudCreateService;
+import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 

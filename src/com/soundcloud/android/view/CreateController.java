@@ -27,7 +27,7 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.DatabaseHelper;
 import com.soundcloud.android.service.record.CloudCreateService;
-import com.soundcloud.android.service.ICloudCreateService;
+import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.android.utils.record.PowerGauge;
@@ -40,7 +40,6 @@ import java.util.*;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.CloudUtils.mkdirs;
-import static com.soundcloud.android.utils.CloudUtils.showToast;
 
 public class CreateController {
 
@@ -108,6 +107,27 @@ public class CreateController {
         txtInstructions = (TextView) vg.findViewById(R.id.txt_instructions);
 
         mProgressBar = (SeekBar) vg.findViewById(R.id.progress_bar);
+        SeekBar.OnSeekBarChangeListener mSeekListener = new SeekBar.OnSeekBarChangeListener() {
+            public void onStartTrackingTouch(SeekBar bar) {
+                mLastSeekEventTime = 0;
+            }
+
+            public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
+                if (!fromuser) return;
+                long now = SystemClock.elapsedRealtime();
+                if ((now - mLastSeekEventTime) > 250) {
+                    mLastSeekEventTime = now;
+                    try {
+                        mCreateService.seekTo(progress);
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "error", e);
+                    }
+                }
+            }
+
+            public void onStopTrackingTouch(SeekBar bar) {
+            }
+        };
         mProgressBar.setOnSeekBarChangeListener(mSeekListener);
 
         txtRecordStatus = (TextView) vg.findViewById(R.id.txt_record_status);
@@ -233,9 +253,7 @@ public class CreateController {
         boolean takeAction = false;
         try {
 
-            long recordingId = 0;
             if (mRecording != null) {
-                recordingId = mRecording.id;
                 setRecordFile(mRecording.audio_path);
                 mAudioProfile = mRecording.audio_profile;
                 mDuration = mRecording.duration;
@@ -296,8 +314,7 @@ public class CreateController {
         boolean react = false;
         try {
             react = shouldReactToPath(mCreateService.getRecordingPath());
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        } catch (RemoteException ignored) {
         }
         return react;
     }
@@ -306,8 +323,7 @@ public class CreateController {
         boolean react = false;
         try {
             react = shouldReactToPath(mCreateService.getPlaybackPath());
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        } catch (RemoteException ignored) {
         }
         return react;
     }
@@ -713,26 +729,6 @@ public class CreateController {
     }
 
 
-
-    private SeekBar.OnSeekBarChangeListener mSeekListener = new SeekBar.OnSeekBarChangeListener() {
-        public void onStartTrackingTouch(SeekBar bar) {
-            mLastSeekEventTime = 0;
-        }
-        public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
-            if (!fromuser) return;
-            long now = SystemClock.elapsedRealtime();
-            if ((now - mLastSeekEventTime) > 250) {
-                mLastSeekEventTime = now;
-                try {
-                    mCreateService.seekTo(progress);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "error", e);
-                }
-            }
-        }
-        public void onStopTrackingTouch(SeekBar bar) { }
-    };
-
     private void checkUnsavedFiles() {
         String[] columns = { DatabaseHelper.Recordings.ID };
         Cursor cursor;
@@ -797,9 +793,7 @@ public class CreateController {
             if (mPrivateUser != null && filePrivateUserId == mPrivateUser.id) {
                 setRecordFile(f);
                 break;
-            };
-
-
+            }
         }
     }
 

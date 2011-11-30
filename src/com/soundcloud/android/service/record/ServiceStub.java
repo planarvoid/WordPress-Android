@@ -1,7 +1,6 @@
 package com.soundcloud.android.service.record;
 
 import com.soundcloud.android.model.Upload;
-import com.soundcloud.android.service.ICloudCreateService;
 
 import android.os.RemoteException;
 
