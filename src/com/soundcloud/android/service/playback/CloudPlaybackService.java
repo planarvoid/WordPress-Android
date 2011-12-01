@@ -266,7 +266,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         mFocusLost = isTransient;
     }
 
-    /* package */ void scheduleServiceShutdownCheck() {
+    private void scheduleServiceShutdownCheck() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "scheduleServiceShutdownCheck()");
         }
@@ -274,7 +274,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
     }
 
-    /* package */ void notifyChange(String what) {
+    private void notifyChange(String what) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "notifyChange("+what+")");
         }
@@ -354,7 +354,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             Log.d(TAG, "playlist is empty");
         }
     }
-
 
     private void startTrack(Track track) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {

@@ -195,11 +195,9 @@ import java.util.List;
 
         @Override
         protected Boolean doInBackground(Track... params) {
-            Boolean ret;
             synchronized (CommitPlaylistTask.class){
-                ret = super.doInBackground(params);
+                return super.doInBackground(params);
             }
-            return ret;
         }
 
         @Override
