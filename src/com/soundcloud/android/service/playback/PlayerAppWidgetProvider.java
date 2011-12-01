@@ -47,10 +47,8 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     }
 
     private void defaultAppWidget(Context context, int[] appWidgetIds) {
-        context.getResources();
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_player);
-
-        views.setTextViewText(R.id.title_txt, "Touch to open SoundCloud");
+        views.setTextViewText(R.id.title_txt, context.getString(R.string.widget_touch_to_open));
         views.setViewVisibility(R.id.by_txt, View.GONE);
         views.setViewVisibility(R.id.user_txt, View.GONE);
 
