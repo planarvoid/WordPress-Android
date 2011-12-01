@@ -214,8 +214,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         // Also delay stopping the service if we're transitioning between
         // tracks.
         if (!mPlaylistManager.isEmpty() || mPlayerHandler.hasMessages(TRACK_ENDED)) {
-            Message msg = mDelayedStopHandler.obtainMessage();
-            mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
+            mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
             return true;
         }
 
@@ -272,7 +271,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             Log.d(TAG, "scheduleServiceShutdownCheck()");
         }
         mDelayedStopHandler.removeCallbacksAndMessages(null);
-        mDelayedStopHandler.sendMessageDelayed(mDelayedStopHandler.obtainMessage(), IDLE_DELAY);
+        mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
     }
 
     /* package */ void notifyChange(String what) {
@@ -340,7 +339,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                         if (getApp().getTrackFromCache(mCurrentTrack.id) == null) {
                             getApp().cacheTrack(mCurrentTrack);
                         }
-                        mPlayerHandler.sendMessage(mPlayerHandler.obtainMessage(NOTIFY_META_CHANGED));
+                        mPlayerHandler.sendEmptyMessage(NOTIFY_META_CHANGED);
                     }
                 }.start();
 
@@ -424,7 +423,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             }
         } else {
             // track not streamable
-            mPlayerHandler.sendMessage(mPlayerHandler.obtainMessage(STREAM_EXCEPTION));
+            mPlayerHandler.sendEmptyMessage(STREAM_EXCEPTION);
             gotoIdleState();
         }
     }
@@ -443,9 +442,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
                 setPlayingNotification(mCurrentTrack);
 
-                Message msg = mPlayerHandler.obtainMessage(CHECK_TRACK_EVENT);
                 mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
-                mPlayerHandler.sendMessageDelayed(msg, TRACK_EVENT_CHECK_DELAY);
+                mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, TRACK_EVENT_CHECK_DELAY);
 
                 notifyChange(PLAYSTATE_CHANGED);
             } else if (state != PLAYING) {
@@ -892,8 +890,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     }
                     mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
                     if (!m10percentStampReached || !m95percentStampReached) {
-                        mPlayerHandler.sendMessageDelayed(mPlayerHandler.obtainMessage(CHECK_TRACK_EVENT),
-                                TRACK_EVENT_CHECK_DELAY);
+                        mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, TRACK_EVENT_CHECK_DELAY);
                     }
                     break;
             }
@@ -942,9 +939,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
             if (mMediaPlayer == mp) {
                 // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
-                Message msg = mPlayerHandler.obtainMessage(CLEAR_LAST_SEEK);
                 mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
-                mPlayerHandler.sendMessageDelayed(msg, 3000);
+                mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
                 resumeSeeking = false;
                 notifyChange(SEEK_COMPLETE);
             }
