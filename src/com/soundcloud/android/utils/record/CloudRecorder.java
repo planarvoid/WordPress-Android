@@ -1,8 +1,7 @@
 
 package com.soundcloud.android.utils.record;
 
-import com.soundcloud.android.activity.ScCreate;
-import com.soundcloud.android.service.CloudCreateService;
+import com.soundcloud.android.service.record.CloudCreateService;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;

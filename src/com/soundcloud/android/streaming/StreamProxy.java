@@ -43,10 +43,10 @@ import java.util.regex.Pattern;
  * orig: http://code.google.com/p/npr-android-app/source/browse/trunk/Npr/src/org/npr/android/news/StreamProxy.java
  */
 public class StreamProxy implements Runnable {
-    private static final String LOG_TAG = StreamLoader.LOG_TAG;
+    private static final String LOG_TAG = StreamProxy.class.getSimpleName();
 
-    private static final int INITIAL_TIMEOUT = 15;   // before receiving the first chunk
-    private static final int TRANSFER_TIMEOUT = 120; // subsequent chunks
+    private static final int INITIAL_TIMEOUT  = 15;   // before receiving the first chunk
+    private static final int TRANSFER_TIMEOUT = 60;   // subsequent chunks
     private static final String CRLF = "\r\n";
 
     private static final String SERVER = "SoundCloudStreaming";
@@ -115,7 +115,6 @@ public class StreamProxy implements Runnable {
             mThread.join(5000);
         } catch (InterruptedException ignored) {
         }
-
         loader.stop();
     }
 
@@ -218,7 +217,9 @@ public class StreamProxy implements Runnable {
         final String streamUrl = uri.getQueryParameter(PARAM_STREAM_URL);
         final String nextUrl = uri.getQueryParameter(PARAM_NEXT_STREAM_URL);
 
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "processRequest: " + streamUrl);
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG,
+                String.format("processRequest: url=%s, port=%d", streamUrl, client.getPort()));
+
         setUserAgent(request);
 
         try {
@@ -238,7 +239,7 @@ public class StreamProxy implements Runnable {
             if ("Connection reset by peer".equals(e.getMessage()) ||
                     "Broken pipe".equals(e.getMessage())) {
                 if (Log.isLoggable(LOG_TAG, Log.DEBUG))
-                    Log.d(LOG_TAG, "client closed connection [expected]");
+                    Log.d(LOG_TAG, String.format("client %d closed connection [expected]", client.getPort()));
             } else {
                 Log.w(LOG_TAG, e.getMessage(), e);
             }
@@ -301,7 +302,7 @@ public class StreamProxy implements Runnable {
             throws IOException, InterruptedException, TimeoutException {
 
         ByteBuffer buffer;
-        for (long offset = startByte; ; ) {
+        for (long offset = startByte; isRunning();) {
             StreamFuture stream = loader.getDataForUrl(streamUrl, Range.from(offset, storage.chunkSize));
             try {
                 if (offset == startByte) {
@@ -316,7 +317,10 @@ public class StreamProxy implements Runnable {
                         headers.put("Content-Range",
                                 String.format("%d-%d/%d", startByte, length - 1, length));
                     }
-                    channel.write(getHeader(startByte, headers));
+
+
+                    ByteBuffer header = getHeader(startByte, headers);
+                    channel.write(header);
 
                     // since we already got some data for this track, ready to queue next one
                     queueNextUrl(nextUrl, 3000);
@@ -379,7 +383,7 @@ public class StreamProxy implements Runnable {
         ByteBuffer buffer = ByteBuffer.allocate(8192);
         int read = 0;
         try {
-            while (read < file.length() - offset) {
+            while (read < file.length() - offset && isRunning()) {
                 int readnow = f.read(buffer);
                 if (readnow == -1) {
                     break;

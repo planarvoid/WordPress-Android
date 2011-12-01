@@ -1,14 +1,12 @@
-
-package com.soundcloud.android.utils.play;
+package com.soundcloud.android.service.playback;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceScreen;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.CloudPlaybackService;
 import com.soundcloud.android.task.CommitTracksTask;
 
 import android.content.ContentResolver;
@@ -17,12 +15,14 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.io.PipedOutputStream;
 import java.util.List;
 
-public class PlayListManager {
-
+/* package */ class PlaylistManager  {
     private static final String TAG = "PlayListManager";
+
+    private final static char HEXDIGITS[] = new char[] {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
 
     private CloudPlaybackService mPlaybackService;
     private long[] mPlayList = new long[0];
@@ -31,19 +31,23 @@ public class PlayListManager {
     // used before tracks get committed to db
     private Track[] mPlayListCache;
 
-    public PlayListManager(CloudPlaybackService service) {
+    public PlaylistManager(CloudPlaybackService service) {
         mPlaybackService = service;
     }
 
-    public int getCurrentLength() {
+    public int length() {
         return mPlayListLen;
     }
 
-    public int getCurrentPosition() {
+    public boolean isEmpty() {
+        return mPlayListLen == 0;
+    }
+
+    public int getPosition() {
         return mPlayPos;
     }
 
-    public Boolean setCurrentPosition(int playPos) {
+    public boolean setPosition(int playPos) {
         if (playPos < mPlayListLen) {
             mPlayPos = playPos;
             return true;
@@ -51,7 +55,7 @@ public class PlayListManager {
         return false;
     }
 
-    public Track getCurrentTrack() {
+    public Track getTrack() {
         return getTrackAt(mPlayPos);
     }
 
@@ -66,12 +70,12 @@ public class PlayListManager {
                         ((SoundCloudApplication) mPlaybackService.getApplication())
                                 .getCurrentUserId());
             }
-        } else
+        } else {
             return null;
-
+        }
     }
 
-    public Boolean prev() {
+    public boolean prev() {
         if (mPlayPos == 0)
             return false;
 
@@ -85,12 +89,12 @@ public class PlayListManager {
         if (newTrack != null && newTrack.isStreamable()){
             mPlayPos = newPos;
             return true;
+        } else {
+            return false;
         }
-
-        return false;
     }
 
-    public Boolean next() {
+    public boolean next() {
         if (mPlayPos >= mPlayListLen - 1)
             return false;
 
@@ -104,13 +108,13 @@ public class PlayListManager {
         if (newTrack != null && newTrack.isStreamable()){
             mPlayPos = newPos;
             return true;
+        } else {
+            return false;
         }
-
-        return false;
     }
 
     public void oneShotTrack(Track track) {
-        mPlayList = new long[]{track.id};
+        mPlayList = new long[] {track.id };
         mPlayPos = 0;
         mPlayListLen = 1;
     }
@@ -118,7 +122,6 @@ public class PlayListManager {
     public void loadPlaylist(List<Parcelable> playlist, int playPos) {
         // cache a new tracklist
         mPlayListCache = new Track[playlist.size()];
-
         mPlayList = new long[playlist.size()];
 
         int i = 0;
@@ -139,17 +142,14 @@ public class PlayListManager {
 
         mPlayPos = playPos;
         mPlayListLen = i;
-
-        new CommitPlaylistTask(mPlaybackService.getContentResolver(),
-                ((SoundCloudApplication) mPlaybackService.getApplication()).getCurrentUserId(),
-                mPlayList).execute(mPlayListCache);
+        new CommitPlaylistTask(mPlaybackService.getContentResolver()).execute(mPlayListCache);
     }
 
     public void commitTrackToDb(final Track t) {
         new Thread() {
             @Override
             public void run() {
-                synchronized(PlayListManager.this){
+                synchronized(PlaylistManager.this){
                     SoundCloudDB.writeTrack(mPlaybackService.getContentResolver(), t, WriteState.all,
                         ((SoundCloudApplication) mPlaybackService.getApplication()).getCurrentUserId());
                 }
@@ -160,36 +160,25 @@ public class PlayListManager {
     public Track getPrevTrack() {
          if (mPlayPos > 0) {
             return getTrackAt(mPlayPos - 1);
-        }
-        return null;
+        } else {
+            return null;
+         }
     }
 
     public Track getNextTrack() {
          if (mPlayPos < mPlayListLen - 1) {
             return getTrackAt(mPlayPos + 1);
-        }
-        return null;
-    }
-
-    public long getPrevTrackId() {
-         if (mPlayPos > 0) {
-            return mPlayList[mPlayPos - 1];
-        }
-        return -1;
-    }
-
-    public long getNextTrackId() {
-         if (mPlayPos < mPlayListLen - 1) {
-            return mPlayList[mPlayPos + 1];
-        }
-        return -1;
+        } else {
+            return null;
+         }
     }
 
     public long getTrackIdAt(int pos) {
         if (pos >= 0 && pos < mPlayListLen) {
             return mPlayList[pos];
+        } else {
+            return -1;
         }
-        return -1;
     }
 
     public void clear() {
@@ -199,32 +188,22 @@ public class PlayListManager {
         mPlayListLen = 0;
     }
 
-    public class CommitPlaylistTask extends CommitTracksTask {
-        private long[] currentPlaylist;
-
-        public CommitPlaylistTask(ContentResolver contentResolver, Long long1, long[] currentPlaylist) {
+    private class CommitPlaylistTask extends CommitTracksTask {
+        public CommitPlaylistTask(ContentResolver contentResolver) {
             super(contentResolver);
-            this.currentPlaylist = currentPlaylist;
         }
 
         @Override
         protected Boolean doInBackground(Track... params) {
-            Boolean ret;
-            synchronized (PlayListManager.this){
-                ret = super.doInBackground(params);
+            synchronized (CommitPlaylistTask.class){
+                return super.doInBackground(params);
             }
-            return ret;
-        }
-
-        @Override
-        protected void afterCommitInBg() {
-
         }
 
         @Override
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
-            synchronized (PlayListManager.this) {
+            synchronized (CommitPlaylistTask.class) {
                 mPlayListCache = null;
             }
         }
@@ -237,18 +216,13 @@ public class PlayListManager {
             // insert
             long[] newlist = new long[size * 2];
             int len = mPlayList != null ? mPlayList.length : mPlayListLen;
-            for (int i = 0; i < len; i++) {
-                newlist[i] = mPlayList[i];
-            }
+            System.arraycopy(mPlayList, 0, newlist, 0, len);
             mPlayList = newlist;
         }
         // FIXME: shrink the array when the needed size is much smaller
         // than the allocated size
     }
 
-    private final char hexdigits[] = new char[] {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-    };
 
     public void saveQueue(boolean full, long seekPos) {
         Editor ed = PreferenceManager.getDefaultSharedPreferences(mPlaybackService).edit();
@@ -278,12 +252,12 @@ public class PlayListManager {
                     while (n != 0) {
                         int digit = (int) (n & 0xf);
                         n >>= 4;
-                        q.append(hexdigits[digit]);
+                        q.append(HEXDIGITS[digit]);
                     }
                     q.append(";");
                 }
             }
-            Log.i("@@@@ service", "created queue string in " + (System.currentTimeMillis() - start)
+            Log.d(TAG, "created queue string in " + (System.currentTimeMillis() - start)
                     + " ms");
             ed.putString("queue", q.toString());
 
@@ -292,7 +266,7 @@ public class PlayListManager {
         ed.putLong("seekpos", seekPos);
         ed.commit();
 
-        Log.i("@@@@ service", "saved state in " + (System.currentTimeMillis() - start) + " ms");
+        Log.d(TAG, "saved state in " + (System.currentTimeMillis() - start) + " ms");
     }
 
     public long reloadQueue() {
@@ -301,7 +275,7 @@ public class PlayListManager {
 
         int qlen = q != null ? q.length() : 0;
         if (qlen > 1) {
-            Log.i("@@@@ service", "loaded queue: " + q + " " + qlen);
+            Log.d(TAG, "loaded queue: " + q + " " + qlen);
             int plen = 0;
             int n = 0;
             int shift = 0;

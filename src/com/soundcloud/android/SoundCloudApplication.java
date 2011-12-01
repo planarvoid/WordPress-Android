@@ -48,7 +48,7 @@ import static android.content.pm.PackageManager.*;
 
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=e937d649",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=3a89fe3a",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
@@ -56,8 +56,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     public static final boolean DALVIK = Build.VERSION.SDK_INT > 0;
-    public static final boolean REPORT_PLAYBACK_ERRORS = false;
-    public static final boolean REPORT_PLAYBACK_ERRORS_BUGSENSE = false;
     public static final boolean API_PRODUCTION = true;
 
     public static boolean DEV_MODE, BETA_MODE;
@@ -70,7 +68,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private User mLoggedInUser;
     protected Wrapper mCloudApi; /* protected for testing */
 
-    public boolean playerWaitForArtwork;
     public Comment pendingComment;
     private UriMatcher mContentUriMatcher;
 

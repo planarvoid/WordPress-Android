@@ -401,7 +401,10 @@ public class Track extends ModelBase implements PageTrackable, Origin {
                 ll.addView(txt, flowLP);
             }
         }
+    }
 
+    public String getUserName() {
+        return user != null ? user.username : null;
     }
 
     public String trackInfo() {

@@ -9,8 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.service.CloudPlaybackService;
-import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import org.json.JSONException;
 
 import android.app.Activity;
@@ -28,7 +27,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -49,7 +47,6 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Transformation;
 import android.widget.RelativeLayout;
-import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -322,7 +319,9 @@ public class CloudUtils {
     public static boolean bindToService(Activity context, Class<? extends Service> service, ServiceConnection callback) {
         //http://blog.tourizo.com/2009/04/binding-services-while-in-activitygroup.html
         context.startService(new Intent(context, service));
-        if (sConnectionMap.get(context) == null) sConnectionMap.put(context, new HashMap<Class<? extends Service>,ServiceConnection>());
+        if (sConnectionMap.get(context) == null) {
+            sConnectionMap.put(context, new HashMap<Class<? extends Service>, ServiceConnection>());
+        }
         sConnectionMap.get(context).put(service, callback);
 
         boolean success =  context.getApplicationContext().bindService(

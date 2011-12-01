@@ -7,7 +7,7 @@ import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.CloudPlaybackService;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.AnimUtils;
@@ -42,7 +42,6 @@ import android.widget.ViewFlipper;
 import java.util.List;
 
 public class PlayerTrackView extends LinearLayout implements View.OnTouchListener, LoadTrackInfoTask.LoadTrackInfoListener, LoadCommentsTask.LoadCommentsListener {
-
     private ScPlayer mPlayer;
 
     private ImageView mArtwork, mAvatar;
@@ -55,7 +54,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     private TrackInfoBar mTrackInfoBar;
     private ViewFlipper mTrackFlipper;
     private PlayerTrackInfo mTrackInfo;
-    private FlowLayout mTrackTags;
 
     private boolean mDraggingLabel = false;
     private int mInitialX = -1;

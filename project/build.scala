@@ -17,7 +17,10 @@ object General {
   val androidProjectSettings =
     androidSettings ++
     AndroidProject.androidSettings ++
-    PlainJavaProject.settings
+    PlainJavaProject.settings ++
+    AndroidMarketPublish.settings ++
+    Github.settings ++
+    PasswordManager.settings
 }
 
 object AndroidBuild extends Build {
@@ -62,7 +65,10 @@ object AndroidBuild extends Build {
     "soundcloud-android",
     file("."),
     settings = General.androidProjectSettings ++ Seq (
-      keyalias in Android := "change-me",
+      keyalias in Android := "jons keystore",
+      keystorePath in Android <<= (baseDirectory) (_ / "soundcloud_sign" / "soundcloud.ks"),
+      githubRepo in Android := "soundcloud/SoundCloud-Android",
+      cachePasswords in Android := true,
       unmanagedBase <<= baseDirectory / "lib-unmanaged",
       libraryDependencies ++= coreDependencies ++ providedDependencies ++ testDependencies,
       resolvers ++= repos,

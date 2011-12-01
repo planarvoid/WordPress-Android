@@ -1,8 +1,31 @@
 package com.soundcloud.android.view;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.service.record.CloudCreateService;
+import com.soundcloud.android.service.record.ICloudCreateService;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.record.CloudRecorder;
+import com.soundcloud.android.utils.record.PowerGauge;
+import com.soundcloud.android.utils.record.RemainingTimeCalculator;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -17,36 +40,26 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.service.CloudCreateService;
-import com.soundcloud.android.service.ICloudCreateService;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.record.CloudRecorder;
-import com.soundcloud.android.utils.record.PowerGauge;
-import com.soundcloud.android.utils.record.RemainingTimeCalculator;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.*;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
-import static com.soundcloud.android.utils.CloudUtils.showToast;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
 public class CreateController {
 
     private ScActivity mActivity;
-    private ICloudCreateService mCreateService;
+    private com.soundcloud.android.service.record.ICloudCreateService mCreateService;
     private Recording mRecording;
     private User mPrivateUser;
 
@@ -109,6 +122,27 @@ public class CreateController {
         txtInstructions = (TextView) vg.findViewById(R.id.txt_instructions);
 
         mProgressBar = (SeekBar) vg.findViewById(R.id.progress_bar);
+        SeekBar.OnSeekBarChangeListener mSeekListener = new SeekBar.OnSeekBarChangeListener() {
+            public void onStartTrackingTouch(SeekBar bar) {
+                mLastSeekEventTime = 0;
+            }
+
+            public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
+                if (!fromuser) return;
+                long now = SystemClock.elapsedRealtime();
+                if ((now - mLastSeekEventTime) > 250) {
+                    mLastSeekEventTime = now;
+                    try {
+                        mCreateService.seekTo(progress);
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "error", e);
+                    }
+                }
+            }
+
+            public void onStopTrackingTouch(SeekBar bar) {
+            }
+        };
         mProgressBar.setOnSeekBarChangeListener(mSeekListener);
 
         txtRecordStatus = (TextView) vg.findViewById(R.id.txt_record_status);
@@ -234,9 +268,7 @@ public class CreateController {
         boolean takeAction = false;
         try {
 
-            long recordingId = 0;
             if (mRecording != null) {
-                recordingId = mRecording.id;
                 setRecordFile(mRecording.audio_path);
                 mAudioProfile = mRecording.audio_profile;
                 mDuration = mRecording.duration;
@@ -297,8 +329,7 @@ public class CreateController {
         boolean react = false;
         try {
             react = shouldReactToPath(mCreateService.getRecordingPath());
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        } catch (RemoteException ignored) {
         }
         return react;
     }
@@ -307,8 +338,7 @@ public class CreateController {
         boolean react = false;
         try {
             react = shouldReactToPath(mCreateService.getPlaybackPath());
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        } catch (RemoteException ignored) {
         }
         return react;
     }
@@ -466,7 +496,7 @@ public class CreateController {
         }
 
 
-        mActivity.pause(true);
+        mActivity.pause();
 
         mRecordErrorMessage = "";
         mSampleInterrupted = false;
@@ -714,26 +744,6 @@ public class CreateController {
     }
 
 
-
-    private SeekBar.OnSeekBarChangeListener mSeekListener = new SeekBar.OnSeekBarChangeListener() {
-        public void onStartTrackingTouch(SeekBar bar) {
-            mLastSeekEventTime = 0;
-        }
-        public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
-            if (!fromuser) return;
-            long now = SystemClock.elapsedRealtime();
-            if ((now - mLastSeekEventTime) > 250) {
-                mLastSeekEventTime = now;
-                try {
-                    mCreateService.seekTo(progress);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "error", e);
-                }
-            }
-        }
-        public void onStopTrackingTouch(SeekBar bar) { }
-    };
-
     private void checkUnsavedFiles() {
         String[] columns = { DBHelper.Recordings.ID };
         Cursor cursor;
@@ -798,9 +808,7 @@ public class CreateController {
             if (mPrivateUser != null && filePrivateUserId == mPrivateUser.id) {
                 setRecordFile(f);
                 break;
-            };
-
-
+            }
         }
     }
 

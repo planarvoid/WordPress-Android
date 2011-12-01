@@ -1,6 +1,9 @@
-package com.soundcloud.android.service;
+package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.ICloudPlaybackService;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,12 +16,12 @@ import android.view.KeyEvent;
 public class RemoteControlReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        ICloudPlaybackService svc = (ICloudPlaybackService) peekService(context,
+                new Intent(context, CloudPlaybackService.class));
+
         if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
             KeyEvent event = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
             if (event != null && event.getAction() == KeyEvent.ACTION_UP) {
-                ICloudPlaybackService svc = (ICloudPlaybackService) peekService(context,
-                        new Intent(context, CloudPlaybackService.class));
-
                 if (svc != null) {
                     try {
                         switch (event.getKeyCode()) {
@@ -41,6 +44,13 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                     }
                 }
             }
+        } else if ("android.media.AUDIO_BECOMING_NOISY".equals(intent.getAction())) {
+            if (svc != null) {
+                try {
+                    if (svc.isPlaying()) svc.pause();
+                } catch (RemoteException ignored) {
+                }
+            }
         }
     }
 
@@ -53,11 +63,7 @@ public class RemoteControlReceiver extends BroadcastReceiver {
     }
 
     private void handleToggle(Context context, ICloudPlaybackService svc) throws RemoteException {
-        if (svc.isPlaying()) {
-            svc.pause();
-        } else {
-            svc.play();
-        }
+        svc.toggle();
     }
 
     private void handleNextTrack(Context context, ICloudPlaybackService svc) throws RemoteException {

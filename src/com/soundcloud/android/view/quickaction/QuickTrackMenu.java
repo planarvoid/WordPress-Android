@@ -2,7 +2,6 @@ package com.soundcloud.android.view.quickaction;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.View;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
@@ -10,7 +9,6 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.ITracklistAdapter;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 public class QuickTrackMenu extends QuickAction {
@@ -77,7 +75,7 @@ public class QuickTrackMenu extends QuickAction {
                 switch (pos) {
                     case 0:
                         if (track.id == mAdapter.getPlayingId() && mAdapter.isPlaying()) {
-                            mActivity.pause(false);
+                            mActivity.pause();
                         } else {
                             mActivity.playTrack(track.id, mAdapter.getData(), itemPosition, false);
                         }

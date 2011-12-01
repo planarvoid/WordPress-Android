@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.0.1-BETA3"
+      android:versionName="2.0.1"
       android:installLocation="internalOnly"
       android:versionCode="30">
 
@@ -155,12 +155,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="org.acra.CrashReportDialog"
-            android:theme="@android:style/Theme.Dialog"
-            android:launchMode="singleInstance"
-            android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true"/>
-
         <activity android:name=".activity.About"/>
 
         <activity android:label="@string/audio_file_picker_label" android:name=".activity.AudioFilePicker">
@@ -176,19 +170,13 @@
         <provider android:name=".provider.ScContentProvider"
                   android:authorities="com.soundcloud.android.provider.ScContentProvider"/>
 
-        <service android:name=".service.CloudPlaybackService"
+        <service android:name=".service.playback.CloudPlaybackService"
                  android:exported="true">
-          <intent-filter>
-            <action android:name=".service.CloudPlaybackService" />
-          </intent-filter>
         </service>
 
         <service
-            android:name=".service.CloudCreateService"
+            android:name=".service.record.CloudCreateService"
             android:exported="true">
-            <intent-filter>
-                <action android:name=".service.ICloudCreateService" />
-            </intent-filter>
         </service>
 
         <service android:name=".service.AuthenticatorService"
@@ -213,7 +201,7 @@
         <service android:name=".service.beta.BetaService" android:exported="false"/>
 
         <receiver android:label="SoundCloud Player"
-                  android:name=".service.PlayerAppWidgetProvider">
+                  android:name=".service.playback.PlayerAppWidgetProvider">
           <intent-filter>
               <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
           </intent-filter>
@@ -223,7 +211,7 @@
         </receiver>
 
         <receiver android:label="SoundCloud Recorder"
-              android:name=".service.RecordAppWidgetProvider">
+              android:name=".service.record.RecordAppWidgetProvider">
 
              <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -234,10 +222,10 @@
         </receiver>
 
         <!-- headphone remote control -->
-        <receiver android:name=".service.RemoteControlReceiver">
+        <receiver android:name=".service.playback.RemoteControlReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
-                <action android:name="android.intent.action.ACTION_AUDIO_BECOMING_NOISY"/>
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
         </receiver>
 

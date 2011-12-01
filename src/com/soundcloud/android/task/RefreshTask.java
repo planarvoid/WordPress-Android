@@ -27,7 +27,6 @@ public class RefreshTask extends LoadCollectionTask {
 
         LazyEndlessAdapter adapter = mAdapterReference.get();
         if (adapter != null){
-            adapter.onPreTaskExecute();
             loadModel = adapter.getLoadModel(true);
         }
     }

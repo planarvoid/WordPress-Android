@@ -34,17 +34,6 @@ public class AppendTask extends LoadCollectionTask {
     }
 
     /**
-     * Do any task preparation we need to on the UI thread
-     */
-    @Override
-    protected void onPreExecute() {
-        LazyEndlessAdapter adapter = mAdapterReference.get();
-        if (adapter != null){
-            adapter.onPreTaskExecute();
-        }
-    }
-
-    /**
      * Add all new items that have been retrieved, now that we are back on a
      * UI thread
      */

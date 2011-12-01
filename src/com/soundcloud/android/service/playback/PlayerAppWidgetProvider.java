@@ -1,4 +1,4 @@
-package com.soundcloud.android.service;
+package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -16,14 +16,13 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 public class PlayerAppWidgetProvider extends AppWidgetProvider {
-    static final String TAG = "PlayerWidget";
-
+    private static final String TAG = "PlayerWidget";
     private long mCurrentTrackId = -1;
 
     public static final String CMDAPPWIDGETUPDATE = "playerwidgetupdate";
     static final ComponentName THIS_APPWIDGET =
             new ComponentName("com.soundcloud.android",
-                    "com.soundcloud.android.service.PlayerAppWidgetProvider");
+                    "com.soundcloud.android.service.playback.PlayerAppWidgetProvider");
 
     private static PlayerAppWidgetProvider sInstance;
 
@@ -48,10 +47,8 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     }
 
     private void defaultAppWidget(Context context, int[] appWidgetIds) {
-        context.getResources();
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_player);
-
-        views.setTextViewText(R.id.title_txt, "Touch to open SoundCloud");
+        views.setTextViewText(R.id.title_txt, context.getString(R.string.widget_touch_to_open));
         views.setViewVisibility(R.id.by_txt, View.GONE);
         views.setViewVisibility(R.id.user_txt, View.GONE);
 
@@ -76,40 +73,33 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
         return (appWidgetIds.length > 0);
     }
 
-    /**
-     * Handle a change notification coming over from {@link CloudPlaybackService}
-     */
-    void notifyChange(CloudPlaybackService service, String what) {
-        Log.i(TAG, "notify change " + service.getTrackId() + " " + what);
+    /* package */ void notifyChange(Context context, Intent intent) {
+        String action = intent.getAction();
+        Log.d(TAG, "notify change " + intent);
+        if (hasInstances(context)) {
+            if (action.equals(CloudPlaybackService.META_CHANGED) ||
+                    action.equals(CloudPlaybackService.PLAYBACK_COMPLETE) ||
+                    action.equals(CloudPlaybackService.PLAYSTATE_CHANGED) ||
+                    action.equals(CloudPlaybackService.BUFFERING) ||
+                    action.equals(CloudPlaybackService.BUFFERING_COMPLETE) ||
+                    action.equals(CloudPlaybackService.PLAYBACK_ERROR) ||
+                    action.equals(CloudPlaybackService.FAVORITE_SET)) {
 
-        if (hasInstances(service)) {
-            if (what.equals(CloudPlaybackService.META_CHANGED) ||
-                    what.equals(CloudPlaybackService.PLAYBACK_COMPLETE) ||
-                    what.equals(CloudPlaybackService.PLAYSTATE_CHANGED) ||
-                    what.equals(CloudPlaybackService.BUFFERING) ||
-                    what.equals(CloudPlaybackService.BUFFERING_COMPLETE) ||
-                    what.equals(CloudPlaybackService.PLAYBACK_ERROR) ||
-                    what.equals(CloudPlaybackService.FAVORITE_SET)) {
-                performUpdate(service, null, what);
+                performUpdate(context, null, intent);
             }
         }
     }
 
-    void performUpdate(CloudPlaybackService service, int[] appWidgetIds) {
-        performUpdate(service, appWidgetIds, CloudPlaybackService.PLAYSTATE_CHANGED);
-    }
+    /* package */  void performUpdate(Context context, int[] appWidgetIds, Intent intent) {
+        final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_player);
 
-    /**
-     * Update all active widget instances by pushing changes
-     */
-    void performUpdate(CloudPlaybackService service, int[] appWidgetIds, String what) {
-        final RemoteViews views = new RemoteViews(service.getPackageName(), R.layout.appwidget_player);
 
-        final boolean playing = service.isSupposedToBePlaying();
+        final boolean playing = intent.getBooleanExtra("isSupposedToBePlaying", false);
         views.setImageViewResource(R.id.pause,
                 playing ? R.drawable.ic_widget_pause_states : R.drawable.ic_widget_play_states);
 
-        Track current = service.getTrack();
+
+        Track current = intent.getParcelableExtra("trackParcel");
 
         if (current != null) {
             views.setImageViewResource(R.id.btn_favorite,
@@ -123,8 +113,8 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                 views.setViewVisibility(R.id.user_txt, View.VISIBLE);
             }
 
-            linkButtons(service, views, current);
-            pushUpdate(service, appWidgetIds, views);
+            linkButtons(context, views, current);
+            pushUpdate(context, appWidgetIds, views);
         }
     }
 

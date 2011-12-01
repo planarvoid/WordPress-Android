@@ -1,4 +1,4 @@
-package com.soundcloud.android.service;
+package com.soundcloud.android.service.record;
 
 import com.soundcloud.android.model.Upload;
 interface ICloudCreateService
