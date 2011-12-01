@@ -1,4 +1,4 @@
-<!-- generated with lolcatlizr at Mon Nov 28 2011 15:24:20 GMT+0000 (UTC) -->
+<!-- generated with lolcatlizr at Thu Dec 01 2011 18:20:16 GMT+0000 (UTC) -->
 
 <resources xmlns:xliff="http://schemas.android.com/apk/res/android">
   <string name="about">About</string>
@@ -388,8 +388,8 @@
   <string name="recorded_night">%s night</string>
   <string name="recording_in_progress">Recording in progress. Press stop to end the recording or select to the recording notification to view it.</string>
   <string name="recording_not_found">Recording not found</string>
-  <string name="reset">Reset</string>
-  <string name="save">Save</string>
+  <string name="reset">Discard</string>
+  <string name="save">Next</string>
   <string name="sc_search_tracks">\u00A0Sounds</string>
   <string name="sc_search_users">\u00A0People</string>
   <string name="sc_upload_add_image">Add\nImage</string>
@@ -495,6 +495,7 @@
   <string name="username">username</string>
   <string name="wait_for_upload_to_finish">You can only upload one sound at a time</string>
   <string name="website">Website</string>
+  <string name="widget_touch_to_open">Touch to open SoundCloud</string>
   <string name="wifi_settings">Wireless &amp; network settings</string>
   <string name="wifi_settings_summary">Edit your settings. Use Wi-Fi for best performance.</string>
 </resources>
