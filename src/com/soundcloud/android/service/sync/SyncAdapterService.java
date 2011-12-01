@@ -162,7 +162,7 @@ public class SyncAdapterService extends Service {
         }
     }
     static Activities getOwnEvents(SoundCloudApplication app, Account account, long lastSeen) throws IOException {
-        return ActivitiesCache.get(app, account, lastSeen, Request.to(Endpoints.MY_NEWS));
+        return ActivitiesCache.get(app, account, Request.to(Endpoints.MY_NEWS)).filter(lastSeen);
     }
 
     /* package */ static void syncOwn(SoundCloudApplication app, Account account, long lastSeen)
@@ -191,8 +191,8 @@ public class SyncAdapterService extends Service {
         if ((!exclusive && !isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
             return Activities.EMPTY;
         } else {
-            return ActivitiesCache.get(app, account, since,
-                Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES));
+            return ActivitiesCache.get(app, account,
+                Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES)).filter(since);
         }
     }
 

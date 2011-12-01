@@ -27,7 +27,6 @@ public class ActivitiesCache {
 
     public static Activities get(SoundCloudApplication context,
                           Account account,
-                          long lastSeen,
                           final Request request) throws IOException {
 
         final File cachedFile = new File(context.getCacheDir(),
@@ -36,25 +35,25 @@ public class ActivitiesCache {
         Activities activities;
         try {
             if (cachedFile.exists()) {
-                Activities cached = Activities.fromJSON(cachedFile).filter(lastSeen);
+                Activities cached = Activities.fromJSON(cachedFile);
                 String future_href = cached.future_href;
 
                 Log.d(TAG, "read from activities cache "+cachedFile+
                         ", requesting updates from " +(future_href == null ? request.toUrl() : future_href));
 
                 if (future_href != null) {
-                    Activities updates = getEvents(context, lastSeen, Request.to(future_href));
+                    Activities updates = getEvents(context, Request.to(future_href));
                     activities = updates.merge(cached);
                 } else {
                     activities = cached;
                 }
             } else {
-              activities = getEvents(context, lastSeen, request);
+              activities = getEvents(context, request);
             }
         } catch (IOException e) {
             Log.w(TAG, "error", e);
             // fallback, load events from normal resource
-            activities = getEvents(context, lastSeen, request);
+            activities = getEvents(context, request);
         }
 
         activities.toJSON(cachedFile, Views.Mini.class);
@@ -62,10 +61,10 @@ public class ActivitiesCache {
         return activities;
     }
 
-    private static Activities getEvents(SoundCloudApplication app, final long since, final Request resource)
+    private static Activities getEvents(SoundCloudApplication app, final Request resource)
             throws IOException {
-        boolean caughtUp = false;
         String future_href = null;
+        String next_href = null;
         List<Event> events = new ArrayList<Event>();
 
         Request request = resource.add("limit", 20);
@@ -74,22 +73,17 @@ public class ActivitiesCache {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 Activities activities = Activities.fromJSON(response.getEntity().getContent());
                 request = activities.hasMore() ? activities.getNextRequest() : null;
-                if (future_href == null) {
-                    future_href = activities.future_href;
-                }
 
-                if (activities.olderThan(since)) {
-                    caughtUp = true; // nothing new
+                if (next_href == null){
+                    Log.i("asdf","Storing next href " + activities.next_href);
+                    next_href = activities.next_href;
                 } else {
-                    for (Event evt : activities) {
-                        if (evt.created_at.getTime() > since) {
-                            events.add(evt);
-                        } else {
-                            caughtUp = true;
-                            break;
-                        }
-                    }
+                    Log.i("asdf","Storing next href " + activities.next_href + " in " + activities.get(activities.size()-1));
+                    activities.get(activities.size()-1).next_href = activities.next_href;
                 }
+                future_href = activities.future_href;
+                events.addAll(activities.collection);
+
             } else {
                 Log.w(TAG, "unexpected status code: " + response.getStatusLine());
 
@@ -100,11 +94,9 @@ public class ActivitiesCache {
                     throw new IOException(response.getStatusLine().toString());
                 }
             }
-        } while (!caughtUp
-                && events.size() < SyncAdapterService.NOTIFICATION_MAX
-                && request != null);
+        } while (request != null);
 
-        return new Activities(events, future_href);
+        return new Activities(events, future_href, next_href);
     }
 
     public static void clear(Context c) {

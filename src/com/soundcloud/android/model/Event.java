@@ -29,6 +29,7 @@ public class Event extends ModelBase implements Origin {
     public Origin origin;
 
     private CharSequence mElapsedTime;
+    public String next_href;
 
     public Event() {
     }

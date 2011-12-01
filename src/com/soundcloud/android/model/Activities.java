@@ -57,6 +57,12 @@ public class Activities implements Iterable<Event> {
         this.collection = Arrays.asList(events);
     }
 
+    public Activities(List<Event> collection, String future_href, String next_href) {
+        this.collection = collection;
+        this.future_href = future_href;
+        this.next_href = next_href;
+    }
+
     @Override
     public Iterator<Event> iterator() {
         return collection.iterator();
@@ -206,7 +212,8 @@ public class Activities implements Iterable<Event> {
     public Activities merge(Activities old) {
         Activities merged = new Activities(new ArrayList<Event>(collection));
         merged.future_href = future_href;
-        merged.next_href = next_href;
+        merged.next_href = old.next_href;
+        if (collection.size() > 0) collection.get(collection.size()-1).next_href = next_href;
 
         for (Event e : old) {
             if (!merged.collection.contains(e)) {
