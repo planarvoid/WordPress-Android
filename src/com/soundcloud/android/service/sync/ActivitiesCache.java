@@ -25,12 +25,23 @@ import java.util.List;
 public class ActivitiesCache {
     private static final String PREFIX = "activities-";
 
+    public static File getCacheFile(SoundCloudApplication app, final Request request){
+        return getCacheFile(app,app.getAccount(), request);
+    }
+
+    public static File getCacheFile(SoundCloudApplication app, Account account,final Request request){
+        return new File(app.getCacheDir(),
+                PREFIX+md5(account == null ? "" : account.name+request.toUrl())+".json");
+    }
+
     public static Activities get(SoundCloudApplication context,
                           Account account,
                           final Request request) throws IOException {
 
-        final File cachedFile = new File(context.getCacheDir(),
-                PREFIX+md5(account == null ? "" : account.name+request.toUrl())+".json");
+        final File cachedFile = getCacheFile(context,account,request);
+
+        System.out.println("cached file name is " + request.toUrl() + " " +
+                cachedFile.getAbsolutePath());
 
         Activities activities;
         try {
@@ -63,7 +74,7 @@ public class ActivitiesCache {
         return activities;
     }
 
-    private static Activities getEvents(SoundCloudApplication app, final Event lastCached, final Request resource)
+    public static Activities getEvents(SoundCloudApplication app, final Event lastCached, final Request resource)
             throws IOException {
         boolean caughtUp = false;
         String future_href = null;

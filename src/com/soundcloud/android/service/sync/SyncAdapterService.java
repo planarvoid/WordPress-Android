@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.service.ApiService;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -29,6 +30,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -41,6 +43,16 @@ public class SyncAdapterService extends Service {
     public static final int NOTIFICATION_MAX = 100;
     public static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
     private static final long DEFAULT_POLL_FREQUENCY = 14400; //60*60*4
+
+    public interface ScBundleKeys{
+        String SYNC_ENDPOINT = "sync_endpoint";
+    }
+
+    public interface ScSyncEndpoints {
+        int INCOMING = 1;
+        int EXCLUSIVE = 2;
+        int ACTIVITIES = 3;
+    }
 
     @Override
     public void onCreate() {
@@ -64,11 +76,12 @@ public class SyncAdapterService extends Service {
         @Override
         public void onPerformSync(Account account, Bundle extras, String authority,
                                   ContentProviderClient provider, SyncResult syncResult) {
+
             if (SoundCloudApplication.DEV_MODE) {
                 Log.d(TAG, "onPerformSync("+account+","+extras+","+authority+","+provider+","+syncResult+")");
             }
 
-            if (shouldSync()) {
+            if (shouldSync() || extras.getInt(ScBundleKeys.SYNC_ENDPOINT,0) > 0) {
                 SyncAdapterService.performSync(mApp, account, extras, provider, syncResult);
             } else {
                 Log.d(TAG, "skipping sync because Wifi is diabled");
@@ -86,6 +99,8 @@ public class SyncAdapterService extends Service {
         }
     }
 
+
+
     /** @noinspection UnusedParameters*/
     /* package */ static void performSync(final SoundCloudApplication app,
                                     Account account,
@@ -93,36 +108,66 @@ public class SyncAdapterService extends Service {
                                     ContentProviderClient provider,
                                     SyncResult syncResult) {
 
-        // for initial sync, don't bother telling them about their entire dashboard
-        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
-            final long now = System.currentTimeMillis();
-            app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
-            app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
-        } else {
-            if (app.useAccount(account).valid()) {
-                // how many have they already been notified about, don't create repeat notifications for no new tracks
-                try {
-                    syncIncoming(app, account, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN));
-                    if (isActivitySyncEnabled(app)) {
-                        syncOwn(app, account, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
-                    }
-                } catch (CloudAPI.InvalidTokenException e) {
-                    syncResult.stats.numAuthExceptions++;
-                } catch (IOException e) {
-                    Log.w(TAG, "i/o", e);
-                    syncResult.stats.numIoExceptions++;
+        try {
+
+            final int syncEndpoint = extras.getInt(ScBundleKeys.SYNC_ENDPOINT, 0);
+            Log.i("asdf","Sync Endpoint is " + syncEndpoint);
+            if (syncEndpoint > 0) {
+
+                if (app.useAccount(account).valid()) {
+                    switch (syncEndpoint) {
+                    case ScSyncEndpoints.INCOMING:
+                        getNewIncomingEvents(app, account, false);
+                        break;
+                    case ScSyncEndpoints.EXCLUSIVE:
+                        getNewIncomingEvents(app, account, true);
+                        break;
+                    case ScSyncEndpoints.ACTIVITIES:
+                        getOwnEvents(app, account);
+                        break;
                 }
+                } else {
+                    Log.w(TAG, "no valid token, skip sync");
+                    syncResult.stats.numAuthExceptions++;
+                }
+
+            } else if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
+                final long now = System.currentTimeMillis();
+                app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
+                app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
             } else {
-                Log.w(TAG, "no valid token, skip sync");
-                syncResult.stats.numAuthExceptions++;
+                if (app.useAccount(account).valid()) {
+
+                    //Intent i = new Intent(ApiService.)
+
+                    // how many have they already been notified about, don't create repeat notifications for no new tracks
+                    /*
+                    final long lastSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
+                    Activities incoming = getNewIncomingEvents(app, account, false).filter(lastSeen);
+                    Activities exclusive = getNewIncomingEvents(app, account, true).filter(lastSeen);
+                    syncIncoming(app, incoming, exclusive);
+
+                    if (isActivitySyncEnabled(app)) {
+                        Activities events = getOwnEvents(app, account).filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
+                        syncOwn(app, events);
+                    }
+                    */
+
+                } else {
+                    Log.w(TAG, "no valid token, skip sync");
+                    syncResult.stats.numAuthExceptions++;
+                }
             }
+        } catch (CloudAPI.InvalidTokenException e) {
+            syncResult.stats.numAuthExceptions++;
+        } catch (IOException e) {
+            Log.w(TAG, "i/o", e);
+            syncResult.stats.numIoExceptions++;
         }
     }
 
-    /* package */ static void syncIncoming(SoundCloudApplication app, Account account, long lastSeen)
+    /* package */ static void syncIncoming(SoundCloudApplication app, Activities incoming, Activities exclusive)
             throws IOException {
-        Activities incoming = getNewIncomingEvents(app, account, lastSeen, false);
-        Activities exclusive = getNewIncomingEvents(app, account, lastSeen, true);
 
         final int totalUnseen = Activities.getUniqueTrackCount(incoming, exclusive);
 
@@ -161,14 +206,14 @@ public class SyncAdapterService extends Service {
             }
         }
     }
-    static Activities getOwnEvents(SoundCloudApplication app, Account account, long lastSeen) throws IOException {
-        return ActivitiesCache.get(app, account, Request.to(Endpoints.MY_NEWS)).filter(lastSeen);
+    static Activities getOwnEvents(SoundCloudApplication app, Account account) throws IOException {
+        return ActivitiesCache.get(app, account, Request.to(Endpoints.MY_NEWS));
     }
 
-    /* package */ static void syncOwn(SoundCloudApplication app, Account account, long lastSeen)
+    /* package */ static void syncOwn(SoundCloudApplication app, Activities events)
             throws IOException {
 
-        Activities events = getOwnEvents(app, account, lastSeen);
+
 
         if (!events.isEmpty()) {
             Activities favoritings = isFavoritingEnabled(app) ? events.favoritings() : Activities.EMPTY;
@@ -185,14 +230,13 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    /* package */ static Activities getNewIncomingEvents(SoundCloudApplication app, Account account,
-                                                         long since, boolean exclusive)
+    /* package */ static Activities getNewIncomingEvents(SoundCloudApplication app, Account account, boolean exclusive)
             throws IOException {
         if ((!exclusive && !isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
             return Activities.EMPTY;
         } else {
             return ActivitiesCache.get(app, account,
-                Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES)).filter(since);
+                Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES));
         }
     }
 

@@ -19,12 +19,16 @@ import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.RefreshTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -37,7 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener {
+public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener, DetachableResultReceiver.Receiver {
     public static final int ROW_APPEND_BUFFER = 3;
 
     protected LoadCollectionTask mAppendTask;
@@ -46,6 +50,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     protected ScListView mListView;
     protected ScActivity mActivity;
     protected View mPendingView = null;
+    protected DetachableResultReceiver mDetachableReceiver;
 
     private Uri mContentUri;
     protected Request mRequest;
@@ -64,6 +69,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     int APPENDING = 3;
     int DONE = 4;
     int ERROR = 5;
+
 
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request, Uri contentUri) {
@@ -167,13 +173,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
 
     public Object saveState(){
+        if (mDetachableReceiver != null) mDetachableReceiver.clearReceiver();
         return new Object[] {
                 getData(),
                 getRefreshTask(),
-                getAppendTask(),
                 savePagingData(),
                 saveExtraData(),
                 mListView == null ? null : mListView.getLastUpdated(),
+                mDetachableReceiver
         };
     }
 
@@ -185,6 +192,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (state[3] != null) restorePagingData((int[]) state[3]);
         if (state[4] != null) restoreExtraData((String) state[4]);
         if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
+        if (state[6] != null) {
+            mDetachableReceiver = (DetachableResultReceiver) state[6];
+            mDetachableReceiver.setReceiver(this);
+        }
     }
 
 
@@ -517,5 +528,16 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     public boolean isAllowingLoading() {
         return mState != INITIALIZED;
+    }
+
+    protected DetachableResultReceiver getReceiver(){
+        if (mDetachableReceiver == null) mDetachableReceiver = new DetachableResultReceiver(new Handler());
+        mDetachableReceiver.setReceiver(this);
+        return mDetachableReceiver;
+    }
+
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+
     }
 }

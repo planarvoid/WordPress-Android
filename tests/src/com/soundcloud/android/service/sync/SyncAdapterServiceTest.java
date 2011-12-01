@@ -52,7 +52,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         );
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, null, 0l, false);
+                DefaultTestRunner.application, null, false);
 
         expect(events.size()).toEqual(100);
         expect(events.future_href).toEqual(
@@ -64,7 +64,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addCannedEvents("exclusives_1.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, null, 0l, true);
+                DefaultTestRunner.application, null, true);
 
         expect(events.size()).toEqual(4);
         expect(events.future_href).toEqual(
@@ -80,7 +80,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         );
 
         Activities events = SyncAdapterService.getOwnEvents(
-                DefaultTestRunner.application, null, 0l);
+                DefaultTestRunner.application, null);
 
         expect(events.size()).toEqual(42);
         expect(events.future_href).toEqual(
@@ -92,18 +92,14 @@ public class SyncAdapterServiceTest extends ApiTests {
         addCannedEvents("incoming_1.json");
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
-                null,
-                1310462679000l
-                , false);
+                null,false).filter(1310462679000l);
 
         expect(events.size()).toEqual(1);
 
         addCannedEvents("incoming_1.json");
         events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
-                null,
-                1310462016000l
-                , false);
+                null, false).filter(1310462016000l);
 
         expect(events.size()).toEqual(2);
     }
@@ -113,7 +109,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addCannedEvents("incoming_2.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, null, 0l, false);
+                DefaultTestRunner.application, null, false);
         expect(events.size()).toEqual(50);
 
         List<User> users = events.getUniqueUsers();
@@ -129,7 +125,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addCannedEvents("incoming_2.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, null, 0l, false);
+                DefaultTestRunner.application, null, false);
 
         String message = SyncAdapterService.getIncomingMessaging(
                 DefaultTestRunner.application, events);
@@ -142,7 +138,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         addCannedEvents("incoming_2.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, null, 0l, false);
+                DefaultTestRunner.application, null, false);
 
         String message = SyncAdapterService.getExclusiveMessaging(
                 DefaultTestRunner.application, events);

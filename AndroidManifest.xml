@@ -170,7 +170,9 @@
         <provider android:name=".provider.ScContentProvider"
                   android:authorities="com.soundcloud.android.provider.ScContentProvider"/>
 
-        <service android:name=".service.playback.CloudPlaybackService"
+        <service android:name=".service.ApiService" />
+
+        <service android:name=".service.CloudPlaybackService"
                  android:exported="true">
         </service>
 

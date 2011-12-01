@@ -59,7 +59,7 @@ import java.util.List;
 public class CreateController {
 
     private ScActivity mActivity;
-    private com.soundcloud.android.service.record.ICloudCreateService mCreateService;
+    private ICloudCreateService mCreateService;
     private Recording mRecording;
     private User mPrivateUser;
 

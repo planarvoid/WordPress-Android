@@ -1,19 +1,17 @@
 package com.soundcloud.android.activity;
 
-import android.view.ViewGroup;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.view.CreateController;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
-import com.soundcloud.android.view.CreateController;
+import android.view.ViewGroup;
 
 public class ScCreate extends ScActivity implements CreateController.CreateListener {
 
