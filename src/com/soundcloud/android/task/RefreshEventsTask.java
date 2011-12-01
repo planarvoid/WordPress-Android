@@ -31,10 +31,6 @@ public class RefreshEventsTask extends LoadEventsTask {
         if (adapter != null){
             loadModel = adapter.getLoadModel(true);
         }
-
-        Bundle b = new Bundle();
-        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL,true);
-        ContentResolver.requestSync(mApp.getAccount(),ScContentProvider.AUTHORITY,b);
     }
 
     /**

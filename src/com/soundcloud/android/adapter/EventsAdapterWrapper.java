@@ -75,6 +75,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         };
     }
 
+    /*
     @Override
     public void onRefresh(){
         Log.i("asdf","ON REFRESH");
@@ -101,6 +102,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         notifyDataSetChanged();
     }
 
+
     @Override
     protected void startRefreshTask(final boolean userRefresh){
        mRefreshTask = new RefreshEventsTask(mActivity.getApp()) {
@@ -115,7 +117,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
             }
         };
     }
-
+      */
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
