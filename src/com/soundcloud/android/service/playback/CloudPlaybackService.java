@@ -806,8 +806,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     private final Handler mPlayerHandler = new Handler() {
         private static final float DUCK_VOLUME = 0.1f;
-
-        float mCurrentVolume = 1.0f;
+        private float mCurrentVolume = 1.0f;
 
         @Override
         public void handleMessage(Message msg) {
@@ -997,7 +996,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                         notifyChange(BUFFERING_COMPLETE);
                     }
                 } else {
-                    mp.stop();
+                    stop();
                 }
             }
         }
