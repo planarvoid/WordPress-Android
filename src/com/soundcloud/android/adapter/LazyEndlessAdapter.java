@@ -38,23 +38,22 @@ import java.util.List;
 
 public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener {
     public static final int ROW_APPEND_BUFFER = 3;
-    protected View mPendingView = null;
+
     protected LoadCollectionTask mAppendTask;
     protected LoadCollectionTask mRefreshTask;
 
     protected ScListView mListView;
     protected ScActivity mActivity;
-    private String mEmptyViewText = "";
+    protected View mPendingView = null;
 
     protected Request mRequest;
-    private String mNextHref;
+    private String mNextHref, mFirstPageEtag;
     private int mPageIndex;
-    private boolean mAllowInitialLoading;
-    private String mFirstPageEtag;
 
     private static final int ITEM_TYPE_LOADING = -1;
     private EmptyCollection mEmptyView;
     private EmptyCollection mDefaultEmptyView;
+    private String mEmptyViewText = "";
 
     protected int mState;
     int INITIALIZED = 0;
@@ -64,8 +63,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     int DONE = 4;
     int ERROR = 5;
 
-
-
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request) {
         this(activity,wrapped,request, true);
     }
@@ -74,13 +71,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         super(wrapped);
 
         mActivity = activity;
-
         mRequest = request;
         wrapped.setWrapper(this);
 
-        mAllowInitialLoading = autoAppend;
         if (autoAppend) mState = WAITING;
-
     }
 
     /**
@@ -226,14 +220,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
      *         page the adapter is on}
      */
     protected int[] savePagingData() {
-
         int[] ret = new int[3];
         ret[0] = mState;
         ret[1] = mPageIndex;
-
-
         return ret;
-
     }
 
     protected void restorePagingData(int[] restore) {
@@ -243,7 +233,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (mState > DONE) {
             applyEmptyView();
         }
-
     }
 
     public String saveExtraData() {
@@ -265,7 +254,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     @Override
     public int getCount() {
         if (mState == WAITING || mState == APPENDING || (mState > DONE && getWrappedAdapter().getCount() == 0)) {
-            return super.getCount() + 1;
+            return super.getCount() + 1; // extra row for an append row or an empty view
         } else {
             return super.getCount();
         }
@@ -294,13 +283,12 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (position == super.getCount() && (mState == WAITING || mState == APPENDING)) {
             if (mPendingView == null) {
                 mPendingView = (convertView != null) ? convertView :
-                            ((LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_loading_item,null,false);
+                            ((LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                                    .inflate(R.layout.list_loading_item,null,false);
             }
             return mPendingView;
+
         } else if (convertView == mPendingView) {
-            // if we're not at the bottom, and we're getting the
-            // pendingView back for recycling, skip the recycle
-            // process
             return (super.getView(position, null, parent));
         }
 
@@ -369,9 +357,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 getWrappedAdapter().addItem(newitem);
             }
         }
-        mPendingView = null;
+
         // configure the empty view depending on possible exceptions
         applyEmptyView();
+        mPendingView = null;
         mRefreshTask = null;
         mAppendTask = null;
         notifyDataSetChanged();
@@ -498,7 +487,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public void allowInitialLoading(){
-        mAllowInitialLoading = true;
         if (mState == INITIALIZED){
             mState = WAITING;
         }
@@ -531,6 +519,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public boolean isAllowingLoading() {
-        return mAllowInitialLoading;
+        return mState != INITIALIZED;
     }
 }
