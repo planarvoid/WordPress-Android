@@ -14,4 +14,6 @@
 
     <!-- sandbox fb sc app id -->
     <string name='sandbox_facebook_app_id'>18665667761</string>
+
+    <string name="account_type">com.soundcloud.android.account</string>
 </resources>

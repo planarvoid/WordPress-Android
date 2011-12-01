@@ -4,7 +4,6 @@
   <string name="about">About</string>
   <string name="about_summary">Copyright information</string>
   <string name="account_one_active">You can only have one active account</string>
-  <string name="account_type">com.soundcloud.android.account</string>
   <string name="add_image">Add\nImage</string>
   <string name="app_name">SoundCloud</string>
   <string name="at_timestamp">at %s</string>
