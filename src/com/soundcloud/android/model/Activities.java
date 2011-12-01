@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.Request;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -9,6 +10,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -232,6 +234,18 @@ public class Activities implements Iterable<Event> {
         while (it.hasNext()) {
             if (it.next().created_at.getTime() <= timestamp) it.remove();
         }
+        return this;
+    }
+
+    public Activities trimBelow(int max) {
+        if (collection.size() <= max) return this;
+
+        int i = max;
+        while (i > 0 && collection.get(i-1).next_href == null){ i--; }
+
+        collection = new ArrayList<Event>(collection.subList(0, i));
+        next_href = collection.get(collection.size()-1).next_href;
+
         return this;
     }
 

@@ -42,27 +42,30 @@ public class ActivitiesCache {
                         ", requesting updates from " +(future_href == null ? request.toUrl() : future_href));
 
                 if (future_href != null) {
-                    Activities updates = getEvents(context, Request.to(future_href));
+                    Activities updates = getEvents(context, cached.size() > 0 ? cached.get(0) : null, Request.to(future_href));
                     activities = updates.merge(cached);
                 } else {
                     activities = cached;
                 }
             } else {
-              activities = getEvents(context, request);
+              activities = getEvents(context, null, request);
             }
         } catch (IOException e) {
             Log.w(TAG, "error", e);
             // fallback, load events from normal resource
-            activities = getEvents(context, request);
+            activities = getEvents(context, null, request);
         }
 
+        activities.trimBelow(SyncAdapterService.NOTIFICATION_MAX);
         activities.toJSON(cachedFile, Views.Mini.class);
+
         Log.d(TAG, "cached activities to "+cachedFile);
         return activities;
     }
 
-    private static Activities getEvents(SoundCloudApplication app, final Request resource)
+    private static Activities getEvents(SoundCloudApplication app, final Event lastCached, final Request resource)
             throws IOException {
+        boolean caughtUp = false;
         String future_href = null;
         String next_href = null;
         List<Event> events = new ArrayList<Event>();
@@ -73,17 +76,25 @@ public class ActivitiesCache {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 Activities activities = Activities.fromJSON(response.getEntity().getContent());
                 request = activities.hasMore() ? activities.getNextRequest() : null;
-
-                if (next_href == null){
-                    Log.i("asdf","Storing next href " + activities.next_href);
-                    next_href = activities.next_href;
-                } else {
-                    Log.i("asdf","Storing next href " + activities.next_href + " in " + activities.get(activities.size()-1));
-                    activities.get(activities.size()-1).next_href = activities.next_href;
+                if (future_href == null) {
+                    future_href = activities.future_href;
                 }
-                future_href = activities.future_href;
-                events.addAll(activities.collection);
 
+                if (next_href != null){
+                    events.get(events.size()-1).next_href = next_href;
+                }
+                next_href = activities.next_href;
+
+
+
+                for (Event evt : activities) {
+                    if (lastCached == null || !evt.equals(lastCached)) {
+                        events.add(evt);
+                    } else {
+                        caughtUp = true;
+                        break;
+                    }
+                }
             } else {
                 Log.w(TAG, "unexpected status code: " + response.getStatusLine());
 
@@ -94,9 +105,11 @@ public class ActivitiesCache {
                     throw new IOException(response.getStatusLine().toString());
                 }
             }
-        } while (request != null);
+        } while (!caughtUp
+                && events.size() < SyncAdapterService.NOTIFICATION_MAX
+                && request != null);
 
-        return new Activities(events, future_href, next_href);
+        return new Activities(events, future_href);
     }
 
     public static void clear(Context c) {
