@@ -314,8 +314,7 @@
   <string name="menu_view_current_track">View Player</string>
   <plurals name="minutes_available">
     <item quantity="one">1 minute available</item>
-    <item quantity="other">%d
-            minutes available</item>
+    <item quantity="other">%d minutes available</item>
   </plurals>
   <string name="myspace">Myspace</string>
   <string name="new_connection_error">There was a problem adding the network</string>
@@ -405,8 +404,7 @@
   <string name="search_hint">Sounds</string>
   <plurals name="seconds_available">
     <item quantity="one">1 second available</item>
-    <item quantity="other">%d
-            seconds available</item>
+    <item quantity="other">%d seconds available</item>
   </plurals>
   <string name="settings_error_revoking_account_message">There was a problem logging out. Please try again.</string>
   <string name="settings_error_revoking_account_title">Oops!</string>
