@@ -45,8 +45,8 @@ import java.util.regex.Pattern;
 public class StreamProxy implements Runnable {
     private static final String LOG_TAG = StreamProxy.class.getSimpleName();
 
-    private static final int INITIAL_TIMEOUT = 15;   // before receiving the first chunk
-    private static final int TRANSFER_TIMEOUT = 120; // subsequent chunks
+    private static final int INITIAL_TIMEOUT  = 15;   // before receiving the first chunk
+    private static final int TRANSFER_TIMEOUT = 60;   // subsequent chunks
     private static final String CRLF = "\r\n";
 
     private static final String SERVER = "SoundCloudStreaming";

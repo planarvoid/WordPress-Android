@@ -1,6 +1,6 @@
 package com.soundcloud.android.service.playback;
 
-import static com.soundcloud.android.service.playback.CloudPlaybackService.State.*;
+import static com.soundcloud.android.service.playback.State.*;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -121,11 +121,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private FocusHelper mFocus;
     private boolean mFocusLost;
 
-    // states the mediaplayer can be in - we need to track these manually
-    enum State {
-        STOPPED, ERROR, ERROR_RETRYING, PREPARING, PREPARED, PLAYING, PAUSED, PAUSED_FOR_BUFFERING
-    }
-
     private State state = STOPPED;
 
     private final IBinder mBinder = new ServiceStub(this);
@@ -170,13 +165,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public void onDestroy() {
         super.onDestroy();
         stop();
-        gotoIdleState();
-
-        if (mMediaPlayer != null) {
-            mMediaPlayer.release();
-            mMediaPlayer = null;
-        }
-
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mPlayerHandler.removeCallbacksAndMessages(null);
@@ -413,9 +401,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
             } catch (IllegalStateException e) {
                 Log.e(TAG, "error", e);
-                state = ERROR;
-
-                gotoIdleState();
+                gotoIdleState(ERROR);
             } catch (IOException e) {
                 Log.e(TAG, "error", e);
                 errorListener.onError(mMediaPlayer, 0, 0);
@@ -423,7 +409,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         } else {
             // track not streamable
             mPlayerHandler.sendEmptyMessage(STREAM_EXCEPTION);
-            gotoIdleState();
+            gotoIdleState(STOPPED);
         }
     }
 
@@ -431,7 +417,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     /* package */ void play() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "play(state="+state+")");
         if (mCurrentTrack != null) {
-            if (mMediaPlayer != null && (state == PAUSED || state == PREPARED)) {
+            if (mMediaPlayer != null && state.isStartable()) {
                 // resume
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.start");
 
@@ -459,16 +445,15 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
 
         if (mMediaPlayer != null && state != PAUSED) {
-            if (mMediaPlayer.isPlaying()) {
+            if (state.isPausable() && mMediaPlayer.isPlaying()) {
                 mMediaPlayer.pause();
                 // don't abandon the focus here - otherwise we won't get it back
-                state = PAUSED;
+                gotoIdleState(PAUSED);
             } else {
                 // get into a determined state
                 stop();
             }
         }
-        gotoIdleState();
         notifyChange(PLAYSTATE_CHANGED);
     }
 
@@ -476,26 +461,20 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "stop(state="+state+")");
         }
-
         if (mMediaPlayer != null) {
-            if (state == PLAYING ||
-                state == PREPARED ||
-                state == PAUSED_FOR_BUFFERING) {
+            if (state.isStoppable()) {
                 mMediaPlayer.stop();
             }
             mMediaPlayer.release();
             mMediaPlayer = null;
-            mFocus.abandonMusicFocus();
-            stopForeground(true);
         }
-        state = State.STOPPED;
-        mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
-        scheduleServiceShutdownCheck();
+        mFocus.abandonMusicFocus();
+        gotoIdleState(STOPPED);
     }
 
 
-    private void gotoIdleState() {
-        if (state != PAUSED) state = STOPPED;
+    private void gotoIdleState(State newState) {
+        state = newState;
         mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
         scheduleServiceShutdownCheck();
         stopForeground(true);
@@ -577,7 +556,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
      * Returns the current playback position in milliseconds
      */
     /* package */ long getPosition() {
-        if (mMediaPlayer != null && (state == PLAYING || state == PAUSED)) {
+        if (mMediaPlayer != null && !state.isError()) {
             return mMediaPlayer.getCurrentPosition();
         } else if (mCurrentTrack != null && mResumeTrackId == mCurrentTrack.id) {
             return mResumeTime; // either -1 or a valid resume time
@@ -587,13 +566,13 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ int loadPercent() {
-        return mMediaPlayer != null && state != ERROR ? mLoadPercent : 0;
+        return mMediaPlayer != null && !state.isError() ? mLoadPercent : 0;
     }
 
     /* package */ boolean isSeekable() {
         return (Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK
                 && mMediaPlayer != null
-                && state != ERROR
+                && state.isSeekable()
                 && mCurrentTrack != null);
     }
 
@@ -627,7 +606,14 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 }
 
                 if (performSeek && newPos != currentPos) {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "seeking to "+newPos);
+                    }
                     mMediaPlayer.seekTo((int) newPos);
+                } else {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "NOT seeking to "+newPos);
+                    }
                 }
                 return newPos;
             }
@@ -665,7 +651,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     private void setVolume(float vol) {
-        if (mMediaPlayer != null && state != ERROR) {
+        if (mMediaPlayer != null && !state.isError()) {
             try {
                 mMediaPlayer.setVolume(vol, vol);
             } catch (IllegalStateException ignored) {
@@ -862,7 +848,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                         next();
                     } else {
                         notifyChange(PLAYBACK_COMPLETE);
-                        gotoIdleState();
+                        gotoIdleState(COMPLETED);
                     }
                     break;
                 case CLEAR_LAST_SEEK:
@@ -950,24 +936,25 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onCompletion(state="+state+")");
             }
-
-            // check for premature track end
             final long targetPosition = (mSeekPos == -1) ? mMediaPlayer.getCurrentPosition() : mSeekPos;
-
+            // premature track end ?
             if (isSeekable() && getDuration() - targetPosition > 3000) {
-
-                // track ended prematurely (probably end of buffer, unreported IO error), so try to resume at last time
+                Log.w(TAG, "premature end of track (targetpos="+targetPosition+")");
+                // track ended prematurely (probably end of buffer, unreported IO error),
+                // so try to resume at last time
                 mResumeTrackId = mCurrentTrack.id;
                 mResumeTime = targetPosition;
                 errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
+            } else if (!state.isError()) {
+                getApp().trackEvent(
+                        Consts.Tracking.Categories.TRACKS,
+                        Consts.Tracking.Actions.TRACK_COMPLETE,
+                        mCurrentTrack.getTrackEventLabel());
+
+                mPlayerHandler.sendEmptyMessage(TRACK_ENDED);
             } else {
-                if (state != ERROR) {
-                    mPlayerHandler.sendEmptyMessage(TRACK_ENDED);
-                    getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TRACK_COMPLETE,
-                            mCurrentTrack.getTrackEventLabel());
-                } else {
-                    stop(); // XXX
-                }
+                // onComplete must have been called in error state
+                stop();
             }
         }
     };
@@ -981,18 +968,20 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 if (state == PREPARING) {
                     state = PREPARED;
 
-                    if (!mAutoPause) {
-                        setVolume(0);
-                        // this will also play
-                        mPlayerHandler.sendEmptyMessage(FADE_IN);
-                    }
-
-                    if (mResumeTrackId == mCurrentTrack.id) {
+                    // do we need to resume a track position ?
+                    if (mCurrentTrack.id == mResumeTrackId && mResumeTime > 0) {
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "resuming to "+mResumeTime);
+                        }
                         seek(mResumeTime, true);
-                        mResumeTime = -1;
-                        mResumeTrackId = -1;
+                        play();
+                        mResumeTime = mResumeTrackId -1;
                         resumeSeeking = true;
-                    } else {
+                    // normal play, unless first start (autopause=true)
+                    } else if (!mAutoPause) {
+                        setVolume(0);
+                        //  FADE_IN will call play()
+                        mPlayerHandler.sendEmptyMessage(FADE_IN);
                         notifyChange(BUFFERING_COMPLETE);
                     }
                 } else {
@@ -1018,13 +1007,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     Log.d(TAG, "stream disconnected, giving up");
                     mConnectRetries = 0;
                 }
-                state = ERROR;
                 mMediaPlayer.release();
                 mMediaPlayer = null;
-
                 mFocus.abandonMusicFocus();
 
-                gotoIdleState();
+                gotoIdleState(ERROR);
                 notifyChange(isConnected() ? PLAYBACK_ERROR : STREAM_DIED);
                 notifyChange(PLAYBACK_COMPLETE);
             }
