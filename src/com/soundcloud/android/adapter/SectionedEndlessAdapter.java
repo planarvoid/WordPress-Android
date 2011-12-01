@@ -86,7 +86,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     }
 
     @Override
-    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepgoing) {
+    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
         mPendingView = null;
         if (responseCode == HttpStatus.SC_OK) {
             if (newItems != null && newItems.size() > 0) {
@@ -97,10 +97,10 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
             if (!TextUtils.isEmpty(nextHref)) {
                 getWrappedAdapter().sections.get(mSectionIndex).nextHref = nextHref;
             }
-            if (!keepgoing) {
+            if (!keepGoing) {
                 nextAdapterSection();
             } else {
-                mKeepOnAppending.set(keepgoing);
+                mState = keepGoing ? WAITING : DONE;
             }
         } else {
             handleResponseCode(responseCode);
@@ -121,9 +121,9 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         // load next section as necessary
         if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
             mSectionIndex++;
-            mKeepOnAppending.set(true);
+            mState = WAITING;
         } else {
-            mKeepOnAppending.set(false);
+            mState = DONE;
         }
         notifyDataSetChanged();
     }
@@ -142,7 +142,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     protected void onEmptyRefresh(){
        if (super.getCount() == 0) {
            if (mSectionIndex >= getWrappedAdapter().sections.size() - 1) {
-               mKeepOnAppending.set(false);
+               mState = DONE;
            } else {
                nextAdapterSection();
            }
