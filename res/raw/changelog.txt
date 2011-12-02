@@ -1,5 +1,11 @@
-$ 30
+$ 31
   % v current
+  _ 2011-11-29
+  ! SSO
+    * Facebook SSO
+
+$ 30
+  % v 2.0.1
   _ 2011-11-29
   ! Maintenance release
     * New empty screens
