@@ -123,7 +123,7 @@ public class ActivitiesCache {
                 && events.size() < SyncAdapterService.NOTIFICATION_MAX
                 && request != null);
 
-        return new Activities(events, future_href);
+        return new Activities(events, future_href, next_href);
     }
 
     public static void clear(Context c) {

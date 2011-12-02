@@ -5,22 +5,17 @@ import android.content.Intent;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.ApiService;
 import com.soundcloud.android.service.sync.ActivitiesCache;
-import com.soundcloud.android.task.AppendEventsTask;
 import com.soundcloud.android.task.RefreshEventsTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
-import org.apache.http.HttpStatus;
 
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class EventsAdapterWrapper extends LazyEndlessAdapter {
@@ -75,7 +70,6 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
                 }
             } else {
                 mNextHref = nextHref;
-                reset(true, false);
                 getData().addAll(newItems);
             }
         }
@@ -94,22 +88,6 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 
         notifyDataSetChanged();
     }
-
-    @Override
-    protected void startAppendTask(){
-        mAppendTask = new AppendEventsTask(mActivity.getApp()) {
-            {
-                loadModel = getLoadModel(false);
-                pageSize = getPageSize();
-                setAdapter(EventsAdapterWrapper.this);
-                request = buildRequest(false);
-                mCacheFile = ActivitiesCache.getCacheFile(mActivity.getApp(),mRequest);
-                refresh = false;
-                execute();
-            }
-        };
-    }
-
 
     @SuppressWarnings("unchecked")
     public void refresh(final boolean userRefresh) {
