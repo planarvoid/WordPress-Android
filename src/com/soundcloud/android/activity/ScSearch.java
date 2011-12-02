@@ -272,7 +272,7 @@ public class ScSearch extends ScActivity {
         refreshHistory();
 
         mList.setLastUpdated(0);
-        mList.onRefresh();
+        mList.onRefresh(false);
         mList.setVisibility(View.VISIBLE);
 
         if (mSearchFlipper.getDisplayedChild() == 0) {

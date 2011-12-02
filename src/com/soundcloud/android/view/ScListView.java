@@ -209,7 +209,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                     postSelect(0, 0, false);
                 }
             } else if (mOnRefreshListener.needsRefresh()) {
-                onRefresh();
+                onRefresh(false);
                 setSelection(0);
             } else {
                 checkHeaderVisibility();
@@ -221,7 +221,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         getBaseAdapter().notifyDataSetChanged();
         if (mOnRefreshListener != null) {
             mOnRefreshListener.onConnected();
-            if (isForeground && mOnRefreshListener.needsRefresh()) onRefresh();
+            if (isForeground && mOnRefreshListener.needsRefresh()) onRefresh(false);
         }
     }
 
@@ -297,12 +297,12 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         mRefreshState = REFRESHING;
     }
 
-    public void onRefresh() {
+    public void onRefresh(boolean manual) {
         if (mOnRefreshListener != null) {
             if (mRefreshState != REFRESHING) {
                 prepareForRefresh();
             }
-            mOnRefreshListener.onRefresh();
+            mOnRefreshListener.onRefresh(manual);
         }
     }
 
@@ -504,7 +504,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                         // Initiate the refresh
                         mRefreshState = REFRESHING;
                         prepareForRefresh();
-                        onRefresh();
+                        onRefresh(true);
                     } else {
                         // Abort refresh and scroll down below the refresh view
                         resetHeader();
@@ -669,7 +669,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         @Override
         public void onClick(View v) {
             if (mRefreshState != REFRESHING) {
-                onRefresh();
+                onRefresh(true);
             }
         }
     }
@@ -698,7 +698,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
     public interface OnRefreshListener {
-        void onRefresh();
+        void onRefresh(boolean manual);
 
         void onConnected();
 

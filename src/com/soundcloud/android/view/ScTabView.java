@@ -27,7 +27,7 @@ public class ScTabView extends FrameLayout {
      public void onRefresh(boolean userRefresh) {
         if (mListView != null) {
             mListView.setSelection(0);
-            mListView.onRefresh();
+            mListView.onRefresh(false);
         }
     }
 

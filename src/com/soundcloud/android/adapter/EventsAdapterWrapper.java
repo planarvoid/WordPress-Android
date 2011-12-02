@@ -97,6 +97,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 
     @Override
     protected void startAppendTask(){
+        Log.i("asdf","Start Append Task");
         mAppendTask = new AppendEventsTask(mActivity.getApp()) {
             {
                 loadModel = getLoadModel(false);
@@ -116,7 +117,10 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         mState = REFRESHING;
         mWaitingOnSync = true;
 
-        startRefreshTask(false); // load whatever is currently cached
+        if (!userRefresh){
+            reset(true,false);
+            startRefreshTask(false); // load whatever is currently cached
+        }
 
         // send an intent to update our event cache
         final Intent intent = new Intent(mActivity, ApiService.class);
@@ -129,6 +133,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 
     @Override
     protected void startRefreshTask(final boolean userRefresh){
+        Log.i("asdf","Start refresh task");
        mRefreshTask = new RefreshEventsTask(mActivity.getApp()) {
             {
                 setAdapter(EventsAdapterWrapper.this);

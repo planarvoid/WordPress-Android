@@ -64,12 +64,13 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     private String mEmptyViewText = "";
 
     protected int mState;
-    int INITIALIZED = 0;
-    int WAITING = 1;
-    int REFRESHING = 2;
-    int APPENDING = 3;
-    int DONE = 4;
-    int ERROR = 5;
+    int INITIALIZED     = 0; // no loading yet
+    int READY           = 1; // ready for initial load (considered a refresh)
+    int REFRESHING      = 2; // currently refreshing
+    int WAITING         = 3; // idle with next href available, append on user scroll to end
+    int APPENDING       = 4; // currently appending
+    int DONE            = 5; // idle with no next href, no more appends
+    int ERROR           = 6; // idle with error, no more appends
 
 
 
@@ -86,7 +87,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mContentUri = contentUri;
         wrapped.setWrapper(this);
 
-        if (autoAppend) mState = WAITING;
+        if (autoAppend) mState = READY;
     }
 
     /**
@@ -270,16 +271,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         }
     }
 
-    /**
-     * Get a View that displays the data at the specified position in the data
-     * set. In this case, if we are at the end of the list and we are still in
-     * append mode, we ask for a pending view and return it, plus kick off the
-     * background task to append more data to the wrapped adapter.
-     *
-     * @param position Position of the item whose data we want
-     * @param convertView View to recycle, if not null
-     * @param parent ViewGroup containing the returned View
-     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (position == super.getCount() && canShowEmptyView()){
@@ -439,7 +430,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     public void reset(boolean keepAppending, boolean notifyChange) {
         resetData();
         mNextHref = "";
-        mState = WAITING;
+        mState = READY;
         clearAppendTask();
 //        clearRefreshTask();
          if (notifyChange) notifyDataSetChanged();
@@ -483,8 +474,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     @Override
-    public void onRefresh() {
-        if (!isRefreshing()) refresh(true);
+    public void onRefresh(boolean manual) {
+        if (!isRefreshing()) refresh(manual);
     }
 
     public boolean isRefreshing() {
@@ -497,12 +488,12 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     public void allowInitialLoading(){
         if (mState == INITIALIZED){
-            mState = WAITING;
+            mState = READY;
         }
     }
 
     public boolean needsRefresh() {
-        return (mState == WAITING && getWrappedAdapter().getCount() == 0);
+        return (mState == READY && getWrappedAdapter().getCount() == 0);
     }
 
     public void onConnected() {

@@ -180,7 +180,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         if (!mSeen) {
             mSeen = true;
             if (mCurrentState == States.LOADING) {
-                onRefresh();
+                onRefresh(false);
             } else {
                 mFriendList.onResume();
                 mFriendList.getWrapper().allowInitialLoading();
@@ -245,7 +245,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     }
 
     @Override
-    public void onRefresh() {
+    public void onRefresh(boolean manual) {
         ((UserBrowser) mActivity).refreshConnections();
     }
 

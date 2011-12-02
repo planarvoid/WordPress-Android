@@ -186,7 +186,7 @@ public class Dashboard extends ScActivity {
     }
 
     public void refreshIncoming() {
-        mListView.onRefresh();
+        mListView.onRefresh(false);
         if (Build.VERSION.SDK_INT >= 8) {
             mListView.smoothScrollToPosition(0);
         }
@@ -221,7 +221,7 @@ public class Dashboard extends ScActivity {
                                         mListView.invalidateViews();
                                         mListView.post(new Runnable() {
                                             @Override public void run() {
-                                                mListView.onRefresh();
+                                                mListView.onRefresh(false);
                                             }
                                         });
 
