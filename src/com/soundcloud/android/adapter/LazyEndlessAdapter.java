@@ -52,9 +52,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     protected View mPendingView = null;
     protected DetachableResultReceiver mDetachableReceiver;
 
-    private Uri mContentUri;
+    protected Uri mContentUri;
     protected Request mRequest;
-    private String mNextHref, mFirstPageEtag;
+    protected String mNextHref;
+    private String mFirstPageEtag;
     private int mPageIndex;
 
     private static final int ITEM_TYPE_LOADING = -1;

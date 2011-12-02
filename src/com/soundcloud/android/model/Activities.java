@@ -1,8 +1,8 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.Request;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -10,16 +10,13 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -223,6 +220,18 @@ public class Activities implements Iterable<Event> {
             }
         }
         return merged;
+    }
+
+    public Activities returnUnique(Activities old) {
+        Activities unique = new Activities(new ArrayList<Event>());
+        unique.future_href = future_href;
+
+        for (Event e : collection) {
+            if (!old.collection.contains(e)) {
+                unique.collection.add(e);
+            }
+        }
+        return unique;
     }
 
     public Activities filter(Date d) {

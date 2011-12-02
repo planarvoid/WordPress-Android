@@ -7,13 +7,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Event;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -27,7 +24,6 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import javax.xml.transform.Source;
 import java.util.ArrayList;
 
 public class Dashboard extends ScActivity {
@@ -65,9 +61,7 @@ public class Dashboard extends ScActivity {
                             }
                         });
 
-                trackListView = createList(getIncomingRequest(),
-                        //getIncomingContent(),
-                        null,
+                trackListView = createList(getIncomingType(),
                         Event.class,
                         ec,
                         Consts.ListId.LIST_STREAM, false);
@@ -113,9 +107,7 @@ public class Dashboard extends ScActivity {
                 }
 
 
-                trackListView = createList(Request.to(Endpoints.MY_NEWS),
-                        //ScContentProvider.Content.ME_ACTIVITIES,
-                        null,
+                trackListView = createList(Consts.EventTypes.ACTIVITY,
                         Event.class,
                         ec,
                         Consts.ListId.LIST_ACTIVITY, true);
@@ -145,19 +137,11 @@ public class Dashboard extends ScActivity {
         startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101")));
     }
 
-    private Request getIncomingRequest() {
+    private int getIncomingType() {
         return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(EXCLUSIVE_ONLY_KEY, false)
-                ? Request.to(Endpoints.MY_EXCLUSIVE_TRACKS)
-                : Request.to(Endpoints.MY_ACTIVITIES);
+                ? Consts.EventTypes.EXCLUSIVE
+                : Consts.EventTypes.INCOMING;
     }
-
-    private Uri getIncomingContent() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(EXCLUSIVE_ONLY_KEY, false)
-                ? ScContentProvider.Content.ME_EXCLUSIVE_STREAM
-                : ScContentProvider.Content.ME_SOUND_STREAM;
-    }
-
-
 
     @Override
     public void onResume() {
@@ -170,9 +154,9 @@ public class Dashboard extends ScActivity {
                         Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
     }
 
-    protected ScTabView createList(Request endpoint, Uri contentUri, Class<?> model, EmptyCollection emptyView, int listId, boolean isNews) {
+    protected ScTabView createList(int type, Class<?> model, EmptyCollection emptyView, int listId, boolean isNews) {
         EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), isNews, model);
-        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, endpoint, contentUri);
+        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, type);
 
         final ScTabView view = new ScTabView(this);
         mListView = view.setLazyListView(buildList(!isNews), adpWrap, listId, true);
@@ -230,7 +214,7 @@ public class Dashboard extends ScActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit()
                                                 .putBoolean(EXCLUSIVE_ONLY_KEY, which == 1).commit();
-                                        mListView.getWrapper().setRequest(getIncomingRequest());
+                                        ((EventsAdapterWrapper) mListView.getWrapper()).setType(getIncomingType());
                                         mListView.getWrapper().clearRefreshTask();
                                         mListView.getWrapper().reset();
                                         mListView.setLastUpdated(0);

@@ -3,12 +3,14 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Events;
-import com.soundcloud.android.provider.DBHelper.Tables;
+import com.soundcloud.android.service.ApiService;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -185,4 +187,35 @@ public class Event extends ModelBase implements Origin {
         result = 31 * result + (origin != null ? origin.hashCode() : 0);
         return result;
     }
+
+    public static Request getRequestFromType(int type){
+        switch (type){
+            case Consts.EventTypes.INCOMING : {
+                return Request.to(Endpoints.MY_ACTIVITIES);
+            }
+            case Consts.EventTypes.EXCLUSIVE : {
+                return Request.to(Endpoints.MY_EXCLUSIVE_TRACKS);
+            }
+            case Consts.EventTypes.ACTIVITY : {
+                return Request.to(Endpoints.MY_NEWS);
+            }
+        }
+        return null;
+    }
+
+    public static String getSyncExtraFromType(int type){
+        switch (type){
+            case Consts.EventTypes.INCOMING : {
+                return ApiService.SyncExtras.INCOMING;
+            }
+            case Consts.EventTypes.EXCLUSIVE : {
+                return ApiService.SyncExtras.EXCLUSIVE;
+            }
+            case Consts.EventTypes.ACTIVITY : {
+                return ApiService.SyncExtras.ACTIVITY;
+            }
+        }
+        return null;
+    }
+
 }

@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.service.sync.ActivitiesCache;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 public class ApiService extends IntentService{
 
@@ -22,7 +25,7 @@ public class ApiService extends IntentService{
     public interface SyncExtras {
         String INCOMING = ApiService.class.getName() + ".sync_incoming";
         String EXCLUSIVE = ApiService.class.getName() + ".sync_exclusive";
-        String ACTIVITIES = ApiService.class.getName() + ".sync_activities";
+        String ACTIVITY = ApiService.class.getName() + ".sync_activities";
         String FAVORITES = ApiService.class.getName() + ".sync_favorites";
     }
 
@@ -39,14 +42,18 @@ public class ApiService extends IntentService{
         try {
             if (intent.getBooleanExtra(SyncExtras.INCOMING,false)){
                 Log.i("asdf","SYNC INCOMING");
+                ActivitiesCache.get(getApp(), getApp().getAccount(),Request.to(Endpoints.MY_ACTIVITIES));
+
             }
             if (intent.getBooleanExtra(SyncExtras.EXCLUSIVE,false)){
                 Log.i("asdf","SYNC EXCLUSIVE");
+                ActivitiesCache.get(getApp(), getApp().getAccount(),Request.to(Endpoints.MY_EXCLUSIVE_TRACKS));
             }
-            if (intent.getBooleanExtra(SyncExtras.ACTIVITIES,false)){
-                Log.i("asdf","SYNC ACTIVITIES");
+            if (intent.getBooleanExtra(SyncExtras.ACTIVITY,false)){
+                Log.i("asdf","SYNC ACTIVITY");
+                ActivitiesCache.get(getApp(), getApp().getAccount(),Request.to(Endpoints.MY_NEWS));
             }
-
+            Log.i("asdf","SYNC DONE");
         } catch (Exception e) {
             Log.e(LOG_TAG, "Problem while syncing", e);
 

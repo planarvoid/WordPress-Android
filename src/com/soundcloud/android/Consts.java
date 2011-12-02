@@ -168,4 +168,10 @@ public final class Consts {
         String TRACKS_BY_TAG        = "/tracks_by_tag/";
         String TRACKS_BY_GENRE      = "/tracks_by_genre/";
     }
+
+    public interface EventTypes {
+        int INCOMING = 1;
+        int EXCLUSIVE = 2;
+        int ACTIVITY = 3;
+    }
 }

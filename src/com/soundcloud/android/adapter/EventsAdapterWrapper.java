@@ -2,43 +2,44 @@
 package com.soundcloud.android.adapter;
 
 import android.content.Intent;
-import android.net.Uri;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.ApiService;
 import com.soundcloud.android.service.sync.ActivitiesCache;
 import com.soundcloud.android.task.AppendEventsTask;
-import com.soundcloud.android.task.AppendTask;
 import com.soundcloud.android.task.RefreshEventsTask;
-import com.soundcloud.android.task.RefreshTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
-import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.os.ResultReceiver;
+import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
-import java.sql.Ref;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EventsAdapterWrapper extends LazyEndlessAdapter {
     public DetachableResultReceiver mReceiver;
+    private int mEventType;
+    private boolean mWaitingOnSync;
 
-    public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Request request, Uri contentUri) {
-        super(activity, wrapped, request, contentUri);
+    public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, int type) {
+        super(activity, wrapped, Event.getRequestFromType(type), null);
+        mEventType = type;
     }
 
      @Override
     public EventsAdapter getWrappedAdapter() {
         return (EventsAdapter) super.getWrappedAdapter();
+    }
+
+    public void setType(int type){
+        setRequest(Event.getRequestFromType(type));
     }
 
     @Override
@@ -57,7 +58,41 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
             }
         }
         super.onPostTaskExecute(newItems,nextHref,responseCode,keepgoing);
+    }
 
+    public void onPostRefresh(List<Parcelable> newItems, String nextHref, boolean success) {
+
+        if (success) { // apply cached items
+            if (getWrappedAdapter().getCount() > 0 && newItems.contains(getData().get(0))) {
+                int i = 0;
+                for (Parcelable e : newItems) {
+                    if (getData().contains(e)) {
+                        break;
+                    } else {
+                        getData().add(i, e);
+                        i++;
+                    }
+                }
+            } else {
+                mNextHref = nextHref;
+                reset(true, false);
+                getData().addAll(newItems);
+            }
+        }
+
+        if (!mWaitingOnSync) { // reset state to not refreshing
+            mState = TextUtils.isEmpty(mNextHref) ? DONE : WAITING;
+            if (mListView != null) {
+                mListView.onRefreshComplete((newItems != null && newItems.size() > 0));
+            }
+
+            applyEmptyView();
+            mPendingView = null;
+            mRefreshTask = null;
+            mAppendTask = null;
+        }
+
+        notifyDataSetChanged();
     }
 
     @Override
@@ -75,64 +110,54 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         };
     }
 
-    /*
-    @Override
-    public void onRefresh(){
-        Log.i("asdf","ON REFRESH");
-
-    }
 
     @SuppressWarnings("unchecked")
     public void refresh(final boolean userRefresh) {
-        if (userRefresh) {
-            if (FollowStatus.Listener.class.isAssignableFrom(getWrappedAdapter().getClass())) {
-                FollowStatus.get().requestUserFollowings(mActivity.getApp(), (FollowStatus.Listener) getWrappedAdapter(), true);
-            }
-        } else {
-            reset();
-        }
+        mState = REFRESHING;
+        mWaitingOnSync = true;
 
-        // trigger off background sync
+        startRefreshTask(false); // load whatever is currently cached
+
+        // send an intent to update our event cache
         final Intent intent = new Intent(mActivity, ApiService.class);
         intent.putExtra(ApiService.EXTRA_STATUS_RECEIVER, getReceiver());
-        intent.putExtra(ApiService.SyncExtras.INCOMING,true);
+        intent.putExtra(Event.getSyncExtraFromType(mEventType),true);
         mActivity.startService(intent);
 
-        startRefreshTask(userRefresh);
         notifyDataSetChanged();
     }
-
 
     @Override
     protected void startRefreshTask(final boolean userRefresh){
        mRefreshTask = new RefreshEventsTask(mActivity.getApp()) {
             {
-                loadModel = getLoadModel(false);
-                pageSize  = getPageSize();
                 setAdapter(EventsAdapterWrapper.this);
-                request = buildRequest(true);
                 mCacheFile = ActivitiesCache.getCacheFile(mActivity.getApp(),mRequest);
-                refresh = userRefresh;
                 execute();
             }
         };
     }
-      */
+
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case ApiService.STATUS_RUNNING: {
-                Log.i("asdf","REceived result, running");
+                Log.i(getClass().getSimpleName(),"REceived result, running");
                 break;
             }
             case ApiService.STATUS_FINISHED: {
+                mWaitingOnSync = false;
                 Log.i("asdf", "REceived result, finished");
+                startRefreshTask(false);
                 break;
             }
             case ApiService.STATUS_ERROR: {
-                Log.i("asdf", "REceived result, error");
+                mWaitingOnSync = false;
+                mState = ERROR;
+                onEmptyRefresh();
                 break;
             }
         }
     }
+
 }
