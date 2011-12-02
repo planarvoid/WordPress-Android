@@ -3,6 +3,7 @@ $ 31
   _ 2011-11-29
   ! SSO
     * Facebook SSO
+    * Tour is now swipy
 
 $ 30
   % v 2.0.1
