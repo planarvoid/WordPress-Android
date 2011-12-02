@@ -220,9 +220,7 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
 
             // wipe it out and remote load ?? if (c.getCount() == localPageSize){ }
             mNewItems = new ArrayList<Parcelable>();
-            Log.i("asdf","cursor is ");
             if (itemsCursor != null && itemsCursor.moveToFirst()) {
-                Log.i("asdf","we have cursor items!! ");
                 do {
                     if (Track.class.equals(loadModel)) {
                         mNewItems.add(new Track(itemsCursor));

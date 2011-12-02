@@ -97,7 +97,6 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 
     @Override
     protected void startAppendTask(){
-        Log.i("asdf","Start Append Task");
         mAppendTask = new AppendEventsTask(mActivity.getApp()) {
             {
                 loadModel = getLoadModel(false);
@@ -133,7 +132,6 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 
     @Override
     protected void startRefreshTask(final boolean userRefresh){
-        Log.i("asdf","Start refresh task");
        mRefreshTask = new RefreshEventsTask(mActivity.getApp()) {
             {
                 setAdapter(EventsAdapterWrapper.this);
@@ -147,12 +145,10 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case ApiService.STATUS_RUNNING: {
-                Log.i(getClass().getSimpleName(),"REceived result, running");
                 break;
             }
             case ApiService.STATUS_FINISHED: {
                 mWaitingOnSync = false;
-                Log.i("asdf", "REceived result, finished");
                 startRefreshTask(false);
                 break;
             }

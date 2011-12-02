@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -28,7 +29,10 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -46,12 +50,6 @@ public class SyncAdapterService extends Service {
 
     public interface ScBundleKeys{
         String SYNC_ENDPOINT = "sync_endpoint";
-    }
-
-    public interface ScSyncEndpoints {
-        int INCOMING = 1;
-        int EXCLUSIVE = 2;
-        int ACTIVITIES = 3;
     }
 
     @Override
@@ -81,7 +79,7 @@ public class SyncAdapterService extends Service {
                 Log.d(TAG, "onPerformSync("+account+","+extras+","+authority+","+provider+","+syncResult+")");
             }
 
-            if (shouldSync() || extras.getInt(ScBundleKeys.SYNC_ENDPOINT,0) > 0) {
+            if (shouldSync()) {
                 SyncAdapterService.performSync(mApp, account, extras, provider, syncResult);
             } else {
                 Log.d(TAG, "skipping sync because Wifi is diabled");
@@ -106,64 +104,68 @@ public class SyncAdapterService extends Service {
                                     Account account,
                                     Bundle extras,
                                     ContentProviderClient provider,
-                                    SyncResult syncResult) {
+                                    final SyncResult syncResult) {
 
-        try {
+        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
+            final long now = System.currentTimeMillis();
+            app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
+            app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
+        } else {
+            if (app.useAccount(account).valid()) {
 
-            final int syncEndpoint = extras.getInt(ScBundleKeys.SYNC_ENDPOINT, 0);
-            Log.i("asdf","Sync Endpoint is " + syncEndpoint);
-            if (syncEndpoint > 0) {
+                Looper.prepare();
+                final Intent intent = new Intent(app, ApiService.class);
+                intent.putExtra(ApiService.SyncExtras.DASHBOARD, true);
+                intent.putExtra(ApiService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
+                    @Override
+                    protected void onReceiveResult(int resultCode, Bundle resultData) {
+                        Log.i(TAG, "Received ApiService result " + resultCode + " " + resultCode);
+                        switch (resultCode) {
+                            case ApiService.STATUS_RUNNING: {
+                                break;
+                            }
+                            case ApiService.STATUS_ERROR: {
+                                SyncResult serviceResult = resultData.getParcelable(ApiService.EXTRA_SYNC_RESULT);
+                                syncResult.stats.numAuthExceptions = serviceResult.stats.numAuthExceptions;
+                                syncResult.stats.numIoExceptions = serviceResult.stats.numIoExceptions;
+                                Looper.myLooper().quit();
+                                break;
+                            }
+                            case ApiService.STATUS_FINISHED: {
+                                try {
+                                    final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
+                                    final Activities incoming = !isIncomingEnabled(app) ? Activities.EMPTY
+                                            : Activities.fromJSON(ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_ACTIVITIES)));
 
-                if (app.useAccount(account).valid()) {
-                    switch (syncEndpoint) {
-                    case ScSyncEndpoints.INCOMING:
-                        getNewIncomingEvents(app, account, false);
-                        break;
-                    case ScSyncEndpoints.EXCLUSIVE:
-                        getNewIncomingEvents(app, account, true);
-                        break;
-                    case ScSyncEndpoints.ACTIVITIES:
-                        getOwnEvents(app, account);
-                        break;
-                }
-                } else {
-                    Log.w(TAG, "no valid token, skip sync");
-                    syncResult.stats.numAuthExceptions++;
-                }
+                                    final Activities exclusive = !isExclusiveEnabled(app) ? Activities.EMPTY
+                                            : Activities.fromJSON(ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_EXCLUSIVE_TRACKS)));
 
-            } else if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
-                final long now = System.currentTimeMillis();
-                app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
-                app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
-            } else {
-                if (app.useAccount(account).valid()) {
+                                    syncIncoming(app, incoming.filter(lastIncomingSeen), exclusive.filter(lastIncomingSeen));
 
-                    //Intent i = new Intent(ApiService.)
+                                    final Activities news = !isActivitySyncEnabled(app) ? Activities.EMPTY
+                                            : Activities.fromJSON(ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_NEWS)));
 
-                    // how many have they already been notified about, don't create repeat notifications for no new tracks
-                    /*
-                    final long lastSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
-                    Activities incoming = getNewIncomingEvents(app, account, false).filter(lastSeen);
-                    Activities exclusive = getNewIncomingEvents(app, account, true).filter(lastSeen);
-                    syncIncoming(app, incoming, exclusive);
+                                    syncOwn(app, news.filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN)));
 
-                    if (isActivitySyncEnabled(app)) {
-                        Activities events = getOwnEvents(app, account).filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN));
-                        syncOwn(app, events);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    syncResult.stats.numIoExceptions++;
+                                }
+                                Looper.myLooper().quit();
+                                break;
+                            }
+                        }
                     }
-                    */
+                });
 
-                } else {
-                    Log.w(TAG, "no valid token, skip sync");
-                    syncResult.stats.numAuthExceptions++;
-                }
+                app.startService(intent);
+                Looper.loop();
+            } else {
+                Log.w(TAG, "no valid token, skip sync");
+                syncResult.stats.numAuthExceptions++;
             }
-        } catch (CloudAPI.InvalidTokenException e) {
-            syncResult.stats.numAuthExceptions++;
-        } catch (IOException e) {
-            Log.w(TAG, "i/o", e);
-            syncResult.stats.numIoExceptions++;
         }
+
     }
 
     /* package */ static void syncIncoming(SoundCloudApplication app, Activities incoming, Activities exclusive)
@@ -308,8 +310,6 @@ public class SyncAdapterService extends Service {
         n.contentIntent = pi;
         n.flags = Notification.FLAG_AUTO_CANCEL;
         n.setLatestEventInfo(context.getApplicationContext(), title, message, pi);
-
-
         nm.notify(id, n);
     }
 

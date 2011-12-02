@@ -656,7 +656,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     private void configureLastUpdated() {
         // can trigger a weird layout loop if done in a different state, may need to be revisited
-        if (mRefreshState == TAP_TO_REFRESH && mLastUpdated != 0) {
+        if ((mRefreshState == TAP_TO_REFRESH || mRefreshState == REFRESHING) && mLastUpdated != 0) {
             mRefreshViewLastUpdated.setVisibility(View.VISIBLE);
             mRefreshViewLastUpdated.setText(getResources().getString(R.string.pull_to_refresh_last_updated,
                     CloudUtils.getElapsedTimeString(getResources(), mLastUpdated, true)));

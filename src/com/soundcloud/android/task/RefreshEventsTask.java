@@ -33,7 +33,6 @@ public class RefreshEventsTask extends LoadEventsTask {
 
     @Override
     protected Boolean doInBackground(String... params) {
-        Log.i("asdf","REFRASHHHH");
         try {
             if (mCacheFile.exists()) {
                 Activities a = Activities.fromJSON(mCacheFile);

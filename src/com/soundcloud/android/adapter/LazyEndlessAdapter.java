@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.AppendTask;
+import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.RefreshTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -179,9 +180,13 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         return new Object[] {
                 getData(),
                 getRefreshTask(),
+                getAppendTask(),
                 savePagingData(),
                 saveExtraData(),
                 mListView == null ? null : mListView.getLastUpdated(),
+                mListView == null ? null : mListView.getFirstVisiblePosition() == 0 && mState != REFRESHING ? 1 : mListView.getFirstVisiblePosition(),
+                mListView == null ? null : mListView.getChildAt(0) == null ||
+                        mListView.getFirstVisiblePosition() == 0 ? 0 : mListView.getChildAt(0).getTop(),
                 mDetachableReceiver
         };
     }
@@ -189,14 +194,27 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     @SuppressWarnings("unchecked")
     public void restoreState(final Object[] state){
         if (state[0] != null) getData().addAll((Collection<? extends Parcelable>) state[0]);
-        if (state[1] != null) restoreRefreshTask((RefreshTask) state[1]);
-        if (state[2] != null) restoreAppendTask((AppendTask) state[2]);
+        if (state[1] != null) restoreRefreshTask((LoadCollectionTask) state[1]);
+        if (state[2] != null) restoreAppendTask((LoadCollectionTask) state[2]);
         if (state[3] != null) restorePagingData((int[]) state[3]);
         if (state[4] != null) restoreExtraData((String) state[4]);
         if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
-        if (state[6] != null) {
-            mDetachableReceiver = (DetachableResultReceiver) state[6];
+        if (state[6] != null) mListView.postSelect(Integer.valueOf(state[6].toString()),Integer.valueOf(state[7].toString()), true);
+        if (state[8] != null) {
+            mDetachableReceiver = (DetachableResultReceiver) state[8];
             mDetachableReceiver.setReceiver(this);
+        }
+    }
+
+    private static class State {
+        public DetachableResultReceiver mReceiver;
+        public Uri mNowPlayingUri = null;
+        public boolean mNowPlayingGotoWifi = false;
+        public boolean mSyncing = false;
+        public boolean mNoResults = false;
+
+        private State() {
+            mReceiver = new DetachableResultReceiver(new Handler());
         }
     }
 
@@ -479,7 +497,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public boolean isRefreshing() {
-        return mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask);
+        return mState == REFRESHING;
     }
 
     public boolean isEmpty(){
