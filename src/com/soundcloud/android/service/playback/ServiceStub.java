@@ -39,7 +39,7 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     @Override
     public boolean isSupposedToBePlaying() {
         CloudPlaybackService svc = mService.get();
-        return svc != null && svc.isSupposedToBePlaying();
+        return svc != null && svc.getState().isSupposedToBePlaying();
     }
 
     @Override
@@ -64,7 +64,7 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     public void toggle() throws RemoteException {
         CloudPlaybackService svc = mService.get();
         if (svc != null) {
-            if (svc.isSupposedToBePlaying()) {
+            if (svc.getState().isSupposedToBePlaying()) {
                 svc.pause();
             } else {
                 svc.play();

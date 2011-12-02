@@ -560,6 +560,14 @@
         <item name="android:layout_marginRight">10dp</item>
     </style>
 
+    <style name="rdo_tour" parent="@android:style/Widget.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/rdo_tour</item>
+        <item name="android:layout_width">10dp</item>
+        <item name="android:layout_height">10dp</item>
+        <item name="android:layout_marginLeft">7dp</item>
+        <item name="android:layout_marginRight">7dp</item>
+    </style>
+
     <style name="txt_tour_title" parent="txt_tour_start">
     	<item name="android:textColor">#ffffffff</item>
         <item name="android:textSize">22sp</item>

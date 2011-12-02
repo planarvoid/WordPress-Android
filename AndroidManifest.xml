@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.0.1"
+      android:versionName="2.1-BETA1"
       android:installLocation="internalOnly"
-      android:versionCode="30">
+      android:versionCode="31">
 
     <application android:icon="@drawable/launcher"
         android:label="@string/app_name"
@@ -117,15 +117,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.tour.Start" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.Record" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.Share" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.Follow" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.Comment" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.You" android:screenOrientation="portrait" />
-        <activity android:name=".activity.tour.Finish" android:screenOrientation="portrait" />
-        {com.soundcloud.android/com.soundcloud.android.activity.TestActivity}; have you declared this activity in your AndroidManifest.xml?
-
+        <activity android:name=".activity.Tour" android:screenOrientation="portrait" />
         <activity android:name=".activity.TrackFavoriters" />
         <activity android:name=".activity.TrackComments" />
         <activity android:name=".activity.TracksByTag" />
@@ -172,7 +164,7 @@
 
         <service android:name=".service.ApiService" />
 
-        <service android:name=".service.CloudPlaybackService"
+        <service android:name=".service.playback.CloudPlaybackService"
                  android:exported="true">
         </service>
 

@@ -47,4 +47,9 @@ import java.util.EnumSet;
     public boolean isError() {
         return this == ERROR || this == ERROR_RETRYING;
     }
+
+    // is the service currently playing, or about to play soon?
+    public boolean isSupposedToBePlaying() {
+        return this == PREPARING || this == PLAYING || this == PAUSED_FOR_BUFFERING;
+    }
 }

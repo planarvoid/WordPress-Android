@@ -192,7 +192,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
         mPlaylistManager.saveQueue(true, mCurrentTrack == null ? 0 : getPosition());
 
-        if (isSupposedToBePlaying() || mResumeAfterCall) {
+        if (state.isSupposedToBePlaying() || mResumeAfterCall) {
             // something is currently playing, or will be playing once
             // an in-progress call ends, so don't stop the service now.
             return true;
@@ -271,7 +271,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             .putExtra("track", getTrackName())
             .putExtra("user", getUserName())
             .putExtra("isPlaying", isPlaying())
-            .putExtra("isSupposedToBePlaying", isSupposedToBePlaying())
+            .putExtra("isSupposedToBePlaying", state.isSupposedToBePlaying())
             .putExtra("isBuffering", isBuffering())
             .putExtra("position", getPosition())
             .putExtra("queuePosition", mPlaylistManager.getPosition());
@@ -480,9 +480,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         stopForeground(true);
     }
 
-    // is the service currently playing, or about to play soon?
-    /* package */ boolean isSupposedToBePlaying() {
-        return state == PREPARING || state == PLAYING || state == PAUSED_FOR_BUFFERING;
+    /* package */ State getState() {
+        return state;
     }
 
     /* package */ void prev() {
@@ -624,7 +623,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     /* package */ boolean isPlaying() {
         try {
-            return mMediaPlayer != null && mMediaPlayer.isPlaying() && isSupposedToBePlaying();
+            return mMediaPlayer != null && mMediaPlayer.isPlaying() && state.isSupposedToBePlaying();
         } catch (IllegalStateException e) {
             return false;
         }
@@ -727,7 +726,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         @Override
         public void handleMessage(Message msg) {
             // Check again to make sure nothing is playing right now
-            if (!isSupposedToBePlaying() && !mResumeAfterCall && !mServiceInUse
+            if (!state.isSupposedToBePlaying() && !mResumeAfterCall && !mServiceInUse
                     && !mPlayerHandler.hasMessages(TRACK_ENDED)) {
 
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -755,7 +754,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
                 prev();
             } else if (CMDTOGGLEPAUSE.equals(cmd) || TOGGLEPAUSE_ACTION.equals(action)) {
-                if (isSupposedToBePlaying()) {
+                if (state.isSupposedToBePlaying()) {
                     pause();
                 } else if (mCurrentTrack != null) {
                     play();
@@ -805,7 +804,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     break;
                 case FADE_IN:
                     removeMessages(FADE_OUT);
-                    if (!isSupposedToBePlaying()) {
+                    if (!state.isSupposedToBePlaying()) {
                         mCurrentVolume = 0f;
                         setVolume(0f);
                         play();
@@ -1022,16 +1021,16 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     // this is only used in pre 2.2 phones where there is no audiofocus support
     private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
         @Override
-        public void onCallStateChanged(int state, String incomingNumber) {
+        public void onCallStateChanged(int callState, String incomingNumber) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onCallStateChanged("+incomingNumber+")");
             }
-            if (state == TelephonyManager.CALL_STATE_OFFHOOK ||
-               (state == TelephonyManager.CALL_STATE_RINGING &&
+            if (callState == TelephonyManager.CALL_STATE_OFFHOOK ||
+               (callState == TelephonyManager.CALL_STATE_RINGING &&
                  mAudioManager.getStreamVolume(AudioManager.STREAM_RING) > 0)) {
-                    mResumeAfterCall = (isSupposedToBePlaying() || mResumeAfterCall) && mCurrentTrack != null;
+                    mResumeAfterCall = (state.isSupposedToBePlaying() || mResumeAfterCall) && mCurrentTrack != null;
                     mPlayerHandler.sendEmptyMessage(FADE_OUT);
-            } else if (state == TelephonyManager.CALL_STATE_IDLE) {
+            } else if (callState == TelephonyManager.CALL_STATE_IDLE) {
                 // start playing again
                 if (mResumeAfterCall) {
                     // resume playback only if music was playing when the call was answered

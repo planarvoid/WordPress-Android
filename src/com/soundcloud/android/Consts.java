@@ -61,11 +61,12 @@ public final class Consts {
     }
 
     public interface TourActivityIndexes {
-        int RECORD = 0;
-        int SHARE = 1;
-        int FOLLOW = 2;
-        int COMMENT = 3;
-        int YOU = 4;
+        int START = 0;
+        int RECORD = 1;
+        int SHARE = 2;
+        int FOLLOW = 3;
+        int COMMENT = 4;
+        int FINISH = 5;
     }
 
     public enum GraphicSize {
