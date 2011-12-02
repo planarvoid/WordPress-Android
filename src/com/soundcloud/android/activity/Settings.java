@@ -7,7 +7,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.tour.Start;
+import com.soundcloud.android.view.tour.Start;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.service.sync.SyncAdapterService;
@@ -29,8 +29,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 public class Settings extends PreferenceActivity {
@@ -51,7 +49,7 @@ public class Settings extends PreferenceActivity {
         findPreference("tour").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        Intent intent = new Intent(Settings.this, Start.class);
+                        Intent intent = new Intent(Settings.this, Tour.class);
                         startActivity(intent);
                         return true;
                     }
