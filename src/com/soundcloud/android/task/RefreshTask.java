@@ -42,7 +42,6 @@ public class RefreshTask extends LoadCollectionTask {
 
     @Override
     protected void onProgressUpdate(List<? super Parcelable>... values) {
-        Log.i("asdf","UPDATED PROGRESSS " + keepGoing);
         LazyEndlessAdapter adapter = mAdapterReference.get();
         if (adapter != null) {
             adapter.onPostRefresh(mNewItems, mNextHref, mResponseCode, keepGoing);

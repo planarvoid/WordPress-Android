@@ -30,18 +30,18 @@ public class DBHelper extends SQLiteOpenHelper {
         EVENTS("Events", DATABASE_CREATE_EVENTS),
         SEARCHES("Searches", DATABASE_CREATE_SEARCHES),
 
+        TRACKVIEW("TrackView", null),
+
         /*USER_FAVORITES("UserFavorites", DATABASE_CREATE_USER_FAVORITES),
         USER_FOLLOWING("UserFollowing", DATABASE_CREATE_USER_FOLLOWING),
         USER_FOLLOWERS("UserFollowers", DATABASE_CREATE_USER_FOLLOWERS),*/
+        COLLECTION_ITEMS("CollectionItems", DATABASE_CREATE_RESOURCE_ITEMS),
 
-        TRACKVIEW("TrackView", null),
         //EVENTVIEW("EventView", null),
-
         //TRACKLISTVIEW("TracklistView", DATABASE_CREATE_TRACKLIST_VIEW),
         //EVENTLISTVIEW("EventlistView", DATABASE_CREATE_EVENTLIST_VIEW);
 
         RESOURCES("Resources", DATABASE_CREATE_RESOURCES),
-        RESOURCE_ITEMS("ResourceItems", DATABASE_CREATE_RESOURCE_ITEMS),
         RESOURCE_PAGES("ResourcePages", DATABASE_CREATE_RESOURCE_PAGES);
 
         public final String tableName;
@@ -380,7 +380,8 @@ public class DBHelper extends SQLiteOpenHelper {
     //TODO, these should be in 1 table, duplication galore here
 
     static final String DATABASE_CREATE_RESOURCE_ITEMS =
-            "create table ResourceItems (_id INTEGER primary key AUTOINCREMENT, user_id INTEGER, item_id INTEGER, resource_type INTEGER, resource_page_index INTEGER null, resource_page_id INTEGER null);";
+            "create table CollectionItems (user_id INTEGER, item_id INTEGER, resource_type INTEGER, "
+                    + "position INTEGER null, UNIQUE(user_id, item_id, resource_type) ON CONFLICT REPLACE);";
 
     public static final class Tracks implements BaseColumns {
 
@@ -433,36 +434,30 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String CONCRETE_FILELENGTH = Tables.TRACKS.tableName + "." + FILELENGTH;
     }
 
-      public static final class TrackPlays implements BaseColumns {
+    public static final class TrackPlays implements BaseColumns {
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.track_plays";
+        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.track_plays";
 
-          public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.track_plays";
-          public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.track_plays";
+        public static final String ID = "_id";
+        public static final String TRACK_ID = "track_id";
+        public static final String USER_ID = "user_id";
 
-          public static final String ID = "_id";
-          public static final String TRACK_ID = "track_id";
-          public static final String USER_ID = "user_id";
+        public static final String CONCRETE_ID = Tables.TRACK_PLAYS.tableName + "." + _ID;
+        public static final String CONCRETE_TRACK_ID = Tables.TRACK_PLAYS.tableName + "." + TRACK_ID;
+        public static final String CONCRETE_USER_ID = Tables.TRACK_PLAYS.tableName + "." + USER_ID;
+    }
 
-          public static final String CONCRETE_ID = Tables.TRACK_PLAYS.tableName + "." + _ID;
-          public static final String CONCRETE_TRACK_ID = Tables.TRACK_PLAYS.tableName + "." + TRACK_ID;
-          public static final String CONCRETE_USER_ID = Tables.TRACK_PLAYS.tableName + "." + USER_ID;
-      }
+    public static final class CollectionItems {
+        public static final String ITEM_ID = "item_id";
+        public static final String USER_ID = "user_id";
+        public static final String RESOURCE_TYPE = "resource_type";
+        public static final String POSITION = "position";
 
-
-
-    public static final class ResourceItems {
-           public static final String RESOURCE_PAGE_ID = "resource_page_id";
-           public static final String RESOURCE_PAGE_INDEX = "resource_page_index";
-           public static final String ITEM_ID = "item_id";
-           public static final String USER_ID = "user_id";
-           public static final String RESOURCE_TYPE = "resource_type";
-
-           public static final String CONCRETE_RESOURCE_PAGE_ID = Tables.RESOURCE_ITEMS.tableName + "." + RESOURCE_PAGE_ID;
-           public static final String CONCRETE_RESOURCE_PAGE_INDEX = Tables.RESOURCE_ITEMS.tableName + "." + RESOURCE_PAGE_INDEX;
-           public static final String CONCRETE_ITEM_ID = Tables.RESOURCE_ITEMS.tableName + "." + ITEM_ID;
-           public static final String CONCRETE_USER_ID = Tables.RESOURCE_ITEMS.tableName + "." + USER_ID;
-           public static final String CONCRETE_RESOURCE_TYPE = Tables.RESOURCE_ITEMS.tableName + "." + RESOURCE_TYPE;
-       }
-
+        public static final String CONCRETE_ITEM_ID = Tables.COLLECTION_ITEMS.tableName + "." + ITEM_ID;
+        public static final String CONCRETE_USER_ID = Tables.COLLECTION_ITEMS.tableName + "." + USER_ID;
+        public static final String CONCRETE_RESOURCE_TYPE = Tables.COLLECTION_ITEMS.tableName + "." + RESOURCE_TYPE;
+        public static final String CONCRETE_POSITION = Tables.COLLECTION_ITEMS.tableName + "." + POSITION;
+    }
 
       public static final class Users implements BaseColumns {
 

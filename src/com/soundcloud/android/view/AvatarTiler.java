@@ -288,7 +288,6 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        Log.i("asdf","SUFRACE CREATED : " + holder);
         // TODO something better
         try {
             mDrawThread.setRunning(true);

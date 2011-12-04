@@ -1,18 +1,17 @@
 package com.soundcloud.android.task;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.SoundCloudApplication.fromContext;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -23,11 +22,9 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import javax.xml.transform.Source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.nio.channels.SelectableChannel;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +47,6 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
 
     public Uri contentUri;
     public int pageIndex;
-
 
     public Request request;
     public boolean refresh;
@@ -175,10 +171,9 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                             //((ModelBase) p).assertInDb(mApp);
 
                             ContentValues itemCv = new ContentValues();
-                            itemCv.put(DBHelper.ResourceItems.RESOURCE_PAGE_ID,uri.getLastPathSegment());
-                            itemCv.put(DBHelper.ResourceItems.USER_ID, getCollectionOwner());
-                            itemCv.put(DBHelper.ResourceItems.RESOURCE_PAGE_INDEX,i);
-                            itemCv.put(DBHelper.ResourceItems.ITEM_ID,((ModelBase) p).id);
+                            itemCv.put(DBHelper.CollectionItems.USER_ID, getCollectionOwner());
+                            itemCv.put(DBHelper.CollectionItems.POSITION,pageIndex * Consts.COLLECTION_PAGE_SIZE + i);
+                            itemCv.put(DBHelper.CollectionItems.ITEM_ID,((ModelBase) p).id);
                             bulkValues[i] = itemCv;
                             i++;
                         }
@@ -214,9 +209,9 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
         keepGoing = !TextUtils.isEmpty(mNextHref);
 
         if (contentUri != null){
-            Cursor itemsCursor = mApp.getContentResolver().query(contentUri, null,
-                DBHelper.ResourceItems.RESOURCE_PAGE_ID + " = ?",
-                new String[]{String.valueOf(localPageId)}, DBHelper.ResourceItems.RESOURCE_PAGE_INDEX);
+            final Uri pagedUri = contentUri.buildUpon().appendQueryParameter("offset", String.valueOf(pageIndex * Consts.COLLECTION_PAGE_SIZE))
+                    .appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build();
+            Cursor itemsCursor = mApp.getContentResolver().query(pagedUri, null,null ,null,null);
 
             // wipe it out and remote load ?? if (c.getCount() == localPageSize){ }
             mNewItems = new ArrayList<Parcelable>();
