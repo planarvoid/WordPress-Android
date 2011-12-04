@@ -160,7 +160,8 @@
         </activity>
 
         <provider android:name=".provider.ScContentProvider"
-                  android:authorities="com.soundcloud.android.provider.ScContentProvider"/>
+                  android:authorities="com.soundcloud.android.provider.ScContentProvider"
+                  android:grantUriPermissions="true"/>
 
         <service android:name=".service.ApiService" />
 
