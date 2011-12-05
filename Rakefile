@@ -345,7 +345,7 @@ namespace :lol do
   end
 
   task :csv do
-    url = "http://localhost:5984/lolcatlizr/_design/lolcatlizr/_list/csv/android?key=%22%22"
+    url = "http://lol.iriscouch.com/lolcatlizr/_design/lolcatlizr/_list/csv/android?key=%22%22"
     sh "curl #{url} > strings.csv"
   end
 end

@@ -263,8 +263,7 @@
   <string name="list_empty_stream_message">Hmm. You don’t have any sounds in your Stream.\n\n        Start following people to listen to their sounds!</string>
   <string name="list_empty_stream_secondary">On Facebook? Connect with friends already on SoundCloud!</string>
   <string name="list_empty_user_followers_action">Share your sounds</string>
-  <string name="list_empty_user_followers_message">You don’t have any followers yet. But you can change that!
-        The best way to get people to follow you is to share your sounds with others.</string>
+  <string name="list_empty_user_followers_message">You don’t have any followers yet. But you can change that! The best way to get people to follow you is to share your sounds with others.</string>
   <string name="list_empty_user_followers_nosounds_action">Record your first sound</string>
   <string name="list_empty_user_followers_nosounds_message">You don’t have any followers yet. But you can change that! Create sounds for people to listen to and you\'ll have followers in no time.</string>
   <string name="list_empty_user_followers_nosounds_secondary">Check your settings to automatically share your original sounds to your social networks</string>
@@ -274,8 +273,7 @@
   <string name="list_empty_user_likes_action">Find people with great sounds</string>
   <string name="list_empty_user_likes_message">You haven’t liked any sounds yet. Click the little heart button to show some love to other people\’s sounds.\n\n        Not loving any of these sounds? Try Suggested People for some new sounds!</string>
   <string name="list_empty_user_sounds_action">Record your first sound</string>
-  <string name="list_empty_user_sounds_message">Okay! It’s time to make some sounds.\n\n
-        Create a memo, message or melody and share it with the world!</string>
+  <string name="list_empty_user_sounds_message">Okay! It’s time to make some sounds.\n\n Create a memo, message or melody and share it with the world!</string>
   <string name="list_header_fb_friends">Your Facebook Friends</string>
   <string name="list_header_suggested_users">Suggested People</string>
   <string name="list_header_track_comments">Comments on this sound</string>
@@ -485,7 +483,7 @@
   <string name="user_browser_tab_friend_finder">Find Friends</string>
   <string name="user_browser_tab_info">Info</string>
   <string name="user_browser_tab_likes">Likes</string>
-  <string name="user_browser_tab_message">Message</string>
+  <string name="user_b//rowser_tab_message">Message</string>
   <string name="user_browser_tab_sounds">Sounds</string>
   <string name="userlist_empty">No people available</string>
   <string name="userlist_error">Unable to get people</string>
