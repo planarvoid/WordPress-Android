@@ -305,6 +305,11 @@ public class ScContentProvider extends ContentProvider {
                 count = db.update(DBHelper.Tables.USERS.tableName, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null);
                 return count;
+            case SEARCHES_ITEM:
+                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                count = db.update(DBHelper.Tables.SEARCHES.tableName, values, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return count;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -529,6 +534,7 @@ public class ScContentProvider extends ContentProvider {
         Uri EVENTS                      = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/events");
         Uri EVENT_ITEM                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/events/#");
         Uri SEARCHES                    = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches");
+        Uri SEARCHES_ITEM               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/#");
         Uri TRACK_PLAYS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/track_plays");
 
     }
@@ -587,6 +593,7 @@ public class ScContentProvider extends ContentProvider {
     private static final int TRACK_PLAYS            = 1300;
     private static final int TRACK_PLAYS_ITEM       = 1301;
     private static final int SEARCHES               = 1400;
+    private static final int SEARCHES_ITEM          = 1401;
 
 
 
@@ -649,6 +656,7 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "track_plays/#", TRACK_PLAYS_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "track_plays", TRACK_PLAYS);
         matcher.addURI(ScContentProvider.AUTHORITY, "searches", SEARCHES);
+        matcher.addURI(ScContentProvider.AUTHORITY, "searches/#", SEARCHES_ITEM);
 
 		return matcher;
 

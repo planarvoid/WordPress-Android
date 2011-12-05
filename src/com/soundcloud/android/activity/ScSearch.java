@@ -264,8 +264,8 @@ public class ScSearch extends ScActivity {
         }
 
         if (updateId > 0) {
-            getContentResolver().update(ScContentProvider.Content.SEARCHES, cv, DBHelper.Searches.ID + " = ?",
-                    new String[]{Long.toString(updateId)});
+            getContentResolver().update(ScContentProvider.Content.SEARCHES.buildUpon().appendPath(Long.toString(updateId)).build(),
+                    cv, null,null);
         } else {
             getContentResolver().insert(ScContentProvider.Content.SEARCHES, cv);
         }

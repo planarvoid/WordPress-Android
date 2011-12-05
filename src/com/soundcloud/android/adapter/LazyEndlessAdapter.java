@@ -408,7 +408,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     protected void onEmptyRefresh(){
-        mState = DONE;
+        if (mState < DONE) mState = DONE;
     }
 
     public void setRequest(Request request) {

@@ -36,12 +36,16 @@ public class RefreshTask extends LoadCollectionTask {
      * UI thread
      */
     @Override
-    protected void onPostExecute(Boolean keepGoing) {
-
+    protected void onPostExecute(Boolean success) {
+        if (!success) respond();
     }
 
     @Override
     protected void onProgressUpdate(List<? super Parcelable>... values) {
+        respond();
+    }
+
+    private void respond(){
         LazyEndlessAdapter adapter = mAdapterReference.get();
         if (adapter != null) {
             adapter.onPostRefresh(mNewItems, mNextHref, mResponseCode, keepGoing);

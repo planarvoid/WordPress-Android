@@ -154,18 +154,15 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                         mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCE_PAGES, cv);
                         SoundCloudDB.bulkInsertParcelables(mApp,mNewItems,contentUri,getCollectionOwner(),
                                 pageIndex * Consts.COLLECTION_PAGE_SIZE);
-                        return true;
                     }
+                    return true;
                 }
             } catch (IOException e) {
                 Log.e(TAG, "error", e);
             }
-        } else {
-
         }
 
         // if we get this far, we either failed, or our etags matched up.
-
         keepGoing = !TextUtils.isEmpty(mNextHref);
 
         if (contentUri != null){
@@ -188,8 +185,11 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
             }
             publishProgress(mNewItems);
             if (itemsCursor != null) itemsCursor.close();
+            return true;
+        } else {
+            // no local content, no remote content, fail
+            return false;
         }
-        return true;
     }
 
     /* package */ CollectionHolder getCollection(InputStream is, List<? super Parcelable> items) throws IOException {
