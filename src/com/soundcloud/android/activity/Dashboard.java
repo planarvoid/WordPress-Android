@@ -151,7 +151,7 @@ public class Dashboard extends ScActivity {
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
                 .cancel(mIsActivityTab ?
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID :
-                        Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);           z
+                        Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
     }
 
     protected ScTabView createList(int type, Class<?> model, EmptyCollection emptyView, int listId, boolean isNews) {

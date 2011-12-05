@@ -339,7 +339,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 loadModel = getLoadModel(false);
                 pageSize  = PAGE_SIZE;
                 contentUri = mContentUri;
-                pageIndex = mPageIndex;
+                pageIndex = 0;
                 setAdapter(LazyEndlessAdapter.this);
                 request = buildRequest(true);
                 refresh = userRefresh;
@@ -444,6 +444,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     public void reset(boolean keepAppending, boolean notifyChange) {
         resetData();
+        mPageIndex = 0;
         mNextHref = "";
         mState = READY;
         clearAppendTask();

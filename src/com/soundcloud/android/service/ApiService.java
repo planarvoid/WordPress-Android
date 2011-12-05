@@ -116,16 +116,11 @@ public class ApiService extends IntentService{
 
             }
 
-
-
             Set<Long> deletions = new HashSet(local);
             deletions.removeAll(remote);
 
             Set<Long> additions = new HashSet(remote);
             additions.removeAll(local);
-
-            SoundCloudDB.bulkInsertParcelables(getApp(),additions,ScContentProvider.Content.ME_FOLLOWINGS,getApp().getCurrentUserId(),-1);
-
 
         } catch (IOException e) {
             e.printStackTrace();
