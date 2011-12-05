@@ -141,7 +141,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 mFriendList.getWrapper().configureViews(mFriendList);
                 mFriendList.getWrapper().setEmptyViewText(mActivity.getString(R.string.error_loading_connections));
                 mFriendList.getWrapper().applyEmptyView();
-                mFriendList.getWrapper().reset(false, true);
+                mFriendList.getWrapper().reset(true);
                 break;
 
             case States.NO_FB_CONNECTION:

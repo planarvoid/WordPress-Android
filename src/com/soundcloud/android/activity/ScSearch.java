@@ -230,7 +230,7 @@ public class ScSearch extends ScActivity {
 
             setListType(false);
             mUserAdpWrapper.clearRefreshTask();
-            mUserAdpWrapper.reset(false, false);
+            mUserAdpWrapper.reset(false);
             searchType = 0;
             trackPage(Consts.Tracking.SEARCH_TRACKS + query);
         } else {
@@ -241,7 +241,7 @@ public class ScSearch extends ScActivity {
 
             setListType(true);
             mTrackAdpWrapper.clearRefreshTask();
-            mTrackAdpWrapper.reset(false, false);
+            mTrackAdpWrapper.reset(false);
             searchType = 1;
             trackPage(Consts.Tracking.SEARCH_USERS + query);
         }

@@ -9,14 +9,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
+import android.text.TextUtils;
 import android.util.Log;
+import com.google.android.imageloader.ContentURLStreamHandlerFactory;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.ModelBase;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.ActivitiesCache;
@@ -47,8 +46,10 @@ public class ApiService extends IntentService{
         String INCOMING = ApiService.class.getName() + ".sync_incoming";
         String EXCLUSIVE = ApiService.class.getName() + ".sync_exclusive";
         String ACTIVITY = ApiService.class.getName() + ".sync_activities";
+        String TRACKS = ApiService.class.getName() + ".sync_tracks";
         String FAVORITES = ApiService.class.getName() + ".sync_favorites";
         String FOLLOWINGS = ApiService.class.getName() + ".sync_followings";
+        String FOLLOWERS = ApiService.class.getName() + ".sync_followers";
     }
 
     public ApiService() {
@@ -81,13 +82,31 @@ public class ApiService extends IntentService{
                 Log.d(LOG_TAG, "Cloud Api service: ACTIVITIY synced in " + (System.currentTimeMillis() - start) + " ms");
             }
 
+            if (intent.getBooleanExtra(SyncExtras.TRACKS, false)) {
+                start = System.currentTimeMillis();
+                syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, TracklistItemHolder.class);
+                Log.d(LOG_TAG, "Cloud Api service: TRACKS synced in " + (System.currentTimeMillis() - start) + " ms");
+            }
 
+            if (intent.getBooleanExtra(SyncExtras.FAVORITES, false)) {
+                start = System.currentTimeMillis();
+                syncCollection(ScContentProvider.Content.ME_FAVORITES,Endpoints.MY_FAVORITES, TracklistItemHolder.class);
+                Log.d(LOG_TAG, "Cloud Api service: FAVORITES synced in " + (System.currentTimeMillis() - start) + " ms");
+            }
 
             if (intent.getBooleanExtra(SyncExtras.FOLLOWINGS, false)) {
                 start = System.currentTimeMillis();
-                syncFollowings();
+                syncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, UserlistItemHolder.class);
                 Log.d(LOG_TAG, "Cloud Api service: FOLLOWINGS synced in " + (System.currentTimeMillis() - start) + " ms");
             }
+
+            if (intent.getBooleanExtra(SyncExtras.FOLLOWERS, false)) {
+                start = System.currentTimeMillis();
+                syncCollection(ScContentProvider.Content.ME_FOLLOWERS,Endpoints.MY_FOLLOWERS, UserlistItemHolder.class);
+                Log.d(LOG_TAG, "Cloud Api service: FOLLOWERS synced in " + (System.currentTimeMillis() - start) + " ms");
+            }
+
+
 
             Log.d(LOG_TAG, "Cloud Api service: Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
             if (receiver != null) receiver.send(STATUS_FINISHED, Bundle.EMPTY);
@@ -103,7 +122,29 @@ public class ApiService extends IntentService{
         } catch (Exception e) {
             sendError(receiver, syncResult);
         }
+    }
 
+    private void syncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
+
+
+        int i = 0;
+        int page_size = 50;
+        CollectionHolder holder = null;
+        List<Parcelable> items = new ArrayList<Parcelable>();
+        do {
+            Request request = Request.to(endpoint);
+            request.add("offset",i * 50);
+            request.add("limit",page_size);
+            request.add("linked_partitioning", "1");
+            holder = (CollectionHolder) getApp().getMapper().readValue(getApp().get(request).getEntity().getContent(), loadModel);
+            items.addAll(holder.collection);
+            i++;
+        } while (!TextUtils.isEmpty(holder.next_href));
+
+        getContentResolver().delete(contentUri,null,null);
+        SoundCloudDB.bulkInsertParcelables(getApp(),items,contentUri,getApp().getCurrentUserId(),0);
+
+        Log.i("asdf","Total Items are " + items.size());
     }
 
     private void syncFollowings(){
@@ -153,4 +194,7 @@ public class ApiService extends IntentService{
     public static class CollectionState {
         public List<Long> ids;
     }
+
+    public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
+    public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
 }

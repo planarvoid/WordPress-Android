@@ -2,25 +2,16 @@ package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.service.sync.ActivitiesCache;
-import com.soundcloud.android.service.sync.SyncAdapterService;
-import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
-import android.content.ContentResolver;
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.util.Log;
-
+import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
-public class RefreshEventsTask extends LoadEventsTask {
+public class RefreshEventsTask extends LoadCollectionTask {
+    public File cacheFile;
     public RefreshEventsTask(SoundCloudApplication app) {
-        super(app, null);
+        super(app, null,null,0,true);
     }
 
     @Override
@@ -34,8 +25,8 @@ public class RefreshEventsTask extends LoadEventsTask {
     @Override
     protected Boolean doInBackground(String... params) {
         try {
-            if (mCacheFile.exists()) {
-                Activities a = Activities.fromJSON(mCacheFile);
+            if (cacheFile.exists()) {
+                Activities a = Activities.fromJSON(cacheFile);
                 mNewItems.addAll(a.collection);
                 mNextHref = a.next_href;
                 mResponseCode = HttpStatus.SC_OK;

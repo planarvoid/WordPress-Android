@@ -1,12 +1,11 @@
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.task.AppendTask;
-import com.soundcloud.api.Request;
-import org.apache.http.HttpStatus;
-
 import android.os.Parcelable;
 import android.text.TextUtils;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.task.LoadCollectionTask;
+import com.soundcloud.api.Request;
+import org.apache.http.HttpStatus;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -75,7 +74,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     @SuppressWarnings("unchecked")
     public void restoreState(Object[] state){
         if (state[0] != null) getWrappedAdapter().sections = (List<SectionedAdapter.Section>) state[0];
-        if (state[1] != null) restoreAppendTask((AppendTask) state[1]);
+        if (state[1] != null) restoreAppendTask((LoadCollectionTask) state[1]);
         if (state[2] != null) restorePagingData((int[]) state[2]);
         if (state[3] != null) restoreExtraData((String) state[3]);
     }

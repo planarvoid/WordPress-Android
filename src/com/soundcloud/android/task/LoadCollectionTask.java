@@ -31,190 +31,110 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * A background task that will be run when there is a need to append more
- * data. Mostly, this code delegates to the subclass, to append the data in
- * the background thread and rebind the pending view once that is done.
- */
 public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelable>, Boolean> {
-    private SoundCloudApplication mApp;
+    protected SoundCloudApplication mApp;
     protected WeakReference<LazyEndlessAdapter> mAdapterReference;
     /* package */ List<Parcelable> mNewItems = new ArrayList<Parcelable>();
 
-    protected String mNextHref;
-    protected int mResponseCode;
+    public Uri mContentUri;
+    public Class<?> mLoadModel;
+    public boolean mRefresh;
+    public int mPageIndex;
 
-    public Class<?> loadModel;
-
-    public Uri contentUri;
-    public int pageIndex;
-
-    public Request request;
-    public boolean refresh;
     public boolean keepGoing;
+    protected int mResponseCode;
+    protected String mNextHref;
 
-    public int pageSize;
-
-    public LoadCollectionTask(SoundCloudApplication app, Class<?> loadModel) {
+    public LoadCollectionTask(SoundCloudApplication app, Class<?> loadModel, Uri contentUri, int pageIndex, boolean refresh) {
         mApp = app;
-        this.loadModel = loadModel;
+        mLoadModel = loadModel;
+        mContentUri = contentUri;
+        mPageIndex = pageIndex;
+        mRefresh = refresh;
     }
 
-    /**
-     * Set the activity and adapter that this task now belong to. This will
-     * be set as new context is destroyed and created in response to
-     * orientation changes
-     */
     public void setAdapter(LazyEndlessAdapter lazyEndlessAdapter) {
         mAdapterReference = new WeakReference<LazyEndlessAdapter>(lazyEndlessAdapter);
         if (lazyEndlessAdapter != null) {
-            loadModel = lazyEndlessAdapter.getLoadModel(false);
+            mLoadModel = lazyEndlessAdapter.getLoadModel(false);
         }
+    }
+
+    @Override
+    protected void onPostExecute(Boolean success) {
+        if (!success) respond();
     }
 
     @Override
     protected void onProgressUpdate(List<? super Parcelable>... values) {
+        respond();
+    }
 
+    private void respond(){
+        LazyEndlessAdapter adapter = mAdapterReference.get();
+        if (adapter != null) {
+            if (mRefresh){
+                adapter.onPostRefresh(mNewItems, mNextHref, mResponseCode, keepGoing);
+            } else {
+                adapter.onPostTaskExecute(mNewItems, mNextHref, mResponseCode, keepGoing);
+            }
+        }
     }
 
     @Override
     protected Boolean doInBackground(String... params) {
-
-        int localPageSize, localResourceId = -1, localPageId = -1;
-        String localPageEtag = "";
-        Cursor c = null;
-
-        if (contentUri != null){
-            // get the current Uri data
-            c = mApp.getContentResolver().query(ScContentProvider.Content.RESOURCES, null, "uri = ?", new String[]{contentUri.toString()}, null);
-            if (c != null && c.moveToFirst()) {
-                localResourceId = c.getInt(c.getColumnIndex(DBHelper.Resources.ID));
-            }
-            if (c != null) c.close();
-
-            if (localResourceId == -1) {
-                // insert if not there
-                ContentValues cv = new ContentValues();
-                cv.put(DBHelper.Resources.URI, contentUri.toString());
-                Uri inserted = mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCES, cv);
-                if (inserted != null) localResourceId = Integer.parseInt(inserted.getLastPathSegment());
-            } else {
-                // get the entry for the requested page
-                c = mApp.getContentResolver().query(ScContentProvider.Content.RESOURCE_PAGES, null,
-                        DBHelper.ResourcePages.RESOURCE_ID + " = ? AND " + DBHelper.ResourcePages.PAGE_INDEX + " = ?",
-                        new String[]{String.valueOf(localResourceId), String.valueOf(pageIndex)}, null);
-
-
-                if (c != null && c.moveToFirst()) {
-                    localPageEtag = c.getString(c.getColumnIndex(DBHelper.ResourcePages.ETAG));
-                    localPageId = c.getInt(c.getColumnIndex(DBHelper.ResourcePages.ID));
-                    localPageSize = c.getInt(c.getColumnIndex(DBHelper.ResourcePages.SIZE));
-                    mNextHref = c.getString(c.getColumnIndex(DBHelper.ResourcePages.NEXT_HREF));
-                }
-            }
-        }
-
-        boolean remoteLoad = (contentUri == null || localPageId == -1);
-        if (remoteLoad || refresh) {
-
-            if (!TextUtils.isEmpty(localPageEtag)) request.ifNoneMatch(localPageEtag);
-            try {
-                HttpResponse resp = mApp.get(request);
-                mResponseCode = resp.getStatusLine().getStatusCode();
-                if (mResponseCode != HttpStatus.SC_OK && mResponseCode != HttpStatus.SC_NOT_MODIFIED) {
-                    throw new IOException("Invalid response: " + resp.getStatusLine());
-                }
-                if (mResponseCode == HttpStatus.SC_OK) {
-                    // we have new content. wipe out everything for now (or it gets tricky)
-                    mApp.getContentResolver().delete(ScContentProvider.Content.RESOURCE_PAGES,
-                            DBHelper.ResourcePages.RESOURCE_ID + " = ? AND " + DBHelper.ResourcePages.PAGE_INDEX + " > ?",
-                            new String[]{String.valueOf(localResourceId), String.valueOf(pageIndex)});
-                    InputStream is = resp.getEntity().getContent();
-                    CollectionHolder holder = getCollection(is, mNewItems);
-                    mNextHref = holder == null || TextUtils.isEmpty(holder.next_href) ? null : holder.next_href;
-                    keepGoing = !TextUtils.isEmpty(mNextHref);
-                    for (Parcelable p : mNewItems) {
-                        ((ModelBase) p).resolve(mApp);
-                    }
-                    publishProgress(mNewItems);
-
-                    // store items if we have items and a content uri
-                    if (contentUri != null && mNewItems != null) {
-
-                        ContentValues cv = new ContentValues();
-                        cv.put(DBHelper.ResourcePages.RESOURCE_ID, localResourceId);
-                        cv.put(DBHelper.ResourcePages.PAGE_INDEX, pageIndex);
-                        cv.put(DBHelper.ResourcePages.ETAG, Http.etag(resp));
-                        cv.put(DBHelper.ResourcePages.SIZE, mNewItems.size());
-                        if (mNextHref != null) {
-                            cv.put(DBHelper.ResourcePages.NEXT_HREF, mNextHref);
-                        }
-
-                        // insert new page
-                        mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCE_PAGES, cv);
-                        SoundCloudDB.bulkInsertParcelables(mApp,mNewItems,contentUri,getCollectionOwner(),
-                                pageIndex * Consts.COLLECTION_PAGE_SIZE);
-                    }
-                    return true;
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "error", e);
-            }
-        }
-
-        // if we get this far, we either failed, or our etags matched up.
-        keepGoing = !TextUtils.isEmpty(mNextHref);
-
-        if (contentUri != null){
-            final Uri pagedUri = contentUri.buildUpon().appendQueryParameter("offset", String.valueOf(pageIndex * Consts.COLLECTION_PAGE_SIZE))
+        if (mContentUri != null) {
+            final Uri pagedUri = mContentUri.buildUpon().appendQueryParameter("offset", String.valueOf(mPageIndex * Consts.COLLECTION_PAGE_SIZE))
                     .appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build();
-            Cursor itemsCursor = mApp.getContentResolver().query(pagedUri, null,null ,null,null);
+            Cursor itemsCursor = mApp.getContentResolver().query(pagedUri, null, null, null, null);
 
             // wipe it out and remote load ?? if (c.getCount() == localPageSize){ }
             mNewItems = new ArrayList<Parcelable>();
             if (itemsCursor != null && itemsCursor.moveToFirst()) {
                 do {
-                    if (Track.class.equals(loadModel)) {
+                    if (Track.class.equals(mLoadModel)) {
                         mNewItems.add(new Track(itemsCursor));
-                    } else if (User.class.equals(loadModel)) {
+                    } else if (User.class.equals(mLoadModel)) {
                         mNewItems.add(new User(itemsCursor));
-                    } else if (Event.class.equals(loadModel)) {
+                    } else if (Event.class.equals(mLoadModel)) {
                         mNewItems.add(new Event(itemsCursor));
                     }
                 } while (itemsCursor.moveToNext());
             }
+            keepGoing = mNewItems.size() == Consts.COLLECTION_PAGE_SIZE;
             publishProgress(mNewItems);
             if (itemsCursor != null) itemsCursor.close();
             return true;
         } else {
-            // no local content, no remote content, fail
+            // no local content, fail
+            keepGoing = false;
             return false;
         }
     }
 
     /* package */ CollectionHolder getCollection(InputStream is, List<? super Parcelable> items) throws IOException {
         CollectionHolder holder = null;
-        if (Track.class.equals(loadModel)) {
+        if (Track.class.equals(mLoadModel)) {
             holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
             for (TracklistItem t : (TracklistItemHolder) holder) {
                 items.add(new Track(t));
             }
-        } else if (User.class.equals(loadModel)) {
+        } else if (User.class.equals(mLoadModel)) {
             holder = mApp.getMapper().readValue(is, UserlistItemHolder.class);
             for (UserlistItem u : (UserlistItemHolder) holder) {
                 items.add(new User(u));
             }
-        } else if (Event.class.equals(loadModel)) {
+        } else if (Event.class.equals(mLoadModel)) {
             holder = mApp.getMapper().readValue(is, EventsHolder.class);
             for (Event e : (EventsHolder) holder) {
                 items.add(e);
             }
-        } else if (Friend.class.equals(loadModel)) {
+        } else if (Friend.class.equals(mLoadModel)) {
             holder = mApp.getMapper().readValue(is, FriendHolder.class);
             for (Friend f : (FriendHolder) holder) {
                 items.add(f);
             }
-        } else if (Comment.class.equals(loadModel)) {
+        } else if (Comment.class.equals(mLoadModel)) {
             holder = mApp.getMapper().readValue(is, CommentHolder.class);
             for (Comment f : (CommentHolder) holder) {
                 items.add(f);
@@ -230,14 +150,4 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
     public static class FriendHolder extends CollectionHolder<Friend> {}
     public static class CommentHolder extends CollectionHolder<Comment> {}
 
-    private long getCollectionOwner(){
-        final int uriCode = mApp.getContentUriMatcher().match(contentUri);
-        if (uriCode < 200){ // mine
-            return mApp.getCurrentUserId();
-        } else if (contentUri.getPathSegments().size() > 2){
-            return Long.parseLong(contentUri.getPathSegments().get(1));
-        } else{
-            return -1;
-        }
-    }
 }

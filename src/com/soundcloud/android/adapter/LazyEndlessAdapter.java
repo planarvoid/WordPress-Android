@@ -2,45 +2,38 @@
 package com.soundcloud.android.adapter;
 
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import android.net.Uri;
-import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.AppendTask;
-import com.soundcloud.android.task.AsyncApiTask;
-import com.soundcloud.android.task.LoadCollectionTask;
-import com.soundcloud.android.task.RefreshTask;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.DetachableResultReceiver;
-import com.soundcloud.android.view.EmptyCollection;
-import com.soundcloud.android.view.FriendFinderView;
-import com.soundcloud.android.view.ScListView;
-import com.soundcloud.api.Request;
-import org.apache.http.HttpStatus;
-
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.commonsware.cwac.adapter.AdapterWrapper;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.model.*;
+import com.soundcloud.android.service.ApiService;
+import com.soundcloud.android.task.LoadCollectionTask;
+import com.soundcloud.android.task.LoadRemoteCollectionTask;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.DetachableResultReceiver;
+import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.ScListView;
+import com.soundcloud.api.Request;
+import org.apache.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener, DetachableResultReceiver.Receiver {
     public static final int ROW_APPEND_BUFFER = 3;
@@ -65,6 +58,9 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     private String mEmptyViewText = "";
 
     private static final int PAGE_SIZE = 50;
+
+    private String mSyncExtra;
+    private boolean mWaitingOnSync;
 
     protected int mState;
     int INITIALIZED     = 0; // no loading yet
@@ -91,6 +87,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         wrapped.setWrapper(this);
 
         if (autoAppend) mState = READY;
+    }
+
+    public void setSyncExtra(String syncExtra){
+        mSyncExtra = syncExtra;
     }
 
     /**
@@ -208,6 +208,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         }
     }
 
+
+
     private static class State {
         public DetachableResultReceiver mReceiver;
         public Uri mNowPlayingUri = null;
@@ -316,37 +318,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         return (super.getView(position, convertView, parent));
     }
 
-    protected void startAppendTask(){
-        mState = APPENDING;
-        mAppendTask = new AppendTask(mActivity.getApp()) {
-            {
-                loadModel = getLoadModel(false);
-                pageSize = PAGE_SIZE;
-                contentUri = mContentUri;
-                pageIndex = mPageIndex;
-                setAdapter(LazyEndlessAdapter.this);
-                request = buildRequest(false);
-                refresh = false;
-                execute();
-            }
-        };
-    }
 
-    protected void startRefreshTask(final boolean userRefresh){
-        mState = REFRESHING;
-       mRefreshTask = new RefreshTask(mActivity.getApp()) {
-            {
-                loadModel = getLoadModel(false);
-                pageSize  = PAGE_SIZE;
-                contentUri = mContentUri;
-                pageIndex = 0;
-                setAdapter(LazyEndlessAdapter.this);
-                request = buildRequest(true);
-                refresh = userRefresh;
-                execute();
-            }
-        };
-    }
+
 
     protected boolean canShowEmptyView(){
        return mState >= DONE && super.getCount() == 0;
@@ -367,6 +340,33 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         }
     }
 
+    protected void startAppendTask(){
+        mState = APPENDING;
+        if (mActivity.getApp().getContentUriMatcher().match(mContentUri) < 200){
+            mAppendTask = new LoadCollectionTask(mActivity.getApp(),getLoadModel(false),mContentUri,mPageIndex,false);
+            mAppendTask.setAdapter(this);
+            mAppendTask.execute();
+        } else {
+            mAppendTask = new LoadRemoteCollectionTask(mActivity.getApp(),getLoadModel(false),mContentUri,mPageIndex,false, buildRequest(false));
+            mAppendTask.setAdapter(this);
+            mAppendTask.execute();
+        }
+    }
+
+    protected void startRefreshTask(final boolean userRefresh) {
+        mState = REFRESHING;
+        if (mContentUri != null && mActivity.getApp().getContentUriMatcher().match(mContentUri) < 200){
+            mRefreshTask = new LoadCollectionTask(mActivity.getApp(), getLoadModel(true), mContentUri,0, true);
+        } else {
+        mRefreshTask = new LoadRemoteCollectionTask(mActivity.getApp(), getLoadModel(true), mContentUri, 0, true, buildRequest(true));
+
+        }
+        mRefreshTask.setAdapter(this);
+        mRefreshTask.execute();
+
+
+    }
+
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
         if ((newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK){
             mState = keepGoing ? WAITING : DONE;
@@ -385,26 +385,38 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         // configure the empty view depending on possible exceptions
         applyEmptyView();
         mPendingView = null;
-        mRefreshTask = null;
         mAppendTask = null;
         notifyDataSetChanged();
     }
 
-    public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, Boolean keepGoing) {
-        if (handleResponseCode(responseCode) || (newItems != null && newItems.size() > 0)) {
-            reset(true, false);
-            onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
+    public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
+        onPostRefresh(newItems,nextHref,handleResponseCode(responseCode));
+    }
+
+    public void onPostRefresh(List<Parcelable> newItems, String nextHref, boolean success) {
+
+        if (success || (newItems != null && newItems.size() > 0)) {
+            reset(false);
+            mNextHref = nextHref;
+            getData().addAll(newItems);
             //} else if (eTag != null){
         } else {
             onEmptyRefresh();
         }
 
-        applyEmptyView();
-        notifyDataSetChanged();
+        if (!mWaitingOnSync) { // reset state to not refreshing
+            if (mState < ERROR) mState = TextUtils.isEmpty(mNextHref) ? DONE : WAITING;
+            if (mListView != null) {
+                mListView.onRefreshComplete((newItems != null && newItems.size() > 0));
+            }
 
-        if (mListView != null) {
-            mListView.onRefreshComplete(responseCode == HttpStatus.SC_OK);
+            applyEmptyView();
+            mPendingView = null;
+            mRefreshTask = null;
+            mAppendTask = null;
         }
+
+        notifyDataSetChanged();
     }
 
     protected void onEmptyRefresh(){
@@ -430,19 +442,37 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             reset();
         }
 
-        startRefreshTask(userRefresh);
+        if (mContentUri != null && mActivity.getApp().getContentUriMatcher().match(mContentUri) < 200) {
+
+            mState = REFRESHING;
+            mWaitingOnSync = true;
+
+            if (!userRefresh) {
+                startRefreshTask(false); // load whatever is currently cached
+            }
+
+            // send an intent to update our event cache
+            final Intent intent = new Intent(mActivity, ApiService.class);
+            intent.putExtra(ApiService.EXTRA_STATUS_RECEIVER, getReceiver());
+            intent.putExtra(mSyncExtra, true);
+            mActivity.startService(intent);
+
+        } else {
+            startRefreshTask(userRefresh);
+        }
+
         notifyDataSetChanged();
     }
 
     public void reset() {
-        reset(true, true);
+        reset(true);
     }
 
     public void resetData(){
         getWrappedAdapter().reset();
     }
 
-    public void reset(boolean keepAppending, boolean notifyChange) {
+    public void reset(boolean notifyChange) {
         resetData();
         mPageIndex = 0;
         mNextHref = "";
@@ -546,6 +576,21 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
-
+        switch (resultCode) {
+            case ApiService.STATUS_RUNNING: {
+                break;
+            }
+            case ApiService.STATUS_FINISHED: {
+                mWaitingOnSync = false;
+                startRefreshTask(false);
+                break;
+            }
+            case ApiService.STATUS_ERROR: {
+                mWaitingOnSync = false;
+                mState = ERROR;
+                onPostRefresh(null,null,false);
+                break;
+            }
+        }
     }
 }

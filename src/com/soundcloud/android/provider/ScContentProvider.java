@@ -258,34 +258,53 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
+        final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
+        String tableName;
         switch (sUriMatcher.match(uri)) {
             case RESOURCES:
-                count = db.delete(DBHelper.Tables.RESOURCES.tableName, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null);
-                return count;
+                tableName = DBHelper.Tables.RESOURCES.tableName;
+                break;
             case RESOURCE_PAGES:
-                count = db.delete(DBHelper.Tables.RESOURCE_PAGES.tableName, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null);
-                return count;
+                tableName = DBHelper.Tables.RESOURCE_PAGES.tableName;
+                break;
             case TRACK_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.delete(DBHelper.Tables.TRACKS.tableName, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null);
-                return count;
+                tableName = DBHelper.Tables.TRACKS.tableName;
+                break;
             case USER_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.delete(DBHelper.Tables.USERS.tableName, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null);
-                return count;
+                tableName = DBHelper.Tables.USERS.tableName;
+                break;
             case SEARCHES:
-                count = db.delete(DBHelper.Tables.SEARCHES.tableName, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null);
-                return count;
+                tableName = DBHelper.Tables.SEARCHES.tableName;
+                break;
+
+            case ME_TRACKS:
+                makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.TRACK);
+                tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                break;
+            case ME_FAVORITES:
+                makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FAVORITE);
+                tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                break;
+            case ME_FOLLOWINGS:
+                makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FOLLOWING);
+                tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                break;
+            case ME_FOLLOWERS:
+                makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FOLLOWER);
+                tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                break;
+
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+
+        count = db.delete(tableName, where, whereArgs);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
 
     }
 

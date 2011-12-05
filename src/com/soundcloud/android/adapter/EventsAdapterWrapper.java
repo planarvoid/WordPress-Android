@@ -3,7 +3,6 @@ package com.soundcloud.android.adapter;
 
 import android.content.Intent;
 
-import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
@@ -96,7 +95,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         mWaitingOnSync = true;
 
         if (!userRefresh){
-            reset(true,false);
+            reset(false);
             startRefreshTask(false); // load whatever is currently cached
         }
 
@@ -114,7 +113,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
        mRefreshTask = new RefreshEventsTask(mActivity.getApp()) {
             {
                 setAdapter(EventsAdapterWrapper.this);
-                mCacheFile = ActivitiesCache.getCacheFile(mActivity.getApp(),mRequest);
+                cacheFile = ActivitiesCache.getCacheFile(mActivity.getApp(),mRequest);
                 execute();
             }
         };
