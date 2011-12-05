@@ -52,17 +52,13 @@
   <string name="btn_done">Done</string>
   <string name="btn_login">Log In</string>
   <string name="btn_next">Next</string>
-  <string name="btn_no">No</string>
-  <string name="btn_ok">Ok</string>
   <string name="btn_reply">Reply</string>
   <string name="btn_save">Save</string>
   <string name="btn_signup">Sign Up</string>
   <string name="btn_skip">Skip</string>
-  <string name="btn_yes">Yes</string>
   <string name="bubble_new_instructions">Release to enter a timed comment at</string>
   <string name="cache_clearing">Clearing cache</string>
   <string name="cache_clearing_message">Deleting cached files ...</string>
-  <string name="cancel">Cancel</string>
   <string name="changelog_full_title">Change Log</string>
   <string name="changelog_title">New Updates</string>
   <string name="cloud_recorder_event_message">Recording for %d seconds</string>

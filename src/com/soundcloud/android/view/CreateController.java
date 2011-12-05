@@ -328,9 +328,9 @@ public class CreateController {
         return react;
     }
 
-     private boolean shouldReactToPath(String path){
-         if (TextUtils.isEmpty(path)) return false;
-        long userIdFromPath = userIdFromPath = getPrivateUserIdFromPath(path);
+    private boolean shouldReactToPath(String path) {
+        if (TextUtils.isEmpty(path)) return false;
+        final long userIdFromPath = getPrivateUserIdFromPath(path);
         return ((userIdFromPath == -1 && mPrivateUser == null) || (mPrivateUser != null && userIdFromPath == mPrivateUser.id));
     }
 
@@ -921,27 +921,27 @@ public class CreateController {
             case Consts.Dialogs.DIALOG_RESET_RECORDING:
                 return new AlertDialog.Builder(mActivity).setTitle(R.string.dialog_reset_recording_title)
                         .setMessage(R.string.dialog_reset_recording_message).setPositiveButton(
-                                mActivity.getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
+                                android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 CloudUtils.deleteFile(mRecordFile);
                                 mActivity.removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
                                 if (mCreateListener != null) mCreateListener.onCancel();
                             }
-                        }).setNegativeButton(mActivity.getString(R.string.btn_no), null)
+                        }).setNegativeButton(android.R.string.no, null)
                         .create();
 
             case Consts.Dialogs.DIALOG_DELETE_RECORDING:
              return new AlertDialog.Builder(mActivity)
                             .setTitle(R.string.dialog_confirm_delete_recording_title)
                             .setMessage(R.string.dialog_confirm_delete_recording_message)
-                            .setPositiveButton(mActivity.getString(R.string.btn_yes),
+                            .setPositiveButton(android.R.string.yes,
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
                                             if (mRecording != null) mRecording.delete(mActivity.getContentResolver());
                                             if (mCreateListener != null) mCreateListener.onDelete();
                                         }
                                     })
-                            .setNegativeButton(mActivity.getString(R.string.btn_no), null)
+                            .setNegativeButton(android.R.string.no, null)
                             .create();
 
             default:
