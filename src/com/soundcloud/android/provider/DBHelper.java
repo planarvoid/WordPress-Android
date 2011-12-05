@@ -371,7 +371,7 @@ public class DBHelper extends SQLiteOpenHelper {
             + "status INTEGER null);";
 
     static final String DATABASE_CREATE_RESOURCE_PAGES = "create table ResourcePages (_id INTEGER primary key AUTOINCREMENT, "
-            + "resource_id VARCHAR(255) null, "
+            + "resource_id INTEGER null, "
             + "etag VARCHAR(255) null, "
             + "next_href VARCHAR(255) null, "
             + "size INTEGER null, "

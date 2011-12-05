@@ -12,6 +12,7 @@ import android.os.ResultReceiver;
 import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.ModelBase;
 import com.soundcloud.android.model.Track;
@@ -79,6 +80,9 @@ public class ApiService extends IntentService{
                 ActivitiesCache.get(getApp(), getApp().getAccount(), Request.to(Endpoints.MY_NEWS));
                 Log.d(LOG_TAG, "Cloud Api service: ACTIVITIY synced in " + (System.currentTimeMillis() - start) + " ms");
             }
+
+
+
             if (intent.getBooleanExtra(SyncExtras.FOLLOWINGS, false)) {
                 start = System.currentTimeMillis();
                 syncFollowings();
@@ -112,11 +116,15 @@ public class ApiService extends IntentService{
 
             }
 
+
+
             Set<Long> deletions = new HashSet(local);
             deletions.removeAll(remote);
 
             Set<Long> additions = new HashSet(remote);
             additions.removeAll(local);
+
+            SoundCloudDB.bulkInsertParcelables(getApp(),additions,ScContentProvider.Content.ME_FOLLOWINGS,getApp().getCurrentUserId(),-1);
 
 
         } catch (IOException e) {

@@ -1,10 +1,12 @@
 package com.soundcloud.android.model;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Expect;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.codehaus.jackson.JsonNode;
 import org.hamcrest.CoreMatchers;
@@ -178,6 +180,28 @@ public class ActivitiesTest {
         assertThat(merged.next_href, equalTo("https://api.soundcloud.com/me/activities/tracks?cursor=new_href"));
         assertTrue(merged.get(0).created_at.after(merged.get(merged.size()-1).created_at));
     }
+
+    @Test
+    public void testTrimBelow() throws Exception {
+        Activities a1 = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
+        Activities a2 = Activities.fromJSON(getClass().getResourceAsStream("activities_2.json"));
+
+        expect(a1.size()).toEqual(39);
+        expect(a2.size()).toEqual(3);
+
+        Activities trimmed = a1.merge(a2).trimBelow(10);
+
+        expect(trimmed.size()).toEqual(0);
+        expect(trimmed.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+        expect(trimmed.next_href).toBeNull();
+
+        trimmed = a1.merge(a2).trimBelow(40);
+
+        expect(trimmed.size()).toEqual(39);
+        expect(trimmed.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+        expect(trimmed.next_href).toEqual("https://api.soundcloud.com/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+    }
+
 
     @Test
     public void testFilter() throws Exception {

@@ -1,7 +1,6 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.api.Request;
 import org.apache.http.NameValuePair;
@@ -192,8 +191,9 @@ public class Activities implements Iterable<Event> {
         return AndroidCloudAPI.Mapper.viewWriter(view).writeValueAsString(this);
     }
 
-    public void toJSON(File f, Class<?> view) throws IOException {
+    public Activities toJSON(File f, Class<?> view) throws IOException {
         AndroidCloudAPI.Mapper.viewWriter(Views.Mini.class).writeValue(f, this);
+        return this;
     }
 
     public boolean hasMore() {
@@ -212,7 +212,9 @@ public class Activities implements Iterable<Event> {
         Activities merged = new Activities(new ArrayList<Event>(collection));
         merged.future_href = future_href;
         merged.next_href = old.next_href;
-        if (collection.size() > 0) collection.get(collection.size()-1).next_href = next_href;
+
+        Event last = lastEvent();
+        if (last != null) last.next_href = next_href;
 
         for (Event e : old) {
             if (!merged.collection.contains(e)) {
@@ -220,6 +222,10 @@ public class Activities implements Iterable<Event> {
             }
         }
         return merged;
+    }
+
+    private Event lastEvent() {
+        return isEmpty() ? null : collection.get(collection.size()-1);
     }
 
     public Activities returnUnique(Activities old) {
@@ -248,14 +254,14 @@ public class Activities implements Iterable<Event> {
 
     public Activities trimBelow(int max) {
         if (collection.size() <= max) return this;
-
         int i = max;
         while (i > 0 && collection.get(i-1).next_href == null){ i--; }
 
-        collection = new ArrayList<Event>(collection.subList(0, i));
-        next_href = collection.get(collection.size()-1).next_href;
 
-        return this;
+        Activities trimmed = new Activities(new ArrayList<Event>(collection.subList(0, i)));
+        trimmed.next_href = trimmed.isEmpty() ? null : trimmed.lastEvent().next_href;
+        trimmed.future_href = future_href;
+        return trimmed;
     }
 
     public long getTimestamp() {

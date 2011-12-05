@@ -69,10 +69,9 @@ public class ActivitiesCache {
             activities = getEvents(context, null, request);
         }
 
-        activities.trimBelow(SyncAdapterService.NOTIFICATION_MAX);
-        activities.toJSON(cachedFile, Views.Mini.class);
-        Log.d(TAG, "cached activities to "+cachedFile);
-        return activities;
+        Log.d(TAG, "caching activities to "+cachedFile);
+        return activities.trimBelow(SyncAdapterService.NOTIFICATION_MAX)
+                         .toJSON(cachedFile, Views.Mini.class);
     }
 
     public static Activities getEvents(SoundCloudApplication app, final Event lastCached, final Request resource)
