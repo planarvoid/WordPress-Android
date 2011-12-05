@@ -64,6 +64,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     private EmptyCollection mDefaultEmptyView;
     private String mEmptyViewText = "";
 
+    private static final int PAGE_SIZE = 50;
+
     protected int mState;
     int INITIALIZED     = 0; // no loading yet
     int READY           = 1; // ready for initial load (considered a refresh)
@@ -319,7 +321,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mAppendTask = new AppendTask(mActivity.getApp()) {
             {
                 loadModel = getLoadModel(false);
-                pageSize = getPageSize();
+                pageSize = PAGE_SIZE;
                 contentUri = mContentUri;
                 pageIndex = mPageIndex;
                 setAdapter(LazyEndlessAdapter.this);
@@ -335,7 +337,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
        mRefreshTask = new RefreshTask(mActivity.getApp()) {
             {
                 loadModel = getLoadModel(false);
-                pageSize  = getPageSize();
+                pageSize  = PAGE_SIZE;
                 contentUri = mContentUri;
                 pageIndex = mPageIndex;
                 setAdapter(LazyEndlessAdapter.this);
@@ -348,11 +350,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     protected boolean canShowEmptyView(){
        return mState >= DONE && super.getCount() == 0;
-    }
-
-    protected int getPageSize() {
-        return Math.max(20,Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mActivity).getString(
-                "defaultPageSize", "20")));
     }
 
     protected boolean handleResponseCode(int responseCode) {
@@ -482,7 +479,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         Request request = getRequest(refresh);
         if (request != null) {
             request.add("linked_partitioning", "1");
-            request.add("limit", getPageSize());
+            request.add("limit", PAGE_SIZE);
         }
         return request;
     }

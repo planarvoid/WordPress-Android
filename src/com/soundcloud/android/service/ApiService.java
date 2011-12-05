@@ -1,18 +1,31 @@
 package com.soundcloud.android.service;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.ResultReceiver;
 import android.util.Log;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.ModelBase;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.ActivitiesCache;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class ApiService extends IntentService{
 
@@ -34,6 +47,7 @@ public class ApiService extends IntentService{
         String EXCLUSIVE = ApiService.class.getName() + ".sync_exclusive";
         String ACTIVITY = ApiService.class.getName() + ".sync_activities";
         String FAVORITES = ApiService.class.getName() + ".sync_favorites";
+        String FOLLOWINGS = ApiService.class.getName() + ".sync_followings";
     }
 
     public ApiService() {
@@ -65,6 +79,11 @@ public class ApiService extends IntentService{
                 ActivitiesCache.get(getApp(), getApp().getAccount(), Request.to(Endpoints.MY_NEWS));
                 Log.d(LOG_TAG, "Cloud Api service: ACTIVITIY synced in " + (System.currentTimeMillis() - start) + " ms");
             }
+            if (intent.getBooleanExtra(SyncExtras.FOLLOWINGS, false)) {
+                start = System.currentTimeMillis();
+                syncFollowings();
+                Log.d(LOG_TAG, "Cloud Api service: FOLLOWINGS synced in " + (System.currentTimeMillis() - start) + " ms");
+            }
 
             Log.d(LOG_TAG, "Cloud Api service: Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
             if (receiver != null) receiver.send(STATUS_FINISHED, Bundle.EMPTY);
@@ -83,15 +102,52 @@ public class ApiService extends IntentService{
 
     }
 
-    private void sendError(ResultReceiver receiver, SyncResult syncResult){
-        if (receiver == null) return;
-        final Bundle bundle = new Bundle();
-        if (syncResult != null) bundle.putParcelable(EXTRA_SYNC_RESULT, syncResult);
-        receiver.send(STATUS_ERROR, bundle);
+    private void syncFollowings(){
+        try {
+            List<Long> local = idCursorToList(getContentResolver().query(ScContentProvider.Content.ME_FOLLOWINGS,new String[]{DBHelper.Users._ID},null,null,null));
+            List<Long> remote = getApp().getMapper().readValue(getApp().get(Request.to(Endpoints.MY_FOLLOWINGS + "/ids")).getEntity().getContent(), List.class);
+
+            if (local.size() == 0 && remote.size() != 0){
+                // paging
+
+            }
+
+            Set<Long> deletions = new HashSet(local);
+            deletions.removeAll(remote);
+
+            Set<Long> additions = new HashSet(remote);
+            additions.removeAll(local);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
+    }
+
+    private List<Long> idCursorToList(Cursor c){
+        List<Long> ids = new ArrayList<Long>();
+        if (c != null && c.moveToFirst()){
+            do {
+                ids.add(c.getLong(0));
+            } while (c.moveToNext());
+        }
+        if (c != null) c.close();
+        return ids;
+    }
+
+    private void sendError(ResultReceiver receiver, SyncResult syncResult){
+        if (receiver == null) return;
+        final Bundle bundle = new Bundle();
+        if (syncResult != null) bundle.putParcelable(EXTRA_SYNC_RESULT, syncResult);
+        receiver.send(STATUS_ERROR, bundle);
+    }
+
+    public static class CollectionState {
+        public List<Long> ids;
     }
 }

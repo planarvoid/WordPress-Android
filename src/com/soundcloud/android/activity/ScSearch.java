@@ -264,10 +264,10 @@ public class ScSearch extends ScActivity {
         }
 
         if (updateId > 0) {
-            getContentResolver().update(DBHelper.Searches.CONTENT_URI, cv, DBHelper.Searches.ID + " = ?",
+            getContentResolver().update(ScContentProvider.Content.SEARCHES, cv, DBHelper.Searches.ID + " = ?",
                     new String[]{Long.toString(updateId)});
         } else {
-            getContentResolver().insert(DBHelper.Searches.CONTENT_URI, cv);
+            getContentResolver().insert(ScContentProvider.Content.SEARCHES, cv);
         }
         refreshHistory();
 

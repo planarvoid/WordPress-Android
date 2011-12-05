@@ -78,7 +78,6 @@ public class SyncAdapterService extends Service {
             if (SoundCloudApplication.DEV_MODE) {
                 Log.d(TAG, "onPerformSync("+account+","+extras+","+authority+","+provider+","+syncResult+")");
             }
-
             if (shouldSync()) {
                 SyncAdapterService.performSync(mApp, account, extras, provider, syncResult);
             } else {
@@ -112,10 +111,11 @@ public class SyncAdapterService extends Service {
             app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
         } else {
             if (app.useAccount(account).valid()) {
-
+                // TODO, do not sync everything unless it is set that way in prefs
                 Looper.prepare();
                 final Intent intent = new Intent(app, ApiService.class);
                 intent.putExtra(ApiService.SyncExtras.DASHBOARD, true);
+                //intent.putExtra(ApiService.SyncExtras.FOLLOWINGS, true);
                 intent.putExtra(ApiService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
                     @Override
                     protected void onReceiveResult(int resultCode, Bundle resultData) {

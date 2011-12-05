@@ -59,10 +59,6 @@ public class ScContentProvider extends ContentProvider {
         SCQueryBuilder qb = new SCQueryBuilder();
         String whereAppend;
 
-        Log.i(LOG_TAG,"Querying URI: " + uri.toString());
-
-        // SELECT TrackView._id, EXISTS (SELECT 1 FROM UserFavorites where TrackView._id = UserFavorites.track_id and UserFavorites.user_id = 1) as favorite, EXISTS (SELECT 1 FROM TrackPlays where TrackView._id = TrackPlays.track_id and TrackPlays.user_id = 1) as played FROM TrackView;
-
         switch (sUriMatcher.match(uri)) {
             case RESOURCES:
                 qb.setTables(DBHelper.Tables.RESOURCES.tableName);
@@ -73,78 +69,54 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_TRACKS:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.COLLECTION_ITEMS.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID+ ")");
-                whereAppend = DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + userId
-                        + " AND " + DBHelper.CollectionItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.TRACK;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
+                selection = makeCollectionSelection(selection, String.valueOf(userId),ResourceItemTypes.TRACK);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case USER_TRACKS:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.COLLECTION_ITEMS.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID+ ")");
-                whereAppend = DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + uri.getPathSegments().get(1)
-                        + " AND " + DBHelper.CollectionItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.TRACK;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
+                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1),ResourceItemTypes.TRACK);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case ME_FAVORITES:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.COLLECTION_ITEMS.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID+ ")");
-                whereAppend = DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + userId
-                        + " AND " + DBHelper.CollectionItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FAVORITE;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
+                selection = makeCollectionSelection(selection, String.valueOf(userId),ResourceItemTypes.FAVORITE);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case USER_FAVORITES:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.COLLECTION_ITEMS.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID+ ")");
-                whereAppend = DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + uri.getPathSegments().get(1)
-                        + " AND " + DBHelper.CollectionItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FAVORITE;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
+                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1),ResourceItemTypes.FAVORITE);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case ME_FOLLOWERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.COLLECTION_ITEMS.tableName +
-                        " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID+ ")");
-                whereAppend = DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + userId
-                        + " AND " + DBHelper.CollectionItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWER;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
+                selection = makeCollectionSelection(selection, String.valueOf(userId),ResourceItemTypes.FOLLOWER);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case USER_FOLLOWERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.COLLECTION_ITEMS.tableName +
-                        " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID+ ")");
-                whereAppend = DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + uri.getPathSegments().get(1)
-                        + " AND " + DBHelper.CollectionItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWER;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
+                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1),ResourceItemTypes.FOLLOWER);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case ME_FOLLOWINGS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.COLLECTION_ITEMS.tableName +
-                        " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID+ ")");
-                whereAppend = DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + userId
-                        + " AND " + DBHelper.CollectionItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWING;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
+                selection = makeCollectionSelection(selection, String.valueOf(userId),ResourceItemTypes.FOLLOWING);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case USER_FOLLOWINGS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.COLLECTION_ITEMS.tableName +
-                        " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID+ ")");
-                whereAppend = DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + uri.getPathSegments().get(1)
-                        + " AND " + DBHelper.CollectionItems.CONCRETE_RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWING;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
+                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1),ResourceItemTypes.FOLLOWING);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
@@ -173,6 +145,11 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
 
+            case SEARCHES:
+                qb.setTables(DBHelper.Tables.SEARCHES.tableName);
+                whereAppend = DBHelper.Searches.CONCRETE_USER_ID + " = "+ userId;
+                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
 
             case TRACK_PLAYS:
                 qb.setTables(DBHelper.Tables.TRACK_PLAYS.tableName);
@@ -241,6 +218,12 @@ public class ScContentProvider extends ContentProvider {
 
             case TRACK_PLAYS:
                 id = db.insertWithOnConflict(DBHelper.Tables.TRACK_PLAYS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                getContext().getContentResolver().notifyChange(result, null);
+                return result;
+
+            case SEARCHES:
+                id = db.insertWithOnConflict(DBHelper.Tables.SEARCHES.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null);
                 return result;
@@ -419,6 +402,18 @@ public class ScContentProvider extends ContentProvider {
         if (!TextUtils.isEmpty(uri.getQueryParameter("offset"))) b.append(" OFFSET " + uri.getQueryParameter("offset"));
         return b.toString();
     }
+
+    static String makeCollectionJoin(String modelTable, String modelIdCol){
+        return modelTable + " INNER JOIN " + DBHelper.Tables.COLLECTION_ITEMS.tableName +
+                        " ON (" + modelIdCol + " = " + DBHelper.CollectionItems.ITEM_ID+ ")";
+    }
+
+    static String makeCollectionSelection(String selection, String userId, int collectionType) {
+        final String whereAppend = DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + userId
+                + " AND " + DBHelper.CollectionItems.CONCRETE_RESOURCE_TYPE + " = " + collectionType;
+        return selection == null ? whereAppend : selection + " AND " + whereAppend;
+    }
+
 
     @Override
     public String getType(Uri uri) {

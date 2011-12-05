@@ -1,13 +1,23 @@
 package com.soundcloud.android;
 
+import android.content.ContentValues;
+import android.net.Uri;
+import android.os.Parcelable;
+import android.util.Log;
+import com.soundcloud.android.model.ModelBase;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Tracks;
 import com.soundcloud.android.provider.DBHelper.Users;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
 import com.soundcloud.android.provider.ScContentProvider;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class SoundCloudDB {
     private static final String TAG = "SoundCloudDB";
@@ -135,5 +145,51 @@ public class SoundCloudDB {
             t.user_favorite = isFavorite;
             SoundCloudDB.writeTrack(contentResolver,t, SoundCloudDB.WriteState.update_only,currentUserId);
         }
+    }
+
+    public static void bulkInsertParcelables(SoundCloudApplication app, List<Parcelable> items, Uri collectionUri, long owner, int startIndex) {
+        int i = 0;
+        ContentValues[] bulkValues = new ContentValues[items.size()];
+        Set<User> usersToInsert = new HashSet<User>();
+        Set<Track> tracksToInsert = new HashSet<Track>();
+
+        for (Parcelable p : items) {
+            if (p instanceof User) {
+                usersToInsert.add((User) p);
+            } else if (p instanceof Track) {
+                usersToInsert.add(((Track) p).user);
+                tracksToInsert.add((Track) p);
+            }
+
+            ContentValues itemCv = new ContentValues();
+            itemCv.put(DBHelper.CollectionItems.USER_ID, owner);
+            itemCv.put(DBHelper.CollectionItems.POSITION, startIndex + i);
+            itemCv.put(DBHelper.CollectionItems.ITEM_ID, ((ModelBase) p).id);
+            bulkValues[i] = itemCv;
+            i++;
+        }
+
+        ContentValues[] tracksCv = new ContentValues[tracksToInsert.size()];
+        i = 0;
+        for (Track t : tracksToInsert) {
+            tracksCv[i] = t.buildContentValues();
+            i++;
+        }
+        ContentValues[] usersCv = new ContentValues[usersToInsert.size()];
+        i = 0;
+        for (User u : usersToInsert) {
+            usersCv[i] = u.buildContentValues();
+            i++;
+        }
+
+        int inserted = app.getContentResolver().bulkInsert(ScContentProvider.Content.TRACKS, tracksCv);
+        Log.i(TAG,inserted + " tracks bulk inserted");
+
+        inserted = app.getContentResolver().bulkInsert(ScContentProvider.Content.USERS, usersCv);
+        Log.i(TAG,inserted + " users bulk inserted");
+
+        inserted = app.getContentResolver().bulkInsert(collectionUri, bulkValues);
+        Log.i(TAG,inserted + " colleciton items bulk inserted");
+
     }
 }

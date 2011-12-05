@@ -8,6 +8,7 @@ import android.net.Uri;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.DBHelper;
@@ -150,50 +151,9 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                         }
 
                         // insert new page
-                        Uri uri = mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCE_PAGES, cv);
-
-                        int i = 0;
-                        ContentValues[] bulkValues = new ContentValues[mNewItems.size()];
-                        Set<User> usersToInsert = new HashSet<User>();
-                        Set<Track> tracksToInsert = new HashSet<Track>();
-
-                        for (Parcelable p : mNewItems) {
-                            if (User.class.equals(loadModel)) {
-                                usersToInsert.add((User)p);
-                            } else if (Track.class.equals(loadModel)) {
-                                usersToInsert.add(((Track)p).user);
-                                tracksToInsert.add((Track) p);
-                            } else if (Event.class.equals(loadModel)) {
-                                if (((Event)p).getUser() != null) usersToInsert.add(((Event)p).getUser());
-                                if (((Event)p).getTrack() != null) tracksToInsert.add(((Event)p).getTrack());
-                            }
-
-                            //((ModelBase) p).assertInDb(mApp);
-
-                            ContentValues itemCv = new ContentValues();
-                            itemCv.put(DBHelper.CollectionItems.USER_ID, getCollectionOwner());
-                            itemCv.put(DBHelper.CollectionItems.POSITION,pageIndex * Consts.COLLECTION_PAGE_SIZE + i);
-                            itemCv.put(DBHelper.CollectionItems.ITEM_ID,((ModelBase) p).id);
-                            bulkValues[i] = itemCv;
-                            i++;
-                        }
-
-                        ContentValues[] tracksCv = new ContentValues[tracksToInsert.size()];
-                        i = 0;
-                        for (Track t : tracksToInsert){
-                            tracksCv[i] = t.buildContentValues();
-                            i++;
-                        }
-                        ContentValues[] usersCv = new ContentValues[usersToInsert.size()];
-                        i = 0;
-                        for (User u : usersToInsert){
-                            usersCv[i] = u.buildContentValues();
-                            i++;
-                        }
-
-                        mApp.getContentResolver().bulkInsert(ScContentProvider.Content.TRACKS,tracksCv);
-                        mApp.getContentResolver().bulkInsert(ScContentProvider.Content.USERS,usersCv);
-                        mApp.getContentResolver().bulkInsert(contentUri,bulkValues);
+                        mApp.getContentResolver().insert(ScContentProvider.Content.RESOURCE_PAGES, cv);
+                        SoundCloudDB.bulkInsertParcelables(mApp,mNewItems,contentUri,getCollectionOwner(),
+                                pageIndex * Consts.COLLECTION_PAGE_SIZE);
                         return true;
                     }
                 }
