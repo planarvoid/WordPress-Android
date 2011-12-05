@@ -319,13 +319,13 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mAppendTask = new AppendTask(mActivity.getApp()) {
             {
                 loadModel = getLoadModel(false);
-                    pageSize = getPageSize();
-                    contentUri = mContentUri;
-                    pageIndex = mPageIndex;
-                    setAdapter(LazyEndlessAdapter.this);
-                    request = buildRequest(false);
-                    refresh = false;
-                    execute();
+                pageSize = getPageSize();
+                contentUri = mContentUri;
+                pageIndex = mPageIndex;
+                setAdapter(LazyEndlessAdapter.this);
+                request = buildRequest(false);
+                refresh = false;
+                execute();
             }
         };
     }

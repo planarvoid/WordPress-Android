@@ -48,7 +48,7 @@ import static android.content.pm.PackageManager.*;
 
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=3a89fe3a",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=e937d649",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
