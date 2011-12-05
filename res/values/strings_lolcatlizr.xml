@@ -432,6 +432,8 @@
   <string name="this_user">this user</string>
   <string name="tour_btn_lets_party">Let\'s Go!</string>
   <string name="tour_btn_next">Next</string>
+  <string name="tour_title">Welcome</string>
+  <string name="tour_btn_done">Done</string>
   <string name="tour_comment_message">Favorite sounds and comment on the ones you like. Check out comments on your own sounds too!</string>
   <string name="tour_comment_subject">Comment &amp; Favorite</string>
   <string name="tour_comment_title">Add Activity</string>
