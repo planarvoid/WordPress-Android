@@ -514,7 +514,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     public void onConnected() {
        if (mState == ERROR){
-           mState = WAITING;
+           mState = getWrappedAdapter().getCount() == 0 ? READY : WAITING;
            notifyDataSetChanged();
        }
     }

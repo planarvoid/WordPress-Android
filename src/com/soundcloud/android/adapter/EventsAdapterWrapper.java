@@ -3,6 +3,7 @@ package com.soundcloud.android.adapter;
 
 import android.content.Intent;
 
+import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
@@ -75,7 +76,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         }
 
         if (!mWaitingOnSync) { // reset state to not refreshing
-            mState = TextUtils.isEmpty(mNextHref) ? DONE : WAITING;
+            if (mState < ERROR) mState = TextUtils.isEmpty(mNextHref) ? DONE : WAITING;
             if (mListView != null) {
                 mListView.onRefreshComplete((newItems != null && newItems.size() > 0));
             }
@@ -133,7 +134,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
             case ApiService.STATUS_ERROR: {
                 mWaitingOnSync = false;
                 mState = ERROR;
-                onEmptyRefresh();
+                onPostRefresh(null,null,false);
                 break;
             }
         }
