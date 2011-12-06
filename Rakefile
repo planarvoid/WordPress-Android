@@ -248,9 +248,10 @@ namespace :c2dm do
   C2DM_URL = URI.parse("https://android.apis.google.com/c2dm/send")
 
   def login(opts={})
+    raise "You need to set PASSWORD env" if ENV['PASSWORD'].nil?
     params = {
         'accountType' => 'HOSTED_OR_GOOGLE',
-        'Email'       => ENV['EMAIL'] || 'jan@soundcloud.com',
+        'Email'       => ENV['EMAIL'] || 'android-c2dm@soundcloud.com',
         'Passwd'      => ENV['PASSWORD'],
         'service'     => 'ac2dm',
         'source'      => "SoundCloud-Android-#{versionName}"
@@ -285,7 +286,7 @@ namespace :c2dm do
   desc "get a client login token"
   task :login do
     if tokens = login
-      puts "AuthToken:"+ tokens['Auth']
+      puts "export TOKEN="+ tokens['Auth']
     end
   end
 
