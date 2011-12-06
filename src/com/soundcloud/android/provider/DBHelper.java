@@ -35,14 +35,14 @@ public class DBHelper extends SQLiteOpenHelper {
         /*USER_FAVORITES("UserFavorites", DATABASE_CREATE_USER_FAVORITES),
         USER_FOLLOWING("UserFollowing", DATABASE_CREATE_USER_FOLLOWING),
         USER_FOLLOWERS("UserFollowers", DATABASE_CREATE_USER_FOLLOWERS),*/
-        COLLECTION_ITEMS("CollectionItems", DATABASE_CREATE_RESOURCE_ITEMS),
+        COLLECTION_ITEMS("CollectionItems", DATABASE_CREATE_COLLECTION_ITEMS),
 
         //EVENTVIEW("EventView", null),
         //TRACKLISTVIEW("TracklistView", DATABASE_CREATE_TRACKLIST_VIEW),
         //EVENTLISTVIEW("EventlistView", DATABASE_CREATE_EVENTLIST_VIEW);
 
-        RESOURCES("Resources", DATABASE_CREATE_RESOURCES),
-        RESOURCE_PAGES("ResourcePages", DATABASE_CREATE_RESOURCE_PAGES);
+        COLLECTIONS("Collections", DATABASE_CREATE_COLLECTIONS),
+        COLLECTION_PAGES("CollectionPages", DATABASE_CREATE_COLLECTION_PAGES);
 
         public final String tableName;
         public final String createString;
@@ -74,9 +74,9 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL(DATABASE_CREATE_RECORDINGS);
             db.execSQL(DATABASE_CREATE_SEARCHES);
             db.execSQL(DATABASE_CREATE_TRACK_VIEW);
-            db.execSQL(DATABASE_CREATE_RESOURCES);
-            db.execSQL(DATABASE_CREATE_RESOURCE_PAGES);
-            db.execSQL(DATABASE_CREATE_RESOURCE_ITEMS);
+            db.execSQL(DATABASE_CREATE_COLLECTIONS);
+            db.execSQL(DATABASE_CREATE_COLLECTION_PAGES);
+            db.execSQL(DATABASE_CREATE_COLLECTION_ITEMS);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -227,9 +227,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 db.execSQL("DROP VIEW IF EXISTS " + Tables.TRACKVIEW.tableName);
                 db.execSQL(DATABASE_CREATE_TRACKS);
                 db.execSQL(DATABASE_CREATE_TRACK_VIEW);
-                db.execSQL(DATABASE_CREATE_RESOURCES);
-                db.execSQL(DATABASE_CREATE_RESOURCE_PAGES);
-                db.execSQL(DATABASE_CREATE_RESOURCE_ITEMS);
+                db.execSQL(DATABASE_CREATE_COLLECTIONS);
+                db.execSQL(DATABASE_CREATE_COLLECTION_PAGES);
+                db.execSQL(DATABASE_CREATE_COLLECTION_ITEMS);
                 return true;
 
             } catch (SQLException e) {
@@ -363,15 +363,15 @@ public class DBHelper extends SQLiteOpenHelper {
             + "query VARCHAR(255) null, "
             + "search_type INTEGER null);";
 
-    static final String DATABASE_CREATE_RESOURCES = "create table Resources (_id INTEGER primary key AUTOINCREMENT, "
+    static final String DATABASE_CREATE_COLLECTIONS = "create table Collections (_id INTEGER primary key AUTOINCREMENT, "
             + "uri VARCHAR(255) null, "
             + "last_addition VARCHAR(255) null, "
             + "size INTEGER null, "
             + "last_refresh INTEGER null, "
-            + "status INTEGER null);";
+            + "status INTEGER null, UNIQUE (uri));";
 
-    static final String DATABASE_CREATE_RESOURCE_PAGES = "create table ResourcePages (_id INTEGER primary key AUTOINCREMENT, "
-            + "resource_id INTEGER null, "
+    static final String DATABASE_CREATE_COLLECTION_PAGES = "create table CollectionPages (_id INTEGER primary key AUTOINCREMENT, "
+            + "collection_id INTEGER null, "
             + "etag VARCHAR(255) null, "
             + "next_href VARCHAR(255) null, "
             + "size INTEGER null, "
@@ -379,9 +379,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
     //TODO, these should be in 1 table, duplication galore here
 
-    static final String DATABASE_CREATE_RESOURCE_ITEMS =
-            "create table CollectionItems (user_id INTEGER, item_id INTEGER, resource_type INTEGER, "
-                    + "position INTEGER null, UNIQUE(user_id, item_id, resource_type) ON CONFLICT REPLACE);";
+    static final String DATABASE_CREATE_COLLECTION_ITEMS =
+            "create table CollectionItems (user_id INTEGER, item_id INTEGER, collection_type INTEGER, "
+                    + "position INTEGER null, UNIQUE(user_id, item_id, collection_type) ON CONFLICT REPLACE);";
 
     public static final class Tracks implements BaseColumns {
 
@@ -450,12 +450,12 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final class CollectionItems {
         public static final String ITEM_ID = "item_id";
         public static final String USER_ID = "user_id";
-        public static final String RESOURCE_TYPE = "resource_type";
+        public static final String COLLECTION_TYPE = "collection_type";
         public static final String POSITION = "position";
 
         public static final String CONCRETE_ITEM_ID = Tables.COLLECTION_ITEMS.tableName + "." + ITEM_ID;
         public static final String CONCRETE_USER_ID = Tables.COLLECTION_ITEMS.tableName + "." + USER_ID;
-        public static final String CONCRETE_RESOURCE_TYPE = Tables.COLLECTION_ITEMS.tableName + "." + RESOURCE_TYPE;
+        public static final String CONCRETE_COLLECTION_TYPE = Tables.COLLECTION_ITEMS.tableName + "." + COLLECTION_TYPE;
         public static final String CONCRETE_POSITION = Tables.COLLECTION_ITEMS.tableName + "." + POSITION;
     }
 
@@ -630,12 +630,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public static final class Resources implements BaseColumns {
+    public static final class Collections implements BaseColumns {
         public static final Uri CONTENT_URI = Uri.parse("content://"
-                + ScContentProvider.AUTHORITY + "/Resources");
+                + ScContentProvider.AUTHORITY + "/Collections");
 
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.resources";
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.resources";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.collections";
+        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.collections";
 
         public static final String ID = "_id";
         public static final String URI = "uri";
@@ -644,34 +644,34 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String SIZE = "size";
         public static final String STATUS = "status";
 
-        public static final String CONCRETE_ID = Tables.RESOURCES.tableName + "." + ID;
-        public static final String CONCRETE_URI = Tables.RESOURCES.tableName + "." + URI;
-        public static final String CONCRETE_LAST_ADDITION = Tables.RESOURCES.tableName + "." + LAST_ADDITION;
-        public static final String CONCRETE_SIZE = Tables.RESOURCES.tableName + "." + SIZE;
-        public static final String CONCRETE_STATUS = Tables.RESOURCES.tableName + "." + STATUS;
+        public static final String CONCRETE_ID = Tables.COLLECTIONS.tableName + "." + ID;
+        public static final String CONCRETE_URI = Tables.COLLECTIONS.tableName + "." + URI;
+        public static final String CONCRETE_LAST_ADDITION = Tables.COLLECTIONS.tableName + "." + LAST_ADDITION;
+        public static final String CONCRETE_SIZE = Tables.COLLECTIONS.tableName + "." + SIZE;
+        public static final String CONCRETE_STATUS = Tables.COLLECTIONS.tableName + "." + STATUS;
 
     }
 
-    public static final class ResourcePages implements BaseColumns {
+    public static final class CollectionPages implements BaseColumns {
         public static final Uri CONTENT_URI = Uri.parse("content://"
-                + ScContentProvider.AUTHORITY + "/ResourcePages");
+                + ScContentProvider.AUTHORITY + "/CollectionPages");
 
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.resource_pages";
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.resource_pages";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.collection_pages";
+        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.collection_pages";
 
         public static final String ID = "_id";
-        public static final String RESOURCE_ID = "resource_id";
+        public static final String COLLECTION_ID = "collection_id";
         public static final String ETAG = "etag";
         public static final String NEXT_HREF = "next_href";
         public static final String SIZE = "size";
         public static final String PAGE_INDEX = "page_index";
 
-        public static final String CONCRETE_ID = Tables.RESOURCE_PAGES.tableName + "." + ID;
-        public static final String CONCRETE_RESOURCE_ID = Tables.RESOURCE_PAGES.tableName + "." + RESOURCE_ID;
-        public static final String CONCRETE_ETAG = Tables.RESOURCE_PAGES.tableName + "." + ETAG;
-        public static final String CONCRETE_NEXT_HREF = Tables.RESOURCE_PAGES.tableName + "." + NEXT_HREF;
-        public static final String CONCRETE_SIZE = Tables.RESOURCE_PAGES.tableName + "." + SIZE;
-        public static final String CONCRETE_PAGE_INDEX = Tables.RESOURCE_PAGES.tableName + "." + PAGE_INDEX;
+        public static final String CONCRETE_ID = Tables.COLLECTION_PAGES.tableName + "." + ID;
+        public static final String CONCRETE_COLLECTION_ID = Tables.COLLECTION_PAGES.tableName + "." + COLLECTION_ID;
+        public static final String CONCRETE_ETAG = Tables.COLLECTION_PAGES.tableName + "." + ETAG;
+        public static final String CONCRETE_NEXT_HREF = Tables.COLLECTION_PAGES.tableName + "." + NEXT_HREF;
+        public static final String CONCRETE_SIZE = Tables.COLLECTION_PAGES.tableName + "." + SIZE;
+        public static final String CONCRETE_PAGE_INDEX = Tables.COLLECTION_PAGES.tableName + "." + PAGE_INDEX;
 
     }
 

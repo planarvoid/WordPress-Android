@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 
 import java.util.regex.Matcher;
@@ -60,11 +59,11 @@ public class ScContentProvider extends ContentProvider {
         String whereAppend;
 
         switch (sUriMatcher.match(uri)) {
-            case RESOURCES:
-                qb.setTables(DBHelper.Tables.RESOURCES.tableName);
+            case COLLECTIONS:
+                qb.setTables(DBHelper.Tables.COLLECTIONS.tableName);
                 break;
-            case RESOURCE_PAGES:
-                qb.setTables(DBHelper.Tables.RESOURCE_PAGES.tableName);
+            case COLLECTION_PAGES:
+                qb.setTables(DBHelper.Tables.COLLECTION_PAGES.tableName);
                 break;
 
             case ME_TRACKS:
@@ -198,14 +197,14 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         switch (sUriMatcher.match(uri)) {
 
-            case RESOURCES:
-                id = db.insertWithOnConflict(DBHelper.Tables.RESOURCES.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+            case COLLECTIONS:
+                id = db.insertWithOnConflict(DBHelper.Tables.COLLECTIONS.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null);
                 return result;
 
-            case RESOURCE_PAGES:
-                id = db.insertWithOnConflict(DBHelper.Tables.RESOURCE_PAGES.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+            case COLLECTION_PAGES:
+                id = db.insertWithOnConflict(DBHelper.Tables.COLLECTION_PAGES.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null);
                 return result;
@@ -242,7 +241,7 @@ public class ScContentProvider extends ContentProvider {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
-                    cv.put(DBHelper.CollectionItems.RESOURCE_TYPE, ResourceItemTypes.FAVORITE);
+                    cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, ResourceItemTypes.FAVORITE);
                     id = db.insertWithOnConflict(DBHelper.Tables.COLLECTION_ITEMS.tableName, null, cv, SQLiteDatabase.CONFLICT_ABORT);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null);
@@ -263,11 +262,11 @@ public class ScContentProvider extends ContentProvider {
         int count;
         String tableName;
         switch (sUriMatcher.match(uri)) {
-            case RESOURCES:
-                tableName = DBHelper.Tables.RESOURCES.tableName;
+            case COLLECTIONS:
+                tableName = DBHelper.Tables.COLLECTIONS.tableName;
                 break;
-            case RESOURCE_PAGES:
-                tableName = DBHelper.Tables.RESOURCE_PAGES.tableName;
+            case COLLECTION_PAGES:
+                tableName = DBHelper.Tables.COLLECTION_PAGES.tableName;
                 break;
             case TRACK_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
@@ -354,22 +353,22 @@ public class ScContentProvider extends ContentProvider {
                 case ME_TRACKS:
                 case USER_TRACKS:
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
-                    extraCV = new String[]{DBHelper.CollectionItems.RESOURCE_TYPE, String.valueOf(ResourceItemTypes.TRACK)};
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.TRACK)};
                     break;
                 case ME_FAVORITES:
                 case USER_FAVORITES:
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
-                    extraCV = new String[]{DBHelper.CollectionItems.RESOURCE_TYPE, String.valueOf(ResourceItemTypes.FAVORITE)};
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.FAVORITE)};
                     break;
                 case ME_FOLLOWERS:
                 case USER_FOLLOWERS:
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
-                    extraCV = new String[]{DBHelper.CollectionItems.RESOURCE_TYPE, String.valueOf(ResourceItemTypes.FOLLOWER)};
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.FOLLOWER)};
                     break;
                 case ME_FOLLOWINGS:
                 case USER_FOLLOWINGS:
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
-                    extraCV = new String[]{DBHelper.CollectionItems.RESOURCE_TYPE, String.valueOf(ResourceItemTypes.FOLLOWING)};
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.FOLLOWING)};
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
@@ -434,7 +433,7 @@ public class ScContentProvider extends ContentProvider {
 
     static String makeCollectionSelection(String selection, String userId, int collectionType) {
         final String whereAppend = DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + userId
-                + " AND " + DBHelper.CollectionItems.CONCRETE_RESOURCE_TYPE + " = " + collectionType;
+                + " AND " + DBHelper.CollectionItems.CONCRETE_COLLECTION_TYPE + " = " + collectionType;
         return selection == null ? whereAppend : selection + " AND " + whereAppend;
     }
 
@@ -472,7 +471,7 @@ public class ScContentProvider extends ContentProvider {
             DBHelper.Tables.TRACKVIEW.tableName + ".*",
             "EXISTS (SELECT 1 FROM " + DBHelper.Tables.COLLECTION_ITEMS.tableName
                     + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " and " + DBHelper.CollectionItems.RESOURCE_TYPE + " = " + ResourceItemTypes.FAVORITE
+                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + ResourceItemTypes.FAVORITE
                     + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as " + DBHelper.TrackView.USER_FAVORITE,
     };
 
@@ -480,11 +479,11 @@ public class ScContentProvider extends ContentProvider {
             DBHelper.Tables.USERS.tableName + ".*",
             "EXISTS (SELECT 1 FROM " + DBHelper.Tables.COLLECTION_ITEMS.tableName
                     + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " and " + DBHelper.CollectionItems.RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWING
+                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + ResourceItemTypes.FOLLOWING
                     + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as "  + DBHelper.Users.USER_FOLLOWING,
             "EXISTS (SELECT 1 FROM " + DBHelper.Tables.COLLECTION_ITEMS.tableName
                     + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " and " + DBHelper.CollectionItems.RESOURCE_TYPE + " = " + ResourceItemTypes.FOLLOWER
+                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + ResourceItemTypes.FOLLOWER
                     + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as " + DBHelper.Users.USER_FOLLOWER
     };
 
@@ -545,8 +544,8 @@ public class ScContentProvider extends ContentProvider {
         Uri GROUP_TRACKS                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/groups/#/tracks");
 
         /** LOCAL URIS **/
-        Uri RESOURCES                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/resources");
-        Uri RESOURCE_PAGES              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/resource_pages");
+        Uri COLLECTIONS                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/COLLECTIONS");
+        Uri COLLECTION_PAGES              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/COLLECTION_PAGES");
 
         Uri RECORDINGS                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/recordings");
         Uri RECORDING_ITEM              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/recordings/#");
@@ -602,8 +601,8 @@ public class ScContentProvider extends ContentProvider {
     private static final int GROUP_CONTRIBUTORS     = 606;
     private static final int GROUP_TRACKS           = 607;
 
-    private static final int RESOURCES              = 1000;
-    private static final int RESOURCE_PAGES         = 1001;
+    private static final int COLLECTIONS = 1000;
+    private static final int COLLECTION_PAGES = 1001;
 
     private static final int RECORDINGS             = 1100;
     private static final int RECORDING_ITEM         = 1101;
@@ -665,8 +664,8 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "groups/#", GROUP_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "groups", GROUPS);
 
-        matcher.addURI(ScContentProvider.AUTHORITY, "resources", RESOURCES);
-        matcher.addURI(ScContentProvider.AUTHORITY, "resource_pages", RESOURCE_PAGES);
+        matcher.addURI(ScContentProvider.AUTHORITY, "COLLECTIONS", COLLECTIONS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "COLLECTION_PAGES", COLLECTION_PAGES);
 
         matcher.addURI(ScContentProvider.AUTHORITY, "recordings/#", RECORDING_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "recordings", RECORDINGS);

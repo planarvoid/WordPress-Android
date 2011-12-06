@@ -1,7 +1,6 @@
 package com.soundcloud.android.service;
 
 import android.app.IntentService;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
@@ -11,22 +10,18 @@ import android.os.Parcelable;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
-import com.google.android.imageloader.ContentURLStreamHandlerFactory;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.ActivitiesCache;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class ApiService extends IntentService{
@@ -87,6 +82,7 @@ public class ApiService extends IntentService{
             if (intent.getBooleanExtra(SyncExtras.TRACKS, false)) {
                 start = System.currentTimeMillis();
                 syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
+                //com.soundcloud.android.model.LocalCollection.insertLocalCollection()
                 Log.d(LOG_TAG, "Cloud Api service: TRACKS synced in " + (System.currentTimeMillis() - start) + " ms");
             }
 
@@ -152,8 +148,8 @@ public class ApiService extends IntentService{
             }
             i++;
         } while (!TextUtils.isEmpty(holder.next_href));
-        getContentResolver().delete(contentUri,null,null);
-        SoundCloudDB.bulkInsertParcelables(getApp(),items,contentUri,getApp().getCurrentUserId(),0);
+        getContentResolver().delete(contentUri, null, null);
+        SoundCloudDB.bulkInsertParcelables(getApp(), items, contentUri, getApp().getCurrentUserId(), 0);
     }
 
     private void syncFollowings(){
