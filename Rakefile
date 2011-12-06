@@ -331,12 +331,25 @@ namespace :c2dm do
 end
 
 namespace :lol do
+  STRINGS = "res/values/strings_lolcatlizr.xml"
+
   desc "download lolcatlizr manged string resources"
   task :fetch do
     url = "http://lol.iriscouch.com/lolcatlizr/_design/lolcatlizr/_list/android/android?key=%22%22"
-    sh "curl #{url} > res/values/strings_lolcatlizr.xml"
+    sh "curl #{url} > #{STRINGS}"
+  end
+
+  desc "revert changes"
+  task :revert do
+    sh "git co #{STRINGS}"
+  end
+
+  task :csv do
+    url = "http://lol.iriscouch.com/lolcatlizr/_design/lolcatlizr/_list/csv/android?key=%22%22"
+    sh "curl #{url} > strings.csv"
   end
 end
+
 
 namespace :keyhash do
   {

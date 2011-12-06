@@ -81,7 +81,7 @@ public class ChangeLog {
                 .setView(wv)
                 .setCancelable(false)
                 .setPositiveButton(
-                        mContext.getResources().getString(R.string.btn_ok),
+                        android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();

@@ -466,7 +466,7 @@ public abstract class ScActivity extends Activity {
             case Consts.Dialogs.DIALOG_CANCEL_UPLOAD:
                 return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
                         .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
-                                getString(R.string.btn_yes), new DialogInterface.OnClickListener() {
+                                android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 try {
                                     // XXX this should be handled by ScCreate
@@ -476,7 +476,7 @@ public abstract class ScActivity extends Activity {
                                 }
                                 removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                             }
-                        }).setNegativeButton(getString(R.string.btn_no),
+                        }).setNegativeButton(android.R.string.no,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
