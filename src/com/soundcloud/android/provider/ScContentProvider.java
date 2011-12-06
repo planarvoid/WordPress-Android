@@ -202,31 +202,31 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTIONS:
                 id = db.insertWithOnConflict(DBHelper.Tables.COLLECTIONS.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null);
+                getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case COLLECTION_PAGES:
                 id = db.insertWithOnConflict(DBHelper.Tables.COLLECTION_PAGES.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null);
+                getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case TRACKS:
                 id = db.insertWithOnConflict(DBHelper.Tables.TRACKS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null);
+                getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case TRACK_PLAYS:
                 id = db.insertWithOnConflict(DBHelper.Tables.TRACK_PLAYS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null);
+                getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case SEARCHES:
                 id = db.insertWithOnConflict(DBHelper.Tables.SEARCHES.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null);
+                getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case USERS:
@@ -234,7 +234,7 @@ public class ScContentProvider extends ContentProvider {
                 id = db.insertWithOnConflict(DBHelper.Tables.USERS.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 System.out.println("Insert got " + result);
-                getContext().getContentResolver().notifyChange(result, null);
+                getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case ME_FAVORITES:
@@ -246,7 +246,7 @@ public class ScContentProvider extends ContentProvider {
                     cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, ResourceItemTypes.FAVORITE);
                     id = db.insertWithOnConflict(DBHelper.Tables.COLLECTION_ITEMS.tableName, null, cv, SQLiteDatabase.CONFLICT_ABORT);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                    getContext().getContentResolver().notifyChange(result, null);
+                    getContext().getContentResolver().notifyChange(result, null, false);
                     return result;
                 } else {
                     throw new SQLException("No insert available for: " + uri);
@@ -304,7 +304,7 @@ public class ScContentProvider extends ContentProvider {
         }
 
         count = db.delete(tableName, where, whereArgs);
-        getContext().getContentResolver().notifyChange(uri, null);
+        getContext().getContentResolver().notifyChange(uri, null, false);
         return count;
 
     }
@@ -318,17 +318,17 @@ public class ScContentProvider extends ContentProvider {
             case TRACK_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.update(DBHelper.Tables.TRACKS.tableName, values, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null);
+                getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
             case USER_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.update(DBHelper.Tables.USERS.tableName, values, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null);
+                getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
             case SEARCHES_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.update(DBHelper.Tables.SEARCHES.tableName, values, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null);
+                getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -387,7 +387,7 @@ public class ScContentProvider extends ContentProvider {
             db.endTransaction();
         }
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        getContext().getContentResolver().notifyChange(uri, null, false);
         return values.length;
     }
 
