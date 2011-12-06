@@ -33,6 +33,13 @@ public final class Consts {
     public static final int COLLECTION_PAGE_SIZE = 50;
 
 
+    // adapter loading constants
+    public static final int ROW_APPEND_BUFFER = 3;
+    public static final int ITEM_TYPE_LOADING = -1;
+    public static final int PAGE_SIZE = 50;
+    public static final int DEFAULT_REFRESH_MINIMUM = 600 * 1000; // 10 mins
+
+
     public interface IntentActions {
         public static final String CONNECTION_ERROR = "com.soundcloud.android.connectionerror";
         public static final String COMMENT_ADDED = "com.soundcloud.android.commentadded";

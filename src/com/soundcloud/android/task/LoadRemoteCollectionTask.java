@@ -22,16 +22,23 @@ import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 
+import static com.soundcloud.android.SoundCloudApplication.CONNECTIVITY_SERVICE;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class LoadRemoteCollectionTask extends LoadCollectionTask {
 
     protected String mNextHref;
+    private long mLastRefresh;
     public Request mRequest;
+
 
     public LoadRemoteCollectionTask(SoundCloudApplication app, Class<?> loadModel, Uri contentUri, int pageIndex, boolean refresh, Request request) {
         super(app, loadModel, contentUri, pageIndex, refresh);
         mRequest = request;
+    }
+
+    public void setLastRefresh(long lastRefresh) {
+        mLastRefresh = lastRefresh;
     }
 
     @Override
@@ -53,8 +60,10 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
             }
         }
 
-        // fetch if there is no local uri, no stored colleciton for this page, or this is a refresh
-        if (mContentUri == null || localCollectionPage == null || mRefresh) {
+        // fetch if there is no local uri, no stored colleciton for this page,
+        if (mContentUri == null || localCollectionPage == null ||
+                // or this is a refresh and it has been longer than default waiting time (manual refresh will not have the last refresh set)
+                (mRefresh && System.currentTimeMillis() - mLastRefresh > Consts.DEFAULT_REFRESH_MINIMUM)) {
             try {
                 HttpResponse resp = mApp.get(mRequest);
                 mResponseCode = resp.getStatusLine().getStatusCode();

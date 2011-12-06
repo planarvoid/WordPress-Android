@@ -81,26 +81,29 @@ public class ApiService extends IntentService{
 
             if (intent.getBooleanExtra(SyncExtras.TRACKS, false)) {
                 start = System.currentTimeMillis();
-                syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
-                //com.soundcloud.android.model.LocalCollection.insertLocalCollection()
+                int size = syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
+                LocalCollection.insertLocalCollection(getContentResolver(),ScContentProvider.Content.ME_TRACKS,System.currentTimeMillis(),size);
                 Log.d(LOG_TAG, "Cloud Api service: TRACKS synced in " + (System.currentTimeMillis() - start) + " ms");
             }
 
             if (intent.getBooleanExtra(SyncExtras.FAVORITES, false)) {
                 start = System.currentTimeMillis();
-                syncCollection(ScContentProvider.Content.ME_FAVORITES,Endpoints.MY_FAVORITES, Track.class);
+                int size = syncCollection(ScContentProvider.Content.ME_FAVORITES,Endpoints.MY_FAVORITES, Track.class);
+                LocalCollection.insertLocalCollection(getContentResolver(),ScContentProvider.Content.ME_FAVORITES,System.currentTimeMillis(),size);
                 Log.d(LOG_TAG, "Cloud Api service: FAVORITES synced in " + (System.currentTimeMillis() - start) + " ms");
             }
 
             if (intent.getBooleanExtra(SyncExtras.FOLLOWINGS, false)) {
                 start = System.currentTimeMillis();
-                syncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
+                int size = syncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
+                LocalCollection.insertLocalCollection(getContentResolver(),ScContentProvider.Content.ME_FOLLOWINGS,System.currentTimeMillis(),size);
                 Log.d(LOG_TAG, "Cloud Api service: FOLLOWINGS synced in " + (System.currentTimeMillis() - start) + " ms");
             }
 
             if (intent.getBooleanExtra(SyncExtras.FOLLOWERS, false)) {
                 start = System.currentTimeMillis();
-                syncCollection(ScContentProvider.Content.ME_FOLLOWERS,Endpoints.MY_FOLLOWERS, User.class);
+                int size = syncCollection(ScContentProvider.Content.ME_FOLLOWERS,Endpoints.MY_FOLLOWERS, User.class);
+                LocalCollection.insertLocalCollection(getContentResolver(),ScContentProvider.Content.ME_FOLLOWERS,System.currentTimeMillis(),size);
                 Log.d(LOG_TAG, "Cloud Api service: FOLLOWERS synced in " + (System.currentTimeMillis() - start) + " ms");
             }
 
@@ -122,7 +125,7 @@ public class ApiService extends IntentService{
         }
     }
 
-    private void syncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
+    private int syncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
 
 
         int i = 0;
@@ -150,6 +153,7 @@ public class ApiService extends IntentService{
         } while (!TextUtils.isEmpty(holder.next_href));
         getContentResolver().delete(contentUri, null, null);
         SoundCloudDB.bulkInsertParcelables(getApp(), items, contentUri, getApp().getCurrentUserId(), 0);
+        return items.size();
     }
 
     private void syncFollowings(){

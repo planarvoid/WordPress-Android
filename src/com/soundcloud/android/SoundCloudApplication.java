@@ -45,6 +45,7 @@ import java.net.URI;
 import java.util.*;
 
 import static android.content.pm.PackageManager.*;
+import static com.soundcloud.android.provider.ScContentProvider.*;
 
 
 @ReportsCrashes(
@@ -111,8 +112,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             FollowStatus.initialize(this, getCurrentUserId());
             Connections.initialize(this, "connections-"+getCurrentUserId());
 
-            if (ContentResolver.getIsSyncable(account, ScContentProvider.AUTHORITY) < 1) {
-                ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
+            if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
+                enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
             }
         }
 
@@ -266,7 +267,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 
-        ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
+        enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
         return created;
     }
 
@@ -508,7 +509,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public void clearUserDbData() {
-        getContentResolver().delete(ScContentProvider.Content.SEARCHES, DBHelper.Searches.USER_ID + " = ?",new String[]{String.valueOf(getCurrentUserId())});
+        getContentResolver().delete(Content.SEARCHES, DBHelper.Searches.USER_ID + " = ?",new String[]{String.valueOf(getCurrentUserId())});
+        getContentResolver().delete(Content.COLLECTIONS, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_TRACKS.toString()});
+        getContentResolver().delete(Content.COLLECTIONS, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FAVORITES.toString()});
+        getContentResolver().delete(Content.COLLECTIONS, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWINGS.toString()});
+        getContentResolver().delete(Content.COLLECTIONS, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWERS.toString()});
     }
 
     public static interface RecordListener {
@@ -603,7 +608,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public UriMatcher getContentUriMatcher(){
-        if (mContentUriMatcher == null) mContentUriMatcher = ScContentProvider.buildMatcher();
+        if (mContentUriMatcher == null) mContentUriMatcher = buildMatcher();
         return mContentUriMatcher;
     }
 

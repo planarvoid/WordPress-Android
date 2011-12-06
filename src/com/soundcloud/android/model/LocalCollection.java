@@ -9,13 +9,15 @@ import com.soundcloud.android.provider.ScContentProvider;
 
 public class LocalCollection {
     public int id;
-    Uri uri;
-    long last_refresh;
+    public Uri uri;
+    public long last_sync;
+    public int size;
 
      public LocalCollection(Cursor c){
          id = c.getInt(c.getColumnIndex(DBHelper.Collections.ID));
          uri = Uri.parse(c.getString(c.getColumnIndex(DBHelper.Collections.URI)));
-         last_refresh = c.getLong(c.getColumnIndex(DBHelper.Collections.URI));
+         last_sync = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
+         size = c.getInt(c.getColumnIndex(DBHelper.Collections.SIZE));
      }
     public LocalCollection(String id, Uri uri){
          this.id = Integer.parseInt(id);
@@ -40,7 +42,7 @@ public class LocalCollection {
         // insert if not there
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.URI, contentUri.toString());
-        if (lastRefresh != -1) cv.put(DBHelper.Collections.LAST_REFRESH, lastRefresh);
+        if (lastRefresh != -1) cv.put(DBHelper.Collections.LAST_SYNC, lastRefresh);
         if (size != -1) cv.put(DBHelper.Collections.SIZE, size);
 
         Uri inserted = contentResolver.insert(ScContentProvider.Content.COLLECTIONS, cv);
@@ -49,5 +51,16 @@ public class LocalCollection {
         } else {
             return null;
         }
+    }
+
+    public static long getLastSync(ContentResolver contentResolver, Uri contentUri){
+        long lastSync = -1;
+        if (contentUri != null) {
+            LocalCollection lc = LocalCollection.fromContentUri(contentResolver, contentUri);
+            if (lc != null && lc.last_sync > 0) {
+                lastSync = lc.last_sync;
+            }
+        }
+        return lastSync;
     }
 }

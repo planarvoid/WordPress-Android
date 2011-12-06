@@ -367,7 +367,7 @@ public class DBHelper extends SQLiteOpenHelper {
             + "uri VARCHAR(255) null, "
             + "last_addition VARCHAR(255) null, "
             + "size INTEGER null, "
-            + "last_refresh INTEGER null, "
+            + "last_sync INTEGER null, "
             + "status INTEGER null, UNIQUE (uri));";
 
     static final String DATABASE_CREATE_COLLECTION_PAGES = "create table CollectionPages (_id INTEGER primary key AUTOINCREMENT, "
@@ -640,13 +640,14 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String ID = "_id";
         public static final String URI = "uri";
         public static final String LAST_ADDITION = "last_addition";
-        public static final String LAST_REFRESH = "last_refresh";
+        public static final String LAST_SYNC = "last_sync";
         public static final String SIZE = "size";
         public static final String STATUS = "status";
 
         public static final String CONCRETE_ID = Tables.COLLECTIONS.tableName + "." + ID;
         public static final String CONCRETE_URI = Tables.COLLECTIONS.tableName + "." + URI;
         public static final String CONCRETE_LAST_ADDITION = Tables.COLLECTIONS.tableName + "." + LAST_ADDITION;
+        public static final String CONCRETE_LAST_SYNC = Tables.COLLECTIONS.tableName + "." + LAST_SYNC;
         public static final String CONCRETE_SIZE = Tables.COLLECTIONS.tableName + "." + SIZE;
         public static final String CONCRETE_STATUS = Tables.COLLECTIONS.tableName + "." + STATUS;
 
