@@ -65,17 +65,20 @@ public class ApiService extends IntentService{
             long start;
             if (intent.getBooleanExtra(SyncExtras.INCOMING, false) || intent.getBooleanExtra(SyncExtras.DASHBOARD, false)) {
                 start = System.currentTimeMillis();
-                ActivitiesCache.get(getApp(), getApp().getAccount(), Request.to(Endpoints.MY_ACTIVITIES));
+                Activities a = ActivitiesCache.get(getApp(), getApp().getAccount(), Request.to(Endpoints.MY_ACTIVITIES));
+                LocalCollection.insertLocalCollection(getContentResolver(),ScContentProvider.Content.ME_SOUND_STREAM, System.currentTimeMillis(),a.size());
                 Log.d(LOG_TAG, "Cloud Api service: INCOMING synced in " + (System.currentTimeMillis() - start) + " ms");
             }
             if (intent.getBooleanExtra(SyncExtras.EXCLUSIVE, false) || intent.getBooleanExtra(SyncExtras.DASHBOARD, false)) {
                 start = System.currentTimeMillis();
-                ActivitiesCache.get(getApp(), getApp().getAccount(), Request.to(Endpoints.MY_EXCLUSIVE_TRACKS));
+                Activities a = ActivitiesCache.get(getApp(), getApp().getAccount(), Request.to(Endpoints.MY_EXCLUSIVE_TRACKS));
+                LocalCollection.insertLocalCollection(getContentResolver(),ScContentProvider.Content.ME_EXCLUSIVE_STREAM, System.currentTimeMillis(),a.size());
                 Log.d(LOG_TAG, "Cloud Api service: EXCLUSIVE synced in " + (System.currentTimeMillis() - start) + " ms");
             }
             if (intent.getBooleanExtra(SyncExtras.ACTIVITY, false) || intent.getBooleanExtra(SyncExtras.DASHBOARD, false)) {
                 start = System.currentTimeMillis();
-                ActivitiesCache.get(getApp(), getApp().getAccount(), Request.to(Endpoints.MY_NEWS));
+                Activities a = ActivitiesCache.get(getApp(), getApp().getAccount(), Request.to(Endpoints.MY_NEWS));
+                LocalCollection.insertLocalCollection(getContentResolver(),ScContentProvider.Content.ME_ACTIVITIES, System.currentTimeMillis(),a.size());
                 Log.d(LOG_TAG, "Cloud Api service: ACTIVITIY synced in " + (System.currentTimeMillis() - start) + " ms");
             }
 

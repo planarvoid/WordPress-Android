@@ -3,10 +3,12 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.net.Uri;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper.Events;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.ApiService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
@@ -213,6 +215,21 @@ public class Event extends ModelBase implements Origin {
             }
             case Consts.EventTypes.ACTIVITY : {
                 return ApiService.SyncExtras.ACTIVITY;
+            }
+        }
+        return null;
+    }
+
+    public static Uri getContentUriFromType(int type){
+        switch (type){
+            case Consts.EventTypes.INCOMING : {
+                return ScContentProvider.Content.ME_SOUND_STREAM;
+            }
+            case Consts.EventTypes.EXCLUSIVE : {
+                return ScContentProvider.Content.ME_EXCLUSIVE_STREAM;
+            }
+            case Consts.EventTypes.ACTIVITY : {
+                return ScContentProvider.Content.ME_ACTIVITIES;
             }
         }
         return null;

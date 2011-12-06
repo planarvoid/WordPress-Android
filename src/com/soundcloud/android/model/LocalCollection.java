@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 
@@ -53,13 +54,15 @@ public class LocalCollection {
         }
     }
 
-    public static long getLastSync(ContentResolver contentResolver, Uri contentUri){
+    public static long getLastSync(ContentResolver contentResolver, Uri contentUri) {
         long lastSync = -1;
         if (contentUri != null) {
-            LocalCollection lc = LocalCollection.fromContentUri(contentResolver, contentUri);
-            if (lc != null && lc.last_sync > 0) {
-                lastSync = lc.last_sync;
+            Cursor c = contentResolver.query(ScContentProvider.Content.COLLECTIONS,
+                    new String[]{DBHelper.Collections.LAST_SYNC}, "uri = ?", new String[]{contentUri.toString()}, null);
+            if (c != null && c.moveToFirst()) {
+                lastSync = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
             }
+            if (c != null) c.close();
         }
         return lastSync;
     }

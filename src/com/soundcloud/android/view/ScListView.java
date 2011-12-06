@@ -309,8 +309,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     /**
      * Resets the list to a normal state after a refresh.
      */
-    public void onRefreshComplete(boolean success) {
-        if (success) mLastUpdated = System.currentTimeMillis();
+    public void onRefreshComplete(boolean setLastUpdated) {
+        if (setLastUpdated) mLastUpdated = System.currentTimeMillis();
         resetHeader();
         if (mRefreshView.getBottom() > 0) {
             invalidateViews();

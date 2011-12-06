@@ -95,9 +95,17 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
      */
     public void configureViews(final ScListView lv) {
         mListView = lv;
-        final long lastUpdated = LocalCollection.getLastSync(mActivity.getContentResolver(), mContentUri);
-        if (lastUpdated > 0) mListView.setLastUpdated(lastUpdated);
+        setListLastUpdated();
     }
+
+    public void setListLastUpdated() {
+        if (mListView != null) {
+            final long lastUpdated = LocalCollection.getLastSync(mActivity.getContentResolver(), mContentUri);
+            if (lastUpdated > 0) mListView.setLastUpdated(lastUpdated);
+        }
+    }
+
+
 
     public void setEmptyViewText(String str) {
         mEmptyViewText = str;

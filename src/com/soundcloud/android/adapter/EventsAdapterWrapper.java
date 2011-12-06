@@ -3,9 +3,12 @@ package com.soundcloud.android.adapter;
 
 import android.content.Intent;
 
+import android.util.Log;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.ApiService;
 import com.soundcloud.android.service.sync.ActivitiesCache;
@@ -18,6 +21,8 @@ import android.text.TextUtils;
 
 import java.util.List;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 public class EventsAdapterWrapper extends LazyEndlessAdapter {
     public DetachableResultReceiver mReceiver;
     private int mEventType;
@@ -26,6 +31,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, int type) {
         super(activity, wrapped, Event.getRequestFromType(type), null);
         mEventType = type;
+        mContentUri = Event.getContentUriFromType(type);
     }
 
      @Override
@@ -77,7 +83,8 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         if (!mWaitingOnSync) { // reset state to not refreshing
             if (mState < ERROR) mState = TextUtils.isEmpty(mNextHref) ? DONE : WAITING;
             if (mListView != null) {
-                mListView.onRefreshComplete((newItems != null && newItems.size() > 0));
+                mListView.onRefreshComplete(false);
+                setListLastUpdated();
             }
 
             applyEmptyView();
@@ -92,19 +99,28 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     @SuppressWarnings("unchecked")
     public void refresh(final boolean userRefresh) {
         mState = REFRESHING;
-        mWaitingOnSync = true;
+        boolean sync = true;
 
-        if (!userRefresh){
-            reset(false);
+        if (!userRefresh) {
             startRefreshTask(false); // load whatever is currently cached
+
+            final long elapsed = System.currentTimeMillis() - LocalCollection.getLastSync(mActivity.getContentResolver(), mContentUri);
+            if (elapsed < Consts.DEFAULT_REFRESH_MINIMUM) {
+                sync = false;
+                Log.i(TAG, "Skipping sync of " + mContentUri + ". Elapsed since last sync (in ms) " + elapsed);
+            } else {
+                Log.i(TAG, "Syncing " + mContentUri + ". Elapsed since last sync (in ms) " + elapsed);
+            }
         }
 
-        // send an intent to update our event cache
-        final Intent intent = new Intent(mActivity, ApiService.class);
-        intent.putExtra(ApiService.EXTRA_STATUS_RECEIVER, getReceiver());
-        intent.putExtra(Event.getSyncExtraFromType(mEventType),true);
-        mActivity.startService(intent);
-
+        if (sync) {
+            // send an intent to update our event cache
+            mWaitingOnSync = true;
+            final Intent intent = new Intent(mActivity, ApiService.class);
+            intent.putExtra(ApiService.EXTRA_STATUS_RECEIVER, getReceiver());
+            intent.putExtra(Event.getSyncExtraFromType(mEventType), true);
+            mActivity.startService(intent);
+        }
         notifyDataSetChanged();
     }
 
