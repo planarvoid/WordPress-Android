@@ -95,7 +95,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
      */
     public void configureViews(final ScListView lv) {
         mListView = lv;
-        setListLastUpdated();
     }
 
     public void setListLastUpdated() {
@@ -413,7 +412,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (!mWaitingOnSync) { // reset state to not refreshing
             if (mState < ERROR) mState = keepGoing ? WAITING : DONE;
             if (mListView != null) {
-                mListView.onRefreshComplete((newItems != null && newItems.size() > 0));
+                mListView.onRefreshComplete(false);
+                setListLastUpdated();
             }
 
             applyEmptyView();

@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class SyncAdapterService extends Service {
-    private static final String TAG = "ScSyncAdapterService";
+    private static final String TAG = SoundCloudApplication.class.getSimpleName();
     private ScSyncAdapter mSyncAdapter;
 
     public static final int NOTIFICATION_MAX = 100;

@@ -42,8 +42,8 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
     public int mPageIndex;
 
     public boolean keepGoing;
-    protected int mResponseCode;
     protected String mNextHref;
+    protected int mResponseCode = HttpStatus.SC_OK;
 
     public LoadCollectionTask(SoundCloudApplication app, Class<?> loadModel, Uri contentUri, int pageIndex, boolean refresh) {
         mApp = app;
@@ -73,6 +73,7 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
     private void respond(){
         LazyEndlessAdapter adapter = mAdapterReference.get();
         if (adapter != null) {
+            Log.i("asdf","Sending back response code of " + mResponseCode);
             if (mRefresh){
                 adapter.onPostRefresh(mNewItems, mNextHref, mResponseCode, keepGoing);
             } else {
