@@ -13,6 +13,7 @@ import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -73,7 +74,6 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
     private void respond(){
         LazyEndlessAdapter adapter = mAdapterReference.get();
         if (adapter != null) {
-            Log.i("asdf","Sending back response code of " + mResponseCode);
             if (mRefresh){
                 adapter.onPostRefresh(mNewItems, mNextHref, mResponseCode, keepGoing);
             } else {

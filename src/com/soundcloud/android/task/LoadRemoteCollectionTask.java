@@ -62,7 +62,7 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
 
         // fetch if there is no local uri, no stored colleciton for this page,
         if (mContentUri == null || localCollectionPage == null ||
-                // or this is a refresh and it has been longer than default waiting time (manual refresh will not have the last refresh set)
+
                 (mRefresh && System.currentTimeMillis() - mLastRefresh > Consts.DEFAULT_REFRESH_MINIMUM)) {
             try {
                 HttpResponse resp = mApp.get(mRequest);

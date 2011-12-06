@@ -50,7 +50,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     protected Request mRequest;
     protected String mNextHref;
     private String mFirstPageEtag;
-    private int mPageIndex;
+    protected int mPageIndex;
 
     private EmptyCollection mEmptyView;
     private EmptyCollection mDefaultEmptyView;
@@ -85,6 +85,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (autoAppend) mState = READY;
     }
 
+
+
     public void setSyncExtra(String syncExtra){
         mSyncExtra = syncExtra;
     }
@@ -99,7 +101,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     public void setListLastUpdated() {
         if (mListView != null) {
-            final long lastUpdated = LocalCollection.getLastSync(mActivity.getContentResolver(), mContentUri);
+            final long lastUpdated = LocalCollection.getLastSync(mActivity.getContentResolver(), getContentUri(true));
             if (lastUpdated > 0) mListView.setLastUpdated(lastUpdated);
         }
     }
@@ -255,6 +257,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         return mRefreshTask;
     }
 
+
+
     /**
      * Save the current paging data
      *
@@ -348,12 +352,13 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     protected void startAppendTask(){
         mState = APPENDING;
-        if (mActivity.getApp().getContentUriMatcher().match(mContentUri) < 200){
-            mAppendTask = new LoadCollectionTask(mActivity.getApp(),getLoadModel(false),mContentUri,mPageIndex,false);
+        final Uri contentUri = getContentUri(false);
+        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < 150){
+            mAppendTask = new LoadCollectionTask(mActivity.getApp(),getLoadModel(false),contentUri,mPageIndex,false);
             mAppendTask.setAdapter(this);
             mAppendTask.execute();
         } else {
-            mAppendTask = new LoadRemoteCollectionTask(mActivity.getApp(),getLoadModel(false),mContentUri,mPageIndex,false, buildRequest(false));
+            mAppendTask = new LoadRemoteCollectionTask(mActivity.getApp(),getLoadModel(false),contentUri,mPageIndex,false, buildRequest(false));
             mAppendTask.setAdapter(this);
             mAppendTask.execute();
         }
@@ -361,16 +366,15 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     protected void startRefreshTask(final boolean userRefresh) {
         mState = REFRESHING;
-        if (mContentUri != null && mActivity.getApp().getContentUriMatcher().match(mContentUri) < 200) {
-            mRefreshTask = new LoadCollectionTask(mActivity.getApp(), getLoadModel(true), mContentUri, 0, true);
+        final Uri contentUri = getContentUri(true);
+        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < 150) {
+            mRefreshTask = new LoadCollectionTask(mActivity.getApp(), getLoadModel(true), contentUri, 0, true);
         } else {
-            mRefreshTask = new LoadRemoteCollectionTask(mActivity.getApp(), getLoadModel(true), mContentUri, 0, true, buildRequest(true));
-            if (!userRefresh) ((LoadRemoteCollectionTask) mRefreshTask).setLastRefresh(LocalCollection.getLastSync(mActivity.getContentResolver(),mContentUri));
+            mRefreshTask = new LoadRemoteCollectionTask(mActivity.getApp(), getLoadModel(true), contentUri, 0, true, buildRequest(true));
+            if (!userRefresh) ((LoadRemoteCollectionTask) mRefreshTask).setLastRefresh(LocalCollection.getLastSync(mActivity.getContentResolver(),contentUri));
         }
         mRefreshTask.setAdapter(this);
         mRefreshTask.execute();
-
-
     }
 
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
@@ -438,6 +442,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         return (!refresh && !TextUtils.isEmpty(mNextHref)) ? new Request(mNextHref) : new Request(mRequest);
     }
 
+    protected Uri getContentUri(boolean refresh) {
+        return mContentUri;
+    }
+
     @SuppressWarnings("unchecked")
     public void refresh(final boolean userRefresh) {
         if (userRefresh) {
@@ -448,19 +456,20 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             reset();
         }
 
-        if (mContentUri != null && mActivity.getApp().getContentUriMatcher().match(mContentUri) < 200) {
+        final Uri contentUri = getContentUri(true);
+        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < 200) {
             mState = REFRESHING;
             boolean sync = true;
 
             if (!userRefresh){
                 startRefreshTask(false); // load whatever is currently cached
 
-                final long elapsed = System.currentTimeMillis() - LocalCollection.getLastSync(mActivity.getContentResolver(), mContentUri);
+                final long elapsed = System.currentTimeMillis() - LocalCollection.getLastSync(mActivity.getContentResolver(), contentUri);
                 if (elapsed < Consts.DEFAULT_REFRESH_MINIMUM){
                     sync = false;
-                    Log.i(TAG, "Skipping sync of " + mContentUri + ". Elapsed since last sync (in ms) " + elapsed);
+                    Log.i(TAG, "Skipping sync of " + contentUri + ". Elapsed since last sync (in ms) " + elapsed);
                 } else {
-                    Log.i(TAG,"Syncing " + mContentUri + ". Elapsed since last sync (in ms) " + elapsed);
+                    Log.i(TAG,"Syncing " + contentUri + ". Elapsed since last sync (in ms) " + elapsed);
                 }
             }
 

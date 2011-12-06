@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import com.soundcloud.android.activity.ScActivity;
@@ -38,6 +39,12 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     @Override
     public List<Parcelable> getData() {
         return getWrappedAdapter().getData(mSectionIndex);
+    }
+
+    @Override
+    protected Uri getContentUri(boolean refresh) {
+        if (mSectionIndex > getWrappedAdapter().sections.size()) return null;
+        return getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).contentUri;
     }
 
     @Override
@@ -120,6 +127,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         // load next section as necessary
         if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
             mSectionIndex++;
+            mPageIndex = 0;
             mState = WAITING;
         } else {
             mState = DONE;

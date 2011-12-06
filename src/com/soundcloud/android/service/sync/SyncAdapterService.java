@@ -114,12 +114,14 @@ public class SyncAdapterService extends Service {
                 // TODO, do not sync everything unless it is set that way in prefs
                 Looper.prepare();
                 final Intent intent = new Intent(app, ApiService.class);
-                intent.putExtra(ApiService.SyncExtras.DASHBOARD, true);
-                //intent.putExtra(ApiService.SyncExtras.FOLLOWINGS, true);
+                if (isIncomingEnabled(app)) intent.putExtra(ApiService.SyncExtras.INCOMING, true);
+                if (isExclusiveEnabled(app)) intent.putExtra(ApiService.SyncExtras.EXCLUSIVE, true);
+                if (isActivitySyncEnabled(app)) intent.putExtra(ApiService.SyncExtras.ACTIVITY, true);
+
+
                 intent.putExtra(ApiService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
                     @Override
                     protected void onReceiveResult(int resultCode, Bundle resultData) {
-                        Log.i(TAG, "Received ApiService result " + resultCode + " " + resultCode);
                         switch (resultCode) {
                             case ApiService.STATUS_RUNNING: {
                                 break;
@@ -146,7 +148,6 @@ public class SyncAdapterService extends Service {
                                             : Activities.fromJSON(ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_NEWS)));
 
                                     syncOwn(app, news.filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN)));
-
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                     syncResult.stats.numIoExceptions++;

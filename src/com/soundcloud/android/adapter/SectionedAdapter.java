@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import android.net.Uri;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Track;
@@ -27,14 +28,16 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
         public final Class<?> model;
         public final List<Parcelable> data;
         public final Request request;
+        public final Uri contentUri;
         public String nextHref;
         public String currentEtag;
 
-        public Section(String label, Class<?> model, List<Parcelable> data, Request request) {
+        public Section(String label, Class<?> model, List<Parcelable> data, Request request, Uri contentUri) {
             this.label = label;
             this.model = model;
             this.data = data;
             this.request = request;
+            this.contentUri = contentUri;
             this.nextHref = null;
         }
 

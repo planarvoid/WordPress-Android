@@ -13,10 +13,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,7 +69,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_TRACKS:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId),ResourceItemTypes.TRACK);
+                selection = makeCollectionSelection(selection, String.valueOf(userId), ResourceItemTypes.TRACK);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
@@ -85,7 +83,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_FAVORITES:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId),ResourceItemTypes.FAVORITE);
+                selection = makeCollectionSelection(selection, String.valueOf(userId), ResourceItemTypes.FAVORITE);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case USER_FAVORITES:
@@ -98,7 +96,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_FOLLOWERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId),ResourceItemTypes.FOLLOWER);
+                selection = makeCollectionSelection(selection, String.valueOf(userId), ResourceItemTypes.FOLLOWER);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case USER_FOLLOWERS:
@@ -111,13 +109,26 @@ public class ScContentProvider extends ContentProvider {
             case ME_FOLLOWINGS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId),ResourceItemTypes.FOLLOWING);
+                selection = makeCollectionSelection(selection, String.valueOf(userId), ResourceItemTypes.FOLLOWING);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case USER_FOLLOWINGS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
                 selection = makeCollectionSelection(selection,uri.getPathSegments().get(1),ResourceItemTypes.FOLLOWING);
+                sortOrder = makeCollectionSort(uri, sortOrder);
+                break;
+
+             case ME_FRIENDS:
+                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
+                selection = makeCollectionSelection(selection, String.valueOf(userId), ResourceItemTypes.FRIEND);
+                sortOrder = makeCollectionSort(uri, sortOrder);
+                break;
+            case SUGGESTED_USERS:
+                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
+                selection = makeCollectionSelection(selection,"0",ResourceItemTypes.SUGGESTED_USER);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
@@ -372,6 +383,14 @@ public class ScContentProvider extends ContentProvider {
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
                     extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.FOLLOWING)};
                     break;
+                case ME_FRIENDS:
+                    tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.FRIEND)};
+                    break;
+                case SUGGESTED_USERS:
+                    tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.SUGGESTED_USER)};
+                    break;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
@@ -495,6 +514,8 @@ public class ScContentProvider extends ContentProvider {
         int FAVORITE = 2;
         int FOLLOWING = 3;
         int FOLLOWER = 4;
+        int FRIEND = 5;
+        int SUGGESTED_USER = 6;
     }
 
     public interface Content {
@@ -511,6 +532,10 @@ public class ScContentProvider extends ContentProvider {
         Uri ME_FAVORITES_ITEM           = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/favorites/#");
         Uri ME_GROUPS                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/groups");
         Uri ME_PLAYLISTS                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/playlists");
+
+
+        Uri ME_FRIENDS                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/connections/friends");
+        Uri SUGGESTED_USERS             = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/suggested");
 
         Uri ME_SOUND_STREAM             = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/activities/tracks");
         Uri ME_EXCLUSIVE_STREAM         = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/activities/tracks/exclusive");
@@ -574,6 +599,9 @@ public class ScContentProvider extends ContentProvider {
     private static final int ME_EXCLUSIVE_STREAM    = 112;
     private static final int ME_ACTIVITIES          = 113;
 
+    private static final int ME_FRIENDS             = 150;
+    private static final int SUGGESTED_USERS        = 151;
+
     private static final int TRACKS                 = 201;
     private static final int TRACK_ITEM             = 202;
     private static final int TRACK_COMMENTS         = 203;
@@ -603,8 +631,8 @@ public class ScContentProvider extends ContentProvider {
     private static final int GROUP_CONTRIBUTORS     = 606;
     private static final int GROUP_TRACKS           = 607;
 
-    private static final int COLLECTIONS = 1000;
-    private static final int COLLECTION_PAGES = 1001;
+    private static final int COLLECTIONS            = 1000;
+    private static final int COLLECTION_PAGES       = 1001;
 
     private static final int RECORDINGS             = 1100;
     private static final int RECORDING_ITEM         = 1101;
@@ -631,6 +659,9 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "me/favorites/#", ME_FAVORITES_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "me/groups", ME_GROUPS);
         matcher.addURI(ScContentProvider.AUTHORITY, "me/playlists", ME_PLAYLISTS);
+
+        matcher.addURI(ScContentProvider.AUTHORITY, "me/connections/friends", ME_FRIENDS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "users/suggested", SUGGESTED_USERS);
 
         matcher.addURI(ScContentProvider.AUTHORITY, "me/activities/tracks", ME_SOUND_STREAM);
         matcher.addURI(ScContentProvider.AUTHORITY, "me/activities/tracks/exclusive", ME_EXCLUSIVE_STREAM);

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
+import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.ModelBase;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -160,6 +161,8 @@ public class SoundCloudDB {
             } else if (p instanceof Track) {
                 usersToInsert.add(((Track) p).user);
                 tracksToInsert.add((Track) p);
+            } else if (p instanceof Friend) {
+                usersToInsert.add(((Friend) p).user);
             }
 
             ContentValues itemCv = new ContentValues();
