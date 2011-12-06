@@ -108,7 +108,6 @@ public class ActivitiesCache {
                     }
                 }
             } else {
-                Log.w(TAG, "unexpected status code: " + response.getStatusLine());
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
                     return Activities.EMPTY;
                 } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
