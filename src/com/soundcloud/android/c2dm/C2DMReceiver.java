@@ -1,16 +1,10 @@
-package com.soundcloud.android.service.beta;
+package com.soundcloud.android.c2dm;
 
 import static com.soundcloud.android.SoundCloudApplication.DEV_MODE;
 import static com.soundcloud.android.SoundCloudApplication.handleSilentException;
-import static com.soundcloud.android.service.beta.BetaService.TAG;
-import static com.soundcloud.android.service.beta.BetaService.setPendingBeta;
 
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Settings;
+import com.soundcloud.android.service.beta.BetaService;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,8 +15,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class C2DMReceiver extends BroadcastReceiver {
+    public static final String TAG = C2DMReceiver.class.getSimpleName();
+
     public static final String PREF_REG_ID = "c2dm.reg_id";
-    public static final String SENDER = "jan@soundcloud.com";
+    public static final String SENDER = "android-c2dm@soundcloud.com";
 
     public static final String ACTION_REGISTER = "com.google.android.c2dm.intent.REGISTER";
     public static final String ACTION_REGISTRATION = "com.google.android.c2dm.intent.REGISTRATION";
@@ -78,6 +74,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                         public void run() {
                             try {
                                 handleSilentException("registration_id=" + regId, null).join();
+
                             } catch (InterruptedException ignored) {
                             } finally {
                                  mWakeLock.release();
@@ -94,39 +91,25 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     private void onReceiveMessage(Context context, Intent intent) {
         Log.d(TAG, "onReceiveMessage("+intent+")");
+
         if (intent.hasExtra(EXTRA_BETA_VERSION)) {
             String beta = intent.getStringExtra(EXTRA_BETA_VERSION);
             String[] parts = beta.split(":",2);
             if (parts.length == 2) {
                 try {
-                    int versionCode    = Integer.parseInt(parts[0]);
-                    String versionName = parts[1];
-                    if (!Beta.isInstalled(context, versionCode, versionName)) {
-                        //notifyNewVersion(context, versionName + "  ("+versionCode+")");
-                        setPendingBeta(context, versionName);
-                        BetaService.scheduleNow(context, 2000l);
-                    }
+                    // XXX dispatch via broadcast?
+                    BetaService.onNewBeta(context, Integer.parseInt(parts[0]), parts[1]);
                 } catch (NumberFormatException e) {
                     Log.w(TAG, "could not parse version information");
                 }
             } else {
                 Log.w(TAG, "could not parse "+EXTRA_BETA_VERSION);
             }
+        } else {
+            Log.w(TAG, "received unknown intent "+intent);
         }
     }
 
-   /** @noinspection UnusedDeclaration*/
-   private void notifyNewVersion(Context context, String version) {
-        String title = context.getString(R.string.pref_beta_new_version_available);
-        Intent intent = new Intent(context, Settings.class)
-                 .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-
-        Notification n = new Notification(R.drawable.statusbar, title, System.currentTimeMillis());
-        n.flags |= BetaService.defaultNotificationFlags();
-        n.setLatestEventInfo(context, title, version, PendingIntent.getActivity(context, 0, intent ,0 ));
-        NotificationManager mgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        mgr.notify(Consts.Notifications.BETA_NOTIFY_ID, n);
-    }
 
     public static synchronized void register(Context context) {
         if (Build.VERSION.SDK_INT < 8) return;

@@ -309,7 +309,33 @@ public class BetaService extends Service {
 
     }
 
-    static int defaultNotificationFlags() {
+
+    public static void onNewBeta(Context context, int versionCode, String versionName) {
+        if (!Beta.isInstalled(context, versionCode, versionName)) {
+            notifyNewVersion(context, versionName + "  ("+versionCode+")");
+            setPendingBeta(context, versionName);
+            BetaService.scheduleNow(context, 2000l);
+        } else {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "beta already installed");
+            }
+        }
+    }
+
+    /** @noinspection UnusedDeclaration*/
+    private static void notifyNewVersion(Context context, String version) {
+         String title = context.getString(R.string.pref_beta_new_version_available);
+         Intent intent = new Intent(context, Settings.class)
+                  .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+         Notification n = new Notification(R.drawable.statusbar, title, System.currentTimeMillis());
+         n.flags |= BetaService.defaultNotificationFlags();
+         n.setLatestEventInfo(context, title, version, PendingIntent.getActivity(context, 0, intent ,0 ));
+         NotificationManager mgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+         mgr.notify(Consts.Notifications.BETA_NOTIFY_ID, n);
+     }
+
+    /* package */ static int defaultNotificationFlags() {
         return Notification.FLAG_ONLY_ALERT_ONCE |
                 Notification.FLAG_AUTO_CANCEL |
                 Notification.DEFAULT_LIGHTS;
