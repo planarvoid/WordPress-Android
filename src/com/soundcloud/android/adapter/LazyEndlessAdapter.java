@@ -179,6 +179,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     public Object saveState(){
         if (mDetachableReceiver != null) mDetachableReceiver.clearReceiver();
+
         return new Object[] {
                 getData(),
                 getRefreshTask(),
@@ -201,7 +202,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         if (state[3] != null) restorePagingData((int[]) state[3]);
         if (state[4] != null) restoreExtraData((String) state[4]);
         if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
-        if (state[6] != null) mListView.postSelect(Integer.valueOf(state[6].toString()),Integer.valueOf(state[7].toString()), true);
+        if (state[6] != null) mListView.postSelect(Math.max(mState == REFRESHING ? 0 : 1,Integer.valueOf(state[6].toString())),Integer.valueOf(state[7].toString()), true);
         if (state[8] != null) {
             mDetachableReceiver = (DetachableResultReceiver) state[8];
             mDetachableReceiver.setReceiver(this);
