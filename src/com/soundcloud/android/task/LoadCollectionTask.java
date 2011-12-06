@@ -101,10 +101,12 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                     }
                 } while (itemsCursor.moveToNext());
             }
+
             keepGoing = mNewItems.size() == Consts.COLLECTION_PAGE_SIZE;
             publishProgress(mNewItems);
             if (itemsCursor != null) itemsCursor.close();
             return true;
+
         } else {
             // no local content, fail
             keepGoing = false;

@@ -390,10 +390,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
-        onPostRefresh(newItems,nextHref,handleResponseCode(responseCode));
+        onPostRefresh(newItems,nextHref,keepGoing, handleResponseCode(responseCode));
     }
 
-    public void onPostRefresh(List<Parcelable> newItems, String nextHref, boolean success) {
+    public void onPostRefresh(List<Parcelable> newItems, String nextHref, boolean keepGoing, boolean success) {
 
         if (success || (newItems != null && newItems.size() > 0)) {
             reset(false);
@@ -405,7 +405,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         }
 
         if (!mWaitingOnSync) { // reset state to not refreshing
-            if (mState < ERROR) mState = TextUtils.isEmpty(mNextHref) ? DONE : WAITING;
+            if (mState < ERROR) mState = keepGoing ? WAITING : DONE;
             if (mListView != null) {
                 mListView.onRefreshComplete((newItems != null && newItems.size() > 0));
             }
@@ -588,7 +588,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             case ApiService.STATUS_ERROR: {
                 mWaitingOnSync = false;
                 mState = ERROR;
-                onPostRefresh(null,null,false);
+                onPostRefresh(null,null,false,false);
                 break;
             }
         }

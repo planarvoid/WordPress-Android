@@ -50,15 +50,20 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
                 localCollection = insertLocalCollection();
             } else {
                 localCollectionPage = getLocalCollectionPage(localCollection.id,mPageIndex);
-                localCollectionPage.applyEtag(mRequest);
+                if (localCollectionPage != null) {
+                    Log.i("asdf","applying etag");
+                    localCollectionPage.applyEtag(mRequest);
+                }
             }
         }
 
         // fetch if there is no local uri, no stored colleciton for this page, or this is a refresh
         if (mContentUri == null || localCollectionPage == null || mRefresh) {
+            Log.i("asdf","Trying remote load");
             try {
                 HttpResponse resp = mApp.get(mRequest);
                 mResponseCode = resp.getStatusLine().getStatusCode();
+                Log.i("asdf","Got response code " + mResponseCode);
                 if (mResponseCode != HttpStatus.SC_OK && mResponseCode != HttpStatus.SC_NOT_MODIFIED) {
                     throw new IOException("Invalid response: " + resp.getStatusLine());
                 }
@@ -105,6 +110,8 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
                 Log.e(TAG, "error", e);
             }
         }
+
+        Log.i("asdf","Load from Local");
        keepGoing = !TextUtils.isEmpty(mNextHref);
 
        // if we get this far, we either failed, or our etags matched up, so see if we can load locally in super.doInBg.

@@ -34,6 +34,9 @@ public class EmptyCollection extends FrameLayout {
         mBtnAction = (Button) findViewById(R.id.btn_action);
         mImage = (ImageView) findViewById(R.id.img_1);
 
+        mTxtMessage.setVisibility(View.GONE);
+        mTxtLink.setVisibility(View.GONE);
+
         mBtnAction.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,11 +54,13 @@ public class EmptyCollection extends FrameLayout {
 
     public EmptyCollection setMessageText(int messageId){
         mTxtMessage.setText(messageId);
+        mTxtMessage.setVisibility(View.VISIBLE);
         return this;
     }
 
     public void setMessageText(String s) {
         mTxtMessage.setText(s);
+        mTxtMessage.setVisibility(View.VISIBLE);
     }
 
     public EmptyCollection setSecondaryText(int secondaryTextId){

@@ -19,11 +19,13 @@ import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.ActivitiesCache;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -84,25 +86,25 @@ public class ApiService extends IntentService{
 
             if (intent.getBooleanExtra(SyncExtras.TRACKS, false)) {
                 start = System.currentTimeMillis();
-                syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, TracklistItemHolder.class);
+                syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
                 Log.d(LOG_TAG, "Cloud Api service: TRACKS synced in " + (System.currentTimeMillis() - start) + " ms");
             }
 
             if (intent.getBooleanExtra(SyncExtras.FAVORITES, false)) {
                 start = System.currentTimeMillis();
-                syncCollection(ScContentProvider.Content.ME_FAVORITES,Endpoints.MY_FAVORITES, TracklistItemHolder.class);
+                syncCollection(ScContentProvider.Content.ME_FAVORITES,Endpoints.MY_FAVORITES, Track.class);
                 Log.d(LOG_TAG, "Cloud Api service: FAVORITES synced in " + (System.currentTimeMillis() - start) + " ms");
             }
 
             if (intent.getBooleanExtra(SyncExtras.FOLLOWINGS, false)) {
                 start = System.currentTimeMillis();
-                syncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, UserlistItemHolder.class);
+                syncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
                 Log.d(LOG_TAG, "Cloud Api service: FOLLOWINGS synced in " + (System.currentTimeMillis() - start) + " ms");
             }
 
             if (intent.getBooleanExtra(SyncExtras.FOLLOWERS, false)) {
                 start = System.currentTimeMillis();
-                syncCollection(ScContentProvider.Content.ME_FOLLOWERS,Endpoints.MY_FOLLOWERS, UserlistItemHolder.class);
+                syncCollection(ScContentProvider.Content.ME_FOLLOWERS,Endpoints.MY_FOLLOWERS, User.class);
                 Log.d(LOG_TAG, "Cloud Api service: FOLLOWERS synced in " + (System.currentTimeMillis() - start) + " ms");
             }
 
@@ -134,28 +136,31 @@ public class ApiService extends IntentService{
         do {
             Request request = Request.to(endpoint);
             request.add("offset",i * 50);
-            request.add("limit",page_size);
+            request.add("limit", page_size);
             request.add("linked_partitioning", "1");
-            holder = (CollectionHolder) getApp().getMapper().readValue(getApp().get(request).getEntity().getContent(), loadModel);
-            items.addAll(holder.collection);
+            InputStream is = getApp().get(request).getEntity().getContent();
+            if (Track.class.equals(loadModel)) {
+                holder = getApp().getMapper().readValue(is, TracklistItemHolder.class);
+                for (TracklistItem t : (TracklistItemHolder) holder) {
+                    items.add(new Track(t));
+                }
+            } else if (User.class.equals(loadModel)) {
+                holder = getApp().getMapper().readValue(is, UserlistItemHolder.class);
+                for (UserlistItem u : (UserlistItemHolder) holder) {
+                    items.add(new User(u));
+                }
+            }
             i++;
         } while (!TextUtils.isEmpty(holder.next_href));
 
         getContentResolver().delete(contentUri,null,null);
         SoundCloudDB.bulkInsertParcelables(getApp(),items,contentUri,getApp().getCurrentUserId(),0);
-
-        Log.i("asdf","Total Items are " + items.size());
     }
 
     private void syncFollowings(){
         try {
             List<Long> local = idCursorToList(getContentResolver().query(ScContentProvider.Content.ME_FOLLOWINGS,new String[]{DBHelper.Users._ID},null,null,null));
             List<Long> remote = getApp().getMapper().readValue(getApp().get(Request.to(Endpoints.MY_FOLLOWINGS + "/ids")).getEntity().getContent(), List.class);
-
-            if (local.size() == 0 && remote.size() != 0){
-                // paging
-
-            }
 
             Set<Long> deletions = new HashSet(local);
             deletions.removeAll(remote);

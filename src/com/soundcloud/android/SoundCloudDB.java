@@ -148,6 +148,7 @@ public class SoundCloudDB {
     }
 
     public static void bulkInsertParcelables(SoundCloudApplication app, List<Parcelable> items, Uri collectionUri, long owner, int startIndex) {
+
         int i = 0;
         ContentValues[] bulkValues = new ContentValues[items.size()];
         Set<User> usersToInsert = new HashSet<User>();
