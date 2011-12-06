@@ -508,7 +508,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public void clearUserDbData() {
-        getContentResolver().delete(DBHelper.Searches.CONTENT_URI, DBHelper.Searches.USER_ID + " = ?",new String[]{String.valueOf(getCurrentUserId())});
+        getContentResolver().delete(ScContentProvider.Content.SEARCHES, DBHelper.Searches.USER_ID + " = ?",new String[]{String.valueOf(getCurrentUserId())});
     }
 
     public static interface RecordListener {
