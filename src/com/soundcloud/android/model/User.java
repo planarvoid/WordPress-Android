@@ -46,6 +46,9 @@ public class User extends ModelBase implements PageTrackable {
     public String country;
     public String plan;
 
+    public boolean user_follower; // is the user following the logged in user
+    public boolean user_following; // is the user being followed by the logged in user
+
     public boolean primary_email_confirmed;
 
     public User() {

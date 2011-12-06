@@ -62,7 +62,7 @@ public class ApiService extends IntentService{
     protected void onHandleIntent(Intent intent) {
         Log.d(LOG_TAG, "Cloud Api service started");
         final ResultReceiver receiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
-        final SyncResult syncResult = intent.getParcelableExtra(EXTRA_SYNC_RESULT);
+        final SyncResult syncResult = new SyncResult();
 
         if (receiver != null) receiver.send(STATUS_RUNNING, Bundle.EMPTY);
         final long startSync = System.currentTimeMillis();
@@ -152,7 +152,6 @@ public class ApiService extends IntentService{
             }
             i++;
         } while (!TextUtils.isEmpty(holder.next_href));
-
         getContentResolver().delete(contentUri,null,null);
         SoundCloudDB.bulkInsertParcelables(getApp(),items,contentUri,getApp().getCurrentUserId(),0);
     }

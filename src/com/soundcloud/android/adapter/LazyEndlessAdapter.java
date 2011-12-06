@@ -394,7 +394,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public void onPostRefresh(List<Parcelable> newItems, String nextHref, boolean keepGoing, boolean success) {
-
         if (success || (newItems != null && newItems.size() > 0)) {
             reset(false);
             mNextHref = nextHref;
