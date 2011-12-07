@@ -12,6 +12,7 @@ import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.ApiService;
 import com.soundcloud.android.service.sync.ActivitiesCache;
+import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.RefreshEventsTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 
@@ -126,7 +127,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 
     @Override
     protected void startRefreshTask(final boolean userRefresh){
-       mRefreshTask = new RefreshEventsTask(mActivity.getApp()) {
+       mRefreshTask = new RefreshEventsTask(mActivity.getApp(), new LoadCollectionTask.Params()) {
             {
                 setAdapter(EventsAdapterWrapper.this);
                 cacheFile = ActivitiesCache.getCacheFile(mActivity.getApp(),mRequest);

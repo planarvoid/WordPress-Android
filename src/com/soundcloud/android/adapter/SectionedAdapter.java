@@ -30,6 +30,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
         public final Request request;
         public final Uri contentUri;
         public String nextHref;
+        public int pageIndex;
         public String currentEtag;
 
         public Section(String label, Class<?> model, List<Parcelable> data, Request request, Uri contentUri) {
@@ -46,9 +47,14 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
             return (refresh || TextUtils.isEmpty(nextHref)) ? new Request(request) : new Request(nextHref);
         }
 
+        public int getPageIndex(boolean refresh) {
+            return (refresh) ? 0 : pageIndex;
+        }
+
         public void clear() {
             data.clear();
             nextHref = null;
+            pageIndex = 0;
         }
 
     }

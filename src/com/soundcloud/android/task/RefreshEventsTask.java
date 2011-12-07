@@ -10,8 +10,8 @@ import java.io.IOException;
 
 public class RefreshEventsTask extends LoadCollectionTask {
     public File cacheFile;
-    public RefreshEventsTask(SoundCloudApplication app) {
-        super(app, null,null,0,true);
+    public RefreshEventsTask(SoundCloudApplication app, Params p) {
+        super(app,p);
     }
 
     @Override

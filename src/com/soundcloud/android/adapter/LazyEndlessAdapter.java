@@ -38,6 +38,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener, DetachableResultReceiver.Receiver {
 
+    public static final int SYNCABLE_CEILING = 150;
     protected LoadCollectionTask mAppendTask;
     protected LoadCollectionTask mRefreshTask;
 
@@ -353,35 +354,57 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     protected void startAppendTask(){
         mState = APPENDING;
         final Uri contentUri = getContentUri(false);
-        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < 150){
-            mAppendTask = new LoadCollectionTask(mActivity.getApp(),getLoadModel(false),contentUri,mPageIndex,false);
-            mAppendTask.setAdapter(this);
-            mAppendTask.execute();
+        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < SYNCABLE_CEILING){
+            mAppendTask = new LoadCollectionTask(mActivity.getApp(), buildAppendParams());
         } else {
-            mAppendTask = new LoadRemoteCollectionTask(mActivity.getApp(),getLoadModel(false),contentUri,mPageIndex,false, buildRequest(false));
-            mAppendTask.setAdapter(this);
-            mAppendTask.execute();
+            mAppendTask = new LoadRemoteCollectionTask(mActivity.getApp(), buildAppendParams());
         }
+        mAppendTask.setAdapter(this);
+        mAppendTask.execute();
     }
 
     protected void startRefreshTask(final boolean userRefresh) {
         mState = REFRESHING;
         final Uri contentUri = getContentUri(true);
-        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < 150) {
-            mRefreshTask = new LoadCollectionTask(mActivity.getApp(), getLoadModel(true), contentUri, 0, true);
+        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < SYNCABLE_CEILING) {
+            mRefreshTask = new LoadCollectionTask(mActivity.getApp(), buildRefreshParams());
         } else {
-            mRefreshTask = new LoadRemoteCollectionTask(mActivity.getApp(), getLoadModel(true), contentUri, 0, true, buildRequest(true));
+            mRefreshTask = new LoadRemoteCollectionTask(mActivity.getApp(), buildRefreshParams());
             if (!userRefresh) ((LoadRemoteCollectionTask) mRefreshTask).setLastRefresh(LocalCollection.getLastSync(mActivity.getContentResolver(),contentUri));
         }
         mRefreshTask.setAdapter(this);
         mRefreshTask.execute();
     }
 
+    protected LoadCollectionTask.Params buildAppendParams() {
+        return new LoadCollectionTask.Params() {
+            {
+                loadModel = getLoadModel(false);
+                contentUri = getContentUri(false);
+                pageIndex = getPageIndex(false);
+                request = buildRequest(false);
+            }
+        };
+    }
+
+    protected LoadCollectionTask.Params buildRefreshParams(){
+        return new LoadCollectionTask.Params(){
+            {
+                loadModel = getLoadModel(true);
+                contentUri = getContentUri(true);
+                pageIndex = getPageIndex(true);
+                request = buildRequest(true);
+                refresh = true;
+            }
+        };
+    }
+
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
         if ((newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK){
             mState = keepGoing ? WAITING : DONE;
             mNextHref = nextHref;
-            mPageIndex++;
+
+           increasePageIndex();
         } else {
             handleResponseCode(responseCode);
         }
@@ -446,6 +469,14 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         return mContentUri;
     }
 
+    protected int getPageIndex(boolean refresh) {
+        return refresh ? 0 : mPageIndex;
+    }
+
+    protected void increasePageIndex() {
+        mPageIndex++;
+    }
+
     @SuppressWarnings("unchecked")
     public void refresh(final boolean userRefresh) {
         if (userRefresh) {
@@ -457,7 +488,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         }
 
         final Uri contentUri = getContentUri(true);
-        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < 200) {
+        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < SYNCABLE_CEILING) {
             mState = REFRESHING;
             boolean sync = true;
 

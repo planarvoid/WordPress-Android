@@ -129,7 +129,7 @@ public class ScContentProvider extends ContentProvider {
             case SUGGESTED_USERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
-                selection = makeCollectionSelection(selection,"0",ResourceItemTypes.SUGGESTED_USER);
+                selection = makeCollectionSelection(selection, String.valueOf(userId),ResourceItemTypes.SUGGESTED_USER);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 

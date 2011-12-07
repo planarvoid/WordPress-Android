@@ -3,6 +3,7 @@ package com.soundcloud.android.adapter;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.api.Request;
@@ -54,6 +55,17 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     }
 
     @Override
+    protected int getPageIndex(boolean refresh) {
+        if (mSectionIndex > getWrappedAdapter().sections.size()) return 0;
+        return refresh ? 0 : getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).pageIndex;
+    }
+
+    @Override
+    protected void increasePageIndex() {
+        getWrappedAdapter().sections.get(mSectionIndex).pageIndex++;
+    }
+
+    @Override
     public Class<?> getLoadModel(boolean isRefresh) {
         return getWrappedAdapter().getLoadModel(isRefresh ? 0 : mSectionIndex);
     }
@@ -93,26 +105,48 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
 
     @Override
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
-        mPendingView = null;
-        if (responseCode == HttpStatus.SC_OK) {
+        if ((newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK) {
             if (newItems != null && newItems.size() > 0) {
-                for (Parcelable newItem : newItems) {
-                    getWrappedAdapter().addItem(mSectionIndex,newItem);
+                for (Parcelable newitem : newItems) {
+                    getWrappedAdapter().addItem(mSectionIndex,newitem);
                 }
             }
-            if (!TextUtils.isEmpty(nextHref)) {
+
+             if (!TextUtils.isEmpty(nextHref)) {
                 getWrappedAdapter().sections.get(mSectionIndex).nextHref = nextHref;
             }
+
             if (!keepGoing) {
                 nextAdapterSection();
             } else {
-                mState = keepGoing ? WAITING : DONE;
+                increasePageIndex();
+                mState = WAITING;
             }
+
+
         } else {
             handleResponseCode(responseCode);
             applyEmptyView();
         }
+
+        // configure the empty view depending on possible exceptions
+        mPendingView = null;
+        mAppendTask = null;
         notifyDataSetChanged();
+    }
+
+    public void onPostRefresh(List<Parcelable> newItems, String nextHref, boolean keepGoing, boolean success) {
+        if (success) {
+            reset(false);
+            onPostTaskExecute(newItems, nextHref, HttpStatus.SC_OK, keepGoing);
+        } else {
+            onEmptyRefresh();
+        }
+
+        if (mListView != null) {
+            mListView.onRefreshComplete(false);
+        }
+
     }
 
     private void nextAdapterSection() {
@@ -127,7 +161,8 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
         // load next section as necessary
         if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
             mSectionIndex++;
-            mPageIndex = 0;
+            getWrappedAdapter().sections.get(mSectionIndex).pageIndex = 0;
+            getWrappedAdapter().sections.get(mSectionIndex).nextHref = null;
             mState = WAITING;
         } else {
             mState = DONE;

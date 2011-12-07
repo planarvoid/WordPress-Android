@@ -2,7 +2,6 @@ package com.soundcloud.android.task;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,25 +15,19 @@ import com.soundcloud.android.model.ModelBase;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.api.Http;
-import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 
-import static com.soundcloud.android.SoundCloudApplication.CONNECTIVITY_SERVICE;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class LoadRemoteCollectionTask extends LoadCollectionTask {
 
-    protected String mNextHref;
     private long mLastRefresh;
-    public Request mRequest;
 
-
-    public LoadRemoteCollectionTask(SoundCloudApplication app, Class<?> loadModel, Uri contentUri, int pageIndex, boolean refresh, Request request) {
-        super(app, loadModel, contentUri, pageIndex, refresh);
-        mRequest = request;
+    public LoadRemoteCollectionTask(SoundCloudApplication app, Params params) {
+        super(app, params);
     }
 
     public void setLastRefresh(long lastRefresh) {
@@ -48,24 +41,23 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
         LocalCollection localCollection = null;
         LocalCollectionPage localCollectionPage = null;
 
-        if (mContentUri != null){
-            localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(mApp.getContentResolver(), mContentUri);
+        if (mParams.contentUri != null){
+            localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(mApp.getContentResolver(), mParams.contentUri);
             if (localCollection == null) {
-                localCollection = com.soundcloud.android.model.LocalCollection.insertLocalCollection(mApp.getContentResolver(), mContentUri);
+                localCollection = com.soundcloud.android.model.LocalCollection.insertLocalCollection(mApp.getContentResolver(), mParams.contentUri);
             } else {
-                localCollectionPage = LocalCollectionPage.fromCollectionAndIndex(mApp.getContentResolver(), localCollection.id, mPageIndex);
+                localCollectionPage = LocalCollectionPage.fromCollectionAndIndex(mApp.getContentResolver(), localCollection.id, mParams.pageIndex);
                 if (localCollectionPage != null) {
-                    localCollectionPage.applyEtag(mRequest);
+                    localCollectionPage.applyEtag(mParams.request);
                 }
             }
         }
 
         // fetch if there is no local uri, no stored colleciton for this page,
-        if (mContentUri == null || localCollectionPage == null ||
-
-                (mRefresh && System.currentTimeMillis() - mLastRefresh > Consts.DEFAULT_REFRESH_MINIMUM)) {
+        if (mParams.contentUri == null || localCollectionPage == null ||
+                (mParams.pageIndex == 0 && System.currentTimeMillis() - mLastRefresh > Consts.DEFAULT_REFRESH_MINIMUM)) {
             try {
-                HttpResponse resp = mApp.get(mRequest);
+                HttpResponse resp = mApp.get(mParams.request);
                 mResponseCode = resp.getStatusLine().getStatusCode();
                 if (mResponseCode != HttpStatus.SC_OK && mResponseCode != HttpStatus.SC_NOT_MODIFIED) {
                     throw new IOException("Invalid response: " + resp.getStatusLine());
@@ -77,7 +69,7 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
                     if (localCollection != null) {
                         mApp.getContentResolver().delete(ScContentProvider.Content.COLLECTION_PAGES,
                                 DBHelper.CollectionPages.COLLECTION_ID + " = ? AND " + DBHelper.CollectionPages.PAGE_INDEX + " > ?",
-                                new String[]{String.valueOf(localCollection.id), String.valueOf(mPageIndex)});
+                                new String[]{String.valueOf(localCollection.id), String.valueOf(mParams.pageIndex)});
                     }
 
                     // process new items and publish them
@@ -91,11 +83,11 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
                     publishProgress(mNewItems);
 
                     // store items if we have items and a content uri
-                    if (mContentUri != null && mNewItems != null) {
+                    if (mParams.contentUri != null && mNewItems != null) {
 
                         ContentValues cv = new ContentValues();
                         cv.put(DBHelper.CollectionPages.COLLECTION_ID, localCollection.id);
-                        cv.put(DBHelper.CollectionPages.PAGE_INDEX, mPageIndex);
+                        cv.put(DBHelper.CollectionPages.PAGE_INDEX, mParams.pageIndex);
                         cv.put(DBHelper.CollectionPages.ETAG, Http.etag(resp));
                         cv.put(DBHelper.CollectionPages.SIZE, mNewItems.size());
                         if (mNextHref != null) {
@@ -104,8 +96,8 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
 
                         // insert new page
                         mApp.getContentResolver().insert(ScContentProvider.Content.COLLECTION_PAGES, cv);
-                        SoundCloudDB.bulkInsertParcelables(mApp,mNewItems,mContentUri,getCollectionOwner(),
-                                mPageIndex * Consts.COLLECTION_PAGE_SIZE);
+                        SoundCloudDB.bulkInsertParcelables(mApp,mNewItems,mParams.contentUri,getCollectionOwner(),
+                                mParams.pageIndex * Consts.COLLECTION_PAGE_SIZE);
                     }
                     return true;
                 }
@@ -121,11 +113,11 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
     }
 
     private long getCollectionOwner(){
-        final int uriCode = mApp.getContentUriMatcher().match(mContentUri);
+        final int uriCode = mApp.getContentUriMatcher().match(mParams.contentUri);
         if (uriCode < 200){ // mine
             return mApp.getCurrentUserId();
-        } else if (mContentUri.getPathSegments().size() > 2){
-            return Long.parseLong(mContentUri.getPathSegments().get(1));
+        } else if (mParams.contentUri.getPathSegments().size() > 2){
+            return Long.parseLong(mParams.contentUri.getPathSegments().get(1));
         } else{
             return -1;
         }

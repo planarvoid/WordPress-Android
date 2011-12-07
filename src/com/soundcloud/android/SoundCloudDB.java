@@ -156,19 +156,21 @@ public class SoundCloudDB {
         Set<Track> tracksToInsert = new HashSet<Track>();
 
         for (Parcelable p : items) {
+            long id = ((ModelBase) p).id;
             if (p instanceof User) {
                 usersToInsert.add((User) p);
             } else if (p instanceof Track) {
                 usersToInsert.add(((Track) p).user);
                 tracksToInsert.add((Track) p);
             } else if (p instanceof Friend) {
+                id = ((Friend) p).user.id;
                 usersToInsert.add(((Friend) p).user);
             }
 
             ContentValues itemCv = new ContentValues();
             itemCv.put(DBHelper.CollectionItems.USER_ID, owner);
             itemCv.put(DBHelper.CollectionItems.POSITION, startIndex + i);
-            itemCv.put(DBHelper.CollectionItems.ITEM_ID, ((ModelBase) p).id);
+            itemCv.put(DBHelper.CollectionItems.ITEM_ID, id);
             bulkValues[i] = itemCv;
             i++;
         }

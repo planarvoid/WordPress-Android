@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
@@ -168,7 +169,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
             default:
                 throw new IllegalArgumentException(("Improper setState parameter"));
         }
-
 
         if (refresh) {
             if (mSeen) mFriendList.getWrapper().allowInitialLoading();
