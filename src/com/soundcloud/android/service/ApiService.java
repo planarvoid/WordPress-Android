@@ -40,7 +40,6 @@ public class ApiService extends IntentService{
 
 
     public interface SyncExtras {
-        String DASHBOARD = ApiService.class.getName() + ".sync_dashboard";
         String INCOMING = ApiService.class.getName() + ".sync_incoming";
         String EXCLUSIVE = ApiService.class.getName() + ".sync_exclusive";
         String ACTIVITY = ApiService.class.getName() + ".sync_activities";
@@ -65,13 +64,18 @@ public class ApiService extends IntentService{
         final long startSync = System.currentTimeMillis();
         try {
             long start;
-            if (intent.getBooleanExtra(SyncExtras.INCOMING, false) || intent.getBooleanExtra(SyncExtras.DASHBOARD, false)) {
+            HashSet<Long> tracksAddedSoFar = new HashSet<Long>();
+            HashSet<Long> tracksDeletedSoFar = new HashSet<Long>();
+            HashSet<Long> usersAddedSoFar = new HashSet<Long>();
+            HashSet<Long> usersDeletedSoFar = new HashSet<Long>();
+
+            if (intent.getBooleanExtra(SyncExtras.INCOMING, false)) {
                 syncActivities(Request.to(Endpoints.MY_ACTIVITIES), ScContentProvider.Content.ME_SOUND_STREAM);
             }
-            if (intent.getBooleanExtra(SyncExtras.EXCLUSIVE, false) || intent.getBooleanExtra(SyncExtras.DASHBOARD, false)) {
+            if (intent.getBooleanExtra(SyncExtras.EXCLUSIVE, false)) {
                 syncActivities(Request.to(Endpoints.MY_EXCLUSIVE_TRACKS), ScContentProvider.Content.ME_EXCLUSIVE_STREAM);
             }
-            if (intent.getBooleanExtra(SyncExtras.ACTIVITY, false) || intent.getBooleanExtra(SyncExtras.DASHBOARD, false)) {
+            if (intent.getBooleanExtra(SyncExtras.ACTIVITY, false)) {
                 syncActivities(Request.to(Endpoints.MY_NEWS), ScContentProvider.Content.ME_ACTIVITIES);
             }
 
@@ -151,7 +155,7 @@ public class ApiService extends IntentService{
 
 
 
-    private void quickSync(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
+    private void quickSync(Uri contentUri, String endpoint, Class<?> loadModel, Set<Long> addedSoFar, Set<Long> deletedSoFar) throws IOException {
 
         final long start = System.currentTimeMillis();
         int size = 0;
@@ -162,16 +166,20 @@ public class ApiService extends IntentService{
 
             Set<Long> deletions = new HashSet(local);
             deletions.removeAll(remote);
+            deletions.removeAll(deletedSoFar);
 
             Set<Long> additions = new HashSet(remote);
             additions.removeAll(local);
+            additions.removeAll(addedSoFar);
 
             final long removeStart = System.currentTimeMillis();
             bulkRemove(contentUri, deletions);
+            deletedSoFar.addAll(deletions);
             Log.d(LOG_TAG, "Cloud Api service: items updated in " + (System.currentTimeMillis() - removeStart) + " ms");
 
             final long addStart = System.currentTimeMillis();
             bulkAdd(contentUri, additions, loadModel);
+            addedSoFar.addAll(addedSoFar);
             Log.d(LOG_TAG, "Cloud Api service: items updated in " + (System.currentTimeMillis() - addStart) + " ms");
 
             final long updateStart = System.currentTimeMillis();
@@ -181,7 +189,7 @@ public class ApiService extends IntentService{
                 cv[i] = new ContentValues();
                 cv[i].put(DBHelper.CollectionItems.POSITION,i);
             }
-            getContentResolver().bulkInsert(contentUri,cv);
+            getContentResolver().bulkInsert(contentUri, cv);
             Log.d(LOG_TAG, "Cloud Api service: items updated in " + (System.currentTimeMillis() - updateStart) + " ms");
 
         } catch (IOException e) {
