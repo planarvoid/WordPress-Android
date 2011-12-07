@@ -2,6 +2,7 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Token;
@@ -109,6 +110,8 @@ public class Start extends AccountAuthenticatorActivity {
                     result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
                     result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
                     setAccountAuthenticatorResult(result);
+
+                    C2DMReceiver.register(this, user);
                     if (signed_up != null) {
                         startActivityForResult(new Intent(this, SuggestedUsers.class)
                                 .putExtra(FB_CONNECTED_EXTRA, signed_up.contains("facebook")),
@@ -117,7 +120,7 @@ public class Start extends AccountAuthenticatorActivity {
                         finish();
                     }
                 } else {
-                    //showError
+                    //XXX showError
                 }
                 break;
             case SUGGESTED_USERS:

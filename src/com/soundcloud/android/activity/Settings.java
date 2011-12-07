@@ -7,7 +7,6 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.view.tour.Start;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.service.sync.SyncAdapterService;
@@ -33,7 +32,7 @@ import java.net.URL;
 
 public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING = 0;
-    private static final int DIALOG_USER_DELETE_CONFIRM = 1;
+    private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
     private ProgressDialog mDeleteDialog;
 
@@ -65,12 +64,12 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        findPreference("revokeAccess").setOnPreferenceClickListener(
+        findPreference("logout").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         if (!CloudUtils.isUserAMonkey()) {
                             // don't let the monkey log out
-                            safeShowDialog(DIALOG_USER_DELETE_CONFIRM);
+                            safeShowDialog(DIALOG_USER_LOGOUT_CONFIRM);
                         }
                         return true;
                     }
@@ -291,7 +290,7 @@ public class Settings extends PreferenceActivity {
                 }
                 return mDeleteDialog;
 
-            case DIALOG_USER_DELETE_CONFIRM:
+            case DIALOG_USER_LOGOUT_CONFIRM:
                 return CloudUtils.createLogoutDialog(this);
         }
         return super.onCreateDialog(id);

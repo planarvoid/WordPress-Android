@@ -41,6 +41,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -124,11 +125,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             if (ContentResolver.getIsSyncable(account, ScContentProvider.AUTHORITY) < 1) {
                 ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
             }
+            C2DMReceiver.register(this, getLoggedInUser());
         }
 
         if (BETA_MODE) {
             BetaService.scheduleCheck(this, false);
-            C2DMReceiver.register(this);
         }
 
         // make sure the WifiMonitor is disabled when not in beta mode
@@ -272,7 +273,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(
                     user.primary_email_confirmed));
         }
-
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 

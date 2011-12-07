@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import org.json.JSONException;
@@ -660,6 +661,19 @@ public class CloudUtils {
         }
     }
 
+    public static String getPackagename(Context context) {
+        try {
+            PackageInfo info = context
+                    .getPackageManager()
+                    .getPackageInfo(context.getPackageName(),
+                    PackageManager.GET_META_DATA);
+            return info.packageName;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            throw new RuntimeException(ignored);
+        }
+    }
+
+
      public static void logScreenSize(Context context) {
         switch (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) {
             case Configuration.SCREENLAYOUT_SIZE_SMALL:
@@ -694,6 +708,10 @@ public class CloudUtils {
                                 app.clearUserDbData();
                                 app.trackPage(Consts.Tracking.LOGGED_OUT);
                                 app.trackEvent(Consts.Tracking.Categories.AUTH, "logout");
+
+
+                                C2DMReceiver.unregister(a);
+
                                 app.clearSoundCloudAccount(
                                         new Runnable() {
                                             @Override

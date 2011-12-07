@@ -310,15 +310,27 @@ public class BetaService extends Service {
     }
 
 
-    public static void onNewBeta(Context context, int versionCode, String versionName) {
-        if (!Beta.isInstalled(context, versionCode, versionName)) {
-            notifyNewVersion(context, versionName + "  ("+versionCode+")");
-            setPendingBeta(context, versionName);
-            BetaService.scheduleNow(context, 2000l);
-        } else {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "beta already installed");
+    public static void onNewBeta(Context context, Intent intent) {
+        final String beta = intent.getStringExtra(Beta.EXTRA_BETA_VERSION);
+        final String[] parts = beta != null ? beta.split(":", 2) : new String[0];
+        if (parts.length == 2) {
+            try {
+                final int versionCode = Integer.parseInt(parts[0]);
+                final String versionName = parts[1];
+                if (!Beta.isInstalled(context, versionCode, versionName)) {
+                    notifyNewVersion(context, versionName + "  ("+versionCode+")");
+                    setPendingBeta(context, versionName);
+                    scheduleNow(context, 2000l);
+                } else {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "beta already installed");
+                    }
+                }
+            } catch (NumberFormatException e) {
+                Log.w(TAG, "could not parse version information: "+beta);
             }
+        } else {
+            Log.w(TAG, "could not get beta information from intent "+intent);
         }
     }
 

@@ -1,5 +1,24 @@
 package com.soundcloud.android.activity;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.c2dm.C2DMReceiver;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.service.AuthenticatorService;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.task.LoadTrackInfoTask;
+import com.soundcloud.android.task.LoadUserInfoTask;
+import com.soundcloud.android.task.ResolveTask;
+import com.soundcloud.android.utils.ChangeLog;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
@@ -14,30 +33,19 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.*;
-import com.soundcloud.android.*;
-import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.AuthenticatorService;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.task.*;
-import com.soundcloud.android.utils.ChangeLog;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
+import android.widget.RelativeLayout;
+import android.widget.TabHost;
+import android.widget.TabWidget;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfoListener, LoadUserInfoTask.LoadUserInfoListener, ResolveTask.ResolveListener {
     private View mSplash;
@@ -102,7 +110,10 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             SoundCloudApplication.handleSilentException("Install",
                     new InstallNotification(CloudUtils.getAppVersionCode(Main.this, -1), CloudUtils.getAppVersion(Main.this, "")));
         }
-        if (!checkAccountExists(getApp())) {
+
+        if (getApp().getAccount() == null) {
+            dismissSplash();
+            getApp().addAccount(Main.this, managerCallback);
             finish();
         }
         super.onResume();
@@ -110,23 +121,6 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
     private SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
-    }
-
-    private boolean checkAccountExists(SoundCloudApplication app) {
-        if (app.getAccount() == null) {
-            String oauth1Token = PreferenceManager
-                    .getDefaultSharedPreferences(this)
-                    .getString(User.DataKeys.OAUTH1_ACCESS_TOKEN, null);
-
-            if (oauth1Token != null) {
-                attemptTokenExchange(app, oauth1Token, addAccount);
-            } else {
-                addAccount.run();
-            }
-            return false;
-        } else {
-            return true;
-        }
     }
 
     private void checkEmailConfirmed(final SoundCloudApplication app) {
@@ -145,14 +139,6 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             }
         }).execute(Request.to(Endpoints.MY_DETAILS));
     }
-
-    private final Runnable addAccount = new Runnable() {
-        @Override
-        public void run() {
-            dismissSplash();
-            getApp().addAccount(Main.this, managerCallback);
-        }
-    };
 
     private final AccountManagerCallback<Bundle> managerCallback = new AccountManagerCallback<Bundle>() {
         @Override
@@ -214,13 +200,12 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
             if (Intent.ACTION_VIEW.equals(intent.getAction()) && handleViewUrl(intent)) {
                 // already handled
-            } else if (Actions.MESSAGE.equals(intent.getAction())){
+            } else if (Actions.MESSAGE.equals(intent.getAction())) {
                 final long recipient = intent.getLongExtra("recipient", -1);
-                if (recipient != -1){
-                startActivity(
-                    new Intent(this, UserBrowser.class).putExtra("userId",recipient)
-                            .putExtra("userBrowserTag",UserBrowser.TabTags.privateMessage)
-                );
+                if (recipient != -1) {
+                    startActivity(new Intent(this, UserBrowser.class)
+                        .putExtra("userId",recipient)
+                        .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
                 }
             } else if (tab != null) {
                 getTabHost().setCurrentTabByTag(tab);
@@ -332,11 +317,6 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         for (int j = 0; j < relativeLayout.getChildCount(); j++) {
             if (relativeLayout.getChildAt(j) instanceof TextView) {
                 relativeLayout.getChildAt(j).setVisibility(View.GONE);
-            } else if (relativeLayout.getChildAt(j) instanceof ImageView) {
-                // this broke the miui rom
-                //relativeLayout.getChildAt(j).getLayoutParams().height = RelativeLayout.LayoutParams.FILL_PARENT;
-                //((RelativeLayout.LayoutParams) relativeLayout.getChildAt(j).getLayoutParams()).bottomMargin =
-                  //      (int) (5*getResources().getDisplayMetrics().density);
             }
         }
 
@@ -389,52 +369,6 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info =  manager.getActiveNetworkInfo();
         return info != null && info.isConnectedOrConnecting();
-    }
-
-    private void attemptTokenExchange(final SoundCloudApplication app,
-                                      String oldAccessToken, final Runnable fallback) {
-        new AsyncApiTask<String, Void, Token>(app) {
-            @Override protected Token doInBackground(String... params) {
-                try {
-                    return mApi.exchangeOAuth1Token(params[0]);
-                } catch (IOException e) {
-                    Log.w(TAG, "error exchanging tokens", e);
-                    return null;
-                }
-            }
-            @Override
-            protected void onPostExecute(final Token token) {
-                if (token != null) {
-                     new LoadTask.LoadUserTask(app) {
-                         @Override
-                         protected void onPostExecute(User user) {
-                             if (user != null && app.addUserAccount(user, token)) {
-                                 Log.v(TAG, "successful token exchange");
-                                 SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
-                                 // remove old tokens after successful exchange
-                                 PreferenceManager.getDefaultSharedPreferences(Main.this)
-                                         .edit()
-                                         .remove(User.DataKeys.OAUTH1_ACCESS_TOKEN)
-                                         .remove(User.DataKeys.OAUTH1_ACCESS_TOKEN_SECRET)
-                                         .commit();
-                                 // restart main activity
-                                 Intent intent = getIntent();
-                                 overridePendingTransition(0, 0);
-                                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                 finish();
-                                 overridePendingTransition(0, 0);
-
-                                 startActivity(intent);
-                             } else {
-                                 fallback.run();
-                             }
-                         }
-                     }.execute(Request.to(Endpoints.MY_DETAILS));
-                } else {
-                    fallback.run();
-                }
-            }
-        }.execute(oldAccessToken);
     }
 
    @Override
