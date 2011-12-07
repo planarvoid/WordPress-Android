@@ -26,7 +26,7 @@ import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.service.ApiService;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -366,7 +366,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(ApiService.SyncExtras.TRACKS);
+            adpWrap.setSyncExtra(ApiSyncService.SyncExtras.TRACKS);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
                     .setActionText(R.string.list_empty_user_sounds_action)
                     .setImage(R.drawable.empty_rec)
@@ -399,7 +399,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(ApiService.SyncExtras.FAVORITES);
+            adpWrap.setSyncExtra(ApiSyncService.SyncExtras.FAVORITES);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_likes_message)
                     .setActionText(R.string.list_empty_user_likes_action)
                     .setImage(R.drawable.empty_like)
@@ -433,7 +433,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(ApiService.SyncExtras.FOLLOWINGS);
+            adpWrap.setSyncExtra(ApiSyncService.SyncExtras.FOLLOWINGS);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
                     .setActionText(R.string.list_empty_user_following_action)
                     .setImage(R.drawable.empty_follow_small)
@@ -466,7 +466,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(ApiService.SyncExtras.FOLLOWERS);
+            adpWrap.setSyncExtra(ApiSyncService.SyncExtras.FOLLOWERS);
             if (mUser.track_count > 0){
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
                     .setActionText(R.string.list_empty_user_followers_action)

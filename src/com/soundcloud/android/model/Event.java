@@ -9,7 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper.Events;
 import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.service.ApiService;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -208,13 +208,13 @@ public class Event extends ModelBase implements Origin {
     public static String getSyncExtraFromType(int type){
         switch (type){
             case Consts.EventTypes.INCOMING : {
-                return ApiService.SyncExtras.INCOMING;
+                return ApiSyncService.SyncExtras.INCOMING;
             }
             case Consts.EventTypes.EXCLUSIVE : {
-                return ApiService.SyncExtras.EXCLUSIVE;
+                return ApiSyncService.SyncExtras.EXCLUSIVE;
             }
             case Consts.EventTypes.ACTIVITY : {
-                return ApiService.SyncExtras.ACTIVITY;
+                return ApiSyncService.SyncExtras.ACTIVITY;
             }
         }
         return null;

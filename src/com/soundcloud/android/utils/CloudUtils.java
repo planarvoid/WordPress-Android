@@ -9,6 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import org.json.JSONException;
 
@@ -935,5 +936,24 @@ public class CloudUtils {
 
         return b.build();
 
+    }
+
+    public static String[] longArrToStringArr(Set<Long> deletions) {
+        int i = 0;
+        String[] idList = new String[deletions.size()];
+        for (Long id : deletions) {
+            idList[i] = String.valueOf(id);
+            i++;
+        }
+        return idList;
+    }
+
+    public static String getWhereIds(Set<Long> idSet){
+        StringBuilder sb = new StringBuilder(DBHelper.CollectionItems.ITEM_ID + " in (?");
+        for (int i = 1; i < idSet.size(); i++) {
+            sb.append(",?");
+        }
+        sb.append(")");
+        return sb.toString();
     }
 }

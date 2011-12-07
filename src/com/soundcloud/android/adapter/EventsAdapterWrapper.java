@@ -10,7 +10,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.ApiService;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ActivitiesCache;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.RefreshEventsTask;
@@ -117,8 +117,8 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         if (sync) {
             // send an intent to update our event cache
             mWaitingOnSync = true;
-            final Intent intent = new Intent(mActivity, ApiService.class);
-            intent.putExtra(ApiService.EXTRA_STATUS_RECEIVER, getReceiver());
+            final Intent intent = new Intent(mActivity, ApiSyncService.class);
+            intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
             intent.putExtra(Event.getSyncExtraFromType(mEventType), true);
             mActivity.startService(intent);
         }
@@ -139,15 +139,15 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
-            case ApiService.STATUS_RUNNING: {
+            case ApiSyncService.STATUS_RUNNING: {
                 break;
             }
-            case ApiService.STATUS_FINISHED: {
+            case ApiSyncService.STATUS_FINISHED: {
                 mWaitingOnSync = false;
                 startRefreshTask(false);
                 break;
             }
-            case ApiService.STATUS_ERROR: {
+            case ApiSyncService.STATUS_ERROR: {
                 mWaitingOnSync = false;
                 mState = ERROR;
                 onPostRefresh(null,null,false);

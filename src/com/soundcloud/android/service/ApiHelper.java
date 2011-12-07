@@ -84,8 +84,8 @@ public class ApiHelper {
 	public boolean startService(String action, Bundle extras) {
 		if (isConnected()) {
 			Intent intent = null;
-			if (action.equals(ApiService.Actions.SYNC_FAVORITES)) {
-				intent = new Intent(mContext, ApiService.class);
+			if (action.equals(ApiSyncService.Actions.SYNC_FAVORITES)) {
+				intent = new Intent(mContext, ApiSyncService.class);
 				intent.putExtra("action", action);
 
 			}
