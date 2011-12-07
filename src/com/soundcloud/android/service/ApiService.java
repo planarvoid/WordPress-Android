@@ -64,13 +64,14 @@ public class ApiService extends IntentService{
         final long startSync = System.currentTimeMillis();
         try {
             long start;
-            HashSet<Long> tracksAddedSoFar = new HashSet<Long>();
-            HashSet<Long> tracksDeletedSoFar = new HashSet<Long>();
-            HashSet<Long> usersAddedSoFar = new HashSet<Long>();
-            HashSet<Long> usersDeletedSoFar = new HashSet<Long>();
+            HashSet<Long> trackAdditions = new HashSet<Long>();
+            HashSet<Long> userAdditions = new HashSet<Long>();
+            HashMap<Uri, ContentValues[]> itemValues = new HashMap<Uri, ContentValues[]>();
+
 
             if (intent.getBooleanExtra(SyncExtras.INCOMING, false)) {
                 syncActivities(Request.to(Endpoints.MY_ACTIVITIES), ScContentProvider.Content.ME_SOUND_STREAM);
+
             }
             if (intent.getBooleanExtra(SyncExtras.EXCLUSIVE, false)) {
                 syncActivities(Request.to(Endpoints.MY_EXCLUSIVE_TRACKS), ScContentProvider.Content.ME_EXCLUSIVE_STREAM);
@@ -91,6 +92,24 @@ public class ApiService extends IntentService{
             if (intent.getBooleanExtra(SyncExtras.FOLLOWERS, false)) {
                 syncCollection(ScContentProvider.Content.ME_FOLLOWERS,Endpoints.MY_FOLLOWERS, User.class);
             }
+
+
+            // our new tracks/users, compiled so we didn't do duplicate lookups
+            final long addStart = System.currentTimeMillis();
+            bulkAdd(trackAdditions, Track.class);
+            bulkAdd(userAdditions, User.class);
+            Log.d(LOG_TAG, "Cloud Api service: parcelables added in " + (System.currentTimeMillis() - addStart) + " ms");
+
+
+            // do collection inserts
+            final long itemStart = System.currentTimeMillis();
+            for (Map.Entry<Uri, ContentValues[]> entry : itemValues.entrySet()){
+                int added = getContentResolver().bulkInsert(entry.getKey(), entry.getValue());
+                LocalCollection.insertLocalCollection(getContentResolver(),null,System.currentTimeMillis(),added);
+            }
+            Log.d(LOG_TAG, "Cloud Api service: items added in " + (System.currentTimeMillis() - addStart) + " ms");
+
+
 
             Log.d(LOG_TAG, "Cloud Api service: Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
             if (receiver != null) receiver.send(STATUS_FINISHED, Bundle.EMPTY);
@@ -155,7 +174,7 @@ public class ApiService extends IntentService{
 
 
 
-    private void quickSync(Uri contentUri, String endpoint, Class<?> loadModel, Set<Long> addedSoFar, Set<Long> deletedSoFar) throws IOException {
+    private ContentValues[] quickSync(Uri contentUri, String endpoint, Class<?> loadModel, Set<Long> additions) throws IOException {
 
         final long start = System.currentTimeMillis();
         int size = 0;
@@ -164,39 +183,33 @@ public class ApiService extends IntentService{
             List<Long> local = idCursorToList(getContentResolver().query(contentUri, new String[]{DBHelper.Users._ID}, null, null, null));
             List<Long> remote = getApp().getMapper().readValue(getApp().get(Request.to(endpoint + "/ids")).getEntity().getContent(), List.class);
 
-            Set<Long> deletions = new HashSet(local);
-            deletions.removeAll(remote);
-            deletions.removeAll(deletedSoFar);
+            // do this here, has no impact
+            Set<Long> newDeletions = new HashSet(local);
+            newDeletions.removeAll(remote);
+            bulkRemove(contentUri,newDeletions);
 
-            Set<Long> additions = new HashSet(remote);
-            additions.removeAll(local);
-            additions.removeAll(addedSoFar);
 
-            final long removeStart = System.currentTimeMillis();
-            bulkRemove(contentUri, deletions);
-            deletedSoFar.addAll(deletions);
-            Log.d(LOG_TAG, "Cloud Api service: items updated in " + (System.currentTimeMillis() - removeStart) + " ms");
+            // tracks/users that this collection depends on
+            // store these to add shortly, they will depend on the tracks/users being there
+            Set<Long> newAdditions = new HashSet(remote);
+            newAdditions.removeAll(local);
+            additions.addAll(newAdditions);
 
-            final long addStart = System.currentTimeMillis();
-            bulkAdd(contentUri, additions, loadModel);
-            addedSoFar.addAll(addedSoFar);
-            Log.d(LOG_TAG, "Cloud Api service: items updated in " + (System.currentTimeMillis() - addStart) + " ms");
-
-            final long updateStart = System.currentTimeMillis();
+            // the new collection relationships, send these back, as they may depend on track/user additions
             ContentValues[] cv = new ContentValues[remote.size()];
             int i = 0;
             for (Long id : remote){
                 cv[i] = new ContentValues();
-                cv[i].put(DBHelper.CollectionItems.POSITION,i);
+                cv[i].put(DBHelper.CollectionItems.POSITION, i);
             }
-            getContentResolver().bulkInsert(contentUri, cv);
-            Log.d(LOG_TAG, "Cloud Api service: items updated in " + (System.currentTimeMillis() - updateStart) + " ms");
+            return cv;
 
         } catch (IOException e) {
             e.printStackTrace();
         }
         LocalCollection.insertLocalCollection(getContentResolver(),contentUri,System.currentTimeMillis(),size);
         Log.d(LOG_TAG, "Cloud Api service: synced " + contentUri + " in " + (System.currentTimeMillis() - start) + " ms");
+        return new ContentValues[0];
     }
 
 
@@ -223,16 +236,23 @@ public class ApiService extends IntentService{
 
 
 
-    private void bulkAdd(Uri contentUri, Set<Long> additions,Class<?> loadModel) throws IOException {
-
-        for (Long addition : additions){
-            if (SoundCloudDB.isTrackInDb(getContentResolver(),addition)) additions.remove(addition);
-        }
+    private void bulkAdd(Set<Long> additions, Class<?> loadModel) throws IOException {
 
         if (additions.size() == 0) return;
 
         CollectionHolder holder = null;
         List<Parcelable> items = new ArrayList<Parcelable>();
+
+        // todo, add function to do select where id in (,,,) instead of 1 by 1
+        if (Track.class.equals(loadModel)){
+            for (Long addition : additions) {
+                if (SoundCloudDB.isTrackInDb(getContentResolver(), addition)) additions.remove(addition);
+            }
+        } else if (User.class.equals(loadModel)){
+            for (Long addition : additions) {
+                if (SoundCloudDB.isUserInDb(getContentResolver(), addition)) additions.remove(addition);
+            }
+        }
 
         InputStream is = getApp().get(Request.to(Track.class.equals(loadModel) ? Endpoints.TRACKS : Endpoints.USERS)
                 .add("ids", TextUtils.join(",", additions))).getEntity().getContent();
@@ -249,8 +269,7 @@ public class ApiService extends IntentService{
             }
         }
 
-        SoundCloudDB.bulkInsertParcelables(getApp(), items, contentUri, getApp().getCurrentUserId(), 0);
-        LocalCollection.insertLocalCollection(getContentResolver(),contentUri,System.currentTimeMillis(),items.size());
+        SoundCloudDB.bulkInsertParcelables(getApp(), items, null, getApp().getCurrentUserId(), 0);
     }
 
 
