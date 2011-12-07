@@ -151,9 +151,12 @@ public class SoundCloudDB {
     public static void bulkInsertParcelables(SoundCloudApplication app, List<Parcelable> items, Uri collectionUri, long owner, int startIndex) {
 
         int i = 0;
-        ContentValues[] bulkValues = new ContentValues[items.size()];
         Set<User> usersToInsert = new HashSet<User>();
         Set<Track> tracksToInsert = new HashSet<Track>();
+        ContentValues[] bulkValues = null;
+        if (collectionUri != null) {
+            bulkValues = new ContentValues[items.size()];
+        }
 
         for (Parcelable p : items) {
             long id = ((ModelBase) p).id;
@@ -167,12 +170,14 @@ public class SoundCloudDB {
                 usersToInsert.add(((Friend) p).user);
             }
 
-            ContentValues itemCv = new ContentValues();
-            itemCv.put(DBHelper.CollectionItems.USER_ID, owner);
-            itemCv.put(DBHelper.CollectionItems.POSITION, startIndex + i);
-            itemCv.put(DBHelper.CollectionItems.ITEM_ID, id);
-            bulkValues[i] = itemCv;
-            i++;
+            if (bulkValues != null){
+                ContentValues itemCv = new ContentValues();
+                itemCv.put(DBHelper.CollectionItems.USER_ID, owner);
+                itemCv.put(DBHelper.CollectionItems.POSITION, startIndex + i);
+                itemCv.put(DBHelper.CollectionItems.ITEM_ID, id);
+                bulkValues[i] = itemCv;
+                i++;
+            }
         }
 
         ContentValues[] tracksCv = new ContentValues[tracksToInsert.size()];
@@ -194,8 +199,9 @@ public class SoundCloudDB {
         inserted = app.getContentResolver().bulkInsert(ScContentProvider.Content.USERS, usersCv);
         Log.i(TAG,inserted + " users bulk inserted");
 
-        inserted = app.getContentResolver().bulkInsert(collectionUri, bulkValues);
-        Log.i(TAG,inserted + " colleciton items bulk inserted");
-
+        if (bulkValues != null){
+            inserted = app.getContentResolver().bulkInsert(collectionUri, bulkValues);
+            Log.i(TAG,inserted + " colleciton items bulk inserted");
+        }
     }
 }
