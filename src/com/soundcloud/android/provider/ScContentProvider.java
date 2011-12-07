@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 
 import java.util.regex.Matcher;
@@ -294,19 +295,19 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_TRACKS:
-                makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.TRACK);
+                where = makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.TRACK);
                 tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
                 break;
             case ME_FAVORITES:
-                makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FAVORITE);
+                where = makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FAVORITE);
                 tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
                 break;
             case ME_FOLLOWINGS:
-                makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FOLLOWING);
+                where = makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FOLLOWING);
                 tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
                 break;
             case ME_FOLLOWERS:
-                makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FOLLOWER);
+                where = makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FOLLOWER);
                 tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
                 break;
 
