@@ -78,8 +78,8 @@ public class ApiSyncService extends IntentService{
                 slowSyncCollection(ScContentProvider.Content.ME_TRACKS,Endpoints.MY_TRACKS,Track.class);
             }
             if (intent.getBooleanExtra(SyncExtras.FAVORITES, false)) {
-                //apiSyncer.syncCollection(ScContentProvider.Content.ME_FAVORITES, Endpoints.MY_FAVORITES, Track.class);
-                slowSyncCollection(ScContentProvider.Content.ME_FAVORITES, Endpoints.MY_FAVORITES, Track.class);
+                apiSyncer.syncCollection(ScContentProvider.Content.ME_FAVORITES, Endpoints.MY_FAVORITES, Track.class);
+                //slowSyncCollection(ScContentProvider.Content.ME_FAVORITES, Endpoints.MY_FAVORITES, Track.class);
             }
             if (intent.getBooleanExtra(SyncExtras.FOLLOWINGS, false)) {
                 //apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
@@ -90,7 +90,7 @@ public class ApiSyncService extends IntentService{
                 slowSyncCollection(ScContentProvider.Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
             }
 
-            //apiSyncer.resolveDatabase();
+            apiSyncer.resolveDatabase();
 
             Log.d(LOG_TAG, "Cloud Api service: Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
             if (receiver != null) receiver.send(STATUS_FINISHED, Bundle.EMPTY);

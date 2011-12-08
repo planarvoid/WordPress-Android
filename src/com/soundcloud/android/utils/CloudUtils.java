@@ -948,8 +948,8 @@ public class CloudUtils {
         return idList;
     }
 
-    public static String getWhereIds(List<Long> idSet){
-        StringBuilder sb = new StringBuilder(DBHelper.CollectionItems.ITEM_ID + " in (?");
+    public static String getWhereIds(String column, List<Long> idSet){
+        StringBuilder sb = new StringBuilder(column + " in (?");
         for (int i = 1; i < idSet.size(); i++) {
             sb.append(",?");
         }
