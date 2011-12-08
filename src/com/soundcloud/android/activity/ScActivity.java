@@ -290,10 +290,10 @@ public abstract class ScActivity extends Activity {
         }
 
         try {
-            if (wrapper.getContentUri(false) != null) {
-                mPlaybackService.playFromUri(wrapper.getContentUri(false).toString(), track);
-            } else {
+            if (wrapper instanceof EventsAdapterWrapper || wrapper.getContentUri(false) == null) {
                 mPlaybackService.playFromIdList(wrapper.getTrackIds(), track);
+            } else {
+                mPlaybackService.playFromUri(wrapper.getContentUri(false).toString(), track);
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
