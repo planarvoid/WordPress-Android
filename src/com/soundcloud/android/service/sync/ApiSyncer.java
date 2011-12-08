@@ -10,6 +10,7 @@ import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserlistItem;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -118,16 +119,11 @@ public class ApiSyncer {
         CollectionHolder holder = null;
         List<Parcelable> items = new ArrayList<Parcelable>();
 
-        // todo, add function to do select where id in (,,,) instead of 1 by 1
-        if (Track.class.equals(loadModel)) {
-            for (Long addition : additions) {
-                if (SoundCloudDB.isTrackInDb(mResolver, addition)) additions.remove(addition);
-            }
-        } else if (User.class.equals(loadModel)) {
-            for (Long addition : additions) {
-                if (SoundCloudDB.isUserInDb(mResolver, addition)) additions.remove(addition);
-            }
-        }
+        // remove anything that is already in the DB
+        Uri contentUri = (Track.class.equals(loadModel)) ? ScContentProvider.Content.TRACKS : ScContentProvider.Content.USERS;
+        additions.removeAll(idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.Tracks._ID},
+                CloudUtils.getWhereIds(additions), CloudUtils.longArrToStringArr(additions), null)));
+
 
         InputStream is = mApp.get(Request.to(Track.class.equals(loadModel) ? Endpoints.TRACKS : Endpoints.USERS)
                 .add("ids", TextUtils.join(",", additions))).getEntity().getContent();
