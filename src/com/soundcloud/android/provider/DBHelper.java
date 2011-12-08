@@ -364,9 +364,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final class Tracks implements BaseColumns {
 
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.tracks";
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.tracks";
-
         public static final String ID = "_id";
         public static final String PERMALINK = "permalink";
         public static final String CREATED_AT = "created_at";
@@ -414,8 +411,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public static final class TrackPlays implements BaseColumns {
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.track_plays";
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.track_plays";
 
         public static final String ID = "_id";
         public static final String TRACK_ID = "track_id";
@@ -439,9 +434,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
       public static final class Users implements BaseColumns {
-
-          public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.users";
-          public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.users";
 
           public static final String ID = "_id";
           public static final String USERNAME = "username";
@@ -480,9 +472,6 @@ public class DBHelper extends SQLiteOpenHelper {
       }
 
       public static final class Recordings implements BaseColumns {
-
-          public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.recordings";
-          public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.recordings";
 
           public static final String ID = "_id";
           public static final String USER_ID = "user_id";
@@ -528,11 +517,6 @@ public class DBHelper extends SQLiteOpenHelper {
       }
 
     public static final class Searches implements BaseColumns {
-        public static final Uri CONTENT_URI = Uri.parse("content://"
-                + ScContentProvider.AUTHORITY + "/Searches");
-
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.searches";
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.searches";
 
         public static final String ID = "_id";
         public static final String USER_ID = "user_id";
@@ -582,11 +566,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public static final class Collections implements BaseColumns {
-        public static final Uri CONTENT_URI = Uri.parse("content://"
-                + ScContentProvider.AUTHORITY + "/Collections");
-
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.collections";
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.collections";
 
         public static final String ID = "_id";
         public static final String URI = "uri";
@@ -605,11 +584,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public static final class CollectionPages implements BaseColumns {
-        public static final Uri CONTENT_URI = Uri.parse("content://"
-                + ScContentProvider.AUTHORITY + "/CollectionPages");
-
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.collection_pages";
-        public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.collection_pages";
 
         public static final String ID = "_id";
         public static final String COLLECTION_ID = "collection_id";
