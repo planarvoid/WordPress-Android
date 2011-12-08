@@ -24,23 +24,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public enum Tables {
         TRACKS("Tracks", DATABASE_CREATE_TRACKS),
-        RECORDINGS("Recordings", DATABASE_CREATE_RECORDINGS),
+        TRACKVIEW("TrackView", null),
         USERS("Users", DATABASE_CREATE_USERS),
+        RECORDINGS("Recordings", DATABASE_CREATE_RECORDINGS),
         TRACK_PLAYS("TrackPlays", DATABASE_CREATE_TRACK_PLAYS),
-        EVENTS("Events", DATABASE_CREATE_EVENTS),
         SEARCHES("Searches", DATABASE_CREATE_SEARCHES),
 
-        TRACKVIEW("TrackView", null),
-
-        /*USER_FAVORITES("UserFavorites", DATABASE_CREATE_USER_FAVORITES),
-        USER_FOLLOWING("UserFollowing", DATABASE_CREATE_USER_FOLLOWING),
-        USER_FOLLOWERS("UserFollowers", DATABASE_CREATE_USER_FOLLOWERS),*/
         COLLECTION_ITEMS("CollectionItems", DATABASE_CREATE_COLLECTION_ITEMS),
-
-        //EVENTVIEW("EventView", null),
-        //TRACKLISTVIEW("TracklistView", DATABASE_CREATE_TRACKLIST_VIEW),
-        //EVENTLISTVIEW("EventlistView", DATABASE_CREATE_EVENTLIST_VIEW);
-
         COLLECTIONS("Collections", DATABASE_CREATE_COLLECTIONS),
         COLLECTION_PAGES("CollectionPages", DATABASE_CREATE_COLLECTION_PAGES);
 
@@ -141,7 +131,9 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS Recordings");
         db.execSQL("DROP TABLE IF EXISTS TrackPlays");
         db.execSQL("DROP TABLE IF EXISTS Searches");
-        db.execSQL("DROP TABLE IF EXISTS UserFavorites");
+        db.execSQL("DROP TABLE IF EXISTS Collections");
+        db.execSQL("DROP TABLE IF EXISTS CollectionItems");
+        db.execSQL("DROP TABLE IF EXISTS CollectionPages");
         onCreate(db);
     }
 
@@ -282,17 +274,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    static final String DATABASE_CREATE_EVENTS = "create table Events (_id INTEGER primary key AUTOINCREMENT, "
-        + "created_at INTEGER null, "
-        + "user_id INTEGER null, "
-        + "type VARCHAR(255) null, "
-        + "exclusive boolean false, "
-        + "origin_id INTEGER null, "
-        + "tags VARCHAR(255) null, "
-        + "label VARCHAR(255) null, "
-        + "next_cursor VARCHAR(255) null);";
-
-
     static final String DATABASE_CREATE_TRACKS = "create table Tracks (_id INTEGER primary key, "
             + "permalink VARCHAR(255) null, "
             + "duration INTEGER null, "
@@ -376,8 +357,6 @@ public class DBHelper extends SQLiteOpenHelper {
             + "next_href VARCHAR(255) null, "
             + "size INTEGER null, "
             + "page_index INTEGER)";
-
-    //TODO, these should be in 1 table, duplication galore here
 
     static final String DATABASE_CREATE_COLLECTION_ITEMS =
             "create table CollectionItems (user_id INTEGER, item_id INTEGER, collection_type INTEGER, "
@@ -548,34 +527,6 @@ public class DBHelper extends SQLiteOpenHelper {
           public static final String CONCRETE_UPLOAD_ERROR = Tables.RECORDINGS.tableName + "." + UPLOAD_ERROR;
       }
 
-      public static final class Events implements BaseColumns {
-          public static final Uri CONTENT_URI = Uri.parse("content://"
-                  + ScContentProvider.AUTHORITY + "/Events");
-
-          public static final String CONTENT_TYPE = "vnd.android.cursor.dir/soundcloud.events";
-          public static final String ITEM_TYPE = "vnd.android.cursor.item/soundcloud.events";
-
-          public static final String ID = _ID;
-          public static final String USER_ID = "user_id";
-          public static final String TYPE = "type";
-          public static final String CREATED_AT = "created_at";
-          public static final String EXCLUSIVE = "exclusive";
-          public static final String TAGS = "tags";
-          public static final String LABEL = "label";
-          public static final String ORIGIN_ID = "origin_id";
-          public static final String NEXT_CURSOR = "next_cursor";
-
-          public static final String CONCRETE_ID = Tables.EVENTS.tableName + "." + ID;
-          public static final String CONCRETE_USER_ID = Tables.EVENTS.tableName + "." + USER_ID;
-          public static final String CONCRETE_TYPE = Tables.EVENTS.tableName + "." + TYPE;
-          public static final String CONCRETE_CREATED_AT = Tables.EVENTS.tableName + "." + CREATED_AT;
-          public static final String CONCRETE_EXCLUSIVE = Tables.EVENTS.tableName + "." + EXCLUSIVE;
-          public static final String CONCRETE_TAGS = Tables.EVENTS.tableName + "." + TAGS;
-          public static final String CONCRETE_LABEL = Tables.EVENTS.tableName + "." + LABEL;
-          public static final String CONCRETE_ORIGIN_ID = Tables.EVENTS.tableName + "." + ORIGIN_ID;
-          public static final String CONCRETE_NEXT_CURSOR = Tables.EVENTS.tableName + "." + NEXT_CURSOR;
-      }
-
     public static final class Searches implements BaseColumns {
         public static final Uri CONTENT_URI = Uri.parse("content://"
                 + ScContentProvider.AUTHORITY + "/Searches");
@@ -705,37 +656,5 @@ public class DBHelper extends SQLiteOpenHelper {
             + " FROM " + Tables.TRACKS
             + " JOIN " + Tables.USERS + " ON("
             + Tracks.CONCRETE_USER_ID + " = " + Users.CONCRETE_ID + ")";
-
-
-    /*
-
-    CREATE VIEW TRACKVIEW AS SELECT TRACKS._id as _id, TRACKS.permalink as permalink, USERS._id as user_id, duration, created_at, tag_list, track_type, title, permalink_url, artwork_url, waveform_url, downloadable, download_url, stream_url, streamable, sharing, user_id, user_favorite, filelength FROM TRACKS JOIN USERS ON(TRACKS.user_id = USERS._id) LEFT OUTER JOIN TRACK_PLAYS ON(TRACKS._id = TRACK_PLAYS.track_id)
-
-    static final String DATABASE_CREATE_EVENTLIST_VIEW = "CREATE VIEW " + Tables.EVENTLISTVIEW +
-            " AS SELECT "
-                + Events.CONCRETE_ID + " as " + Events.ALIAS_ID + ","
-                + Events.CONCRETE_USER_ID + " as " + Events.ALIAS_USER_ID + ","
-                + Events.CONCRETE_EXCLUSIVE + " as " + Events.ALIAS_EXCLUSIVE + ","
-                + Events.CONCRETE_NEXT_CURSOR + " as " + Events.ALIAS_NEXT_CURSOR + ","
-                + Tracks.CONCRETE_ID + " as " + Tracks.ALIAS_ID + ","
-                + Tracks.CONCRETE_TITLE + " as " + Tracks.ALIAS_TITLE + ","
-                + Users.CONCRETE_USERNAME + " as " + Users.ALIAS_USERNAME + ","
-                + Users.CONCRETE_ID + " as " + Users.ALIAS_ID + ","
-                + Tracks.CONCRETE_STREAMABLE + " as " + Tracks.ALIAS_STREAMABLE + ","
-                + Tracks.CONCRETE_STREAM_URL + " as " + Tracks.ALIAS_STREAM_URL + ","
-                + Tracks.CONCRETE_ARTWORK_URL + " as " + Tracks.ALIAS_ARTWORK_URL + ","
-                + Tracks.CONCRETE_SHARING + " as " + Tracks.ALIAS_SHARING + ","
-                + Tracks.CONCRETE_CREATED_AT + " as " + Tracks.ALIAS_CREATED_AT + ","
-                + Tracks.CONCRETE_USER_FAVORITE + " as " + Tracks.ALIAS_USER_FAVORITE + ","
-                + Tracks.CONCRETE_DURATION + " as " + Tracks.ALIAS_DURATION
-                + " FROM " + Tables.EVENTS
-                + " JOIN " + Tables.TRACKS + " ON("
-                + Events.CONCRETE_ORIGIN_ID + " = " + Tracks.CONCRETE_ID + ")"
-                + " JOIN " + Tables.USERS + " ON("
-                + Tracks.CONCRETE_USER_ID + " = " + Users.CONCRETE_ID + ")"
-                + " LEFT OUTER JOIN " + Tables.TRACK_PLAYS + " ON("
-                + Tracks.CONCRETE_ID + " = " + TrackPlays.CONCRETE_TRACK_ID + ")";
-                */
-
 
 }
