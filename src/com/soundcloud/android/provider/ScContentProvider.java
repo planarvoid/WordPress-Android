@@ -624,12 +624,13 @@ public class ScContentProvider extends ContentProvider {
     private static final int ME_FAVORITES_ITEM      = 108;
     private static final int ME_GROUPS              = 109;
     private static final int ME_PLAYLISTS           = 110;
-    private static final int ME_SOUND_STREAM        = 111;
-    private static final int ME_EXCLUSIVE_STREAM    = 112;
-    private static final int ME_ACTIVITIES          = 113;
 
-    private static final int ME_FRIENDS             = 150;
-    private static final int SUGGESTED_USERS        = 151;
+    private static final int ME_SOUND_STREAM        = 150;
+    private static final int ME_EXCLUSIVE_STREAM    = 151;
+    private static final int ME_ACTIVITIES          = 152;
+
+    private static final int ME_FRIENDS             = 160;
+    private static final int SUGGESTED_USERS        = 161;
 
     private static final int TRACKS                 = 201;
     private static final int TRACK_ITEM             = 202;

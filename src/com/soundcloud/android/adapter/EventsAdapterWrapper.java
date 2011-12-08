@@ -3,6 +3,7 @@ package com.soundcloud.android.adapter;
 
 import android.content.Intent;
 
+import android.net.Uri;
 import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -13,6 +14,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ActivitiesCache;
 import com.soundcloud.android.task.LoadCollectionTask;
+import com.soundcloud.android.task.LoadRemoteCollectionTask;
 import com.soundcloud.android.task.RefreshEventsTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 
@@ -63,7 +65,6 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     }
 
     public void onPostRefresh(List<Parcelable> newItems, String nextHref, boolean success) {
-
         if (success) { // apply cached items
             if (getWrappedAdapter().getCount() > 0 && newItems.contains(getData().get(0))) {
                 int i = 0;
@@ -132,6 +133,17 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
                 setAdapter(EventsAdapterWrapper.this);
                 cacheFile = ActivitiesCache.getCacheFile(mActivity.getApp(),mRequest);
                 execute();
+            }
+        };
+    }
+
+    @Override
+    protected LoadCollectionTask.Params buildAppendParams() {
+        return new LoadCollectionTask.Params() {
+            {
+                loadModel = getLoadModel(false);
+                pageIndex = getPageIndex(false);
+                request = buildRequest(false);
             }
         };
     }
