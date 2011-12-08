@@ -158,6 +158,7 @@ public class SoundCloudDB {
             bulkValues = new ContentValues[items.size()];
         }
 
+        // XXX lookup should be in model (Origin)
         for (Parcelable p : items) {
             long id = ((ModelBase) p).id;
             if (p instanceof User) {

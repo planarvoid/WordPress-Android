@@ -66,6 +66,7 @@ public class ApiSyncer {
         bulkAdd(userAdditions, User.class);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: parcelables added in " + (System.currentTimeMillis() - addStart) + " ms");
 
+
         // do collection inserts
         final long itemStart = System.currentTimeMillis();
         for (Map.Entry<Uri, ContentValues[]> entry : collectionValues.entrySet()) {
@@ -82,6 +83,7 @@ public class ApiSyncer {
 
         try {
             List<Long> local = idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.Users._ID}, null, null, null));
+
             List<Long> remote = mApp.getMapper().readValue(mApp.get(Request.to(endpoint + "/ids")).getEntity().getContent(), List.class);
 
             // deletions can happen here, has no impact
@@ -117,17 +119,19 @@ public class ApiSyncer {
         if (additions.size() == 0) return;
 
         CollectionHolder holder = null;
-        List<Parcelable> items = new ArrayList<Parcelable>();
-
         // remove anything that is already in the DB
         Uri contentUri = (Track.class.equals(loadModel)) ? ScContentProvider.Content.TRACKS : ScContentProvider.Content.USERS;
-        additions.removeAll(idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.Tracks._ID},
-                CloudUtils.getWhereIds(additions), CloudUtils.longArrToStringArr(additions), null)));
+
+        additions.removeAll(
+                idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.Tracks._ID},
+                    CloudUtils.getWhereIds(additions),
+                    CloudUtils.longArrToStringArr(additions), null)));
 
 
         InputStream is = mApp.get(Request.to(Track.class.equals(loadModel) ? Endpoints.TRACKS : Endpoints.USERS)
                 .add("ids", TextUtils.join(",", additions))).getEntity().getContent();
 
+        List<Parcelable> items = new ArrayList<Parcelable>();
         if (Track.class.equals(loadModel)) {
             holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
             for (TracklistItem t : (TracklistItemHolder) holder) {

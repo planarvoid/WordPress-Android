@@ -1,7 +1,9 @@
 package com.soundcloud.android.model;
 
 
-public interface Origin {
+import android.os.Parcelable;
+
+public interface Origin extends Parcelable {
     Track getTrack();
     User getUser();
 }
