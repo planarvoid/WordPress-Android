@@ -341,8 +341,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mMediaPlayer = new MediaPlayer();
             }
 
-            track.updateUserPlayedFromDb(getContentResolver(), getApp().getCurrentUserId());
-
             switch (state) {
                 case PREPARING:
                     Log.w(TAG, "stuck in preparing state!");
