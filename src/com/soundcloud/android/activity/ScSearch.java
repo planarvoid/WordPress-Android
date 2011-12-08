@@ -226,7 +226,8 @@ public class ScSearch extends ScActivity {
             mTrackAdpWrapper.clearSections();
             mTrackAdpWrapper.addSection(new SectionedAdapter.Section(getString(R.string.list_header_track_results_for,
                     query), Track.class, new ArrayList<Parcelable>(),
-                    Request.to(Endpoints.TRACKS).with("q", query),null));
+                    Request.to(Endpoints.TRACKS).with("q", query),
+                    CloudUtils.replaceWildcard(ScContentProvider.Content.SEARCHES_TRACK_ITEM,query)));
 
             setListType(false);
             mUserAdpWrapper.clearRefreshTask();
@@ -237,7 +238,8 @@ public class ScSearch extends ScActivity {
             mUserAdpWrapper.clearSections();
             mUserAdpWrapper.addSection(new SectionedAdapter.Section(getString(R.string.list_header_user_results_for,
                     query), User.class, new ArrayList<Parcelable>(),
-                    Request.to(Endpoints.USERS).with("q", query),null));
+                    Request.to(Endpoints.USERS).with("q", query),
+                    CloudUtils.replaceWildcard(ScContentProvider.Content.SEARCHES_USER_ITEM,query)));
 
             setListType(true);
             mTrackAdpWrapper.clearRefreshTask();

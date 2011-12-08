@@ -163,6 +163,20 @@ public class ScContentProvider extends ContentProvider {
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
+            case SEARCHES_USERS_ITEM:
+                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
+                selection = makeCollectionSelection(selection, String.valueOf(userId), CollectionItemTypes.SEARCH);
+                sortOrder = makeCollectionSort(uri, sortOrder);
+                break;
+
+            case SEARCHES_TRACKS_ITEM:
+                if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
+                qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
+                selection = makeCollectionSelection(selection, String.valueOf(userId), CollectionItemTypes.SEARCH);
+                sortOrder = makeCollectionSort(uri, sortOrder);
+                break;
+
             case TRACK_PLAYS:
                 qb.setTables(DBHelper.Tables.TRACK_PLAYS.tableName);
                 whereAppend = DBHelper.TrackPlays.CONCRETE_USER_ID + " = "+ userId;
@@ -391,7 +405,17 @@ public class ScContentProvider extends ContentProvider {
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
                     extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(CollectionItemTypes.SUGGESTED_USER)};
                     break;
+                case SEARCHES_USERS_ITEM:
+                    tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(CollectionItemTypes.SEARCH)};
+                    break;
+
+                case SEARCHES_TRACKS_ITEM:
+                    tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(CollectionItemTypes.SEARCH)};
+                    break;
                 default:
+
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
 
@@ -516,6 +540,7 @@ public class ScContentProvider extends ContentProvider {
         int FOLLOWER = 4;
         int FRIEND = 5;
         int SUGGESTED_USER = 6;
+        int SEARCH = 7;
     }
 
     public interface Content {
@@ -580,6 +605,10 @@ public class ScContentProvider extends ContentProvider {
         Uri EVENT_ITEM                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/events/#");
         Uri SEARCHES                    = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches");
         Uri SEARCHES_ITEM               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/#");
+        Uri SEARCHES_TRACKS             = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/tracks");
+        Uri SEARCHES_USERS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/users");
+        Uri SEARCHES_TRACK_ITEM         = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/tracks/*");
+        Uri SEARCHES_USER_ITEM          = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/users/*");
         Uri TRACK_PLAYS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/track_plays");
 
     }
@@ -642,6 +671,10 @@ public class ScContentProvider extends ContentProvider {
     private static final int TRACK_PLAYS_ITEM       = 1301;
     private static final int SEARCHES               = 1400;
     private static final int SEARCHES_ITEM          = 1401;
+    private static final int SEARCHES_TRACKS        = 1402;
+    private static final int SEARCHES_USERS         = 1403;
+    private static final int SEARCHES_TRACKS_ITEM   = 1404;
+    private static final int SEARCHES_USERS_ITEM    = 1405;
 
 
 
@@ -708,6 +741,10 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "track_plays", TRACK_PLAYS);
         matcher.addURI(ScContentProvider.AUTHORITY, "searches", SEARCHES);
         matcher.addURI(ScContentProvider.AUTHORITY, "searches/#", SEARCHES_ITEM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "searches/tracks", SEARCHES_TRACKS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "searches/users", SEARCHES_USERS);
+        matcher.addURI(ScContentProvider.AUTHORITY, "searches/tracks/*", SEARCHES_TRACKS_ITEM);
+        matcher.addURI(ScContentProvider.AUTHORITY, "searches/users/*", SEARCHES_USERS_ITEM);
 
 		return matcher;
 

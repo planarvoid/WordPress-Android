@@ -117,7 +117,11 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
         if (uriCode < 200){ // mine
             return mApp.getCurrentUserId();
         } else if (mParams.contentUri.getPathSegments().size() > 2){
-            return Long.parseLong(mParams.contentUri.getPathSegments().get(1));
+            try {
+                return Long.parseLong(mParams.contentUri.getPathSegments().get(1));
+            } catch (NumberFormatException e){
+                return mApp.getCurrentUserId();
+            }
         } else{
             return -1;
         }
