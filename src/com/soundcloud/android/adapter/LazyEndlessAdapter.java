@@ -13,14 +13,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.*;
-import com.soundcloud.android.service.ApiService;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.LoadRemoteCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -507,8 +507,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             if (sync){
                 // send an intent to update our event cache
                 mWaitingOnSync = true;
-                final Intent intent = new Intent(mActivity, ApiService.class);
-                intent.putExtra(ApiService.EXTRA_STATUS_RECEIVER, getReceiver());
+                final Intent intent = new Intent(mActivity, ApiSyncService.class);
+                intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
                 intent.putExtra(mSyncExtra, true);
                 mActivity.startService(intent);
             }
@@ -633,15 +633,15 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
-            case ApiService.STATUS_RUNNING: {
+            case ApiSyncService.STATUS_RUNNING: {
                 break;
             }
-            case ApiService.STATUS_FINISHED: {
+            case ApiSyncService.STATUS_FINISHED: {
                 mWaitingOnSync = false;
                 startRefreshTask(false);
                 break;
             }
-            case ApiService.STATUS_ERROR: {
+            case ApiSyncService.STATUS_ERROR: {
                 mWaitingOnSync = false;
                 mState = ERROR;
                 onPostRefresh(null,null,false,false);

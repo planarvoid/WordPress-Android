@@ -5,12 +5,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.service.ApiService;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -34,7 +31,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -113,27 +109,27 @@ public class SyncAdapterService extends Service {
             if (app.useAccount(account).valid()) {
                 // TODO, do not sync everything unless it is set that way in prefs
                 Looper.prepare();
-                final Intent intent = new Intent(app, ApiService.class);
-                if (isIncomingEnabled(app)) intent.putExtra(ApiService.SyncExtras.INCOMING, true);
-                if (isExclusiveEnabled(app)) intent.putExtra(ApiService.SyncExtras.EXCLUSIVE, true);
-                if (isActivitySyncEnabled(app)) intent.putExtra(ApiService.SyncExtras.ACTIVITY, true);
+                final Intent intent = new Intent(app, ApiSyncService.class);
+                if (isIncomingEnabled(app)) intent.putExtra(ApiSyncService.SyncExtras.INCOMING, true);
+                if (isExclusiveEnabled(app)) intent.putExtra(ApiSyncService.SyncExtras.EXCLUSIVE, true);
+                if (isActivitySyncEnabled(app)) intent.putExtra(ApiSyncService.SyncExtras.ACTIVITY, true);
 
 
-                intent.putExtra(ApiService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
+                intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
                     @Override
                     protected void onReceiveResult(int resultCode, Bundle resultData) {
                         switch (resultCode) {
-                            case ApiService.STATUS_RUNNING: {
+                            case ApiSyncService.STATUS_RUNNING: {
                                 break;
                             }
-                            case ApiService.STATUS_ERROR: {
-                                SyncResult serviceResult = resultData.getParcelable(ApiService.EXTRA_SYNC_RESULT);
+                            case ApiSyncService.STATUS_ERROR: {
+                                SyncResult serviceResult = resultData.getParcelable(ApiSyncService.EXTRA_SYNC_RESULT);
                                 syncResult.stats.numAuthExceptions = serviceResult.stats.numAuthExceptions;
                                 syncResult.stats.numIoExceptions = serviceResult.stats.numIoExceptions;
                                 Looper.myLooper().quit();
                                 break;
                             }
-                            case ApiService.STATUS_FINISHED: {
+                            case ApiSyncService.STATUS_FINISHED: {
                                 try {
                                     final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
                                     final Activities incoming = !isIncomingEnabled(app) ? Activities.EMPTY

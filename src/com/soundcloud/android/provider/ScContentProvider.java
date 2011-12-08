@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 
 import java.util.regex.Matcher;
@@ -70,66 +69,66 @@ public class ScContentProvider extends ContentProvider {
             case ME_TRACKS:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId), ResourceItemTypes.TRACK);
+                selection = makeCollectionSelection(selection, String.valueOf(userId), CollectionItemTypes.TRACK);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case USER_TRACKS:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
-                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1),ResourceItemTypes.TRACK);
+                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1), CollectionItemTypes.TRACK);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case ME_FAVORITES:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId), ResourceItemTypes.FAVORITE);
+                selection = makeCollectionSelection(selection, String.valueOf(userId), CollectionItemTypes.FAVORITE);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case USER_FAVORITES:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
-                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1),ResourceItemTypes.FAVORITE);
+                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1), CollectionItemTypes.FAVORITE);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case ME_FOLLOWERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId), ResourceItemTypes.FOLLOWER);
+                selection = makeCollectionSelection(selection, String.valueOf(userId), CollectionItemTypes.FOLLOWER);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case USER_FOLLOWERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
-                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1),ResourceItemTypes.FOLLOWER);
+                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1), CollectionItemTypes.FOLLOWER);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case ME_FOLLOWINGS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId), ResourceItemTypes.FOLLOWING);
+                selection = makeCollectionSelection(selection, String.valueOf(userId), CollectionItemTypes.FOLLOWING);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case USER_FOLLOWINGS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
-                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1),ResourceItemTypes.FOLLOWING);
+                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1), CollectionItemTypes.FOLLOWING);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
              case ME_FRIENDS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId), ResourceItemTypes.FRIEND);
+                selection = makeCollectionSelection(selection, String.valueOf(userId), CollectionItemTypes.FRIEND);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case SUGGESTED_USERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId),ResourceItemTypes.SUGGESTED_USER);
+                selection = makeCollectionSelection(selection, String.valueOf(userId), CollectionItemTypes.SUGGESTED_USER);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
@@ -255,7 +254,7 @@ public class ScContentProvider extends ContentProvider {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
-                    cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, ResourceItemTypes.FAVORITE);
+                    cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, CollectionItemTypes.FAVORITE);
                     id = db.insertWithOnConflict(DBHelper.Tables.COLLECTION_ITEMS.tableName, null, cv, SQLiteDatabase.CONFLICT_ABORT);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
@@ -295,19 +294,19 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_TRACKS:
-                where = makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.TRACK);
+                where = makeCollectionSelection(where, String.valueOf(userId), CollectionItemTypes.TRACK);
                 tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
                 break;
             case ME_FAVORITES:
-                where = makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FAVORITE);
+                where = makeCollectionSelection(where, String.valueOf(userId), CollectionItemTypes.FAVORITE);
                 tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
                 break;
             case ME_FOLLOWINGS:
-                where = makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FOLLOWING);
+                where = makeCollectionSelection(where, String.valueOf(userId), CollectionItemTypes.FOLLOWING);
                 tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
                 break;
             case ME_FOLLOWERS:
-                where = makeCollectionSelection(where, String.valueOf(userId), ResourceItemTypes.FOLLOWER);
+                where = makeCollectionSelection(where, String.valueOf(userId), CollectionItemTypes.FOLLOWER);
                 tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
                 break;
 
@@ -367,30 +366,30 @@ public class ScContentProvider extends ContentProvider {
                 case ME_TRACKS:
                 case USER_TRACKS:
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.TRACK)};
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(CollectionItemTypes.TRACK)};
                     break;
                 case ME_FAVORITES:
                 case USER_FAVORITES:
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.FAVORITE)};
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(CollectionItemTypes.FAVORITE)};
                     break;
                 case ME_FOLLOWERS:
                 case USER_FOLLOWERS:
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.FOLLOWER)};
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(CollectionItemTypes.FOLLOWER)};
                     break;
                 case ME_FOLLOWINGS:
                 case USER_FOLLOWINGS:
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.FOLLOWING)};
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(CollectionItemTypes.FOLLOWING)};
                     break;
                 case ME_FRIENDS:
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.FRIEND)};
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(CollectionItemTypes.FRIEND)};
                     break;
                 case SUGGESTED_USERS:
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(ResourceItemTypes.SUGGESTED_USER)};
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(CollectionItemTypes.SUGGESTED_USER)};
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
@@ -493,7 +492,7 @@ public class ScContentProvider extends ContentProvider {
             DBHelper.Tables.TRACKVIEW.tableName + ".*",
             "EXISTS (SELECT 1 FROM " + DBHelper.Tables.COLLECTION_ITEMS.tableName
                     + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + ResourceItemTypes.FAVORITE
+                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.FAVORITE
                     + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as " + DBHelper.TrackView.USER_FAVORITE,
     };
 
@@ -501,16 +500,16 @@ public class ScContentProvider extends ContentProvider {
             DBHelper.Tables.USERS.tableName + ".*",
             "EXISTS (SELECT 1 FROM " + DBHelper.Tables.COLLECTION_ITEMS.tableName
                     + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + ResourceItemTypes.FOLLOWING
+                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.FOLLOWING
                     + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as "  + DBHelper.Users.USER_FOLLOWING,
             "EXISTS (SELECT 1 FROM " + DBHelper.Tables.COLLECTION_ITEMS.tableName
                     + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + ResourceItemTypes.FOLLOWER
+                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + CollectionItemTypes.FOLLOWER
                     + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as " + DBHelper.Users.USER_FOLLOWER
     };
 
 
-    public interface ResourceItemTypes {
+    public interface CollectionItemTypes {
         int TRACK = 1;
         int FAVORITE = 2;
         int FOLLOWING = 3;
