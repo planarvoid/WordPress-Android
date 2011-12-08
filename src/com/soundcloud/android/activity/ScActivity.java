@@ -263,14 +263,6 @@ public abstract class ScActivity extends Activity {
         }
     }
 
-    public void playTrack(Track track, boolean goToPlayer) {
-        // TODO one shot play here??
-        playTrack(track, null, goToPlayer);
-    }
-
-    public void playTrack(final Track track, final LazyEndlessAdapter wrapper, boolean goToPlayer) {
-        playTrack(track, wrapper, goToPlayer, false);
-    }
 
     public void playTrack(final Track track, final LazyEndlessAdapter wrapper, boolean goToPlayer, boolean commentMode) {
         // find out if this track is already playing. If it is, just go to the player
@@ -289,15 +281,16 @@ public abstract class ScActivity extends Activity {
             Log.e(TAG, "error", e);
         }
 
-        try {
-            if (wrapper instanceof EventsAdapterWrapper || wrapper.getContentUri(false) == null) {
-                mPlaybackService.playFromIdList(wrapper.getTrackIds(), track);
-            } else {
-                mPlaybackService.playFromUri(wrapper.getContentUri(false).toString(), track);
-            }
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
+        final Intent playIntent = new Intent(this, CloudPlaybackService.class)
+                .putExtra("track", track)
+                .setAction(CloudPlaybackService.PLAY);
+
+        if (wrapper instanceof EventsAdapterWrapper || wrapper.getContentUri() == null) {
+            playIntent.putExtra("track_ids", wrapper.getTrackIds());
+        } else {
+            playIntent.setData(wrapper.getContentUri());
         }
+        startService(playIntent);
 
         if (goToPlayer) {
             launchPlayer(commentMode);
@@ -621,20 +614,18 @@ public abstract class ScActivity extends Activity {
         @Override
         public void onEventClick(EventsAdapterWrapper wrapper, Event e) {
             if (Event.Types.FAVORITING.contentEquals(e.type)) {
-                if (getApp().getTrackFromCache(e.getTrack().id) == null) {
-                    getApp().cacheTrack(e.getTrack());
-                }
+                SoundCloudApplication.TRACK_CACHE.put(e.getTrack());
                 Intent i = new Intent(ScActivity.this, TrackFavoriters.class);
                 i.putExtra("track_id", e.getTrack().id);
                 startActivity(i);
             } else {
-                playTrack(e.getTrack(), wrapper, true);
+                playTrack(e.getTrack(), wrapper, true, false);
             }
         }
 
         @Override
         public void onTrackClick(LazyEndlessAdapter wrapper, Track track) {
-            playTrack(track, wrapper, true);
+            playTrack(track, wrapper, true, false);
         }
 
         @Override

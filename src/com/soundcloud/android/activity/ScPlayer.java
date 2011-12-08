@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
@@ -570,17 +571,15 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         mPlaybackService = null;
     }
 
-
-
     private Track getAndCacheTrack(long trackId, int queuePos) {
-        if (getApp().getTrackFromCache(trackId) == null) {
-            Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId, getCurrentUserId());
+        if (!SoundCloudApplication.TRACK_CACHE.containsKey(trackId)) {
+            Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId);
             try {
-                getApp().cacheTrack(t != null ? t : mPlaybackService.getTrackAt(queuePos));
+                SoundCloudApplication.TRACK_CACHE.put(t != null ? t : mPlaybackService.getTrackAt(queuePos));
             } catch (RemoteException ignored) {
             }
         }
-        return getApp().getTrackFromCache(trackId);
+        return SoundCloudApplication.TRACK_CACHE.get(trackId);
     }
 
     private void updateTrackDisplay(final Track track) {

@@ -1,8 +1,6 @@
 package com.soundcloud.android.model;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -17,13 +15,13 @@ public class UserTest {
     @Test
     public void testLocation() throws Exception {
         User u = new User();
-        assertThat(u.getLocation(), equalTo(""));
+        expect(u.getLocation()).toEqual("");
         u.city = "Berlin";
-        assertThat(u.getLocation(), equalTo("Berlin"));
+        expect(u.getLocation()).toEqual("Berlin");
         u.country = "Germany";
-        assertThat(u.getLocation(), equalTo("Berlin, Germany"));
+        expect(u.getLocation()).toEqual("Berlin, Germany");
         u.city = null;
-        assertThat(u.getLocation(), equalTo("Germany"));
+        expect(u.getLocation()).toEqual("Germany");
     }
 
     @Test
@@ -33,7 +31,7 @@ public class UserTest {
         u.buildContentValues(true);
         u.id = 1000L;
         ContentValues cv = u.buildContentValues(false);
-        assertThat(cv.getAsLong(DBHelper.Users.ID), is(1000L));
+        expect(cv.getAsLong(DBHelper.Users.ID)).toBe(1000L);
     }
 
     @Test
@@ -41,7 +39,7 @@ public class UserTest {
         User u = new User();
         u.permalink = "username";
 
-        assertThat(u.pageTrack(false, "foo"), equalTo("/username/foo"));
-        assertThat(u.pageTrack(true, "foo"), equalTo("/you/foo"));
+        expect(u.pageTrack(false, "foo")).toEqual("/username/foo");
+        expect(u.pageTrack(true, "foo")).toEqual("/you/foo");
     }
 }

@@ -32,6 +32,7 @@ import org.apache.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
@@ -217,31 +218,19 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         }
     }
 
-    public List getTrackIds() {
+    public long[] getTrackIds() {
         List<Long> idList = new ArrayList<Long>();
-        for (Parcelable p : getData()){
-            if (p instanceof Track) {
-                idList.add(((Track) p).id);;
-            } else if (p instanceof Event) {
-                idList.add(((Event) p).getTrack().id);;
-            }
+        for (Parcelable p : getData()) {
+            if (p instanceof Playable) {
+                idList.add(((Playable) p).getTrack().id);
+             }
         }
-        return idList;
-    }
-
-
-    private static class State {
-        public DetachableResultReceiver mReceiver;
-        public Uri mNowPlayingUri = null;
-        public boolean mNowPlayingGotoWifi = false;
-        public boolean mSyncing = false;
-        public boolean mNoResults = false;
-
-        private State() {
-            mReceiver = new DetachableResultReceiver(new Handler());
+        long[] ids = new long[idList.size()];
+        for (int i=0; i<idList.size(); i++) {
+            ids[i] = idList.get(i);
         }
+        return ids;
     }
-
 
     /**
      * Restore a possibly still running task that could have been passed in on
@@ -474,6 +463,10 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     protected Request getRequest(boolean refresh) {
         if (mRequest == null) return null;
         return (!refresh && !TextUtils.isEmpty(mNextHref)) ? new Request(mNextHref) : new Request(mRequest);
+    }
+
+    public Uri getContentUri() {
+        return getContentUri(false);
     }
 
     public Uri getContentUri(boolean refresh) {

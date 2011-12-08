@@ -1,10 +1,6 @@
 
 package com.soundcloud.android.model;
 
-import android.content.Context;
-import android.net.Uri;
-import android.os.Parcel;
-import android.os.Parcelable;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
@@ -16,10 +12,15 @@ import com.soundcloud.api.Request;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import android.content.Context;
+import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Event extends ModelBase implements Origin {
+public class Event extends ModelBase implements Origin, Playable {
     @JsonProperty public Date created_at;
     @JsonProperty public String type;
     @JsonProperty public String tags;

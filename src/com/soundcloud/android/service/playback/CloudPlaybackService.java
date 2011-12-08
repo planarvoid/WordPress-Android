@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.streaming.StreamProxy;
 import com.soundcloud.android.task.FavoriteAddTask;
@@ -56,7 +57,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public static final String PAUSE_ACTION       = "com.soundcloud.android.musicservicecommand.pause";
     public static final String PREVIOUS_ACTION    = "com.soundcloud.android.musicservicecommand.previous";
     public static final String NEXT_ACTION        = "com.soundcloud.android.musicservicecommand.next";
-    public static final String ONE_SHOT_PLAY      = "com.soundcloud.android.musicservicecommand.oneshotplay";
+    public static final String PLAY               = "com.soundcloud.android.musicservicecommand.play";
     public static final String RESET_ALL          = "com.soundcloud.android.musicservicecommand.resetall";
 
     public static final String ADD_FAVORITE       = "com.soundcloud.android.favorite.add";
@@ -89,7 +90,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
     protected NetworkConnectivityListener connectivityListener;
-    /* package */ PlaylistManager mPlaylistManager = new PlaylistManager(this);
+    /* package */ PlaylistManager mPlaylistManager;
     private Track mCurrentTrack;
     private RemoteViews mNotificationView;
     private AudioManager mAudioManager;
@@ -116,6 +117,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private boolean m95percentStampReached;
 
     private StreamProxy mProxy;
+    private TrackCache mCache;
 
     // audio focus related
     private FocusHelper mFocus;
@@ -128,6 +130,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     @Override
     public void onCreate() {
         super.onCreate();
+        mCache = SoundCloudApplication.TRACK_CACHE;
+        mPlaylistManager = new PlaylistManager(this, mCache);
+
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         IntentFilter commandFilter = new IntentFilter();
@@ -286,25 +291,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         mAppWidgetProvider.notifyChange(this, i.putExtra("trackParcel", getTrack()));
     }
 
-    /* package */ void oneShotPlay(Track track) {
-        if (track != null) {
-            mPlaylistManager.oneShotTrack(track);
-            openCurrent();
-        }
-    }
-
-    /* package */ void playFromAppCache(int playPos) {
-        mPlaylistManager.loadPlaylist(getApp().flushCachePlaylist(), playPos);
-        openCurrent();
-    }
-
     /* package */ void openCurrent() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "openCurrent(state="+state+")");
         }
         final Track track = mPlaylistManager.getTrack();
         if (track != null) {
-
             if (mAutoPause) {
                 mAutoPause = false;
                 notifyChange(META_CHANGED);
@@ -322,11 +314,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
                 new Thread() {
                     @Override public void run() {
-                        track.markAsPlayed(getContentResolver());
-                        mCurrentTrack.updateFromDb(getContentResolver(), getApp().getLoggedInUser());
-                        if (getApp().getTrackFromCache(mCurrentTrack.id) == null) {
-                            getApp().cacheTrack(mCurrentTrack);
-                        }
+                        track.markAsPlayed(getContentResolver(), getApp().getCurrentUserId());
+                        mCache.put(track.updateFromDb(getContentResolver(), getApp().getLoggedInUser()));
                         mPlayerHandler.sendEmptyMessage(NOTIFY_META_CHANGED);
                     }
                 }.start();
@@ -352,8 +341,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mMediaPlayer = new MediaPlayer();
             }
 
-            // commit updated track (user played update only)
-            mPlaylistManager.commitTrackToDb(track);
+            track.updateUserPlayedFromDb(getContentResolver(), getApp().getCurrentUserId());
 
             switch (state) {
                 case PREPARING:
@@ -394,7 +382,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mMediaPlayer.setOnErrorListener(errorListener);
                 mMediaPlayer.setOnBufferingUpdateListener(bufferingListener);
                 mMediaPlayer.setOnInfoListener(infolistener);
-                Track next = mPlaylistManager.getNextTrack();
+                Track next = mPlaylistManager.getNext();
                 mMediaPlayer.setDataSource(mProxy.createUri(mCurrentTrack.stream_url, next == null ? null : next.stream_url).toString());
                 mMediaPlayer.prepareAsync();
                 notifyChange(BUFFERING);
@@ -514,7 +502,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         status.icon = R.drawable.statusbar;
         status.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
         startForeground(PLAYBACKSERVICE_STATUS_ID, status);
-
     }
 
     /* package */ void setQueuePosition(int pos) {
@@ -700,9 +687,10 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
-        SoundCloudDB.setTrackIsFavorite(getApp().getContentResolver(), trackId, isFavorite, getApp().getCurrentUserId());
-        if (getApp().getTrackFromCache(trackId) != null) {
-            getApp().getTrackFromCache(trackId).user_favorite = isFavorite;
+        SoundCloudDB.setTrackIsFavorite(getContentResolver(), trackId, isFavorite, getApp().getCurrentUserId());
+
+        if (mCache.containsKey(trackId)) {
+            mCache.get(trackId).user_favorite = isFavorite;
         }
 
         if (mCurrentTrack.id == trackId && mCurrentTrack.user_favorite != isFavorite) {
@@ -779,15 +767,35 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
             } else if (REMOVE_FAVORITE.equals(action)) {
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
-            } else if (ONE_SHOT_PLAY.equals(action)) {
-                // XXX track is fully parceled but only id is used
-                oneShotPlay(intent.<Track>getParcelableExtra("track"));
+            } else if (PLAY.equals(action)) {
+                handlePlayAction(intent);
             } else if (RESET_ALL.equals(action)) {
                 stop();
                 mPlaylistManager.clear();
             }
         }
     };
+
+    private void handlePlayAction(Intent intent) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "handlePlayAction("+intent+")");
+        }
+
+        Track track = intent.getParcelableExtra("track");
+        if (track != null) {
+            if (intent.hasExtra("track_ids")) {
+                long[] ids = intent.getLongArrayExtra("track_ids");
+                mPlaylistManager.setTracks(ids, track);
+            }  else if (intent.getData() != null) {
+                mPlaylistManager.setTracks(intent.getData(), track);
+            } else {
+                mPlaylistManager.setTrack(track);
+            }
+            openCurrent();
+        } else {
+            Log.w(TAG, "playAction called without track");
+        }
+    }
 
     private final Handler mPlayerHandler = new Handler() {
         private static final float DUCK_VOLUME = 0.1f;

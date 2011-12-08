@@ -1,6 +1,41 @@
 package com.soundcloud.android;
 
-import android.accounts.*;
+import static android.content.pm.PackageManager.*;
+import static com.soundcloud.android.provider.ScContentProvider.*;
+
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+import com.google.android.filecache.FileResponseCache;
+import com.google.android.imageloader.BitmapContentHandler;
+import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.cache.TrackCache;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.beta.BetaService;
+import com.soundcloud.android.service.beta.C2DMReceiver;
+import com.soundcloud.android.service.beta.WifiMonitor;
+import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Env;
+import com.soundcloud.api.Request;
+import com.soundcloud.api.Stream;
+import com.soundcloud.api.Token;
+import org.acra.ACRA;
+import org.acra.annotation.ReportsCrashes;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
@@ -10,42 +45,16 @@ import android.content.UriMatcher;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-import com.google.android.filecache.FileResponseCache;
-import com.google.android.imageloader.BitmapContentHandler;
-import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.cache.Connections;
-import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.cache.LruCache;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.service.beta.BetaService;
-import com.soundcloud.android.service.beta.C2DMReceiver;
-import com.soundcloud.android.service.beta.WifiMonitor;
-import com.soundcloud.android.service.sync.SyncAdapterService;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.*;
-import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.net.ContentHandler;
 import java.net.URI;
-import java.util.*;
-
-import static android.content.pm.PackageManager.*;
-import static com.soundcloud.android.provider.ScContentProvider.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @ReportsCrashes(
@@ -54,16 +63,18 @@ import static com.soundcloud.android.provider.ScContentProvider.*;
         checkReportVersion = true,
         checkReportSender = true)
 public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
+
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     public static final boolean DALVIK = Build.VERSION.SDK_INT > 0;
     public static final boolean API_PRODUCTION = true;
+    public static final TrackCache TRACK_CACHE = new TrackCache();
 
     public static boolean DEV_MODE, BETA_MODE;
     private RecordListener mRecListener;
     private ImageLoader mImageLoader;
-    private List<Parcelable> mPlaylistCache;
-    private final LruCache<Long, Track> mTrackCache = new LruCache<Long, Track>(32);
+
+
     private GoogleAnalyticsTracker mTracker;
 
     private User mLoggedInUser;
@@ -194,17 +205,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public void cachePlaylist(List<Parcelable> playlistCache) {
-        mPlaylistCache = playlistCache;
-    }
-
-    public List<Parcelable> flushCachePlaylist() {
-        List<Parcelable> playlistRef = mPlaylistCache;
-        mPlaylistCache = null;
-        return playlistRef;
-    }
-
-
     public void onFrameUpdate(float maxAmplitude, long elapsed) {
         if (mRecListener != null) mRecListener.onFrameUpdate(maxAmplitude, elapsed);
     }
@@ -217,21 +217,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         this.mRecListener = listener;
     }
 
-    public void cacheTrack(Track track) {
-        if (track != null) mTrackCache.put(track.id, track);
-    }
-
-    public Track getTrackFromCache(long track_id) {
-        return mTrackCache.get(track_id);
-    }
-
-     public void addCommentToTrackCache(Comment comment) {
-         final Track track = getTrackFromCache(comment.track_id);
-         if (track != null) {
-             if (track.comments == null) track.comments = new ArrayList<Comment>();
-             track.comments.add(comment);
-         }
-    }
 
     public Account getAccount() {
         Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));

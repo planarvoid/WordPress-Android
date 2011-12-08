@@ -10,21 +10,14 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
-import org.json.JSONException;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.IOException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
-
-
-
     SoundCloudApplication mApplication;
     com.soundcloud.android.model.Comment mAddComment;
 
@@ -55,8 +48,8 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
     @Override
     protected void onPostExecute(Boolean success) {
         if (success){
-            if (mApplication.getTrackFromCache(mAddComment.track_id) != null) {
-                final Track track = mApplication.getTrackFromCache(mAddComment.track_id);
+            if (SoundCloudApplication.TRACK_CACHE.containsKey(mAddComment.track_id)) {
+                final Track track = SoundCloudApplication.TRACK_CACHE.get(mAddComment.track_id);
                 if (track.comments == null) track.comments = new ArrayList<Comment>();
                 track.comments.add(mAddComment);
             }

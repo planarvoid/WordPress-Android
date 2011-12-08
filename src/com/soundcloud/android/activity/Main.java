@@ -471,7 +471,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
     @Override
     public void onTrackInfoLoaded(Track track, String action) {
         startService(new Intent(this, CloudPlaybackService.class)
-                .setAction(CloudPlaybackService.ONE_SHOT_PLAY)
+                .setAction(CloudPlaybackService.PLAY)
                 .putExtra("track", track));
 
         startActivity(new Intent(this, ScPlayer.class));

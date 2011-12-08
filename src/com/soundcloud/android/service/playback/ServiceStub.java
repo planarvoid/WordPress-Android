@@ -98,14 +98,6 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     }
 
     @Override
-    public void playFromUri(String uri, Track track) throws RemoteException {
-    }
-
-    @Override
-    public void playFromIdList(List ids, Track track) throws RemoteException {
-    }
-
-    @Override
     public boolean isBuffering() {
         CloudPlaybackService svc = mService.get();
         return svc != null && svc.isBuffering();

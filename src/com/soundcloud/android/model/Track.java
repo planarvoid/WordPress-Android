@@ -41,7 +41,7 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ModelBase implements PageTrackable, Origin {
+public class Track extends ModelBase implements PageTrackable, Origin, Playable {
     private static final String TAG = "Track";
 
     public static class TrackHolder extends CollectionHolder<Track> {}
@@ -186,16 +186,14 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
     }
 
-    public void markAsPlayed(ContentResolver contentResolver) {
+    public void markAsPlayed(ContentResolver contentResolver, long userId) {
         Cursor cursor = contentResolver.query(ScContentProvider.Content.TRACK_PLAYS, null,
-                TrackPlays.TRACK_ID + " = ?", new String[]{
-                Long.toString(id)
-        }, null);
+                TrackPlays.TRACK_ID + " = ?", new String[] { String.valueOf(id)}, null);
 
         if (cursor == null || cursor.getCount() == 0) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(TrackPlays.TRACK_ID, id);
-            contentValues.put(TrackPlays.USER_ID, user.id);
+            contentValues.put(TrackPlays.USER_ID, userId);
             contentResolver.insert(ScContentProvider.Content.TRACK_PLAYS, contentValues);
         }
         if (cursor != null) cursor.close();
@@ -274,11 +272,11 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         SoundCloudDB.writeTrack(app.getContentResolver(), this, SoundCloudDB.WriteState.insert_only, app.getCurrentUserId());
     }
 
-    public void updateFromDb(ContentResolver resolver, User user) {
-        updateFromDb(resolver, user.id);
+    public Track updateFromDb(ContentResolver resolver, User user) {
+        return updateFromDb(resolver, user.id);
     }
 
-    public void updateFromDb(ContentResolver resolver, long currentUserId) {
+    public Track updateFromDb(ContentResolver resolver, long currentUserId) {
         Cursor cursor = resolver.query(appendIdToUri(ScContentProvider.Content.TRACKS), null, null,null, null);
 
         if (cursor != null) {
@@ -308,6 +306,7 @@ public class Track extends ModelBase implements PageTrackable, Origin {
         if (user != null) {
             user.updateFromDb(resolver, currentUserId);
         }
+        return this;
     }
 
     public boolean updateUserPlayedFromDb(ContentResolver resolver, User user) {
@@ -315,7 +314,8 @@ public class Track extends ModelBase implements PageTrackable, Origin {
     }
 
     public boolean updateUserPlayedFromDb(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(appendIdToUri(ScContentProvider.Content.TRACK_PLAYS), null, null, null, null);
+        Cursor cursor = contentResolver.query(appendIdToUri(ScContentProvider.Content.TRACK_PLAYS),
+                null, null, null, null);
 
         if (cursor != null) {
             user_played = cursor.getCount() > 0;

@@ -29,6 +29,8 @@ public class DBHelper extends SQLiteOpenHelper {
         RECORDINGS("Recordings", DATABASE_CREATE_RECORDINGS),
         TRACK_PLAYS("TrackPlays", DATABASE_CREATE_TRACK_PLAYS),
         SEARCHES("Searches", DATABASE_CREATE_SEARCHES),
+        PLAYLIST("Playlist", DATABASE_CREATE_PLAYLIST),
+        PLAYLIST_ITEMS("PlaylistItems", DATABASE_CREATE_PLAYLIST_ITEMS),
 
         COLLECTION_ITEMS("CollectionItems", DATABASE_CREATE_COLLECTION_ITEMS),
         COLLECTIONS("Collections", DATABASE_CREATE_COLLECTIONS),
@@ -67,10 +69,10 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL(DATABASE_CREATE_COLLECTIONS);
             db.execSQL(DATABASE_CREATE_COLLECTION_PAGES);
             db.execSQL(DATABASE_CREATE_COLLECTION_ITEMS);
-
+            db.execSQL(DATABASE_CREATE_PLAYLIST);
+            db.execSQL(DATABASE_CREATE_PLAYLIST_ITEMS);
         } catch (SQLException e) {
             throw new RuntimeException(e);
-            //SoundCloudApplication.handleSilentException("error during onCreate()", e);
         }
     }
 
@@ -343,6 +345,18 @@ public class DBHelper extends SQLiteOpenHelper {
             + "user_id INTEGER null, "
             + "query VARCHAR(255) null, "
             + "search_type INTEGER null);";
+
+    static final String DATABASE_CREATE_PLAYLIST = "create table Playlists (_id INTEGER primary key AUTOINCREMENT, "
+            + "created_at INTEGER null, "
+            + "position INTEGER null, "
+            + "seek_pos INTEGER null, "
+            + "user_id INTEGER null);";
+
+    static final String DATABASE_CREATE_PLAYLIST_ITEMS = "create table PlaylistItems (_id INTEGER primary key AUTOINCREMENT, "
+            + "playlist_id INTEGER null, "
+            + "track_id INTEGER null"
+            + "position INTEGER null"
+            + "user_id INTEGER null);";
 
     static final String DATABASE_CREATE_COLLECTIONS = "create table Collections (_id INTEGER primary key AUTOINCREMENT, "
             + "uri VARCHAR(255) null, "

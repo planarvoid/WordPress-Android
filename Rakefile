@@ -100,6 +100,14 @@ end
           end
       end
 
+      namespace :db do
+        db_path = "/data/data/#{package}/databases/SoundCloud"
+        desc "get db from #{t}"
+          task :pull do
+            sh "adb #{flag} pull #{db_path} ."
+          end
+      end
+
       namespace :logging do
         %w(verbose debug info warn error).each do |level|
           task level do

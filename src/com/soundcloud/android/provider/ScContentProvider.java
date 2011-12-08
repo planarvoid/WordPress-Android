@@ -747,16 +747,6 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "searches/tracks/*", SEARCHES_TRACKS_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "searches/users/*", SEARCHES_USERS_ITEM);
 
-		return matcher;
-
-	}
-
-    /*static String TRACKVIEW_FAVORITE_JOIN = DBHelper.Tables.TRACKVIEW.tableName + " INNER JOIN " + DBHelper.Tables.COLLECTION_ITEMS.tableName +
-                        " ON (" + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.UserFavorites.CONCRETE_FAVORITE_ID+ ")";
-
-    static String USER_FOLLOWING_JOIN = DBHelper.Tables.USERS.tableName + " INNER JOIN " + DBHelper.Tables.USER_FOLLOWING.tableName +
-                        " ON (" + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.UserFollowing.CONCRETE_FOLLOWING_ID+ ")";
-      */
-
-
+        return matcher;
+    }
 }

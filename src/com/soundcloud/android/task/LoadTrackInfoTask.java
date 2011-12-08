@@ -36,8 +36,8 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
         LoadTrackInfoListener listener = mListenerWeakReference != null ? mListenerWeakReference.get() : null;
         if (result != null) {
 
-            if (mApp.getTrackFromCache(result.id) != null) {
-                result.setAppFields(mApp.getTrackFromCache(result.id));
+            if (SoundCloudApplication.TRACK_CACHE.containsKey(result.id)) {
+                result.setAppFields(SoundCloudApplication.TRACK_CACHE.get(result.id));
             }
 
             if (mWriteToDB){
@@ -46,13 +46,12 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
             }
             result.info_loaded = true;
             if (mCacheResult){
-                mApp.cacheTrack(result);
+                SoundCloudApplication.TRACK_CACHE.put(result);
             }
 
             if (listener != null){
                 listener.onTrackInfoLoaded(result, action);
             }
-
         } else if (listener != null){
             listener.onTrackInfoError(mTrackId);
         }

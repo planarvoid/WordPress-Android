@@ -1,7 +1,6 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
@@ -13,13 +12,11 @@ import java.util.List;
 
 public class LoadCommentsTask extends LoadJsonTask<Comment> {
     private List<WeakReference<LoadCommentsListener>> mListenerRefs;
-    private SoundCloudApplication mApp;
 
     private long mTrackId;
 
     public LoadCommentsTask(SoundCloudApplication app, long trackId) {
         super(app);
-        mApp = app;
         mTrackId = trackId;
         mListenerRefs = new ArrayList<WeakReference<LoadCommentsListener>>();
     }
@@ -39,7 +36,7 @@ public class LoadCommentsTask extends LoadJsonTask<Comment> {
     @Override
     protected void onPostExecute(List<Comment> comments) {
         if (comments != null) {
-            Track cached =  mApp.getTrackFromCache(mTrackId);
+            Track cached =  SoundCloudApplication.TRACK_CACHE.get(mTrackId);
 
             if (cached != null) {
                 cached.comments = comments;
