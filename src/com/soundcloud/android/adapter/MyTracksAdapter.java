@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import android.util.Log;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
@@ -52,6 +53,10 @@ public class MyTracksAdapter extends TracklistAdapter {
         return getItemViewType(position) == TYPE_PENDING_RECORDING ? new MyTracklistRow(mContext, this) : new TracklistRow(mContext,this);
     }
 
+    public boolean needsItems() {
+        return getCount() == getPendingRecordingsCount();
+    }
+
     public int getPendingRecordingsCount(){
         return mRecordingData == null ? 0 : mRecordingData.size();
     }
@@ -59,7 +64,6 @@ public class MyTracksAdapter extends TracklistAdapter {
     private void refreshCursor() {
         mCursor = mContext.getContentResolver().query(ScContentProvider.Content.RECORDINGS, null,
                 Recordings.UPLOAD_STATUS + " < 2", null, Recordings.TIMESTAMP + " DESC");
-
         if (mCursor != null) {
             mDataValid = true;
             mRecordingData = loadRecordings(mCursor);

@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Activities;
@@ -32,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.soundcloud.android.provider.ScContentProvider.getResourceTypeFromUri;
+
 public class ApiSyncer {
 
     static final String LOG_TAG = ApiSyncer.class.getSimpleName();
@@ -62,6 +65,7 @@ public class ApiSyncer {
     }
 
     public void resolveDatabase() throws IOException {
+        Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Resolving Database");
 
         // our new tracks/users, compiled so we didn't do duplicate lookups
         final long addStart = System.currentTimeMillis();
@@ -73,14 +77,15 @@ public class ApiSyncer {
 
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " parcelables added in " + (System.currentTimeMillis() - addStart) + " ms");
 
-
         // do collection inserts
         final long itemStart = System.currentTimeMillis();
         for (Map.Entry<Uri, ContentValues[]> entry : collectionValues.entrySet()) {
+            Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Adding " + entry.getValue().length + " new collection items");
             added = mResolver.bulkInsert(entry.getKey(), entry.getValue());
-            LocalCollection.insertLocalCollection(mResolver, null, System.currentTimeMillis(), added);
+            LocalCollection.insertLocalCollection(mResolver, entry.getKey(), System.currentTimeMillis(), added);
+
         }
-        Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: items added in " + (System.currentTimeMillis() - addStart) + " ms");
+        Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " items added in " + (System.currentTimeMillis() - itemStart) + " ms");
     }
 
     private ContentValues[] quickSync(Uri contentUri, String endpoint, Class<?> loadModel, ArrayList<Long> additions) throws IOException {
@@ -89,17 +94,21 @@ public class ApiSyncer {
         int size = 0;
 
         try {
-            List<Long> local = idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.Users._ID}, null, null, null));
+            List<Long> local = idCursorToList(mResolver.query(ScContentProvider.Content.COLLECTION_ITEMS, new String[]{DBHelper.CollectionItems.ITEM_ID},
+                    DBHelper.CollectionItems.CONCRETE_COLLECTION_TYPE + " = ?", new String[]{String.valueOf(getResourceTypeFromUri(contentUri))}, null));
             List<Long> remote = getCollectionIds(endpoint);
+            Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
 
             // deletions can happen here, has no impact
             List<Long> itemDeletions = new ArrayList<Long>(local);
             itemDeletions.removeAll(remote);
 
+            Log.d(ApiSyncService.LOG_TAG, "Need to remove " + itemDeletions.size() + " items");
+
             int i = 0;
             while (i < itemDeletions.size()){
                 List<Long> batch = itemDeletions.subList(i,Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(contentUri, CloudUtils.getWhereIds(batch), CloudUtils.longListToStringArr(batch));
+                mResolver.delete(contentUri, CloudUtils.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
                 i += RESOLVER_BATCH_SIZE;
             }
 
@@ -110,12 +119,18 @@ public class ApiSyncer {
             newAdditions.removeAll(local);
             additions.addAll(newAdditions);
 
+            Log.d(ApiSyncService.LOG_TAG, "Need to add " + additions.size() + " items");
+
             // the new collection relationships, send these back, as they may depend on track/user additions
             ContentValues[] cv = new ContentValues[remote.size()];
             i = 0;
+            final long userId = mApp.getCurrentUserId();
             for (Long id : remote) {
                 cv[i] = new ContentValues();
-                cv[i].put(DBHelper.CollectionItems.POSITION, i);
+                cv[i].put(DBHelper.CollectionItems.POSITION, i+1);
+                cv[i].put(DBHelper.CollectionItems.ITEM_ID, id);
+                cv[i].put(DBHelper.CollectionItems.USER_ID, userId);
+                i++;
             }
             return cv;
 
@@ -139,7 +154,7 @@ public class ApiSyncer {
         while (i < additions.size()) {
             List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
             storedIds.addAll(idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.Tracks._ID},
-                    CloudUtils.getWhereIds(batch),
+                    CloudUtils.getWhereIds(DBHelper.Tracks.ID, batch),
                     CloudUtils.longListToStringArr(batch), null))
             );
             i += RESOLVER_BATCH_SIZE;
@@ -154,7 +169,7 @@ public class ApiSyncer {
             List<Long> batch = additions.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, additions.size()));
 
             InputStream is = mApp.get(Request.to(Track.class.equals(loadModel) ? Endpoints.TRACKS : Endpoints.USERS)
-                    .add("ids", TextUtils.join(",", batch))).getEntity().getContent();
+                    .add("linked_partitioning", "1").add("ids", TextUtils.join(",", batch))).getEntity().getContent();
 
 
             CollectionHolder holder = null;
@@ -189,7 +204,9 @@ public class ApiSyncer {
         List<Long> items = new ArrayList<Long>();
         IdHolder holder = null;
         do {
+
             Request request =  (holder == null) ? Request.to(endpoint + "/ids") : Request.to(holder.next_href);
+            request.add("linked_partitioning", "1");
             holder = mApp.getMapper().readValue(mApp.get(request).getEntity().getContent(), IdHolder.class);
             items.addAll(holder.collection);
         } while (holder.next_href != null);
