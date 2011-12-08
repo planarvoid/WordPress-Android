@@ -217,6 +217,17 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         }
     }
 
+    public List getTrackIds() {
+        List<Long> idList = new ArrayList<Long>();
+        for (Parcelable p : getData()){
+            if (p instanceof Track) {
+                idList.add(((Track) p).id);;
+            } else if (p instanceof Event) {
+                idList.add(((Event) p).getTrack().id);;
+            }
+        }
+        return idList;
+    }
 
 
     private static class State {
@@ -465,7 +476,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         return (!refresh && !TextUtils.isEmpty(mNextHref)) ? new Request(mNextHref) : new Request(mRequest);
     }
 
-    protected Uri getContentUri(boolean refresh) {
+    public Uri getContentUri(boolean refresh) {
         return mContentUri;
     }
 

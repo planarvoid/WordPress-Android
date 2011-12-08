@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface ITracklistAdapter {
     public List<Parcelable> getData();
+    public LazyEndlessAdapter getWrapper();
     public Track getTrackAt(int index);
     boolean isPlaying();
     public void setPlayingId(long currentTrackId, boolean isPlaying);

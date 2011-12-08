@@ -35,6 +35,10 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
         mWrapper = wrapper;
     }
 
+    public LazyEndlessAdapter getWrapper() {
+        return mWrapper;
+    }
+
     public void setModel( Class<?> model ) {
         mLoadModel = model;
     }

@@ -7,15 +7,8 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.Upload;
+import com.soundcloud.android.adapter.*;
+import com.soundcloud.android.model.*;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.ICloudPlaybackService;
 import com.soundcloud.android.service.record.CloudCreateService;
@@ -43,7 +36,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Gravity;
@@ -272,20 +264,19 @@ public abstract class ScActivity extends Activity {
     }
 
     public void playTrack(Track track, boolean goToPlayer) {
-        List<Parcelable> trackList = new ArrayList<Parcelable>();
-        trackList.add(track);
-        playTrack(track.id, trackList, 0, goToPlayer);
+        // TODO one shot play here??
+        playTrack(track, null, goToPlayer);
     }
 
-    public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer) {
-        playTrack(trackId, list, playPos, goToPlayer, false);
+    public void playTrack(final Track track, final LazyEndlessAdapter wrapper, boolean goToPlayer) {
+        playTrack(track, wrapper, goToPlayer, false);
     }
 
-    public void playTrack(long trackId, final List<Parcelable> list, final int playPos, boolean goToPlayer, boolean commentMode) {
+    public void playTrack(final Track track, final LazyEndlessAdapter wrapper, boolean goToPlayer, boolean commentMode) {
         // find out if this track is already playing. If it is, just go to the player
         try {
-            final Track track = mPlaybackService != null ? mPlaybackService.getTrack() : null;
-            if (track != null && track.id == trackId) {
+            final Track playingTrack = mPlaybackService != null ? mPlaybackService.getTrack() : null;
+            if (playingTrack != null && playingTrack.id == track.id) {
                 if (goToPlayer) {
                     // skip the enqueuing, its already playing
                     launchPlayer(commentMode);
@@ -298,16 +289,11 @@ public abstract class ScActivity extends Activity {
             Log.e(TAG, "error", e);
         }
 
-        // pass the tracklist to the application. This is the quickest way to get it to the service
-        // another option would be to pass the parcelables through the intent, but that has the
-        // unnecessary overhead of unmarshalling/marshalling them in to bundles. This way
-        // we are just passing pointers
-        // XXX ^^ this is assuming service and activity run in the same process
-        getApp().cachePlaylist(list);
-
         try {
-            if (mPlaybackService != null) {
-                mPlaybackService.playFromAppCache(playPos);
+            if (wrapper.getContentUri(false) != null) {
+                mPlaybackService.playFromUri(wrapper.getContentUri(false).toString(), track);
+            } else {
+                mPlaybackService.playFromIdList(wrapper.getTrackIds(), track);
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -632,29 +618,9 @@ public abstract class ScActivity extends Activity {
     }
 
     private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
-
         @Override
-        public void onUserClick(List<Parcelable> users, int position) {
-            Intent i = new Intent(ScActivity.this, UserBrowser.class);
-
-            i.putExtra("user", users.get(position) instanceof
-                    Friend ? ((Friend) users.get(position)).user : users.get(position));
-            startActivity(i);
-        }
-
-        @Override
-        public void onTrackClick(List<Parcelable> tracks, int position) {
-            playTrack(((Track) tracks.get(position)).id, tracks, position, true);
-        }
-
-        @Override
-        public void onEventClick(List<Parcelable> events, int position) {
-            final Event e = ((Event) events.get(position));
-            if (e == null) return;
-
-            if (Event.Types.COMMENT.contentEquals(e.type)) {
-                playTrack(((Event) events.get(position)).getTrack().id, events, position, true);
-            } else if (Event.Types.FAVORITING.contentEquals(e.type)) {
+        public void onEventClick(EventsAdapterWrapper wrapper, Event e) {
+            if (Event.Types.FAVORITING.contentEquals(e.type)) {
                 if (getApp().getTrackFromCache(e.getTrack().id) == null) {
                     getApp().cacheTrack(e.getTrack());
                 }
@@ -662,9 +628,20 @@ public abstract class ScActivity extends Activity {
                 i.putExtra("track_id", e.getTrack().id);
                 startActivity(i);
             } else {
-                playTrack(e.getTrack().id, events, position, true);
+                playTrack(e.getTrack(), wrapper, true);
             }
+        }
 
+        @Override
+        public void onTrackClick(LazyEndlessAdapter wrapper, Track track) {
+            playTrack(track, wrapper, true);
+        }
+
+        @Override
+        public void onUserClick(User user) {
+            Intent i = new Intent(ScActivity.this, UserBrowser.class);
+            i.putExtra("user", user);
+            startActivity(i);
         }
 
         @Override

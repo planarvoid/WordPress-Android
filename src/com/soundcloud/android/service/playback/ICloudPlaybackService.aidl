@@ -13,7 +13,8 @@ interface ICloudPlaybackService
     void next();
     void restart();
 
-    void playFromAppCache(int playPos);
+    void playFromUri(String uri, in Track track);
+    void playFromIdList(in List ids, in Track track);
 
     // state
     boolean isSeekable();

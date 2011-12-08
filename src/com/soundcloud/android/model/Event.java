@@ -1,13 +1,13 @@
 
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
+import android.content.Context;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.DBHelper.Events;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.CloudUtils;
@@ -15,12 +15,6 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
-
-import android.content.Context;
-import android.database.Cursor;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 
 import java.util.Date;
 
@@ -40,25 +34,6 @@ public class Event extends ModelBase implements Origin {
 
     public Event(Parcel in) {
         readFromParcel(in);
-    }
-
-    public Event(Cursor cursor) {
-        String[] keys = cursor.getColumnNames();
-        for (String key : keys) {
-            if (key.contentEquals(Events.ID)) {
-                id = cursor.getLong(cursor.getColumnIndex(key));
-            } else {
-                try {
-                    setFieldFromCursor(this,
-                            Event.class.getDeclaredField(key),
-                            cursor, key);
-                } catch (SecurityException e) {
-                    Log.e(TAG, "error", e);
-                } catch (NoSuchFieldException e) {
-                    Log.e(TAG, "error", e);
-                }
-            }
-        }
     }
 
     public User getUser() {

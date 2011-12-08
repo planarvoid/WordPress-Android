@@ -43,7 +43,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     }
 
     @Override
-    protected Uri getContentUri(boolean refresh) {
+    public Uri getContentUri(boolean refresh) {
         if (mSectionIndex > getWrappedAdapter().sections.size()) return null;
         return getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).contentUri;
     }

@@ -1,10 +1,12 @@
 package com.soundcloud.android.view;
 
+import android.net.Uri;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
@@ -363,6 +365,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             if (mListener == null) return;
             position -= getHeaderViewsCount();
 
+            LazyEndlessAdapter wrapper = ((ScListView) list).getWrapper();
             LazyBaseAdapter adp = list instanceof ScListView ?
                     ((ScListView) list).getBaseAdapter() : (LazyBaseAdapter) list.getAdapter();
 
@@ -383,11 +386,13 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 if (adp instanceof MyTracksAdapter) {
                     position -= ((MyTracksAdapter) adp).getPendingRecordingsCount();
                 }
-                mListener.onTrackClick(adp.getData(), position);
+                mListener.onTrackClick(wrapper, ((Track) item));
             } else if (item instanceof Event) {
-                mListener.onEventClick(adp.getData(), position);
-            } else if (item instanceof User || item instanceof Friend) {
-                mListener.onUserClick(adp.getData(), position);
+                mListener.onEventClick((EventsAdapterWrapper) wrapper, ((Event) item));
+            } else if (item instanceof User) {
+                mListener.onUserClick((User) item);
+            } else if (item instanceof User) {
+                mListener.onUserClick(((Friend) item).user);
             } else if (item instanceof Comment) {
                 mListener.onCommentClick((Comment) item);
             } else if (item instanceof Recording) {
@@ -708,13 +713,13 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
     public interface LazyListListener {
-        void onUserClick(List<Parcelable> users, int position);
+        void onEventClick(EventsAdapterWrapper wrapper, Event track);
+
+        void onTrackClick(LazyEndlessAdapter wrapper, Track track);
+
+        void onUserClick(User user);
 
         void onRecordingClick(Recording recording);
-
-        void onTrackClick(List<Parcelable> tracks, int position);
-
-        void onEventClick(List<Parcelable> events, int position);
 
         void onCommentClick(Comment comment);
 

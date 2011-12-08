@@ -82,8 +82,6 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
                         mNewItems.add(new Track(itemsCursor));
                     } else if (User.class.equals(mParams.loadModel)) {
                         mNewItems.add(new User(itemsCursor));
-                    } else if (Event.class.equals(mParams.loadModel)) {
-                        mNewItems.add(new Event(itemsCursor));
                     } else if (Friend.class.equals(mParams.loadModel)) {
                         mNewItems.add(new User(itemsCursor));
                     }
