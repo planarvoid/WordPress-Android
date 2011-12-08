@@ -938,7 +938,7 @@ public class CloudUtils {
 
     }
 
-    public static String[] longArrToStringArr(Set<Long> deletions) {
+    public static String[] longListToStringArr(List<Long> deletions) {
         int i = 0;
         String[] idList = new String[deletions.size()];
         for (Long id : deletions) {
@@ -948,7 +948,7 @@ public class CloudUtils {
         return idList;
     }
 
-    public static String getWhereIds(Set<Long> idSet){
+    public static String getWhereIds(List<Long> idSet){
         StringBuilder sb = new StringBuilder(DBHelper.CollectionItems.ITEM_ID + " in (?");
         for (int i = 1; i < idSet.size(); i++) {
             sb.append(",?");

@@ -40,8 +40,11 @@ public class ApiSyncer {
     private ContentResolver mResolver;
 
     private HashMap<Uri, ContentValues[]> collectionValues = new HashMap<Uri, ContentValues[]>();
-    private HashSet<Long> trackAdditions = new HashSet<Long>();
-    private HashSet<Long> userAdditions = new HashSet<Long>();
+    private ArrayList<Long> trackAdditions = new ArrayList<Long>();
+    private ArrayList<Long> userAdditions = new ArrayList<Long>();
+
+    private static int API_LOOKUP_BATCH_SIZE = 200;
+    private static int RESOLVER_BATCH_SIZE = 100;
 
     public ApiSyncer(SoundCloudApplication app) {
         mApp = app;
@@ -62,34 +65,44 @@ public class ApiSyncer {
 
         // our new tracks/users, compiled so we didn't do duplicate lookups
         final long addStart = System.currentTimeMillis();
-        bulkAdd(trackAdditions, Track.class);
-        bulkAdd(userAdditions, User.class);
-        Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: parcelables added in " + (System.currentTimeMillis() - addStart) + " ms");
+
+        List<Parcelable> itemsToAdd = new ArrayList<Parcelable>();
+        itemsToAdd.addAll(getAdditionsFromIds(trackAdditions, Track.class));
+        itemsToAdd.addAll(getAdditionsFromIds(userAdditions, User.class));
+        int added = SoundCloudDB.bulkInsertParcelables(mApp, itemsToAdd, null, 0, 0);
+
+        Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " parcelables added in " + (System.currentTimeMillis() - addStart) + " ms");
 
 
         // do collection inserts
         final long itemStart = System.currentTimeMillis();
         for (Map.Entry<Uri, ContentValues[]> entry : collectionValues.entrySet()) {
-            int added = mResolver.bulkInsert(entry.getKey(), entry.getValue());
+            added = mResolver.bulkInsert(entry.getKey(), entry.getValue());
             LocalCollection.insertLocalCollection(mResolver, null, System.currentTimeMillis(), added);
         }
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: items added in " + (System.currentTimeMillis() - addStart) + " ms");
     }
 
-    private ContentValues[] quickSync(Uri contentUri, String endpoint, Class<?> loadModel, Set<Long> additions) throws IOException {
+    private ContentValues[] quickSync(Uri contentUri, String endpoint, Class<?> loadModel, ArrayList<Long> additions) throws IOException {
 
         final long start = System.currentTimeMillis();
         int size = 0;
 
         try {
             List<Long> local = idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.Users._ID}, null, null, null));
-
-            List<Long> remote = mApp.getMapper().readValue(mApp.get(Request.to(endpoint + "/ids")).getEntity().getContent(), List.class);
+            List<Long> remote = getCollectionIds(endpoint);
 
             // deletions can happen here, has no impact
-            Set<Long> itemDeletions = new HashSet(local);
+            List<Long> itemDeletions = new ArrayList<Long>(local);
             itemDeletions.removeAll(remote);
-            mResolver.delete(contentUri, CloudUtils.getWhereIds(itemDeletions), CloudUtils.longArrToStringArr(itemDeletions));
+
+            int i = 0;
+            while (i < itemDeletions.size()){
+                List<Long> batch = itemDeletions.subList(i,Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
+                mResolver.delete(contentUri, CloudUtils.getWhereIds(batch), CloudUtils.longListToStringArr(batch));
+                i += RESOLVER_BATCH_SIZE;
+            }
+
 
             // tracks/users that this collection depends on
             // store these to add shortly, they will depend on the tracks/users being there
@@ -99,7 +112,7 @@ public class ApiSyncer {
 
             // the new collection relationships, send these back, as they may depend on track/user additions
             ContentValues[] cv = new ContentValues[remote.size()];
-            int i = 0;
+            i = 0;
             for (Long id : remote) {
                 cv[i] = new ContentValues();
                 cv[i].put(DBHelper.CollectionItems.POSITION, i);
@@ -114,37 +127,51 @@ public class ApiSyncer {
         return new ContentValues[0];
     }
 
-    private void bulkAdd(Set<Long> additions, Class<?> loadModel) throws IOException {
+    private List<Parcelable> getAdditionsFromIds(List<Long> additions, Class<?> loadModel) throws IOException {
 
-        if (additions.size() == 0) return;
+        if (additions.size() == 0) return new ArrayList<Parcelable>();
 
-        CollectionHolder holder = null;
         // remove anything that is already in the DB
         Uri contentUri = (Track.class.equals(loadModel)) ? ScContentProvider.Content.TRACKS : ScContentProvider.Content.USERS;
 
-        additions.removeAll(
-                idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.Tracks._ID},
-                    CloudUtils.getWhereIds(additions),
-                    CloudUtils.longArrToStringArr(additions), null)));
-
-
-        InputStream is = mApp.get(Request.to(Track.class.equals(loadModel) ? Endpoints.TRACKS : Endpoints.USERS)
-                .add("ids", TextUtils.join(",", additions))).getEntity().getContent();
-
-        List<Parcelable> items = new ArrayList<Parcelable>();
-        if (Track.class.equals(loadModel)) {
-            holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
-            for (TracklistItem t : (TracklistItemHolder) holder) {
-                items.add(new Track(t));
-            }
-        } else if (User.class.equals(loadModel)) {
-            holder = mApp.getMapper().readValue(is, UserlistItemHolder.class);
-            for (UserlistItem u : (UserlistItemHolder) holder) {
-                items.add(new User(u));
-            }
+        int i = 0;
+        List<Long> storedIds = new ArrayList<Long>();
+        while (i < additions.size()) {
+            List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
+            storedIds.addAll(idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.Tracks._ID},
+                    CloudUtils.getWhereIds(batch),
+                    CloudUtils.longListToStringArr(batch), null))
+            );
+            i += RESOLVER_BATCH_SIZE;
         }
+        additions.removeAll(storedIds);
 
-        SoundCloudDB.bulkInsertParcelables(mApp, items, null, mApp.getCurrentUserId(), 0);
+        // add new items from batch lookups
+        List<Parcelable> items = new ArrayList<Parcelable>();
+        i = 0;
+        while (i < additions.size()) {
+
+            List<Long> batch = additions.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, additions.size()));
+
+            InputStream is = mApp.get(Request.to(Track.class.equals(loadModel) ? Endpoints.TRACKS : Endpoints.USERS)
+                    .add("ids", TextUtils.join(",", batch))).getEntity().getContent();
+
+
+            CollectionHolder holder = null;
+            if (Track.class.equals(loadModel)) {
+                holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
+                for (TracklistItem t : (TracklistItemHolder) holder) {
+                    items.add(new Track(t));
+                }
+            } else if (User.class.equals(loadModel)) {
+                holder = mApp.getMapper().readValue(is, UserlistItemHolder.class);
+                for (UserlistItem u : (UserlistItemHolder) holder) {
+                    items.add(new User(u));
+                }
+            }
+            i += RESOLVER_BATCH_SIZE;
+        }
+        return items;
     }
 
     private List<Long> idCursorToList(Cursor c) {
@@ -158,6 +185,18 @@ public class ApiSyncer {
         return ids;
     }
 
+    private List<Long> getCollectionIds(String endpoint) throws IOException {
+        List<Long> items = new ArrayList<Long>();
+        IdHolder holder = null;
+        do {
+            Request request =  (holder == null) ? Request.to(endpoint + "/ids") : Request.to(holder.next_href);
+            holder = mApp.getMapper().readValue(mApp.get(request).getEntity().getContent(), IdHolder.class);
+            items.addAll(holder.collection);
+        } while (holder.next_href != null);
+        return items;
+    }
+
+    public static class IdHolder extends CollectionHolder<Long> {}
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
     public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
 }

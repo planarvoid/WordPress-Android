@@ -148,7 +148,7 @@ public class SoundCloudDB {
         }
     }
 
-    public static void bulkInsertParcelables(SoundCloudApplication app, List<Parcelable> items, Uri collectionUri, long owner, int startIndex) {
+    public static int bulkInsertParcelables(SoundCloudApplication app, List<Parcelable> items, Uri collectionUri, long owner, int startIndex) {
 
         int i = 0;
         Set<User> usersToInsert = new HashSet<User>();
@@ -197,12 +197,14 @@ public class SoundCloudDB {
         int inserted = app.getContentResolver().bulkInsert(ScContentProvider.Content.TRACKS, tracksCv);
         Log.i(TAG,inserted + " tracks bulk inserted");
 
-        inserted = app.getContentResolver().bulkInsert(ScContentProvider.Content.USERS, usersCv);
+        inserted += app.getContentResolver().bulkInsert(ScContentProvider.Content.USERS, usersCv);
         Log.i(TAG,inserted + " users bulk inserted");
 
         if (bulkValues != null){
             inserted = app.getContentResolver().bulkInsert(collectionUri, bulkValues);
             Log.i(TAG,inserted + " colleciton items bulk inserted");
         }
+
+        return inserted;
     }
 }
