@@ -3,10 +3,14 @@ package com.soundcloud.android.service.sync;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.ResultReceiver;
+import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.api.CloudAPI;
@@ -14,6 +18,9 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ApiSyncService extends IntentService{
 
@@ -67,19 +74,23 @@ public class ApiSyncService extends IntentService{
                 apiSyncer.syncActivities(Request.to(Endpoints.MY_NEWS), ScContentProvider.Content.ME_ACTIVITIES);
             }
             if (intent.getBooleanExtra(SyncExtras.TRACKS, false)) {
-                apiSyncer.syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
+                //apiSyncer.syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
+                slowSyncCollection(ScContentProvider.Content.ME_TRACKS,Endpoints.MY_TRACKS,Track.class);
             }
             if (intent.getBooleanExtra(SyncExtras.FAVORITES, false)) {
-                apiSyncer.syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
+                //apiSyncer.syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
+                slowSyncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
             }
             if (intent.getBooleanExtra(SyncExtras.FOLLOWINGS, false)) {
-                apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
+                //apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
+                slowSyncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
             }
             if (intent.getBooleanExtra(SyncExtras.FOLLOWERS, false)) {
-                apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
+                //apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
+                slowSyncCollection(ScContentProvider.Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
             }
 
-            apiSyncer.resolveDatabase();
+            //apiSyncer.resolveDatabase();
 
             Log.d(LOG_TAG, "Cloud Api service: Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
             if (receiver != null) receiver.send(STATUS_FINISHED, Bundle.EMPTY);
@@ -96,6 +107,47 @@ public class ApiSyncService extends IntentService{
             sendError(receiver, syncResult);
         }
     }
+
+     private int slowSyncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
+        final long start = System.currentTimeMillis();
+
+        int i = 0;
+        int page_size = 50;
+        CollectionHolder holder = null;
+        List<Parcelable> items = new ArrayList<Parcelable>();
+        do {
+            Request request = Request.to(endpoint);
+            request.add("offset",i * 50);
+            request.add("limit", page_size);
+            request.add("linked_partitioning", "1");
+            InputStream is = getApp().get(request).getEntity().getContent();
+            if (Track.class.equals(loadModel)) {
+                holder = getApp().getMapper().readValue(is, ApiSyncer.TracklistItemHolder.class);
+                for (TracklistItem t : (ApiSyncer.TracklistItemHolder) holder) {
+                    items.add(new Track(t));
+                }
+            } else if (User.class.equals(loadModel)) {
+                holder = getApp().getMapper().readValue(is, ApiSyncer.UserlistItemHolder.class);
+                for (UserlistItem u : (ApiSyncer.UserlistItemHolder) holder) {
+                    items.add(new User(u));
+                }
+            }
+            i++;
+        } while (!TextUtils.isEmpty(holder.next_href));
+
+        getContentResolver().delete(contentUri, null, null);
+        SoundCloudDB.bulkInsertParcelables(getApp(), items, contentUri, getApp().getCurrentUserId(), 0);
+        LocalCollection.insertLocalCollection(getContentResolver(),contentUri,System.currentTimeMillis(),items.size());
+
+        Log.d(LOG_TAG, "Cloud Api service: synced " + contentUri + " in " + (System.currentTimeMillis() - start) + " ms");
+
+        return items.size();
+    }
+
+    private SoundCloudApplication getApp() {
+        return (SoundCloudApplication) getApplication();
+    }
+
 
 
     private void sendError(ResultReceiver receiver, SyncResult syncResult){
