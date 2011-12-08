@@ -606,7 +606,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public boolean needsRefresh() {
-        return (mState == READY && getWrappedAdapter().getCount() == 0);
+        return (mState == READY && getWrappedAdapter().needsItems());
     }
 
     public void onConnected() {

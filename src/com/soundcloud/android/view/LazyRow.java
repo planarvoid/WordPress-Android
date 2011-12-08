@@ -58,7 +58,7 @@ public abstract class LazyRow extends FrameLayout {
     public abstract void display(int position, Parcelable p);
 
     /** update the views with the data corresponding to selection index */
-    protected void display(int position) {
+    public void display(int position) {
         mCurrentPosition = position;
         final String iconUri = getIconRemoteUri();
         if (CloudUtils.checkIconShouldLoad(iconUri)) {

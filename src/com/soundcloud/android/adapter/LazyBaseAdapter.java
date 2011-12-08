@@ -67,7 +67,7 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
     public View getView(int index, View row, ViewGroup parent) {
         LazyRow rowView = row instanceof LazyRow ? (LazyRow) row : createRow(index);
         // update the cell renderer, and handle selection state
-        rowView.display(index, getData().get(index));
+        rowView.display(index, (Parcelable) getItem(index));
         return rowView;
     }
 
@@ -112,5 +112,9 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
 
     public void onEndOfList(){
 
+    }
+
+    public boolean needsItems() {
+        return getCount() == 0;
     }
 }

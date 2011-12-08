@@ -255,10 +255,14 @@ public class ScContentProvider extends ContentProvider {
                 return result;
 
             case USERS:
-                System.out.println("Inserting id " + values.get("_id"));
                 id = db.insertWithOnConflict(DBHelper.Tables.USERS.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                System.out.println("Insert got " + result);
+                getContext().getContentResolver().notifyChange(result, null, false);
+                return result;
+
+            case RECORDINGS:
+                id = db.insert(DBHelper.Tables.RECORDINGS.tableName, null, values);
+                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
@@ -353,6 +357,11 @@ public class ScContentProvider extends ContentProvider {
             case SEARCHES_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.update(DBHelper.Tables.SEARCHES.tableName, values, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null, false);
+                return count;
+            case RECORDING_ITEM:
+                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                count = db.update(DBHelper.Tables.RECORDINGS.tableName, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
             default:
