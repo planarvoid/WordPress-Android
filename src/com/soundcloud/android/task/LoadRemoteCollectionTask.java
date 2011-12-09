@@ -47,8 +47,14 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
                 localCollection = com.soundcloud.android.model.LocalCollection.insertLocalCollection(mApp.getContentResolver(), mParams.contentUri);
             } else {
                 localCollectionPage = LocalCollectionPage.fromCollectionAndIndex(mApp.getContentResolver(), localCollection.id, mParams.pageIndex);
+                final long start = System.currentTimeMillis();
+                Cursor itemsCursor = mApp.getContentResolver().query(getPagedUri(), new String[]{DBHelper.TrackView._ID}, null, null, null);
                 if (localCollectionPage != null) {
-                    localCollectionPage.applyEtag(mParams.request);
+                    if (itemsCursor == null || itemsCursor.getCount() != localCollectionPage.size) {
+                        localCollectionPage = null;
+                    } else {
+                        localCollectionPage.applyEtag(mParams.request);
+                    }
                 }
             }
         }

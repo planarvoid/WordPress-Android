@@ -574,7 +574,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private Track getTrackById(long trackId, int queuePos) {
         Track t = SoundCloudApplication.TRACK_CACHE.get(trackId);
         if (t == null) {
-            // t = SoundCloudDB.getTrackById(getContentResolver(), trackId);
+            t = SoundCloudDB.getTrackById(getContentResolver(), trackId);
             if (t == null){
                 try {
                     t = mPlaybackService.getTrackAt(queuePos);

@@ -9,13 +9,16 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Request;
 
 public class LocalCollectionPage {
-    int id;
-    int size;
+
+    public int collection_id;
+    public int page_index;
+    public int size;
     String nextHref;
     String etag;
 
     public LocalCollectionPage(Cursor c){
-        id = c.getInt(c.getColumnIndex(DBHelper.CollectionPages.ID));
+        collection_id = c.getInt(c.getColumnIndex(DBHelper.CollectionPages.COLLECTION_ID));
+        page_index = c.getInt(c.getColumnIndex(DBHelper.CollectionPages.PAGE_INDEX));
         size = c.getInt(c.getColumnIndex(DBHelper.CollectionPages.SIZE));
         nextHref = c.getString(c.getColumnIndex(DBHelper.CollectionPages.NEXT_HREF));
         etag = c.getString(c.getColumnIndex(DBHelper.CollectionPages.ETAG));

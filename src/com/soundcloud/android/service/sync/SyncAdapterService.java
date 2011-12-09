@@ -46,10 +46,6 @@ public class SyncAdapterService extends Service {
     public static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
     private static final long DEFAULT_POLL_FREQUENCY = 14400; //60*60*4
 
-    public interface ScBundleKeys{
-        String SYNC_ENDPOINT = "sync_endpoint";
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -94,20 +90,18 @@ public class SyncAdapterService extends Service {
         }
     }
 
-
-
     /** @noinspection UnusedParameters*/
     /* package */ static void performSync(final SoundCloudApplication app,
                                     Account account,
                                     Bundle extras,
                                     ContentProviderClient provider,
                                     final SyncResult syncResult) {
-
         if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
             final long now = System.currentTimeMillis();
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
             app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
         } else {
+
             if (app.useAccount(account).valid()) {
                 // TODO, do not sync everything unless it is set that way in prefs
                 Looper.prepare();
@@ -117,6 +111,9 @@ public class SyncAdapterService extends Service {
                 if (isIncomingEnabled(app))     urisToSync.add(Content.ME_ACTIVITIES.uri.toString());
                 if (isExclusiveEnabled(app))    urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri.toString());
                 if (isActivitySyncEnabled(app)) urisToSync.add(Content.ME_ACTIVITIES.uri.toString());
+
+                urisToSync.add(Content.TRACK_CLEANUP.uri.toString());
+                urisToSync.add(Content.USERS_CLEANUP.uri.toString());
 
                 intent.putStringArrayListExtra("syncUris", urisToSync);
                 intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
@@ -134,7 +131,9 @@ public class SyncAdapterService extends Service {
                                 break;
                             }
                             case ApiSyncService.STATUS_FINISHED: {
+
                                 try {
+
                                     final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
                                     final Activities incoming = !isIncomingEnabled(app) ? Activities.EMPTY
                                             : Activities.fromJSON(ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_ACTIVITIES)));
@@ -148,10 +147,12 @@ public class SyncAdapterService extends Service {
                                             : Activities.fromJSON(ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_NEWS)));
 
                                     syncOwn(app, news.filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN)));
+
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                     syncResult.stats.numIoExceptions++;
                                 }
+
                                 Looper.myLooper().quit();
                                 break;
                             }

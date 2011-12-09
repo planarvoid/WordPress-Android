@@ -85,6 +85,9 @@ public enum Content {
     SEARCHES_TRACKS_ITEM("/searches/tracks/*", null, 1404, -1),
     SEARCHES_USERS_ITEM("/searches/users/*", null, 1405, -1),
 
+
+    TRACK_CLEANUP("/track_cleanup", null, 9998, -1),
+    USERS_CLEANUP("/uses_cleanup", null, 9999, -1),
     UNKNOWN(null, null, -1, -1)
     ;
 

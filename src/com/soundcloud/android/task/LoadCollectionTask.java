@@ -71,9 +71,7 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
     @Override
     protected Boolean doInBackground(String... params) {
         if (mParams.contentUri != null) {
-            final Uri pagedUri = mParams.contentUri.buildUpon().appendQueryParameter("offset", String.valueOf(mParams.pageIndex * Consts.COLLECTION_PAGE_SIZE))
-                    .appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build();
-            Cursor itemsCursor = mApp.getContentResolver().query(pagedUri, null, null, null, null);
+            Cursor itemsCursor = mApp.getContentResolver().query(getPagedUri(), null, null, null, null);
             // wipe it out and remote load ?? if (c.getCount() == localPageSize){ }
             mNewItems = new ArrayList<Parcelable>();
             if (itemsCursor != null && itemsCursor.moveToFirst()) {
@@ -98,6 +96,12 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
             keepGoing = false;
             return false;
         }
+    }
+
+    protected Uri getPagedUri(){
+        return  mParams.contentUri == null ? null :
+                mParams.contentUri.buildUpon().appendQueryParameter("offset", String.valueOf(mParams.pageIndex * Consts.COLLECTION_PAGE_SIZE))
+                    .appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build();
     }
 
     /* package */ CollectionHolder getCollection(InputStream is, List<? super Parcelable> items) throws IOException {

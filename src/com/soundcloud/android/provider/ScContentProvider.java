@@ -1,5 +1,9 @@
 package com.soundcloud.android.provider;
 
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
+
+import com.soundcloud.android.SoundCloudApplication;
+
 import android.accounts.Account;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -12,12 +16,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import com.soundcloud.android.SoundCloudApplication;
+import android.util.Log;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
 public class ScContentProvider extends ContentProvider {
     private static final String LOG_TAG = ScContentProvider.class.getSimpleName();
@@ -334,6 +336,45 @@ public class ScContentProvider extends ContentProvider {
                 count = db.update(DBHelper.Tables.RECORDINGS.tableName, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
+            case TRACK_CLEANUP:
+                long userId = SoundCloudApplication.getUserIdFromContext(getContext());
+                if (userId > 0){
+                    where = "_id NOT IN ("
+                                    + "SELECT _id FROM "+ DBHelper.Tables.TRACKS.tableName + " WHERE EXISTS("
+                                        + "SELECT 1 FROM CollectionItems WHERE "
+                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+ " ," + CollectionItemTypes.FAVORITE+ ") "
+                                        + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
+                                        + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Tracks.ID
+                                    + ")"
+                                + ")";
+
+                    final long start = System.currentTimeMillis();
+                    count = db.delete(DBHelper.Tables.TRACKS.tableName,where,null);
+                    Log.i(LOG_TAG,"Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
+                    getContext().getContentResolver().notifyChange(Content.TRACKS.uri, null, false);
+                    return count;
+                }
+                return 0;
+
+            case USERS_CLEANUP:
+                userId = SoundCloudApplication.getUserIdFromContext(getContext());
+                if (userId > 0) {
+                    where = "_id NOT IN (SELECT DISTINCT " + DBHelper.Tracks.USER_ID + " FROM "+ DBHelper.Tables.TRACKS.tableName + " UNION "
+                                    + "SELECT _id FROM "+ DBHelper.Tables.USERS.tableName + " WHERE EXISTS("
+                                        + "SELECT 1 FROM CollectionItems WHERE "
+                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.FOLLOWER+ " ," + CollectionItemTypes.FOLLOWING+ ") "
+                                        + " AND " + DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + userId
+                                        + " AND  " + DBHelper.CollectionItems.ITEM_ID + " = " + DBHelper.Users.CONCRETE_ID
+                                    + ")"
+                                + ") AND _id <> " + userId;
+                    final long start = System.currentTimeMillis();
+                    count = db.delete(DBHelper.Tables.USERS.tableName,where,null);
+                    Log.i(LOG_TAG,"User cleanup done: deleted " + count + " users in " + (System.currentTimeMillis() - start) + " ms");
+                    getContext().getContentResolver().notifyChange(Content.USERS.uri, null, false);
+                    return count;
+                }
+                return 0;
+
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
