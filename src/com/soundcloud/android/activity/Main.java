@@ -84,7 +84,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             if (mResolveTask != null) mResolveTask.setListener(this);
 
             mLoadTrackTask = (LoadTrackInfoTask) previousState[1];
-            if (mLoadTrackTask != null) mLoadTrackTask.setListener(this);
+            if (mLoadTrackTask != null) mLoadTrackTask.addListener(this);
 
             mLoadUserTask = (LoadUserInfoTask) previousState[2];
             if (mLoadUserTask != null) mLoadUserTask.setListener(this);
@@ -452,7 +452,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         if (params.size() >= 2) {
             if (params.get(0).equalsIgnoreCase("tracks")) {
                 mLoadTrackTask = new LoadTrackInfoTask(getApp(), 0, true, true);
-                mLoadTrackTask.setListener(this);
+                mLoadTrackTask.addListener(this);
                 mLoadTrackTask.action = action;
                 mLoadTrackTask.execute(Request.to(uri.getPath()));
             } else if (params.get(0).equalsIgnoreCase("users")) {

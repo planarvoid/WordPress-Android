@@ -67,7 +67,7 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
                 mTrack.load_info_task = new LoadTrackInfoTask(getApp(), mTrack.id, true, true);
             }
 
-            mTrack.load_info_task.setListener(this);
+            mTrack.load_info_task.addListener(this);
             if (CloudUtils.isTaskPending(mTrack.load_info_task)) {
                 mTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mTrack.id));
             }

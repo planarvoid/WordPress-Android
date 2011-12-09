@@ -36,7 +36,7 @@ public class LoadTrackInfoTaskTest {
             }
         };
 
-        task.setListener(listener);
+        task.addListener(listener);
         task.execute(Request.to(Endpoints.TRACK_DETAILS, 12345));
         assertThat(track[0], not(nullValue()));
         assertThat(track[0].title, equalTo("recording on sunday night"));

@@ -158,7 +158,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             PlayerTrackView ptv;
 
             if (newScreenIndex == 0 && prevTrackId != -1) {
-                final Track prevTrack = getAndCacheTrack(prevTrackId, newQueuePos -1);
+                final Track prevTrack = getTrackById(prevTrackId, newQueuePos - 1);
                 if (prevTrack != null){
                     if (mTrackWorkspace.getScreenCount() > 2) {
                         ptv = (PlayerTrackView) mTrackWorkspace.getScreenAt(2);
@@ -173,7 +173,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 }
 
             } else if (newScreenIndex == mTrackWorkspace.getScreenCount() - 1 && nextTrackId != -1) {
-                final Track nextTrack = getAndCacheTrack(nextTrackId, newQueuePos + 1);
+                final Track nextTrack = getTrackById(nextTrackId, newQueuePos + 1);
                 if (nextTrack != null){
                     if (mTrackWorkspace.getScreenCount() > 2) {
                         ptv = (PlayerTrackView) mTrackWorkspace.getScreenAt(0);
@@ -571,15 +571,18 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         mPlaybackService = null;
     }
 
-    private Track getAndCacheTrack(long trackId, int queuePos) {
-        if (!SoundCloudApplication.TRACK_CACHE.containsKey(trackId)) {
-            Track t = SoundCloudDB.getTrackById(getContentResolver(), trackId);
-            try {
-                SoundCloudApplication.TRACK_CACHE.put(t != null ? t : mPlaybackService.getTrackAt(queuePos));
-            } catch (RemoteException ignored) {
+    private Track getTrackById(long trackId, int queuePos) {
+        Track t = SoundCloudApplication.TRACK_CACHE.get(trackId);
+        if (t == null) {
+            // t = SoundCloudDB.getTrackById(getContentResolver(), trackId);
+            if (t == null){
+                try {
+                    t = mPlaybackService.getTrackAt(queuePos);
+                } catch (RemoteException ignored) {
+                }
             }
         }
-        return SoundCloudApplication.TRACK_CACHE.get(trackId);
+        return t;
     }
 
     private void updateTrackDisplay(final Track track) {
@@ -588,7 +591,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
         try {
             mCurrentQueuePosition = mPlaybackService.getQueuePosition();
-            mPlayingTrack = getAndCacheTrack(track.id, mCurrentQueuePosition);
+            mPlayingTrack = getTrackById(track.id, mCurrentQueuePosition);
             final boolean first = mTrackWorkspace.getChildCount() == 0;
 
             setFavoriteStatus();
@@ -604,7 +607,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                         ptv = new PlayerTrackView(this);
                         mTrackWorkspace.addViewAtScreenPosition(ptv, workspaceIndex);
                     }
-                    ptv.setTrack(getAndCacheTrack(mPlaybackService.getTrackIdAt(pos),pos), pos, false);
+                    ptv.setTrack(getTrackById(mPlaybackService.getTrackIdAt(pos), pos), pos, false);
 
                     workspaceIndex++;
                 }

@@ -620,10 +620,6 @@ public abstract class ScActivity extends Activity {
     protected void handleRecordingClick(Recording recording) {
     }
 
-    private void cacheTrackAndNeighbors(LazyEndlessAdapter wrapper, int position){
-
-    }
-
     private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
         @Override
         public void onEventClick(EventsAdapterWrapper wrapper, int position) {

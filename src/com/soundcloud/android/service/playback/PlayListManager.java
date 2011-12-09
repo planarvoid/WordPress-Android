@@ -1,28 +1,34 @@
 package com.soundcloud.android.service.playback;
 
 
+import android.net.Uri;
+import android.util.Log;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 
 import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
+import com.soundcloud.android.task.LoadTrackInfoTask;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/* package */ class PlaylistManager  {
+/* package */ class PlaylistManager implements LoadTrackInfoTask.LoadTrackInfoListener {
     private static final String TAG = "PlaylistManager";
 
+    private SoundCloudApplication mApp;
     private final List<Long> mPlaylist = new ArrayList<Long>();
     private int mPlayPos;
     private Context mContext;
     private TrackCache mCache;
 
     public PlaylistManager(Context context,
-                           TrackCache cache) {
+                           SoundCloudApplication app, TrackCache cache) {
         mContext = context;
+        mApp = app;
         mCache = cache;
     }
 
@@ -58,8 +64,16 @@ import java.util.List;
                 return cached;
             } else {
                 // cache miss
-                Track t = SoundCloudDB.getTrackById(mContext.getContentResolver(), mPlaylist.get(pos));
-                if (t != null) mCache.put(t);
+                //Track t = SoundCloudDB.getTrackById(mContext.getContentResolver(), mPlaylist.get(pos));
+                Track t = null;
+                if (t == null) {
+                    t = new Track();
+                    t.id = mPlaylist.get(pos);
+                    t.load_info_task = new LoadTrackInfoTask(mApp, mPlaylist.get(pos), true, true);
+                    t.load_info_task.addListener(this);
+                    t.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mPlaylist.get(pos)));
+                }
+                mCache.put(t);
                 return t;
             }
         } else {
@@ -78,38 +92,14 @@ import java.util.List;
     public boolean prev() {
         if (mPlayPos == 0)
             return false;
-
-        int newPos = mPlayPos - 1;
-        Track newTrack = getTrackAt(newPos);
-        while (newPos > 0 && (newTrack == null || !newTrack.isStreamable())) {
-            newPos--;
-            newTrack = getTrackAt(newPos);
-        }
-
-        if (newTrack != null && newTrack.isStreamable()) {
-            mPlayPos = newPos;
-            return true;
-        } else {
-            return false;
-        }
+        mPlayPos--;
+        return true;
     }
 
     public boolean next() {
-        if (mPlayPos > length()) return false;
-
-        int newPos = mPlayPos + 1;
-        Track newTrack = getTrackAt(newPos);
-        while (newPos < length() - 1 && (newTrack == null || !newTrack.isStreamable())) {
-            newPos++;
-            newTrack = getTrackAt(newPos);
-        }
-
-        if (newTrack != null && newTrack.isStreamable()) {
-            mPlayPos = newPos;
-            return true;
-        } else {
-            return false;
-        }
+        if (mPlayPos >= length()-1) return false;
+        mPlayPos++;
+        return true;
     }
 
     public Track getPrev() {
@@ -167,4 +157,12 @@ import java.util.List;
     public long reloadQueue() {
         return 0; // seekpos
     }
+
+    @Override
+    public void onTrackInfoLoaded(Track track, String action) {
+        mCache.put(track);
+    }
+
+    @Override
+    public void onTrackInfoError(long trackId) {}
 }

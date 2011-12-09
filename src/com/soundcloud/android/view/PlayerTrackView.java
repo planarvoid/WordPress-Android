@@ -191,7 +191,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                     mTrack.load_info_task = new LoadTrackInfoTask(mPlayer.getApp(), mTrack.id, true, true);
                 }
 
-                mTrack.load_info_task.setListener(this);
+                mTrack.load_info_task.addListener(this);
                 if (CloudUtils.isTaskPending(mTrack.load_info_task)) {
                     mTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mTrack.id));
                 }
@@ -462,6 +462,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
     @Override
     public void onTrackInfoLoaded(Track track, String action) {
+        Log.i("asdf","ON TRACK INFO LOADED GUY " + track);
         if (track.id != mTrack.id) return;
 
         setTrack(track, mPlayPos, true);

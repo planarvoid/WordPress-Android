@@ -7,13 +7,14 @@ import com.soundcloud.android.SoundCloudDB.WriteState;
 import com.soundcloud.android.model.Track;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 public class LoadTrackInfoTask extends LoadTask<Track> {
     private SoundCloudApplication mApp;
+    private long mTrackId;
     private boolean mCacheResult;
     private boolean mWriteToDB;
-    private long mTrackId;
-    private WeakReference<LoadTrackInfoListener> mListenerWeakReference;
+    private ArrayList<WeakReference<LoadTrackInfoListener>> mListenerWeakReferences;
 
     public String action;
 
@@ -25,17 +26,18 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
         mWriteToDB = writeToDb;
     }
 
-    public void setListener(LoadTrackInfoListener listener){
-        mListenerWeakReference = new WeakReference<LoadTrackInfoListener>(listener);
+    public void addListener(LoadTrackInfoListener listener){
+        if (mListenerWeakReferences == null){
+            mListenerWeakReferences = new ArrayList<WeakReference<LoadTrackInfoListener>>();
+        }
+        mListenerWeakReferences.add(new WeakReference<LoadTrackInfoListener>(listener));
     }
 
     @Override
     protected void onPostExecute(Track result) {
         super.onPostExecute(result);
 
-        LoadTrackInfoListener listener = mListenerWeakReference != null ? mListenerWeakReference.get() : null;
         if (result != null) {
-
             if (SoundCloudApplication.TRACK_CACHE.containsKey(result.id)) {
                 result.setAppFields(SoundCloudApplication.TRACK_CACHE.get(result.id));
             }
@@ -49,11 +51,23 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
                 SoundCloudApplication.TRACK_CACHE.put(result);
             }
 
-            if (listener != null){
-                listener.onTrackInfoLoaded(result, action);
+            if (mListenerWeakReferences != null){
+                for (WeakReference<LoadTrackInfoListener> listenerRef : mListenerWeakReferences){
+                    LoadTrackInfoListener listener = listenerRef.get();
+                    if (listener != null){
+                        listener.onTrackInfoLoaded(result, action);
+                    }
+                }
             }
-        } else if (listener != null){
-            listener.onTrackInfoError(mTrackId);
+        } else {
+            if (mListenerWeakReferences != null){
+                for (WeakReference<LoadTrackInfoListener> listenerRef : mListenerWeakReferences){
+                    LoadTrackInfoListener listener = listenerRef.get();
+                    if (listener != null){
+                        listener.onTrackInfoError(mTrackId);
+                    }
+                }
+            }
         }
     }
 

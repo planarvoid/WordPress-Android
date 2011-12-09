@@ -13,6 +13,8 @@ import com.soundcloud.android.streaming.StreamProxy;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
+import com.soundcloud.android.task.LoadTrackInfoTask;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
 import android.app.Notification;
@@ -131,7 +133,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public void onCreate() {
         super.onCreate();
         mCache = SoundCloudApplication.TRACK_CACHE;
-        mPlaylistManager = new PlaylistManager(this, mCache);
+        mPlaylistManager = new PlaylistManager(this, getApp(), mCache);
 
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
@@ -269,7 +271,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     private void notifyChange(String what) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "notifyChange("+what+")");
+            Log.d(TAG, "notifyChange(" + what + ")");
         }
         Intent i = new Intent(what)
             .putExtra("id", getTrackId())
@@ -295,6 +297,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "openCurrent(state="+state+")");
         }
+
         final Track track = mPlaylistManager.getTrack();
         if (track != null) {
             if (mAutoPause) {
@@ -303,99 +306,134 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             }
 
             mLoadPercent = 0;
-            if (!track.equals(mCurrentTrack)) {
+            if (track.equals(mCurrentTrack) && track.isStreamable()) {
+                startTrack(track);
+            } else {
                 mCurrentTrack = track;
                 mConnectRetries = 0; // new track, reset connection attempts
 
-                m10percentStamp = (long) (track.duration * .1);
-                m10percentStampReached = false;
-                m95percentStamp = (long) (track.duration * .95);
-                m95percentStampReached = false;
-
-                new Thread() {
-                    @Override public void run() {
-                        track.markAsPlayed(getContentResolver(), getApp().getCurrentUserId());
-                        mCache.put(track.updateFromDb(getContentResolver(), getApp().getLoggedInUser()));
-                        mPlayerHandler.sendEmptyMessage(NOTIFY_META_CHANGED);
-                    }
-                }.start();
-
-                getApp().trackEvent(
-                        Consts.Tracking.Categories.TRACKS,
-                        Consts.Tracking.Actions.TRACK_PLAY,
-                        track.getTrackEventLabel());
+                if (track.isStreamable()) {
+                    onStreamableTrack(track);
+                } else if (!CloudUtils.isTaskFinished(track.load_info_task)) {
+                    track.load_info_task.addListener(mInfoListener);
+                } else {
+                    onUnstreamableTrack(track.id);
+                }
             }
-            startTrack(track);
-            setPlayingNotification(track);
+
         } else {
             Log.d(TAG, "playlist is empty");
         }
     }
 
+    private LoadTrackInfoTask.LoadTrackInfoListener mInfoListener = new LoadTrackInfoTask.LoadTrackInfoListener() {
+        @Override
+        public void onTrackInfoLoaded(Track track, String action) {
+            if (track.isStreamable()) {
+                onStreamableTrack(track);
+            } else {
+                onUnstreamableTrack(track.id);
+            }
+        }
+
+        @Override
+        public void onTrackInfoError(long trackId) {
+            onUnstreamableTrack(trackId);
+        }
+    };
+
+    private void onUnstreamableTrack(long trackId){
+        if (mCurrentTrack.id != trackId) return;
+
+        mPlayerHandler.sendEmptyMessage(STREAM_EXCEPTION);
+        gotoIdleState(STOPPED);
+    }
+
+    private void onStreamableTrack(Track track){
+        if (mCurrentTrack.id != track.id) return;
+
+        m10percentStamp = (long) (mCurrentTrack.duration * .1);
+        m10percentStampReached = false;
+        m95percentStamp = (long) (mCurrentTrack.duration * .95);
+        m95percentStampReached = false;
+
+        new Thread() {
+            @Override
+            public void run() {
+                mCurrentTrack.markAsPlayed(getContentResolver(), getApp().getCurrentUserId());
+                mCache.put(mCurrentTrack.updateFromDb(getContentResolver(), getApp().getLoggedInUser()));
+                mPlayerHandler.sendEmptyMessage(NOTIFY_META_CHANGED);
+            }
+        }.start();
+
+        getApp().trackEvent(
+                Consts.Tracking.Categories.TRACKS,
+                Consts.Tracking.Actions.TRACK_PLAY,
+                mCurrentTrack.getTrackEventLabel());
+
+        startTrack(track);
+    }
+
     private void startTrack(Track track) {
+        setPlayingNotification(track);
+
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "startTrack("+track.title+")");
         }
-        if (track.isStreamable()) {
-            if (mMediaPlayer == null) {
-                mMediaPlayer = new MediaPlayer();
-            }
+        if (mMediaPlayer == null) {
+            mMediaPlayer = new MediaPlayer();
+        }
 
-            switch (state) {
-                case PREPARING:
-                    Log.w(TAG, "stuck in preparing state!");
-                    final MediaPlayer old = mMediaPlayer;
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            old.reset();
-                            old.release();
-                        }
-                    }.start();
-                    mMediaPlayer = new MediaPlayer();
-                    break;
-                case PLAYING:
-                    mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
-                    try {
-                        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.stop");
-                        mMediaPlayer.stop();
-                        state = STOPPED;
-                    } catch (IllegalStateException e) {
-                        Log.w(TAG, e);
+        switch (state) {
+            case PREPARING:
+                Log.w(TAG, "stuck in preparing state!");
+                final MediaPlayer old = mMediaPlayer;
+                new Thread() {
+                    @Override
+                    public void run() {
+                        old.reset();
+                        old.release();
                     }
-                    break;
-            }
-            state = PREPARING;
-            try {
-                if (mProxy == null) {
-                    mProxy = new StreamProxy(getApp()).init().start();
+                }.start();
+                mMediaPlayer = new MediaPlayer();
+                break;
+            case PLAYING:
+                mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
+                try {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.stop");
+                    mMediaPlayer.stop();
+                    state = STOPPED;
+                } catch (IllegalStateException e) {
+                    Log.w(TAG, e);
                 }
-                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.reset");
-                mMediaPlayer.reset();
-                mMediaPlayer.setWakeMode(CloudPlaybackService.this, PowerManager.PARTIAL_WAKE_LOCK);
-                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mMediaPlayer.setOnPreparedListener(preparedlistener);
-                mMediaPlayer.setOnSeekCompleteListener(seekListener);
-                mMediaPlayer.setOnCompletionListener(completionListener);
-                mMediaPlayer.setOnErrorListener(errorListener);
-                mMediaPlayer.setOnBufferingUpdateListener(bufferingListener);
-                mMediaPlayer.setOnInfoListener(infolistener);
-                Track next = mPlaylistManager.getNext();
-                mMediaPlayer.setDataSource(mProxy.createUri(mCurrentTrack.stream_url, next == null ? null : next.stream_url).toString());
-                mMediaPlayer.prepareAsync();
-                notifyChange(BUFFERING);
-
-            } catch (IllegalStateException e) {
-                Log.e(TAG, "error", e);
-                gotoIdleState(ERROR);
-            } catch (IOException e) {
-                Log.e(TAG, "error", e);
-                errorListener.onError(mMediaPlayer, 0, 0);
+                break;
+        }
+        state = PREPARING;
+        try {
+            if (mProxy == null) {
+                mProxy = new StreamProxy(getApp()).init().start();
             }
-        } else {
-            // track not streamable
-            mPlayerHandler.sendEmptyMessage(STREAM_EXCEPTION);
-            gotoIdleState(STOPPED);
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.reset");
+            mMediaPlayer.reset();
+            mMediaPlayer.setWakeMode(CloudPlaybackService.this, PowerManager.PARTIAL_WAKE_LOCK);
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mMediaPlayer.setOnPreparedListener(preparedlistener);
+            mMediaPlayer.setOnSeekCompleteListener(seekListener);
+            mMediaPlayer.setOnCompletionListener(completionListener);
+            mMediaPlayer.setOnErrorListener(errorListener);
+            mMediaPlayer.setOnBufferingUpdateListener(bufferingListener);
+            mMediaPlayer.setOnInfoListener(infolistener);
+            Track next = mPlaylistManager.getNext();
+            mMediaPlayer.setDataSource(mProxy.createUri(mCurrentTrack.stream_url, next == null ? null : next.stream_url).toString());
+            mMediaPlayer.prepareAsync();
+            notifyChange(BUFFERING);
+
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "error", e);
+            gotoIdleState(ERROR);
+        } catch (IOException e) {
+            Log.e(TAG, "error", e);
+            errorListener.onError(mMediaPlayer, 0, 0);
         }
     }
 
