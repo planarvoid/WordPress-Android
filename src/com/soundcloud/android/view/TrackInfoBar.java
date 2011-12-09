@@ -138,7 +138,7 @@ public class TrackInfoBar extends RelativeLayout {
         if (mTrack == null) return;
 
         setTrackTime(p);
-        if (mTrack.user != null) mUser.setText(mTrack.user.username);
+        mUser.setText(mTrack.user != null ? mTrack.user.username : "");
 
         if (mTrack.sharing == null || mTrack.sharing.contentEquals("public")) {
             mPrivateIndicator.setVisibility(View.GONE);
