@@ -383,12 +383,9 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             }
 
             if (item instanceof Track) {
-                if (adp instanceof MyTracksAdapter) {
-                    position -= ((MyTracksAdapter) adp).getPendingRecordingsCount();
-                }
-                mListener.onTrackClick(wrapper, ((Track) item));
+                mListener.onTrackClick(wrapper, position);
             } else if (item instanceof Event) {
-                mListener.onEventClick((EventsAdapterWrapper) wrapper, ((Event) item));
+                mListener.onEventClick((EventsAdapterWrapper) wrapper, position);
             } else if (item instanceof User) {
                 mListener.onUserClick((User) item);
             } else if (item instanceof User) {
@@ -713,9 +710,9 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
     public interface LazyListListener {
-        void onEventClick(EventsAdapterWrapper wrapper, Event track);
+        void onEventClick(EventsAdapterWrapper wrapper, int position);
 
-        void onTrackClick(LazyEndlessAdapter wrapper, Track track);
+        void onTrackClick(LazyEndlessAdapter wrapper, int position);
 
         void onUserClick(User user);
 

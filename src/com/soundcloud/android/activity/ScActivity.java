@@ -263,6 +263,16 @@ public abstract class ScActivity extends Activity {
         }
     }
 
+    public void playTrack(final int position, final LazyEndlessAdapter wrapper, boolean goToPlayer, boolean commentMode) {
+        SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position)).getTrack());
+        if (position > 0 && wrapper.getItem(position) instanceof Playable){
+            SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position - 1)).getTrack());
+        }
+        if (position < wrapper.getWrappedAdapter().getCount() -1 && wrapper.getItem(position + 1) instanceof Playable){
+            SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position + 1)).getTrack());
+        }
+        playTrack(((Playable) wrapper.getItem(position)).getTrack(),wrapper,goToPlayer,commentMode);
+    }
 
     public void playTrack(final Track track, final LazyEndlessAdapter wrapper, boolean goToPlayer, boolean commentMode) {
         // find out if this track is already playing. If it is, just go to the player
@@ -610,22 +620,26 @@ public abstract class ScActivity extends Activity {
     protected void handleRecordingClick(Recording recording) {
     }
 
+    private void cacheTrackAndNeighbors(LazyEndlessAdapter wrapper, int position){
+
+    }
+
     private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
         @Override
-        public void onEventClick(EventsAdapterWrapper wrapper, Event e) {
+        public void onEventClick(EventsAdapterWrapper wrapper, int position) {
+            final Event e = (Event) wrapper.getItem(position);
             if (Event.Types.FAVORITING.contentEquals(e.type)) {
-                SoundCloudApplication.TRACK_CACHE.put(e.getTrack());
                 Intent i = new Intent(ScActivity.this, TrackFavoriters.class);
                 i.putExtra("track_id", e.getTrack().id);
                 startActivity(i);
             } else {
-                playTrack(e.getTrack(), wrapper, true, false);
+                playTrack(position, wrapper, true, false);
             }
         }
 
         @Override
-        public void onTrackClick(LazyEndlessAdapter wrapper, Track track) {
-            playTrack(track, wrapper, true, false);
+        public void onTrackClick(LazyEndlessAdapter wrapper, int position) {
+            playTrack(position, wrapper, true, false);
         }
 
         @Override
