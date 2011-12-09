@@ -1,18 +1,20 @@
 
 package com.soundcloud.android.adapter;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.view.LazyRow;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter {
     protected Context mContext;

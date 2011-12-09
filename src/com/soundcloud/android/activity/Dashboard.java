@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Event;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
@@ -156,7 +157,7 @@ public class Dashboard extends ScActivity {
 
     protected ScTabView createList(int type, Class<?> model, EmptyCollection emptyView, int listId, boolean isNews) {
         EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), isNews, model);
-        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, type);
+        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, Content.fromEventType(type));
 
         final ScTabView view = new ScTabView(this);
         mListView = view.setLazyListView(buildList(!isNews), adpWrap, listId, true);
@@ -214,7 +215,7 @@ public class Dashboard extends ScActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit()
                                                 .putBoolean(EXCLUSIVE_ONLY_KEY, which == 1).commit();
-                                        ((EventsAdapterWrapper) mListView.getWrapper()).setType(getIncomingType());
+
                                         mListView.getWrapper().clearRefreshTask();
                                         mListView.getWrapper().reset();
                                         mListView.setLastUpdated(0);

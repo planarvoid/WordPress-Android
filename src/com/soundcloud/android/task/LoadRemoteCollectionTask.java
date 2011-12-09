@@ -12,8 +12,8 @@ import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.LocalCollectionPage;
 import com.soundcloud.android.model.ModelBase;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.api.Http;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -67,7 +67,7 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
 
                     // we have new content. wipe out everything for now (or it gets tricky)
                     if (localCollection != null) {
-                        mApp.getContentResolver().delete(ScContentProvider.Content.COLLECTION_PAGES,
+                        mApp.getContentResolver().delete(Content.COLLECTION_PAGES.uri,
                                 DBHelper.CollectionPages.COLLECTION_ID + " = ? AND " + DBHelper.CollectionPages.PAGE_INDEX + " > ?",
                                 new String[]{String.valueOf(localCollection.id), String.valueOf(mParams.pageIndex)});
                     }
@@ -95,7 +95,7 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
                         }
 
                         // insert new page
-                        mApp.getContentResolver().insert(ScContentProvider.Content.COLLECTION_PAGES, cv);
+                        mApp.getContentResolver().insert(Content.COLLECTION_PAGES.uri, cv);
                         SoundCloudDB.bulkInsertParcelables(mApp,mNewItems,mParams.contentUri,getCollectionOwner(),
                                 mParams.pageIndex * Consts.COLLECTION_PAGE_SIZE);
                     }
@@ -112,9 +112,8 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
        return super.doInBackground(params);
     }
 
-    private long getCollectionOwner(){
-        final int uriCode = mApp.getContentUriMatcher().match(mParams.contentUri);
-        if (uriCode < 200){ // mine
+    private long getCollectionOwner() {
+        if (Content.match(mParams.contentUri).isMine()) {
             return mApp.getCurrentUserId();
         } else if (mParams.contentUri.getPathSegments().size() > 2){
             try {
@@ -126,6 +125,4 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
             return -1;
         }
     }
-
-
 }

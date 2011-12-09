@@ -69,7 +69,7 @@ import java.util.List;
                 if (t == null) {
                     t = new Track();
                     t.id = mPlaylist.get(pos);
-                    t.load_info_task = new LoadTrackInfoTask(mApp, mPlaylist.get(pos), true, true);
+                    t.load_info_task = new LoadTrackInfoTask(mApp, t.id, true, true);
                     t.load_info_task.addListener(this);
                     t.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mPlaylist.get(pos)));
                 }

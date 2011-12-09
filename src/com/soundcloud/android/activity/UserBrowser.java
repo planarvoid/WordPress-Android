@@ -25,8 +25,7 @@ import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.model.*;
-import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -356,8 +355,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
                 new ArrayList<Parcelable>(), Track.class);
 
-        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_TRACKS, mUser.id), isMe()
-                ? ScContentProvider.Content.ME_TRACKS : CloudUtils.replaceWildcard(ScContentProvider.Content.USER_TRACKS, mUser.id), false);
+        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, isMe()
+                ? Content.ME_TRACKS.uri : CloudUtils.replaceWildcard(Content.USER_TRACKS.uri, mUser.id),
+                Request.to(Endpoints.USER_TRACKS, mUser.id), false);
+
+
         if (isOtherUser()) {
             if (mUser != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
@@ -366,7 +368,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(ApiSyncService.SyncExtras.TRACKS);
+            adpWrap.setSyncExtra(Content.ME_TRACKS.uri);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
                     .setActionText(R.string.list_empty_user_sounds_action)
                     .setImage(R.drawable.empty_rec)
@@ -388,8 +390,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         // Favorites View
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FAVORITES, mUser.id).add("order","favorited_at"),
-                isMe() ? ScContentProvider.Content.ME_FAVORITES : CloudUtils.replaceWildcard(ScContentProvider.Content.USER_FAVORITES, mUser.id),
+        adpWrap = new LazyEndlessAdapter(this, adp, isMe() ? Content.ME_FAVORITES.uri : CloudUtils.replaceWildcard(Content.USER_FAVORITES.uri, mUser.id), Request.to(Endpoints.USER_FAVORITES, mUser.id).add("order","favorited_at"),
                 false);
         if (isOtherUser()) {
             if (mUser != null) {
@@ -399,7 +400,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(ApiSyncService.SyncExtras.FAVORITES);
+            adpWrap.setSyncExtra(Content.ME_FAVORITES.uri);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_likes_message)
                     .setActionText(R.string.list_empty_user_likes_action)
                     .setImage(R.drawable.empty_like)
@@ -421,8 +422,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         // Followings View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWINGS, mUser.id),
-                isMe() ? ScContentProvider.Content.ME_FOLLOWINGS : CloudUtils.replaceWildcard(ScContentProvider.Content.USER_FOLLOWINGS, mUser.id),
+        adpWrap = new LazyEndlessAdapter(this, adp, isMe() ? Content.ME_FOLLOWINGS.uri : CloudUtils.replaceWildcard(Content.USER_FOLLOWINGS.uri, mUser.id), Request.to(Endpoints.USER_FOLLOWINGS, mUser.id),
                 false);
 
         if (isOtherUser()) {
@@ -433,7 +433,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(ApiSyncService.SyncExtras.FOLLOWINGS);
+            adpWrap.setSyncExtra(Content.ME_FOLLOWINGS.uri);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
                     .setActionText(R.string.list_empty_user_following_action)
                     .setImage(R.drawable.empty_follow_small)
@@ -454,8 +454,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         // Followers View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.USER_FOLLOWERS, mUser.id),
-                isMe() ? ScContentProvider.Content.ME_FOLLOWERS : CloudUtils.replaceWildcard(ScContentProvider.Content.USER_FOLLOWERS, mUser.id),
+        adpWrap = new LazyEndlessAdapter(this, adp, isMe() ? Content.ME_FOLLOWERS.uri : CloudUtils.replaceWildcard(Content.USER_FOLLOWERS.uri, mUser.id), Request.to(Endpoints.USER_FOLLOWERS, mUser.id),
                 false);
 
         if (isOtherUser()) {
@@ -466,7 +465,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(ApiSyncService.SyncExtras.FOLLOWERS);
+            adpWrap.setSyncExtra(Content.ME_FOLLOWERS.uri);
             if (mUser.track_count > 0){
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
                     .setActionText(R.string.list_empty_user_followers_action)

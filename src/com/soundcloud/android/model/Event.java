@@ -1,19 +1,13 @@
 
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -165,50 +159,4 @@ public class Event extends ModelBase implements Origin, Playable {
         result = 31 * result + (origin != null ? origin.hashCode() : 0);
         return result;
     }
-
-    public static Request getRequestFromType(int type){
-        switch (type){
-            case Consts.EventTypes.INCOMING : {
-                return Request.to(Endpoints.MY_ACTIVITIES);
-            }
-            case Consts.EventTypes.EXCLUSIVE : {
-                return Request.to(Endpoints.MY_EXCLUSIVE_TRACKS);
-            }
-            case Consts.EventTypes.ACTIVITY : {
-                return Request.to(Endpoints.MY_NEWS);
-            }
-        }
-        return null;
-    }
-
-    public static String getSyncExtraFromType(int type){
-        switch (type){
-            case Consts.EventTypes.INCOMING : {
-                return ApiSyncService.SyncExtras.INCOMING;
-            }
-            case Consts.EventTypes.EXCLUSIVE : {
-                return ApiSyncService.SyncExtras.EXCLUSIVE;
-            }
-            case Consts.EventTypes.ACTIVITY : {
-                return ApiSyncService.SyncExtras.ACTIVITY;
-            }
-        }
-        return null;
-    }
-
-    public static Uri getContentUriFromType(int type){
-        switch (type){
-            case Consts.EventTypes.INCOMING : {
-                return ScContentProvider.Content.ME_SOUND_STREAM;
-            }
-            case Consts.EventTypes.EXCLUSIVE : {
-                return ScContentProvider.Content.ME_EXCLUSIVE_STREAM;
-            }
-            case Consts.EventTypes.ACTIVITY : {
-                return ScContentProvider.Content.ME_ACTIVITIES;
-            }
-        }
-        return null;
-    }
-
 }

@@ -20,6 +20,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.*;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.LoadRemoteCollectionTask;
@@ -32,14 +33,11 @@ import org.apache.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener, DetachableResultReceiver.Receiver {
-
-    public static final int SYNCABLE_CEILING = 150;
     protected LoadCollectionTask mAppendTask;
     protected LoadCollectionTask mRefreshTask;
 
@@ -48,7 +46,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     protected View mPendingView = null;
     protected DetachableResultReceiver mDetachableReceiver;
 
-    protected Uri mContentUri;
+    protected Uri mContent;
     protected Request mRequest;
     protected String mNextHref;
     private String mFirstPageEtag;
@@ -58,7 +56,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     private EmptyCollection mDefaultEmptyView;
     private String mEmptyViewText = "";
 
-    private String mSyncExtra;
+    private Uri mSyncExtra;
     private boolean mWaitingOnSync;
 
     protected int mState;
@@ -72,24 +70,19 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
 
 
-    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request, Uri contentUri) {
-        this(activity,wrapped,request,contentUri, true);
-    }
-
-    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Request request, Uri contentUri, boolean autoAppend) {
+    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri content, Request request, boolean autoAppend) {
         super(wrapped);
 
         mActivity = activity;
-
         mRequest = request;
-        mContentUri = contentUri;
+        mContent = content;
         wrapped.setWrapper(this);
         if (autoAppend) mState = READY;
     }
 
 
 
-    public void setSyncExtra(String syncExtra){
+    public void setSyncExtra(Uri syncExtra) {
         mSyncExtra = syncExtra;
     }
 
@@ -354,7 +347,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     protected void startAppendTask(){
         mState = APPENDING;
         final Uri contentUri = getContentUri(false);
-        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < SYNCABLE_CEILING){
+        if (contentUri != null && Content.isSyncable(contentUri)){
             mAppendTask = new LoadCollectionTask(mActivity.getApp(), buildAppendParams());
         } else {
             mAppendTask = new LoadRemoteCollectionTask(mActivity.getApp(), buildAppendParams());
@@ -366,7 +359,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     protected void startRefreshTask(final boolean userRefresh) {
         mState = REFRESHING;
         final Uri contentUri = getContentUri(true);
-        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < SYNCABLE_CEILING) {
+        if (contentUri != null && Content.isSyncable(contentUri)) {
             mRefreshTask = new LoadCollectionTask(mActivity.getApp(), buildRefreshParams());
         } else {
             mRefreshTask = new LoadRemoteCollectionTask(mActivity.getApp(), buildRefreshParams());
@@ -470,7 +463,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public Uri getContentUri(boolean refresh) {
-        return mContentUri;
+        return mContent;
     }
 
     protected int getPageIndex(boolean refresh) {
@@ -492,7 +485,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         }
 
         final Uri contentUri = getContentUri(true);
-        if (contentUri != null && mActivity.getApp().getContentUriMatcher().match(contentUri) < SYNCABLE_CEILING) {
+        if (contentUri != null && Content.isSyncable(contentUri)) {
             mState = REFRESHING;
             boolean sync = true;
 
@@ -513,7 +506,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 mWaitingOnSync = true;
                 final Intent intent = new Intent(mActivity, ApiSyncService.class);
                 intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
-                intent.putExtra(mSyncExtra, true);
+                intent.setData(mSyncExtra);
                 mActivity.startService(intent);
             }
 

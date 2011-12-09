@@ -4,9 +4,9 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
+
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
 
 public class LocalCollection {
     public int id;
@@ -27,7 +27,7 @@ public class LocalCollection {
 
     public static LocalCollection fromContentUri(ContentResolver contentResolver, Uri contentUri){
         LocalCollection lc = null;
-        Cursor c = contentResolver.query(ScContentProvider.Content.COLLECTIONS, null, "uri = ?", new String[]{contentUri.toString()}, null);
+        Cursor c = contentResolver.query(Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
         if (c != null && c.moveToFirst()) {
             lc = new LocalCollection(c);
         }
@@ -46,7 +46,7 @@ public class LocalCollection {
         if (lastRefresh != -1) cv.put(DBHelper.Collections.LAST_SYNC, lastRefresh);
         if (size != -1) cv.put(DBHelper.Collections.SIZE, size);
 
-        Uri inserted = contentResolver.insert(ScContentProvider.Content.COLLECTIONS, cv);
+        Uri inserted = contentResolver.insert(Content.COLLECTIONS.uri, cv);
         if (inserted != null) {
             return new LocalCollection(inserted.getLastPathSegment(),contentUri);
         } else {
@@ -57,7 +57,7 @@ public class LocalCollection {
     public static long getLastSync(ContentResolver contentResolver, Uri contentUri) {
         long lastSync = -1;
         if (contentUri != null) {
-            Cursor c = contentResolver.query(ScContentProvider.Content.COLLECTIONS,
+            Cursor c = contentResolver.query(Content.COLLECTIONS.uri,
                     new String[]{DBHelper.Collections.LAST_SYNC}, "uri = ?", new String[]{contentUri.toString()}, null);
             if (c != null && c.moveToFirst()) {
                 lastSync = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));

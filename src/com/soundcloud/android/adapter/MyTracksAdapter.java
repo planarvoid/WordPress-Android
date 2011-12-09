@@ -1,12 +1,11 @@
 
 package com.soundcloud.android.adapter;
 
-import android.util.Log;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
 import com.soundcloud.android.view.TracklistRow;
@@ -35,7 +34,7 @@ public class MyTracksAdapter extends TracklistAdapter {
 
         mChangeObserver = new ChangeObserver();
         activity.getContentResolver()
-                .registerContentObserver(ScContentProvider.Content.RECORDINGS, true, mChangeObserver);
+                .registerContentObserver(Content.RECORDINGS.uri, true, mChangeObserver);
     }
 
     @Override
@@ -62,7 +61,7 @@ public class MyTracksAdapter extends TracklistAdapter {
     }
 
     private void refreshCursor() {
-        mCursor = mContext.getContentResolver().query(ScContentProvider.Content.RECORDINGS, null,
+        mCursor = mContext.getContentResolver().query(Content.RECORDINGS.uri, null,
                 Recordings.UPLOAD_STATUS + " < 2", null, Recordings.TIMESTAMP + " DESC");
         if (mCursor != null) {
             mDataValid = true;

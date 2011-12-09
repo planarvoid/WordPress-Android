@@ -2,13 +2,11 @@ package com.soundcloud.android.activity;
 
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.util.Log;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SectionedCommentAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.provider.ScContentProvider;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -29,7 +27,7 @@ public class TrackComments extends TrackInfoCollection {
     @Override
     protected SectionedAdapter.Section createSection() {
         return new SectionedAdapter.Section(getString(R.string.list_header_track_comments),
-                Comment.class, new ArrayList<Parcelable>(), Request.to(Endpoints.TRACK_COMMENTS, mTrack.id),null);
+                Comment.class, new ArrayList<Parcelable>(), null, Request.to(Endpoints.TRACK_COMMENTS, mTrack.id));
     }
 
     @Override

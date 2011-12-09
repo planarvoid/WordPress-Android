@@ -23,7 +23,7 @@ import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.NewConnectionTask;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
@@ -120,14 +120,14 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
     private void addFriendsSection() {
         mFriendsSection = new SectionedAdapter.Section(getString(R.string.list_header_fb_friends),
-                Friend.class, new ArrayList<Parcelable>(), Request.to(Endpoints.MY_FRIENDS), ScContentProvider.Content.ME_FRIENDS);
+                Friend.class, new ArrayList<Parcelable>(), Content.ME_FRIENDS.uri, Request.to(Endpoints.MY_FRIENDS));
         ffAdp.sections.add(mFriendsSection);
     }
 
     private void addSuggestedUsersSection() {
         ffAdp.sections.add(
                 new SectionedAdapter.Section(getString(R.string.list_header_suggested_users),
-                        User.class, new ArrayList<Parcelable>(), Request.to(Endpoints.SUGGESTED_USERS), ScContentProvider.Content.SUGGESTED_USERS));
+                        User.class, new ArrayList<Parcelable>(), Content.SUGGESTED_USERS.uri, Request.to(Endpoints.SUGGESTED_USERS)));
     }
 
     /* package */ void configureFacebook() {

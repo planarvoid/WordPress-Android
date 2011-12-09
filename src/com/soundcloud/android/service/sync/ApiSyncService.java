@@ -12,9 +12,8 @@ import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.*;
-import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
 import java.io.IOException;
@@ -36,17 +35,6 @@ public class ApiSyncService extends IntentService{
     public static final int STATUS_FINISHED = 0x3;
 
 
-    public interface SyncExtras {
-        String INCOMING = ApiSyncService.class.getName() + ".sync_incoming";
-        String EXCLUSIVE = ApiSyncService.class.getName() + ".sync_exclusive";
-        String ACTIVITY = ApiSyncService.class.getName() + ".sync_activities";
-        String TRACKS = ApiSyncService.class.getName() + ".sync_tracks";
-        String FAVORITES = ApiSyncService.class.getName() + ".sync_favorites";
-        String FOLLOWINGS = ApiSyncService.class.getName() + ".sync_followings";
-        String FOLLOWERS = ApiSyncService.class.getName() + ".sync_followers";
-        String TEST = ApiSyncService.class.getName() + ".sync_test";
-    }
-
     public ApiSyncService() {
         super("ApiSyncService");
     }
@@ -61,34 +49,48 @@ public class ApiSyncService extends IntentService{
         final long startSync = System.currentTimeMillis();
         try {
             long start;
-
             ApiSyncer apiSyncer = new ApiSyncer((SoundCloudApplication) getApplication());
+            ArrayList<String> contents = intent.getStringArrayListExtra("syncUris");
+            if (contents == null) {
+                contents = new ArrayList<String>();
+            }
+            if (intent.getData() != null) {
+                contents.add(intent.getData().toString());
+            }
 
-            if (intent.getBooleanExtra(SyncExtras.INCOMING, false)) {
-                apiSyncer.syncActivities(Request.to(Endpoints.MY_ACTIVITIES), ScContentProvider.Content.ME_SOUND_STREAM);
+            for (String c : contents) {
+                apiSyncer.syncContent(Content.byUri(Uri.parse(c)));
             }
-            if (intent.getBooleanExtra(SyncExtras.EXCLUSIVE, false)) {
-                apiSyncer.syncActivities(Request.to(Endpoints.MY_EXCLUSIVE_TRACKS), ScContentProvider.Content.ME_EXCLUSIVE_STREAM);
-            }
-            if (intent.getBooleanExtra(SyncExtras.ACTIVITY, false)) {
-                apiSyncer.syncActivities(Request.to(Endpoints.MY_NEWS), ScContentProvider.Content.ME_ACTIVITIES);
-            }
-            if (intent.getBooleanExtra(SyncExtras.TRACKS, false)) {
-                //apiSyncer.syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
-                slowSyncCollection(ScContentProvider.Content.ME_TRACKS,Endpoints.MY_TRACKS,Track.class);
-            }
-            if (intent.getBooleanExtra(SyncExtras.FAVORITES, false)) {
-                apiSyncer.syncCollection(ScContentProvider.Content.ME_FAVORITES, Endpoints.MY_FAVORITES, Track.class);
-                //slowSyncCollection(ScContentProvider.Content.ME_FAVORITES, Endpoints.MY_FAVORITES, Track.class);
-            }
-            if (intent.getBooleanExtra(SyncExtras.FOLLOWINGS, false)) {
-                //apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
-                slowSyncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
-            }
-            if (intent.getBooleanExtra(SyncExtras.FOLLOWERS, false)) {
-                //apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
-                slowSyncCollection(ScContentProvider.Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
-            }
+
+//            if (intent.getBooleanExtra(SyncExtras.INCOMING, false)) {
+//                apiSyncer.syncActivities(Request.to(Endpoints.MY_ACTIVITIES), Content.ME_SOUND_STREAM);
+//            }
+//            if (intent.getBooleanExtra(SyncExtras.EXCLUSIVE, false)) {
+//                apiSyncer.syncActivities(Request.to(Endpoints.MY_EXCLUSIVE_TRACKS), Content.ME_EXCLUSIVE_STREAM);
+//            }
+//            if (intent.getBooleanExtra(SyncExtras.ACTIVITY, false)) {
+//                apiSyncer.syncActivities(Request.to(Endpoints.MY_NEWS), Content.ME_ACTIVITIES);
+//            }
+
+
+//            if (intent.getBooleanExtra(SyncExtras.TRACKS, false)) {
+//                //apiSyncer.syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
+//                slowSyncCollection(Content.ME_TRACKS,Endpoints.MY_TRACKS,Track.class);
+//            }
+//            if (intent.getBooleanExtra(SyncExtras.FAVORITES, false)) {
+//                apiSyncer.syncCollection(Content.ME_FAVORITES, Endpoints.MY_FAVORITES, Track.class);
+//                //slowSyncCollection(ScContentProvider.Content.ME_FAVORITES, Endpoints.MY_FAVORITES, Track.class);
+//            }
+//            if (intent.getBooleanExtra(SyncExtras.FOLLOWINGS, false)) {
+//                //apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
+//                slowSyncCollection(Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
+//            }
+
+
+//            if (intent.getBooleanExtra(SyncExtras.FOLLOWERS, false)) {
+//                //apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
+//                slowSyncCollection(Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
+//            }
 
             apiSyncer.resolveDatabase();
 

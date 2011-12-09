@@ -3,7 +3,7 @@ package com.soundcloud.android.adapter;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
+
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.api.Request;
@@ -45,7 +45,7 @@ public class SectionedEndlessAdapter extends LazyEndlessAdapter{
     @Override
     public Uri getContentUri(boolean refresh) {
         if (mSectionIndex > getWrappedAdapter().sections.size()) return null;
-        return getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).contentUri;
+        return getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).content;
     }
 
     @Override

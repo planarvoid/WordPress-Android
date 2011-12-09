@@ -179,8 +179,8 @@ public final class Consts {
     }
 
     public interface EventTypes {
-        int INCOMING = 1;
+        int INCOMING  = 1;
         int EXCLUSIVE = 2;
-        int ACTIVITY = 3;
+        int ACTIVITY  = 3;
     }
 }

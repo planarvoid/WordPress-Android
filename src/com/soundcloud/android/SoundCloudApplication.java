@@ -13,6 +13,7 @@ import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.C2DMReceiver;
@@ -41,7 +42,6 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.UriMatcher;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -75,14 +75,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private RecordListener mRecListener;
     private ImageLoader mImageLoader;
 
-
     private GoogleAnalyticsTracker mTracker;
 
     private User mLoggedInUser;
     protected Wrapper mCloudApi; /* protected for testing */
 
     public Comment pendingComment;
-    private UriMatcher mContentUriMatcher;
 
     @Override
     public void onCreate() {
@@ -495,11 +493,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public void clearUserDbData() {
-        getContentResolver().delete(Content.SEARCHES, DBHelper.Searches.USER_ID + " = ?",new String[]{String.valueOf(getCurrentUserId())});
-        getContentResolver().delete(Content.COLLECTIONS, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_TRACKS.toString()});
-        getContentResolver().delete(Content.COLLECTIONS, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FAVORITES.toString()});
-        getContentResolver().delete(Content.COLLECTIONS, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWINGS.toString()});
-        getContentResolver().delete(Content.COLLECTIONS, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWERS.toString()});
+        getContentResolver().delete(Content.SEARCHES.uri, DBHelper.Searches.USER_ID + " = ?",new String[]{String.valueOf(getCurrentUserId())});
+        getContentResolver().delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_TRACKS.toString()});
+        getContentResolver().delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FAVORITES.toString()});
+        getContentResolver().delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWINGS.toString()});
+        getContentResolver().delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWERS.toString()});
     }
 
     public static interface RecordListener {
@@ -592,12 +590,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         SoundCloudApplication app = fromContext(c);
         return app == null ? -1 : app.getCurrentUserId();
     }
-
-    public UriMatcher getContentUriMatcher(){
-        if (mContentUriMatcher == null) mContentUriMatcher = buildMatcher();
-        return mContentUriMatcher;
-    }
-
 
     private static void setupStrictMode() {
         if (Build.VERSION.SDK_INT > 8) {

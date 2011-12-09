@@ -1,6 +1,5 @@
 package com.soundcloud.android.view;
 
-import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
@@ -13,7 +12,7 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Connection.Service;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.NewConnectionTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -230,14 +229,14 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
     private void addFriendsSection() {
         mFriendsSection = new SectionedAdapter.Section(mActivity.getString(R.string.list_header_fb_friends),
-                Friend.class, new ArrayList<Parcelable>(), Request.to(Endpoints.MY_FRIENDS), ScContentProvider.Content.ME_FRIENDS);
+                Friend.class, new ArrayList<Parcelable>(), Content.ME_FRIENDS.uri, Request.to(Endpoints.MY_FRIENDS));
         mAdapter.addSection(mFriendsSection);
     }
 
     private void addSuggestedSection() {
         mAdapter.getWrappedAdapter().sections.add(
                 new SectionedAdapter.Section(mActivity.getString(R.string.list_header_suggested_users),
-                        User.class, new ArrayList<Parcelable>(), Request.to(Endpoints.SUGGESTED_USERS), ScContentProvider.Content.SUGGESTED_USERS));
+                        User.class, new ArrayList<Parcelable>(), Content.SUGGESTED_USERS.uri, Request.to(Endpoints.SUGGESTED_USERS)));
     }
 
     private void showTrendsetterMessage() {

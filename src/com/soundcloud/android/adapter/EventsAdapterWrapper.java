@@ -11,12 +11,13 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ActivitiesCache;
 import com.soundcloud.android.task.LoadCollectionTask;
-import com.soundcloud.android.task.LoadRemoteCollectionTask;
 import com.soundcloud.android.task.RefreshEventsTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
+import com.soundcloud.api.Request;
 
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -28,22 +29,15 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class EventsAdapterWrapper extends LazyEndlessAdapter {
     public DetachableResultReceiver mReceiver;
-    private int mEventType;
     private boolean mWaitingOnSync;
 
-    public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, int type) {
-        super(activity, wrapped, Event.getRequestFromType(type), null);
-        mEventType = type;
-        mContentUri = Event.getContentUriFromType(type);
+    public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Content content) {
+        super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
     }
 
      @Override
     public EventsAdapter getWrappedAdapter() {
         return (EventsAdapter) super.getWrappedAdapter();
-    }
-
-    public void setType(int type){
-        setRequest(Event.getRequestFromType(type));
     }
 
     @Override
@@ -106,12 +100,12 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         if (!userRefresh) {
             startRefreshTask(false); // load whatever is currently cached
 
-            final long elapsed = System.currentTimeMillis() - LocalCollection.getLastSync(mActivity.getContentResolver(), mContentUri);
+            final long elapsed = System.currentTimeMillis() - LocalCollection.getLastSync(mActivity.getContentResolver(), mContent);
             if (elapsed < Consts.DEFAULT_REFRESH_MINIMUM) {
                 sync = false;
-                Log.i(TAG, "Skipping sync of " + mContentUri + ". Elapsed since last sync (in ms) " + elapsed);
+                Log.i(TAG, "Skipping sync of " + mContent + ". Elapsed since last sync (in ms) " + elapsed);
             } else {
-                Log.i(TAG, "Syncing " + mContentUri + ". Elapsed since last sync (in ms) " + elapsed);
+                Log.i(TAG, "Syncing " + mContent + ". Elapsed since last sync (in ms) " + elapsed);
             }
         }
 
@@ -120,7 +114,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
             mWaitingOnSync = true;
             final Intent intent = new Intent(mActivity, ApiSyncService.class);
             intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
-            intent.putExtra(Event.getSyncExtraFromType(mEventType), true);
+            intent.setData(mContent);
             mActivity.startService(intent);
         }
         notifyDataSetChanged();

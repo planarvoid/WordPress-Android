@@ -3,8 +3,8 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 
@@ -140,7 +140,7 @@ public class Recording extends ModelBase implements PageTrackable {
     }
 
     public static Recording pendingFromPrivateUserId(long id, ContentResolver resolver) {
-        Cursor cursor = resolver.query(ScContentProvider.Content.RECORDINGS, null,
+        Cursor cursor = resolver.query(Content.RECORDINGS.uri, null,
                 Recordings.PRIVATE_USER_ID + " = ? AND " + Recordings.UPLOAD_STATUS + " = ?",
                 new String[]{Long.toString(id), String.valueOf(Upload.UploadStatus.NOT_YET_UPLOADED)}, null);
 
@@ -203,7 +203,7 @@ public class Recording extends ModelBase implements PageTrackable {
 
 
     public Uri toUri() {
-        return ScContentProvider.Content.RECORDINGS
+        return Content.RECORDINGS
                 .buildUpon()
                 .appendEncodedPath(String.valueOf(id))
                 .build();

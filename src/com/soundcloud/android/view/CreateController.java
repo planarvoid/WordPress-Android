@@ -10,8 +10,8 @@ import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.android.utils.CloudUtils;
@@ -200,7 +200,7 @@ public class CreateController {
                     } catch (RemoteException ignored) {
                     }
 
-                    Uri newRecordingUri = mActivity.getContentResolver().insert(ScContentProvider.Content.RECORDINGS, r.buildContentValues());
+                    Uri newRecordingUri = mActivity.getContentResolver().insert(Content.RECORDINGS.uri, r.buildContentValues());
                     mRecording = r;
                     mRecording.id = Long.parseLong(newRecordingUri.getLastPathSegment());
 
@@ -760,7 +760,7 @@ public class CreateController {
         })) {
             if (f.equals(mRecordFile) || getPrivateUserIdFromPath(f.getAbsolutePath()) != -1) continue; // ignore current file
 
-            cursor = mActivity.getContentResolver().query(ScContentProvider.Content.RECORDINGS,
+            cursor = mActivity.getContentResolver().query(Content.RECORDINGS.uri,
                     columns,
                     DBHelper.Recordings.AUDIO_PATH + " = ?",
                     new String[]{f.getAbsolutePath()}, null);
@@ -924,7 +924,7 @@ public class CreateController {
                                 if (mUnsavedRecordings != null) {
                                     for (int i = 0; i < mUnsavedRecordings.size(); i++){
                                         if (checked[i]){
-                                            mActivity.getContentResolver().insert(ScContentProvider.Content.RECORDINGS,mUnsavedRecordings.get(i).buildContentValues());
+                                            mActivity.getContentResolver().insert(Content.RECORDINGS.uri, mUnsavedRecordings.get(i).buildContentValues());
                                         } else {
                                             mUnsavedRecordings.get(i).delete(null);
                                         }

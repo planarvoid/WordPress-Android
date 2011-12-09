@@ -6,7 +6,7 @@ import android.widget.FrameLayout;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -25,7 +25,7 @@ public class TestActivity extends ScActivity {
         setContentView(frameLayout);
 
         TracklistAdapter adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
-        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, Request.to(Endpoints.MY_FAVORITES), ScContentProvider.Content.ME_FAVORITES, true);
+        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, Content.ME_FAVORITES.uri, Request.to(Endpoints.MY_FAVORITES), true);
 
         mListView = buildList();
         mListView.setAdapter(adpWrap);

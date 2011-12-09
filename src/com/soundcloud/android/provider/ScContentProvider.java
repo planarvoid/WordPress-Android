@@ -4,7 +4,6 @@ import android.accounts.Account;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -25,8 +24,6 @@ public class ScContentProvider extends ContentProvider {
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
     public static final Pattern URL_PATTERN = Pattern.compile("^content://" + AUTHORITY + "/(\\w+)(?:/(-?\\d+))?$");
     public static final long DEFAULT_POLL_FREQUENCY = 3600l; // 1h
-
-    private static final UriMatcher sUriMatcher = buildMatcher();
 
     private DBHelper dbHelper;
 
@@ -60,7 +57,8 @@ public class ScContentProvider extends ContentProvider {
         SCQueryBuilder qb = new SCQueryBuilder();
         String whereAppend;
 
-        switch (sUriMatcher.match(uri)) {
+        Content content = Content.match(uri);
+        switch (content) {
             case COLLECTION_ITEMS:
                 qb.setTables(DBHelper.Tables.COLLECTION_ITEMS.tableName);
                 break;
@@ -75,7 +73,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_FAVORITES:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId), getResourceTypeFromUri(uri));
+                selection = makeCollectionSelection(selection, String.valueOf(userId), content.collectionType);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
@@ -85,7 +83,7 @@ public class ScContentProvider extends ContentProvider {
             case SUGGESTED_USERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, String.valueOf(userId), getResourceTypeFromUri(uri));
+                selection = makeCollectionSelection(selection, String.valueOf(userId), content.collectionType);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
@@ -93,7 +91,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_FAVORITES:
                 if (columns == null) columns = formatWithUser(fullTrackColumns, userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName, DBHelper.TrackView.CONCRETE_ID));
-                selection = makeCollectionSelection(selection, uri.getPathSegments().get(1), getResourceTypeFromUri(uri));
+                selection = makeCollectionSelection(selection, uri.getPathSegments().get(1), content.collectionType);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
@@ -102,7 +100,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_FOLLOWINGS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
-                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1), getResourceTypeFromUri(uri));
+                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1), content.collectionType);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
@@ -177,6 +175,7 @@ public class ScContentProvider extends ContentProvider {
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
+            case UNKNOWN:
             default:
                 throw new IllegalArgumentException("No query available for: " + uri);
         }
@@ -197,7 +196,7 @@ public class ScContentProvider extends ContentProvider {
         Uri result;
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        switch (sUriMatcher.match(uri)) {
+        switch (Content.match(uri)) {
 
             case COLLECTIONS:
                 id = db.insertWithOnConflict(DBHelper.Tables.COLLECTIONS.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -267,7 +266,8 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
         String tableName;
-        switch (sUriMatcher.match(uri)) {
+        final Content content = Content.match(uri);
+        switch (content) {
             case COLLECTIONS:
                 tableName = DBHelper.Tables.COLLECTIONS.tableName;
                 break;
@@ -294,7 +294,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_FAVORITES:
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
-                where = makeCollectionSelection(where, String.valueOf(userId), getResourceTypeFromUri(uri));
+                where = makeCollectionSelection(where, String.valueOf(userId), content.collectionType);
                 tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
                 break;
 
@@ -313,7 +313,7 @@ public class ScContentProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
-        switch (sUriMatcher.match(uri)) {
+        switch (Content.match(uri)) {
             case TRACK_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.update(DBHelper.Tables.TRACKS.tableName, values, where, whereArgs);
@@ -349,7 +349,8 @@ public class ScContentProvider extends ContentProvider {
 
         try {
             String tblName;
-            switch (sUriMatcher.match(uri)) {
+            final Content content = Content.match(uri);
+            switch (content) {
                 case ME_TRACKS:
                 case USER_TRACKS:
                 case ME_FAVORITES:
@@ -359,7 +360,7 @@ public class ScContentProvider extends ContentProvider {
                 case ME_FOLLOWINGS:
                 case USER_FOLLOWINGS:
                     tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(getResourceTypeFromUri(uri))};
+                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
                     break;
 
                 case TRACKS:
@@ -418,11 +419,6 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
-
-
-    static TableInfo getTableInfo(Uri uri) {
-        return getTableInfo(uri.toString());
-    }
 
     static TableInfo getTableInfo(String s) {
         TableInfo result = new TableInfo();
@@ -512,242 +508,5 @@ public class ScContentProvider extends ContentProvider {
         int FRIEND = 5;
         int SUGGESTED_USER = 6;
         int SEARCH = 7;
-    }
-
-    public interface Content {
-
-        /** LOCAL + REMOTE API URIS **/
-        Uri ME                          = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me");
-        Uri ME_TRACKS                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/tracks");
-        Uri ME_COMMENTS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/comments");
-        Uri ME_FOLLOWINGS               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/followings");
-        Uri ME_FOLLOWINGS_ITEM          = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/followings/#");
-        Uri ME_FOLLOWERS                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/followers");
-        Uri ME_FOLLOWERS_ITEM           = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/followers/#");
-        Uri ME_FAVORITES                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/favorites");
-        Uri ME_FAVORITES_ITEM           = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/favorites/#");
-        Uri ME_GROUPS                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/groups");
-        Uri ME_PLAYLISTS                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/playlists");
-
-
-        Uri ME_FRIENDS                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/connections/friends");
-        Uri SUGGESTED_USERS             = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/suggested");
-
-        Uri ME_SOUND_STREAM             = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/activities/tracks");
-        Uri ME_EXCLUSIVE_STREAM         = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/activities/tracks/exclusive");
-        Uri ME_ACTIVITIES               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/me/activities/all/own");
-
-        Uri TRACKS                      = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks");
-        Uri TRACK_ITEM                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/#");
-        Uri TRACK_COMMENTS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/#/comments");
-        Uri TRACK_PERMISSIONS           = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/#/permissions");
-        Uri TRACK_SECRET_TOKEN          = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/tracks/#/secret-token");
-
-        Uri USERS                       = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users");
-        Uri USER_ITEM                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#");
-        Uri USER_TRACKS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/tracks");
-        Uri USER_FAVORITES              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/favorites");
-        Uri USER_FOLLOWERS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/followers");
-        Uri USER_FOLLOWINGS             = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/followings");
-        Uri USER_COMMENTS               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/comments");
-        Uri USER_GROUPS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/groups");
-        Uri USER_PLAYLISTS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/users/#/playlists");
-
-        Uri COMMENT_ITEM                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/comments/#");
-
-        Uri PLAYLISTS                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/playlists");
-        Uri PLAYLIST_ITEM               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/playlists/#");
-
-        Uri GROUPS                      = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/groups");
-        Uri GROUP_ITEM                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/groups/#");
-        Uri GROUP_USERS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/groups/#/users");
-        Uri GROUP_MODERATORS            = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/groups/#/moderators");
-        Uri GROUP_MEMBERS               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/groups/#/members");
-        Uri GROUP_CONTRIBUTORS          = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/groups/#/contributors");
-        Uri GROUP_TRACKS                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/groups/#/tracks");
-
-        /** LOCAL URIS **/
-        Uri COLLECTION_ITEMS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/collection_items");
-        Uri COLLECTIONS                   = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/collections");
-        Uri COLLECTION_PAGES              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/collection_pages");
-
-        Uri RECORDINGS                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/recordings");
-        Uri RECORDING_ITEM              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/recordings/#");
-        Uri EVENTS                      = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/events");
-        Uri EVENT_ITEM                  = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/events/#");
-        Uri SEARCHES                    = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches");
-        Uri SEARCHES_ITEM               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/#");
-        Uri SEARCHES_TRACKS             = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/tracks");
-        Uri SEARCHES_USERS              = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/users");
-        Uri SEARCHES_TRACK_ITEM         = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/tracks/*");
-        Uri SEARCHES_USER_ITEM          = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/users/*");
-        Uri TRACK_PLAYS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/track_plays");
-
-    }
-
-    private static final int ME                     = 100;
-    private static final int ME_TRACKS              = 101;
-    private static final int ME_COMMENTS            = 102;
-    private static final int ME_FOLLOWINGS          = 103;
-    private static final int ME_FOLLOWINGS_ITEM     = 104;
-    private static final int ME_FOLLOWERS           = 105;
-    private static final int ME_FOLLOWERS_ITEM      = 106;
-    private static final int ME_FAVORITES           = 107;
-    private static final int ME_FAVORITES_ITEM      = 108;
-    private static final int ME_GROUPS              = 109;
-    private static final int ME_PLAYLISTS           = 110;
-
-    private static final int ME_SOUND_STREAM        = 150;
-    private static final int ME_EXCLUSIVE_STREAM    = 151;
-    private static final int ME_ACTIVITIES          = 152;
-
-    private static final int ME_FRIENDS             = 160;
-    private static final int SUGGESTED_USERS        = 161;
-
-    private static final int TRACKS                 = 201;
-    private static final int TRACK_ITEM             = 202;
-    private static final int TRACK_COMMENTS         = 203;
-    private static final int TRACK_PERMISSIONS      = 204;
-    private static final int TRACK_SECRET_TOKEN     = 205;
-
-    private static final int USERS                  = 301;
-    private static final int USER_ITEM              = 302;
-    private static final int USER_TRACKS            = 303;
-    private static final int USER_FAVORITES         = 304;
-    private static final int USER_FOLLOWERS         = 305;
-    private static final int USER_FOLLOWINGS        = 306;
-    private static final int USER_COMMENTS          = 307;
-    private static final int USER_GROUPS            = 308;
-    private static final int USER_PLAYLISTS         = 309;
-
-    private static final int COMMENT_ITEM           = 400;
-
-    private static final int PLAYLISTS              = 501;
-    private static final int PLAYLIST_ITEM          = 502;
-
-    private static final int GROUPS                 = 601;
-    private static final int GROUP_ITEM             = 602;
-    private static final int GROUP_USERS            = 603;
-    private static final int GROUP_MODERATORS       = 604;
-    private static final int GROUP_MEMBERS          = 605;
-    private static final int GROUP_CONTRIBUTORS     = 606;
-    private static final int GROUP_TRACKS           = 607;
-
-    private static final int COLLECTION_ITEMS       = 1000;
-    private static final int COLLECTIONS            = 1001;
-    private static final int COLLECTION_PAGES       = 1002;
-
-    private static final int RECORDINGS             = 1100;
-    private static final int RECORDING_ITEM         = 1101;
-    private static final int EVENTS                 = 1200;
-    private static final int EVENT_ITEM             = 1201;
-    private static final int TRACK_PLAYS            = 1300;
-    private static final int TRACK_PLAYS_ITEM       = 1301;
-    private static final int SEARCHES               = 1400;
-    private static final int SEARCHES_ITEM          = 1401;
-    private static final int SEARCHES_TRACKS        = 1402;
-    private static final int SEARCHES_USERS         = 1403;
-    private static final int SEARCHES_TRACKS_ITEM   = 1404;
-    private static final int SEARCHES_USERS_ITEM    = 1405;
-
-
-
-	public static UriMatcher buildMatcher() {
-		UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-
-        matcher.addURI(ScContentProvider.AUTHORITY, "me",ME);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/tracks", ME_TRACKS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/comments", ME_COMMENTS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/followings", ME_FOLLOWINGS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/followings/#", ME_FOLLOWINGS_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/followers", ME_FOLLOWERS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/followers/#", ME_FOLLOWERS_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/favorites", ME_FAVORITES);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/favorites/#", ME_FAVORITES_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/groups", ME_GROUPS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/playlists", ME_PLAYLISTS);
-
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/connections/friends", ME_FRIENDS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/suggested", SUGGESTED_USERS);
-
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/activities/tracks", ME_SOUND_STREAM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/activities/tracks/exclusive", ME_EXCLUSIVE_STREAM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "me/activities/all/own", ME_ACTIVITIES);
-
-        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#/comments", TRACK_COMMENTS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#/permissions", TRACK_PERMISSIONS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#/secret-token", TRACK_SECRET_TOKEN);
-        matcher.addURI(ScContentProvider.AUTHORITY, "tracks/#", TRACK_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "tracks", TRACKS);
-
-
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/tracks", USER_TRACKS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/favorites", USER_FAVORITES);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/followers", USER_FOLLOWERS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/followings", USER_FOLLOWINGS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/comments", USER_COMMENTS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/groups", USER_GROUPS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/#/playlists", USER_PLAYLISTS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users/#", USER_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "users", USERS);
-
-        matcher.addURI(ScContentProvider.AUTHORITY, "comments/#", COMMENT_ITEM);
-
-        matcher.addURI(ScContentProvider.AUTHORITY, "playlists/#", PLAYLIST_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "playlists", PLAYLISTS);
-
-        matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/users", GROUP_USERS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/moderators", GROUP_MODERATORS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/members", GROUP_MEMBERS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/contributors", GROUP_CONTRIBUTORS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "groups/#/tracks", GROUP_TRACKS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "groups/#", GROUP_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "groups", GROUPS);
-
-        matcher.addURI(ScContentProvider.AUTHORITY, "collection_items", COLLECTION_ITEMS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "collections", COLLECTIONS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "collection_pages", COLLECTION_PAGES);
-
-        matcher.addURI(ScContentProvider.AUTHORITY, "recordings/#", RECORDING_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "recordings", RECORDINGS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "events/#", EVENT_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "events", EVENTS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "track_plays/#", TRACK_PLAYS_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "track_plays", TRACK_PLAYS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "searches", SEARCHES);
-        matcher.addURI(ScContentProvider.AUTHORITY, "searches/#", SEARCHES_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "searches/tracks", SEARCHES_TRACKS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "searches/users", SEARCHES_USERS);
-        matcher.addURI(ScContentProvider.AUTHORITY, "searches/tracks/*", SEARCHES_TRACKS_ITEM);
-        matcher.addURI(ScContentProvider.AUTHORITY, "searches/users/*", SEARCHES_USERS_ITEM);
-
-        return matcher;
-    }
-
-    public static int getResourceTypeFromUri(Uri uri) {
-        switch (sUriMatcher.match(uri)) {
-            case ME_TRACKS:
-            case USER_TRACKS:
-                return TRACK;
-
-            case ME_FAVORITES:
-            case USER_FAVORITES:
-                return FAVORITE;
-
-            case ME_FOLLOWERS:
-            case USER_FOLLOWERS:
-                return FOLLOWER;
-
-            case ME_FOLLOWINGS:
-            case USER_FOLLOWINGS:
-                return FOLLOWING;
-
-            case ME_FRIENDS:
-                return FRIEND;
-
-            case SUGGESTED_USERS:
-                return SUGGESTED_USER;
-        }
-        return -1;
     }
 }

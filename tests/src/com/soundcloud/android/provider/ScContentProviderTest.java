@@ -1,26 +1,15 @@
 package com.soundcloud.android.provider;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import android.content.ContentResolver;
 import android.database.Cursor;
-import android.net.Uri;
+
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.activity.Main;
-import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.task.LoadCollectionTask;
-import com.soundcloud.api.Env;
-import com.soundcloud.api.Token;
-import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
-import org.codehaus.jackson.JsonParseException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,11 +35,11 @@ public class ScContentProviderTest {
         assertThat(tracks.size(), is(15));
 
         for (Track t : tracks) {
-            System.out.println(provider.insert(ScContentProvider.Content.USERS, t.user.buildContentValues(false)));
-            System.out.println(provider.insert(ScContentProvider.Content.ME_FAVORITES, t.buildContentValues()));
+            System.out.println(provider.insert(Content.USERS.uri, t.user.buildContentValues(false)));
+            System.out.println(provider.insert(Content.ME_FAVORITES.uri, t.buildContentValues()));
         }
 
-        Cursor c = provider.query(ScContentProvider.Content.ME_FAVORITES, null, null, null, null);
+        Cursor c = provider.query(Content.ME_FAVORITES.uri, null, null, null, null);
         assertThat(tracks.size(), is(c.getCount()));
         if (c != null && c.moveToFirst()){
             do {

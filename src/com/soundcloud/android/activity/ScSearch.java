@@ -16,8 +16,8 @@ import com.soundcloud.android.adapter.*;
 import com.soundcloud.android.model.SearchHistoryItem;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.ScListView;
@@ -139,7 +139,7 @@ public class ScSearch extends ScActivity {
 
     private void refreshHistory() {
 
-        Cursor cursor = getContentResolver().query(ScContentProvider.Content.SEARCHES,
+        Cursor cursor = getContentResolver().query(Content.SEARCHES.uri,
                 new String[]{DBHelper.Searches.ID, DBHelper.Searches.SEARCH_TYPE, DBHelper.Searches.QUERY, DBHelper.Searches.CREATED_AT},
                 DBHelper.Searches.USER_ID + " = ?",
                 new String[]{Long.toString(getCurrentUserId())},
@@ -226,8 +226,9 @@ public class ScSearch extends ScActivity {
             mTrackAdpWrapper.clearSections();
             mTrackAdpWrapper.addSection(new SectionedAdapter.Section(getString(R.string.list_header_track_results_for,
                     query), Track.class, new ArrayList<Parcelable>(),
-                    Request.to(Endpoints.TRACKS).with("q", query),
-                    CloudUtils.replaceWildcard(ScContentProvider.Content.SEARCHES_TRACK_ITEM,query)));
+                    CloudUtils.replaceWildcard(Content.SEARCHES_TRACKS_ITEM.uri,query),
+                    Request.to(Endpoints.TRACKS).with("q", query)
+            ));
 
             setListType(false);
             mUserAdpWrapper.clearRefreshTask();
@@ -238,8 +239,9 @@ public class ScSearch extends ScActivity {
             mUserAdpWrapper.clearSections();
             mUserAdpWrapper.addSection(new SectionedAdapter.Section(getString(R.string.list_header_user_results_for,
                     query), User.class, new ArrayList<Parcelable>(),
-                    Request.to(Endpoints.USERS).with("q", query),
-                    CloudUtils.replaceWildcard(ScContentProvider.Content.SEARCHES_USER_ITEM,query)));
+                    CloudUtils.replaceWildcard(Content.SEARCHES_USERS_ITEM.uri,query),
+                    Request.to(Endpoints.USERS).with("q", query)
+            ));
 
             setListType(true);
             mTrackAdpWrapper.clearRefreshTask();
@@ -253,7 +255,7 @@ public class ScSearch extends ScActivity {
 
         // check for a duplicate to update
         if (updateId == -1) {
-            Cursor cursor = getContentResolver().query(ScContentProvider.Content.SEARCHES,
+            Cursor cursor = getContentResolver().query(Content.SEARCHES.uri,
                     new String[]{DBHelper.Searches.ID},
                     DBHelper.Searches.USER_ID + " = ? AND " + DBHelper.Searches.QUERY + " = ? AND " + DBHelper.Searches.SEARCH_TYPE + " = ?",
                     new String[]{Long.toString(getCurrentUserId()), query, String.valueOf(searchType)}, null);
@@ -266,10 +268,10 @@ public class ScSearch extends ScActivity {
         }
 
         if (updateId > 0) {
-            getContentResolver().update(ScContentProvider.Content.SEARCHES.buildUpon().appendPath(Long.toString(updateId)).build(),
+            getContentResolver().update(Content.SEARCHES.buildUpon().appendPath(Long.toString(updateId)).build(),
                     cv, null,null);
         } else {
-            getContentResolver().insert(ScContentProvider.Content.SEARCHES, cv);
+            getContentResolver().insert(Content.SEARCHES.uri, cv);
         }
         refreshHistory();
 

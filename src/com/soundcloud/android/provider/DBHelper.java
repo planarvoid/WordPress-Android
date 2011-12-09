@@ -128,14 +128,9 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void recreateDb(SQLiteDatabase db) {
-        db.execSQL("DROP TABLE IF EXISTS Tracks");
-        db.execSQL("DROP TABLE IF EXISTS Users");
-        db.execSQL("DROP TABLE IF EXISTS Recordings");
-        db.execSQL("DROP TABLE IF EXISTS TrackPlays");
-        db.execSQL("DROP TABLE IF EXISTS Searches");
-        db.execSQL("DROP TABLE IF EXISTS Collections");
-        db.execSQL("DROP TABLE IF EXISTS CollectionItems");
-        db.execSQL("DROP TABLE IF EXISTS CollectionPages");
+        for (Tables t : Tables.values()) {
+            db.execSQL("DROP TABLE IF EXISTS "+t.tableName);
+        }
         onCreate(db);
     }
 

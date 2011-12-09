@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -34,6 +35,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SyncAdapterService extends Service {
@@ -110,11 +112,13 @@ public class SyncAdapterService extends Service {
                 // TODO, do not sync everything unless it is set that way in prefs
                 Looper.prepare();
                 final Intent intent = new Intent(app, ApiSyncService.class);
-                if (isIncomingEnabled(app)) intent.putExtra(ApiSyncService.SyncExtras.INCOMING, true);
-                if (isExclusiveEnabled(app)) intent.putExtra(ApiSyncService.SyncExtras.EXCLUSIVE, true);
-                if (isActivitySyncEnabled(app)) intent.putExtra(ApiSyncService.SyncExtras.ACTIVITY, true);
+                ArrayList<String> urisToSync = new ArrayList<String>();
 
+                if (isIncomingEnabled(app))     urisToSync.add(Content.ME_ACTIVITIES.uri.toString());
+                if (isExclusiveEnabled(app))    urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri.toString());
+                if (isActivitySyncEnabled(app)) urisToSync.add(Content.ME_ACTIVITIES.uri.toString());
 
+                intent.putStringArrayListExtra("syncUris", urisToSync);
                 intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
                     @Override
                     protected void onReceiveResult(int resultCode, Bundle resultData) {

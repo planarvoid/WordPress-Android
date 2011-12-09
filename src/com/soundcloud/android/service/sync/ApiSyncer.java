@@ -1,6 +1,5 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Activities;
@@ -10,8 +9,8 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserlistItem;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -33,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.soundcloud.android.provider.ScContentProvider.getResourceTypeFromUri;
 
 public class ApiSyncer {
 
@@ -54,14 +52,38 @@ public class ApiSyncer {
         mResolver = app.getContentResolver();
     }
 
+    public void syncContent(Content c) throws IOException {
+        if (c.remoteUri != null) {
+            switch (c) {
+                case ME_ACTIVITIES:
+                case ME_EXCLUSIVE_STREAM:
+                case ME_SOUND_STREAM:
+                    syncActivities(Request.to(c.remoteUri), c.uri);
+                    break;
+
+                case ME_TRACKS:
+                case ME_FAVORITES:
+                    syncCollection(c.uri, c.remoteUri, c.collectionType, Track.class);
+                    break;
+
+                case ME_FOLLOWINGS:
+                case ME_FOLLOWERS:
+                    syncCollection(c.uri, c.remoteUri, c.collectionType, User.class);
+                    break;
+            }
+        } else {
+            Log.w(ApiSyncService.LOG_TAG, "no remote URI defined for " + c);
+        }
+    }
+
     public void syncActivities(Request request, Uri contentUri) throws IOException {
         final long start = System.currentTimeMillis();
         Activities a = ActivitiesCache.get(mApp, mApp.getAccount(), request);
         LocalCollection.insertLocalCollection(mResolver, contentUri, System.currentTimeMillis(), a.size());
     }
 
-    public void syncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
-        collectionValues.put(contentUri, quickSync(contentUri, endpoint, loadModel, loadModel == Track.class ? trackAdditions : userAdditions));
+    public void syncCollection(Uri contentUri, String endpoint, int collectionType,  Class<?> loadModel) throws IOException {
+        collectionValues.put(contentUri, quickSync(contentUri, endpoint, collectionType, loadModel, loadModel == Track.class ? trackAdditions : userAdditions));
     }
 
     public void resolveDatabase() throws IOException {
@@ -88,14 +110,14 @@ public class ApiSyncer {
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " items added in " + (System.currentTimeMillis() - itemStart) + " ms");
     }
 
-    private ContentValues[] quickSync(Uri contentUri, String endpoint, Class<?> loadModel, ArrayList<Long> additions) throws IOException {
+    private ContentValues[] quickSync(Uri contentUri, String endpoint, int collectionType, Class<?> loadModel, ArrayList<Long> additions) throws IOException {
 
         final long start = System.currentTimeMillis();
         int size = 0;
 
         try {
-            List<Long> local = idCursorToList(mResolver.query(ScContentProvider.Content.COLLECTION_ITEMS, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                    DBHelper.CollectionItems.CONCRETE_COLLECTION_TYPE + " = ?", new String[]{String.valueOf(getResourceTypeFromUri(contentUri))}, null));
+            List<Long> local = idCursorToList(mResolver.query(Content.COLLECTION_ITEMS.uri, new String[]{DBHelper.CollectionItems.ITEM_ID},
+                    DBHelper.CollectionItems.CONCRETE_COLLECTION_TYPE + " = ?", new String[]{String.valueOf(collectionType)}, null));
             List<Long> remote = getCollectionIds(endpoint);
             Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
 
@@ -145,9 +167,8 @@ public class ApiSyncer {
     private List<Parcelable> getAdditionsFromIds(List<Long> additions, Class<?> loadModel) throws IOException {
 
         if (additions.size() == 0) return new ArrayList<Parcelable>();
-
         // remove anything that is already in the DB
-        Uri contentUri = (Track.class.equals(loadModel)) ? ScContentProvider.Content.TRACKS : ScContentProvider.Content.USERS;
+        Uri contentUri = Content.forModel(loadModel).uri;
 
         int i = 0;
         List<Long> storedIds = new ArrayList<Long>();

@@ -3,8 +3,9 @@ package com.soundcloud.android.model;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.text.TextUtils;
+
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.api.Request;
 
 public class LocalCollectionPage {
@@ -26,7 +27,7 @@ public class LocalCollectionPage {
 
     public static LocalCollectionPage fromCollectionAndIndex(ContentResolver cr, int collectionId, int pageIndex) {
         LocalCollectionPage lcp = null;
-        Cursor c = cr.query(ScContentProvider.Content.COLLECTION_PAGES, null,
+        Cursor c = cr.query(Content.COLLECTION_PAGES.uri, null,
                 DBHelper.CollectionPages.COLLECTION_ID + " = ? AND " + DBHelper.CollectionPages.PAGE_INDEX + " = ?",
                 new String[]{String.valueOf(collectionId), String.valueOf(pageIndex)}, null);
 

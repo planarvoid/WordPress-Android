@@ -7,10 +7,10 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.TracksByTag;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.TrackPlays;
 import com.soundcloud.android.provider.DBHelper.Tracks;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -157,7 +157,7 @@ public class Track extends ModelBase implements PageTrackable, Origin, Playable 
     }
 
     public Uri toUri() {
-        return appendIdToUri(ScContentProvider.Content.TRACKS);
+        return appendIdToUri(Content.TRACKS.uri);
     }
 
     @Override @JsonIgnore
@@ -187,14 +187,14 @@ public class Track extends ModelBase implements PageTrackable, Origin, Playable 
     }
 
     public void markAsPlayed(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(ScContentProvider.Content.TRACK_PLAYS, null,
+        Cursor cursor = contentResolver.query(Content.TRACK_PLAYS.uri, null,
                 TrackPlays.TRACK_ID + " = ?", new String[] { String.valueOf(id)}, null);
 
         if (cursor == null || cursor.getCount() == 0) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(TrackPlays.TRACK_ID, id);
             contentValues.put(TrackPlays.USER_ID, userId);
-            contentResolver.insert(ScContentProvider.Content.TRACK_PLAYS, contentValues);
+            contentResolver.insert(Content.TRACK_PLAYS.uri, contentValues);
         }
         if (cursor != null) cursor.close();
     }
@@ -277,7 +277,7 @@ public class Track extends ModelBase implements PageTrackable, Origin, Playable 
     }
 
     public Track updateFromDb(ContentResolver resolver, long currentUserId) {
-        Cursor cursor = resolver.query(appendIdToUri(ScContentProvider.Content.TRACKS), null, null,null, null);
+        Cursor cursor = resolver.query(appendIdToUri(Content.TRACKS.uri), null, null,null, null);
 
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -314,7 +314,7 @@ public class Track extends ModelBase implements PageTrackable, Origin, Playable 
     }
 
     public boolean updateUserPlayedFromDb(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(appendIdToUri(ScContentProvider.Content.TRACK_PLAYS),
+        Cursor cursor = contentResolver.query(appendIdToUri(Content.TRACK_PLAYS.uri),
                 null, null, null, null);
 
         if (cursor != null) {
