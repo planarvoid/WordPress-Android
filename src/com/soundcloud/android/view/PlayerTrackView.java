@@ -461,7 +461,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
     @Override
     public void onTrackInfoLoaded(Track track, String action) {
-        Log.i("asdf","ON TRACK INFO LOADED GUY " + track);
         if (track.id != mTrack.id) return;
 
         setTrack(track, mPlayPos, true);

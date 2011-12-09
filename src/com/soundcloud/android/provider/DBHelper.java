@@ -224,6 +224,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 db.execSQL(DATABASE_CREATE_COLLECTIONS);
                 db.execSQL(DATABASE_CREATE_COLLECTION_PAGES);
                 db.execSQL(DATABASE_CREATE_COLLECTION_ITEMS);
+                db.execSQL(DATABASE_CREATE_PLAYLIST);
+                db.execSQL(DATABASE_CREATE_PLAYLIST_ITEMS);
                 return true;
 
             } catch (SQLException e) {
