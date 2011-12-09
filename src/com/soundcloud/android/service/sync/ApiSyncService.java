@@ -44,7 +44,7 @@ public class ApiSyncService extends IntentService{
         String FAVORITES = ApiSyncService.class.getName() + ".sync_favorites";
         String FOLLOWINGS = ApiSyncService.class.getName() + ".sync_followings";
         String FOLLOWERS = ApiSyncService.class.getName() + ".sync_followers";
-        String TEST = ApiSyncService.class.getName() + ".sync_test";
+        String CLEANUP = ApiSyncService.class.getName() + ".sync_cleanup";
     }
 
     public ApiSyncService() {
@@ -85,6 +85,11 @@ public class ApiSyncService extends IntentService{
             if (intent.getBooleanExtra(SyncExtras.FOLLOWERS, false)) {
                 apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
             }
+            if (intent.getBooleanExtra(SyncExtras.CLEANUP, false)) {
+                getContentResolver().update(ScContentProvider.Content.TRACK_CLEANUP, null, null, null);
+                getContentResolver().update(ScContentProvider.Content.USER_CLEANUP, null, null, null);
+            }
+
 
             apiSyncer.resolveDatabase();
 

@@ -367,12 +367,12 @@ public class DBHelper extends SQLiteOpenHelper {
             + "last_sync INTEGER null, "
             + "status INTEGER null, UNIQUE (uri));";
 
-    static final String DATABASE_CREATE_COLLECTION_PAGES = "create table CollectionPages (_id INTEGER primary key AUTOINCREMENT, "
-            + "collection_id INTEGER null, "
+    static final String DATABASE_CREATE_COLLECTION_PAGES = "create table CollectionPages (collection_id INTEGER null, "
+            + "page_index INTEGER, "
             + "etag VARCHAR(255) null, "
             + "next_href VARCHAR(255) null, "
             + "size INTEGER null, "
-            + "page_index INTEGER)";
+            + "UNIQUE(collection_id, page_index) ON CONFLICT REPLACE)";
 
     static final String DATABASE_CREATE_COLLECTION_ITEMS =
             "create table CollectionItems (user_id INTEGER, item_id INTEGER, collection_type INTEGER, "

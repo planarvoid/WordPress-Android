@@ -90,20 +90,6 @@ public class ApiSyncer {
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " items added in " + (System.currentTimeMillis() - itemStart) + " ms");
     }
 
-    public void cleanupDatabase() throws IOException {
-        List<Long> tracksToKeep = new ArrayList<Long>();
-
-        tracksToKeep.addAll(idCursorToList(mResolver.query(ScContentProvider.Content.COLLECTION_ITEMS, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                DBHelper.CollectionItems.CONCRETE_COLLECTION_TYPE + " in (?,?,?)", new String[]{String.valueOf(getResourceTypeFromUri(ScContentProvider.Content.ME_TRACKS))}, null)));
-        tracksToKeep.addAll(idCursorToList(mResolver.query(ScContentProvider.Content.COLLECTION_ITEMS, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                    DBHelper.CollectionItems.CONCRETE_COLLECTION_TYPE + " = ?", new String[]{String.valueOf(getResourceTypeFromUri(ScContentProvider.Content.ME_FAVORITES))}, null)));
-
-        List<Long> usersToKeep = new ArrayList<Long>();
-
-        usersToKeep.addAll(idCursorToList(mResolver.query(ScContentProvider.Content.COLLECTION_ITEMS, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                    DBHelper.CollectionItems.CONCRETE_COLLECTION_TYPE + " = ?", new String[]{String.valueOf(getResourceTypeFromUri(ScContentProvider.Content.ME_FAVORITES))}, null)));
-    }
-
     private ContentValues[] quickSync(Uri contentUri, String endpoint, Class<?> loadModel, ArrayList<Long> additions) throws IOException {
 
         final long start = System.currentTimeMillis();

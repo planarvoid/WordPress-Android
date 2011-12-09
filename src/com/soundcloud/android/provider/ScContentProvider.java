@@ -335,6 +335,45 @@ public class ScContentProvider extends ContentProvider {
                 count = db.update(DBHelper.Tables.RECORDINGS.tableName, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
+            case TRACK_CLEANUP:
+                long userId = SoundCloudApplication.getUserIdFromContext(getContext());
+                if (userId > 0){
+                    where = "_id NOT IN ("
+                                    + "SELECT _id FROM "+ DBHelper.Tables.TRACKS.tableName + " WHERE EXISTS("
+                                        + "SELECT 1 FROM CollectionItems WHERE "
+                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+ " ," + CollectionItemTypes.FAVORITE+ ") "
+                                        + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
+                                        + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Tracks.ID
+                                    + ")"
+                                + ")";
+
+                    final long start = System.currentTimeMillis();
+                    count = db.delete(DBHelper.Tables.TRACKS.tableName,where,null);
+                    Log.i(LOG_TAG,"Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
+                    getContext().getContentResolver().notifyChange(Content.TRACKS, null, false);
+                    return count;
+                }
+                return 0;
+
+            case USER_CLEANUP:
+                userId = SoundCloudApplication.getUserIdFromContext(getContext());
+                if (userId > 0) {
+                    where = "_id NOT IN (SELECT DISTINCT " + DBHelper.Tracks.USER_ID + " FROM "+ DBHelper.Tables.TRACKS.tableName + " UNION "
+                                    + "SELECT _id FROM "+ DBHelper.Tables.USERS.tableName + " WHERE EXISTS("
+                                        + "SELECT 1 FROM CollectionItems WHERE "
+                                        + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.FOLLOWER+ " ," + CollectionItemTypes.FOLLOWING+ ") "
+                                        + " AND " + DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + userId
+                                        + " AND  " + DBHelper.CollectionItems.ITEM_ID + " = " + DBHelper.Users.CONCRETE_ID
+                                    + ")"
+                                + ") AND _id <> " + userId;
+                    final long start = System.currentTimeMillis();
+                    count = db.delete(DBHelper.Tables.USERS.tableName,where,null);
+                    Log.i(LOG_TAG,"User cleanup done: deleted " + count + " users in " + (System.currentTimeMillis() - start) + " ms");
+                    getContext().getContentResolver().notifyChange(Content.USERS, null, false);
+                    return count;
+                }
+                return 0;
+
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -584,6 +623,9 @@ public class ScContentProvider extends ContentProvider {
         Uri SEARCHES_USER_ITEM          = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/searches/users/*");
         Uri TRACK_PLAYS                 = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/track_plays");
 
+        Uri TRACK_CLEANUP               = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/track_cleanup");
+        Uri USER_CLEANUP                = Uri.parse("content://" + ScContentProvider.AUTHORITY +"/user_cleanup");
+
     }
 
     private static final int ME                     = 100;
@@ -650,6 +692,9 @@ public class ScContentProvider extends ContentProvider {
     private static final int SEARCHES_USERS         = 1403;
     private static final int SEARCHES_TRACKS_ITEM   = 1404;
     private static final int SEARCHES_USERS_ITEM    = 1405;
+
+    private static final int TRACK_CLEANUP = 9998;
+    private static final int USER_CLEANUP = 9999;
 
 
 
@@ -721,6 +766,9 @@ public class ScContentProvider extends ContentProvider {
         matcher.addURI(ScContentProvider.AUTHORITY, "searches/users", SEARCHES_USERS);
         matcher.addURI(ScContentProvider.AUTHORITY, "searches/tracks/*", SEARCHES_TRACKS_ITEM);
         matcher.addURI(ScContentProvider.AUTHORITY, "searches/users/*", SEARCHES_USERS_ITEM);
+
+        matcher.addURI(ScContentProvider.AUTHORITY, "track_cleanup", TRACK_CLEANUP);
+        matcher.addURI(ScContentProvider.AUTHORITY, "user_cleanup", USER_CLEANUP);
 
         return matcher;
     }

@@ -100,12 +100,12 @@ public class SyncAdapterService extends Service {
                                     Bundle extras,
                                     ContentProviderClient provider,
                                     final SyncResult syncResult) {
-
         if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
             final long now = System.currentTimeMillis();
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
             app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
         } else {
+
             if (app.useAccount(account).valid()) {
                 // TODO, do not sync everything unless it is set that way in prefs
                 Looper.prepare();
@@ -114,6 +114,7 @@ public class SyncAdapterService extends Service {
                 if (isExclusiveEnabled(app)) intent.putExtra(ApiSyncService.SyncExtras.EXCLUSIVE, true);
                 if (isActivitySyncEnabled(app)) intent.putExtra(ApiSyncService.SyncExtras.ACTIVITY, true);
 
+                intent.putExtra(ApiSyncService.SyncExtras.CLEANUP, true);
 
                 intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
                     @Override
@@ -130,7 +131,9 @@ public class SyncAdapterService extends Service {
                                 break;
                             }
                             case ApiSyncService.STATUS_FINISHED: {
+
                                 try {
+
                                     final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
                                     final Activities incoming = !isIncomingEnabled(app) ? Activities.EMPTY
                                             : Activities.fromJSON(ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_ACTIVITIES)));
@@ -144,10 +147,12 @@ public class SyncAdapterService extends Service {
                                             : Activities.fromJSON(ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_NEWS)));
 
                                     syncOwn(app, news.filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN)));
+
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                     syncResult.stats.numIoExceptions++;
                                 }
+
                                 Looper.myLooper().quit();
                                 break;
                             }
