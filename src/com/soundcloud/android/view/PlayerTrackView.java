@@ -197,6 +197,13 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                 }
             }
 
+            if (mTrack.isStreamable() && mTrack.last_playback_error == -1) {
+                hideUnplayable();
+            } else {
+                showUnplayable();
+                mWaveformController.onBufferingStop();
+            }
+
             if (changed) {
                 if (!mLandscape) updateArtwork();
                 mWaveformController.clearTrackComments();
@@ -215,14 +222,6 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
                 if (mTrackFlipper != null && mTrackFlipper.getDisplayedChild() == 1) {
                     onTrackInfoFlip();
                 }
-
-                if (mTrack.isStreamable() && mTrack.last_playback_error == -1) {
-                    hideUnplayable();
-                } else {
-                    showUnplayable();
-                    mWaveformController.onBufferingStop();
-                }
-
             }
         }
     }
