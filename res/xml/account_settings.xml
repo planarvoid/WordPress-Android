@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+    <CheckBoxPreference
+                android:title="@string/pref_sync_wifi_only"
+                android:summary="@string/pref_sync_wifi_only_description"
+                android:key="syncWifiOnly"
+                android:defaultValue="false"/>
+    <PreferenceCategory android:title="@string/pref_sync_toggles">
+        <CheckBoxPreference
+                android:title="@string/pref_sync_my_sounds"
+                android:summary="@string/pref_sync_my_sounds_description"
+                android:key="syncMySounds"
+                android:defaultValue="true"/>
+
+        <CheckBoxPreference
+                android:title="@string/pref_sync_my_favorites"
+                android:summary="@string/pref_sync_my_favorites_description"
+                android:key="syncMyFavorites"
+                android:defaultValue="true"/>
+        <CheckBoxPreference
+                android:title="@string/pref_sync_my_following"
+                android:summary="@string/pref_sync_my_following_description"
+                android:key="syncMyFollowing"
+                android:defaultValue="true"/>
+
+        <CheckBoxPreference
+                android:title="@string/pref_sync_my_followers"
+                android:summary="@string/pref_sync_my_followers_description"
+                android:key="syncMyFollowers"
+                android:defaultValue="true"/>
+    </PreferenceCategory>
+</PreferenceScreen>

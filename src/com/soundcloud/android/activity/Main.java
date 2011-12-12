@@ -227,6 +227,10 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
                 if (getCurrentActivity() instanceof UserBrowser) {
                     ((UserBrowser) getCurrentActivity()).setTab(intent.getStringExtra("userBrowserTag"));
                 }
+            } else if (Actions.ACCOUNT_PREF.equals(intent.getAction())) {
+                startActivity(
+                    new Intent(this, AccountPreferences.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                );
             } else if (justAuthenticated(intent)) {
                 Log.d(TAG, "activity start after successful authentication");
                 getTabHost().setCurrentTabByTag(Dashboard.Tabs.RECORD);

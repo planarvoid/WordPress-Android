@@ -83,6 +83,11 @@
             </intent-filter>
 
             <intent-filter>
+                <action android:name="com.soundcloud.android.action.ACCOUNT_PREF"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <intent-filter>
                 <action android:name="com.soundcloud.android.action.PLAYER"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -123,6 +128,7 @@
         <activity android:name=".activity.TracksByTag" />
         <activity android:name=".activity.ScSearch"/>
         <activity android:name=".activity.Settings" android:label="Settings" />
+        <activity android:name=".activity.AccountPreferences" />
         <activity android:name=".activity.NotificationSettings" android:label="Notifications Settings" />
         <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player" android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".activity.UserBrowser" android:label="Profile"/>

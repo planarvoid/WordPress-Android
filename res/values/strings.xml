@@ -1,0 +1,19 @@
+<resources>
+    <string name="pref_sync_settings">Account Sync Settings</string>
+    <string name="pref_sync_settings_summary">Manage your synced resources</string>
+
+    <string name="pref_sync_wifi_only">Wifi only syncing</string>
+    <string name="pref_sync_wifi_only_description">Sync my data only when connected via wifi</string>
+
+    <string name="pref_sync_toggles">Synced Resources</string>
+
+    <string name="pref_sync_my_sounds">My Sounds</string>
+    <string name="pref_sync_my_sounds_description">Keep my sounds updated locally</string>
+    <string name="pref_sync_my_favorites">My Favorites</string>
+    <string name="pref_sync_my_favorites_description">Keep my favorites updated locally</string>
+    <string name="pref_sync_my_followers">My Following</string>
+    <string name="pref_sync_my_followers_description">Keep the people I am following updated locally</string>
+    <string name="pref_sync_my_following">My Followers</string>
+    <string name="pref_sync_my_following_description">Keep the people that follow me updated locally</string>
+
+</resources>
