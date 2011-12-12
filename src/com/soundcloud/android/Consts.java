@@ -22,6 +22,8 @@ public final class Consts {
             Environment.getExternalStorageDirectory(),
             "Android/data/com.soundcloud.android/files");
 
+    public static final String VERSION_KEY = "changeLogVersionCode";
+
     // dot file to have it excluded from media scanning - also use .nomedia
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH, ".cache");
     public static final File EXTERNAL_STREAM_DIRECTORY = new File(FILES_PATH, "stream");
@@ -38,6 +40,7 @@ public final class Consts {
     public static final int ITEM_TYPE_LOADING = -1;
     public static final int PAGE_SIZE = 50;
     public static final int DEFAULT_REFRESH_MINIMUM = 600 * 1000; // 10 mins
+
 
 
     public interface IntentActions {

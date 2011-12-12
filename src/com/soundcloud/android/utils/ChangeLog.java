@@ -2,6 +2,7 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 
 import android.app.AlertDialog;
@@ -32,12 +33,19 @@ public class ChangeLog {
     private int mOldVersion;
     private int mThisVersion;
 
-    // this is the key for storing the version name in SharedPreferences
-    private static final String VERSION_KEY = "changeLogVersionCode";
     private static final String CONTENT = "__CHANGELOG_CONTENT__";
 
     private Listmode mListMode = Listmode.NONE;
     private StringBuilder mSb;
+    private int oldVersionCode;
+
+    public int getCurrentVersionCode() {
+        return mThisVersion;
+    }
+
+    public int getOldVersionCode() {
+        return mOldVersion;
+    }
 
     private enum Listmode {
         NONE,
@@ -53,10 +61,10 @@ public class ChangeLog {
     public ChangeLog(Context context) {
         mContext = context;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        mOldVersion = sp.getInt(VERSION_KEY, 0);
+        mOldVersion = sp.getInt(Consts.VERSION_KEY, 0);
         mThisVersion = CloudUtils.getAppVersionCode(context, 0);
         if (mThisVersion != 0) {
-            sp.edit().putInt(VERSION_KEY, mThisVersion).commit();
+            sp.edit().putInt(Consts.VERSION_KEY, mThisVersion).commit();
         }
     }
 

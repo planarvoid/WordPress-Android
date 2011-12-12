@@ -24,7 +24,7 @@
         <CheckBoxPreference
                 android:title="@string/pref_sync_my_following"
                 android:summary="@string/pref_sync_my_following_description"
-                android:key="syncMyFollowing"
+                android:key="syncMyFollowings"
                 android:defaultValue="true"/>
 
         <CheckBoxPreference

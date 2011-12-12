@@ -65,6 +65,11 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         mChangeLog = new ChangeLog(this);
 
         final SoundCloudApplication app = getApp();
+
+        if (mChangeLog.isFirstRun()){
+            app.onFirstRun(mChangeLog.getOldVersionCode(), mChangeLog.getCurrentVersionCode());
+        }
+
         final boolean showSplash = showSplash(state);
         mSplash = findViewById(R.id.splash);
         mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);

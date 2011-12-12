@@ -1,10 +1,13 @@
 package com.soundcloud.android.service.sync;
 
+import android.content.*;
+import android.os.*;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -17,23 +20,13 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.AbstractThreadedSyncAdapter;
-import android.content.ContentProviderClient;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SyncResult;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +36,46 @@ public class SyncAdapterService extends Service {
     private ScSyncAdapter mSyncAdapter;
 
     public static final int NOTIFICATION_MAX = 100;
-    public static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
-    private static final long DEFAULT_POLL_FREQUENCY = 14400; //60*60*4
+    private static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
+
+    private static final long DEFAULT_NOTIFICATIONS_FREQUENCY = 14400; //60*60*4
+    public static final long DEFAULT_POLL_FREQUENCY = 3600; //60*60*4
+
+    private static final long DEFAULT_DELAY = 3600000; //60*60*1000 1 hr in ms
+    private static final long TRACK_SYNC_DELAY = DEFAULT_DELAY;
+    private static final long USER_SYNC_DELAY = DEFAULT_DELAY * 4; // every 2 hours, users aren't as crucial
+    private static final long CLEANUP_DELAY = DEFAULT_DELAY * 24; // every 24 hours, users aren't as crucial
+
+    @SuppressWarnings({"UnusedDeclaration"})
+    public enum SyncContent {
+        MySounds(Content.ME_TRACKS, TRACK_SYNC_DELAY, "syncMySounds"),
+        MyFavorites(Content.ME_FAVORITES, TRACK_SYNC_DELAY, "syncMyFavorites"),
+        MyFollowings(Content.ME_FOLLOWINGS, USER_SYNC_DELAY, "syncMyFollowings"),
+        MyFollowers(Content.ME_FOLLOWERS, USER_SYNC_DELAY, "syncMyFollowers");
+
+        SyncContent(Content content, long syncDelay, String syncEnabledKey) {
+            this.content = content;
+            this.syncDelay = syncDelay;
+            this.prefSyncEnabledKey = syncEnabledKey;
+        }
+
+        public final Content content;
+        public final long syncDelay;
+        public final String prefSyncEnabledKey;
+
+        public static void configureSyncExtrasArray(Context c, List<String> urisToSync, boolean force){
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+            for (SyncContent sc : SyncContent.values()){
+                if (sp.getBoolean(sc.prefSyncEnabledKey, true)) {
+                    final long lastUpdated = LocalCollection.getLastSync(c.getContentResolver(), sc.content.uri);
+                    if (System.currentTimeMillis() - lastUpdated > sc.syncDelay || force){
+                        urisToSync.add(sc.content.uri.toString());
+                    }
+                }
+            }
+        }
+    }
+
 
     @Override
     public void onCreate() {
@@ -58,7 +89,7 @@ public class SyncAdapterService extends Service {
     }
 
     public static class ScSyncAdapter extends AbstractThreadedSyncAdapter {
-        private SoundCloudApplication mApp;
+        private final SoundCloudApplication mApp;
 
         public ScSyncAdapter(SoundCloudApplication app) {
             super(app, true);
@@ -69,25 +100,19 @@ public class SyncAdapterService extends Service {
         public void onPerformSync(Account account, Bundle extras, String authority,
                                   ContentProviderClient provider, SyncResult syncResult) {
 
+
+
             if (SoundCloudApplication.DEV_MODE) {
                 Log.d(TAG, "onPerformSync("+account+","+extras+","+authority+","+provider+","+syncResult+")");
             }
-            if (shouldSync()) {
+            if (shouldUpdateDashboard(mApp) || shouldSyncCollections(mApp)) {
                 SyncAdapterService.performSync(mApp, account, extras, provider, syncResult);
             } else {
                 Log.d(TAG, "skipping sync because Wifi is diabled");
             }
         }
 
-        private boolean shouldSync() {
-            if (isWifiOnlyEnabled(mApp)) {
-                ConnectivityManager mgr = (ConnectivityManager) mApp.getSystemService(CONNECTIVITY_SERVICE);
-                NetworkInfo ni = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                return ni != null && ni.isConnectedOrConnecting();
-            } else {
-                return true;
-            }
-        }
+
     }
 
     /** @noinspection UnusedParameters*/
@@ -96,85 +121,102 @@ public class SyncAdapterService extends Service {
                                     Bundle extras,
                                     ContentProviderClient provider,
                                     final SyncResult syncResult) {
-        if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
-            final long now = System.currentTimeMillis();
-            app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
-            app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
-        } else {
 
-            if (app.useAccount(account).valid()) {
-                // TODO, do not sync everything unless it is set that way in prefs
-                Looper.prepare();
-                final Intent intent = new Intent(app, ApiSyncService.class);
-                ArrayList<String> urisToSync = new ArrayList<String>();
+        if (app.useAccount(account).valid()) {
 
-                if (isIncomingEnabled(app))     urisToSync.add(Content.ME_ACTIVITIES.uri.toString());
-                if (isExclusiveEnabled(app))    urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri.toString());
+            Looper.prepare();
+            final boolean force = extras.getBoolean(ContentResolver.SYNC_EXTRAS_FORCE, false);
+            final Intent intent = new Intent(app, ApiSyncService.class);
+            ArrayList<String> urisToSync = new ArrayList<String>();
+
+            if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
+                final long now = System.currentTimeMillis();
+                app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
+                app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
+                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, now);
+                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, now);
+            }
+
+            if (shouldUpdateDashboard(app)) {
+                if (isIncomingEnabled(app)) urisToSync.add(Content.ME_SOUND_STREAM.uri.toString());
+                if (isExclusiveEnabled(app)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri.toString());
                 if (isActivitySyncEnabled(app)) urisToSync.add(Content.ME_ACTIVITIES.uri.toString());
+            }
 
+            if (shouldSyncCollections(app)) {
+                SyncContent.configureSyncExtrasArray(app, urisToSync, force);
+            }
+
+            final long lastCleanup = PreferenceManager.getDefaultSharedPreferences(app).getLong("lastSyncCleanup", System.currentTimeMillis());
+            if (System.currentTimeMillis() - lastCleanup > CLEANUP_DELAY || force) {
                 urisToSync.add(Content.TRACK_CLEANUP.uri.toString());
                 urisToSync.add(Content.USERS_CLEANUP.uri.toString());
+            }
 
-                intent.putStringArrayListExtra("syncUris", urisToSync);
-                intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
-                    @Override
-                    protected void onReceiveResult(int resultCode, Bundle resultData) {
-                        switch (resultCode) {
-                            case ApiSyncService.STATUS_RUNNING: {
-                                break;
-                            }
-                            case ApiSyncService.STATUS_ERROR: {
-                                SyncResult serviceResult = resultData.getParcelable(ApiSyncService.EXTRA_SYNC_RESULT);
-                                syncResult.stats.numAuthExceptions = serviceResult.stats.numAuthExceptions;
-                                syncResult.stats.numIoExceptions = serviceResult.stats.numIoExceptions;
-                                Looper.myLooper().quit();
-                                break;
-                            }
-                            case ApiSyncService.STATUS_FINISHED: {
-
+            intent.putStringArrayListExtra("syncUris", urisToSync);
+            intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
+                @Override
+                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    switch (resultCode) {
+                        case ApiSyncService.STATUS_RUNNING: {
+                            break;
+                        }
+                        case ApiSyncService.STATUS_ERROR: {
+                            SyncResult serviceResult = resultData.getParcelable(ApiSyncService.EXTRA_SYNC_RESULT);
+                            syncResult.stats.numAuthExceptions = serviceResult.stats.numAuthExceptions;
+                            syncResult.stats.numIoExceptions = serviceResult.stats.numIoExceptions;
+                            Looper.myLooper().quit();
+                            break;
+                        }
+                        case ApiSyncService.STATUS_FINISHED: {
+                            if (shouldUpdateDashboard(app)) {
                                 try {
+                                    final long notificationsFrequency = getNotificationsFrequency(app) * 1000;
+                                    if (System.currentTimeMillis() - app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_AT) > notificationsFrequency) {
+                                        final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
+                                        final File incomingFile = ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_ACTIVITIES));
+                                        final Activities incoming = !isIncomingEnabled(app) || !incomingFile.exists() ? Activities.EMPTY
+                                                : Activities.fromJSON(incomingFile);
 
-                                    final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
-                                    final Activities incoming = !isIncomingEnabled(app) ? Activities.EMPTY
-                                            : Activities.fromJSON(ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_ACTIVITIES)));
+                                        final File exclusivesFile = ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_EXCLUSIVE_TRACKS));
+                                        final Activities exclusive = !isExclusiveEnabled(app) || !exclusivesFile.exists() ? Activities.EMPTY
+                                                : Activities.fromJSON(exclusivesFile);
 
-                                    final Activities exclusive = !isExclusiveEnabled(app) ? Activities.EMPTY
-                                            : Activities.fromJSON(ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_EXCLUSIVE_TRACKS)));
+                                        checkIncoming(app, incoming.filter(lastIncomingSeen), exclusive.filter(lastIncomingSeen));
+                                    }
 
-                                    syncIncoming(app, incoming.filter(lastIncomingSeen), exclusive.filter(lastIncomingSeen));
+                                    if (System.currentTimeMillis() - app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_AT) > notificationsFrequency) {
+                                        final File activityFile = ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_NEWS));
+                                        final Activities news = !isActivitySyncEnabled(app) || !activityFile.exists() ? Activities.EMPTY
+                                                : Activities.fromJSON(activityFile);
 
-                                    final Activities news = !isActivitySyncEnabled(app) ? Activities.EMPTY
-                                            : Activities.fromJSON(ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_NEWS)));
-
-                                    syncOwn(app, news.filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN)));
+                                        checkOwn(app, news.filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN)));
+                                    }
 
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                     syncResult.stats.numIoExceptions++;
                                 }
-
-                                Looper.myLooper().quit();
-                                break;
                             }
+                            Looper.myLooper().quit();
+                            break;
                         }
                     }
-                });
+                }
+            });
 
-                app.startService(intent);
-                Looper.loop();
-            } else {
-                Log.w(TAG, "no valid token, skip sync");
-                syncResult.stats.numAuthExceptions++;
-            }
+            app.startService(intent);
+            Looper.loop();
+        } else {
+            Log.w(TAG, "no valid token, skip sync");
+            syncResult.stats.numAuthExceptions++;
         }
 
     }
 
-    /* package */ static void syncIncoming(SoundCloudApplication app, Activities incoming, Activities exclusive)
-            throws IOException {
+    /* package */ private static void checkIncoming(SoundCloudApplication app, Activities incoming, Activities exclusive) {
 
         final int totalUnseen = Activities.getUniqueTrackCount(incoming, exclusive);
-
         final boolean hasIncoming  = !incoming.isEmpty();
         final boolean hasExclusive = !exclusive.isEmpty();
         if (hasIncoming || hasExclusive) {
@@ -197,15 +239,15 @@ public class SyncAdapterService extends Service {
                 message = getIncomingMessaging(app, incoming);
             }
 
-
-            if (incoming.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED)) ||
-                exclusive.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED))) {
+            if (incoming.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM)) ||
+                exclusive.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM))) {
 
                 createDashboardNotification(app, ticker, title, message,
                     Actions.STREAM,
                     Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
 
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED,
+                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, System.currentTimeMillis());
+                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM,
                         Math.max(incoming.getTimestamp(), exclusive.getTimestamp()));
             }
         }
@@ -214,22 +256,19 @@ public class SyncAdapterService extends Service {
         return ActivitiesCache.get(app, account, Request.to(Endpoints.MY_NEWS));
     }
 
-    /* package */ static void syncOwn(SoundCloudApplication app, Activities events)
-            throws IOException {
-
-
-
+    /* package */ private static void checkOwn(SoundCloudApplication app, Activities events) {
         if (!events.isEmpty()) {
             Activities favoritings = isFavoritingEnabled(app) ? events.favoritings() : Activities.EMPTY;
             Activities comments    = isCommentsEnabled(app) ? events.comments() : Activities.EMPTY;
 
             Message msg = new Message(app.getResources(), events, favoritings, comments);
 
-            if (events.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED))) {
+            if (events.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
                 createDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
                     Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
 
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED, events.getTimestamp());
+                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, System.currentTimeMillis());
+                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, events.getTimestamp());
             }
         }
     }
@@ -321,53 +360,76 @@ public class SyncAdapterService extends Service {
             case 0:
                 app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
                 app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED, 1);
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED, 1);
+                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, 1);
+                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, 1);
+                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, 1);
+                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, 1);
                 ActivitiesCache.clear(app);
                 break;
             case 1:
                 app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) - (24 * 3600000));
                 app.setAccountData(User.DataKeys.LAST_OWN_SEEN, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN) - (24 * 3600000));
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED, app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED) - (24 * 3600000));
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED) - (24 * 3600000));
+                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM) - (24 * 3600000));
+                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM) - (24 * 3600000));
+                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM) - (24 * 3600000));
+                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM) - (24 * 3600000));
                 ActivitiesCache.clear(app);
                 break;
         }
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
     }
 
-    public static boolean isWifiOnlyEnabled(Context c) {
+    private static boolean shouldUpdateDashboard(Context c) {
+        return (!isNotificationsWifiOnlyEnabled(c) || isWifiConnected(c));
+    }
+
+    private static boolean shouldSyncCollections(Context c) {
+        return (!isSyncWifiOnlyEnabled(c) || isWifiConnected(c));
+    }
+
+    private static boolean isWifiConnected(Context c) {
+        ConnectivityManager mgr = (ConnectivityManager) c.getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo ni = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return !(ni == null || !ni.isConnectedOrConnecting());
+    }
+
+    private static boolean isNotificationsWifiOnlyEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsWifiOnly", false);
     }
 
-    public static boolean isIncomingEnabled(Context c) {
+    private static boolean isIncomingEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsIncoming", true);
     }
 
-    public static boolean isExclusiveEnabled(Context c) {
+    private static boolean isExclusiveEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsExclusive", true);
     }
 
-    public static boolean isFavoritingEnabled(Context c) {
+    private static boolean isFavoritingEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsFavoritings", true);
     }
 
-    public static boolean isActivitySyncEnabled(Context c) {
+    private static boolean isActivitySyncEnabled(Context c) {
         return isFavoritingEnabled(c) || isCommentsEnabled(c);
     }
 
-    public static boolean isCommentsEnabled(Context c) {
+    private static boolean isCommentsEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsComments", true);
     }
 
-    public static long getDefaultNotificationsFrequency(Context c) {
+    private static boolean isSyncWifiOnlyEnabled(Context c) {
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("syncWifiOnly", true);
+    }
+
+    private static long getNotificationsFrequency(Context c) {
         if (PreferenceManager.getDefaultSharedPreferences(c).contains("notificationsFrequency")) {
             return Long.parseLong(PreferenceManager.getDefaultSharedPreferences(c).getString("notificationsFrequency",
-                    String.valueOf(DEFAULT_POLL_FREQUENCY)));
+                    String.valueOf(DEFAULT_NOTIFICATIONS_FREQUENCY)));
         } else {
-            return DEFAULT_POLL_FREQUENCY;
+            return DEFAULT_NOTIFICATIONS_FREQUENCY;
         }
     }
+
     private static class Message {
         public final CharSequence title, message, ticker;
         public Message(Resources res, Activities events, Activities favoritings, Activities comments) {

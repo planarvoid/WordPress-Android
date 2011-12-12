@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import android.preference.PreferenceManager;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.Activities;
@@ -68,13 +69,19 @@ public class ApiSyncer {
                 case ME_FOLLOWERS:
                     syncCollection(c.uri, c.remoteUri, c.collectionType, User.class);
                     break;
+            }
+        } else {
 
+            switch (c) {
                 case TRACK_CLEANUP:
                 case USERS_CLEANUP:
                     mResolver.update(c.uri, null, null, null);
+                    PreferenceManager.getDefaultSharedPreferences(mApp).edit().putLong("lastSyncCleanup", System.currentTimeMillis());
+                    break;
+                default:
+                    Log.w(ApiSyncService.LOG_TAG, "no remote URI defined for " + c);
             }
-        } else {
-            Log.w(ApiSyncService.LOG_TAG, "no remote URI defined for " + c);
+
         }
     }
 
@@ -107,8 +114,10 @@ public class ApiSyncer {
             if (entry.getValue().length > 0) {
                 Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Upserting " + entry.getValue().length + " new collection items");
                 added = mResolver.bulkInsert(entry.getKey(), entry.getValue());
-                LocalCollection.insertLocalCollection(mResolver, entry.getKey(), System.currentTimeMillis(), added);
+            } else {
+                added = 0;
             }
+            LocalCollection.insertLocalCollection(mResolver, entry.getKey(), System.currentTimeMillis(), added);
         }
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " items added in " + (System.currentTimeMillis() - itemStart) + " ms");
     }

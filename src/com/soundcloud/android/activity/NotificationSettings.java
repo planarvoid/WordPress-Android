@@ -42,21 +42,6 @@ public class NotificationSettings extends PreferenceActivity {
             }
         }
 
-        ListPreference recordingQuality = (ListPreference) findPreference("notificationsFrequency");
-        recordingQuality.setOnPreferenceChangeListener(
-                new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object o) {
-                        final Account account = ((SoundCloudApplication) getApplication()).getAccount();
-                        if (account != null) {
-                            ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(NotificationSettings.this));
-                        }
-                        return true;
-                    }
-                }
-        );
-
-
     }
 
     private void checkSyncNecessary() {
@@ -73,7 +58,7 @@ public class NotificationSettings extends PreferenceActivity {
         if (account != null) {
             final boolean autoSyncing = ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY);
             if (sync && !autoSyncing) {
-                ScContentProvider.enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
+                ScContentProvider.enableSyncing(account, SyncAdapterService.DEFAULT_POLL_FREQUENCY);
             } else if (!sync && autoSyncing){
                 ScContentProvider.disableSyncing(account);
             }
