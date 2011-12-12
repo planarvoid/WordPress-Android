@@ -116,7 +116,7 @@
 
             <Button android:id="@+id/btn_save"
                     style="btn_dark"
-                    android:text="@string/save"
+                    android:text="@string/btn_next"
                     android:padding="15dip"
                     android:layout_weight="1"
                     android:layout_width="wrap_content"

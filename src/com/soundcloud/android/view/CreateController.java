@@ -179,7 +179,6 @@ public class CreateController {
 
         setResetState();
 
-        ((Button) vg.findViewById(R.id.btn_save)).setText(c.getString(mRecording == null ? R.string.btn_save : R.string.btn_next));
         vg.findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, Consts.Tracking.Actions.SAVE);
