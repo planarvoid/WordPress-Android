@@ -28,12 +28,7 @@ import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class ApiSyncer {
@@ -109,10 +104,11 @@ public class ApiSyncer {
         // do collection inserts
         final long itemStart = System.currentTimeMillis();
         for (Map.Entry<Uri, ContentValues[]> entry : collectionValues.entrySet()) {
-            Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Upserting " + entry.getValue().length + " new collection items");
-            added = mResolver.bulkInsert(entry.getKey(), entry.getValue());
-            LocalCollection.insertLocalCollection(mResolver, entry.getKey(), System.currentTimeMillis(), added);
-
+            if (entry.getValue().length > 0) {
+                Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Upserting " + entry.getValue().length + " new collection items");
+                added = mResolver.bulkInsert(entry.getKey(), entry.getValue());
+                LocalCollection.insertLocalCollection(mResolver, entry.getKey(), System.currentTimeMillis(), added);
+            }
         }
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " items added in " + (System.currentTimeMillis() - itemStart) + " ms");
     }
@@ -123,10 +119,15 @@ public class ApiSyncer {
         int size = 0;
         List<Long> local = idCursorToList(mResolver.query(Content.COLLECTION_ITEMS.uri, new String[]{DBHelper.CollectionItems.ITEM_ID},
                 DBHelper.CollectionItems.CONCRETE_COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " =  ?",
-                new String[]{String.valueOf(collectionType), String.valueOf(mApp.getCurrentUserId())}, null));
+                new String[]{String.valueOf(collectionType), String.valueOf(mApp.getCurrentUserId())}, DBHelper.CollectionItems.CONCRETE_POSITION + " ASC"));
 
         List<Long> remote = getCollectionIds(endpoint);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
+
+        if (local.equals(remote)){
+            Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + contentUri + ". Skipping sync.");
+            return new ContentValues[0];
+        }
 
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);
