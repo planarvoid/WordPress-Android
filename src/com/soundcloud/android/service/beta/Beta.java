@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 @JsonAutoDetect(JsonMethod.NONE)
 public class Beta implements Comparable<Beta>, Parcelable {
+    public static final String EXTRA_BETA_VERSION = "beta-version";
     @JsonProperty String key;
     @JsonProperty long lastmodified;
     @JsonProperty String etag;

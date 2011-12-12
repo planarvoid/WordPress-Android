@@ -1,42 +1,6 @@
 package com.soundcloud.android;
 
-import static android.content.pm.PackageManager.*;
-import static com.soundcloud.android.provider.ScContentProvider.*;
-
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-import com.google.android.filecache.FileResponseCache;
-import com.google.android.imageloader.BitmapContentHandler;
-import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.cache.Connections;
-import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.cache.TrackCache;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.beta.BetaService;
-import com.soundcloud.android.service.beta.C2DMReceiver;
-import com.soundcloud.android.service.beta.WifiMonitor;
-import com.soundcloud.android.service.sync.SyncAdapterService;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Env;
-import com.soundcloud.api.Request;
-import com.soundcloud.api.Stream;
-import com.soundcloud.api.Token;
-import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
+import android.accounts.*;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
@@ -48,6 +12,29 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+import com.google.android.filecache.FileResponseCache;
+import com.google.android.imageloader.BitmapContentHandler;
+import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.c2dm.C2DMReceiver;
+import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.cache.TrackCache;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.beta.BetaService;
+import com.soundcloud.android.service.beta.WifiMonitor;
+import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.*;
+import org.acra.ACRA;
+import org.acra.annotation.ReportsCrashes;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.net.ContentHandler;
@@ -55,6 +42,10 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.content.pm.PackageManager.*;
+import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
+import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
 
 @ReportsCrashes(
@@ -125,11 +116,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
                 enableSyncing(account, SyncAdapterService.getDefaultNotificationsFrequency(this));
             }
+            C2DMReceiver.register(this, getLoggedInUser());
         }
 
         if (BETA_MODE) {
             BetaService.scheduleCheck(this, false);
-            C2DMReceiver.register(this);
         }
 
         // make sure the WifiMonitor is disabled when not in beta mode
@@ -247,7 +238,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(
                     user.primary_email_confirmed));
         }
-
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 

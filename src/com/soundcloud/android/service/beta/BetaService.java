@@ -309,7 +309,45 @@ public class BetaService extends Service {
 
     }
 
-    static int defaultNotificationFlags() {
+
+    public static void onNewBeta(Context context, Intent intent) {
+        final String beta = intent.getStringExtra(Beta.EXTRA_BETA_VERSION);
+        final String[] parts = beta != null ? beta.split(":", 2) : new String[0];
+        if (parts.length == 2) {
+            try {
+                final int versionCode = Integer.parseInt(parts[0]);
+                final String versionName = parts[1];
+                if (!Beta.isInstalled(context, versionCode, versionName)) {
+                    notifyNewVersion(context, versionName + "  ("+versionCode+")");
+                    setPendingBeta(context, versionName);
+                    scheduleNow(context, 2000l);
+                } else {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "beta already installed");
+                    }
+                }
+            } catch (NumberFormatException e) {
+                Log.w(TAG, "could not parse version information: "+beta);
+            }
+        } else {
+            Log.w(TAG, "could not get beta information from intent "+intent);
+        }
+    }
+
+    /** @noinspection UnusedDeclaration*/
+    private static void notifyNewVersion(Context context, String version) {
+         String title = context.getString(R.string.pref_beta_new_version_available);
+         Intent intent = new Intent(context, Settings.class)
+                  .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+         Notification n = new Notification(R.drawable.statusbar, title, System.currentTimeMillis());
+         n.flags |= BetaService.defaultNotificationFlags();
+         n.setLatestEventInfo(context, title, version, PendingIntent.getActivity(context, 0, intent ,0 ));
+         NotificationManager mgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+         mgr.notify(Consts.Notifications.BETA_NOTIFY_ID, n);
+     }
+
+    /* package */ static int defaultNotificationFlags() {
         return Notification.FLAG_ONLY_ALERT_ONCE |
                 Notification.FLAG_AUTO_CANCEL |
                 Notification.DEFAULT_LIGHTS;
