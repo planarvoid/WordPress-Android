@@ -215,10 +215,10 @@ public class Dashboard extends ScActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit()
                                                 .putBoolean(EXCLUSIVE_ONLY_KEY, which == 1).commit();
-
+                                        ((EventsAdapterWrapper) mListView.getWrapper()).setContent(which == 1 ?
+                                                Content.ME_EXCLUSIVE_STREAM : Content.ME_SOUND_STREAM);
                                         mListView.getWrapper().clearRefreshTask();
                                         mListView.getWrapper().reset();
-                                        mListView.setLastUpdated(0);
                                         mListView.invalidateViews();
                                         mListView.post(new Runnable() {
                                             @Override public void run() {

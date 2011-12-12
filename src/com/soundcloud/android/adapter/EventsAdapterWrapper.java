@@ -40,6 +40,12 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         return (EventsAdapter) super.getWrappedAdapter();
     }
 
+    public void setContent(Content c){
+        mContent = c.uri;
+        mRequest = Request.to(c.remoteUri);
+        setListLastUpdated();
+    }
+
     @Override
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepgoing) {
         final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
