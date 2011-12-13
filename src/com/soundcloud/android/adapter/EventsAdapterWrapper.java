@@ -14,6 +14,8 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ActivitiesCache;
 import com.soundcloud.android.task.LoadCollectionTask;
+import com.soundcloud.android.task.LoadRemoteCollectionTask;
+import com.soundcloud.android.task.SyncedCollectionTask;
 import com.soundcloud.android.task.RefreshEventsTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.api.Request;
@@ -26,7 +28,7 @@ import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-public class EventsAdapterWrapper extends LazyEndlessAdapter {
+public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     public DetachableResultReceiver mReceiver;
     private boolean mWaitingOnSync;
 
@@ -40,7 +42,8 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     }
 
     public void setContent(Content c){
-        mContent = c.uri;
+        mContent = c;
+        mContentUri = c.uri;
         mRequest = Request.to(c.remoteUri);
         setListLastUpdated();
     }
@@ -105,7 +108,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
         if (!userRefresh) {
             startRefreshTask(false); // load whatever is currently cached
 
-            final long elapsed = System.currentTimeMillis() - LocalCollection.getLastSync(mActivity.getContentResolver(), mContent);
+            final long elapsed = System.currentTimeMillis() - LocalCollection.getLastSync(mActivity.getContentResolver(), mContentUri);
             if (elapsed < Consts.DEFAULT_REFRESH_MINIMUM) {
                 sync = false;
                 Log.i(TAG, "Skipping sync of " + mContent + ". Elapsed since last sync (in ms) " + elapsed);
@@ -119,7 +122,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
             mWaitingOnSync = true;
             final Intent intent = new Intent(mActivity, ApiSyncService.class);
             intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
-            intent.setData(mContent);
+            intent.setData(mContentUri);
             mActivity.startService(intent);
         }
         notifyDataSetChanged();
@@ -127,7 +130,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
 
     @Override
     protected void startRefreshTask(final boolean userRefresh){
-       mRefreshTask = new RefreshEventsTask(mActivity.getApp(), new LoadCollectionTask.Params()) {
+       mRefreshTask = new RefreshEventsTask(mActivity.getApp(), new LoadCollectionTask.CollectionParams()) {
             {
                 setAdapter(EventsAdapterWrapper.this);
                 cacheFile = ActivitiesCache.getCacheFile(mActivity.getApp(),mRequest);
@@ -137,8 +140,8 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
     }
 
     @Override
-    protected LoadCollectionTask.Params buildAppendParams() {
-        return new LoadCollectionTask.Params() {
+    protected LoadRemoteCollectionTask.RemoteCollectionParams buildAppendParams() {
+        return new LoadRemoteCollectionTask.RemoteCollectionParams() {
             {
                 loadModel = getLoadModel(false);
                 pageIndex = getPageIndex(false);
@@ -161,7 +164,7 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
             case ApiSyncService.STATUS_SYNC_ERROR: {
                 mWaitingOnSync = false;
                 mState = ERROR;
-                onPostRefresh(null,null,false);
+                onPostRefresh(null, "", false);
                 break;
             }
         }

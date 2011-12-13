@@ -20,7 +20,7 @@ import java.util.List;
 public class LoadCollectionTaskTest {
     /*@Test
     public void shouldDeserializeTracks() throws Exception {
-        LoadCollectionTask task = new LoadCollectionTask(DefaultTestRunner.application, Track.class);
+        SyncedCollectionTask task = new SyncedCollectionTask(DefaultTestRunner.application, Track.class);
 
         List<Parcelable> items = new ArrayList<Parcelable>();
         task.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"), items);
@@ -39,7 +39,7 @@ public class LoadCollectionTaskTest {
 
     @Test
     public void shouldDeserializeUsers() throws Exception {
-        LoadCollectionTask task = new LoadCollectionTask(DefaultTestRunner.application, User.class, pageIndex, refresh);
+        SyncedCollectionTask task = new SyncedCollectionTask(DefaultTestRunner.application, User.class, pageIndex, refresh);
 
         List<Parcelable> items = new ArrayList<Parcelable>();
         task.getCollectionFromStream(getClass().getResourceAsStream("users.json"), items);
@@ -54,7 +54,7 @@ public class LoadCollectionTaskTest {
 
     @Test
     public void shouldDeserializeEvents() throws Exception {
-        LoadCollectionTask task = new LoadCollectionTask(DefaultTestRunner.application, Event.class, pageIndex, refresh);
+        SyncedCollectionTask task = new SyncedCollectionTask(DefaultTestRunner.application, Event.class, pageIndex, refresh);
         List<Parcelable> items = new ArrayList<Parcelable>();
         task.getCollectionFromStream(getClass().getResourceAsStream("events.json"), items);
 

@@ -2,23 +2,31 @@ package com.soundcloud.android.task;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.adapter.RemoteCollectionAdapter;
+import com.soundcloud.android.adapter.SyncedCollectionAdapter;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.LocalCollectionPage;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Http;
+import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
@@ -26,13 +34,40 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 public class LoadRemoteCollectionTask extends LoadCollectionTask {
 
     private long mLastRefresh;
+    protected String mNextHref;
+    protected int mResponseCode = HttpStatus.SC_OK;
 
-    public LoadRemoteCollectionTask(SoundCloudApplication app, Params params) {
+    public static class RemoteCollectionParams extends LoadCollectionTask.CollectionParams{
+        public Request request;
+    }
+
+    public LoadRemoteCollectionTask(SoundCloudApplication app, RemoteCollectionParams params) {
         super(app, params);
     }
 
     public void setLastRefresh(long lastRefresh) {
         mLastRefresh = lastRefresh;
+    }
+
+    @Override
+    protected void onPostExecute(Boolean success) {
+        if (!success) respond();
+    }
+
+    @Override
+    protected void onProgressUpdate(List<? super Parcelable>... values) {
+        respond();
+    }
+
+    private void respond(){
+        RemoteCollectionAdapter adapter = (RemoteCollectionAdapter) mAdapterReference.get();
+        if (adapter != null) {
+            if (mParams.refresh){
+                adapter.onPostRefresh(mNewItems, mNextHref, mResponseCode, keepGoing);
+            } else {
+                adapter.onPostTaskExecute(mNewItems, mNextHref, mResponseCode, keepGoing);
+            }
+        }
     }
 
     @Override
@@ -42,6 +77,8 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
         LocalCollection localCollection = null;
         LocalCollectionPage localCollectionPage = null;
 
+        final Request request = ((RemoteCollectionParams) mParams).request;
+
         if (mParams.contentUri != null){
             localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(mApp.getContentResolver(), mParams.contentUri);
             if (localCollection == null) {
@@ -49,12 +86,12 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
             } else {
                 localCollectionPage = LocalCollectionPage.fromCollectionAndIndex(mApp.getContentResolver(), localCollection.id, mParams.pageIndex);
                 final long start = System.currentTimeMillis();
-                Cursor itemsCursor = mApp.getContentResolver().query(getPagedUri(), new String[]{DBHelper.TrackView._ID}, null, null, null);
+                Cursor itemsCursor = mApp.getContentResolver().query(CloudUtils.getPagedUri(mParams.contentUri, mParams.pageIndex), new String[]{DBHelper.TrackView._ID}, null, null, null);
                 if (localCollectionPage != null) {
                     if (itemsCursor == null || itemsCursor.getCount() != localCollectionPage.size) {
                         localCollectionPage = null;
                     } else {
-                        localCollectionPage.applyEtag(mParams.request);
+                        localCollectionPage.applyEtag(request);
                     }
                 }
             }
@@ -64,7 +101,7 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
         if (mParams.contentUri == null || localCollectionPage == null ||
                 (mParams.pageIndex == 0 && System.currentTimeMillis() - mLastRefresh > Consts.DEFAULT_REFRESH_MINIMUM)) {
             try {
-                HttpResponse resp = mApp.get(mParams.request);
+                HttpResponse resp = mApp.get(request);
                 mResponseCode = resp.getStatusLine().getStatusCode();
                 if (mResponseCode != HttpStatus.SC_OK && mResponseCode != HttpStatus.SC_NOT_MODIFIED) {
                     throw new IOException("Invalid response: " + resp.getStatusLine());

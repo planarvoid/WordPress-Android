@@ -10,7 +10,9 @@ import java.io.IOException;
 
 public class RefreshEventsTask extends LoadCollectionTask {
     public File cacheFile;
-    public RefreshEventsTask(SoundCloudApplication app, Params p) {
+    public String mNextHref;
+
+    public RefreshEventsTask(SoundCloudApplication app, CollectionParams p) {
         super(app,p);
     }
 
@@ -29,7 +31,6 @@ public class RefreshEventsTask extends LoadCollectionTask {
                 Activities a = Activities.fromJSON(cacheFile);
                 mNewItems.addAll(a.collection);
                 mNextHref = a.next_href;
-                mResponseCode = HttpStatus.SC_OK;
                 return true;
             }
         } catch (IOException e) {

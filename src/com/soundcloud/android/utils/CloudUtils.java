@@ -982,4 +982,10 @@ public class CloudUtils {
         NetworkInfo ni = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         return !(ni == null || !ni.isConnectedOrConnecting());
     }
+
+    public static Uri getPagedUri(Uri contentUri, int pageIndex){
+        return  contentUri == null ? null :
+                contentUri.buildUpon().appendQueryParameter("offset", String.valueOf(pageIndex * Consts.COLLECTION_PAGE_SIZE))
+                    .appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build();
+    }
 }

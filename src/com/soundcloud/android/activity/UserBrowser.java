@@ -355,20 +355,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
                 new ArrayList<Parcelable>(), Track.class);
 
-        LazyEndlessAdapter adpWrap = new LazyEndlessAdapter(this, adp, isMe()
-                ? Content.ME_TRACKS.uri : CloudUtils.replaceWildcard(Content.USER_TRACKS.uri, mUser.id),
-                Request.to(Endpoints.USER_TRACKS, mUser.id), false);
-
-
-        if (isOtherUser()) {
-            if (mUser != null) {
-                adpWrap.setEmptyViewText(getResources().getString(
-                        R.string.empty_user_tracks_text,
-                        mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username));
-            }
-        } else {
-            adpWrap.setSyncDataUri(Content.ME_TRACKS.uri);
+        LazyEndlessAdapter adpWrap;
+        if (isMe()) {
+            adpWrap = new SyncedCollectionAdapter(this, adp, Content.ME_TRACKS.uri, false);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
                     .setActionText(R.string.list_empty_user_sounds_action)
                     .setImage(R.drawable.empty_rec)
@@ -383,24 +372,28 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                         public void onSecondaryAction() {
                         }
                     }));
+        } else {
+            adpWrap = new RemoteCollectionAdapter(this, adp, CloudUtils.replaceWildcard(Content.USER_TRACKS.uri, mUser.id),
+                    Request.to(Endpoints.USER_TRACKS, mUser.id), false);
+
+            if (mUser != null) {
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_tracks_text,
+                        mUser.username == null ? getResources().getString(R.string.this_user)
+                                : mUser.username));
+            }
         }
 
         mMyTracksView = new ScTabView(this);
         mMyTracksView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_TRACKS, true);
 
+
+
+
         // Favorites View
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, isMe() ? Content.ME_FAVORITES.uri : CloudUtils.replaceWildcard(Content.USER_FAVORITES.uri, mUser.id), Request.to(Endpoints.USER_FAVORITES, mUser.id).add("order","favorited_at"),
-                false);
-        if (isOtherUser()) {
-            if (mUser != null) {
-                adpWrap.setEmptyViewText(getResources().getString(
-                        R.string.empty_user_favorites_text,
-                        mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username));
-            }
-        } else {
-            adpWrap.setSyncDataUri(Content.ME_FAVORITES.uri);
+        if (isMe()) {
+            adpWrap = new SyncedCollectionAdapter(this, adp, Content.ME_FAVORITES.uri, false);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_likes_message)
                     .setActionText(R.string.list_empty_user_likes_action)
                     .setImage(R.drawable.empty_like)
@@ -415,25 +408,27 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                             startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
                         }
                     }));
+        } else {
+            adpWrap = new RemoteCollectionAdapter(this, adp, CloudUtils.replaceWildcard(Content.USER_FAVORITES.uri, mUser.id),
+                    Request.to(Endpoints.USER_FAVORITES, mUser.id), false);
+
+            if (mUser != null) {
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_favorites_text,
+                        mUser.username == null ? getResources().getString(R.string.this_user)
+                                : mUser.username));
+            }
+
         }
+
 
         ScTabView favoritesView = new ScTabView(this);
         favoritesView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FAVORITES, true);
 
         // Followings View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, isMe() ? Content.ME_FOLLOWINGS.uri : CloudUtils.replaceWildcard(Content.USER_FOLLOWINGS.uri, mUser.id), Request.to(Endpoints.USER_FOLLOWINGS, mUser.id),
-                false);
-
-        if (isOtherUser()) {
-            if (mUser != null) {
-                adpWrap.setEmptyViewText(getResources().getString(
-                        R.string.empty_user_followings_text,
-                        mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username));
-            }
-        } else {
-            adpWrap.setSyncDataUri(Content.ME_FOLLOWINGS.uri);
+        if (isMe()) {
+            adpWrap = new SyncedCollectionAdapter(this, adp, Content.ME_FOLLOWINGS.uri, false);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
                     .setActionText(R.string.list_empty_user_following_action)
                     .setImage(R.drawable.empty_follow_small)
@@ -447,25 +442,27 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                         public void onSecondaryAction() {
                         }
                     }));
+        } else {
+            adpWrap = new RemoteCollectionAdapter(this, adp, CloudUtils.replaceWildcard(Content.USER_FOLLOWINGS.uri, mUser.id),
+                    Request.to(Endpoints.USER_FOLLOWINGS, mUser.id), false);
+
+            if (mUser != null) {
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_followings_text,
+                        mUser.username == null ? getResources().getString(R.string.this_user)
+                                : mUser.username));
+            }
+
         }
 
         final ScTabView followingsView = new ScTabView(this);
         followingsView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWINGS, true);
 
+
         // Followers View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        adpWrap = new LazyEndlessAdapter(this, adp, isMe() ? Content.ME_FOLLOWERS.uri : CloudUtils.replaceWildcard(Content.USER_FOLLOWERS.uri, mUser.id), Request.to(Endpoints.USER_FOLLOWERS, mUser.id),
-                false);
-
-        if (isOtherUser()) {
-            if (mUser != null) {
-                adpWrap.setEmptyViewText(getResources().getString(
-                        R.string.empty_user_followers_text,
-                        mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username));
-            }
-        } else {
-            adpWrap.setSyncDataUri(Content.ME_FOLLOWERS.uri);
+        if (isMe()) {
+            adpWrap = new SyncedCollectionAdapter(this, adp, Content.ME_FOLLOWERS.uri, false);
             if (mUser.track_count > 0){
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
                     .setActionText(R.string.list_empty_user_followers_action)
@@ -493,9 +490,17 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                         }
                     }));
             }
+        } else {
+            adpWrap = new RemoteCollectionAdapter(this, adp, CloudUtils.replaceWildcard(Content.USER_FOLLOWERS.uri, mUser.id),
+                    Request.to(Endpoints.USER_FOLLOWERS, mUser.id), false);
 
+            if (mUser != null) {
+                adpWrap.setEmptyViewText(getResources().getString(
+                        R.string.empty_user_followers_text,
+                        mUser.username == null ? getResources().getString(R.string.this_user)
+                                : mUser.username));
+            }
         }
-
         final ScTabView followersView = new ScTabView(this);
         followersView.setLazyListView(buildList(false), adpWrap, Consts.ListId.LIST_USER_FOLLOWERS, true);
 

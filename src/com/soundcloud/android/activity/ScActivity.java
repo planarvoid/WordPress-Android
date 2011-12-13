@@ -576,7 +576,7 @@ public abstract class ScActivity extends Activity {
                 safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
             case Consts.OptionsMenu.SECRET_DEV_BUTTON:
-                startActivity(new Intent(this,TestActivity.class));
+                //startActivity(new Intent(this,TestActivity.class));
                 return true;
 
             default:

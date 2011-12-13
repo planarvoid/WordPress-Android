@@ -95,11 +95,6 @@ public class ApiSyncService extends IntentService{
             }
 
         }
-
-
-
-
-
     }
 
      private int slowSyncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
