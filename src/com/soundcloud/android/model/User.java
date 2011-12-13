@@ -1,8 +1,14 @@
 
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.json.Views;
@@ -12,18 +18,11 @@ import com.soundcloud.android.provider.DBHelper.Users;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends ModelBase implements PageTrackable {
+public class User extends ScModel implements PageTrackable {
     @JsonView(Views.Mini.class) public String username;
     public int track_count;
     public String discogs_name;
@@ -148,6 +147,7 @@ public class User extends ModelBase implements PageTrackable {
         cv.put(Users.PERMALINK, permalink);
         cv.put(Users.AVATAR_URL, avatar_url);
         // account for partial objects, don't overwrite local full objects
+        if (track_count != -1) cv.put(Users.LAST_UPDATED, System.currentTimeMillis());
         if (city != null) cv.put(Users.CITY, city);
         if (country != null) cv.put(Users.COUNTRY, country);
         if (discogs_name != null) cv.put(Users.DISCOGS_NAME, discogs_name);

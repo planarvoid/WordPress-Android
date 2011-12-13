@@ -5,7 +5,7 @@ import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
 import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.ModelBase;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -166,6 +166,9 @@ public class SoundCloudDB {
         }
     }
 
+    public static int bulkInsertParcelables(SoundCloudApplication app, List<Parcelable> items) {
+        return bulkInsertParcelables(app,items,null,-1,-1);
+    }
     public static int bulkInsertParcelables(SoundCloudApplication app, List<Parcelable> items, Uri collectionUri, long owner, int startIndex) {
 
         int i = 0;
@@ -178,7 +181,7 @@ public class SoundCloudDB {
 
         // XXX lookup should be in model (Origin)
         for (Parcelable p : items) {
-            long id = ((ModelBase) p).id;
+            long id = ((ScModel) p).id;
             if (p instanceof User) {
                 usersToInsert.add((User) p);
             } else if (p instanceof Track) {

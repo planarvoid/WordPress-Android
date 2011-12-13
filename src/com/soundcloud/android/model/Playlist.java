@@ -6,7 +6,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Playlist extends ModelBase implements Origin {
+public class Playlist extends ScModel implements Origin {
     @JsonView(Views.Mini.class) public User user;
 
     @Override @JsonIgnore

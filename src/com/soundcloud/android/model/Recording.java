@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 @SuppressWarnings({"UnusedDeclaration"})
-public class Recording extends ModelBase implements PageTrackable {
+public class Recording extends ScModel implements PageTrackable {
     public long user_id;
     public long timestamp;
     public double longitude;

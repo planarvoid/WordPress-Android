@@ -506,6 +506,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 mWaitingOnSync = true;
                 final Intent intent = new Intent(mActivity, ApiSyncService.class);
                 intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
+                intent.putExtra("manualRefresh",userRefresh);
                 intent.setData(mSyncExtra);
                 mActivity.startService(intent);
             }

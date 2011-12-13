@@ -7,7 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Friend extends ModelBase {
+public class Friend extends ScModel {
     @SuppressWarnings({"UnusedDeclaration"})
     public long[] connection_ids;
     public User user;

@@ -23,7 +23,7 @@ public class LoadCollectionTaskTest {
         LoadCollectionTask task = new LoadCollectionTask(DefaultTestRunner.application, Track.class);
 
         List<Parcelable> items = new ArrayList<Parcelable>();
-        task.getCollection(getClass().getResourceAsStream("tracks.json"), items);
+        task.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"), items);
 
         assertThat(items, not(nullValue()));
         assertThat(items.size(), equalTo(11));
@@ -42,7 +42,7 @@ public class LoadCollectionTaskTest {
         LoadCollectionTask task = new LoadCollectionTask(DefaultTestRunner.application, User.class, pageIndex, refresh);
 
         List<Parcelable> items = new ArrayList<Parcelable>();
-        task.getCollection(getClass().getResourceAsStream("users.json"), items);
+        task.getCollectionFromStream(getClass().getResourceAsStream("users.json"), items);
 
         assertThat(items, not(nullValue()));
         assertThat(items.size(), equalTo(1));
@@ -56,7 +56,7 @@ public class LoadCollectionTaskTest {
     public void shouldDeserializeEvents() throws Exception {
         LoadCollectionTask task = new LoadCollectionTask(DefaultTestRunner.application, Event.class, pageIndex, refresh);
         List<Parcelable> items = new ArrayList<Parcelable>();
-        task.getCollection(getClass().getResourceAsStream("events.json"), items);
+        task.getCollectionFromStream(getClass().getResourceAsStream("events.json"), items);
 
         assertThat(items.size(), equalTo(50));
 

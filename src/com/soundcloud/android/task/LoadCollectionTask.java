@@ -4,12 +4,18 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.*;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,24 +77,16 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
     @Override
     protected Boolean doInBackground(String... params) {
         if (mParams.contentUri != null) {
-            Cursor itemsCursor = mApp.getContentResolver().query(getPagedUri(), null, null, null, null);
-            // wipe it out and remote load ?? if (c.getCount() == localPageSize){ }
-            mNewItems = new ArrayList<Parcelable>();
-            if (itemsCursor != null && itemsCursor.moveToFirst()) {
-                do {
-                    if (Track.class.equals(mParams.loadModel)) {
-                        mNewItems.add(new Track(itemsCursor));
-                    } else if (User.class.equals(mParams.loadModel)) {
-                        mNewItems.add(new User(itemsCursor));
-                    } else if (Friend.class.equals(mParams.loadModel)) {
-                        mNewItems.add(new User(itemsCursor));
-                    }
-                } while (itemsCursor.moveToNext());
-            }
-
+            mNewItems = (List<Parcelable>) loadLocalContent();
             keepGoing = mNewItems.size() == Consts.COLLECTION_PAGE_SIZE;
+
             publishProgress(mNewItems);
-            if (itemsCursor != null) itemsCursor.close();
+
+
+            Log.i("asdf", "is WIFI CONNECTED " + CloudUtils.isWifiConnected(mApp));
+            if (CloudUtils.isWifiConnected(mApp)){
+                Log.i("asdf", "WIFI CONNECTED " + mParams.request);
+            }
             return true;
 
         } else {
@@ -98,48 +96,30 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
         }
     }
 
+    protected List<? super Parcelable> loadLocalContent(){
+        Cursor itemsCursor = mApp.getContentResolver().query(getPagedUri(), null, null, null, null);
+            // wipe it out and remote load ?? if (c.getCount() == localPageSize){ }
+            List<Parcelable> items = new ArrayList<Parcelable>();
+            if (itemsCursor != null && itemsCursor.moveToFirst()) {
+                do {
+                    if (Track.class.equals(mParams.loadModel)) {
+                        items.add(new Track(itemsCursor));
+                    } else if (User.class.equals(mParams.loadModel)) {
+                        items.add(new User(itemsCursor));
+                    } else if (Friend.class.equals(mParams.loadModel)) {
+                        items.add(new User(itemsCursor));
+                    }
+                } while (itemsCursor.moveToNext());
+            }
+        if (itemsCursor != null) itemsCursor.close();
+        return items;
+    }
+
     protected Uri getPagedUri(){
         return  mParams.contentUri == null ? null :
                 mParams.contentUri.buildUpon().appendQueryParameter("offset", String.valueOf(mParams.pageIndex * Consts.COLLECTION_PAGE_SIZE))
                     .appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build();
     }
 
-    /* package */ CollectionHolder getCollection(InputStream is, List<? super Parcelable> items) throws IOException {
-        CollectionHolder holder = null;
-        if (Track.class.equals(mParams.loadModel)) {
-            holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
-            for (TracklistItem t : (TracklistItemHolder) holder) {
-                items.add(new Track(t));
-            }
-        } else if (User.class.equals(mParams.loadModel)) {
-            holder = mApp.getMapper().readValue(is, UserlistItemHolder.class);
-            for (UserlistItem u : (UserlistItemHolder) holder) {
-                items.add(new User(u));
-            }
-        } else if (Event.class.equals(mParams.loadModel)) {
-            holder = mApp.getMapper().readValue(is, EventsHolder.class);
-            for (Event e : (EventsHolder) holder) {
-                items.add(e);
-            }
-        } else if (Friend.class.equals(mParams.loadModel)) {
-            holder = mApp.getMapper().readValue(is, FriendHolder.class);
-            for (Friend f : (FriendHolder) holder) {
-                items.add(f);
-            }
-        } else if (Comment.class.equals(mParams.loadModel)) {
-            holder = mApp.getMapper().readValue(is, CommentHolder.class);
-            for (Comment f : (CommentHolder) holder) {
-                items.add(f);
-            }
-        }
-        return holder;
-    }
-
-
-    public static class EventsHolder extends CollectionHolder<Event> {}
-    public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
-    public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
-    public static class FriendHolder extends CollectionHolder<Friend> {}
-    public static class CommentHolder extends CollectionHolder<Comment> {}
 
 }

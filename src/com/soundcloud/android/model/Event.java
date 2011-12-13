@@ -14,7 +14,7 @@ import android.os.Parcelable;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Event extends ModelBase implements Origin, Playable {
+public class Event extends ScModel implements Origin, Playable {
     @JsonProperty public Date created_at;
     @JsonProperty public String type;
     @JsonProperty public String tags;

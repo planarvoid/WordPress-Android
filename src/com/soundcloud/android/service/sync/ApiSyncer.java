@@ -12,7 +12,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserlistItem;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -29,12 +28,15 @@ import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.*;
 
 
 public class ApiSyncer {
 
     static final String LOG_TAG = ApiSyncer.class.getSimpleName();
+    static final Long WIFI_STALE_TIME = 3600000l;//60*60*1000
+    static final Long STALE_TIME = 14400000l;//4*60*60*1000
 
     private SoundCloudApplication mApp;
     private ContentResolver mResolver;
@@ -51,7 +53,7 @@ public class ApiSyncer {
         mResolver = app.getContentResolver();
     }
 
-    public void syncContent(Content c) throws IOException {
+    public void syncContent(Content c, boolean manualRefresh) throws IOException {
         if (c.remoteUri != null) {
             switch (c) {
                 case ME_ACTIVITIES:
@@ -62,12 +64,12 @@ public class ApiSyncer {
 
                 case ME_TRACKS:
                 case ME_FAVORITES:
-                    syncCollection(c.uri, c.remoteUri, c.collectionType, Track.class);
+                    syncCollection(c.uri, c.remoteUri, c.collectionType, Track.class, manualRefresh);
                     break;
 
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
-                    syncCollection(c.uri, c.remoteUri, c.collectionType, User.class);
+                    syncCollection(c.uri, c.remoteUri, c.collectionType, User.class, manualRefresh);
                     break;
             }
         } else {
@@ -91,11 +93,16 @@ public class ApiSyncer {
         LocalCollection.insertLocalCollection(mResolver, contentUri, System.currentTimeMillis(), a.size());
     }
 
-    public void syncCollection(Uri contentUri, String endpoint, int collectionType,  Class<?> loadModel) throws IOException {
-        collectionValues.put(contentUri, quickSync(contentUri, endpoint, collectionType, loadModel, loadModel == Track.class ? trackAdditions : userAdditions));
+    public void syncCollection(Uri contentUri, String endpoint, int collectionType, Class<?> loadModel, boolean manualRefresh) throws IOException {
+        collectionValues.put(contentUri, quickSync(contentUri, endpoint, collectionType, loadModel,
+                loadModel == Track.class ? trackAdditions : userAdditions, manualRefresh));
     }
 
-    public void resolveDatabase() throws IOException {
+    private long getStaleTime() {
+        return CloudUtils.isWifiConnected(mApp) ? WIFI_STALE_TIME : STALE_TIME;
+    }
+
+    public void performDbAdditions() throws IOException {
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Resolving Database");
 
         // our new tracks/users, compiled so we didn't do duplicate lookups
@@ -122,13 +129,15 @@ public class ApiSyncer {
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " items added in " + (System.currentTimeMillis() - itemStart) + " ms");
     }
 
-    private ContentValues[] quickSync(Uri contentUri, String endpoint, int collectionType, Class<?> loadModel, ArrayList<Long> additions) throws IOException {
+    private ContentValues[] quickSync(Uri contentUri, String endpoint, int collectionType, Class<?> loadModel,
+                                      ArrayList<Long> additions, boolean manualRefresh) throws IOException {
 
         final long start = System.currentTimeMillis();
         int size = 0;
-        List<Long> local = idCursorToList(mResolver.query(Content.COLLECTION_ITEMS.uri, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                DBHelper.CollectionItems.CONCRETE_COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " =  ?",
-                new String[]{String.valueOf(collectionType), String.valueOf(mApp.getCurrentUserId())}, DBHelper.CollectionItems.CONCRETE_POSITION + " ASC"));
+        List<Long> local = idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.CollectionItems.ITEM_ID},
+                manualRefresh ? DBHelper.ResourceTable.LAST_UPDATED + " > ?" : null,
+                manualRefresh ? new String[]{String.valueOf(System.currentTimeMillis() - getStaleTime())} : null,
+                DBHelper.CollectionItems.CONCRETE_POSITION + " ASC"));
 
         List<Long> remote = getCollectionIds(endpoint);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
@@ -184,7 +193,7 @@ public class ApiSyncer {
         while (i < additions.size()) {
             List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
             storedIds.addAll(idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.Tracks._ID},
-                    CloudUtils.getWhereIds(DBHelper.Tracks.ID, batch),
+                    CloudUtils.getWhereIds(DBHelper.Tracks.ID, batch) + " AND " + DBHelper.ResourceTable.LAST_UPDATED + " < " + getStaleTime(),
                     CloudUtils.longListToStringArr(batch), null))
             );
             i += RESOLVER_BATCH_SIZE;

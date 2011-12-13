@@ -12,6 +12,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -21,8 +22,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.res.Resources;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -380,17 +379,11 @@ public class SyncAdapterService extends Service {
     }
 
     private static boolean shouldUpdateDashboard(Context c) {
-        return (!isNotificationsWifiOnlyEnabled(c) || isWifiConnected(c));
+        return (!isNotificationsWifiOnlyEnabled(c) || CloudUtils.isWifiConnected(c));
     }
 
     private static boolean shouldSyncCollections(Context c) {
-        return (!isSyncWifiOnlyEnabled(c) || isWifiConnected(c));
-    }
-
-    private static boolean isWifiConnected(Context c) {
-        ConnectivityManager mgr = (ConnectivityManager) c.getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo ni = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        return !(ni == null || !ni.isConnectedOrConnecting());
+        return (!isSyncWifiOnlyEnabled(c) || CloudUtils.isWifiConnected(c));
     }
 
     private static boolean isNotificationsWifiOnlyEnabled(Context c) {

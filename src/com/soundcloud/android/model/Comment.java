@@ -7,7 +7,6 @@ import com.soundcloud.android.json.Views;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.Context;
@@ -18,7 +17,7 @@ import android.os.Parcelable;
 import java.util.Date;
 import java.util.Comparator;
 
-public class Comment extends ModelBase implements Origin {
+public class Comment extends ScModel implements Origin {
     @JsonView(Views.Mini.class) public Date created_at;
     @JsonView(Views.Mini.class) public long user_id;
     @JsonView(Views.Mini.class) public long track_id;

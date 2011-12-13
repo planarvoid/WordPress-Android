@@ -4,6 +4,8 @@ import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import android.graphics.*;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -973,5 +975,11 @@ public class CloudUtils {
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    public static boolean isWifiConnected(Context c) {
+        ConnectivityManager mgr = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return !(ni == null || !ni.isConnectedOrConnecting());
     }
 }

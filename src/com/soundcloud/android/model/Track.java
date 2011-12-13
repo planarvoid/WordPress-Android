@@ -41,7 +41,7 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ModelBase implements PageTrackable, Origin, Playable {
+public class Track extends ScModel implements PageTrackable, Origin, Playable {
     private static final String TAG = "Track";
 
     public static class TrackHolder extends CollectionHolder<Track> {}
@@ -340,6 +340,7 @@ public class Track extends ModelBase implements PageTrackable, Origin, Playable 
     public ContentValues buildContentValues(){
         ContentValues cv = new ContentValues();
         cv.put(Tracks.ID, id);
+        cv.put(Tracks.LAST_UPDATED, System.currentTimeMillis());
         cv.put(Tracks.PERMALINK, permalink);
         // account for partial objects, don't overwrite local full objects
         if (title != null) cv.put(Tracks.TITLE, title);

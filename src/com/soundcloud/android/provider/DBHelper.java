@@ -212,9 +212,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private boolean upgradeTo9(SQLiteDatabase db, int oldVersion) {
             try {
-                db.execSQL("DROP TABLE IF EXISTS " + Tables.TRACKS.tableName);
-                db.execSQL("DROP VIEW IF EXISTS " + Tables.TRACKVIEW.tableName);
-                db.execSQL(DATABASE_CREATE_TRACKS);
+                alterTableColumns(db, Tables.TRACKS, null, null);
+                alterTableColumns(db, Tables.USERS, null, null);
                 db.execSQL(DATABASE_CREATE_TRACK_VIEW);
                 db.execSQL(DATABASE_CREATE_COLLECTIONS);
                 db.execSQL(DATABASE_CREATE_COLLECTION_PAGES);
@@ -274,6 +273,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     static final String DATABASE_CREATE_TRACKS = "create table Tracks (_id INTEGER primary key, "
+            + "last_updated INTEGER null, "
             + "permalink VARCHAR(255) null, "
             + "duration INTEGER null, "
             + "created_at INTEGER null, "
@@ -301,6 +301,7 @@ public class DBHelper extends SQLiteOpenHelper {
             + "track_id INTEGER null, " + "user_id INTEGER null);";
 
     static final String DATABASE_CREATE_USERS = "create table Users (_id INTEGER primary key, "
+            + "last_updated INTEGER null, "
             + "username VARCHAR(255) null, "
             + "avatar_url VARCHAR(255) null, "
             + "permalink VARCHAR(255) null, "
@@ -373,10 +374,15 @@ public class DBHelper extends SQLiteOpenHelper {
             "create table CollectionItems (user_id INTEGER, item_id INTEGER, collection_type INTEGER, "
                     + "position INTEGER null, UNIQUE(user_id, item_id, collection_type) ON CONFLICT REPLACE);";
 
-    public static final class Tracks implements BaseColumns {
 
+    public static class ResourceTable {
         public static final String ID = "_id";
+        public static final String LAST_UPDATED = "last_updated";
         public static final String PERMALINK = "permalink";
+    }
+
+    public static final class Tracks extends ResourceTable implements BaseColumns {
+
         public static final String CREATED_AT = "created_at";
         public static final String DURATION = "duration";
         public static final String TAG_LIST = "tag_list";
@@ -399,6 +405,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
         public static final String CONCRETE_ID = Tables.TRACKS.tableName + "." + ID;
+        public static final String CONCRETE_LAST_UPDATED = Tables.TRACKS.tableName + "." + LAST_UPDATED;
         public static final String CONCRETE_PERMALINK = Tables.TRACKS.tableName + "." + PERMALINK;
         public static final String CONCRETE_CREATED_AT = Tables.TRACKS.tableName + "." + CREATED_AT;
         public static final String CONCRETE_DURATION = Tables.TRACKS.tableName + "." + DURATION;
@@ -444,11 +451,9 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String CONCRETE_POSITION = Tables.COLLECTION_ITEMS.tableName + "." + POSITION;
     }
 
-      public static final class Users implements BaseColumns {
+      public static final class Users extends ResourceTable implements BaseColumns {
 
-          public static final String ID = "_id";
           public static final String USERNAME = "username";
-          public static final String PERMALINK = "permalink";
           public static final String AVATAR_URL = "avatar_url";
           public static final String CITY = "city";
           public static final String COUNTRY = "country";
@@ -463,6 +468,7 @@ public class DBHelper extends SQLiteOpenHelper {
           public static final String DESCRIPTION = "description";
 
           public static final String CONCRETE_ID = Tables.USERS.tableName + "." + _ID;
+          public static final String CONCRETE_LAST_UPDATED = Tables.USERS.tableName + "." + LAST_UPDATED;
           public static final String CONCRETE_USERNAME = Tables.USERS.tableName + "." + USERNAME;
           public static final String CONCRETE_PERMALINK = Tables.USERS.tableName + "." + PERMALINK;
           public static final String CONCRETE_AVATAR_URL = Tables.USERS.tableName + "." + AVATAR_URL;
@@ -544,6 +550,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final class TrackView implements BaseColumns {
 
+        public static final String LAST_UPDATED = Tracks.LAST_UPDATED;
         public static final String PERMALINK = Tracks.PERMALINK;
         public static final String CREATED_AT = Tracks.CREATED_AT;
         public static final String DURATION = Tracks.DURATION;
@@ -615,6 +622,7 @@ public class DBHelper extends SQLiteOpenHelper {
     static final String DATABASE_CREATE_TRACK_VIEW = "CREATE VIEW " + Tables.TRACKVIEW.tableName +
             " AS SELECT "
             + Tracks.CONCRETE_ID + " as " + TrackView._ID + ","
+            + Tracks.CONCRETE_LAST_UPDATED + " as " + TrackView.LAST_UPDATED + ","
             + Tracks.CONCRETE_PERMALINK + " as " + TrackView.PERMALINK + ","
             + Tracks.CONCRETE_CREATED_AT + " as " + TrackView.CREATED_AT + ","
             + Tracks.CONCRETE_DURATION + " as " + TrackView.DURATION + ","

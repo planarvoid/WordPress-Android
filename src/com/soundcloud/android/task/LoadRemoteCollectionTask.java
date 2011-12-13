@@ -11,7 +11,7 @@ import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.LocalCollectionPage;
-import com.soundcloud.android.model.ModelBase;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.Http;
@@ -19,6 +19,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
@@ -79,11 +80,11 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
                     }
 
                     // process new items and publish them
-                    CollectionHolder holder = getCollection(resp.getEntity().getContent(), mNewItems);
+                    CollectionHolder holder = ScModel.getCollectionFromStream(resp.getEntity().getContent(), mApp.getMapper(), mParams.loadModel, mNewItems);
                     mNextHref = holder == null || TextUtils.isEmpty(holder.next_href) ? null : holder.next_href;
                     keepGoing = !TextUtils.isEmpty(mNextHref);
                     for (Parcelable p : mNewItems) {
-                        ((ModelBase) p).resolve(mApp);
+                        ((ScModel) p).resolve(mApp);
                     }
                     // publish what we have, commit new items in the background, no need to wait
                     publishProgress(mNewItems);
@@ -112,10 +113,17 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
             }
         }
 
-       keepGoing = !TextUtils.isEmpty(mNextHref);
-
-       // if we get this far, we either failed, or our etags matched up, so see if we can load locally in super.doInBg.
-       return super.doInBackground(params);
+        // if we get this far, we either failed (return false), or our etags matched up (load locally)
+        if (mParams.contentUri != null) {
+            mNewItems = (List<Parcelable>) loadLocalContent();
+            keepGoing = mNewItems.size() == Consts.COLLECTION_PAGE_SIZE;
+            publishProgress(mNewItems);
+            return true;
+        } else {
+            // no local content, fail
+            keepGoing = false;
+            return false;
+        }
     }
 
     private long getCollectionOwner() {

@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.net.Uri;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.database.Cursor;
@@ -16,14 +17,49 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Date;
+import java.util.List;
 
-public abstract class ModelBase implements Parcelable {
+public abstract class ScModel implements Parcelable {
     @JsonView(Views.Mini.class) public long id = -1;
 
-    public ModelBase() {
+    public ScModel() {
+    }
+
+    public static CollectionHolder getCollectionFromStream(InputStream is, ObjectMapper mapper, Class<?> loadModel,
+                                                           List<? super Parcelable> items) throws IOException {
+        CollectionHolder holder = null;
+        if (Track.class.equals(loadModel)) {
+            holder = mapper.readValue(is, TracklistItemHolder.class);
+            for (TracklistItem t : (TracklistItemHolder) holder) {
+                items.add(new Track(t));
+            }
+        } else if (User.class.equals(loadModel)) {
+            holder = mapper.readValue(is, UserlistItemHolder.class);
+            for (UserlistItem u : (UserlistItemHolder) holder) {
+                items.add(new User(u));
+            }
+        } else if (Event.class.equals(loadModel)) {
+            holder = mapper.readValue(is, EventsHolder.class);
+            for (Event e : (EventsHolder) holder) {
+                items.add(e);
+            }
+        } else if (Friend.class.equals(loadModel)) {
+            holder = mapper.readValue(is, FriendHolder.class);
+            for (Friend f : (FriendHolder) holder) {
+                items.add(f);
+            }
+        } else if (Comment.class.equals(loadModel)) {
+            holder = mapper.readValue(is, CommentHolder.class);
+            for (Comment f : (CommentHolder) holder) {
+                items.add(f);
+            }
+        }
+        return holder;
     }
 
     protected void readFromParcel(Parcel in) {
@@ -141,9 +177,9 @@ public abstract class ModelBase implements Parcelable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ModelBase)) return false;
+        if (!(o instanceof ScModel)) return false;
 
-        ModelBase modelBase = (ModelBase) o;
+        ScModel modelBase = (ScModel) o;
         return id == modelBase.id;
     }
 
@@ -170,4 +206,11 @@ public abstract class ModelBase implements Parcelable {
     }
 
     public void assertInDb(SoundCloudApplication app) { }
+
+
+    public static class EventsHolder extends CollectionHolder<Event> {}
+    public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
+    public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
+    public static class FriendHolder extends CollectionHolder<Friend> {}
+    public static class CommentHolder extends CollectionHolder<Comment> {}
 }

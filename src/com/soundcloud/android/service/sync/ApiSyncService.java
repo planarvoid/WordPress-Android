@@ -19,7 +19,6 @@ import com.soundcloud.api.Request;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ApiSyncService extends IntentService{
@@ -34,7 +33,6 @@ public class ApiSyncService extends IntentService{
     public static final int STATUS_RUNNING = 0x1;
     public static final int STATUS_ERROR = 0x2;
     public static final int STATUS_FINISHED = 0x3;
-
 
     public ApiSyncService() {
         super("ApiSyncService");
@@ -52,6 +50,7 @@ public class ApiSyncService extends IntentService{
             long start;
             ApiSyncer apiSyncer = new ApiSyncer((SoundCloudApplication) getApplication());
             ArrayList<String> contents = intent.getStringArrayListExtra("syncUris");
+            boolean manualRefresh = intent.getBooleanExtra("manualRefresh", false);
             if (contents == null) {
                 contents = new ArrayList<String>();
             }
@@ -60,7 +59,7 @@ public class ApiSyncService extends IntentService{
             }
 
             for (String c : contents) {
-                apiSyncer.syncContent(Content.byUri(Uri.parse(c)));
+                apiSyncer.syncContent(Content.byUri(Uri.parse(c)), manualRefresh);
             }
 
 //            if (intent.getBooleanExtra(SyncExtras.INCOMING, false)) {
@@ -93,7 +92,7 @@ public class ApiSyncService extends IntentService{
 //                slowSyncCollection(Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
 //            }
 
-            apiSyncer.resolveDatabase();
+            apiSyncer.performDbAdditions();
 
             Log.d(LOG_TAG, "Cloud Api service: Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
             if (receiver != null) receiver.send(STATUS_FINISHED, Bundle.EMPTY);

@@ -14,7 +14,7 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Upload extends ModelBase {
+public class Upload extends ScModel {
     public long local_recording_id;
     public String sharing;
     public String sharing_note;
