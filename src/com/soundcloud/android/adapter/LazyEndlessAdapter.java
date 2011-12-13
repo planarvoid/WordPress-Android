@@ -56,7 +56,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     private EmptyCollection mDefaultEmptyView;
     private String mEmptyViewText = "";
 
-    private Uri mSyncExtra;
+    private Uri mSyncDataUri;
     private boolean mWaitingOnSync;
 
     protected int mState;
@@ -82,8 +82,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
 
 
-    public void setSyncExtra(Uri syncExtra) {
-        mSyncExtra = syncExtra;
+    public void setSyncDataUri(Uri syncDataUri) {
+        mSyncDataUri = syncDataUri;
     }
 
     /**
@@ -346,6 +346,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     protected void startAppendTask(){
         mState = APPENDING;
+
         final Uri contentUri = getContentUri(false);
         if (contentUri != null && Content.isSyncable(contentUri)){
             mAppendTask = new LoadCollectionTask(mActivity.getApp(), buildAppendParams());
@@ -393,11 +394,11 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
-        if ((newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK){
+        if ((newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK) {
             mState = keepGoing ? WAITING : DONE;
             mNextHref = nextHref;
-
-           increasePageIndex();
+            checkPageForStaleItems();
+            increasePageIndex();
         } else {
             handleResponseCode(responseCode);
         }
@@ -424,7 +425,8 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             reset(false);
             mNextHref = nextHref;
             getData().addAll(newItems);
-            //} else if (eTag != null){
+            checkPageForStaleItems();
+            increasePageIndex();
         } else {
             onEmptyRefresh();
         }
@@ -506,8 +508,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
                 mWaitingOnSync = true;
                 final Intent intent = new Intent(mActivity, ApiSyncService.class);
                 intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
-                intent.putExtra("manualRefresh",userRefresh);
-                intent.setData(mSyncExtra);
+                intent.setData(mSyncDataUri);
                 mActivity.startService(intent);
             }
 
@@ -622,6 +623,18 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         return mState != INITIALIZED;
     }
 
+    private void checkPageForStaleItems(){
+        // do we only want to auto-refresh on wifi??
+        if (Content.isSyncable(getContentUri(false)) && CloudUtils.isWifiConnected(mActivity)) {
+            final Intent intent = new Intent(mActivity, ApiSyncService.class);
+            intent.setAction(ApiSyncService.REFRESH_PAGE_ACTION);
+            intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
+            intent.putExtra("pageIndex",getPageIndex(false));
+            intent.setData(mSyncDataUri);
+            mActivity.startService(intent);
+        }
+    }
+
     protected DetachableResultReceiver getReceiver(){
         if (mDetachableReceiver == null) mDetachableReceiver = new DetachableResultReceiver(new Handler());
         mDetachableReceiver.setReceiver(this);
@@ -634,15 +647,22 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             case ApiSyncService.STATUS_RUNNING: {
                 break;
             }
-            case ApiSyncService.STATUS_FINISHED: {
+            case ApiSyncService.STATUS_SYNC_FINISHED: {
                 mWaitingOnSync = false;
                 startRefreshTask(false);
                 break;
             }
-            case ApiSyncService.STATUS_ERROR: {
+            case ApiSyncService.STATUS_SYNC_ERROR: {
                 mWaitingOnSync = false;
                 mState = ERROR;
                 onPostRefresh(null,null,false,false);
+                break;
+            }
+            case ApiSyncService.STATUS_PAGE_REFRESH_ERROR: {
+                break;
+            }
+            case ApiSyncService.STATUS_PAGE_REFRESH_FINISHED: {
+                notifyDataSetChanged();
                 break;
             }
         }

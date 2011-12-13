@@ -3,7 +3,6 @@ package com.soundcloud.android.adapter;
 
 import android.content.Intent;
 
-import android.net.Uri;
 import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -154,12 +153,12 @@ public class EventsAdapterWrapper extends LazyEndlessAdapter {
             case ApiSyncService.STATUS_RUNNING: {
                 break;
             }
-            case ApiSyncService.STATUS_FINISHED: {
+            case ApiSyncService.STATUS_SYNC_FINISHED: {
                 mWaitingOnSync = false;
                 startRefreshTask(false);
                 break;
             }
-            case ApiSyncService.STATUS_ERROR: {
+            case ApiSyncService.STATUS_SYNC_ERROR: {
                 mWaitingOnSync = false;
                 mState = ERROR;
                 onPostRefresh(null,null,false);

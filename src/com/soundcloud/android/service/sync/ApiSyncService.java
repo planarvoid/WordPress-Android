@@ -25,14 +25,19 @@ public class ApiSyncService extends IntentService{
 
     public static final String LOG_TAG = ApiSyncer.class.getSimpleName();
 
-    public static final String EXTRA_STATUS_RECEIVER =
-            "com.soundcloud.android.extra.STATUS_RECEIVER";
-    public static final String EXTRA_SYNC_RESULT =
-            "com.soundcloud.android.extra.SYNC_RESULT";
+    public static final String EXTRA_STATUS_RECEIVER = "com.soundcloud.android.sync.extra.STATUS_RECEIVER";
+    public static final String EXTRA_SYNC_RESULT = "com.soundcloud.android.sync.extra.SYNC_RESULT";
+    public static final String EXTRA_CHECK_STALE_PAGE = "com.soundcloud.android.sync.extra.CHECK_STALE_PAGE";
+
+    public static final String SYNC_ACTION = "com.soundcloud.android.sync.action.SYNC";
+    public static final String REFRESH_PAGE_ACTION = "com.soundcloud.android.sync.action.REFRESH_PAGE";
+
 
     public static final int STATUS_RUNNING = 0x1;
-    public static final int STATUS_ERROR = 0x2;
-    public static final int STATUS_FINISHED = 0x3;
+    public static final int STATUS_SYNC_ERROR = 0x2;
+    public static final int STATUS_SYNC_FINISHED = 0x3;
+    public static final int STATUS_PAGE_REFRESH_ERROR = 0x4;
+    public static final int STATUS_PAGE_REFRESH_FINISHED = 0x5;
 
     public ApiSyncService() {
         super("ApiSyncService");
@@ -43,71 +48,58 @@ public class ApiSyncService extends IntentService{
         Log.d(LOG_TAG, "Cloud Api service started");
         final ResultReceiver receiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
         final SyncResult syncResult = new SyncResult();
+        final String action = intent.getAction();
 
         if (receiver != null) receiver.send(STATUS_RUNNING, Bundle.EMPTY);
-        final long startSync = System.currentTimeMillis();
-        try {
-            long start;
-            ApiSyncer apiSyncer = new ApiSyncer((SoundCloudApplication) getApplication());
-            ArrayList<String> contents = intent.getStringArrayListExtra("syncUris");
-            boolean manualRefresh = intent.getBooleanExtra("manualRefresh", false);
-            if (contents == null) {
-                contents = new ArrayList<String>();
+
+        ApiSyncer apiSyncer = new ApiSyncer((SoundCloudApplication) getApplication());
+        if (action == null || action.equals(SYNC_ACTION)) {
+            try {
+
+                final long startSync = System.currentTimeMillis();
+
+                ArrayList<String> contents = intent.getStringArrayListExtra("syncUris");
+                boolean manualRefresh = intent.getBooleanExtra("manualRefresh", false);
+                if (contents == null) {
+                    contents = new ArrayList<String>();
+                }
+                if (intent.getData() != null) {
+                    contents.add(intent.getData().toString());
+                }
+                for (String c : contents) {
+                    apiSyncer.syncContent(Content.byUri(Uri.parse(c)), manualRefresh);
+                }
+                apiSyncer.performDbAdditions();
+                Log.d(LOG_TAG, "Cloud Api service: Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
+                if (receiver != null) receiver.send(STATUS_SYNC_FINISHED, Bundle.EMPTY);
+
+            } catch (CloudAPI.InvalidTokenException e) {
+                Log.e(LOG_TAG, "Cloud Api service: Problem while syncing", e);
+                if (syncResult != null) syncResult.stats.numAuthExceptions++;
+                sendSyncError(receiver, syncResult);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Cloud Api service: Problem while syncing", e);
+                if (syncResult != null) syncResult.stats.numIoExceptions++;
+                sendSyncError(receiver, syncResult);
+            } catch (Exception e) {
+                sendSyncError(receiver, syncResult);
             }
-            if (intent.getData() != null) {
-                contents.add(intent.getData().toString());
+
+        } else if (action.equals(REFRESH_PAGE_ACTION)) {
+            try {
+                apiSyncer.refreshPage(Content.byUri(intent.getData()), intent.getIntExtra("pageIndex", 0));
+                if (receiver != null) receiver.send(STATUS_PAGE_REFRESH_FINISHED, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+                if (receiver != null) receiver.send(STATUS_PAGE_REFRESH_ERROR, null);
             }
 
-            for (String c : contents) {
-                apiSyncer.syncContent(Content.byUri(Uri.parse(c)), manualRefresh);
-            }
-
-//            if (intent.getBooleanExtra(SyncExtras.INCOMING, false)) {
-//                apiSyncer.syncActivities(Request.to(Endpoints.MY_ACTIVITIES), Content.ME_SOUND_STREAM);
-//            }
-//            if (intent.getBooleanExtra(SyncExtras.EXCLUSIVE, false)) {
-//                apiSyncer.syncActivities(Request.to(Endpoints.MY_EXCLUSIVE_TRACKS), Content.ME_EXCLUSIVE_STREAM);
-//            }
-//            if (intent.getBooleanExtra(SyncExtras.ACTIVITY, false)) {
-//                apiSyncer.syncActivities(Request.to(Endpoints.MY_NEWS), Content.ME_ACTIVITIES);
-//            }
-
-
-//            if (intent.getBooleanExtra(SyncExtras.TRACKS, false)) {
-//                //apiSyncer.syncCollection(ScContentProvider.Content.ME_TRACKS, Endpoints.MY_TRACKS, Track.class);
-//                slowSyncCollection(Content.ME_TRACKS,Endpoints.MY_TRACKS,Track.class);
-//            }
-//            if (intent.getBooleanExtra(SyncExtras.FAVORITES, false)) {
-//                apiSyncer.syncCollection(Content.ME_FAVORITES, Endpoints.MY_FAVORITES, Track.class);
-//                //slowSyncCollection(ScContentProvider.Content.ME_FAVORITES, Endpoints.MY_FAVORITES, Track.class);
-//            }
-//            if (intent.getBooleanExtra(SyncExtras.FOLLOWINGS, false)) {
-//                //apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
-//                slowSyncCollection(Content.ME_FOLLOWINGS, Endpoints.MY_FOLLOWINGS, User.class);
-//            }
-
-
-//            if (intent.getBooleanExtra(SyncExtras.FOLLOWERS, false)) {
-//                //apiSyncer.syncCollection(ScContentProvider.Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
-//                slowSyncCollection(Content.ME_FOLLOWERS, Endpoints.MY_FOLLOWERS, User.class);
-//            }
-
-            apiSyncer.performDbAdditions();
-
-            Log.d(LOG_TAG, "Cloud Api service: Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
-            if (receiver != null) receiver.send(STATUS_FINISHED, Bundle.EMPTY);
-
-        } catch (CloudAPI.InvalidTokenException e) {
-            Log.e(LOG_TAG, "Cloud Api service: Problem while syncing", e);
-            if (syncResult != null) syncResult.stats.numAuthExceptions++;
-            sendError(receiver, syncResult);
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Cloud Api service: Problem while syncing", e);
-            if (syncResult != null) syncResult.stats.numIoExceptions++;
-            sendError(receiver, syncResult);
-        } catch (Exception e) {
-            sendError(receiver, syncResult);
         }
+
+
+
+
+
     }
 
      private int slowSyncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
@@ -152,10 +144,10 @@ public class ApiSyncService extends IntentService{
 
 
 
-    private void sendError(ResultReceiver receiver, SyncResult syncResult){
+    private void sendSyncError(ResultReceiver receiver, SyncResult syncResult){
         if (receiver == null) return;
         final Bundle bundle = new Bundle();
         if (syncResult != null) bundle.putParcelable(EXTRA_SYNC_RESULT, syncResult);
-        receiver.send(STATUS_ERROR, bundle);
+        receiver.send(STATUS_SYNC_ERROR, bundle);
     }
 }

@@ -79,16 +79,8 @@ public class LoadCollectionTask extends AsyncTask<String, List<? super Parcelabl
         if (mParams.contentUri != null) {
             mNewItems = (List<Parcelable>) loadLocalContent();
             keepGoing = mNewItems.size() == Consts.COLLECTION_PAGE_SIZE;
-
             publishProgress(mNewItems);
-
-
-            Log.i("asdf", "is WIFI CONNECTED " + CloudUtils.isWifiConnected(mApp));
-            if (CloudUtils.isWifiConnected(mApp)){
-                Log.i("asdf", "WIFI CONNECTED " + mParams.request);
-            }
             return true;
-
         } else {
             // no local content, fail
             keepGoing = false;

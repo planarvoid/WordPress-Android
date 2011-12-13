@@ -15,6 +15,7 @@ import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
 
@@ -49,6 +50,7 @@ public class User extends ScModel implements PageTrackable {
     public boolean user_following; // is the user being followed by the logged in user
 
     public boolean primary_email_confirmed;
+    @JsonIgnore public long last_updated;
 
     public User() {
     }

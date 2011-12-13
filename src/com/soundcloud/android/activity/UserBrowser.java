@@ -368,7 +368,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(Content.ME_TRACKS.uri);
+            adpWrap.setSyncDataUri(Content.ME_TRACKS.uri);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
                     .setActionText(R.string.list_empty_user_sounds_action)
                     .setImage(R.drawable.empty_rec)
@@ -400,7 +400,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(Content.ME_FAVORITES.uri);
+            adpWrap.setSyncDataUri(Content.ME_FAVORITES.uri);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_likes_message)
                     .setActionText(R.string.list_empty_user_likes_action)
                     .setImage(R.drawable.empty_like)
@@ -433,7 +433,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(Content.ME_FOLLOWINGS.uri);
+            adpWrap.setSyncDataUri(Content.ME_FOLLOWINGS.uri);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
                     .setActionText(R.string.list_empty_user_following_action)
                     .setImage(R.drawable.empty_follow_small)
@@ -465,7 +465,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                                 : mUser.username));
             }
         } else {
-            adpWrap.setSyncExtra(Content.ME_FOLLOWERS.uri);
+            adpWrap.setSyncDataUri(Content.ME_FOLLOWERS.uri);
             if (mUser.track_count > 0){
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
                     .setActionText(R.string.list_empty_user_followers_action)

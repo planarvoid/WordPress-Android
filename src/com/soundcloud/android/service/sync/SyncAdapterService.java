@@ -160,14 +160,14 @@ public class SyncAdapterService extends Service {
                         case ApiSyncService.STATUS_RUNNING: {
                             break;
                         }
-                        case ApiSyncService.STATUS_ERROR: {
+                        case ApiSyncService.STATUS_SYNC_ERROR: {
                             SyncResult serviceResult = resultData.getParcelable(ApiSyncService.EXTRA_SYNC_RESULT);
                             syncResult.stats.numAuthExceptions = serviceResult.stats.numAuthExceptions;
                             syncResult.stats.numIoExceptions = serviceResult.stats.numIoExceptions;
                             Looper.myLooper().quit();
                             break;
                         }
-                        case ApiSyncService.STATUS_FINISHED: {
+                        case ApiSyncService.STATUS_SYNC_FINISHED: {
                             if (shouldUpdateDashboard(app)) {
                                 try {
                                     final long notificationsFrequency = getNotificationsFrequency(app) * 1000;
