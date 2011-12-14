@@ -1,5 +1,7 @@
 package com.soundcloud.android.c2dm;
 
+import static com.soundcloud.android.c2dm.C2DMReceiver.TAG;
+
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.Request;
@@ -43,7 +45,7 @@ public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
                 return resp.getFirstHeader("Location").getValue();
             } else {
-                Log.w(C2DMReceiver.TAG, "error registering device, unexpected status "+resp.getStatusLine());
+                Log.w(TAG, "error registering device, unexpected status "+resp.getStatusLine());
                 return null;
             }
         } catch (IOException e) {

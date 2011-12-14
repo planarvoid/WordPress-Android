@@ -42,7 +42,7 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "onReceive(" + intent + ")");
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceive(" + intent + ")");
 
         if (mWakeLock == null) {
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -74,7 +74,7 @@ public class C2DMReceiver extends BroadcastReceiver {
         final String regId = getRegistrationData(context, PREF_REG_ID);
 
         if (regId == null) {
-            Log.d(TAG, "registering " + user + " for c2dm");
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "registering " + user + " for c2dm");
             setRegistrationData(context, PREF_REG_LAST_TRY,
                     String.valueOf(System.currentTimeMillis()));
 
@@ -84,7 +84,7 @@ public class C2DMReceiver extends BroadcastReceiver {
 
             context.startService(reg);
         } else {
-            Log.d(TAG, "device is already registered with " + regId);
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "device is already registered with " + regId);
         }
 
         // delete old device ids
@@ -105,7 +105,8 @@ public class C2DMReceiver extends BroadcastReceiver {
     /** callback when device successfully registered */
     private void onRegister(final Context context, Intent intent) {
         final String regId = intent.getStringExtra("registration_id");
-        Log.d(TAG, "registrationId:" + regId);
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onRegister(id=" + regId+")");
+
         if (regId != null) {
             // save the reg_id
             setRegistrationData(context, PREF_REG_ID, regId);
@@ -116,7 +117,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 @Override
                 protected void onPostExecute(String url) {
                     if (url != null) {
-                        Log.d(TAG, "device registered as " + url);
+                        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "device registered as " + url);
                         setRegistrationData(context, PREF_DEVICE_URL, url);
                     } else {
                         Log.w(TAG, "device registration failed");
@@ -134,7 +135,7 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     /** callback when device is unregistered */
     private void onUnregister(final Context context, Intent intent) {
-        Log.d(TAG, "onUnregister(" + intent + ")");
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onUnregister(" + intent + ")");
 
         // clear local data
         setRegistrationData(context, PREF_DEVICE_URL, null);
@@ -172,7 +173,7 @@ public class C2DMReceiver extends BroadcastReceiver {
     }
 
     private void onReceiveMessage(Context context, Intent intent) {
-        Log.d(TAG, "onReceiveMessage(" + intent + ")");
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceiveMessage(" + intent + ")");
         if (intent.hasExtra(Beta.EXTRA_BETA_VERSION)) {
             BetaService.onNewBeta(context, intent);
         } else {
@@ -193,7 +194,9 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     private static synchronized boolean queueForDeletion(Context context, final String url) {
         if (url != null) {
-            Log.d(TAG, "queued " + url + " for later deletion");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "queued " + url + " for later deletion");
+            }
             String _urls = getRegistrationData(context, PREF_REG_TO_DELETE);
             if (_urls != null) {
                 return !_urls.contains(url) && setRegistrationData(context, PREF_REG_TO_DELETE, _urls + "," + url);
@@ -218,9 +221,8 @@ public class C2DMReceiver extends BroadcastReceiver {
     }
 
     private static synchronized boolean processDeletionQueue(Context context, PowerManager.WakeLock lock) {
-        Log.d(TAG, "processDeletionQueue()");
-
         if (isConnected(context)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "processDeletionQueue()");
             String _urls = getRegistrationData(context, PREF_REG_TO_DELETE);
             if (_urls != null) {
                 for (String url : _urls.split(",")) {
@@ -231,14 +233,14 @@ public class C2DMReceiver extends BroadcastReceiver {
                 return false;
             }
         } else {
-            Log.d(TAG, "not connectected, skipping deletion queue process");
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "not connectected, skipping deletion queue process");
             return false;
         }
     }
 
     private static void deleteDevice(final Context context, PowerManager.WakeLock lock, final String url) {
         if (url != null) {
-            Log.d(TAG, "deleting " + url);
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "deleting " + url);
             new DeleteRegIdTask((AndroidCloudAPI) context.getApplicationContext(), lock) {
                 @Override protected void onPostExecute(Boolean success) {
                     super.onPostExecute(success);
