@@ -105,7 +105,11 @@ public class LocationPicker extends ListActivity {
             adapter.setLocation(mPreloadedLocation);
         } else if  (mProvider != null) {
             Log.v(TAG, "best provider: " + mProvider);
-            adapter.onLocationChanged(getManager().getLastKnownLocation(mProvider));
+            Location loc = getManager().getLastKnownLocation(mProvider);
+            if (loc == null) {
+                loc = getManager().getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+            }
+            adapter.onLocationChanged(loc);
         } else {
             // no location provider enabled, display warning
             new AlertDialog.Builder(this)
