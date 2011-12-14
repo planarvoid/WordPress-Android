@@ -199,9 +199,8 @@ public class ApiSyncer {
         while (i < additions.size()) {
 
             List<Long> batch = additions.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, additions.size()));
-
             InputStream is = validateResponse(mApp.get(Request.to(Track.class.equals(loadModel) ? Endpoints.TRACKS : Endpoints.USERS)
-                    .add("linked_partitioning", "1").add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
+                    .add("linked_partitioning", "1").add("limit", API_LOOKUP_BATCH_SIZE).add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
 
             CollectionHolder holder = null;
             if (Track.class.equals(loadModel)) {
@@ -215,7 +214,7 @@ public class ApiSyncer {
                     items.add(new User(u));
                 }
             }
-            i += RESOLVER_BATCH_SIZE;
+            i += API_LOOKUP_BATCH_SIZE;
         }
         return items;
     }

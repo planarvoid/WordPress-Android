@@ -113,7 +113,6 @@ public enum Content {
 
     static {
         for (Content c : Content.values()) {
-
             if (c.code >= 0 && c.uri != null) {
                 sMatcher.addURI(ScContentProvider.AUTHORITY, c.uriPath.substring(1, c.uriPath.length()), c.code);
                 sMap.put(c.code, c);
@@ -135,6 +134,7 @@ public enum Content {
     }
 
     public static Content match(Uri uri) {
+        if (uri == null) return null;
         final int match = sMatcher.match(uri);
         return match != -1 ? sMap.get(match) : UNKNOWN;
     }

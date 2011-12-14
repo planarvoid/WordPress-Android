@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,7 +71,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mActivity = activity;
         mRequest = request;
         mContentUri = contentUri;
-        mContent = Content.byUri(contentUri);
+        mContent = Content.match(contentUri);
         wrapped.setWrapper(this);
         if (autoAppend) mState = READY;
     }
