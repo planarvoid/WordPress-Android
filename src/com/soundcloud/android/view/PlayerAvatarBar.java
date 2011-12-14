@@ -212,25 +212,25 @@ public class PlayerAvatarBar extends View {
             } catch (OutOfMemoryError e){
                 // XXX really catch oom here?
                 Log.e(TAG,"Out of memory during avatar refresher bitmap creation");
-                return; // just don't show the updated bar, acceptable failure
             }
 
-            if (mNextCanvasBmp.isRecycled()) return;
-            Canvas canvas = new Canvas(mNextCanvasBmp);
-            for (Comment comment : comments){
-                if (Thread.currentThread().isInterrupted()) break;
-                if (comment.timestamp == 0) continue;
-                drawCommentOnCanvas(comment, canvas, mLinePaint, mImagePaint, mBgMatrix);
-            }
-
-            if (Thread.currentThread().isInterrupted()) {
-                mNextCanvasBmp.recycle();
-            } else {
-                if (!mUIHandler.hasMessages(AVATARS_REFRESHED)) {
-                    Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);
-                    PlayerAvatarBar.this.mUIHandler.sendMessageDelayed(msg, 200);
+            if (mNextCanvasBmp != null && !mNextCanvasBmp.isRecycled()) {
+                Canvas canvas = new Canvas(mNextCanvasBmp);
+                for (Comment comment : comments){
+                    if (Thread.currentThread().isInterrupted()) break;
+                    if (comment.timestamp == 0) continue;
+                    drawCommentOnCanvas(comment, canvas, mLinePaint, mImagePaint, mBgMatrix);
                 }
 
+                if (Thread.currentThread().isInterrupted()) {
+                    mNextCanvasBmp.recycle();
+                } else {
+                    if (!mUIHandler.hasMessages(AVATARS_REFRESHED)) {
+                        Message msg = mUIHandler.obtainMessage(AVATARS_REFRESHED);
+                        PlayerAvatarBar.this.mUIHandler.sendMessageDelayed(msg, 200);
+                    }
+
+                }
             }
         }
     }

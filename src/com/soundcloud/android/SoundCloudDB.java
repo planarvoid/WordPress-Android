@@ -74,15 +74,17 @@ public class SoundCloudDB {
     }
 
     public static void writeUser(ContentResolver contentResolver,User user, WriteState writeState, Long currentUserId) {
-        Cursor cursor = contentResolver.query(user.toUri(), null, null, null, null);
-        if (cursor != null) {
-            if (cursor.getCount() > 0) {
-                if (writeState == WriteState.update_only || writeState == WriteState.all)
-                    contentResolver.update(Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0), Users.ID + "='" + user.id + "'", null);
-            } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                contentResolver.insert(Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0));
+        if (user != null) {
+            Cursor cursor = contentResolver.query(user.toUri(), null, null, null, null);
+            if (cursor != null) {
+                if (cursor.getCount() > 0) {
+                    if (writeState == WriteState.update_only || writeState == WriteState.all)
+                        contentResolver.update(Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0), Users.ID + "='" + user.id + "'", null);
+                } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
+                    contentResolver.insert(Content.USERS, user.buildContentValues(currentUserId.compareTo(user.id) == 0));
+                }
+                cursor.close();
             }
-            cursor.close();
         }
     }
 

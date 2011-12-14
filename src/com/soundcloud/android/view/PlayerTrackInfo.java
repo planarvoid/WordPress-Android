@@ -178,12 +178,18 @@ public class PlayerTrackInfo extends RelativeLayout{
 
     public void onInfoLoadSuccess() {
         fillTrackDetails();
-        if (findViewById(R.id.loading_layout) != null) {
+        final View loading = findViewById(R.id.loading_layout);
+        if (loading != null) {
             findViewById(R.id.loading_layout).setVisibility(View.GONE);
         }
-        if (findViewById(android.R.id.empty) != null) {
+        final int empty = android.R.id.empty;
+        if (findViewById(empty) != null) {
             findViewById(android.R.id.empty).setVisibility(View.GONE);
         }
-        findViewById(R.id.info_view).setVisibility(View.VISIBLE);
+
+        final View infoView = findViewById(R.id.info_view);
+        if (infoView != null) {
+            findViewById(R.id.info_view).setVisibility(View.VISIBLE);
+        }
     }
 }
