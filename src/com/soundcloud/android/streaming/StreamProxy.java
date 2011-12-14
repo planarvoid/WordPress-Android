@@ -236,8 +236,10 @@ public class StreamProxy implements Runnable {
                 writeChunks(streamUrl, nextUrl, startByte, channel, headers);
             }
         } catch (SocketException e) {
-            if ("Connection reset by peer".equals(e.getMessage()) ||
-                    "Broken pipe".equals(e.getMessage())) {
+            final String msg = e.getMessage();
+            if (msg != null &&
+               (msg.contains("Connection reset by peer") ||
+                msg.equals("Broken pipe"))) {
                 if (Log.isLoggable(LOG_TAG, Log.DEBUG))
                     Log.d(LOG_TAG, String.format("client %d closed connection [expected]", client.getPort()));
             } else {
