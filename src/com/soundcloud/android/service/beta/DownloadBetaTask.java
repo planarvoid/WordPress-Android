@@ -32,7 +32,7 @@ public class DownloadBetaTask extends AsyncTask<Beta, Void, File> {
     protected File doInBackground(Beta... params) {
         final Beta beta = params[0];
         HttpUriRequest request = new HttpGet(beta.getURI().toString());
-        final File dest = new File(BetaService.APK_PATH, beta.key);
+        final File dest = beta.getLocalFile();
         final File tmp = new File(dest.getAbsolutePath()+".tmp") {{ deleteOnExit(); }};
 
         mkdirs(BetaService.APK_PATH);
