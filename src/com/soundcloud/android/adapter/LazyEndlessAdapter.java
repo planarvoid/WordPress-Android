@@ -253,7 +253,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
 
     @Override
     public int getCount() {
-        if (mState == WAITING || mState == APPENDING || (mState > DONE && getWrappedAdapter().getCount() == 0)) {
+        if (mState == WAITING || mState == APPENDING || (mState >= DONE && getWrappedAdapter().getCount() == 0)) {
             return super.getCount() + 1; // extra row for an append row or an empty view
         } else {
             return super.getCount();
@@ -320,7 +320,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
     }
 
     protected boolean canShowEmptyView(){
-       return mState > DONE && super.getCount() == 0;
+       return mState >= DONE && super.getCount() == 0;
     }
 
     protected int getPageSize() {
@@ -374,7 +374,6 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
             } else if (eTag != null){
             onEmptyRefresh();
         }
-
         applyEmptyView();
         notifyDataSetChanged();
 
