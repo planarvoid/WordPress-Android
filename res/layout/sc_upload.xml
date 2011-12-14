@@ -59,7 +59,7 @@
                       android:layout_below="@id/rdo_privacy"
                       android:layout_height="wrap_content"/>
 
-            <View android:id="@+id/share_options_seperator"
+            <View android:id="@+id/share_options_separator"
                   android:background="@color/recordUploadBorder"
                   android:layout_width="fill_parent"
                   android:layout_below="@id/txt_record_options"
@@ -70,7 +70,7 @@
                   android:layout_weight="1"
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent"
-                  android:layout_below="@+id/share_options_seperator">
+                  android:layout_below="@+id/share_options_separator">
 
                 <com.soundcloud.android.view.ConnectionList
                       android:id="@+id/connectionList"
