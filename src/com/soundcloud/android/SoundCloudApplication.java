@@ -171,7 +171,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                         if (error != null) error.run();
                     }
                 }
-            }, /*handler*/ null);
+            }, /*handler, null == main*/ null);
         }
 
         FollowStatus.set(null);

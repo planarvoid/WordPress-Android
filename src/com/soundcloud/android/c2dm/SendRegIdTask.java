@@ -5,6 +5,7 @@ import static com.soundcloud.android.c2dm.C2DMReceiver.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.api.Request;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
@@ -43,7 +44,13 @@ public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
                     "app_identifier", params[1]));
 
            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-                return resp.getFirstHeader("Location").getValue();
+               final Header location = resp.getFirstHeader("Location");
+               if (location != null) {
+                   return location.getValue();
+               } else {
+                   Log.w(TAG, "error registering device, location header missing");
+                   return null;
+               }
             } else {
                 Log.w(TAG, "error registering device, unexpected status "+resp.getStatusLine());
                 return null;
