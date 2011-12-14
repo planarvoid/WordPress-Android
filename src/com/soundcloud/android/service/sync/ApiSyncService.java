@@ -87,8 +87,13 @@ public class ApiSyncService extends IntentService{
 
         } else if (action.equals(REFRESH_PAGE_ACTION)) {
             try {
-                apiSyncer.refreshPage(Content.byUri(intent.getData()), intent.getIntExtra("pageIndex", 0));
-                if (receiver != null) receiver.send(STATUS_PAGE_REFRESH_FINISHED, null);
+                final int pageIndex = intent.getIntExtra("pageIndex", 0);
+                apiSyncer.refreshPage(Content.byUri(intent.getData()), pageIndex);
+
+                Bundle b = new Bundle();
+                b.putInt("pageIndex",pageIndex);
+                if (receiver != null) receiver.send(STATUS_PAGE_REFRESH_FINISHED, b);
+
             } catch (IOException e) {
                 e.printStackTrace();
                 if (receiver != null) receiver.send(STATUS_PAGE_REFRESH_ERROR, null);

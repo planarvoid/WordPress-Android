@@ -41,7 +41,7 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ScModel implements PageTrackable, Origin, Playable {
+public class Track extends ScModel implements PageTrackable, Origin, Playable, Resource {
     private static final String TAG = "Track";
 
     public static class TrackHolder extends CollectionHolder<Track> {}
@@ -219,24 +219,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable {
     }
 
     public Track(TracklistItem tracklistItem) {
-        id = tracklistItem.id;
-        title = tracklistItem.title;
-        created_at = tracklistItem.created_at;
-        user_id = tracklistItem.user_id;
-        duration = tracklistItem.duration;
-        commentable = tracklistItem.commentable;
-        sharing = tracklistItem.sharing;
-        permalink = tracklistItem.permalink;
-        streamable = tracklistItem.streamable;
-        artwork_url = tracklistItem.artwork_url;
-        waveform_url = tracklistItem.waveform_url;
-        user = tracklistItem.user;
-        stream_url = tracklistItem.stream_url;
-        playback_count = tracklistItem.playback_count;
-        comment_count = tracklistItem.comment_count;
-        favoritings_count = tracklistItem.favoritings_count;
-        user_favorite = tracklistItem.user_favorite;
-        shared_to_count = tracklistItem.shared_to_count;
+        updateFromTracklistItem(tracklistItem);
     }
 
     public Track(Cursor cursor) {
@@ -518,5 +501,43 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable {
 
     public boolean hasAvatar() {
         return user != null && !TextUtils.isEmpty(user.avatar_url);
+    }
+
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public long getLastUpdated(){
+        return last_updated;
+    }
+
+    public Track updateFrom(ScModel updatedItem) {
+         if (updatedItem instanceof TracklistItem){
+             updateFromTracklistItem((TracklistItem) updatedItem);
+         }
+        return this;
+    }
+
+    private void updateFromTracklistItem(TracklistItem tracklistItem) {
+        id = tracklistItem.id;
+        title = tracklistItem.title;
+        created_at = tracklistItem.created_at;
+        user_id = tracklistItem.user_id;
+        duration = tracklistItem.duration;
+        commentable = tracklistItem.commentable;
+        sharing = tracklistItem.sharing;
+        permalink = tracklistItem.permalink;
+        streamable = tracklistItem.streamable;
+        artwork_url = tracklistItem.artwork_url;
+        waveform_url = tracklistItem.waveform_url;
+        user = tracklistItem.user;
+        stream_url = tracklistItem.stream_url;
+        playback_count = tracklistItem.playback_count;
+        comment_count = tracklistItem.comment_count;
+        favoritings_count = tracklistItem.favoritings_count;
+        user_favorite = tracklistItem.user_favorite;
+        shared_to_count = tracklistItem.shared_to_count;
     }
 }

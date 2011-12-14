@@ -4,7 +4,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserlistItem {
+public class UserlistItem extends ScModel{
     public long id;
     public String username;
     public int track_count;

@@ -1,6 +1,7 @@
 package com.soundcloud.android.task;
 
 import android.os.Parcelable;
+import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;

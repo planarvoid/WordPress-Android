@@ -29,15 +29,12 @@ import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.*;
 
 
 public class ApiSyncer {
 
     static final String LOG_TAG = ApiSyncer.class.getSimpleName();
-    //static final Long WIFI_STALE_TIME = 600000l;//10*60*1000
-    static final Long STALE_TIME = 3600000l;//4*60*60*1000
 
     static final Long WIFI_STALE_TIME = 1000l;//10*60*1000
 
@@ -98,7 +95,7 @@ public class ApiSyncer {
     }
 
     private long getStaleTime() {
-        return CloudUtils.isWifiConnected(mApp) ? WIFI_STALE_TIME : STALE_TIME;
+        return CloudUtils.isWifiConnected(mApp) ? WIFI_STALE_TIME : Consts.SYNC_STALE_TIME;
     }
 
     public void performDbAdditions() throws IOException {

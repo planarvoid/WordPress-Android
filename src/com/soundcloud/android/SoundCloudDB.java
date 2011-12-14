@@ -4,10 +4,7 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
-import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
@@ -15,11 +12,7 @@ import com.soundcloud.android.provider.DBHelper.Users;
 import android.content.ContentResolver;
 import android.database.Cursor;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SoundCloudDB {
     private static final String TAG = "SoundCloudDB";

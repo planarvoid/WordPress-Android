@@ -106,7 +106,6 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
 
     @Override
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
-        Log.i("asdf","ON POST TASK EXECUTEDDDD " + newItems);
         if ((newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK) {
             if (newItems != null && newItems.size() > 0) {
                 for (Parcelable newitem : newItems) {

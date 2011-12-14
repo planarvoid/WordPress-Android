@@ -23,7 +23,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends ScModel implements PageTrackable {
+public class User extends ScModel implements PageTrackable, Resource {
     @JsonView(Views.Mini.class) public String username;
     public int track_count;
     public String discogs_name;
@@ -85,18 +85,7 @@ public class User extends ScModel implements PageTrackable {
     }
 
     public User(UserlistItem userlistItem) {
-        this.id = userlistItem.id;
-        this.username = userlistItem.username;
-        this.track_count = userlistItem.track_count;
-        this.city = userlistItem.city;
-        this.country = userlistItem.country;
-        this.avatar_url = userlistItem.avatar_url;
-        this.permalink = userlistItem.permalink;
-        this.full_name = userlistItem.full_name;
-        this.followers_count = userlistItem.followers_count;
-        this.followings_count = userlistItem.followings_count;
-        this.public_favorites_count = userlistItem.public_favorites_count;
-        this.private_tracks_count = userlistItem.private_tracks_count;
+        updateFromUserlistItem(userlistItem);
     }
 
     public void assertInDb(SoundCloudApplication app) {
@@ -264,5 +253,48 @@ public class User extends ScModel implements PageTrackable {
         String LAST_OWN_NOTIFIED_ITEM = "last_own_notified_timestamp";
 
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
+    }
+
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public Track getTrack() {
+        return null;
+    }
+
+    @Override
+    public User getUser() {
+        return this;
+    }
+
+    @Override
+    public long getLastUpdated(){
+        return last_updated;
+    }
+
+
+    public User updateFrom(ScModel updatedItem) {
+         if (updatedItem instanceof UserlistItem){
+             updateFromUserlistItem((UserlistItem) updatedItem);
+         }
+        return this;
+    }
+
+    private void updateFromUserlistItem(UserlistItem userlistItem) {
+       this.id = userlistItem.id;
+        this.username = userlistItem.username;
+        this.track_count = userlistItem.track_count;
+        this.city = userlistItem.city;
+        this.country = userlistItem.country;
+        this.avatar_url = userlistItem.avatar_url;
+        this.permalink = userlistItem.permalink;
+        this.full_name = userlistItem.full_name;
+        this.followers_count = userlistItem.followers_count;
+        this.followings_count = userlistItem.followings_count;
+        this.public_favorites_count = userlistItem.public_favorites_count;
+        this.private_tracks_count = userlistItem.private_tracks_count;
     }
 }

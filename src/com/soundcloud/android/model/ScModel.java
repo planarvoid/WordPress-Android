@@ -205,6 +205,10 @@ public abstract class ScModel implements Parcelable {
         return null;
     }
 
+    public long getLastUpdated(){
+        return 0l;
+    }
+
     public void assertInDb(SoundCloudApplication app) { }
 
 

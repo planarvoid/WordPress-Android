@@ -6,7 +6,7 @@ import java.util.Date;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class TracklistItem {
+public class TracklistItem extends ScModel{
     public long id;
     public String title;
     public long user_id;
