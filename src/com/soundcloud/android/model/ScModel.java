@@ -156,10 +156,8 @@ public abstract class ScModel implements Parcelable {
                 } else if (field.getType() == Integer.TYPE || field.getType() == Integer.class) {
                     field.set(p, cursor.getInt(cursor.getColumnIndex(key)));
                 } else if (field.getType() == Boolean.TYPE) {
-                    System.out.println("Key is " + key);
                     final String value = cursor.getString(cursor.getColumnIndex(key));
                     field.set(p, (!TextUtils.isEmpty(value) && value.equalsIgnoreCase("true")));
-                    System.out.println("setting to " + value);
                 } else if (field.getType() == Date.class) {
                     field.set(p, new Date(cursor.getLong(cursor.getColumnIndex(key))));
                 }
