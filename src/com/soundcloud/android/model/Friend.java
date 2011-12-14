@@ -36,17 +36,7 @@ public class Friend extends ScModel implements Resource {
     }
 
     @Override
-    public long getId() {
+    public long getResourceId() {
         return user.id;
-    }
-
-    @Override
-    public Track getTrack() {
-        return null;
-    }
-
-    @Override
-    public User getUser() {
-        return user;
     }
 }

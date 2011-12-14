@@ -31,7 +31,7 @@ public class SyncedCollectionAdapter extends LazyEndlessAdapter implements Detac
     private UpdateCollectionTask mUpdateCollectionTask;
 
     public SyncedCollectionAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, boolean autoAppend) {
-        super(activity,wrapped,contentUri,null,autoAppend);
+        super(activity, wrapped, contentUri, null, autoAppend);
     }
 
 
@@ -86,7 +86,7 @@ public class SyncedCollectionAdapter extends LazyEndlessAdapter implements Detac
             if (doUpdate && newItem instanceof Origin){
                 Resource resource = (Resource) newItem;
                 if (resource.getLastUpdated() < stale) {
-                    toUpdate.put(resource.getId(), resource);
+                    toUpdate.put(resource.getResourceId(), resource);
                 }
             }
 

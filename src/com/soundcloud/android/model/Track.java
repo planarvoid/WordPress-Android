@@ -504,7 +504,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     @Override
-    public long getId() {
+    public long getResourceId() {
         return id;
     }
 

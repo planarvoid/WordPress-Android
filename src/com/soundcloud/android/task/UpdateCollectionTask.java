@@ -71,17 +71,17 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, Resource>, String,
             if (Track.class.equals(mLoadModel)) {
                 holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.TracklistItemHolder.class);
                 for (TracklistItem t : (ScModel.TracklistItemHolder) holder) {
-                    objectsToWrite.add(itemsToUpdate.get(t.id).getTrack().updateFrom(t));
+                    objectsToWrite.add(((Track) itemsToUpdate.get(t.id)).updateFrom(t));
                 }
             } else if (User.class.equals(mLoadModel)) {
                 holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.UserlistItemHolder.class);
                 for (UserlistItem u : (ScModel.UserlistItemHolder) holder) {
-                    objectsToWrite.add(itemsToUpdate.get(u.id).getUser().updateFrom(u));
+                    objectsToWrite.add(((User) itemsToUpdate.get(u.id)).updateFrom(u));
                 }
             } else if (Friend.class.equals(mLoadModel)) {
                 holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.FriendHolder.class);
                 for (UserlistItem u : (ScModel.UserlistItemHolder) holder) {
-                    objectsToWrite.add(itemsToUpdate.get(u.id).getUser().updateFrom(u));
+                    objectsToWrite.add(((Friend) itemsToUpdate.get(u.id)).user.updateFrom(u));
                 }
             }
             publishProgress();

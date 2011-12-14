@@ -89,7 +89,7 @@ public class User extends ScModel implements PageTrackable, Resource {
     }
 
     public void assertInDb(SoundCloudApplication app) {
-        SoundCloudDB.writeUser(app.getContentResolver(), this, SoundCloudDB.WriteState.insert_only,app.getCurrentUserId());
+        SoundCloudDB.writeUser(app.getContentResolver(), this, SoundCloudDB.WriteState.insert_only, app.getCurrentUserId());
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
@@ -256,18 +256,8 @@ public class User extends ScModel implements PageTrackable, Resource {
     }
 
     @Override
-    public long getId() {
+    public long getResourceId() {
         return id;
-    }
-
-    @Override
-    public Track getTrack() {
-        return null;
-    }
-
-    @Override
-    public User getUser() {
-        return this;
     }
 
     @Override

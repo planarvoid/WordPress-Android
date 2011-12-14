@@ -177,7 +177,7 @@ public class ActivitiesTest {
         assertThat(merged.size(), is(all.size()));
 
         assertThat(merged.future_href, equalTo("https://api.soundcloud.com/me/activities/tracks?uuid[to]=new_href"));
-        assertThat(merged.next_href, equalTo("https://api.soundcloud.com/me/activities/tracks?cursor=new_href"));
+        assertThat(merged.next_href, equalTo("https://api.soundcloud.com/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738"));
         assertTrue(merged.get(0).created_at.after(merged.get(merged.size()-1).created_at));
     }
 
