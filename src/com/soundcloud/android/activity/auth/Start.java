@@ -120,7 +120,7 @@ public class Start extends AccountAuthenticatorActivity {
                         finish();
                     }
                 } else {
-                    //XXX showError
+                    CloudUtils.showToast(this, "Error creating account");
                 }
                 break;
             case SUGGESTED_USERS:
