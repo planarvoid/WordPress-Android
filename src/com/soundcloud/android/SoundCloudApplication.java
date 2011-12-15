@@ -6,12 +6,10 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
@@ -161,7 +159,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                         if (error != null) error.run();
                     }
                 }
-            }, /*handler*/ null);
+            }, /*handler, null == main*/ null);
         }
 
         FollowStatus.set(null);

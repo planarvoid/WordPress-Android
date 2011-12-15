@@ -32,15 +32,18 @@ public class ConnectionList extends LinearLayout {
 
     public ConnectionList(Context context) {
         super(context);
-        setOrientation(LinearLayout.VERTICAL);
+        setLayoutParams();
     }
 
     /** @noinspection UnusedDeclaration*/
     public ConnectionList(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setOrientation(LinearLayout.VERTICAL);
+        setLayoutParams();
     }
 
+    private void setLayoutParams() {
+        setOrientation(LinearLayout.VERTICAL);
+    }
 
     protected void handleDataChanged() {
         removeAllViews();

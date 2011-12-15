@@ -431,7 +431,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             adpWrap = new SyncedCollectionAdapter(this, adp, Content.ME_FOLLOWINGS.uri, false);
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
                     .setActionText(R.string.list_empty_user_following_action)
-                    .setImage(R.drawable.empty_follow_small)
+                    .setImage(R.drawable.empty_follow_3row)
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {

@@ -198,7 +198,7 @@ public class BetaService extends Service {
 
                     @Override
                     protected void onPostExecute(File file) {
-                        if (file != null) {
+                        if (file != null && file.exists()) {
                             Log.d(TAG, "downloaded " + file +
                                     " in " + ((System.currentTimeMillis() - start) / 1000L) + " secs");
 
@@ -220,7 +220,7 @@ public class BetaService extends Service {
                                     }
                                 }.execute(file);
                             } catch (IOException e) {
-                                Log.w(TAG, "could not persist " + beta);
+                                Log.w(TAG, "could not persist " + beta, e);
                                 beta.deleteFiles();
                                 stopSelf();
                             }
@@ -229,7 +229,6 @@ public class BetaService extends Service {
                             if (isManual(intent)) {
                                 notifyDownloadFailure(beta);
                             }
-
                             beta.deleteFiles();
                             stopSelf();
                         }

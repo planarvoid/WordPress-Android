@@ -39,6 +39,10 @@ public class DefaultTestRunner extends RobolectricTestRunner {
     @SuppressWarnings({"UseOfSystemOutOrSystemErr", "UnusedDeclaration", "CallToPrintStackTrace"})
     @Implements(Log.class)
     public static class ShadowLog {
+        public static boolean isLoggable(String tag, int level) {
+            return true;
+        }
+
         public static int v(String tag, String msg) {
             System.out.println("[" + tag + "] " + msg);
             return 0;

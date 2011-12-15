@@ -103,7 +103,6 @@ public class SoundCloudDB {
             } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
                 contentResolver.insert(Content.USERS.uri, user.buildContentValues(currentUserId.compareTo(user.id) == 0));
             }
-            cursor.close();
         }
     }
 

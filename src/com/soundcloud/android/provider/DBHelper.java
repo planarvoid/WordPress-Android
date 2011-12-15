@@ -292,6 +292,7 @@ public class DBHelper extends SQLiteOpenHelper {
             + "download_count INTEGER null, "
             + "comment_count INTEGER null, "
             + "favoritings_count INTEGER null, "
+            + "shared_to_count INTEGER null, "
             + "user_id INTEGER null, "
             + "user_favorite BOOLEAN DEFAULT FALSE, "
             + "filelength INTEGER null);";
@@ -400,6 +401,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String DOWNLOAD_COUNT = "download_count";
         public static final String COMMENT_COUNT = "comment_count";
         public static final String FAVORITINGS_COUNT = "favoritings_count";
+        public static final String SHARED_TO_COUNT = "shared_to_count";
         public static final String USER_ID = "user_id";
         public static final String FILELENGTH = "filelength";
 
@@ -424,6 +426,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String CONCRETE_DOWNLOAD_COUNT = Tables.TRACKS.tableName + "." + DOWNLOAD_COUNT;
         public static final String CONCRETE_COMMENT_COUNT = Tables.TRACKS.tableName + "." + COMMENT_COUNT;
         public static final String CONCRETE_FAVORITINGS_COUNT = Tables.TRACKS.tableName + "." + FAVORITINGS_COUNT;
+        public static final String CONCRETE_SHARED_TO_COUNT = Tables.TRACKS.tableName + "." + SHARED_TO_COUNT;
         public static final String CONCRETE_USER_ID = Tables.TRACKS.tableName + "." + USER_ID;
         public static final String CONCRETE_FILELENGTH = Tables.TRACKS.tableName + "." + FILELENGTH;
     }
@@ -569,6 +572,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String DOWNLOAD_COUNT = Tracks.DOWNLOAD_COUNT;
         public static final String COMMENT_COUNT = Tracks.COMMENT_COUNT;
         public static final String FAVORITINGS_COUNT = Tracks.FAVORITINGS_COUNT;
+        public static final String SHARED_TO_COUNT = Tracks.SHARED_TO_COUNT;
         public static final String FILELENGTH = Tracks.FILELENGTH;
 
         public static final String USER_ID = Tracks.USER_ID;
@@ -641,6 +645,7 @@ public class DBHelper extends SQLiteOpenHelper {
             + Tracks.CONCRETE_DOWNLOAD_COUNT + " as " + TrackView.DOWNLOAD_COUNT + ","
             + Tracks.CONCRETE_COMMENT_COUNT + " as " + TrackView.COMMENT_COUNT + ","
             + Tracks.CONCRETE_FAVORITINGS_COUNT + " as " + TrackView.FAVORITINGS_COUNT + ","
+            + Tracks.CONCRETE_SHARED_TO_COUNT + " as " + TrackView.SHARED_TO_COUNT + ","
             + Tracks.CONCRETE_FILELENGTH + " as " + TrackView.FILELENGTH + ","
             + Users.CONCRETE_ID + " as " + TrackView.USER_ID + ","
             + Users.CONCRETE_USERNAME + " as " + TrackView.USERNAME + ","

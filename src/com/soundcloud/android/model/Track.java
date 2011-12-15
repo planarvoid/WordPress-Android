@@ -75,6 +75,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @JsonView(Views.Full.class) public int download_count;
     @JsonView(Views.Full.class) public int comment_count;
     @JsonView(Views.Full.class) public int favoritings_count;
+    @JsonView(Views.Full.class) public int shared_to_count;
 
     @JsonView(Views.Mini.class) public String title;
 
@@ -129,7 +130,6 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public String secret_uri;
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
-    @JsonView(Views.Full.class) public int shared_to_count;
 
     // Fields used by app
     @JsonIgnore public List<Comment> comments;
@@ -245,6 +245,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         download_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_COUNT));
         comment_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENT_COUNT));
         favoritings_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.FAVORITINGS_COUNT));
+        shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.SHARED_TO_COUNT));
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
         user_favorite = getBooleanFromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE)));
         filelength = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.FILELENGTH));
@@ -345,6 +346,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         if (download_count != -1) cv.put(Tracks.DOWNLOAD_COUNT, download_count);
         if (comment_count != -1) cv.put(Tracks.COMMENT_COUNT, comment_count);
         if (favoritings_count != -1) cv.put(Tracks.FAVORITINGS_COUNT, favoritings_count);
+        if (shared_to_count != -1) cv.put(Tracks.SHARED_TO_COUNT, shared_to_count);
         // app level, only add these 2 if they have been set, otherwise they
         // might overwrite valid db values
         if (filelength > 0) cv.put(Tracks.FILELENGTH, filelength);

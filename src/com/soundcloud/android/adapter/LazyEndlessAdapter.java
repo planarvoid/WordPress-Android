@@ -256,7 +256,9 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     protected void restorePagingData(int[] restore) {
         mState = restore[0];
         mPageIndex = restore[1];
-        if (mState > DONE) applyEmptyView();
+        if (mState >= DONE) {
+            applyEmptyView();
+        }
     }
 
     public String saveExtraData() {
@@ -308,9 +310,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
         return (super.getView(position, convertView, parent));
     }
-
-
-
 
     protected boolean canShowEmptyView(){
        return mState >= DONE && super.getCount() == 0;

@@ -11,6 +11,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -60,8 +61,10 @@ public class Beta implements Comparable<Beta>, Parcelable {
         // could check MD5 here, but too expensive
         return getMetaDataFile().exists() &&
                getLocalFile().exists() &&
-               getLocalFile().length() == size &&
-               getLocalFile().lastModified() == lastmodified;
+               getLocalFile().length() == size;
+              /*  disabled: http://code.google.com/p/android/issues/detail?id=18624
+               && getLocalFile().lastModified() == lastmodified;
+              */
     }
 
     public boolean isEnoughStorageLeft() {
@@ -106,7 +109,12 @@ public class Beta implements Comparable<Beta>, Parcelable {
     }
     public void touch() throws IOException {
         if (!getLocalFile().setLastModified(lastmodified)) {
-            throw new IOException("could not set last modified");
+
+            if (Build.VERSION.SDK_INT < 11) {
+                // XXX honeycomb+ devices don't support setLastModified
+                // http://code.google.com/p/android/issues/detail?id=18624
+                throw new IOException("could not set last modified");
+            }
         }
     }
 
