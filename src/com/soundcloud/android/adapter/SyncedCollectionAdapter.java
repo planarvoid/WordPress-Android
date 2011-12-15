@@ -145,9 +145,10 @@ public class SyncedCollectionAdapter extends LazyEndlessAdapter implements Detac
             startRefreshTask(false); // load whatever is currently cached
 
             final long elapsed = System.currentTimeMillis() - LocalCollection.getLastSync(mActivity.getContentResolver(), contentUri);
-            if (elapsed < Consts.DEFAULT_REFRESH_MINIMUM) {
+            final boolean isOnWifi = CloudUtils.isWifiConnected(mActivity);
+            if (elapsed < Consts.DEFAULT_REFRESH_MINIMUM || !isOnWifi) {
                 sync = false;
-                Log.i(TAG, "Skipping sync of " + contentUri + ". Elapsed since last sync (in ms) " + elapsed);
+                Log.i(TAG, "Skipping sync of " + contentUri + ". Elapsed since last sync (in ms) " + elapsed + ". On wifi: " + isOnWifi);
             } else {
                 Log.i(TAG, "Syncing " + contentUri + ". Elapsed since last sync (in ms) " + elapsed);
             }
