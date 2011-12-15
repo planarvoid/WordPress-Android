@@ -84,13 +84,12 @@ public class ScSearch extends ScActivity {
         mListHolder = new FrameLayout(this);
         mListHolder.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
         mListHolder.addView(mList);
-        mWorkspaceView.initWorkspace(0);
+        mList.setVisibility(View.GONE);
 
         mTrackAdpWrapper = new SectionedEndlessAdapter(this, new SectionedTracklistAdapter(this), true);
         mUserAdpWrapper = new SectionedEndlessAdapter(this, new SectionedUserlistAdapter(this), true);
 
         mList.setId(android.R.id.list);
-        mList.setVisibility(View.GONE);
 
         btnSearch.setNextFocusDownId(android.R.id.list);
 
@@ -132,11 +131,21 @@ public class ScSearch extends ScActivity {
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
             setListType(mPreviousState[0] != null && mPreviousState[0].equals(User.class));
-            mList.setVisibility(Integer.parseInt(mPreviousState[1].toString()));
             mTrackAdpWrapper.restoreState((Object[]) mPreviousState[2]);
             mUserAdpWrapper.restoreState((Object[]) mPreviousState[3]);
-            mWorkspaceView.setCurrentScreen((Integer) mPreviousState[4]);
+
+            if ((Integer) mPreviousState[1] == View.VISIBLE){
+                mWorkspaceView.addView(mListHolder);
+                mList.setVisibility(View.VISIBLE);
+            }
+
+            if ((Integer) mPreviousState[4] == 1){
+                mWorkspaceView.initWorkspace(1);
+            } else {
+                mWorkspaceView.initWorkspace(0);
+            }
         } else {
+            mWorkspaceView.initWorkspace(0);
             setListType(false);
         }
     }
@@ -272,9 +281,9 @@ public class ScSearch extends ScActivity {
         }
         refreshHistory();
 
+        mList.setVisibility(View.VISIBLE);
         mList.setLastUpdated(0);
         mList.onRefresh();
-        mList.setVisibility(View.VISIBLE);
 
         if (mWorkspaceView.getChildCount() < 2){
             mWorkspaceView.addView(mListHolder);
