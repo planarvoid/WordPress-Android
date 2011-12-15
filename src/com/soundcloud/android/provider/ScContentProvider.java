@@ -63,7 +63,7 @@ public class ScContentProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         final DatabaseHelper.Tables table = getTable(uri);
-        long id = db.insert(table.tableName, null, values);
+        long id = db.insertWithOnConflict(table.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         if (id >= 0) {
             final Uri result = uri.buildUpon().appendPath(String.valueOf(id)).build();
             getContext().getContentResolver().notifyChange(result, null);
