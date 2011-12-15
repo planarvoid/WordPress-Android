@@ -56,7 +56,8 @@ public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
                 return null;
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Log.w(TAG, "error registering device, unexpected error", e);
+            return null;
         }
     }
 }
