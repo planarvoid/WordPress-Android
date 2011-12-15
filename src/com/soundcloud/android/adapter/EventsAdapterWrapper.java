@@ -7,6 +7,7 @@ import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
@@ -15,7 +16,6 @@ import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ActivitiesCache;
 import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.LoadRemoteCollectionTask;
-import com.soundcloud.android.task.SyncedCollectionTask;
 import com.soundcloud.android.task.RefreshEventsTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.api.Request;
@@ -47,6 +47,8 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         mRequest = Request.to(c.remoteUri);
         setListLastUpdated();
     }
+
+
 
     @Override
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepgoing) {
@@ -102,52 +104,23 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
     @SuppressWarnings("unchecked")
     public void refresh(final boolean userRefresh) {
-        mState = REFRESHING;
         boolean sync = true;
-
         if (!userRefresh) {
-            startRefreshTask(false); // load whatever is currently cached
-
-            final long elapsed = System.currentTimeMillis() - LocalCollection.getLastSync(mActivity.getContentResolver(), mContentUri);
-            if (elapsed < Consts.DEFAULT_REFRESH_MINIMUM) {
-                sync = false;
-                Log.i(TAG, "Skipping sync of " + mContent + ". Elapsed since last sync (in ms) " + elapsed);
-            } else {
-                Log.i(TAG, "Syncing " + mContent + ". Elapsed since last sync (in ms) " + elapsed);
-            }
+            startRefreshTask();
+            sync = isStale();
         }
 
         if (sync) {
             // send an intent to update our event cache
             mWaitingOnSync = true;
-            final Intent intent = new Intent(mActivity, ApiSyncService.class);
-            intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
-            intent.setData(mContentUri);
-            mActivity.startService(intent);
+            requestSync();
         }
         notifyDataSetChanged();
     }
 
-    @Override
-    protected void startRefreshTask(final boolean userRefresh){
-       mRefreshTask = new RefreshEventsTask(mActivity.getApp(), new LoadCollectionTask.CollectionParams()) {
-            {
-                setAdapter(EventsAdapterWrapper.this);
-                cacheFile = ActivitiesCache.getCacheFile(mActivity.getApp(),mRequest);
-                execute();
-            }
-        };
-    }
-
-    @Override
-    protected LoadRemoteCollectionTask.RemoteCollectionParams buildAppendParams() {
-        return new LoadRemoteCollectionTask.RemoteCollectionParams() {
-            {
-                loadModel = getLoadModel(false);
-                pageIndex = getPageIndex(false);
-                request = buildRequest(false);
-            }
-        };
+    protected void startRefreshTask(){
+        mRefreshTask = new RefreshEventsTask(mActivity.getApp(),this, mRequest);
+        mRefreshTask.execute(null);
     }
 
     @Override
@@ -158,7 +131,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             }
             case ApiSyncService.STATUS_SYNC_FINISHED: {
                 mWaitingOnSync = false;
-                startRefreshTask(false);
+                 startRefreshTask();
                 break;
             }
             case ApiSyncService.STATUS_SYNC_ERROR: {

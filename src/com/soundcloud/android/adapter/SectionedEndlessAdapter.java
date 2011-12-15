@@ -4,7 +4,6 @@ import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import android.util.Log;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.SyncedCollectionTask;
 import com.soundcloud.api.Request;
@@ -44,21 +43,21 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
     }
 
     @Override
-    public Uri getContentUri(boolean refresh) {
+    public Uri getContentUri() {
         if (mSectionIndex > getWrappedAdapter().sections.size()) return null;
-        return getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).content;
+        return getWrappedAdapter().sections.get(mState == REFRESHING ? 0 : mSectionIndex).content;
     }
 
     @Override
-    protected Request getRequest(boolean refresh) {
+    protected Request getRequest() {
         if (mSectionIndex > getWrappedAdapter().sections.size()) return null;
-        return getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).getRequest(refresh);
+        return getWrappedAdapter().sections.get(mState == REFRESHING ? 0 : mSectionIndex).getRequest(mState == REFRESHING);
     }
 
     @Override
-    protected int getPageIndex(boolean refresh) {
+    public int getPageIndex() {
         if (mSectionIndex > getWrappedAdapter().sections.size()) return 0;
-        return refresh ? 0 : getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).pageIndex;
+        return mState == REFRESHING ? 0 : getWrappedAdapter().sections.get(mState == REFRESHING ? 0 : mSectionIndex).pageIndex;
     }
 
     @Override
@@ -67,8 +66,8 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
     }
 
     @Override
-    public Class<?> getLoadModel(boolean isRefresh) {
-        return getWrappedAdapter().getLoadModel(isRefresh ? 0 : mSectionIndex);
+    public Class<?> getLoadModel() {
+        return getWrappedAdapter().getLoadModel(mState == REFRESHING ? 0 : mSectionIndex);
     }
 
     @Override

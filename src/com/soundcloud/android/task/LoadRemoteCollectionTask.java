@@ -2,16 +2,14 @@ package com.soundcloud.android.task;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.RemoteCollectionAdapter;
-import com.soundcloud.android.adapter.SyncedCollectionAdapter;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.LocalCollectionPage;
@@ -25,8 +23,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
@@ -36,13 +32,11 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
     private long mLastRefresh;
     protected String mNextHref;
     protected int mResponseCode = HttpStatus.SC_OK;
+    private final Request mRequest;
 
-    public static class RemoteCollectionParams extends LoadCollectionTask.CollectionParams{
-        public Request request;
-    }
-
-    public LoadRemoteCollectionTask(SoundCloudApplication app, RemoteCollectionParams params) {
-        super(app, params);
+    public LoadRemoteCollectionTask(SoundCloudApplication app, LazyEndlessAdapter adapter, Request request) {
+        super(app, adapter);
+        mRequest = request;
     }
 
     public void setLastRefresh(long lastRefresh) {
@@ -71,15 +65,14 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
     }
 
     @Override
-    protected Boolean doInBackground(String... params) {
+    protected Boolean doInBackground(Boolean... params) {
+        boolean loadRemote = params[0];
 
         Cursor c = null;
         LocalCollection localCollection = null;
         LocalCollectionPage localCollectionPage = null;
 
-        final Request request = ((RemoteCollectionParams) mParams).request;
-
-        if (mParams.contentUri != null){
+        if (loadRemote && mParams.contentUri != null){
             localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(mApp.getContentResolver(), mParams.contentUri);
             if (localCollection == null) {
                 localCollection = com.soundcloud.android.model.LocalCollection.insertLocalCollection(mApp.getContentResolver(), mParams.contentUri);
@@ -91,17 +84,16 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
                     if (itemsCursor == null || itemsCursor.getCount() != localCollectionPage.size) {
                         localCollectionPage = null;
                     } else {
-                        localCollectionPage.applyEtag(request);
+                        localCollectionPage.applyEtag(mRequest);
                     }
                 }
             }
         }
 
         // fetch if there is no local uri, no stored colleciton for this page,
-        if (mParams.contentUri == null || localCollectionPage == null ||
-                (mParams.pageIndex == 0 && System.currentTimeMillis() - mLastRefresh > Consts.DEFAULT_REFRESH_MINIMUM)) {
+        if (mParams.contentUri == null || localCollectionPage == null || loadRemote) {
             try {
-                HttpResponse resp = mApp.get(request);
+                HttpResponse resp = mApp.get(mRequest);
                 mResponseCode = resp.getStatusLine().getStatusCode();
                 if (mResponseCode != HttpStatus.SC_OK && mResponseCode != HttpStatus.SC_NOT_MODIFIED) {
                     throw new IOException("Invalid response: " + resp.getStatusLine());

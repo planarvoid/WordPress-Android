@@ -12,8 +12,8 @@ import java.util.List;
 
 public class SyncedCollectionTask extends LoadCollectionTask {
 
-    public SyncedCollectionTask(SoundCloudApplication app, CollectionParams params) {
-        super(app, params);
+    public SyncedCollectionTask(SoundCloudApplication app, LazyEndlessAdapter adapter) {
+        super(app, adapter);
     }
 
     @Override
@@ -21,18 +21,17 @@ public class SyncedCollectionTask extends LoadCollectionTask {
         SyncedCollectionAdapter adapter = (SyncedCollectionAdapter) mAdapterReference.get();
         if (adapter != null) {
             if (mParams.refresh){
-                adapter.onPostRefresh(mNewItems, keepGoing);
+                adapter.onPostRefresh(mNewItems);
             } else {
-                adapter.onPostTaskExecute(mNewItems, keepGoing);
+                adapter.onPostTaskExecute(mNewItems);
             }
         }
     }
 
     @Override
-    protected Boolean doInBackground(String... params) {
+    protected Boolean doInBackground(Boolean... params) {
         if (mParams.contentUri != null) {
             mNewItems = (List<Parcelable>) loadLocalContent();
-            keepGoing = mNewItems.size() == Consts.COLLECTION_PAGE_SIZE;
             return true;
         } else {
             // no local content, fail

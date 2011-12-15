@@ -3,13 +3,12 @@ package com.soundcloud.android.adapter;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.os.ResultReceiver;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -29,7 +29,6 @@ import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 
-import javax.crypto.Cipher;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -53,6 +52,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     private EmptyCollection mEmptyView;
     private EmptyCollection mDefaultEmptyView;
     private String mEmptyViewText = "";
+    protected boolean mWaitingOnSync;
 
 
     protected int mState;
@@ -125,7 +125,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     private String getEmptyText(){
-        final Class loadModel = getLoadModel(false);
+        final Class loadModel = getLoadModel();
         final boolean error = mState == ERROR;
         if (Track.class.equals(loadModel)) {
             return !error ? mActivity.getResources().getString(
@@ -269,7 +269,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mNextHref = restore;
     }
 
-    public Class<?> getLoadModel(boolean isRefresh) {
+    public Class<?> getLoadModel() {
         return getWrappedAdapter().getLoadModel();
     }
 
@@ -323,9 +323,9 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mRequest = request;
     }
 
-    protected Request getRequest(boolean refresh) {
+    protected Request getRequest() {
         if (mRequest == null) return null;
-        return (!refresh && !TextUtils.isEmpty(mNextHref)) ? new Request(mNextHref) : new Request(mRequest);
+        return !(mState == REFRESHING) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : new Request(mRequest);
     }
 
     public Uri getContentUri() {
@@ -333,11 +333,11 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     public Uri getContentUri(boolean refresh) {
-        return mContent.uri;
+        return mContentUri;
     }
 
-    protected int getPageIndex(boolean refresh) {
-        return refresh ? 0 : mPageIndex;
+    public int getPageIndex() {
+        return mState == REFRESHING ? 0 : mPageIndex;
     }
 
     protected void increasePageIndex() {
@@ -384,11 +384,10 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     /**
      * Get the current url for this adapter
      *
-     * @param refresh
      * @return the url
      */
-    protected Request buildRequest(boolean refresh) {
-        Request request = getRequest(refresh);
+    protected Request buildRequest() {
+        Request request = getRequest();
         if (request != null) {
             request.add("linked_partitioning", "1");
             request.add("limit", Consts.PAGE_SIZE);
@@ -449,9 +448,37 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         return mState != INITIALIZED;
     }
 
-    abstract public void refresh(final boolean userRefresh);
-    abstract public void append();
-    
+    public void refresh(final boolean userRefresh){
+        mState = REFRESHING;
+        if (userRefresh) {
+            if (getWrappedAdapter() instanceof FollowStatus.Listener) {
+                FollowStatus.get().requestUserFollowings(mActivity.getApp(),
+                        (FollowStatus.Listener) getWrappedAdapter(), true);
+            }
+        } else {
+            reset();
+        }
+    }
+    protected abstract LoadCollectionTask buildTask();
+
+    protected void requestSync(){
+        final Intent intent = new Intent(mActivity, ApiSyncService.class);
+        intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
+        intent.setData(mContent.uri);
+        mActivity.startService(intent);
+    }
+
+    protected boolean isStale(){
+        long lastsync = LocalCollection.getLastSync(mActivity.getContentResolver(), getContentUri());
+        return (getPageIndex() == 0 && System.currentTimeMillis() - lastsync > Consts.DEFAULT_REFRESH_MINIMUM);
+    }
+
+    public void append() {
+        mState = APPENDING;
+        mAppendTask = buildTask();
+        mAppendTask.execute();
+    }
+
     protected DetachableResultReceiver getReceiver(){
         if (mDetachableReceiver == null) mDetachableReceiver = new DetachableResultReceiver(new Handler());
         mDetachableReceiver.setReceiver(this);
