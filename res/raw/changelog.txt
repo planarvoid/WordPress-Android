@@ -6,6 +6,7 @@ $ 31
     * ICS fixes
     - refactored player, added AudioFocus support
     - enabled C2DM callback code
+    - swipy tour
 
 $ 30
   % v 2.0.1
