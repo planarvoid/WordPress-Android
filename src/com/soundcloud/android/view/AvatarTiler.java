@@ -57,7 +57,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
 
     private static final int[] EMPTY_COLORS = {0xffd4e7fc, 0xff7ab8ff, 0xff3399ff, 0xffff6600, 0xffff3300, 0xffff9a56};
     private static final Avatar[] DEFAULT_AVATARS = {
-            new Avatar(372, R.drawable.avatars_hunee),
+            /*new Avatar(372, R.drawable.avatars_hunee),
             new Avatar(43654, R.drawable.avatars_thebeatbroker),
             new Avatar(188783, R.drawable.avatars_aeroplane),
             new Avatar(749489, R.drawable.avatars_esp_institute),
@@ -75,7 +75,7 @@ class AvatarTiler extends SurfaceView implements SurfaceHolder.Callback {
             new Avatar(3907706, R.drawable.avatars_youthlagoon),
             new Avatar(5510726, R.drawable.avatars_herring1967),
             new Avatar(422725, R.drawable.avatars_thenextweb),
-            new Avatar(34424, R.drawable.avatars_thommyc)
+            new Avatar(34424, R.drawable.avatars_thommyc)*/
 
     };
 

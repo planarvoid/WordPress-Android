@@ -36,7 +36,6 @@ public class CommentPanel extends RelativeLayout {
     protected final TextView mTxtReadOn;
     protected final ImageButton mBtnClose;
     protected final TextView mTxtComment;
-    protected final Button mBtnReply;
 
     protected WaveformController mController;
     protected ScPlayer mPlayer;
@@ -99,7 +98,6 @@ public class CommentPanel extends RelativeLayout {
         mBtnClose = (ImageButton) findViewById(R.id.btn_close);
         mTxtReadOn = (TextView) findViewById(R.id.txt_read_on);
         mTxtComment = (TextView) findViewById(R.id.txt_comment);
-        mBtnReply = (Button) findViewById(R.id.btn_reply);
 
         mTxtReadOn.setText(Html.fromHtml(getResources().getString(R.string.comment_panel_read_on)));
         setOnLongClickListener(new OnLongClickListener() {
@@ -170,7 +168,6 @@ public class CommentPanel extends RelativeLayout {
         mTxtElapsed.setVisibility(View.VISIBLE);
         mTxtComment.setVisibility(View.VISIBLE);
 
-        if (mBtnReply != null) mBtnReply.setVisibility(View.VISIBLE);
         if (mBtnClose != null) mBtnClose.setVisibility(View.VISIBLE);
         if (mTxtReadOn != null) {
 
