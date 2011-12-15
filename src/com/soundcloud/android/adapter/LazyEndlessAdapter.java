@@ -230,7 +230,7 @@ public class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnR
         mState = restore[0];
         mPageIndex = restore[1];
 
-        if (mState > DONE) {
+        if (mState >= DONE) {
             applyEmptyView();
         }
     }
