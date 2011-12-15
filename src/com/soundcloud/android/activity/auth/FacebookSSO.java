@@ -51,6 +51,7 @@ public class FacebookSSO extends LoginActivity {
 
                 Intent result = new Intent();
                 result.putExtra("error", e.getMessage());
+                result.putExtra("canceled", e instanceof SSOCanceledException);
                 setResult(RESULT_OK, result);
                 finish();
             }
@@ -72,8 +73,7 @@ public class FacebookSSO extends LoginActivity {
                 throw new SSOException("SSO disabled");
             } else if (error.equals("access_denied")
                     || error.equals("OAuthAccessDeniedException")) {
-
-                throw new SSOException("Login canceled by user");
+                throw new SSOCanceledException();
             } else {
                 String description = data.getStringExtra("error_description");
                 if (description != null) {
@@ -100,6 +100,12 @@ public class FacebookSSO extends LoginActivity {
     static class SSOException extends Exception {
         public SSOException(String s) {
             super(s);
+        }
+    }
+
+    static class SSOCanceledException extends SSOException {
+        public SSOCanceledException() {
+            super("Login canceled by user");
         }
     }
 

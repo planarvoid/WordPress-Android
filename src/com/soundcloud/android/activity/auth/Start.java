@@ -97,30 +97,34 @@ public class Start extends AccountAuthenticatorActivity {
         switch (requestCode) {
             case 0:
                 SoundCloudApplication app = (SoundCloudApplication) getApplication();
+                final String error = data.getStringExtra("error");
+                if (error == null) {
+                    final User user = data.getParcelableExtra("user");
+                    final Token token = (Token) data.getSerializableExtra("token");
 
-                final User user = data.getParcelableExtra("user");
-                final Token token = (Token) data.getSerializableExtra("token");
+                    /* native|facebook:(access-token|web-flow) */
+                    String signed_up = data.getStringExtra(LoginActivity.SIGNED_UP_EXTRA);
 
-                /* native|facebook:(access-token|web-flow) */
-                String signed_up = data.getStringExtra(LoginActivity.SIGNED_UP_EXTRA);
+                    // native signup will already have created the account
+                    if ("native".equals(signed_up) || app.addUserAccount(user, token)) {
+                        final Bundle result = new Bundle();
+                        result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
+                        result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
+                        setAccountAuthenticatorResult(result);
 
-                // native signup will already have created the account
-                if ("native".equals(signed_up) || app.addUserAccount(user, token)) {
-                    final Bundle result = new Bundle();
-                    result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
-                    result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
-                    setAccountAuthenticatorResult(result);
-
-                    C2DMReceiver.register(this, user);
-                    if (signed_up != null) {
-                        startActivityForResult(new Intent(this, SuggestedUsers.class)
-                                .putExtra(FB_CONNECTED_EXTRA, signed_up.contains("facebook")),
-                                SUGGESTED_USERS);
+                        C2DMReceiver.register(this, user);
+                        if (signed_up != null) {
+                            startActivityForResult(new Intent(this, SuggestedUsers.class)
+                                    .putExtra(FB_CONNECTED_EXTRA, signed_up.contains("facebook")),
+                                    SUGGESTED_USERS);
+                        } else {
+                            finish();
+                        }
                     } else {
-                        finish();
+                        CloudUtils.showToast(this, "Error creating account");
                     }
                 } else {
-                    CloudUtils.showToast(this, "Error creating account");
+                    CloudUtils.showToast(this, error);
                 }
                 break;
             case SUGGESTED_USERS:

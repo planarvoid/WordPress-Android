@@ -33,14 +33,14 @@ public class Facebook extends Activity {
 
 
     /* package */ boolean isSSOEnabled() {
-        return SoundCloudApplication.DEV_MODE || SoundCloudApplication.BETA_MODE;
+        return true;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK
             && requestCode == SSO
-            && (data == null || data.hasExtra("error"))) {
+            && (data == null || (data.hasExtra("error") && !data.getBooleanExtra("canceled", false)))) {
                 Log.d(TAG, "error using SSO: '" +
                         (data == null ? "<none>" : data.getStringExtra("error"))
                         + "', falling back to webview-based login");
@@ -53,7 +53,7 @@ public class Facebook extends Activity {
     }
 
     private void startSSOFlow() {
-        Log.d(TAG, "starting FB proxy auth");
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "starting FB proxy auth");
         startActivityForResult(new Intent(this, FacebookSSO.class), SSO);
     }
 
