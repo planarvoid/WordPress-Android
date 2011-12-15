@@ -349,13 +349,16 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
      public void postDetatch() {
-        post( new Runnable() {
-            @Override
-            public void run() {
-                mManuallyDetatched = true;
-                onDetachedFromWindow();
-            }
-        });
+        // XXX this blows up on ICS, possibly Honeycomb as well
+        if (Build.VERSION.SDK_INT < 11) {
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    mManuallyDetatched = true;
+                    onDetachedFromWindow();
+                }
+            });
+        }
     }
 
     private final AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
@@ -401,11 +404,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         checkHeaderVisibility();
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
     }
 
     @Override
