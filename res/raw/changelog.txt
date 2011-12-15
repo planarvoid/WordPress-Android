@@ -1,9 +1,11 @@
 $ 31
   % v current
-  _ 2011-11-29
+  _ 2011-12-15
   ! SSO
-    * Facebook SSO
-    * Tour is now swipy
+    * Facebook Single sign-on (SSO)
+    * ICS fixes
+    - refactored player, added AudioFocus support
+    - enabled C2DM callback code
 
 $ 30
   % v 2.0.1
