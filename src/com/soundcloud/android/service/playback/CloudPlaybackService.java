@@ -571,7 +571,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ boolean isBuffering() {
-        return state == PAUSED_FOR_BUFFERING || resumeSeeking;
+        return state == PAUSED_FOR_BUFFERING || state == PREPARING || resumeSeeking;
     }
 
     /*
