@@ -40,15 +40,24 @@ public class DeleteRegIdTaskTest extends ApiTests {
     }
 
     @Test
-    public void testExecuteFailureException() throws Exception {
+    public void nonOkResponseShouldBeFailure() throws Exception {
         addHttpResponseRule("DELETE", "https://api.soundcloud.com/me/devices/1234",
-                new TestHttpResponse(403, ""));
+                new TestHttpResponse(402, ""));
         expect(new DeleteRegIdTask(api, null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
                 .toBeFalse();
     }
 
     @Test
-    public void testExecute404ShouldBeSuccess() throws Exception {
+    public void forbiddenResponseShouldBeTreatedAsSuccess() throws Exception {
+        addHttpResponseRule("DELETE", "https://api.soundcloud.com/me/devices/1234",
+                new TestHttpResponse(403, ""));
+        expect(new DeleteRegIdTask(api, null).doInBackground("https://api.soundcloud.com/me/devices/1234"))
+                .toBeTrue();
+    }
+
+
+    @Test
+    public void notFoundResponseShouldBeSuccess() throws Exception {
         addHttpResponseRule("DELETE", "https://api.soundcloud.com/me/devices/1234",
                 new TestHttpResponse(404, ""));
         expect(new DeleteRegIdTask(api, null).doInBackground("https://api.soundcloud.com/me/devices/1234"))

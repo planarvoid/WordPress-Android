@@ -44,7 +44,10 @@ public class DeleteRegIdTask extends AsyncApiTask<String, Void, Boolean> {
                 case HttpStatus.SC_NOT_FOUND:
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "already deleted remote device "+params[0]);
                     return true;
-
+                case HttpStatus.SC_FORBIDDEN:
+                    // this happens when user logs into different account - just give up in this case
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "cannot delete device (forbidden) "+params[0]);
+                    return true;
                 default:
                     Log.w(TAG, DeleteRegIdTask.class.getSimpleName()+": unexpected status code "
                             + resp.getStatusLine());
