@@ -331,11 +331,16 @@ public class ScContentProvider extends ContentProvider {
                 count = db.update(DBHelper.Tables.SEARCHES.tableName, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
+            case RECORDINGS:
+                count = db.update(DBHelper.Tables.RECORDINGS.tableName, values, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null, false);
+                return count;
             case RECORDING_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.update(DBHelper.Tables.RECORDINGS.tableName, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
+
             case TRACK_CLEANUP:
                 long userId = SoundCloudApplication.getUserIdFromContext(getContext());
                 if (userId > 0){
