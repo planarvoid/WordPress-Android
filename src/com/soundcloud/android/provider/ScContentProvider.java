@@ -64,8 +64,7 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         final DatabaseHelper.Tables table = getTable(uri);
 
-        long id = Build.VERSION.SDK_INT > 7 ? db.insertWithOnConflict(table.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE)
-                : db.insert(table.tableName, null, values);
+        long id = db.replace(table.tableName, null, values);
         if (id >= 0) {
             final Uri result = uri.buildUpon().appendPath(String.valueOf(id)).build();
             getContext().getContentResolver().notifyChange(result, null);

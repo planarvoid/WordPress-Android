@@ -5,18 +5,11 @@ $ 32
     * Patch for Android 2.1
 
 $ 31
-  % 2.1
-  _ 2011-12-15
-  ! Local caching
-    * Local caching
-
-$ 31
   % v 2.1
   _ 2011-12-15
   ! SSO
     * Facebook Single sign-on (SSO)
     * ICS fixes
-    * Patch for Android 2.1
     - refactored player, added AudioFocus support
     - enabled C2DM callback code
     - swipy tour
