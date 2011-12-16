@@ -60,7 +60,7 @@ import java.util.List;
 import java.util.Map;
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=7e726f95",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=637f440e",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
