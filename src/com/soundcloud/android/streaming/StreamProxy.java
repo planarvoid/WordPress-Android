@@ -11,6 +11,7 @@ import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.message.BasicLineParser;
 
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -191,6 +192,8 @@ public class StreamProxy implements Runnable {
     }
 
     public Uri createUri(String streamUrl, String nextStreamUrl) {
+        if (TextUtils.isEmpty(streamUrl)) throw new IllegalArgumentException("streamUrl is empty");
+
         final Uri.Builder builder = Uri.parse("http://127.0.0.1:" + getPort()).buildUpon();
         builder.appendPath("/");
         builder.appendQueryParameter(PARAM_STREAM_URL, streamUrl);
