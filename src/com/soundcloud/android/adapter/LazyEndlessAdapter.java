@@ -88,7 +88,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     public void setListLastUpdated() {
         if (mListView != null) {
-            final long lastUpdated = LocalCollection.getLastSync(mActivity.getContentResolver(), getContentUri(true));
+            final long lastUpdated = LocalCollection.getLastSync(mActivity.getContentResolver(), getContentUri());
             if (lastUpdated > 0) mListView.setLastUpdated(lastUpdated);
         }
     }
@@ -329,10 +329,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     public Uri getContentUri() {
-        return getContentUri(false);
-    }
-
-    public Uri getContentUri(boolean refresh) {
         return mContentUri;
     }
 
@@ -449,7 +445,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     public void refresh(final boolean userRefresh){
-        mState = REFRESHING;
         if (userRefresh) {
             if (getWrappedAdapter() instanceof FollowStatus.Listener) {
                 FollowStatus.get().requestUserFollowings(mActivity.getApp(),
@@ -458,6 +453,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         } else {
             reset();
         }
+        mState = REFRESHING;
     }
     protected abstract LoadCollectionTask buildTask();
 

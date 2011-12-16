@@ -4,7 +4,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
+
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.utils.CloudUtils;
@@ -33,8 +35,9 @@ public abstract class LoadCollectionTask extends AsyncTask<Boolean, List<? super
         setAdapter(lazyEndlessAdapter);
         mParams = new CollectionParams();
         if (lazyEndlessAdapter != null) {
+
            mParams.loadModel = lazyEndlessAdapter.getLoadModel();
-           mParams.contentUri = lazyEndlessAdapter.getContentUri(false);
+           mParams.contentUri = lazyEndlessAdapter instanceof EventsAdapterWrapper ? null : lazyEndlessAdapter.getContentUri();
            mParams.pageIndex = lazyEndlessAdapter.getPageIndex();
            mParams.refresh = lazyEndlessAdapter.isRefreshing();
         }

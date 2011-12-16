@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.*;
@@ -52,6 +53,11 @@ public class SyncedCollectionAdapter extends LazyEndlessAdapter implements Detac
         notifyDataSetChanged();
     }
 
+
+    /**
+     * DUPLICATE FUNCTIONALITY :  see EventsAdapterWrapper.onPostRefresh
+     * @param newItems
+     */
     public void onPostRefresh(List<Parcelable> newItems) {
         if (newItems != null && newItems.size() > 0) {
             reset(false);
@@ -73,6 +79,9 @@ public class SyncedCollectionAdapter extends LazyEndlessAdapter implements Detac
             mPendingView = null;
             mRefreshTask = null;
             mAppendTask = null;
+        } else {
+            // this needs to be set to keep refresh state for the task started after sync returns
+            mState = REFRESHING;
         }
 
         notifyDataSetChanged();
@@ -125,7 +134,7 @@ public class SyncedCollectionAdapter extends LazyEndlessAdapter implements Detac
 
     private void checkPageForStaleItems(boolean refresh){
         // do we only want to auto-refresh on wifi??
-        if (Content.isSyncable(getContentUri(false)) && CloudUtils.isWifiConnected(mActivity)) {
+        if (Content.isSyncable(getContentUri()) && CloudUtils.isWifiConnected(mActivity)) {
             final Intent intent = new Intent(mActivity, ApiSyncService.class);
             intent.setAction(ApiSyncService.REFRESH_PAGE_ACTION);
             intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());

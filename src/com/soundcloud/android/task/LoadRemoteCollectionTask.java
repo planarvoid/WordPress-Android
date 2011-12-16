@@ -66,7 +66,7 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
 
     @Override
     protected Boolean doInBackground(Boolean... params) {
-        boolean loadRemote = params[0];
+        boolean loadRemote = params != null && params.length > 0 ? params[0] : true;
 
         Cursor c = null;
         LocalCollection localCollection = null;

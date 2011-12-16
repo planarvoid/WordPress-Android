@@ -28,14 +28,14 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     @Override
     public void refresh(final boolean userRefresh) {
-
+        super.refresh(userRefresh);
         mRefreshTask = buildTask();
         mRefreshTask.execute(userRefresh || isStale());
         notifyDataSetChanged();
     }
 
     protected LoadRemoteCollectionTask buildTask() {
-        return new LoadRemoteCollectionTask(mActivity.getApp(), this, getRequest());
+        return new LoadRemoteCollectionTask(mActivity.getApp(), this, buildRequest());
     }
 
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
