@@ -153,11 +153,8 @@
   <string name="dashboard_notifications_title_single">1 new sound</string>
   <string name="delete">Delete</string>
   <string name="dialog_cancel_upload_message">Cancel upload?</string>
-  <string name="dialog_cancel_upload_title"/>
   <string name="dialog_confirm_delete_recording_message">Are you sure you want to delete this recording?</string>
-  <string name="dialog_confirm_delete_recording_title"/>
   <string name="dialog_reset_recording_message">Reset? Recording will be deleted.</string>
-  <string name="dialog_reset_recording_title"/>
   <string name="dialog_unsaved_recordings_message">Unsaved recordings found. Checked items will be saved.</string>
   <string name="discogs">Discogs</string>
   <plurals name="elapsed_days">
