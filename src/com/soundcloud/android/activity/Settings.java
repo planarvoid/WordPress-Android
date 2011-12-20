@@ -153,19 +153,20 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        ListPreference recordingQuality = (ListPreference) findPreference("defaultRecordingQuality");
+        final ListPreference recordingQuality = (ListPreference) findPreference("defaultRecordingQuality");
         recordingQuality.setOnPreferenceChangeListener(
                 new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
-                        preference.setTitle(getString(R.string.pref_record_quality) + " (" + o + ")");
+                        CharSequence label = recordingQuality.getEntries()[recordingQuality.findIndexOfValue(o.toString())];
+                        preference.setTitle(getString(R.string.pref_record_quality) + " (" + label + ")");
                         return true;
                     }
                 }
         );
 
         recordingQuality.setTitle(getString(R.string.pref_record_quality) +
-                " (" + recordingQuality.getValue() + ")");
+                " (" + recordingQuality.getEntry() + ")");
 
         if (!SoundCloudApplication.DEV_MODE) {
             getPreferenceScreen().removePreference(findPreference("dev-settings"));
