@@ -1,11 +1,42 @@
 package com.soundcloud.android.activity;
 
-import android.app.AlertDialog;
+import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.SoundCloudDB.WriteState;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.MyTracksAdapter;
+import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.cache.ParcelCache;
+import com.soundcloud.android.model.Connection;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Upload;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.FriendFinderView;
+import com.soundcloud.android.view.FullImageDialog;
+import com.soundcloud.android.view.PrivateMessager;
+import com.soundcloud.android.view.ScListView;
+import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.android.view.UserlistLayout;
+import com.soundcloud.android.view.WorkspaceView;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,29 +45,15 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Config;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.*;
-import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.adapter.*;
-import com.soundcloud.android.cache.Connections;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.cache.ParcelCache;
-import com.soundcloud.android.model.*;
-import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.*;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,8 +72,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private ScTabView mMyTracksView;
     private FrameLayout mInfoView;
     private FriendFinderView mFriendFinderView;
-    private ImageButton mFollowStateBtn;
-    private Drawable mFollowDrawable, mUnfollowDrawable;
+    private Button mFollowStateBtn;
     private UserlistLayout mUserlistBrowser;
     private LoadUserTask mLoadUserTask;
     private boolean mUpdateInfo;
@@ -124,15 +140,12 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         });
 
-        mFollowStateBtn = (ImageButton) findViewById(R.id.btn_followState);
+        mFollowStateBtn = (Button) findViewById(R.id.btn_followState);
         mFollowStateBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 toggleFollowing();
             }
         });
-
-        mFollowDrawable = getResources().getDrawable(R.drawable.ic_follow_states);
-        mUnfollowDrawable = getResources().getDrawable(R.drawable.ic_unfollow_states);
 
         Intent intent = getIntent();
         mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
@@ -142,22 +155,17 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             fromConfiguration(c);
         } else {
 
-            if (intent != null) {
-                if (intent.hasExtra("user")) {
-                    loadUserByObject((User) intent.getParcelableExtra("user"));
-                } else if (intent.hasExtra("userId")) {
-                    loadUserById(intent.getLongExtra("userId", -1));
-                } else {
-                    loadYou();
-                }
-                if (intent.hasExtra("recordingUri")) {
-                    mMessager.setRecording(Uri.parse(intent.getStringExtra("recordingUri")));
-                }
+            if (intent.hasExtra("user")) {
+                loadUserByObject((User) intent.getParcelableExtra("user"));
+            } else if (intent.hasExtra("userId")) {
+                loadUserById(intent.getLongExtra("userId", -1));
             } else {
                 loadYou();
             }
-
-            if (intent != null && intent.hasExtra("userBrowserTag")){
+            if (intent.hasExtra("recordingUri")) {
+                mMessager.setRecording(Uri.parse(intent.getStringExtra("recordingUri")));
+            }
+            if (intent.hasExtra("userBrowserTag")){
                 mUserlistBrowser.initByTag(intent.getStringExtra("userBrowserTag"));
             } else if (isMe()) {
                 final int initialTab = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
@@ -562,7 +570,15 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private void setFollowingButtonText() {
         if (isOtherUser()) {
-            mFollowStateBtn.setImageDrawable(FollowStatus.get().isFollowing(mUser) ? mUnfollowDrawable : mFollowDrawable);
+            if (FollowStatus.get().isFollowing(mUser)) {
+                mFollowStateBtn.setText(R.string.btn_following);
+                mFollowStateBtn.setBackgroundResource(R.drawable.btn_blue);
+                mFollowStateBtn.setTextColor(getResources().getColor(R.color.white));
+            }  else {
+                mFollowStateBtn.setText(R.string.btn_follow);
+                mFollowStateBtn.setBackgroundResource(R.drawable.btn_grey);
+                mFollowStateBtn.setTextColor(getResources().getColor(R.color.black));
+            }
             mFollowStateBtn.setVisibility(View.VISIBLE);
         } else {
             mFollowStateBtn.setVisibility(View.GONE);

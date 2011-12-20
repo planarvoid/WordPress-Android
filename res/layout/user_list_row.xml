@@ -66,19 +66,25 @@
                  android:layout_alignTop="@id/icon"
                  android:layout_width="wrap_content"
                  android:layout_height="wrap_content">
-        <ImageButton
-                android:id="@+id/toggleFollowing"
-                android:padding="5dip"
-                android:background="@android:color/transparent"
+
+        <Button android:id="@+id/toggleFollowing"
                 android:layout_width="wrap_content"
-                android:src="@drawable/ic_unfollow_states"
-                android:layout_height="wrap_content"/>
-        <ImageButton
+                android:layout_height="wrap_content"
+                android:padding="5dip"
+                android:background="@drawable/btn_blue"
+                android:gravity="center"
+                android:text="@string/btn_following"
+                android:textColor="@color/white"
+                />
+
+        <Button
                 android:id="@+id/toggleFollow"
-                android:background="@android:color/transparent"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:padding="5dip"
-                android:src="@drawable/ic_follow_states"
-                android:layout_height="wrap_content"/>
+                android:background="@drawable/btn_grey"
+                android:gravity="center"
+                android:text="@string/btn_follow"
+                />
     </FrameLayout>
 </RelativeLayout>

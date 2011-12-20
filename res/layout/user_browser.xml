@@ -29,6 +29,7 @@
                         android:layout_alignParentRight="true"
                         android:layout_height="0dp"
                         android:paddingRight="10dip">
+
             <TextView android:id="@+id/username"
                       android:layout_alignParentTop="true"
                       android:layout_width="wrap_content"
@@ -59,6 +60,7 @@
                     android:layout_alignLeft="@id/fullname"
                     android:layout_toLeftOf="@+id/btn_followState"
                     android:layout_alignWithParentIfMissing="true">
+
                 <TextView android:layout_width="wrap_content"
                           android:drawableLeft="@drawable/ic_stats_sounds_states"
                           android:drawablePadding="3dip"
@@ -84,14 +86,17 @@
                           android:layout_toRightOf="@id/vr_stats"
                           style="@style/txt_list_sub_secondary"/>
             </RelativeLayout>
-            <ImageButton android:id="@+id/btn_followState"
-              android:background="@android:color/transparent"
+
+            <Button
+              android:id="@+id/btn_followState"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:background="@drawable/btn_grey"
               android:layout_below="@id/username"
               android:layout_alignParentRight="true"
               android:visibility="gone"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:src="@drawable/ic_follow_states"/>
+              android:text="@string/btn_follow"/>
+
         </RelativeLayout>
     </RelativeLayout>
     <com.soundcloud.android.view.UserlistLayout
