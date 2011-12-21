@@ -348,7 +348,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         if (mManuallyDetatched) onAttachedToWindow();
     }
 
-     public void postDetatch() {
+     public void postDetach() {
         // XXX this blows up on ICS, possibly Honeycomb as well
         if (Build.VERSION.SDK_INT < 11) {
             post(new Runnable() {

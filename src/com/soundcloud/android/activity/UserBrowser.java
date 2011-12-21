@@ -82,9 +82,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private List<Connection> mConnections;
     private Object mAdapterStates[];
 
-    private static final CharSequence[] RECORDING_ITEMS = {"Edit", "Listen", "Upload", "Delete"};
-    private static final CharSequence[] EXTERNAL_RECORDING_ITEMS = {"Edit", "Upload", "Delete"};
-
     public interface TabTags {
         String tracks = "tracks";
         String favorites = "favorites";
@@ -238,7 +235,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             if (list.getWrapper() != null) {
                 mAdapterStates[i] = list.getWrapper().saveState();
                 list.getWrapper().cleanup();
-                list.postDetatch(); // detatch from window to clear recycler
+                list.postDetach(); // detach from window to clear recycler
             }
             i++;
         }
@@ -475,12 +472,14 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
                     .setActionText(R.string.list_empty_user_followers_action)
                     .setImage(R.drawable.empty_rec)
-                    //.setSecondaryText(R.string.list_empty_user_followers_secondary)
                     .setActionListener(new EmptyCollection.ActionListener() {
-                        @Override public void onAction() {
+                        @Override
+                        public void onAction() {
                             mUserlistBrowser.setCurrentScreenByTag(TabTags.tracks);
                         }
-                        @Override public void onSecondaryAction() {
+
+                        @Override
+                        public void onSecondaryAction() {
                             //startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
                         }
                     }));
@@ -488,12 +487,14 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_nosounds_message)
                     .setActionText(R.string.list_empty_user_followers_nosounds_action)
                     .setImage(R.drawable.empty_share)
-                    //.setSecondaryText(R.string.list_empty_user_followers_nosounds_secondary)
                     .setActionListener(new EmptyCollection.ActionListener() {
-                        @Override public void onAction() {
+                        @Override
+                        public void onAction() {
                             startActivity(new Intent(Actions.RECORD).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
                         }
-                        @Override public void onSecondaryAction() {
+
+                        @Override
+                        public void onSecondaryAction() {
                             //startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
                         }
                     }));
@@ -686,7 +687,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         } else if (!mDisplayedInfo) {
             if (mEmptyInfoView == null) mEmptyInfoView = new EmptyCollection(this);
             if (mInfoError) {
-                mEmptyInfoView.setMessageText(mInfoError ? R.string.info_error : R.string.info_empty_other_message);
+                mEmptyInfoView.setMessageText(R.string.info_error);
                 mEmptyInfoView.setImage(R.drawable.empty_connection);
                 mEmptyInfoView.setActionText(-1);
             } else {
