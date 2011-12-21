@@ -21,13 +21,12 @@
                 android:src="@drawable/avatar_badge_large"
                 android:gravity="top"/>
         <RelativeLayout android:layout_width="0dp"
+                        android:layout_height="wrap_content"
                         android:gravity="left"
                         android:layout_marginLeft="@dimen/list_text_margin_left"
                         android:layout_alignTop="@id/user_icon"
-                        android:layout_alignBottom="@id/user_icon"
                         android:layout_toRightOf="@id/user_icon"
                         android:layout_alignParentRight="true"
-                        android:layout_height="0dp"
                         android:paddingRight="10dip">
 
             <TextView android:id="@+id/username"
