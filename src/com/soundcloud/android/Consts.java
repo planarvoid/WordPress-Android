@@ -59,15 +59,6 @@ public final class Consts {
         int FILTER = 207;
     }
 
-    public interface TourActivityIndexes {
-        int START = 0;
-        int RECORD = 1;
-        int SHARE = 2;
-        int FOLLOW = 3;
-        int COMMENT = 4;
-        int FINISH = 5;
-    }
-
     public enum GraphicSize {
         T500("t500x500", 500, 500),
         CROP("crop", 400, 400),
