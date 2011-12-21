@@ -72,7 +72,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private ScTabView mMyTracksView;
     private FrameLayout mInfoView;
     private FriendFinderView mFriendFinderView;
-    private Button mFollowStateBtn, mFollowingStateBtn;
+    private Button mFollowBtn, mFollowingBtn;
     private UserlistLayout mUserlistBrowser;
     private LoadUserTask mLoadUserTask;
     private boolean mUpdateInfo;
@@ -137,16 +137,16 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         });
 
-        mFollowStateBtn = (Button) findViewById(R.id.btn_followState);
-        mFollowingStateBtn = (Button) findViewById(R.id.btn_followingState);
+        mFollowBtn = (Button) findViewById(R.id.btn_followState);
+        mFollowingBtn = (Button) findViewById(R.id.btn_followingState);
 
         final View.OnClickListener toggleFollowing = new View.OnClickListener() {
             public void onClick(View view) {
                 toggleFollowing();
             }
         };
-        mFollowStateBtn.setOnClickListener(toggleFollowing);
-        mFollowingStateBtn.setOnClickListener(toggleFollowing);
+        mFollowBtn.setOnClickListener(toggleFollowing);
+        mFollowingBtn.setOnClickListener(toggleFollowing);
 
         Intent intent = getIntent();
         mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
@@ -560,13 +560,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     private void toggleFollowing() {
-        mFollowStateBtn.setEnabled(false);
-        mFollowingStateBtn.setEnabled(false);
+        mFollowBtn.setEnabled(false);
+        mFollowingBtn.setEnabled(false);
 
         FollowStatus.get().toggleFollowing(mUser.id, getApp(), new Handler() {
             @Override public void handleMessage(Message msg) {
-                mFollowStateBtn.setEnabled(true);
-                mFollowingStateBtn.setEnabled(true);
+                mFollowBtn.setEnabled(true);
+                mFollowingBtn.setEnabled(true);
 
                 if (msg.arg1 == 0) {
                     setFollowingButton();
@@ -580,15 +580,15 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private void setFollowingButton() {
         if (isOtherUser()) {
             if (FollowStatus.get().isFollowing(mUser)) {
-                mFollowingStateBtn.setVisibility(View.VISIBLE);
-                mFollowStateBtn.setVisibility(View.INVISIBLE);
+                mFollowingBtn.setVisibility(View.VISIBLE);
+                mFollowBtn.setVisibility(View.INVISIBLE);
             }  else {
-                mFollowingStateBtn.setVisibility(View.INVISIBLE);
-                mFollowStateBtn.setVisibility(View.VISIBLE);
+                mFollowingBtn.setVisibility(View.INVISIBLE);
+                mFollowBtn.setVisibility(View.VISIBLE);
             }
         } else {
-            mFollowStateBtn.setVisibility(View.INVISIBLE);
-            mFollowingStateBtn.setVisibility(View.INVISIBLE);
+            mFollowBtn.setVisibility(View.INVISIBLE);
+            mFollowingBtn.setVisibility(View.INVISIBLE);
         }
     }
 
