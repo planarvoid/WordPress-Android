@@ -86,15 +86,30 @@
                           style="@style/txt_list_sub_secondary"/>
             </RelativeLayout>
 
-            <Button
-              android:id="@+id/btn_followState"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:background="@drawable/btn_grey"
-              android:layout_below="@id/username"
-              android:layout_alignParentRight="true"
-              android:visibility="gone"
-              android:text="@string/btn_follow"/>
+            <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@id/username">
+
+                <Button
+                  android:id="@+id/btn_followingState"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  style="@style/btn_following"
+                  android:visibility="invisible"/>
+
+                <Button
+                  android:id="@+id/btn_followState"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  style="@style/btn_follow"
+                  android:visibility="invisible"
+                  android:layout_alignLeft="@id/btn_followingState"
+                  android:layout_alignRight="@id/btn_followingState"
+                  />
+            </RelativeLayout>
+
 
         </RelativeLayout>
     </RelativeLayout>

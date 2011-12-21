@@ -6,6 +6,7 @@
                 android:gravity="center_vertical"
                 android:paddingBottom="5dip"
                 android:paddingTop="5dip">
+
     <ImageView android:id="@+id/icon"
                android:layout_width="@dimen/list_icon_width"
                android:layout_height="@dimen/list_icon_height"
@@ -64,30 +65,26 @@
 
     <RelativeLayout android:id="@+id/toggleFollowingHolder"
                  android:layout_alignParentRight="true"
-                 android:layout_alignTop="@id/icon"
                  android:layout_width="wrap_content"
                  android:layout_height="wrap_content">
-
 
         <Button android:id="@+id/toggleFollowing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:background="@drawable/btn_blue"
-                android:text="@string/btn_following"
-                android:textColor="@color/white"
+                style="@style/btn_following"
+                android:layout_alignTop="@id/icon"
+                android:layout_alignBottom="@id/stats"
                 />
 
         <Button
                 android:id="@+id/toggleFollow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:background="@drawable/btn_grey"
+                style="@style/btn_follow"
                 android:layout_alignLeft="@id/toggleFollowing"
                 android:layout_alignRight="@id/toggleFollowing"
-                android:text="@string/btn_follow"
+                android:layout_alignTop="@id/icon"
+                android:layout_alignBottom="@id/stats"
                 />
-
     </RelativeLayout>
 </RelativeLayout>
