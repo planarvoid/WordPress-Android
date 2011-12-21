@@ -61,18 +61,19 @@
                   style="@style/txt_list_sub_secondary"/>
         </RelativeLayout>
     </RelativeLayout>
-    <FrameLayout android:id="@+id/toggleFollowingHolder"
+
+    <RelativeLayout android:id="@+id/toggleFollowingHolder"
                  android:layout_alignParentRight="true"
                  android:layout_alignTop="@id/icon"
                  android:layout_width="wrap_content"
                  android:layout_height="wrap_content">
 
+
         <Button android:id="@+id/toggleFollowing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="5dip"
+                android:padding="10dip"
                 android:background="@drawable/btn_blue"
-                android:gravity="center"
                 android:text="@string/btn_following"
                 android:textColor="@color/white"
                 />
@@ -81,10 +82,12 @@
                 android:id="@+id/toggleFollow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="5dip"
+                android:padding="10dip"
                 android:background="@drawable/btn_grey"
-                android:gravity="center"
+                android:layout_alignLeft="@id/toggleFollowing"
+                android:layout_alignRight="@id/toggleFollowing"
                 android:text="@string/btn_follow"
                 />
-    </FrameLayout>
+
+    </RelativeLayout>
 </RelativeLayout>

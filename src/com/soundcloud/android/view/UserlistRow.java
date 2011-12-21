@@ -83,11 +83,11 @@ public class UserlistRow extends LazyRow {
         boolean following = FollowStatus.get().isFollowing(mUser);
 
         if (mUser.id == mActivity.getCurrentUserId()) {
-            mFollowingBtn.setVisibility(View.GONE);
-            mFollowBtn.setVisibility(View.GONE);
+            mFollowingBtn.setVisibility(View.INVISIBLE);
+            mFollowBtn.setVisibility(View.INVISIBLE);
         } else {
-            mFollowingBtn.setVisibility(following ? View.VISIBLE : View.GONE);
-            mFollowBtn.setVisibility(following ? View.GONE : View.VISIBLE);
+            mFollowingBtn.setVisibility(following ? View.VISIBLE : View.INVISIBLE);
+            mFollowBtn.setVisibility(following ? View.INVISIBLE : View.VISIBLE);
             mFollowingBtn.setEnabled(enabled);
             mFollowBtn.setEnabled(enabled);
         }
