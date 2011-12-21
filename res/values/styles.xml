@@ -74,7 +74,7 @@
         <item name="android:shadowColor">#803F6BCE</item>
     </style>
     <style name="btn_round_blue" parent="btn_blue">
-        <item name="android:background">@drawable/btn_blue</item>
+        <item name="android:background">@drawable/btn_round_blue</item>
     </style>
     <style name="txt_list_pull">
         <item name="android:textStyle">bold</item>
