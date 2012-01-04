@@ -447,7 +447,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (mMediaPlayer != null && state != PAUSED) {
             if (state.isPausable() && mMediaPlayer.isPlaying()) {
                 mMediaPlayer.pause();
-                // don't abandon the focus here - otherwise we won't get it back
+                mFocus.abandonMusicFocus(true);
                 gotoIdleState(PAUSED);
             } else {
                 // get into a determined state
@@ -458,6 +458,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ void stop() {
+        // this is not usually called due to errors, not user interaction
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "stop(state="+state+")");
         }
@@ -468,7 +469,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
-        mFocus.abandonMusicFocus();
+        mFocus.abandonMusicFocus(false);
         gotoIdleState(STOPPED);
     }
 
@@ -1008,7 +1009,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 }
                 mMediaPlayer.release();
                 mMediaPlayer = null;
-                mFocus.abandonMusicFocus();
+                mFocus.abandonMusicFocus(false);
 
                 gotoIdleState(ERROR);
                 notifyChange(isConnected() ? PLAYBACK_ERROR : STREAM_DIED);

@@ -122,13 +122,14 @@ public class FocusHelper {
          return ret;
      }
 
-     public int abandonMusicFocus() {
+     public int abandonMusicFocus(boolean isTemporary) {
          final int ret = abandonAudioFocusCompat(mAudioManager, mAudioFocusChangeListener);
          if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
              Log.d(TAG, "abandonMusicFocus() => "+ret);
          }
 
-         if (mMusicFocusable instanceof Context) {
+         // only unregister headphone control on stop, not on pause
+         if (!isTemporary && mMusicFocusable instanceof Context) {
             unregisterRemoteControl((Context) mMusicFocusable);
          }
          return ret;
