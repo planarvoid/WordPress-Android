@@ -36,7 +36,7 @@
               android:clickable="true"
               android:fadingEdge="horizontal"
               android:fadeScrollbars="true"
-              android:hint="Where"
+              android:hint="@string/where_hint"
               android:layout_alignBottom="@+id/artwork_layout"/>
 
     <EditText android:id="@+id/what"
@@ -53,5 +53,5 @@
               style="@style/txt_record_input"
               android:gravity="left"
               android:inputType="textCapWords"
-              android:hint="What"/>
+              android:hint="@string/what_hint"/>
 </merge>

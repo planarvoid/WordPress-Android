@@ -6,6 +6,7 @@
                 android:gravity="center_vertical"
                 android:paddingBottom="5dip"
                 android:paddingTop="5dip">
+
     <ImageView android:id="@+id/icon"
                android:layout_width="@dimen/list_icon_width"
                android:layout_height="@dimen/list_icon_height"
@@ -61,24 +62,29 @@
                   style="@style/txt_list_sub_secondary"/>
         </RelativeLayout>
     </RelativeLayout>
-    <FrameLayout android:id="@+id/toggleFollowingHolder"
+
+    <RelativeLayout android:id="@+id/toggleFollowingHolder"
                  android:layout_alignParentRight="true"
-                 android:layout_alignTop="@id/icon"
                  android:layout_width="wrap_content"
                  android:layout_height="wrap_content">
-        <ImageButton
-                android:id="@+id/toggleFollowing"
-                android:padding="5dip"
-                android:background="@android:color/transparent"
+
+        <Button android:id="@+id/toggleFollowing"
                 android:layout_width="wrap_content"
-                android:src="@drawable/ic_unfollow_states"
-                android:layout_height="wrap_content"/>
-        <ImageButton
+                android:layout_height="wrap_content"
+                style="@style/btn_following"
+                android:layout_alignTop="@id/icon"
+                android:layout_alignBottom="@id/stats"
+                />
+
+        <Button
                 android:id="@+id/toggleFollow"
-                android:background="@android:color/transparent"
                 android:layout_width="wrap_content"
-                android:padding="5dip"
-                android:src="@drawable/ic_follow_states"
-                android:layout_height="wrap_content"/>
-    </FrameLayout>
+                android:layout_height="wrap_content"
+                style="@style/btn_follow"
+                android:layout_alignLeft="@id/toggleFollowing"
+                android:layout_alignRight="@id/toggleFollowing"
+                android:layout_alignTop="@id/icon"
+                android:layout_alignBottom="@id/stats"
+                />
+    </RelativeLayout>
 </RelativeLayout>

@@ -453,7 +453,8 @@ public abstract class ScActivity extends Activity {
     protected Dialog onCreateDialog(int which) {
         switch (which) {
             case Consts.Dialogs.DIALOG_CANCEL_UPLOAD:
-                return new AlertDialog.Builder(this).setTitle(R.string.dialog_cancel_upload_title)
+                return new AlertDialog.Builder(this)
+                        .setTitle(null)
                         .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
                                 android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
