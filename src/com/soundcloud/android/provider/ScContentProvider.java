@@ -15,7 +15,6 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -23,11 +22,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ScContentProvider extends ContentProvider {
-    private static final String LOG_TAG = ScContentProvider.class.getSimpleName();
+    private static final String TAG = ScContentProvider.class.getSimpleName();
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
     public static final Pattern URL_PATTERN = Pattern.compile("^content://" + AUTHORITY + "/(\\w+)(?:/(-?\\d+))?$");
-    public static final long DEFAULT_POLL_FREQUENCY = 3600l; // 1h
 
+    public static final long DEFAULT_POLL_FREQUENCY = 3600l; // 1h
+    
     private DBHelper dbHelper;
 
 
@@ -183,7 +183,8 @@ public class ScContentProvider extends ContentProvider {
                 throw new IllegalArgumentException("No query available for: " + uri);
         }
 
-        String q = qb.buildQuery(columns, selection, selectionArgs, null, null, sortOrder, null);
+        final String q = qb.buildQuery(columns, selection, selectionArgs, null, null, sortOrder, null);
+        Log.d(TAG, "query: "+q);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor c = db.rawQuery(q, selectionArgs);
         c.setNotificationUri(getContext().getContentResolver(), uri);
@@ -356,7 +357,7 @@ public class ScContentProvider extends ContentProvider {
 
                     final long start = System.currentTimeMillis();
                     count = db.delete(Table.TRACKS.name,where,null);
-                    Log.i(LOG_TAG,"Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
+                    Log.i(TAG,"Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
                     getContext().getContentResolver().notifyChange(Content.TRACKS.uri, null, false);
                     return count;
                 }
@@ -375,7 +376,7 @@ public class ScContentProvider extends ContentProvider {
                                 + ") AND _id <> " + userId;
                     final long start = System.currentTimeMillis();
                     count = db.delete(Table.USERS.name,where,null);
-                    Log.i(LOG_TAG,"User cleanup done: deleted " + count + " users in " + (System.currentTimeMillis() - start) + " ms");
+                    Log.i(TAG,"User cleanup done: deleted " + count + " users in " + (System.currentTimeMillis() - start) + " ms");
                     getContext().getContentResolver().notifyChange(Content.USERS.uri, null, false);
                     return count;
                 }
@@ -489,11 +490,13 @@ public class ScContentProvider extends ContentProvider {
 
     static String makeCollectionJoin(Table table){
         return table.name + " INNER JOIN " + Table.COLLECTION_ITEMS.name +
-            " ON (" + table.name +"."+ BaseColumns._ID + " = " + DBHelper.CollectionItems.ITEM_ID+ ")";
+            " ON (" + table.name+"._id"+" = " + DBHelper.CollectionItems.ITEM_ID+ ")";
     }
 
     static String makeCollectionSelection(String selection, String userId, int collectionType) {
-        final String whereAppend = Table.COLLECTION_ITEMS.id + " = " + userId
+        final String whereAppend =
+                Table.COLLECTION_ITEMS.name+"."+
+                DBHelper.CollectionItems.USER_ID + " = " + userId
                 + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType;
         return selection == null ? whereAppend : selection + " AND " + whereAppend;
     }

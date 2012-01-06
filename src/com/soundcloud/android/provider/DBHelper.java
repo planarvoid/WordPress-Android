@@ -194,25 +194,27 @@ public class DBHelper extends SQLiteOpenHelper {
             "position INTEGER null" +
             "user_id INTEGER null);";
 
-    static final String DATABASE_CREATE_COLLECTIONS = "create table Collections (_id INTEGER primary key AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_COLLECTIONS = "create table Collections(_id INTEGER primary key AUTOINCREMENT, " +
             "uri VARCHAR(255) null, " +
             "last_addition VARCHAR(255) null, " +
             "size INTEGER null, " +
             "last_sync INTEGER null, " +
             "status INTEGER null, UNIQUE (uri));";
 
-    static final String DATABASE_CREATE_COLLECTION_PAGES = "create table CollectionPages (collection_id INTEGER null, " +
+    static final String DATABASE_CREATE_COLLECTION_PAGES = "create table CollectionPages(" +
+            "collection_id INTEGER null, " +
             "page_index INTEGER, " +
             "etag VARCHAR(255) null, " +
             "next_href VARCHAR(255) null, " +
             "size INTEGER null, " +
-            "UNIQUE(collection_id, page_index) ON CONFLICT REPLACE)";
+            "PRIMARY KEY(collection_id, page_index) ON CONFLICT REPLACE)";
 
-    static final String DATABASE_CREATE_COLLECTION_ITEMS = "create table CollectionItems (" +
-            "user_id INTEGER, item_id INTEGER," +
+    static final String DATABASE_CREATE_COLLECTION_ITEMS = "create table CollectionItems(" +
+            "user_id INTEGER, " +
+            "item_id INTEGER," +
             "collection_type INTEGER, " +
             "position INTEGER null, " +
-            "UNIQUE(user_id, item_id, collection_type) ON CONFLICT REPLACE);";
+            "PRIMARY KEY(user_id, item_id, collection_type) ON CONFLICT REPLACE);";
 
 
     static final String DATABASE_CREATE_TRACK_VIEW = "CREATE VIEW TrackView" +
@@ -248,7 +250,8 @@ public class DBHelper extends SQLiteOpenHelper {
             " Tracks."+Tracks.USER_ID + " = " + "Users."+Users.ID + ")";
 
     public static class ResourceTable {
-        public static final String ID = "_id";
+        public static final String ID = BaseColumns._ID;
+
         public static final String LAST_UPDATED = "last_updated";
         public static final String PERMALINK = "permalink";
     }
