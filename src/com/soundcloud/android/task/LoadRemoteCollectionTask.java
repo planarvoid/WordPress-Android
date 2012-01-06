@@ -1,5 +1,6 @@
 package com.soundcloud.android.task;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Parcelable;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.model.LocalCollection.insertLocalCollection;
 
 public class LoadRemoteCollectionTask extends LoadCollectionTask {
 
@@ -68,30 +70,14 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
     protected Boolean doInBackground(Boolean... params) {
         boolean loadRemote = params != null && params.length > 0 ? params[0] : true;
 
-        Cursor c = null;
-        LocalCollection localCollection = null;
-        LocalCollectionPage localCollectionPage = null;
 
+        LocalData localData = null;
         if (loadRemote && mParams.contentUri != null){
-            localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(mApp.getContentResolver(), mParams.contentUri);
-            if (localCollection == null) {
-                localCollection = com.soundcloud.android.model.LocalCollection.insertLocalCollection(mApp.getContentResolver(), mParams.contentUri);
-            } else {
-                localCollectionPage = LocalCollectionPage.fromCollectionAndIndex(mApp.getContentResolver(), localCollection.id, mParams.pageIndex);
-                final long start = System.currentTimeMillis();
-                Cursor itemsCursor = mApp.getContentResolver().query(CloudUtils.getPagedUri(mParams.contentUri, mParams.pageIndex), new String[]{DBHelper.TrackView._ID}, null, null, null);
-                if (localCollectionPage != null) {
-                    if (itemsCursor == null || itemsCursor.getCount() != localCollectionPage.size) {
-                        localCollectionPage = null;
-                    } else {
-                        localCollectionPage.applyEtag(mRequest);
-                    }
-                }
-            }
+            localData = new LocalData(mApp.getContentResolver(), mParams, mRequest);
         }
 
         // fetch if there is no local uri, no stored colleciton for this page,
-        if (mParams.contentUri == null || localCollectionPage == null || loadRemote) {
+        if (loadRemote || mParams.contentUri == null || localData.localCollectionPage == null) {
             try {
                 HttpResponse resp = mApp.get(mRequest);
                 mResponseCode = resp.getStatusLine().getStatusCode();
@@ -102,11 +88,9 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
                 if (mResponseCode == HttpStatus.SC_OK) {
 
                     // we have new content. wipe out everything for now (or it gets tricky)
-                    if (localCollection != null) {
-                        mApp.getContentResolver().delete(Content.COLLECTION_PAGES.uri,
-                                DBHelper.CollectionPages.COLLECTION_ID + " = ? AND " + DBHelper.CollectionPages.PAGE_INDEX + " > ?",
-                                new String[]{String.valueOf(localCollection.id), String.valueOf(mParams.pageIndex)});
-                    }
+                    mApp.getContentResolver().delete(Content.COLLECTION_PAGES.uri,
+                            DBHelper.CollectionPages.COLLECTION_ID + " = ? AND " + DBHelper.CollectionPages.PAGE_INDEX + " > ?",
+                            new String[]{String.valueOf(localData.localCollection.id), String.valueOf(mParams.pageIndex)});
 
                     // process new items and publish them
                     CollectionHolder holder = ScModel.getCollectionFromStream(resp.getEntity().getContent(), mApp.getMapper(), mParams.loadModel, mNewItems);
@@ -122,7 +106,7 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
                     if (mParams.contentUri != null && mNewItems != null) {
 
                         ContentValues cv = new ContentValues();
-                        cv.put(DBHelper.CollectionPages.COLLECTION_ID, localCollection.id);
+                        cv.put(DBHelper.CollectionPages.COLLECTION_ID, localData.localCollection.id);
                         cv.put(DBHelper.CollectionPages.PAGE_INDEX, mParams.pageIndex);
                         cv.put(DBHelper.CollectionPages.ETAG, Http.etag(resp));
                         cv.put(DBHelper.CollectionPages.SIZE, mNewItems.size());
@@ -168,4 +152,31 @@ public class LoadRemoteCollectionTask extends LoadCollectionTask {
             return -1;
         }
     }
+
+    private static class LocalData {
+        LocalCollection localCollection;
+        LocalCollectionPage localCollectionPage;
+
+        public LocalData(ContentResolver contentResolver, CollectionParams mParams, Request request) {
+            localCollectionPage = null;
+            localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(contentResolver, mParams.contentUri);
+
+            if (localCollection == null) {
+                localCollection = insertLocalCollection(contentResolver, mParams.contentUri);
+            } else {
+
+                // look for content page and check its size against the DB
+                localCollectionPage = LocalCollectionPage.fromCollectionAndIndex(contentResolver, localCollection.id, mParams.pageIndex);
+                if (localCollectionPage != null) {
+                    final Cursor itemsCursor = contentResolver.query(CloudUtils.getPagedUri(mParams.contentUri, mParams.pageIndex), new String[]{DBHelper.TrackView._ID}, null, null, null);
+                    if (itemsCursor == null || itemsCursor.getCount() != localCollectionPage.size) {
+                        localCollectionPage = null;
+                    } else {
+                        localCollectionPage.applyEtag(request);
+                    }
+                }
+            }
+        }
+    }
+
 }

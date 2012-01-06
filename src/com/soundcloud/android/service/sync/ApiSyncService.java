@@ -30,14 +30,17 @@ public class ApiSyncService extends IntentService{
     public static final String EXTRA_CHECK_STALE_PAGE = "com.soundcloud.android.sync.extra.CHECK_STALE_PAGE";
 
     public static final String SYNC_ACTION = "com.soundcloud.android.sync.action.SYNC";
-    public static final String REFRESH_PAGE_ACTION = "com.soundcloud.android.sync.action.REFRESH_PAGE";
+    public static final String REFRESH_ACTION = "com.soundcloud.android.sync.action.REFRESH";
+    public static final String APPEND_ACTION = "com.soundcloud.android.sync.action.APPEND";
 
 
     public static final int STATUS_RUNNING = 0x1;
     public static final int STATUS_SYNC_ERROR = 0x2;
     public static final int STATUS_SYNC_FINISHED = 0x3;
-    public static final int STATUS_PAGE_REFRESH_ERROR = 0x4;
-    public static final int STATUS_PAGE_REFRESH_FINISHED = 0x5;
+    public static final int STATUS_REFRESH_ERROR = 0x4;
+    public static final int STATUS_REFRESH_FINISHED = 0x5;
+    public static final int STATUS_APPEND_ERROR = 0x6;
+    public static final int STATUS_APPEND_FINISHED = 0x7;
 
     public ApiSyncService() {
         super("ApiSyncService");
@@ -85,19 +88,29 @@ public class ApiSyncService extends IntentService{
                 sendSyncError(receiver, syncResult);
             }
 
-        } else if (action.equals(REFRESH_PAGE_ACTION)) {
+        } else if (action.equals(REFRESH_ACTION)) {
+
             try {
-                final int pageIndex = intent.getIntExtra("pageIndex", 0);
-                apiSyncer.refreshPage(Content.byUri(intent.getData()), pageIndex);
-
+                int totalItems = apiSyncer.refreshCollectionIds(intent.getData());
                 Bundle b = new Bundle();
-                b.putInt("pageIndex",pageIndex);
-                if (receiver != null) receiver.send(STATUS_PAGE_REFRESH_FINISHED, b);
-
+                b.putInt("itemCount", totalItems);
+                if (receiver != null) receiver.send(STATUS_REFRESH_FINISHED, b);
             } catch (IOException e) {
-                e.printStackTrace();
-                if (receiver != null) receiver.send(STATUS_PAGE_REFRESH_ERROR, null);
+                Log.e(LOG_TAG, "Cloud Api service: Problem while refreshing", e);
+                if (receiver != null) receiver.send(STATUS_REFRESH_ERROR, null);
             }
+
+        } else if (action.equals(APPEND_ACTION)) {
+            try {
+                int totalItems = apiSyncer.loadContent(intent.getData());
+                Bundle b = new Bundle();
+                b.putInt("itemCount",totalItems);
+                if (receiver != null) receiver.send(STATUS_APPEND_FINISHED, b);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Cloud Api service: Problem while appending", e);
+                if (receiver != null) receiver.send(STATUS_APPEND_ERROR, null);
+            }
+
 
         }
     }

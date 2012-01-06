@@ -2,8 +2,10 @@ package com.soundcloud.android.adapter;
 
 
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 
 import com.soundcloud.android.Consts;
@@ -27,6 +29,10 @@ public class SyncedCollectionAdapter extends LazyEndlessAdapter implements Detac
 
     public SyncedCollectionAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, boolean autoAppend) {
         super(activity, wrapped, contentUri, null, autoAppend);
+
+        activity.getContentResolver().registerContentObserver(contentUri,false,new ContentObserver(new Handler()) {
+
+        });
     }
 
     protected void startRefreshTask(){
@@ -102,7 +108,6 @@ public class SyncedCollectionAdapter extends LazyEndlessAdapter implements Detac
                     toUpdate.put(resource.getResourceId(), resource);
                 }
             }
-
         }
 
         if (toUpdate.size() > 0){
@@ -135,12 +140,12 @@ public class SyncedCollectionAdapter extends LazyEndlessAdapter implements Detac
     private void checkPageForStaleItems(boolean refresh){
         // do we only want to auto-refresh on wifi??
         if (Content.isSyncable(getContentUri()) && CloudUtils.isWifiConnected(mActivity)) {
-            final Intent intent = new Intent(mActivity, ApiSyncService.class);
+            /*final Intent intent = new Intent(mActivity, ApiSyncService.class);
             intent.setAction(ApiSyncService.REFRESH_PAGE_ACTION);
             intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
             intent.putExtra("pageIndex",getPageIndex());
             intent.setData(mContent.uri);
-            mActivity.startService(intent);
+            mActivity.startService(intent);*/
         }
     }
 
@@ -161,10 +166,22 @@ public class SyncedCollectionAdapter extends LazyEndlessAdapter implements Detac
                 onPostRefresh(null);
                 break;
             }
-            case ApiSyncService.STATUS_PAGE_REFRESH_ERROR:
-            case ApiSyncService.STATUS_PAGE_REFRESH_FINISHED: {
-                break;
-            }
+        }
+    }
+
+    private class ChangeObserver extends ContentObserver {
+        public ChangeObserver() {
+            super(new Handler());
+        }
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return true;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            onContentChanged();
         }
     }
 }

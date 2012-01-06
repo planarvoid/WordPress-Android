@@ -87,7 +87,6 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, Resource>, String,
             publishProgress();
             SoundCloudDB.bulkInsertParcelables(mApp, objectsToWrite);
 
-
             return true;
 
         } catch (IOException e) {

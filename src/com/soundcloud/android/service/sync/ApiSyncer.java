@@ -125,6 +125,67 @@ public class ApiSyncer {
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " items added in " + (System.currentTimeMillis() - itemStart) + " ms");
     }
 
+    public int refreshCollectionIds(Uri uri) throws IOException {
+
+        final long itemStart = System.currentTimeMillis();
+        // get remote collection
+        List<Long> local = idCursorToList(mResolver.query(uri, new String[]{DBHelper.CollectionItems.ITEM_ID},
+                null,null, DBHelper.CollectionItems.CONCRETE_POSITION + " ASC"));
+
+        Content c = Content.match(uri);
+        List<Long> remote = getCollectionIds(c.remoteUri);
+        Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
+
+        if (local.equals(remote)){
+            Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + uri + ". Skipping id refresh.");
+            return local.size();
+        }
+
+        List<Long> itemDeletions = new ArrayList<Long>(local);
+        itemDeletions.removeAll(remote);
+        int i = 0;
+        while (i < itemDeletions.size()) {
+            List<Long> batch = itemDeletions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
+            mResolver.delete(uri, CloudUtils.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
+            i += RESOLVER_BATCH_SIZE;
+        }
+
+        ContentValues[] cv = new ContentValues[remote.size()];
+        i = 0;
+        final long userId = mApp.getCurrentUserId();
+        for (Long id : remote) {
+            cv[i] = new ContentValues();
+            cv[i].put(DBHelper.CollectionItems.POSITION, i + 1);
+            cv[i].put(DBHelper.CollectionItems.ITEM_ID, id);
+            cv[i].put(DBHelper.CollectionItems.USER_ID, userId);
+            i++;
+        }
+
+        int added = mResolver.bulkInsert(uri, cv);
+        Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Refreshed collection ids in " + (System.currentTimeMillis() - itemStart) + " ms");
+        return added;
+    }
+
+    /**
+     * @param uri : a URI representing what is being requested, e.g. content://com.soundcloud.android/me/favorites?offset=100&limit=50
+     */
+    public int loadContent(Uri uri) throws IOException {
+
+        // get local collection
+
+        // get last update time
+
+        //  not exists or stale
+
+
+        Content c = Content.match(uri);
+        List<Long> pageIds = idCursorToList(mResolver.query(uri, new String[]{DBHelper.CollectionItems.ITEM_ID},
+                null, null, DBHelper.CollectionItems.CONCRETE_POSITION + " ASC"));
+        final int itemCount = pageIds.size();
+        SoundCloudDB.bulkInsertParcelables(mApp, getAdditionsFromIds(pageIds, c.resourceType, false));
+        return itemCount;
+    }
+
     private ContentValues[] quickSync(Uri contentUri, String endpoint,ArrayList<Long> additions) throws IOException {
 
         final long start = System.currentTimeMillis();
