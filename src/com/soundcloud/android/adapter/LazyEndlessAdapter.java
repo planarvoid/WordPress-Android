@@ -504,10 +504,10 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
             case ApiSyncService.STATUS_SYNC_ERROR: {
                 break;
             }
-            case ApiSyncService.STATUS_PAGE_REFRESH_ERROR: {
+            case ApiSyncService.STATUS_REFRESH_ERROR: {
                 break;
             }
-            case ApiSyncService.STATUS_PAGE_REFRESH_FINISHED: {
+            case ApiSyncService.STATUS_REFRESH_FINISHED: {
                 break;
             }
         }
