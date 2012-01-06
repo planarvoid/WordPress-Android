@@ -120,7 +120,7 @@ public class C2DMReceiver extends BroadcastReceiver {
             processDeletionQueue(context, mWakeLock);
             sendRegId(context, regId, mWakeLock);
         } else {
-            Log.w(TAG, "received registration intent wihout id");
+            Log.w(TAG, "received registration intent without id");
         }
     }
 

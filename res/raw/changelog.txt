@@ -1,5 +1,11 @@
-$ 31
+$ 32
   % v current
+  _ 2011-12-16
+  ! Maintenance
+    * Patch for Android 2.1
+
+$ 31
+  % v 2.1
   _ 2011-12-15
   ! SSO
     * Facebook Single sign-on (SSO)

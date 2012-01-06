@@ -933,7 +933,8 @@ public class CreateController {
                             }
                         }).create();
             case Consts.Dialogs.DIALOG_RESET_RECORDING:
-                return new AlertDialog.Builder(mActivity).setTitle(R.string.dialog_reset_recording_title)
+                return new AlertDialog.Builder(mActivity)
+                        .setTitle(null)
                         .setMessage(R.string.dialog_reset_recording_message).setPositiveButton(
                                 android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -946,7 +947,7 @@ public class CreateController {
 
             case Consts.Dialogs.DIALOG_DELETE_RECORDING:
              return new AlertDialog.Builder(mActivity)
-                            .setTitle(R.string.dialog_confirm_delete_recording_title)
+                            .setTitle(null)
                             .setMessage(R.string.dialog_confirm_delete_recording_message)
                             .setPositiveButton(android.R.string.yes,
                                     new DialogInterface.OnClickListener() {

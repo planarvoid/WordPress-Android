@@ -5,7 +5,7 @@
     <artifactId>soundcloud-android</artifactId>
     <packaging>apk</packaging>
     <description>soundcloud-android</description>
-    <version>2.1</version>
+    <version>2.0.1-SNAPSHOT</version>
     <name>soundcloud-android</name>
     <organization>
         <name>com.soundcloud</name>
@@ -259,6 +259,12 @@
             <groupId>com.github.xian</groupId>
             <artifactId>great-expectations</artifactId>
             <version>0.10</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.7.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>

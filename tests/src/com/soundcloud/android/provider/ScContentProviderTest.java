@@ -1,10 +1,6 @@
 package com.soundcloud.android.provider;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-
-import android.database.Cursor;
+import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.CollectionHolder;
@@ -14,8 +10,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
+import android.database.Cursor;
+import android.net.Uri;
 
+import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
 public class ScContentProviderTest {
@@ -25,31 +23,28 @@ public class ScContentProviderTest {
     public void setup() {
         provider = new ScContentProvider();
         provider.onCreate();
-
         DefaultTestRunner.application.setCurrentUserId(1);
     }
 
     @Test
-    public void testFromJSON() throws Exception {
+    public void testInsertAndQueryFavorites() throws Exception {
         CollectionHolder<Track> tracks = getUserFavorites();
-        assertThat(tracks.size(), is(15));
+        expect(tracks.size()).toBe(15);
 
         for (Track t : tracks) {
-            System.out.println(provider.insert(Content.USERS.uri, t.user.buildContentValues(false)));
-            System.out.println(provider.insert(Content.ME_FAVORITES.uri, t.buildContentValues()));
+            Uri user = provider.insert(Content.USERS.uri, t.user.buildContentValues(false));
+            Uri track = provider.insert(Content.ME_FAVORITES.uri, t.buildContentValues());
+            expect(user).not.toBeNull();
+            expect(track).not.toBeNull();
         }
 
         Cursor c = provider.query(Content.ME_FAVORITES.uri, null, null, null, null);
-        assertThat(tracks.size(), is(c.getCount()));
-        if (c != null && c.moveToFirst()){
-            do {
-                System.out.println(new Track(c).toString());
-            } while (c.moveToNext());
-        }
+        expect(c).not.toBeNull();
+        expect(c.getCount()).toBe(tracks.size());
     }
 
-
     public CollectionHolder<Track> getUserFavorites() throws IOException {
-        return AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("user_favorites.json"), Track.TrackHolder.class);
+        return AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("user_favorites.json"),
+                Track.TrackHolder.class);
     }
 }

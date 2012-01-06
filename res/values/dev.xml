@@ -13,6 +13,12 @@
     <string name='pref_dev_rewind_notification'>Rewind notification</string>
     <string name='pref_dev_rewind_notification_summary'>Rewind notifications 1 day data &amp; rerun sync</string>
 
+    <string name="pref_dev_crash">Crash</string>
+    <string name="pref_dev_crash_summary">Crashes the app. Yes, really.</string>
+
+    <string name="pref_dev_sync_now">Sync now</string>
+    <string name="pref_dev_sync_now_summary">Request a sync</string>
+
     <string name='pref_dev_http_proxy'>HTTP proxy</string>
     <string name='pref_dev_http_proxy_summary'>Use a proxy to connect to the API</string>
     <string name='pref_dev_http_proxy_invalid_url'>Invalid URL</string>

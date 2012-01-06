@@ -21,7 +21,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
             @Override public String getApplicationName() {
                 return TestApplication.class.getSimpleName();
             }
-        });
+        }, new SQLiteMap());
     }
 
     @Override

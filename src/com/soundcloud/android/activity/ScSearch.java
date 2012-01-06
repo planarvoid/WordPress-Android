@@ -4,10 +4,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.*;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.soundcloud.android.Consts;
@@ -18,10 +18,10 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
+import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -39,22 +39,29 @@ public class ScSearch extends ScActivity {
 
     private ListView mHistoryList;
 
+    private FrameLayout mListHolder;
+
     private boolean mHasHistory;
 
     private ScListView mList;
     private SectionedEndlessAdapter mTrackAdpWrapper;
     private SectionedEndlessAdapter mUserAdpWrapper;
 
-    private ViewFlipper mSearchFlipper;
+    private WorkspaceView mWorkspaceView;
     private SearchHistoryAdapter mHistoryAdapter;
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
 
-        setContentView(R.layout.sc_search);
 
-        mSearchFlipper = (ViewFlipper) findViewById(R.id.vf_search);
+
+        setContentView(R.layout.workspace_view);
+
+        mWorkspaceView = (WorkspaceView) ((ViewGroup) findViewById(android.R.id.content)).findViewById(R.id.workspace_view);
+        mWorkspaceView.addView(getLayoutInflater().inflate(R.layout.sc_search_controls, null));
+
+
         rdoType = (RadioGroup) findViewById(R.id.rdo_search_type);
         rdoUser = (RadioButton) findViewById(R.id.rdo_users);
         rdoTrack = (RadioButton) findViewById(R.id.rdo_tracks);
@@ -71,19 +78,17 @@ public class ScSearch extends ScActivity {
             }
         });
 
-        rdoTrack.setVisibility(View.GONE);
-        rdoUser.setVisibility(View.GONE);
-
         mList = new SectionedListView(this);
         configureList(mList);
 
-        ((ViewGroup) findViewById(R.id.list_holder)).addView(mList);
+        mListHolder = new FrameLayout(this);
+        mListHolder.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+        mListHolder.addView(mList);
         mList.setVisibility(View.GONE);
 
         mTrackAdpWrapper = new SectionedEndlessAdapter(this, new SectionedTracklistAdapter(this), true);
         mUserAdpWrapper = new SectionedEndlessAdapter(this, new SectionedUserlistAdapter(this), true);
 
-        // set the list to tracks by default
         mList.setId(android.R.id.list);
 
         btnSearch.setNextFocusDownId(android.R.id.list);
@@ -93,8 +98,6 @@ public class ScSearch extends ScActivity {
         root.setOnClickListener(keyboardHideClickListener);
         root.setOnTouchListener(keyboardHideTouchListener);
 
-        txtQuery.setOnFocusChangeListener(queryFocusListener);
-        txtQuery.setOnClickListener(queryClickListener);
         txtQuery.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (!isFinishing() &&
@@ -128,11 +131,21 @@ public class ScSearch extends ScActivity {
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
             setListType(mPreviousState[0] != null && mPreviousState[0].equals(User.class));
-            mList.setVisibility(Integer.parseInt(mPreviousState[1].toString()));
             mTrackAdpWrapper.restoreState((Object[]) mPreviousState[2]);
             mUserAdpWrapper.restoreState((Object[]) mPreviousState[3]);
-            mSearchFlipper.setDisplayedChild((Integer) mPreviousState[4]);
+
+            if ((Integer) mPreviousState[1] == View.VISIBLE){
+                mWorkspaceView.addView(mListHolder);
+                mList.setVisibility(View.VISIBLE);
+            }
+
+            if ((Integer) mPreviousState[4] == 1){
+                mWorkspaceView.initWorkspace(1);
+            } else {
+                mWorkspaceView.initWorkspace(0);
+            }
         } else {
+            mWorkspaceView.initWorkspace(0);
             setListType(false);
         }
     }
@@ -172,7 +185,7 @@ public class ScSearch extends ScActivity {
                 mList.getVisibility(),
                 mTrackAdpWrapper.saveState(),
                 mUserAdpWrapper.saveState(),
-                mSearchFlipper.getDisplayedChild()
+                mWorkspaceView.getCurrentScreen()
         };
     }
 
@@ -213,9 +226,6 @@ public class ScSearch extends ScActivity {
         if (mgr != null) {
             mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
-
-        rdoTrack.setVisibility(View.GONE);
-        rdoUser.setVisibility(View.GONE);
 
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Searches.CREATED_AT, System.currentTimeMillis());
@@ -275,84 +285,68 @@ public class ScSearch extends ScActivity {
         }
         refreshHistory();
 
+        mList.setVisibility(View.VISIBLE);
         mList.setLastUpdated(0);
         mList.onRefresh(false);
         mList.setVisibility(View.VISIBLE);
 
-        if (mSearchFlipper.getDisplayedChild() == 0) {
-            mSearchFlipper.setInAnimation(AnimUtils.inFromRightAnimation(new AccelerateDecelerateInterpolator()));
-            mSearchFlipper.setOutAnimation(AnimUtils.outToLeftAnimation(new AccelerateDecelerateInterpolator()));
-            mSearchFlipper.showNext();
+        if (mWorkspaceView.getChildCount() < 2){
+            mWorkspaceView.addView(mListHolder);
         }
+
+
+        Handler myHandler = new Handler();
+        myHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mWorkspaceView.getCurrentScreen() != 1) {
+                    mWorkspaceView.scrollRight();
+                }
+            }
+        }, 100);
     }
 
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (mSearchFlipper != null && keyCode == KeyEvent.KEYCODE_BACK &&
-                mSearchFlipper.getDisplayedChild() != 0) {
-            mSearchFlipper.setInAnimation(AnimUtils.inFromLeftAnimation(new AccelerateDecelerateInterpolator()));
-            mSearchFlipper.setOutAnimation(AnimUtils.outToRightAnimation(new AccelerateDecelerateInterpolator()));
-            mSearchFlipper.showPrevious();
+        if (mWorkspaceView != null && keyCode == KeyEvent.KEYCODE_BACK &&
+                mWorkspaceView.getCurrentScreen() != 0) {
+            mWorkspaceView.scrollLeft();
             return true;
         } else {
             return super.onKeyDown(keyCode, event);
         }
     }
 
-
-
-    private final View.OnFocusChangeListener queryFocusListener = new View.OnFocusChangeListener() {
-        public void onFocusChange(View v, boolean hasFocus) {
-            if (!isFinishing() && hasFocus) {
-                showControls();
-            }
-        }
-    };
-
-    private final View.OnClickListener queryClickListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            showControls();
-        }
-    };
-
-    private void showControls() {
-        if (!isFinishing()) {
-            rdoTrack.setVisibility(View.VISIBLE);
-            rdoUser.setVisibility(View.VISIBLE);
-        }
-    }
-
     private final View.OnFocusChangeListener keyboardHideFocusListener = new View.OnFocusChangeListener() {
         public void onFocusChange(View v, boolean hasFocus) {
-            hideControls();
+            hideKeyboard();
         }
     };
 
     private final View.OnClickListener keyboardHideClickListener = new View.OnClickListener() {
         public void onClick(View v) {
-            hideControls();
+            hideKeyboard();
         }
     };
 
     private final View.OnTouchListener keyboardHideTouchListener = new View.OnTouchListener() {
         public boolean onTouch(View v, MotionEvent event) {
-            hideControls();
+            hideKeyboard();
             return false;
         }
     };
 
-    private void hideControls() {
+    private void hideKeyboard() {
         if (!isFinishing()) {
             InputMethodManager mgr = (InputMethodManager)
                     getSystemService(Context.INPUT_METHOD_SERVICE);
             if (mgr != null)
                 mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
-            rdoTrack.setVisibility(View.GONE);
-            rdoUser.setVisibility(View.GONE);
         }
     }
+
 
     private SearchHistoryItem[] searchDefaults = new SearchHistoryItem[] {
             new SearchHistoryItem("Interviews",0),

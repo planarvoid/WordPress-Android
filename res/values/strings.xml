@@ -16,4 +16,10 @@
     <string name="pref_sync_my_followers">My Followers</string>
     <string name="pref_sync_my_followers_description">Keep the people that follow me updated locally</string>
 
+
+    <string name="what_hint">What</string>
+    <string name="where_hint">Where</string>
+
+    <string name="btn_follow">Follow</string>
+    <string name="btn_following">Following</string>
 </resources>

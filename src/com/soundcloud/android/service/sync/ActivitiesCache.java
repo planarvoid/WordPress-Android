@@ -41,9 +41,6 @@ public class ActivitiesCache {
 
         final File cachedFile = getCacheFile(context,account,request);
 
-        System.out.println("cached file name is " + request.toUrl() + " " +
-                cachedFile.getAbsolutePath());
-
         Activities activities;
         try {
             if (cachedFile.exists()) {
