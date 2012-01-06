@@ -181,7 +181,7 @@ public class SyncedCollectionAdapter extends LazyEndlessAdapter implements Detac
 
         @Override
         public void onChange(boolean selfChange) {
-            onContentChanged();
+//            onContentChanged();
         }
     }
 }

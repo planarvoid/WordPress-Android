@@ -130,7 +130,7 @@ public class ApiSyncer {
         final long itemStart = System.currentTimeMillis();
         // get remote collection
         List<Long> local = idCursorToList(mResolver.query(uri, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                null,null, DBHelper.CollectionItems.CONCRETE_POSITION + " ASC"));
+                null,null, DBHelper.CollectionItems.POSITION + " ASC"));
 
         Content c = Content.match(uri);
         List<Long> remote = getCollectionIds(c.remoteUri);
@@ -180,7 +180,7 @@ public class ApiSyncer {
 
         Content c = Content.match(uri);
         List<Long> pageIds = idCursorToList(mResolver.query(uri, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                null, null, DBHelper.CollectionItems.CONCRETE_POSITION + " ASC"));
+                null, null, DBHelper.CollectionItems.POSITION + " ASC"));
         final int itemCount = pageIds.size();
         SoundCloudDB.bulkInsertParcelables(mApp, getAdditionsFromIds(pageIds, c.resourceType, false));
         return itemCount;
