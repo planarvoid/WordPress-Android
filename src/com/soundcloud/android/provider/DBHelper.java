@@ -92,160 +92,160 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    static final String DATABASE_CREATE_TRACKS = "create table Tracks (_id INTEGER primary key, " +
+            "last_updated INTEGER null, " +
+            "permalink VARCHAR(255) null, " +
+            "duration INTEGER null, " +
+            "created_at INTEGER null, " +
+            "tag_list VARCHAR(255) null, " +
+            "track_type VARCHAR(255) null, " +
+            "title VARCHAR(255) null, " +
+            "permalink_url VARCHAR(255) null, " +
+            "artwork_url VARCHAR(255) null, " +
+            "waveform_url VARCHAR(255) null, " +
+            "downloadable VARCHAR(255) null, " +
+            "download_url VARCHAR(255) null, " +
+            "stream_url VARCHAR(255) null, " +
+            "streamable VARCHAR(255) null, " +
+            "sharing VARCHAR(255) null, " +
+            "playback_count INTEGER null, " +
+            "download_count INTEGER null, " +
+            "comment_count INTEGER null, " +
+            "favoritings_count INTEGER null, " +
+            "shared_to_count INTEGER null, " +
+            "user_id INTEGER null, " +
+            "user_favorite BOOLEAN DEFAULT FALSE, " +
+            "filelength INTEGER null);";
 
 
-    static final String DATABASE_CREATE_TRACKS = "create table Tracks (_id INTEGER primary key, "
-            + "last_updated INTEGER null, "
-            + "permalink VARCHAR(255) null, "
-            + "duration INTEGER null, "
-            + "created_at INTEGER null, "
-            + "tag_list VARCHAR(255) null, "
-            + "track_type VARCHAR(255) null, "
-            + "title VARCHAR(255) null, "
-            + "permalink_url VARCHAR(255) null, "
-            + "artwork_url VARCHAR(255) null, "
-            + "waveform_url VARCHAR(255) null, "
-            + "downloadable VARCHAR(255) null, "
-            + "download_url VARCHAR(255) null, "
-            + "stream_url VARCHAR(255) null, "
-            + "streamable VARCHAR(255) null, "
-            + "sharing VARCHAR(255) null, "
-            + "playback_count INTEGER null, "
-            + "download_count INTEGER null, "
-            + "comment_count INTEGER null, "
-            + "favoritings_count INTEGER null, "
-            + "shared_to_count INTEGER null, "
-            + "user_id INTEGER null, "
-            + "user_favorite BOOLEAN DEFAULT FALSE, "
-            + "filelength INTEGER null);";
+    static final String DATABASE_CREATE_TRACK_PLAYS = "create table TrackPlays (_id INTEGER primary key AUTOINCREMENT, " +
+            "track_id INTEGER null, " +
+            "user_id INTEGER null);";
+
+    static final String DATABASE_CREATE_USERS = "create table Users (_id INTEGER primary key, " +
+            "last_updated INTEGER null, " +
+            "username VARCHAR(255) null, " +
+            "avatar_url VARCHAR(255) null, " +
+            "permalink VARCHAR(255) null, " +
+            "city VARCHAR(255) null, " +
+            "country VARCHAR(255) null, " +
+            "discogs_name VARCHAR(255) null, " +
+            "followers_count INTEGER null, " +
+            "followings_count INTEGER null, " +
+            "full_name VARCHAR(255) null, " +
+            "myspace_name VARCHAR(255) null, " +
+            "track_count INTEGER null, " +
+            "website VARCHAR(255) null, " +
+            "website_title VARCHAR(255) null, " +
+            "description text null);";
+
+    static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id INTEGER primary key AUTOINCREMENT, " +
+            "user_id INTEGER null, " +
+            "timestamp INTEGER null, " +
+            "longitude VARCHAR(255) null, " +
+            "latitude VARCHAR(255) null, " +
+            "what_text VARCHAR(255) null, " +
+            "where_text VARCHAR(255) null, " +
+            "audio_path VARCHAR(255) null, " +
+            "artwork_path VARCHAR(255) null, " +
+            "duration INTEGER null, " +
+            "four_square_venue_id VARCHAR(255) null, " +
+            "shared_emails text null, " +
+            "shared_ids text null, " +
+            "private_user_id INTEGER null, " +
+            "service_ids VARCHAR(255) null, " +
+            "is_private boolean default false, " +
+            "external_upload boolean default false, " +
+            "audio_profile INTEGER null, " +
+            "upload_status INTEGER default 0, " +
+            "upload_error boolean default false);";
+
+    static final String DATABASE_CREATE_COMMENTS = "create table Comments (_id INTEGER primary key AUTOINCREMENT, " +
+            "user_id INTEGER null, " +
+            "track_id INTEGER null, " +
+            "timestamp INTEGER null, " +
+            "body VARCHAR(255) null, " +
+            "created_at INTEGER null);";
 
 
-    static final String DATABASE_CREATE_TRACK_PLAYS = "create table TrackPlays (_id INTEGER primary key AUTOINCREMENT, "
-            + "track_id INTEGER null, " + "user_id INTEGER null);";
-
-    static final String DATABASE_CREATE_USERS = "create table Users (_id INTEGER primary key, "
-            + "last_updated INTEGER null, "
-            + "username VARCHAR(255) null, "
-            + "avatar_url VARCHAR(255) null, "
-            + "permalink VARCHAR(255) null, "
-            + "city VARCHAR(255) null, "
-            + "country VARCHAR(255) null, "
-            + "discogs_name VARCHAR(255) null, "
-            + "followers_count INTEGER null, "
-            + "followings_count INTEGER null, "
-            + "full_name VARCHAR(255) null, "
-            + "myspace_name VARCHAR(255) null, "
-            + "track_count INTEGER null, "
-            + "website VARCHAR(255) null, "
-            + "website_title VARCHAR(255) null, "
-            + "description text null);";
-
-    static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id INTEGER primary key AUTOINCREMENT, "
-            + "user_id INTEGER null, "
-            + "timestamp INTEGER null, "
-            + "longitude VARCHAR(255) null, "
-            + "latitude VARCHAR(255) null, "
-            + "what_text VARCHAR(255) null, "
-            + "where_text VARCHAR(255) null, "
-            + "audio_path VARCHAR(255) null, "
-            + "artwork_path VARCHAR(255) null, "
-            + "duration INTEGER null, "
-            + "four_square_venue_id VARCHAR(255) null, "
-            + "shared_emails text null, "
-            + "shared_ids text null, "
-            + "private_user_id INTEGER null, "
-            + "service_ids VARCHAR(255) null, "
-            + "is_private boolean default false, "
-            + "external_upload boolean default false, "
-            + "audio_profile INTEGER null, "
-            + "upload_status INTEGER default 0, "
-            + "upload_error boolean default false);";
-
-    static final String DATABASE_CREATE_COMMENTS = "create table Comments (_id INTEGER primary key AUTOINCREMENT, "
-            + "user_id INTEGER null, "
-            + "track_id INTEGER null, "
-            + "timestamp INTEGER null, "
-            + "body VARCHAR(255) null, "
-            + "created_at INTEGER null);";
+    static final String DATABASE_CREATE_ACTIVITIES = "create table Activities (_id INTEGER primary key AUTOINCREMENT, " +
+            "user_id INTEGER null, " +
+            "track_id INTEGER null, " +
+            "type VARCHAR(255) null, " +
+            "tags VARCHAR(255) null, " +
+            "created_at INTEGER null);";
 
 
-    static final String DATABASE_CREATE_ACTIVITIES = "create table Activities (_id INTEGER primary key AUTOINCREMENT, "
-            + "user_id INTEGER null, "
-            + "track_id INTEGER null, "
-            + "type VARCHAR(255) null, "
-            + "tags VARCHAR(255) null, "
-            + "created_at INTEGER null);";
+    static final String DATABASE_CREATE_SEARCHES = "create table Searches (_id INTEGER primary key AUTOINCREMENT, " +
+            "created_at INTEGER null, " +
+            "user_id INTEGER null, " +
+            "query VARCHAR(255) null, " +
+            "search_type INTEGER null);";
 
+    static final String DATABASE_CREATE_PLAYLIST = "create table Playlists (_id INTEGER primary key AUTOINCREMENT, " +
+            "created_at INTEGER null, " +
+            "position INTEGER null, " +
+            "seek_pos INTEGER null, " +
+            "user_id INTEGER null);";
 
-    static final String DATABASE_CREATE_SEARCHES = "create table Searches (_id INTEGER primary key AUTOINCREMENT, "
-            + "created_at INTEGER null, "
-            + "user_id INTEGER null, "
-            + "query VARCHAR(255) null, "
-            + "search_type INTEGER null);";
+    static final String DATABASE_CREATE_PLAYLIST_ITEMS = "create table PlaylistItems (_id INTEGER primary key AUTOINCREMENT, " +
+            "playlist_id INTEGER null, " +
+            "track_id INTEGER null" +
+            "position INTEGER null" +
+            "user_id INTEGER null);";
 
-    static final String DATABASE_CREATE_PLAYLIST = "create table Playlists (_id INTEGER primary key AUTOINCREMENT, "
-            + "created_at INTEGER null, "
-            + "position INTEGER null, "
-            + "seek_pos INTEGER null, "
-            + "user_id INTEGER null);";
+    static final String DATABASE_CREATE_COLLECTIONS = "create table Collections (_id INTEGER primary key AUTOINCREMENT, " +
+            "uri VARCHAR(255) null, " +
+            "last_addition VARCHAR(255) null, " +
+            "size INTEGER null, " +
+            "last_sync INTEGER null, " +
+            "status INTEGER null, UNIQUE (uri));";
 
-    static final String DATABASE_CREATE_PLAYLIST_ITEMS = "create table PlaylistItems (_id INTEGER primary key AUTOINCREMENT, "
-            + "playlist_id INTEGER null, "
-            + "track_id INTEGER null"
-            + "position INTEGER null"
-            + "user_id INTEGER null);";
+    static final String DATABASE_CREATE_COLLECTION_PAGES = "create table CollectionPages (collection_id INTEGER null, " +
+            "page_index INTEGER, " +
+            "etag VARCHAR(255) null, " +
+            "next_href VARCHAR(255) null, " +
+            "size INTEGER null, " +
+            "UNIQUE(collection_id, page_index) ON CONFLICT REPLACE)";
 
-    static final String DATABASE_CREATE_COLLECTIONS = "create table Collections (_id INTEGER primary key AUTOINCREMENT, "
-            + "uri VARCHAR(255) null, "
-            + "last_addition VARCHAR(255) null, "
-            + "size INTEGER null, "
-            + "last_sync INTEGER null, "
-            + "status INTEGER null, UNIQUE (uri));";
-
-    static final String DATABASE_CREATE_COLLECTION_PAGES = "create table CollectionPages (collection_id INTEGER null, "
-            + "page_index INTEGER, "
-            + "etag VARCHAR(255) null, "
-            + "next_href VARCHAR(255) null, "
-            + "size INTEGER null, "
-            + "UNIQUE(collection_id, page_index) ON CONFLICT REPLACE)";
-
-    static final String DATABASE_CREATE_COLLECTION_ITEMS =
-            "create table CollectionItems (user_id INTEGER, item_id INTEGER, collection_type INTEGER, "
-                    + "position INTEGER null, UNIQUE(user_id, item_id, collection_type) ON CONFLICT REPLACE);";
+    static final String DATABASE_CREATE_COLLECTION_ITEMS = "create table CollectionItems (" +
+            "user_id INTEGER, item_id INTEGER," +
+            "collection_type INTEGER, " +
+            "position INTEGER null, " +
+            "UNIQUE(user_id, item_id, collection_type) ON CONFLICT REPLACE);";
 
 
     static final String DATABASE_CREATE_TRACK_VIEW = "CREATE VIEW TrackView" +
-            " AS SELECT "
-            + "Tracks."+Tracks.ID + " as " + TrackView._ID + ","
-            + "Tracks."+Tracks.LAST_UPDATED + " as " + TrackView.LAST_UPDATED + ","
-            + "Tracks."+Tracks.PERMALINK + " as " + TrackView.PERMALINK + ","
-            + "Tracks."+Tracks.CREATED_AT + " as " + TrackView.CREATED_AT + ","
-            + "Tracks."+Tracks.DURATION + " as " + TrackView.DURATION + ","
-            + "Tracks."+Tracks.TAG_LIST + " as " + TrackView.TAG_LIST + ","
-            + "Tracks."+Tracks.TRACK_TYPE + " as " + TrackView.TRACK_TYPE + ","
-            + "Tracks."+Tracks.TITLE + " as " + TrackView.TITLE + ","
-            + "Tracks."+Tracks.PERMALINK_URL + " as " + TrackView.PERMALINK_URL + ","
-            + "Tracks."+Tracks.ARTWORK_URL + " as " + TrackView.ARTWORK_URL + ","
-            + "Tracks."+Tracks.WAVEFORM_URL + " as " + TrackView.WAVEFORM_URL + ","
-            + "Tracks."+Tracks.DOWNLOADABLE + " as " + TrackView.DOWNLOADABLE + ","
-            + "Tracks."+Tracks.DOWNLOAD_URL + " as " + TrackView.DOWNLOAD_URL + ","
-            + "Tracks."+Tracks.STREAM_URL + " as " + TrackView.STREAM_URL + ","
-            + "Tracks."+Tracks.STREAMABLE + " as " + TrackView.STREAMABLE + ","
-            + "Tracks."+Tracks.SHARING + " as " + TrackView.SHARING + ","
-            + "Tracks."+Tracks.PLAYBACK_COUNT + " as " + TrackView.PLAYBACK_COUNT + ","
-            + "Tracks."+Tracks.DOWNLOAD_COUNT + " as " + TrackView.DOWNLOAD_COUNT + ","
-            + "Tracks."+Tracks.COMMENT_COUNT + " as " + TrackView.COMMENT_COUNT + ","
-            + "Tracks."+Tracks.FAVORITINGS_COUNT + " as " + TrackView.FAVORITINGS_COUNT + ","
-            + "Tracks."+Tracks.SHARED_TO_COUNT + " as " + TrackView.SHARED_TO_COUNT + ","
-            + "Tracks."+Tracks.FILELENGTH + " as " + TrackView.FILELENGTH + ","
-
-            + "Users."+Users.ID + " as " + TrackView.USER_ID + ","
-            + "Users."+Users.USERNAME + " as " + TrackView.USERNAME + ","
-            + "Users."+Users.PERMALINK + " as " + TrackView.USER_PERMALINK + ","
-            + "Users."+Users.AVATAR_URL + " as " + TrackView.USER_AVATAR_URL
-            + " FROM Tracks"
-            + " JOIN Users ON("
-            + " Tracks."+Tracks.USER_ID + " = " + "Users."+Users.ID + ")";
+            " AS SELECT " +
+            "Tracks."+Tracks.ID + " as " + TrackView._ID + "," +
+            "Tracks."+Tracks.LAST_UPDATED + " as " + TrackView.LAST_UPDATED + "," +
+            "Tracks."+Tracks.PERMALINK + " as " + TrackView.PERMALINK + "," +
+            "Tracks."+Tracks.CREATED_AT + " as " + TrackView.CREATED_AT + "," +
+            "Tracks."+Tracks.DURATION + " as " + TrackView.DURATION + "," +
+            "Tracks."+Tracks.TAG_LIST + " as " + TrackView.TAG_LIST + "," +
+            "Tracks."+Tracks.TRACK_TYPE + " as " + TrackView.TRACK_TYPE + "," +
+            "Tracks."+Tracks.TITLE + " as " + TrackView.TITLE + "," +
+            "Tracks."+Tracks.PERMALINK_URL + " as " + TrackView.PERMALINK_URL + "," +
+            "Tracks."+Tracks.ARTWORK_URL + " as " + TrackView.ARTWORK_URL + "," +
+            "Tracks."+Tracks.WAVEFORM_URL + " as " + TrackView.WAVEFORM_URL + "," +
+            "Tracks."+Tracks.DOWNLOADABLE + " as " + TrackView.DOWNLOADABLE + "," +
+            "Tracks."+Tracks.DOWNLOAD_URL + " as " + TrackView.DOWNLOAD_URL + "," +
+            "Tracks."+Tracks.STREAM_URL + " as " + TrackView.STREAM_URL + "," +
+            "Tracks."+Tracks.STREAMABLE + " as " + TrackView.STREAMABLE + "," +
+            "Tracks."+Tracks.SHARING + " as " + TrackView.SHARING + "," +
+            "Tracks."+Tracks.PLAYBACK_COUNT + " as " + TrackView.PLAYBACK_COUNT + "," +
+            "Tracks."+Tracks.DOWNLOAD_COUNT + " as " + TrackView.DOWNLOAD_COUNT + "," +
+            "Tracks."+Tracks.COMMENT_COUNT + " as " + TrackView.COMMENT_COUNT + "," +
+            "Tracks."+Tracks.FAVORITINGS_COUNT + " as " + TrackView.FAVORITINGS_COUNT + "," +
+            "Tracks."+Tracks.SHARED_TO_COUNT + " as " + TrackView.SHARED_TO_COUNT + "," +
+            "Tracks."+Tracks.FILELENGTH + " as " + TrackView.FILELENGTH + "," +
+            "Users."+Users.ID + " as " + TrackView.USER_ID + "," +
+            "Users."+Users.USERNAME + " as " + TrackView.USERNAME + "," +
+            "Users."+Users.PERMALINK + " as " + TrackView.USER_PERMALINK + "," +
+            "Users."+Users.AVATAR_URL + " as " + TrackView.USER_AVATAR_URL +
+            " FROM Tracks" +
+            " JOIN Users ON(" +
+            " Tracks."+Tracks.USER_ID + " = " + "Users."+Users.ID + ")";
 
     public static class ResourceTable {
         public static final String ID = "_id";
