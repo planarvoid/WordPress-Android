@@ -168,6 +168,15 @@ public class DBHelper extends SQLiteOpenHelper {
             + "body VARCHAR(255) null, "
             + "created_at INTEGER null);";
 
+
+    static final String DATABASE_CREATE_ACTIVITIES = "create table Activities (_id INTEGER primary key AUTOINCREMENT, "
+            + "user_id INTEGER null, "
+            + "track_id INTEGER null, "
+            + "type VARCHAR(255) null, "
+            + "tags VARCHAR(255) null, "
+            + "created_at INTEGER null);";
+
+
     static final String DATABASE_CREATE_SEARCHES = "create table Searches (_id INTEGER primary key AUTOINCREMENT, "
             + "created_at INTEGER null, "
             + "user_id INTEGER null, "
