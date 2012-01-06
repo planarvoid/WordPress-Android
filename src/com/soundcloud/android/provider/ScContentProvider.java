@@ -11,42 +11,18 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ScContentProvider extends ContentProvider {
     private static final String TAG = ScContentProvider.class.getSimpleName();
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
-    public static final Pattern URL_PATTERN = Pattern.compile("^content://" + AUTHORITY + "/(\\w+)(?:/(-?\\d+))?$");
 
-    public static final long DEFAULT_POLL_FREQUENCY = 3600l; // 1h
-    
     private DBHelper dbHelper;
-
-
-    static class TableInfo {
-        Table table;
-        long id = -1;
-
-        public String where(String where) {
-            if (id != -1){
-                return TextUtils.isEmpty(where) ? "_id=" + id : where + " AND _id=" + id;
-            } else {
-                return where;
-            }
-        }
-
-        public String[] whereArgs(String[] whereArgs) {
-            return whereArgs;
-        }
-    }
 
     @Override
     public boolean onCreate() {
@@ -194,14 +170,10 @@ public class ScContentProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
-        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-
         long id;
         Uri result;
-
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         switch (Content.match(uri)) {
-
             case COLLECTIONS:
                 id = db.insertWithOnConflict(Table.COLLECTIONS.name, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
@@ -452,30 +424,6 @@ public class ScContentProvider extends ContentProvider {
 
         getContext().getContentResolver().notifyChange(uri, null, false);
         return values.length;
-    }
-
-    static Table getTable(String s) {
-        Table table = null;
-        Matcher m = URL_PATTERN.matcher(s);
-        if (m.matches()) {
-            table = Table.get(m.group(1));
-        }
-        if (table != null) {
-            return table;
-        } else {
-            throw new IllegalArgumentException("unknown uri " + s);
-        }
-    }
-
-
-    static TableInfo getTableInfo(String s) {
-        TableInfo result = new TableInfo();
-        result.table = getTable(s);
-        Matcher m = URL_PATTERN.matcher(s);
-        if (m.matches() && m.group(2) != null) {
-            result.id = Long.parseLong(m.group(2));
-        }
-        return result;
     }
 
     static String makeCollectionSort(Uri uri, String sortCol) {
