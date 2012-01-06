@@ -15,6 +15,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -31,7 +32,7 @@ public class ScContentProvider extends ContentProvider {
 
 
     static class TableInfo {
-        DBHelper.Tables table;
+        Table table;
         long id = -1;
 
         public String where(String where) {
@@ -62,19 +63,19 @@ public class ScContentProvider extends ContentProvider {
         Content content = Content.match(uri);
         switch (content) {
             case COLLECTION_ITEMS:
-                qb.setTables(DBHelper.Tables.COLLECTION_ITEMS.tableName);
+                qb.setTables(Table.COLLECTION_ITEMS.name);
                 break;
             case COLLECTIONS:
-                qb.setTables(DBHelper.Tables.COLLECTIONS.tableName);
+                qb.setTables(Table.COLLECTIONS.name);
                 break;
             case COLLECTION_PAGES:
-                qb.setTables(DBHelper.Tables.COLLECTION_PAGES.tableName);
+                qb.setTables(Table.COLLECTION_PAGES.name);
                 break;
 
             case ME_TRACKS:
             case ME_FAVORITES:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
-                qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
+                qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
                 selection = makeCollectionSelection(selection, String.valueOf(userId), content.collectionType);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
@@ -84,7 +85,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_FRIENDS:
             case SUGGESTED_USERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
+                qb.setTables(makeCollectionJoin(Table.USERS));
                 selection = makeCollectionSelection(selection, String.valueOf(userId), content.collectionType);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
@@ -92,7 +93,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_TRACKS:
             case USER_FAVORITES:
                 if (columns == null) columns = formatWithUser(fullTrackColumns, userId);
-                qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName, DBHelper.TrackView.CONCRETE_ID));
+                qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
                 selection = makeCollectionSelection(selection, uri.getPathSegments().get(1), content.collectionType);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
@@ -101,7 +102,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_FOLLOWERS:
             case USER_FOLLOWINGS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
+                qb.setTables(makeCollectionJoin(Table.USERS));
                 selection = makeCollectionSelection(selection,uri.getPathSegments().get(1), content.collectionType);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
@@ -109,71 +110,71 @@ public class ScContentProvider extends ContentProvider {
 
             case TRACKS:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName);
+                qb.setTables(Table.TRACK_VIEW.name);
                 break;
             case TRACK_ITEM:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
-                qb.setTables(DBHelper.Tables.TRACKVIEW.tableName);
-                whereAppend = DBHelper.TrackView.CONCRETE_ID + " = " + uri.getLastPathSegment();
+                qb.setTables(Table.TRACK_VIEW.name);
+                whereAppend = Table.TRACK_VIEW.id + " = " + uri.getLastPathSegment();
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
 
             case USERS:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(DBHelper.Tables.USERS.tableName);
+                qb.setTables(Table.USERS.name);
                 break;
 
             case USER_ITEM:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(DBHelper.Tables.USERS.tableName);
-                whereAppend = DBHelper.Users.CONCRETE_ID + " = " + uri.getLastPathSegment();
+                qb.setTables(Table.USERS.name);
+                whereAppend = Table.USERS.id + " = " + uri.getLastPathSegment();
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
 
             case SEARCHES:
-                qb.setTables(DBHelper.Tables.SEARCHES.tableName);
-                whereAppend = DBHelper.Searches.CONCRETE_USER_ID + " = "+ userId;
+                qb.setTables(Table.SEARCHES.name);
+                whereAppend = Table.SEARCHES.id + " = "+ userId;
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
             case SEARCHES_USERS_ITEM:
                 if (columns == null) columns = formatWithUser(fullUserColumns,userId);
-                qb.setTables(makeCollectionJoin(DBHelper.Tables.USERS.tableName,DBHelper.Users.CONCRETE_ID));
+                qb.setTables(makeCollectionJoin(Table.USERS));
                 selection = makeCollectionSelection(selection, String.valueOf(userId), SEARCH);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case SEARCHES_TRACKS_ITEM:
                 if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
-                qb.setTables(makeCollectionJoin(DBHelper.Tables.TRACKVIEW.tableName,DBHelper.TrackView.CONCRETE_ID));
+                qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
                 selection = makeCollectionSelection(selection, String.valueOf(userId), SEARCH);
                 sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case TRACK_PLAYS:
-                qb.setTables(DBHelper.Tables.TRACK_PLAYS.tableName);
-                whereAppend = DBHelper.TrackPlays.CONCRETE_USER_ID + " = "+ userId;
+                qb.setTables(Table.TRACK_PLAYS.name);
+                whereAppend = Table.TRACK_PLAYS.id + " = "+ userId;
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
             case TRACK_PLAYS_ITEM:
-                qb.setTables(DBHelper.Tables.TRACK_PLAYS.tableName);
-                whereAppend = DBHelper.TrackPlays.CONCRETE_USER_ID + " = "+ userId + " AND "
-                        + DBHelper.TrackPlays.CONCRETE_TRACK_ID + " = " + uri.getLastPathSegment();
+                qb.setTables(Table.TRACK_PLAYS.name);
+                whereAppend = Table.TRACK_PLAYS.id + " = "+ userId + " AND "
+                        + Table.TRACK_PLAYS.id + " = " + uri.getLastPathSegment();
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
             case RECORDINGS:
-                qb.setTables(DBHelper.Tables.RECORDINGS.tableName);
-                whereAppend = DBHelper.Recordings.CONCRETE_USER_ID + " = "+ userId;
+                qb.setTables(Table.RECORDINGS.name);
+                whereAppend = Table.RECORDINGS.id + " = "+ userId;
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
             case RECORDING_ITEM:
-                qb.setTables(DBHelper.Tables.RECORDINGS.tableName);
-                whereAppend = DBHelper.Recordings.CONCRETE_ID + " = "+ uri.getLastPathSegment();
+                qb.setTables(Table.RECORDINGS.name);
+                whereAppend = Table.RECORDINGS.id + " = "+ uri.getLastPathSegment();
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
@@ -201,55 +202,55 @@ public class ScContentProvider extends ContentProvider {
         switch (Content.match(uri)) {
 
             case COLLECTIONS:
-                id = db.insertWithOnConflict(DBHelper.Tables.COLLECTIONS.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = db.insertWithOnConflict(Table.COLLECTIONS.name, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case COLLECTION_PAGES:
-                id = db.insertWithOnConflict(DBHelper.Tables.COLLECTION_PAGES.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = db.insertWithOnConflict(Table.COLLECTION_PAGES.name, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case TRACKS:
-                id = db.insertWithOnConflict(DBHelper.Tables.TRACKS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = db.insertWithOnConflict(Table.TRACKS.name, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case TRACK_PLAYS:
-                id = db.insertWithOnConflict(DBHelper.Tables.TRACK_PLAYS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = db.insertWithOnConflict(Table.TRACK_PLAYS.name, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case SEARCHES:
-                id = db.insertWithOnConflict(DBHelper.Tables.SEARCHES.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = db.insertWithOnConflict(Table.SEARCHES.name, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case USERS:
-                id = db.insertWithOnConflict(DBHelper.Tables.USERS.tableName, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = db.insertWithOnConflict(Table.USERS.name, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case RECORDINGS:
-                id = db.insert(DBHelper.Tables.RECORDINGS.tableName, null, values);
+                id = db.insert(Table.RECORDINGS.name, null, values);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case ME_FAVORITES:
-                id = db.insertWithOnConflict(DBHelper.Tables.TRACKS.tableName, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = db.insertWithOnConflict(Table.TRACKS.name, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
                     cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, FAVORITE);
-                    id = db.insertWithOnConflict(DBHelper.Tables.COLLECTION_ITEMS.tableName, null, cv, SQLiteDatabase.CONFLICT_ABORT);
+                    id = db.insertWithOnConflict(Table.COLLECTION_ITEMS.name, null, cv, SQLiteDatabase.CONFLICT_ABORT);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
                     return result;
@@ -271,21 +272,21 @@ public class ScContentProvider extends ContentProvider {
         final Content content = Content.match(uri);
         switch (content) {
             case COLLECTIONS:
-                tableName = DBHelper.Tables.COLLECTIONS.tableName;
+                tableName = Table.COLLECTIONS.name;
                 break;
             case COLLECTION_PAGES:
-                tableName = DBHelper.Tables.COLLECTION_PAGES.tableName;
+                tableName = Table.COLLECTION_PAGES.name;
                 break;
             case TRACK_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                tableName = DBHelper.Tables.TRACKS.tableName;
+                tableName = Table.TRACKS.name;
                 break;
             case USER_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                tableName = DBHelper.Tables.USERS.tableName;
+                tableName = Table.USERS.name;
                 break;
             case SEARCHES:
-                tableName = DBHelper.Tables.SEARCHES.tableName;
+                tableName = Table.SEARCHES.name;
                 break;
 
             case ME_TRACKS:
@@ -297,7 +298,7 @@ public class ScContentProvider extends ContentProvider {
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
                 where = makeCollectionSelection(where, String.valueOf(userId), content.collectionType);
-                tableName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                tableName = Table.COLLECTION_ITEMS.name;
                 break;
 
             default:
@@ -318,26 +319,26 @@ public class ScContentProvider extends ContentProvider {
         switch (Content.match(uri)) {
             case TRACK_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(DBHelper.Tables.TRACKS.tableName, values, where, whereArgs);
+                count = db.update(Table.TRACKS.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
             case USER_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(DBHelper.Tables.USERS.tableName, values, where, whereArgs);
+                count = db.update(Table.USERS.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
             case SEARCHES_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(DBHelper.Tables.SEARCHES.tableName, values, where, whereArgs);
+                count = db.update(Table.SEARCHES.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
             case RECORDINGS:
-                count = db.update(DBHelper.Tables.RECORDINGS.tableName, values, where, whereArgs);
+                count = db.update(Table.RECORDINGS.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
             case RECORDING_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(DBHelper.Tables.RECORDINGS.tableName, values, where, whereArgs);
+                count = db.update(Table.RECORDINGS.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
 
@@ -345,7 +346,7 @@ public class ScContentProvider extends ContentProvider {
                 long userId = SoundCloudApplication.getUserIdFromContext(getContext());
                 if (userId > 0){
                     where = "_id NOT IN ("
-                                    + "SELECT _id FROM "+ DBHelper.Tables.TRACKS.tableName + " WHERE EXISTS("
+                                    + "SELECT _id FROM "+ Table.TRACKS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
                                         + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+ " ," + CollectionItemTypes.FAVORITE+ ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
@@ -354,7 +355,7 @@ public class ScContentProvider extends ContentProvider {
                                 + ")";
 
                     final long start = System.currentTimeMillis();
-                    count = db.delete(DBHelper.Tables.TRACKS.tableName,where,null);
+                    count = db.delete(Table.TRACKS.name,where,null);
                     Log.i(LOG_TAG,"Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
                     getContext().getContentResolver().notifyChange(Content.TRACKS.uri, null, false);
                     return count;
@@ -364,16 +365,16 @@ public class ScContentProvider extends ContentProvider {
             case USERS_CLEANUP:
                 userId = SoundCloudApplication.getUserIdFromContext(getContext());
                 if (userId > 0) {
-                    where = "_id NOT IN (SELECT DISTINCT " + DBHelper.Tracks.USER_ID + " FROM "+ DBHelper.Tables.TRACKS.tableName + " UNION "
-                                    + "SELECT _id FROM "+ DBHelper.Tables.USERS.tableName + " WHERE EXISTS("
+                    where = "_id NOT IN (SELECT DISTINCT " + DBHelper.Tracks.USER_ID + " FROM "+ Table.TRACKS.name + " UNION "
+                                    + "SELECT _id FROM "+ Table.USERS.name + " WHERE EXISTS("
                                         + "SELECT 1 FROM CollectionItems WHERE "
                                         + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.FOLLOWER+ " ," + CollectionItemTypes.FOLLOWING+ ") "
-                                        + " AND " + DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + userId
-                                        + " AND  " + DBHelper.CollectionItems.ITEM_ID + " = " + DBHelper.Users.CONCRETE_ID
+                                        + " AND " + Table.COLLECTION_ITEMS.id + " = " + userId
+                                        + " AND  " + DBHelper.CollectionItems.ITEM_ID + " = " + Table.USERS.id
                                     + ")"
                                 + ") AND _id <> " + userId;
                     final long start = System.currentTimeMillis();
-                    count = db.delete(DBHelper.Tables.USERS.tableName,where,null);
+                    count = db.delete(Table.USERS.name,where,null);
                     Log.i(LOG_TAG,"User cleanup done: deleted " + count + " users in " + (System.currentTimeMillis() - start) + " ms");
                     getContext().getContentResolver().notifyChange(Content.USERS.uri, null, false);
                     return count;
@@ -405,31 +406,31 @@ public class ScContentProvider extends ContentProvider {
                 case USER_FOLLOWERS:
                 case ME_FOLLOWINGS:
                 case USER_FOLLOWINGS:
-                    tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                    tblName = Table.COLLECTION_ITEMS.name;
                     extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
                     break;
 
                 case TRACKS:
-                    tblName = DBHelper.Tables.TRACKS.tableName;
+                    tblName = Table.TRACKS.name;
                     break;
                 case USERS:
-                    tblName = DBHelper.Tables.USERS.tableName;
+                    tblName = Table.USERS.name;
                     break;
                 case ME_FRIENDS:
-                    tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                    tblName = Table.COLLECTION_ITEMS.name;
                     extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(FRIEND)};
                     break;
                 case SUGGESTED_USERS:
-                    tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                    tblName = Table.COLLECTION_ITEMS.name;
                     extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(SUGGESTED_USER)};
                     break;
                 case SEARCHES_USERS_ITEM:
-                    tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                    tblName = Table.COLLECTION_ITEMS.name;
                     extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(SEARCH)};
                     break;
 
                 case SEARCHES_TRACKS_ITEM:
-                    tblName = DBHelper.Tables.COLLECTION_ITEMS.tableName;
+                    tblName = Table.COLLECTION_ITEMS.name;
                     extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(SEARCH)};
                     break;
                 default:
@@ -452,11 +453,11 @@ public class ScContentProvider extends ContentProvider {
         return values.length;
     }
 
-    static DBHelper.Tables getTable(String s) {
-        DBHelper.Tables table = null;
+    static Table getTable(String s) {
+        Table table = null;
         Matcher m = URL_PATTERN.matcher(s);
         if (m.matches()) {
-            table = DBHelper.Tables.get(m.group(1));
+            table = Table.get(m.group(1));
         }
         if (table != null) {
             return table;
@@ -479,19 +480,21 @@ public class ScContentProvider extends ContentProvider {
     static String makeCollectionSort(Uri uri, String sortCol) {
         StringBuilder b = new StringBuilder();
         b.append(sortCol == null ? DBHelper.CollectionItems.POSITION : sortCol);
-        if (!TextUtils.isEmpty(uri.getQueryParameter("limit"))) b.append(" LIMIT " + uri.getQueryParameter("limit"));
-        if (!TextUtils.isEmpty(uri.getQueryParameter("offset"))) b.append(" OFFSET " + uri.getQueryParameter("offset"));
+        if (!TextUtils.isEmpty(uri.getQueryParameter("limit")))
+            b.append(" LIMIT ").append(uri.getQueryParameter("limit"));
+        if (!TextUtils.isEmpty(uri.getQueryParameter("offset")))
+            b.append(" OFFSET ").append(uri.getQueryParameter("offset"));
         return b.toString();
     }
 
-    static String makeCollectionJoin(String modelTable, String modelIdCol){
-        return modelTable + " INNER JOIN " + DBHelper.Tables.COLLECTION_ITEMS.tableName +
-                        " ON (" + modelIdCol + " = " + DBHelper.CollectionItems.ITEM_ID+ ")";
+    static String makeCollectionJoin(Table table){
+        return table.name + " INNER JOIN " + Table.COLLECTION_ITEMS.name +
+            " ON (" + table.name +"."+ BaseColumns._ID + " = " + DBHelper.CollectionItems.ITEM_ID+ ")";
     }
 
     static String makeCollectionSelection(String selection, String userId, int collectionType) {
-        final String whereAppend = DBHelper.CollectionItems.CONCRETE_USER_ID + " = " + userId
-                + " AND " + DBHelper.CollectionItems.CONCRETE_COLLECTION_TYPE + " = " + collectionType;
+        final String whereAppend = Table.COLLECTION_ITEMS.id + " = " + userId
+                + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType;
         return selection == null ? whereAppend : selection + " AND " + whereAppend;
     }
 
@@ -526,21 +529,21 @@ public class ScContentProvider extends ContentProvider {
     }
 
     public static String[] fullTrackColumns = new String[]{
-            DBHelper.Tables.TRACKVIEW.tableName + ".*",
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.COLLECTION_ITEMS.tableName
-                    + " where " + DBHelper.TrackView.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID
+            Table.TRACK_VIEW + ".*",
+            "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
+                    + " where " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
                     + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FAVORITE
                     + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as " + DBHelper.TrackView.USER_FAVORITE,
     };
 
     public static String[] fullUserColumns = new String[]{
-            DBHelper.Tables.USERS.tableName + ".*",
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.COLLECTION_ITEMS.tableName
-                    + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID
+            Table.USERS + ".*",
+            "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
+                    + " where " +  Table.USERS.id + " = " + DBHelper.CollectionItems.ITEM_ID
                     + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FOLLOWING
                     + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as "  + DBHelper.Users.USER_FOLLOWING,
-            "EXISTS (SELECT 1 FROM " + DBHelper.Tables.COLLECTION_ITEMS.tableName
-                    + " where " + DBHelper.Users.CONCRETE_ID + " = " + DBHelper.CollectionItems.ITEM_ID
+            "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
+                    + " where " + Table.USERS.id + " = " + DBHelper.CollectionItems.ITEM_ID
                     + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FOLLOWER
                     + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as " + DBHelper.Users.USER_FOLLOWER
     };

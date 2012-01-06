@@ -130,7 +130,7 @@ public class SoundCloudDB {
 
 
     public static String getUsernameById(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(Content.USER_ITEM.uri, new String[]{Users.CONCRETE_USERNAME}, Users.ID + "= ?",new String[]{Long.toString(userId)}, null);
+        Cursor cursor = contentResolver.query(Content.USER_ITEM.uri, new String[]{Users.USERNAME}, Users.ID + "= ?",new String[]{Long.toString(userId)}, null);
         String username = null;
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();

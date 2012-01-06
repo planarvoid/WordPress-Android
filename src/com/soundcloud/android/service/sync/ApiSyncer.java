@@ -130,7 +130,7 @@ public class ApiSyncer {
         final long start = System.currentTimeMillis();
         int size = 0;
         List<Long> local = idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                null,null, DBHelper.CollectionItems.CONCRETE_POSITION + " ASC"));
+                null,null, DBHelper.CollectionItems.POSITION + " ASC"));
 
         List<Long> remote = getCollectionIds(endpoint);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
@@ -257,7 +257,7 @@ public class ApiSyncer {
                     .appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build();
 
         Cursor c = mResolver.query(pagedUri, new String[]{DBHelper.CollectionItems.ITEM_ID, DBHelper.TrackView.LAST_UPDATED},
-                null,null,DBHelper.CollectionItems.CONCRETE_POSITION + " ASC");
+                null,null,DBHelper.CollectionItems.POSITION + " ASC");
         List<Long> staleItems = new ArrayList<Long>();
         final long cutoff = System.currentTimeMillis() - getStaleTime();
         if (c != null && c.moveToFirst()) {
