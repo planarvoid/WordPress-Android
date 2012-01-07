@@ -66,4 +66,32 @@ public class LocalCollection {
         }
         return lastSync;
     }
+
+    @Override
+    public String toString() {
+        return "LocalCollection{" +
+                "id=" + id +
+                ", uri=" + uri +
+                ", last_sync=" + last_sync +
+                ", size=" + size +
+                '}';
+    }
+
+    public boolean updateLasySyncTime(ContentResolver contentResolver, long time) {
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Collections.LAST_SYNC, time);
+        Uri inserted = contentResolver.insert(Content.COLLECTIONS.uri, cv);
+        if (inserted != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static void deletePagesFrom(ContentResolver resolver, int collection_id, int page_index) {
+        resolver.delete(Content.COLLECTION_PAGES.uri,
+                DBHelper.CollectionPages.COLLECTION_ID + " = ? AND " + DBHelper.CollectionPages.PAGE_INDEX + " > ?",
+                new String[]{String.valueOf(collection_id), String.valueOf(page_index)});
+
+    }
 }

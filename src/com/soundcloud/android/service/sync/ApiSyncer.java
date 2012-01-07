@@ -26,6 +26,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.protocol.ResponseProcessCookies;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -105,8 +106,8 @@ public class ApiSyncer {
         final long addStart = System.currentTimeMillis();
 
         List<Parcelable> itemsToAdd = new ArrayList<Parcelable>();
-        itemsToAdd.addAll(getAdditionsFromIds(trackAdditions, Track.class, false));
-        itemsToAdd.addAll(getAdditionsFromIds(userAdditions, User.class, false));
+        itemsToAdd.addAll(getAdditionsFromIds(mApp, trackAdditions, Track.class, false));
+        itemsToAdd.addAll(getAdditionsFromIds(mApp, userAdditions, User.class, false));
         int added = SoundCloudDB.bulkInsertParcelables(mApp, itemsToAdd, null, 0, 0);
 
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " parcelables added in " + (System.currentTimeMillis() - addStart) + " ms");
@@ -130,10 +131,10 @@ public class ApiSyncer {
         final long itemStart = System.currentTimeMillis();
         // get remote collection
         List<Long> local = idCursorToList(mResolver.query(uri, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                null,null, DBHelper.CollectionItems.CONCRETE_POSITION + " ASC"));
+                null,null, DBHelper.CollectionItems.POSITION + " ASC"));
 
         Content c = Content.match(uri);
-        List<Long> remote = getCollectionIds(c.remoteUri);
+        List<Long> remote = getCollectionIds(mApp, c.remoteUri);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
 
         if (local.equals(remote)){
@@ -180,9 +181,9 @@ public class ApiSyncer {
 
         Content c = Content.match(uri);
         List<Long> pageIds = idCursorToList(mResolver.query(uri, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                null, null, DBHelper.CollectionItems.CONCRETE_POSITION + " ASC"));
+                null, null, DBHelper.CollectionItems.POSITION + " ASC"));
         final int itemCount = pageIds.size();
-        SoundCloudDB.bulkInsertParcelables(mApp, getAdditionsFromIds(pageIds, c.resourceType, false));
+        SoundCloudDB.bulkInsertParcelables(mApp, getAdditionsFromIds(mApp, pageIds, c.resourceType, false));
         return itemCount;
     }
 
@@ -193,7 +194,7 @@ public class ApiSyncer {
         List<Long> local = idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.CollectionItems.ITEM_ID},
                 null,null, DBHelper.CollectionItems.POSITION + " ASC"));
 
-        List<Long> remote = getCollectionIds(endpoint);
+        List<Long> remote = getCollectionIds(mApp, endpoint);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
 
         if (local.equals(remote)){
@@ -236,7 +237,7 @@ public class ApiSyncer {
         return cv;
     }
 
-    private List<Parcelable> getAdditionsFromIds(List<Long> additions, Class<?> loadModel, boolean ignoreStored) throws IOException {
+    public static List<Parcelable> getAdditionsFromIds(SoundCloudApplication app, List<Long> additions, Class<?> loadModel, boolean ignoreStored) throws IOException {
 
         if (additions.size() == 0) return new ArrayList<Parcelable>();
 
@@ -247,7 +248,7 @@ public class ApiSyncer {
             List<Long> storedIds = new ArrayList<Long>();
             while (i < additions.size()) {
                 List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
-                storedIds.addAll(idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.Tracks._ID},
+                storedIds.addAll(idCursorToList(app.getContentResolver().query(contentUri, new String[]{DBHelper.Tracks._ID},
                         CloudUtils.getWhereIds(DBHelper.Tracks.ID, batch), CloudUtils.longListToStringArr(batch), null)));
                 i += RESOLVER_BATCH_SIZE;
             }
@@ -260,17 +261,17 @@ public class ApiSyncer {
         while (i < additions.size()) {
 
             List<Long> batch = additions.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, additions.size()));
-            InputStream is = validateResponse(mApp.get(Request.to(Track.class.equals(loadModel) ? Endpoints.TRACKS : Endpoints.USERS)
+            InputStream is = validateResponse(app.get(Request.to(Track.class.equals(loadModel) ? Endpoints.TRACKS : Endpoints.USERS)
                     .add("linked_partitioning", "1").add("limit", API_LOOKUP_BATCH_SIZE).add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
 
             CollectionHolder holder = null;
             if (Track.class.equals(loadModel)) {
-                holder = mApp.getMapper().readValue(is, TracklistItemHolder.class);
+                holder = app.getMapper().readValue(is, TracklistItemHolder.class);
                 for (TracklistItem t : (TracklistItemHolder) holder) {
                     items.add(new Track(t));
                 }
             } else if (User.class.equals(loadModel)) {
-                holder = mApp.getMapper().readValue(is, UserlistItemHolder.class);
+                holder = app.getMapper().readValue(is, UserlistItemHolder.class);
                 for (UserlistItem u : (UserlistItemHolder) holder) {
                     items.add(new User(u));
                 }
@@ -280,7 +281,7 @@ public class ApiSyncer {
         return items;
     }
 
-    private List<Long> idCursorToList(Cursor c) {
+    public static List<Long> idCursorToList(Cursor c) {
         List<Long> ids = new ArrayList<Long>();
         if (c != null && c.moveToFirst()) {
             do {
@@ -291,20 +292,20 @@ public class ApiSyncer {
         return ids;
     }
 
-    private List<Long> getCollectionIds(String endpoint) throws IOException {
+    public static  List<Long> getCollectionIds(SoundCloudApplication app, String endpoint) throws IOException {
         List<Long> items = new ArrayList<Long>();
         IdHolder holder = null;
         do {
             Request request =  (holder == null) ? Request.to(endpoint + "/ids") : Request.to(holder.next_href);
             request.add("linked_partitioning", "1");
-            holder = mApp.getMapper().readValue(validateResponse(mApp.get(request)).getEntity().getContent(), IdHolder.class);
+            holder = app.getMapper().readValue(validateResponse(app.get(request)).getEntity().getContent(), IdHolder.class);
             if (holder.collection != null) items.addAll(holder.collection);
 
         } while (holder.next_href != null);
         return items;
     }
 
-    private HttpResponse validateResponse(HttpResponse response) throws IOException {
+    private static HttpResponse validateResponse(HttpResponse response) throws IOException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK
                 && response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_MODIFIED) {
             throw new IOException("Invalid response: " + response.getStatusLine());
@@ -329,7 +330,7 @@ public class ApiSyncer {
         if (c != null) c.close();
 
         int updated = SoundCloudDB.bulkInsertParcelables(mApp,
-                getAdditionsFromIds(staleItems,getLoadModelFromContent(content), true), null, 0, 0);
+                getAdditionsFromIds(mApp, staleItems,getLoadModelFromContent(content), true), null, 0, 0);
 
         Log.d(LOG_TAG, "Updated " + updated + " items");
     }
