@@ -174,6 +174,7 @@ public class SoundCloudDB {
         // XXX lookup should be in model (Origin)
         for (Parcelable p : items) {
             long id = ((ScModel) p).id;
+            Log.i("asdf","WHAT IS P?? " + p + " " + (p instanceof User));
             if (p instanceof User) {
                 usersToInsert.add((User) p);
             } else if (p instanceof Track) {

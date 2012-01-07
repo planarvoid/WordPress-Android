@@ -31,7 +31,7 @@ public class RefreshEventsTask extends LoadCollectionTask {
     }
 
     @Override
-    protected Boolean doInBackground(Boolean... params) {
+    protected Boolean doInBackground(CollectionParams... params) {
         try {
             if (cacheFile.exists()) {
                 Activities a = Activities.fromJSON(cacheFile);

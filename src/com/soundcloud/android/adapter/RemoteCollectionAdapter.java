@@ -1,26 +1,32 @@
 package com.soundcloud.android.adapter;
 
 
-import android.net.Uri;
-import android.os.Parcelable;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Resource;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.LoadCollectionTask;
-import com.soundcloud.android.task.LoadRemoteCollectionTask;
+import com.soundcloud.android.task.UpdateCollectionTask;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
-import java.util.List;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     private Uri mSyncDataUri;
     private boolean mWaitingOnSync;
+    private UpdateCollectionTask mUpdateCollectionTask;
 
     public RemoteCollectionAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(activity,wrapped,contentUri,request,autoAppend);
@@ -29,13 +35,35 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     @Override
     public void refresh(final boolean userRefresh) {
         super.refresh(userRefresh);
-        mRefreshTask = buildTask();
-        mRefreshTask.execute(userRefresh || isStale());
+
+        if (isSyncable()) {
+
+            boolean sync = true;
+            if (!userRefresh) {
+                executeRefreshTask(userRefresh);
+                sync = isStale();
+            }
+
+            if (sync) {
+                // send an intent to update our event cache
+                mWaitingOnSync = true;
+                requestSync();
+            }
+
+        } else {
+            executeRefreshTask(userRefresh);
+        }
+
         notifyDataSetChanged();
     }
 
-    protected LoadRemoteCollectionTask buildTask() {
-        return new LoadRemoteCollectionTask(mActivity.getApp(), this, buildRequest());
+    private void executeRefreshTask(final boolean userRefresh){
+         mRefreshTask = buildTask();
+         mRefreshTask.execute(getCollectionParams());
+    }
+
+    protected LoadCollectionTask buildTask() {
+        return new LoadCollectionTask(mActivity.getApp(), this);
     }
 
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
@@ -48,9 +76,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         }
 
         if (newItems != null && newItems.size() > 0) {
-            for (Parcelable newitem : newItems) {
-                getWrappedAdapter().addItem(newitem);
-            }
+            addNewItems(newItems);
         }
 
         // configure the empty view depending on possible exceptions
@@ -64,25 +90,61 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         if (handleResponseCode(responseCode) || (newItems != null && newItems.size() > 0)) {
             reset(false);
             mNextHref = nextHref;
-            getData().addAll(newItems);
+            addNewItems(newItems);
             increasePageIndex();
         } else {
             onEmptyRefresh();
         }
 
-        if (mState < ERROR) mState = keepGoing ? WAITING : DONE;
-        if (mListView != null) {
-            mListView.onRefreshComplete(false);
-            setListLastUpdated();
-        }
+        if (!mWaitingOnSync) {
+            // reset state to not refreshing
+            if (getWrappedAdapter().getCount() < Consts.COLLECTION_PAGE_SIZE){
+                if (mState < ERROR) mState = DONE;
+            } else mState = WAITING;
 
-        applyEmptyView();
-        mPendingView = null;
-        mRefreshTask = null;
-        mAppendTask = null;
+            if (mListView != null) {
+                mListView.onRefreshComplete(false);
+                setListLastUpdated();
+            }
+
+            applyEmptyView();
+            mPendingView = null;
+            mRefreshTask = null;
+            mAppendTask = null;
+
+        } else {
+            // this needs to be set to keep refresh state for the task started after sync returns
+            mState = REFRESHING;
+        }
 
         notifyDataSetChanged();
     }
+
+    private void addNewItems(List<Parcelable> newItems){
+
+        final long stale = System.currentTimeMillis() - Consts.SYNC_STALE_TIME;
+        final boolean doUpdate = CloudUtils.isWifiConnected(mActivity);
+
+        Map<Long, Resource> toUpdate = new HashMap<Long, Resource>();
+        for (Parcelable newItem : newItems) {
+            getWrappedAdapter().addItem(newItem);
+
+            if (doUpdate && newItem instanceof Resource){
+                Resource resource = (Resource) newItem;
+                if (resource.getLastUpdated() < stale) {
+                    toUpdate.put(resource.getResourceId(), resource);
+                }
+            }
+        }
+
+        if (toUpdate.size() > 0){
+            mUpdateCollectionTask =new UpdateCollectionTask(mActivity.getApp(),getLoadModel());
+            mUpdateCollectionTask.setAdapter(this);
+            mUpdateCollectionTask.execute(toUpdate);
+        }
+
+    }
+
 
     protected boolean handleResponseCode(int responseCode) {
         switch (responseCode) {
@@ -96,6 +158,25 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
                 Log.w(TAG, "unexpected responseCode "+responseCode);
                 mState = ERROR;
             return false;
+        }
+    }
+
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case ApiSyncService.STATUS_RUNNING: {
+                break;
+            }
+            case ApiSyncService.STATUS_SYNC_FINISHED: {
+                mWaitingOnSync = false;
+                executeRefreshTask(false);
+                break;
+            }
+            case ApiSyncService.STATUS_SYNC_ERROR: {
+                mWaitingOnSync = false;
+                onPostRefresh(null,null, HttpStatus.SC_NO_CONTENT, false);
+                break;
+            }
         }
     }
 

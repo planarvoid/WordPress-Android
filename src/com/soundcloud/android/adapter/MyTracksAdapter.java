@@ -9,6 +9,7 @@ import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
 import com.soundcloud.android.view.TracklistRow;
+import com.soundcloud.api.Endpoints;
 
 import android.database.ContentObserver;
 import android.database.Cursor;

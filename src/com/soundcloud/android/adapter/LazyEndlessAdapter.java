@@ -2,6 +2,27 @@
 package com.soundcloud.android.adapter;
 
 
+import com.commonsware.cwac.adapter.AdapterWrapper;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.task.LoadCollectionTask;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.DetachableResultReceiver;
+import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.ScListView;
+import com.soundcloud.api.Request;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -13,22 +34,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.commonsware.cwac.adapter.AdapterWrapper;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.*;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.task.LoadCollectionTask;
-import com.soundcloud.android.task.SyncedCollectionTask;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.DetachableResultReceiver;
-import com.soundcloud.android.view.EmptyCollection;
-import com.soundcloud.android.view.ScListView;
-import com.soundcloud.api.Request;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,6 +78,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mRequest = request;
         mContentUri = contentUri;
         mContent = Content.match(contentUri);
+        Log.i("asdf", "Matched content uri " + contentUri + " " + mContent);
         wrapped.setWrapper(this);
         if (autoAppend) mState = READY;
     }
@@ -190,8 +196,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     @SuppressWarnings("unchecked")
     public void restoreState(final Object[] state){
         if (state[0] != null) getData().addAll((Collection<? extends Parcelable>) state[0]);
-        if (state[1] != null) restoreRefreshTask((SyncedCollectionTask) state[1]);
-        if (state[2] != null) restoreAppendTask((SyncedCollectionTask) state[2]);
+        if (state[1] != null) restoreRefreshTask((LoadCollectionTask) state[1]);
+        if (state[2] != null) restoreAppendTask((LoadCollectionTask) state[2]);
         if (state[3] != null) restorePagingData((int[]) state[3]);
         if (state[4] != null) restoreExtraData((String) state[4]);
         if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
@@ -465,15 +471,29 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mActivity.startService(intent);
     }
 
+    public void append() {
+        mState = APPENDING;
+        mAppendTask = buildTask();
+        mAppendTask.execute(getCollectionParams());
+    }
+
+    protected LoadCollectionTask.CollectionParams getCollectionParams(){
+        return new LoadCollectionTask.CollectionParams() {{
+                loadModel = getLoadModel();
+                contentUri = mContentUri;
+                pageIndex = getPageIndex();
+                request = buildRequest();
+                isRefresh = isRefreshing();
+            }};
+    }
+
     protected boolean isStale(){
         long lastsync = LocalCollection.getLastSync(mActivity.getContentResolver(), getContentUri());
         return (getPageIndex() == 0 && System.currentTimeMillis() - lastsync > Consts.DEFAULT_REFRESH_MINIMUM);
     }
 
-    public void append() {
-        mState = APPENDING;
-        mAppendTask = buildTask();
-        mAppendTask.execute();
+    protected boolean isSyncable(){
+        return mContent == null ? false : mContent.isSyncable();
     }
 
     protected DetachableResultReceiver getReceiver(){

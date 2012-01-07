@@ -15,7 +15,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.ActivitiesCache;
 import com.soundcloud.android.task.LoadCollectionTask;
-import com.soundcloud.android.task.LoadRemoteCollectionTask;
 import com.soundcloud.android.task.RefreshEventsTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.api.Request;
@@ -51,7 +50,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
 
     @Override
-    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepgoing) {
+    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
         final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
                 User.DataKeys.LAST_OWN_SEEN : User.DataKeys.LAST_INCOMING_SEEN;
 
@@ -65,7 +64,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
                 app.setAccountData(lastSeenKey, first.created_at.getTime());
             }
         }
-        super.onPostTaskExecute(newItems,nextHref,responseCode,keepgoing);
+        super.onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
     }
 
     public void onPostRefresh(List<Parcelable> newItems, String nextHref, boolean success) {

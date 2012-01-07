@@ -32,8 +32,8 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, Resource>, String,
     public UpdateCollectionTask(SoundCloudApplication app,Class<?> loadModel) {
         mApp = app;
         mLoadModel = loadModel;
-        if (!(Track.class.equals(mLoadModel) || User.class.equals(mLoadModel))) {
-            throw new IllegalArgumentException("Collection updating only allowed for tracks and users");
+        if (!(Track.class.equals(mLoadModel) || User.class.equals(mLoadModel) || Friend.class.equals(mLoadModel))) {
+            throw new IllegalArgumentException("Collection updating only allowed for tracks, users and Friends");
         }
     }
 
@@ -79,7 +79,7 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, Resource>, String,
                     objectsToWrite.add(((User) itemsToUpdate.get(u.id)).updateFrom(u));
                 }
             } else if (Friend.class.equals(mLoadModel)) {
-                holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.FriendHolder.class);
+                holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.UserlistItemHolder.class);
                 for (UserlistItem u : (ScModel.UserlistItemHolder) holder) {
                     objectsToWrite.add(((Friend) itemsToUpdate.get(u.id)).user.updateFrom(u));
                 }

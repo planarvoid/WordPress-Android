@@ -12,7 +12,6 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.RemoteCollectionAdapter;
-import com.soundcloud.android.adapter.SyncedCollectionAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.cache.Connections;
@@ -364,17 +363,23 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private void build() {
 
+
+
         mUserlistBrowser = (UserlistLayout) findViewById(R.id.userlist_browser);
-        mMessager = isMe() ? null : new PrivateMessager(this, mUser);
+        final boolean isMe = isMe();
+        mMessager = isMe ? null : new PrivateMessager(this, mUser);
 
         // Tracks View
         LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
                 new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
                 new ArrayList<Parcelable>(), Track.class);
 
-        LazyEndlessAdapter adpWrap;
-        if (isMe()) {
-            adpWrap = new SyncedCollectionAdapter(this, adp, Content.ME_TRACKS.uri, false);
+        LazyEndlessAdapter adpWrap = new RemoteCollectionAdapter(this, adp,
+                isMe ?  Content.ME_TRACKS.uri : null, //CloudUtils.replaceWildcard(Content.USER_TRACKS.uri, mUser.id),
+                isMe ?  null : Request.to(Endpoints.USER_TRACKS, mUser.id), false);
+
+
+        if (isMe) {
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_sounds_message)
                     .setActionText(R.string.list_empty_user_sounds_action)
                     .setImage(R.drawable.empty_rec)
@@ -390,9 +395,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                         }
                     }));
         } else {
-            adpWrap = new RemoteCollectionAdapter(this, adp, CloudUtils.replaceWildcard(Content.USER_TRACKS.uri, mUser.id),
-                    Request.to(Endpoints.USER_TRACKS, mUser.id), false);
-
             if (mUser != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
                         R.string.empty_user_tracks_text,
@@ -409,8 +411,12 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         // Favorites View
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
-        if (isMe()) {
-            adpWrap = new SyncedCollectionAdapter(this, adp, Content.ME_FAVORITES.uri, false);
+
+        adpWrap = new RemoteCollectionAdapter(this, adp,
+                isMe ?  Content.ME_FAVORITES.uri : CloudUtils.replaceWildcard(Content.USER_FAVORITES.uri, mUser.id),
+                isMe ?  null : Request.to(Endpoints.USER_FAVORITES, mUser.id), false);
+
+        if (isMe) {
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_likes_message)
                     .setActionText(R.string.list_empty_user_likes_action)
                     .setImage(R.drawable.empty_like)
@@ -426,9 +432,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                         }
                     }));
         } else {
-            adpWrap = new RemoteCollectionAdapter(this, adp, CloudUtils.replaceWildcard(Content.USER_FAVORITES.uri, mUser.id),
-                    Request.to(Endpoints.USER_FAVORITES, mUser.id), false);
-
             if (mUser != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
                         R.string.empty_user_favorites_text,
@@ -444,8 +447,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         // Followings View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        if (isMe()) {
-            adpWrap = new SyncedCollectionAdapter(this, adp, Content.ME_FOLLOWINGS.uri, false);
+        adpWrap = new RemoteCollectionAdapter(this, adp,
+                isMe ?  Content.ME_FOLLOWINGS.uri : CloudUtils.replaceWildcard(Content.USER_FOLLOWINGS.uri, mUser.id),
+                isMe ?  null : Request.to(Endpoints.USER_FOLLOWINGS, mUser.id), false);
+
+        if (isMe) {
             adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_following_message)
                     .setActionText(R.string.list_empty_user_following_action)
                     .setImage(R.drawable.empty_follow_3row)
@@ -460,16 +466,12 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                         }
                     }));
         } else {
-            adpWrap = new RemoteCollectionAdapter(this, adp, CloudUtils.replaceWildcard(Content.USER_FOLLOWINGS.uri, mUser.id),
-                    Request.to(Endpoints.USER_FOLLOWINGS, mUser.id), false);
-
             if (mUser != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
                         R.string.empty_user_followings_text,
                         mUser.username == null ? getResources().getString(R.string.this_user)
                                 : mUser.username));
             }
-
         }
 
         final ScTabView followingsView = new ScTabView(this);
@@ -478,8 +480,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         // Followers View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
-        if (isMe()) {
-            adpWrap = new SyncedCollectionAdapter(this, adp, Content.ME_FOLLOWERS.uri, false);
+        adpWrap = new RemoteCollectionAdapter(this, adp,
+                isMe ?  Content.ME_FOLLOWERS.uri : CloudUtils.replaceWildcard(Content.USER_FOLLOWERS.uri, mUser.id),
+                isMe ?  null : Request.to(Endpoints.USER_FOLLOWERS, mUser.id), false);
+        if (isMe) {
             if (mUser.track_count > 0){
                 adpWrap.setEmptyView(new EmptyCollection(this).setMessageText(R.string.list_empty_user_followers_message)
                     .setActionText(R.string.list_empty_user_followers_action)
@@ -512,9 +516,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     }));
             }
         } else {
-            adpWrap = new RemoteCollectionAdapter(this, adp, CloudUtils.replaceWildcard(Content.USER_FOLLOWERS.uri, mUser.id),
-                    Request.to(Endpoints.USER_FOLLOWERS, mUser.id), false);
-
             if (mUser != null) {
                 adpWrap.setEmptyViewText(getResources().getString(
                         R.string.empty_user_followers_text,
@@ -534,7 +535,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         // Friend Finder View
-        if (isMe()) {
+        if (isMe) {
             mFriendFinderView = new FriendFinderView(this);
             if (mConnections == null) {
                 mFriendFinderView.setState(FriendFinderView.States.LOADING, false);
@@ -554,7 +555,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
             @Override public void onScreenChanged(View newScreen, int newScreenIndex) {
                 trackCurrentScreen();
-                if (isMe()) {
+                if (isMe) {
                     getApp().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(newScreenIndex));
                 }
             }
