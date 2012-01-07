@@ -12,17 +12,17 @@
     </organization>
     <build>
         <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>tests/src</testSourceDirectory>
+        <testSourceDirectory>tests/src/java</testSourceDirectory>
         <testResources>
             <testResource>
-                <directory>tests/src</directory>
+                <directory>tests/src/java</directory>
             </testResource>
         </testResources>
         <plugins>
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-                <artifactId>maven-android-plugin</artifactId>
-                <version>2.8.4</version>
+                <artifactId>android-maven-plugin</artifactId>
+                <version>3.0.2</version>
                 <configuration>
                     <sdk>
                         <platform>10</platform>
@@ -121,9 +121,10 @@
                                 <phase>package</phase>
                                 <inherited>true</inherited>
                                 <configuration>
+                                    <removeExistingSignatures>true</removeExistingSignatures>
                                     <archiveDirectory></archiveDirectory>
                                     <includes>
-                                        <include>target/*.apk</include>
+                                        <include>${project.build.directory}/${project.artifactId}.apk</include>
                                     </includes>
                                     <keystore>soundcloud_sign/soundcloud.ks</keystore>
                                     <alias>jons keystore</alias>

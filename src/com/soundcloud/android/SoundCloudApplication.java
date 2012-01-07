@@ -582,10 +582,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     public static SoundCloudApplication fromContext(Context c){
-        if (AndroidCloudAPI.class.isAssignableFrom(c.getApplicationContext().getClass())) {
+        if (c.getApplicationContext() instanceof  SoundCloudApplication) {
             return ((SoundCloudApplication) c.getApplicationContext());
+        } else {
+            throw new RuntimeException("can't obtain app from context");
         }
-        return null;
     }
 
     public static long getUserIdFromContext(Context c){
