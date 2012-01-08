@@ -88,6 +88,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
         if (handleResponseCode(responseCode) || (newItems != null && newItems.size() > 0)) {
+            // TODO : cancel any running update task, they will get rerun if needed
             reset(false);
             mNextHref = nextHref;
             addNewItems(newItems);
