@@ -19,7 +19,11 @@ import com.soundcloud.api.Request;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ApiSyncService extends IntentService{
 
@@ -52,6 +56,7 @@ public class ApiSyncService extends IntentService{
         final ResultReceiver receiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
         final SyncResult syncResult = new SyncResult();
         final String action = intent.getAction();
+        final Bundle resultData = new Bundle();
 
         if (receiver != null) receiver.send(STATUS_RUNNING, Bundle.EMPTY);
 
@@ -70,11 +75,11 @@ public class ApiSyncService extends IntentService{
                     contents.add(intent.getData().toString());
                 }
                 for (String c : contents) {
-                    apiSyncer.syncContent(Content.byUri(Uri.parse(c)), manualRefresh);
+                    resultData.putBoolean(c, apiSyncer.syncContent(Content.byUri(Uri.parse(c)), manualRefresh));
                 }
                 apiSyncer.performDbAdditions();
                 Log.d(LOG_TAG, "Cloud Api service: Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
-                if (receiver != null) receiver.send(STATUS_SYNC_FINISHED, Bundle.EMPTY);
+                if (receiver != null) receiver.send(STATUS_SYNC_FINISHED, resultData);
 
             } catch (CloudAPI.InvalidTokenException e) {
                 Log.e(LOG_TAG, "Cloud Api service: Problem while syncing", e);

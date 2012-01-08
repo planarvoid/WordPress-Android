@@ -54,20 +54,21 @@ public class ApiSyncer {
         mResolver = app.getContentResolver();
     }
 
-    public void syncContent(Content c, boolean manualRefresh) throws IOException {
+    public boolean syncContent(Content c, boolean manualRefresh) throws IOException {
+        boolean changed = false;
         if (c.remoteUri != null) {
             switch (c) {
                 case ME_ACTIVITIES:
                 case ME_EXCLUSIVE_STREAM:
                 case ME_SOUND_STREAM:
-                    syncActivities(Request.to(c.remoteUri), c.uri);
+                    changed = syncActivities(Request.to(c.remoteUri), c.uri);
                     break;
 
                 case ME_TRACKS:
                 case ME_FAVORITES:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
-                    syncCollection(c.uri, c.remoteUri, getLoadModelFromContent(c));
+                    changed = syncCollection(c.uri, c.remoteUri, getLoadModelFromContent(c));
                     break;
             }
         } else {
@@ -75,7 +76,7 @@ public class ApiSyncer {
             switch (c) {
                 case TRACK_CLEANUP:
                 case USERS_CLEANUP:
-                    mResolver.update(c.uri, null, null, null);
+                    changed = mResolver.update(c.uri, null, null, null) > 0;
                     PreferenceManager.getDefaultSharedPreferences(mApp).edit().putLong("lastSyncCleanup", System.currentTimeMillis());
                     break;
                 default:
@@ -83,16 +84,20 @@ public class ApiSyncer {
             }
 
         }
+        return changed;
     }
 
-    public void syncActivities(Request request, Uri contentUri) throws IOException {
+    public boolean syncActivities(Request request, Uri contentUri) throws IOException {
         final long start = System.currentTimeMillis();
         Activities a = ActivitiesCache.get(mApp, mApp.getAccount(), request);
         LocalCollection.insertLocalCollection(mResolver, contentUri, System.currentTimeMillis(), a.size());
+        return true; // TODO, make this an actual result (true if something changed). not bothering now cause this is going to be changed
     }
 
-    public void syncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
-        collectionValues.put(contentUri, quickSync(contentUri, endpoint, loadModel == Track.class ? trackAdditions : userAdditions));
+    public boolean syncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
+        ContentValues[] cv = quickSync(contentUri, endpoint, loadModel == Track.class ? trackAdditions : userAdditions);
+        collectionValues.put(contentUri, cv);
+        return cv.length > 0;
     }
 
     private long getStaleTime() {
@@ -196,6 +201,7 @@ public class ApiSyncer {
 
         List<Long> remote = getCollectionIds(mApp, endpoint);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
+
 
         if (local.equals(remote)){
             Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + contentUri + ". Skipping sync.");

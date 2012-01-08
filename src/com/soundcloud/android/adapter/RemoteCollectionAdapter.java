@@ -97,26 +97,29 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         }
 
         if (!mWaitingOnSync) {
-            // reset state to not refreshing
-            if (getWrappedAdapter().getCount() < Consts.COLLECTION_PAGE_SIZE){
-                if (mState < ERROR) mState = DONE;
-            } else mState = WAITING;
-
-            if (mListView != null) {
-                mListView.onRefreshComplete(false);
-                setListLastUpdated();
-            }
-
-            applyEmptyView();
-            mPendingView = null;
-            mRefreshTask = null;
-            mAppendTask = null;
-
+            doneRefreshing();
         } else {
             // this needs to be set to keep refresh state for the task started after sync returns
             mState = REFRESHING;
+            notifyDataSetChanged();
+        }
+    }
+
+    private void doneRefreshing() {
+        // reset state to not refreshing
+        if (getWrappedAdapter().getCount() < Consts.COLLECTION_PAGE_SIZE) {
+            if (mState < ERROR) mState = DONE;
+        } else mState = WAITING;
+
+        if (mListView != null) {
+            mListView.onRefreshComplete(false);
+            setListLastUpdated();
         }
 
+        applyEmptyView();
+        mPendingView = null;
+        mRefreshTask = null;
+        mAppendTask = null;
         notifyDataSetChanged();
     }
 
@@ -172,7 +175,12 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             }
             case ApiSyncService.STATUS_SYNC_FINISHED: {
                 mWaitingOnSync = false;
-                executeRefreshTask(false);
+                if (resultData.getBoolean(mContentUri.toString())){
+                    executeRefreshTask(false);
+                } else {
+                    doneRefreshing();
+                }
+
                 break;
             }
             case ApiSyncService.STATUS_SYNC_ERROR: {
