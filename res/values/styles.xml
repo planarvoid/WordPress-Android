@@ -45,12 +45,13 @@
 
 
     <style name="btn_follow">
-        <item name="android:background">@drawable/btn_round_light</item>
+        <item name="android:background">@drawable/btn_grey</item>
         <item name="android:text">@string/btn_follow</item>
+        <item name="android:layout_height">20dip</item>
     </style>
 
     <style name="btn_following">
-        <item name="android:background">@drawable/btn_round_blue</item>
+        <item name="android:background">@drawable/btn_blue</item>
         <item name="android:text">@string/btn_following</item>
         <item name="android:textColor">@color/white</item>
     </style>
