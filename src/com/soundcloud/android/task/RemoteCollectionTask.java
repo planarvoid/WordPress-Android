@@ -34,7 +34,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadCollectionTask extends AsyncTask<LoadCollectionTask.CollectionParams, List<? super Parcelable>, Boolean> {
+public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.CollectionParams, List<? super Parcelable>, Boolean> {
 
     protected SoundCloudApplication mApp;
     protected CollectionParams mParams;
@@ -65,7 +65,7 @@ public class LoadCollectionTask extends AsyncTask<LoadCollectionTask.CollectionP
         }
     }
 
-    public LoadCollectionTask(SoundCloudApplication app, LazyEndlessAdapter lazyEndlessAdapter) {
+    public RemoteCollectionTask(SoundCloudApplication app, LazyEndlessAdapter lazyEndlessAdapter) {
         mApp = app;
         setAdapter(lazyEndlessAdapter);
     }
@@ -102,7 +102,7 @@ public class LoadCollectionTask extends AsyncTask<LoadCollectionTask.CollectionP
     @Override
     protected Boolean doInBackground(CollectionParams... params) {
         mParams = params[0];
-        Log.i(TAG, getClass().getSimpleName() + "Loading collection with params: " + params);
+        Log.i(TAG, getClass().getSimpleName() + "Loading collection with params: " + mParams);
 
         if (mParams.contentUri == null && mParams.request != null){
             return doRemoteLoad();

@@ -7,7 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Resource;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.task.LoadCollectionTask;
+import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
@@ -62,8 +62,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
          mRefreshTask.execute(getCollectionParams());
     }
 
-    protected LoadCollectionTask buildTask() {
-        return new LoadCollectionTask(mActivity.getApp(), this);
+    protected RemoteCollectionTask buildTask() {
+        return new RemoteCollectionTask(mActivity.getApp(), this);
     }
 
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
@@ -120,15 +120,18 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         notifyDataSetChanged();
     }
 
-    private void addNewItems(List<Parcelable> newItems){
-
+    protected void addNewItems(List<Parcelable> newItems){
+        for (Parcelable newItem : newItems) {
+            getWrappedAdapter().addItem(newItem);
+        }
+        checkForStaleItems(newItems);
+    }
+    protected void checkForStaleItems(List<Parcelable> newItems){
         final long stale = System.currentTimeMillis() - Consts.SYNC_STALE_TIME;
         final boolean doUpdate = CloudUtils.isWifiConnected(mActivity);
 
         Map<Long, Resource> toUpdate = new HashMap<Long, Resource>();
         for (Parcelable newItem : newItems) {
-            getWrappedAdapter().addItem(newItem);
-
             if (doUpdate && newItem instanceof Resource){
                 Resource resource = (Resource) newItem;
                 if (resource.getLastUpdated() < stale) {

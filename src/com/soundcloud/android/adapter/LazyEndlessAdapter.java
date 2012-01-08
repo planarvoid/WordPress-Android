@@ -16,7 +16,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.task.LoadCollectionTask;
+import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.view.EmptyCollection;
@@ -40,8 +40,8 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener, DetachableResultReceiver.Receiver {
-    protected LoadCollectionTask mAppendTask;
-    protected LoadCollectionTask mRefreshTask;
+    protected RemoteCollectionTask mAppendTask;
+    protected RemoteCollectionTask mRefreshTask;
 
     protected ScListView mListView;
     protected ScActivity mActivity;
@@ -78,11 +78,9 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mRequest = request;
         mContentUri = contentUri;
         mContent = Content.match(contentUri);
-        Log.i("asdf", "Matched content uri " + contentUri + " " + mContent);
         wrapped.setWrapper(this);
         if (autoAppend) mState = READY;
     }
-
 
 
     /**
@@ -196,8 +194,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     @SuppressWarnings("unchecked")
     public void restoreState(final Object[] state){
         if (state[0] != null) getData().addAll((Collection<? extends Parcelable>) state[0]);
-        if (state[1] != null) restoreRefreshTask((LoadCollectionTask) state[1]);
-        if (state[2] != null) restoreAppendTask((LoadCollectionTask) state[2]);
+        if (state[1] != null) restoreRefreshTask((RemoteCollectionTask) state[1]);
+        if (state[2] != null) restoreAppendTask((RemoteCollectionTask) state[2]);
         if (state[3] != null) restorePagingData((int[]) state[3]);
         if (state[4] != null) restoreExtraData((String) state[4]);
         if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
@@ -225,25 +223,25 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
      * Restore a possibly still running task that could have been passed in on
      * creation
      */
-    public void restoreAppendTask(LoadCollectionTask ap) {
+    public void restoreAppendTask(RemoteCollectionTask ap) {
         if (ap != null) {
             mAppendTask = ap;
             ap.setAdapter(this);
         }
     }
 
-    public void restoreRefreshTask(LoadCollectionTask rt) {
+    public void restoreRefreshTask(RemoteCollectionTask rt) {
         if (rt != null) {
             mRefreshTask = rt;
             rt.setAdapter(this);
         }
     }
 
-    public LoadCollectionTask getAppendTask() {
+    public RemoteCollectionTask getAppendTask() {
         return mAppendTask;
     }
 
-    public LoadCollectionTask getRefreshTask() {
+    public RemoteCollectionTask getRefreshTask() {
         return mRefreshTask;
     }
 
@@ -462,7 +460,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         }
         mState = REFRESHING;
     }
-    protected abstract LoadCollectionTask buildTask();
+    protected abstract RemoteCollectionTask buildTask();
 
     protected void requestSync(){
         final Intent intent = new Intent(mActivity, ApiSyncService.class);
@@ -477,8 +475,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mAppendTask.execute(getCollectionParams());
     }
 
-    protected LoadCollectionTask.CollectionParams getCollectionParams(){
-        return new LoadCollectionTask.CollectionParams() {{
+    protected RemoteCollectionTask.CollectionParams getCollectionParams(){
+        return new RemoteCollectionTask.CollectionParams() {{
                 loadModel = getLoadModel();
                 contentUri = mContentUri;
                 pageIndex = getPageIndex();

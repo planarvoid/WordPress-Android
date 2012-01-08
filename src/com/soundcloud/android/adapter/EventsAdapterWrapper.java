@@ -1,20 +1,12 @@
 
 package com.soundcloud.android.adapter;
 
-import android.content.Intent;
-
-import android.util.Log;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.service.sync.ActivitiesCache;
-import com.soundcloud.android.task.LoadCollectionTask;
 import com.soundcloud.android.task.RefreshEventsTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.api.Request;
@@ -24,8 +16,6 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import java.util.List;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     public DetachableResultReceiver mReceiver;
