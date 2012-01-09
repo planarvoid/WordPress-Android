@@ -14,6 +14,10 @@ Clone and build it:
     $ mvn install
     $ adb install target/soundcloud-android-1.X-SNAPSHOT.apk
 
+If you don't want to use maven (who does?!) and have [sbt][] installed:
+
+    $ sbt android:package-debug
+
 ## Releasing
 
   * Make sure build is green (cf [Builder][])
@@ -49,3 +53,4 @@ This is document elsewhere:
 [changelog.txt]: https://github.com/soundcloud/SoundCloud-Android/blob/master/res/raw/changelog.txt
 [Token Sharing]: https://github.com/soundcloud/android-token-sharing
 [Intent Sharing]: https://github.com/soundcloud/android-intent-sharing
+[sbt]: https://github.com/harrah/xsbt/
