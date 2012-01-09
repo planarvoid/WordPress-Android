@@ -51,7 +51,9 @@ object AndroidBuild extends Build {
     "org.mockito" % "mockito-core" % "1.8.5" % "test",
     "org.hamcrest" % "hamcrest-core" % "1.1" % "test",
     "com.github.xian" % "great-expectations" % "0.10" % "test",
-    "com.novocode" % "junit-interface" % "0.7" % "test" intransitive()
+    "com.novocode" % "junit-interface" % "0.7" % "test" intransitive(),
+    "org.scalatest" %% "scalatest" % "1.6.1" % "test",
+    "org.scala-lang" % "scala-compiler" % "2.9.1" % "test"
   )
 
   val repos = Seq(
@@ -74,6 +76,7 @@ object AndroidBuild extends Build {
       resolvers ++= repos,
       compileOrder := CompileOrder.JavaThenScala,
       javaSource in Test <<= (baseDirectory) (_ / "tests" / "java" / "src"),
+      scalaSource in Test <<= (baseDirectory) (_ / "tests" / "scala" / "src"),
       resourceDirectory in Test <<= (javaSource in Test) (js => js),
       parallelExecution in Test := false,
       (excludeFilter in resources) in Test := "*.java", // does not work atm

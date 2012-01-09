@@ -49,6 +49,7 @@ object Mavenizer {
 
         <plugin>
           <artifactId>maven-dependency-plugin</artifactId>
+          <version>2.4</version>
           <executions>
             <execution>
               <phase>process-resources</phase>
