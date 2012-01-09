@@ -93,100 +93,99 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     static final String DATABASE_CREATE_TRACKS = "create table Tracks (_id INTEGER primary key, " +
-            "last_updated INTEGER null, " +
-            "permalink VARCHAR(255) null, " +
-            "duration INTEGER null, " +
-            "created_at INTEGER null, " +
-            "tag_list VARCHAR(255) null, " +
-            "track_type VARCHAR(255) null, " +
-            "title VARCHAR(255) null, " +
-            "permalink_url VARCHAR(255) null, " +
-            "artwork_url VARCHAR(255) null, " +
-            "waveform_url VARCHAR(255) null, " +
-            "downloadable VARCHAR(255) null, " +
-            "download_url VARCHAR(255) null, " +
-            "stream_url VARCHAR(255) null, " +
-            "streamable VARCHAR(255) null, " +
-            "sharing VARCHAR(255) null, " +
-            "playback_count INTEGER null, " +
-            "download_count INTEGER null, " +
-            "comment_count INTEGER null, " +
-            "favoritings_count INTEGER null, " +
-            "shared_to_count INTEGER null, " +
-            "user_id INTEGER null, " +
-            "user_favorite BOOLEAN DEFAULT FALSE, " +
-            "filelength INTEGER null);";
-
+            "last_updated INTEGER," +
+            "permalink VARCHAR(255)," +
+            "duration INTEGER," +
+            "created_at INTEGER," +
+            "tag_list VARCHAR(255)," +
+            "track_type VARCHAR(255)," +
+            "title VARCHAR(255)," +
+            "permalink_url VARCHAR(255)," +
+            "artwork_url VARCHAR(255), " +
+            "waveform_url VARCHAR(255), " +
+            "downloadable BOOLEAN, " +
+            "commentable BOOLEAN, " +
+            "download_url VARCHAR(255), " +
+            "stream_url VARCHAR(255), " +
+            "streamable BOOLEAN DEFAULT 0, " +
+            "sharing VARCHAR(255)," +
+            "playback_count INTEGER," +
+            "download_count INTEGER," +
+            "comment_count INTEGER," +
+            "favoritings_count INTEGER," +
+            "shared_to_count INTEGER," +
+            "user_id INTEGER," +
+            "filelength INTEGER);";
 
     static final String DATABASE_CREATE_TRACK_PLAYS = "create table TrackPlays (_id INTEGER primary key AUTOINCREMENT, " +
             "track_id INTEGER null, " +
             "user_id INTEGER null);";
 
     static final String DATABASE_CREATE_USERS = "create table Users (_id INTEGER primary key, " +
-            "last_updated INTEGER null, " +
-            "username VARCHAR(255) null, " +
-            "avatar_url VARCHAR(255) null, " +
-            "permalink VARCHAR(255) null, " +
-            "city VARCHAR(255) null, " +
-            "country VARCHAR(255) null, " +
-            "discogs_name VARCHAR(255) null, " +
-            "followers_count INTEGER null, " +
-            "followings_count INTEGER null, " +
-            "full_name VARCHAR(255) null, " +
-            "myspace_name VARCHAR(255) null, " +
-            "track_count INTEGER null, " +
-            "website VARCHAR(255) null, " +
-            "website_title VARCHAR(255) null, " +
-            "description text null);";
+            "last_updated INTEGER," +
+            "username VARCHAR(255)," +
+            "avatar_url VARCHAR(255)," +
+            "permalink VARCHAR(255)," +
+            "city VARCHAR(255)," +
+            "country VARCHAR(255)," +
+            "discogs_name VARCHAR(255)," +
+            "followers_count INTEGER," +
+            "followings_count INTEGER," +
+            "full_name VARCHAR(255)," +
+            "myspace_name VARCHAR(255)," +
+            "track_count INTEGER," +
+            "website VARCHAR(255)," +
+            "website_title VARCHAR(255), " +
+            "description text);";
 
     static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id INTEGER primary key AUTOINCREMENT, " +
-            "user_id INTEGER null, " +
-            "timestamp INTEGER null, " +
-            "longitude VARCHAR(255) null, " +
-            "latitude VARCHAR(255) null, " +
-            "what_text VARCHAR(255) null, " +
-            "where_text VARCHAR(255) null, " +
-            "audio_path VARCHAR(255) null, " +
-            "artwork_path VARCHAR(255) null, " +
-            "duration INTEGER null, " +
-            "four_square_venue_id VARCHAR(255) null, " +
-            "shared_emails text null, " +
-            "shared_ids text null, " +
-            "private_user_id INTEGER null, " +
-            "service_ids VARCHAR(255) null, " +
-            "is_private boolean default false, " +
-            "external_upload boolean default false, " +
-            "audio_profile INTEGER null, " +
-            "upload_status INTEGER default 0, " +
-            "upload_error boolean default false);";
+            "user_id INTEGER," +
+            "timestamp INTEGER," +
+            "longitude VARCHAR(255)," +
+            "latitude VARCHAR(255)," +
+            "what_text VARCHAR(255)," +
+            "where_text VARCHAR(255)," +
+            "audio_path VARCHAR(255)," +
+            "artwork_path VARCHAR(255)," +
+            "duration INTEGER," +
+            "four_square_venue_id VARCHAR(255), " +
+            "shared_emails text," +
+            "shared_ids text " +
+            "private_user_id INTEGER," +
+            "service_ids VARCHAR(255)," +
+            "is_private BOOLEAN," +
+            "external_upload BOOLEAN," +
+            "audio_profile INTEGER," +
+            "upload_status INTEGER DEFAULT 0," +
+            "upload_error BOOLEAN);";
 
     static final String DATABASE_CREATE_COMMENTS = "create table Comments (_id INTEGER primary key AUTOINCREMENT, " +
-            "user_id INTEGER null, " +
-            "track_id INTEGER null, " +
-            "timestamp INTEGER null, " +
-            "body VARCHAR(255) null, " +
-            "created_at INTEGER null);";
+            "user_id INTEGER," +
+            "track_id INTEGER," +
+            "timestamp INTEGER," +
+            "body VARCHAR(255)," +
+            "created_at INTEGER);";
 
 
     static final String DATABASE_CREATE_ACTIVITIES = "create table Activities (_id INTEGER primary key AUTOINCREMENT, " +
-            "user_id INTEGER null, " +
-            "track_id INTEGER null, " +
-            "type VARCHAR(255) null, " +
-            "tags VARCHAR(255) null, " +
-            "created_at INTEGER null);";
+            "user_id INTEGER," +
+            "track_id INTEGER," +
+            "type VARCHAR(255)," +
+            "tags VARCHAR(255)," +
+            "created_at INTEGER);";
 
 
     static final String DATABASE_CREATE_SEARCHES = "create table Searches (_id INTEGER primary key AUTOINCREMENT, " +
-            "created_at INTEGER null, " +
-            "user_id INTEGER null, " +
-            "query VARCHAR(255) null, " +
-            "search_type INTEGER null);";
+            "created_at INTEGER," +
+            "user_id INTEGER," +
+            "query VARCHAR(255)," +
+            "search_type INTEGER);";
 
     static final String DATABASE_CREATE_PLAYLIST = "create table Playlists (_id INTEGER primary key AUTOINCREMENT, " +
-            "created_at INTEGER null, " +
-            "position INTEGER null, " +
-            "seek_pos INTEGER null, " +
-            "user_id INTEGER null);";
+            "created_at INTEGER," +
+            "position INTEGER," +
+            "seek_pos INTEGER," +
+            "user_id INTEGER);";
 
     static final String DATABASE_CREATE_PLAYLIST_ITEMS = "create table PlaylistItems (_id INTEGER primary key AUTOINCREMENT, " +
             "playlist_id INTEGER null, " +
@@ -195,18 +194,19 @@ public class DBHelper extends SQLiteOpenHelper {
             "user_id INTEGER null);";
 
     static final String DATABASE_CREATE_COLLECTIONS = "create table Collections(_id INTEGER primary key AUTOINCREMENT, " +
-            "uri VARCHAR(255) null, " +
-            "last_addition VARCHAR(255) null, " +
-            "size INTEGER null, " +
-            "last_sync INTEGER null, " +
-            "status INTEGER null, UNIQUE (uri));";
+            "uri VARCHAR(255)," +
+            "last_addition VARCHAR(255), " +
+            "size INTEGER, " +
+            "last_sync INTEGER, " +
+            "status INTEGER, " +
+            "UNIQUE (uri));";
 
     static final String DATABASE_CREATE_COLLECTION_PAGES = "create table CollectionPages(" +
-            "collection_id INTEGER null, " +
-            "page_index INTEGER, " +
-            "etag VARCHAR(255) null, " +
-            "next_href VARCHAR(255) null, " +
-            "size INTEGER null, " +
+            "collection_id INTEGER, " +
+            "page_index INTEGER," +
+            "etag VARCHAR(255), " +
+            "next_href VARCHAR(255), " +
+            "size INTEGER, " +
             "PRIMARY KEY(collection_id, page_index) ON CONFLICT REPLACE)";
 
     static final String DATABASE_CREATE_COLLECTION_ITEMS = "create table CollectionItems(" +
@@ -234,6 +234,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "Tracks."+Tracks.DOWNLOAD_URL + " as " + TrackView.DOWNLOAD_URL + "," +
             "Tracks."+Tracks.STREAM_URL + " as " + TrackView.STREAM_URL + "," +
             "Tracks."+Tracks.STREAMABLE + " as " + TrackView.STREAMABLE + "," +
+            "Tracks."+Tracks.COMMENTABLE + " as " + TrackView.COMMENTABLE + "," +
             "Tracks."+Tracks.SHARING + " as " + TrackView.SHARING + "," +
             "Tracks."+Tracks.PLAYBACK_COUNT + " as " + TrackView.PLAYBACK_COUNT + "," +
             "Tracks."+Tracks.DOWNLOAD_COUNT + " as " + TrackView.DOWNLOAD_COUNT + "," +
@@ -269,6 +270,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String DOWNLOAD_URL = "download_url";
         public static final String STREAM_URL = "stream_url";
         public static final String STREAMABLE = "streamable";
+        public static final String COMMENTABLE = "commentable";
         public static final String SHARING = "sharing";
         public static final String PLAYBACK_COUNT = "playback_count";
         public static final String DOWNLOAD_COUNT = "download_count";
@@ -361,6 +363,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String DOWNLOAD_URL = Tracks.DOWNLOAD_URL;
         public static final String STREAM_URL = Tracks.STREAM_URL;
         public static final String STREAMABLE = Tracks.STREAMABLE;
+        public static final String COMMENTABLE = Tracks.COMMENTABLE;
         public static final String SHARING = Tracks.SHARING;
         public static final String PLAYBACK_COUNT = Tracks.PLAYBACK_COUNT;
         public static final String DOWNLOAD_COUNT = Tracks.DOWNLOAD_COUNT;

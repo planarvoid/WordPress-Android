@@ -1,6 +1,5 @@
 package com.soundcloud.android.robolectric
 
-import org.scalatest.matchers.ShouldMatchers
 import com.xtremelabs.robolectric.bytecode.{RobolectricClassLoader, ShadowWrangler}
 import android.net.Uri__FromAndroid
 import com.xtremelabs.robolectric.internal.RealObject
@@ -13,9 +12,9 @@ import com.xtremelabs.robolectric.util.DatabaseConfig.{UsingDatabaseMap, Databas
 import com.xtremelabs.robolectric.util.{H2Map, DatabaseConfig}
 
 
-trait RobolectricSpec extends FlatSpec with ShouldMatchers {
-  lazy val instrumentedClass = RobolectricSpec.classLoader.bootstrap(this.getClass)
-  lazy val instrumentedInstance = instrumentedClass.newInstance().asInstanceOf[RobolectricSpec]
+trait RobolectricSuite extends Suite {
+  lazy val instrumentedClass = RobolectricSuite.classLoader.bootstrap(this.getClass)
+  lazy val instrumentedInstance = instrumentedClass.newInstance().asInstanceOf[RobolectricSuite]
   lazy val robolectricConfig = new RobolectricConfig(new File("."))
   lazy val defaultDatabaseMap = new H2Map
 
@@ -34,8 +33,9 @@ trait RobolectricSpec extends FlatSpec with ShouldMatchers {
                    distributor: Option[Distributor],
                    tracker: Tracker) {
     if (!isInstrumented) {
-      instrumentedInstance.setupApplicationState()
+      instrumentedInstance.beforeTest()
       instrumentedInstance.run(testName, reporter, stopper, filter, configMap, distributor, tracker)
+      instrumentedInstance.afterTest()
     } else {
       super.run(testName, reporter, stopper, filter, configMap, distributor, tracker)
     }
@@ -44,8 +44,12 @@ trait RobolectricSpec extends FlatSpec with ShouldMatchers {
   def createApplication() = new ApplicationResolver(robolectricConfig).resolveApplication()
   def isInstrumented = getClass.getClassLoader.getClass.getName.contains(classOf[RobolectricClassLoader].getName)
 
-  protected def resetStaticState()  { }
-  protected def bindShadowClasses() { }
+  protected def beforeTest() {
+    setupApplicationState()
+  }
+  protected def afterTest()  {}
+  protected def resetStaticState()  {}
+  protected def bindShadowClasses() {}
 
   protected def setupApplicationState() {
       robolectricConfig.validate()
@@ -75,7 +79,7 @@ trait RobolectricSpec extends FlatSpec with ShouldMatchers {
   }
 }
 
-object RobolectricSpec {
+object RobolectricSuite {
   lazy val classHandler = ShadowWrangler.getInstance
   lazy val classLoader = {
     val loader = new RobolectricClassLoader(classHandler)
@@ -85,7 +89,7 @@ object RobolectricSpec {
 
     List(
       classOf[Uri__FromAndroid],
-      classOf[RobolectricSpec],
+      classOf[RobolectricSuite],
       classOf[RealObject],
       classOf[ShadowWrangler],
       classOf[RobolectricConfig],

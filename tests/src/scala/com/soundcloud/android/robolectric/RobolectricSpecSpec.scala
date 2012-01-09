@@ -6,9 +6,11 @@ import com.xtremelabs.robolectric.Robolectric
 import com.xtremelabs.robolectric.util.DatabaseConfig.{DatabaseMap, UsingDatabaseMap}
 import java.lang.String
 import com.xtremelabs.robolectric.util.DatabaseConfig
+import org.scalatest.FlatSpec
+import org.scalatest.matchers.ShouldMatchers
 
 @UsingDatabaseMap(classOf[MyMap])
-class RobolectricSpecSpec extends RobolectricSpec {
+class RobolectricSpecSpec extends RobolectricSuite with FlatSpec with ShouldMatchers {
 
   it should "initialize robolectric" in {
     val i = new Intent("foo", Uri.parse("http:/testing.com"))
