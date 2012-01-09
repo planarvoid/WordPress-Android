@@ -81,6 +81,7 @@ object AndroidBuild extends Build {
       parallelExecution in Test := false,
       (excludeFilter in resources) in Test := "*.java", // does not work atm
       unmanagedClasspath in Test <<= (unmanagedClasspath in Test) map (cp => Seq.empty)
-    ) ++ AndroidInstall.settings ++ Mavenizer.settings
+    ) ++ AndroidInstall.settings
+      ++ Mavenizer.settings
   )
 }

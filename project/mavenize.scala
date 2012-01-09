@@ -127,16 +127,6 @@ object Mavenizer {
                   </execution>
                 </executions>
               </plugin>
-              <plugin>
-                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-                <artifactId>maven-android-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                  <sign>
-                    <debug>false</debug>
-                  </sign>
-                </configuration>
-              </plugin>
             </plugins>
           </build>
         </profile>
