@@ -105,35 +105,34 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
         mParams = params[0];
         Log.i(TAG, getClass().getSimpleName() + "Loading collection with params: " + mParams);
 
-        if (mParams.contentUri == null && mParams.request != null){
+        if (mParams.contentUri == null && mParams.request != null) {
             return doRemoteLoad();
 
-        } else {
-            if (mParams.request != null){
-                LocalData localData = mParams.contentUri != null ? new LocalData(mApp.getContentResolver(), mParams) : null;
+        } else if (mParams.contentUri != null) {
 
-                if (mParams.refreshPageItems){
+            LocalData localData = new LocalData(mApp.getContentResolver(), mParams);
+            if (mParams.request != null) {
+                if (mParams.refreshPageItems) {
                     // TODO stale check??, failure check??
                     refreshLocalItems(mApp.getContentResolver(), localData);
                 }
-
-                try {
-                    insertMissingItems(localData.idList);
-                } catch (IOException e) {
-                    Log.e(TAG, "error", e);
-                }
             }
 
-            if (mParams.contentUri != null) {
-                mNewItems = (List<Parcelable>) loadLocalContent();
-                keepGoing = mNewItems.size() == Consts.COLLECTION_PAGE_SIZE;
-                publishProgress(mNewItems);
-                return true;
-            } else {
-                // no local content, fail
-                keepGoing = false;
-                return false;
+            try {
+                insertMissingItems(localData.idList);
+            } catch (IOException e) {
+                Log.e(TAG, "error", e);
             }
+
+            mNewItems = (List<Parcelable>) loadLocalContent();
+            keepGoing = mNewItems.size() == Consts.COLLECTION_PAGE_SIZE;
+            publishProgress(mNewItems);
+            return true;
+
+        } else {
+            // no local content, fail
+            keepGoing = false;
+            return false;
         }
     }
 
@@ -233,7 +232,6 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
 
     private int insertMissingItems(List<Long> pageIds) throws IOException {
         Content c = Content.match(mParams.contentUri);
-        final int itemCount = pageIds.size();
         return SoundCloudDB.bulkInsertParcelables(mApp, getAdditionsFromIds(mApp, pageIds, c, false));
     }
 
@@ -259,17 +257,14 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
         public LocalData(ContentResolver contentResolver, CollectionParams mParams) {
             localCollectionPage = null;
             localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(contentResolver, mParams.contentUri);
-
             if (localCollection == null) {
                 localCollection = insertLocalCollection(contentResolver, mParams.contentUri);
             } else {
+                idList = Content.match(mParams.contentUri).getStoredIds(contentResolver,mParams.pageIndex);
                 // look for content page and check its size against the DB
                 localCollectionPage = LocalCollectionPage.fromCollectionAndIndex(contentResolver, localCollection.id, mParams.pageIndex);
-                if (localCollectionPage != null) {
-                    idList = idCursorToList(contentResolver.query(CloudUtils.getPagedUri(mParams.contentUri, mParams.pageIndex), new String[]{DBHelper.TrackView._ID}, null, null, null));
-                    if (idList == null || idList.size() != localCollectionPage.size) {
-                        localCollectionPage = null;
-                    }
+                if (localCollectionPage != null && (idList == null || idList.size() != localCollectionPage.size)) {
+                    localCollectionPage = null;
                 }
             }
         }

@@ -73,7 +73,7 @@ public class ApiSyncer {
                 case ME_FAVORITES:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
-                    changed = syncCollection(c.uri, c.remoteUri, c.resourceType);
+                    changed = syncCollection(c);
                     break;
             }
         } else {
@@ -99,9 +99,9 @@ public class ApiSyncer {
         return true; // TODO, make this an actual result (true if something changed). not bothering now cause this is going to be changed
     }
 
-    /* package */ boolean syncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
-        ContentValues[] cv = quickSync(contentUri, endpoint, loadModel == Track.class ? trackAdditions : userAdditions);
-        collectionValues.put(contentUri, cv);
+    /* package */ boolean syncCollection(Content c) throws IOException {
+        ContentValues[] cv = quickSync(c, c.resourceType == Track.class ? trackAdditions : userAdditions);
+        collectionValues.put(c.uri, cv);
         return cv.length > 0;
     }
 
@@ -128,7 +128,7 @@ public class ApiSyncer {
         int added = 0;
         for (Map.Entry<Uri, ContentValues[]> entry : collectionValues.entrySet()) {
             if (entry.getValue().length > 0) {
-                Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Upserting " + entry.getValue().length + " new collection items");
+                Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Upserting to " + entry.getKey() + " " + entry.getValue().length + " new collection items");
                 added += mResolver.bulkInsert(entry.getKey(), entry.getValue());
             }
             LocalCollection.insertLocalCollection(mResolver, entry.getKey(), System.currentTimeMillis(), added);
@@ -202,22 +202,25 @@ public class ApiSyncer {
         return itemCount;
     }
 
-    private ContentValues[] quickSync(Uri contentUri, String endpoint,ArrayList<Long> additions) throws IOException {
+    private ContentValues[] quickSync(Content c, ArrayList<Long> additions) throws IOException {
+
+
 
         final long start = System.currentTimeMillis();
         int size = 0;
         List<Long> local = idCursorToList(mResolver.query(
-                contentUri,
-                new String[] { DBHelper.CollectionItems.ITEM_ID },
-                null,null,
+                Content.COLLECTION_ITEMS.uri,
+                new String[]{DBHelper.CollectionItems.ITEM_ID},
+                DBHelper.CollectionItems.COLLECTION_TYPE + " = ?",
+                new String[]{String.valueOf(c.collectionType)},
                 DBHelper.CollectionItems.SORT_ORDER));
 
-        List<Long> remote = getCollectionIds(mApp, endpoint);
+        List<Long> remote = getCollectionIds(mApp, c.remoteUri);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
 
 
         if (local.equals(remote)){
-            Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + contentUri + ". Skipping sync.");
+            Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
             return new ContentValues[0];
         }
 
@@ -230,7 +233,7 @@ public class ApiSyncer {
         int i = 0;
         while (i < itemDeletions.size()) {
             List<Long> batch = itemDeletions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
-            mResolver.delete(contentUri, CloudUtils.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
+            mResolver.delete(c.uri, CloudUtils.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
             i += RESOLVER_BATCH_SIZE;
         }
 
@@ -261,7 +264,7 @@ public class ApiSyncer {
                                                        Content content,
                                                        boolean ignoreStored) throws IOException {
 
-        if (additions.size() == 0) return new ArrayList<Parcelable>();
+        if (additions == null || additions.size() == 0) return new ArrayList<Parcelable>();
 
         if (!ignoreStored) {
             // remove anything that is already in the DB

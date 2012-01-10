@@ -41,6 +41,7 @@ public class ScContentProvider extends ContentProvider {
         switch (content) {
             case COLLECTION_ITEMS:
                 qb.setTables(Table.COLLECTION_ITEMS.name);
+                sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case COLLECTIONS:
                 qb.setTables(Table.COLLECTIONS.name);

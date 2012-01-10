@@ -8,13 +8,17 @@ import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.service.sync.ApiSyncer;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 
+import android.content.ContentResolver;
 import android.content.UriMatcher;
 import android.net.Uri;
 import android.os.Parcelable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public enum Content {
@@ -159,4 +163,19 @@ public enum Content {
     public static Content byUri(Uri uri) {
         return sUris.get(uri);
     }
+
+    public List<Long> getStoredIds(ContentResolver resolver){
+        return getStoredIds(resolver,-1);
+    }
+    public List<Long> getStoredIds(ContentResolver resolver, int pageIndex){
+
+        return ApiSyncer.idCursorToList(resolver.query(
+                        pageIndex == -1 ? Content.COLLECTION_ITEMS.uri : CloudUtils.getPagedUri(Content.COLLECTION_ITEMS.uri, pageIndex),
+                        new String[]{DBHelper.CollectionItems.ITEM_ID},
+                        DBHelper.CollectionItems.COLLECTION_TYPE + " = ?",
+                        new String[]{String.valueOf(collectionType)},
+                        DBHelper.CollectionItems.SORT_ORDER));
+
+    }
+
 }

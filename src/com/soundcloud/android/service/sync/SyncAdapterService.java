@@ -43,7 +43,7 @@ public class SyncAdapterService extends Service {
     private static final long DEFAULT_DELAY = 3600000; //60*60*1000 1 hr in ms
     private static final long TRACK_SYNC_DELAY = DEFAULT_DELAY;
     private static final long USER_SYNC_DELAY = DEFAULT_DELAY * 4; // every 2 hours, users aren't as crucial
-    private static final long CLEANUP_DELAY = DEFAULT_DELAY * 24; // every 24 hours, users aren't as crucial
+    private static final long CLEANUP_DELAY = DEFAULT_DELAY * 24; // every 24 hours
 
     public enum SyncContent {
         MySounds(Content.ME_TRACKS, TRACK_SYNC_DELAY, "syncMySounds"),
