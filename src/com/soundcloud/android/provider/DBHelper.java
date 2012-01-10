@@ -106,7 +106,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "downloadable BOOLEAN, " +
             "commentable BOOLEAN, " +
             "download_url VARCHAR(255), " +
-            "stream_url VARCHAR(255), " +
+            "stream_url VARCHAR(255)," +
             "streamable BOOLEAN DEFAULT 0, " +
             "sharing VARCHAR(255)," +
             "playback_count INTEGER," +

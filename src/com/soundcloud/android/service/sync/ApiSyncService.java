@@ -53,6 +53,10 @@ public class ApiSyncService extends IntentService{
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(LOG_TAG, "Cloud Api service started");
+        doHandleIntent(intent);
+    }
+
+     /* package */ void doHandleIntent(Intent intent) {
         final ResultReceiver receiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
         final SyncResult syncResult = new SyncResult();
         final String action = intent.getAction();

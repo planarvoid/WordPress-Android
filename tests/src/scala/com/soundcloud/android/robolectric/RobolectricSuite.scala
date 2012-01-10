@@ -41,7 +41,6 @@ trait RobolectricSuite extends Suite {
     }
   }
 
-  def createApplication() = new ApplicationResolver(robolectricConfig).resolveApplication()
   def isInstrumented = getClass.getClassLoader.getClass.getName.contains(classOf[RobolectricClassLoader].getName)
 
   protected def beforeTest() {
@@ -60,7 +59,7 @@ trait RobolectricSuite extends Suite {
       resetStaticState()
 
       DatabaseConfig.setDatabaseMap(setupDatabaseMap(getClass, defaultDatabaseMap))
-      Robolectric.application = ShadowApplication.bind(createApplication(), resourceLoader)
+      Robolectric.application = ShadowApplication.bind(new ApplicationResolver(robolectricConfig).resolveApplication(), resourceLoader)
   }
 
   protected def setupDatabaseMap(testClass: Class[_], map: DatabaseMap):DatabaseMap = {

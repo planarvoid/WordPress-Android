@@ -5,11 +5,11 @@ import java.io.File
 import com.xtremelabs.robolectric.{Robolectric, RobolectricConfig}
 import com.xtremelabs.robolectric.util.DatabaseConfig.DatabaseMap
 import com.xtremelabs.robolectric.util.DatabaseConfig
-import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{OneInstancePerTest, FlatSpec}
 
-trait DefaultSpec extends FlatSpec with RobolectricSuite with ShouldMatchers {
-  def app = Robolectric.application.asInstanceOf[TestApplication]
+trait DefaultSpec extends FlatSpec with RobolectricSuite with ShouldMatchers with OneInstancePerTest {
+  lazy val app: TestApplication = Robolectric.application.asInstanceOf[TestApplication]
 
   lazy val sqliteMap: DatabaseConfig.DatabaseMap = new SQLiteMap
 
