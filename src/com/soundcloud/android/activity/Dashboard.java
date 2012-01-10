@@ -108,7 +108,7 @@ public class Dashboard extends ScActivity {
                 }
 
 
-                trackListView = createList(Consts.EventTypes.ACTIVITY,
+                trackListView = createList(Content.ME_ACTIVITIES,
                         Event.class,
                         ec,
                         Consts.ListId.LIST_ACTIVITY, true);
@@ -138,10 +138,10 @@ public class Dashboard extends ScActivity {
         startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/101")));
     }
 
-    private int getIncomingType() {
+    private Content getIncomingType() {
         return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(EXCLUSIVE_ONLY_KEY, false)
-                ? Consts.EventTypes.EXCLUSIVE
-                : Consts.EventTypes.INCOMING;
+                ? Content.ME_EXCLUSIVE_STREAM
+                : Content.ME_SOUND_STREAM;
     }
 
     @Override
@@ -155,9 +155,9 @@ public class Dashboard extends ScActivity {
                         Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
     }
 
-    protected ScTabView createList(int type, Class<?> model, EmptyCollection emptyView, int listId, boolean isNews) {
+    protected ScTabView createList(Content content, Class<?> model, EmptyCollection emptyView, int listId, boolean isNews) {
         EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), isNews, model);
-        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, Content.fromEventType(type));
+        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, content);
 
         final ScTabView view = new ScTabView(this);
         mListView = view.setLazyListView(buildList(!isNews), adpWrap, listId, true);

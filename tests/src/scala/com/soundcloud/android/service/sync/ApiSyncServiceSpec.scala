@@ -8,9 +8,8 @@ import com.soundcloud.android.provider.Content
 class ApiSyncServiceSpec extends DefaultSpec {
   lazy val service = new ApiSyncService()
   def uris(uri: String*) = new ArrayList[String] { uri.foreach(add(_))}
-  
+
   it  should "sync content" in {
-    service.doHandleIntent(new Intent()
-      .putStringArrayListExtra("syncUris", uris(Content.ME_TRACKS.uri.toString)))
+    service.doHandleIntent(new Intent(ApiSyncService.SYNC_ACTION, Content.ME_TRACKS.uri))
   }
 }

@@ -3,12 +3,9 @@ package com.soundcloud.android;
 import android.os.Environment;
 
 import java.io.File;
-import java.security.Key;
 import java.util.EnumSet;
 
 public final class Consts {
-    public static final File DB_PATH = new File("/data/data/com.soundcloud.android/databases/");
-
     @Deprecated
     public static final File DEPRECATED_EXTERNAL_STORAGE_DIRECTORY =
             new File(Environment.getExternalStorageDirectory(), "Soundcloud");
@@ -173,11 +170,5 @@ public final class Consts {
         String SETTINGS             = "/settings";
         String TRACKS_BY_TAG        = "/tracks_by_tag/";
         String TRACKS_BY_GENRE      = "/tracks_by_genre/";
-    }
-
-    public interface EventTypes {
-        int INCOMING  = 1;
-        int EXCLUSIVE = 2;
-        int ACTIVITY  = 3;
     }
 }
