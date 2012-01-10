@@ -150,7 +150,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "duration INTEGER," +
             "four_square_venue_id VARCHAR(255), " +
             "shared_emails text," +
-            "shared_ids text " +
+            "shared_ids text, " +
             "private_user_id INTEGER," +
             "service_ids VARCHAR(255)," +
             "is_private BOOLEAN," +
@@ -448,6 +448,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return false;
     }
+
 
     private static boolean upgradeTo7(SQLiteDatabase db, int oldVersion) {
         try {
