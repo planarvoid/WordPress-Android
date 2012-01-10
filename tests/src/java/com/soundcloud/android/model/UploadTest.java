@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -41,6 +42,16 @@ public class UploadTest {
         r.tags = new String[] { "foo baz", "bar", "baz" };
         String tags = String.valueOf(upload().tag_list);
         assertThat(tags, equalTo("\"foo baz\" bar baz soundcloud:source=android-record"));
+
+        r.private_user_id = 12;
+        assertThat(tags, equalTo("\"foo baz\" bar baz soundcloud:source=android-record"));
+    }
+
+    @Test
+    public void shouldAddDedicatedTagIfPrivateMessage() throws Exception {
+        r.private_user_id = 10;
+        assertThat(String.valueOf(upload().tag_list),
+                containsString("soundcloud:recording-type=dedicated"));
     }
 
     @Test

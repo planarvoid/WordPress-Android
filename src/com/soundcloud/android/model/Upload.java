@@ -48,7 +48,9 @@ public class Upload extends ModelBase {
     public static final String ARTWORK_PATH = "artwork_path";
     public static final String DELETE_AFTER = "delete_after";
 
-
+    public static final String TAG_SOURCE_ANDROID_RECORD    = "soundcloud:source=android-record";
+    public static final String TAG_RECORDING_TYPE_DEDICATED = "soundcloud:recording-type=dedicated";
+    public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
 
     public static interface UploadStatus {
         int NOT_YET_UPLOADED    = 0;
@@ -148,10 +150,14 @@ public class Upload extends ModelBase {
         if (r.latitude != 0) tags.add("geo:lat=" + r.latitude);
         if (r.longitude != 0) tags.add("geo:lon=" + r.longitude);
         if (r.external_upload) {
-            tags.add("soundcloud:source=android-3rdparty-upload");
+            tags.add(TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD);
         } else {
-            tags.add("soundcloud:source=android-record");
+            tags.add(TAG_SOURCE_ANDROID_RECORD);
+            if (r.private_user_id > 0) {
+                tags.add(TAG_RECORDING_TYPE_DEDICATED);
+            }
         }
+
         tag_list = TextUtils.join(" ", tags);
 
         if (!r.external_upload) {
