@@ -223,9 +223,6 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public Track(Cursor cursor) {
-
-        // TODO : simplify booleans
-
         id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView._ID));
         permalink = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.PERMALINK));
         duration = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DURATION));
@@ -236,9 +233,9 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         permalink_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.PERMALINK_URL));
         artwork_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.ARTWORK_URL));
         waveform_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.WAVEFORM_URL));
-        downloadable = getBooleanFromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOADABLE)));
+        downloadable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOADABLE)) == 1;
         download_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_URL));
-        streamable = getBooleanFromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STREAMABLE)));
+        streamable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.STREAMABLE)) == 1;
         stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STREAM_URL));
         sharing = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.SHARING));
         playback_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.PLAYBACK_COUNT));
@@ -247,10 +244,13 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         favoritings_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.FAVORITINGS_COUNT));
         shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.SHARED_TO_COUNT));
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
-        user_favorite = getBooleanFromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE)));
+        user_favorite = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE)) == 1;
         filelength = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.FILELENGTH));
+        commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENTABLE)) == 1;
         user = User.fromTrackView(cursor);
     }
+
+
 
     public void assertInDb(SoundCloudApplication app) {
         if (user != null) user.assertInDb(app);
@@ -345,6 +345,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         if (playback_count != -1) cv.put(Tracks.PLAYBACK_COUNT, playback_count);
         if (download_count != -1) cv.put(Tracks.DOWNLOAD_COUNT, download_count);
         if (comment_count != -1) cv.put(Tracks.COMMENT_COUNT, comment_count);
+        if (commentable) cv.put(Tracks.COMMENTABLE, commentable);
         if (favoritings_count != -1) cv.put(Tracks.FAVORITINGS_COUNT, favoritings_count);
         if (shared_to_count != -1) cv.put(Tracks.SHARED_TO_COUNT, shared_to_count);
         // app level, only add these 2 if they have been set, otherwise they

@@ -31,6 +31,7 @@ public class ScContentProvider extends ContentProvider {
     }
 
     @Override
+    // XXX don't overwrite arguments
     public Cursor query(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
         final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
         SCQueryBuilder qb = new SCQueryBuilder();
@@ -429,10 +430,10 @@ public class ScContentProvider extends ContentProvider {
     static String makeCollectionSort(Uri uri, String sortCol) {
         StringBuilder b = new StringBuilder();
         b.append(sortCol == null ? DBHelper.CollectionItems.POSITION : sortCol);
-        if (!TextUtils.isEmpty(uri.getQueryParameter("limit")))
-            b.append(" LIMIT ").append(uri.getQueryParameter("limit"));
-        if (!TextUtils.isEmpty(uri.getQueryParameter("offset")))
-            b.append(" OFFSET ").append(uri.getQueryParameter("offset"));
+        String limit = uri.getQueryParameter("limit");
+        if (!TextUtils.isEmpty(limit)) b.append(" LIMIT ").append(limit);
+        String offset = uri.getQueryParameter("offset");
+        if (!TextUtils.isEmpty(offset)) b.append(" OFFSET ").append(offset);
         return b.toString();
     }
 
@@ -471,8 +472,8 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
+    // XXX ghetto, use prepared statements
     public static String[] formatWithUser(String[] columns, long userId){
-
         for (int i = 0; i < columns.length; i++){
             columns[i] = columns[i].replace("$$$",String.valueOf(userId));
         }
@@ -482,21 +483,21 @@ public class ScContentProvider extends ContentProvider {
     public static String[] fullTrackColumns = new String[]{
             Table.TRACK_VIEW + ".*",
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
-                    + " where " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FAVORITE
-                    + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as " + DBHelper.TrackView.USER_FAVORITE,
+                    + " WHERE " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FAVORITE
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_FAVORITE,
     };
 
     public static String[] fullUserColumns = new String[]{
             Table.USERS + ".*",
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
-                    + " where " +  Table.USERS.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FOLLOWING
-                    + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as "  + DBHelper.Users.USER_FOLLOWING,
+                    + " WHERE " +  Table.USERS.id + " = " + DBHelper.CollectionItems.ITEM_ID
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FOLLOWING
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS "  + DBHelper.Users.USER_FOLLOWING,
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
-                    + " where " + Table.USERS.id + " = " + DBHelper.CollectionItems.ITEM_ID
-                    + " and " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FOLLOWER
-                    + " and " + DBHelper.CollectionItems.USER_ID + " = $$$) as " + DBHelper.Users.USER_FOLLOWER
+                    + " WHERE " + Table.USERS.id + " = " + DBHelper.CollectionItems.ITEM_ID
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FOLLOWER
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.Users.USER_FOLLOWER
     };
 
 

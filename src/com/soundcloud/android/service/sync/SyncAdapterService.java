@@ -45,7 +45,6 @@ public class SyncAdapterService extends Service {
     private static final long USER_SYNC_DELAY = DEFAULT_DELAY * 4; // every 2 hours, users aren't as crucial
     private static final long CLEANUP_DELAY = DEFAULT_DELAY * 24; // every 24 hours, users aren't as crucial
 
-    @SuppressWarnings({"UnusedDeclaration"})
     public enum SyncContent {
         MySounds(Content.ME_TRACKS, TRACK_SYNC_DELAY, "syncMySounds"),
         MyFavorites(Content.ME_FAVORITES, TRACK_SYNC_DELAY, "syncMyFavorites"),
@@ -98,20 +97,16 @@ public class SyncAdapterService extends Service {
         @Override
         public void onPerformSync(Account account, Bundle extras, String authority,
                                   ContentProviderClient provider, SyncResult syncResult) {
-
-
-
-            if (SoundCloudApplication.DEV_MODE) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onPerformSync("+account+","+extras+","+authority+","+provider+","+syncResult+")");
             }
+
             if (shouldUpdateDashboard(mApp) || shouldSyncCollections(mApp)) {
                 SyncAdapterService.performSync(mApp, account, extras, provider, syncResult);
             } else {
                 Log.d(TAG, "skipping sync because Wifi is diabled");
             }
         }
-
-
     }
 
     /** @noinspection UnusedParameters*/
@@ -122,8 +117,6 @@ public class SyncAdapterService extends Service {
                                     final SyncResult syncResult) {
 
         if (app.useAccount(account).valid()) {
-
-            Looper.prepare();
             final boolean force = extras.getBoolean(ContentResolver.SYNC_EXTRAS_FORCE, false);
             final Intent intent = new Intent(app, ApiSyncService.class);
             ArrayList<String> urisToSync = new ArrayList<String>();
@@ -153,6 +146,7 @@ public class SyncAdapterService extends Service {
             }
 
             intent.putStringArrayListExtra("syncUris", urisToSync);
+            Looper.prepare();
             intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -193,7 +187,7 @@ public class SyncAdapterService extends Service {
                                     }
 
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    Log.w(TAG, e);
                                     syncResult.stats.numIoExceptions++;
                                 }
                             }
@@ -204,8 +198,8 @@ public class SyncAdapterService extends Service {
                 }
             });
 
-            app.startService(intent);
             Looper.loop();
+            app.startService(intent);
         } else {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;

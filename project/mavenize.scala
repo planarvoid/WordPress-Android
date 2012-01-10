@@ -49,6 +49,7 @@ object Mavenizer {
 
         <plugin>
           <artifactId>maven-dependency-plugin</artifactId>
+          <version>2.4</version>
           <executions>
             <execution>
               <phase>process-resources</phase>
@@ -125,16 +126,6 @@ object Mavenizer {
                     </configuration>
                   </execution>
                 </executions>
-              </plugin>
-              <plugin>
-                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-                <artifactId>maven-android-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                  <sign>
-                    <debug>false</debug>
-                  </sign>
-                </configuration>
               </plugin>
             </plugins>
           </build>

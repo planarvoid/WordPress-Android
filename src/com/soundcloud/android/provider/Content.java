@@ -1,9 +1,7 @@
 package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.TRACK;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Friend;
@@ -160,24 +158,5 @@ public enum Content {
 
     public static Content byUri(Uri uri) {
         return sUris.get(uri);
-    }
-
-    public static Content fromEventType(int type) {
-        switch (type) {
-            case Consts.EventTypes.INCOMING:  return ME_SOUND_STREAM;
-            case Consts.EventTypes.EXCLUSIVE: return ME_EXCLUSIVE_STREAM;
-            case Consts.EventTypes.ACTIVITY:  return ME_ACTIVITIES;
-            default:return UNKNOWN;
-        }
-    }
-
-    public static Content forModel(Class<?> model) {
-        if (Track.class.equals(model)) {
-            return TRACKS;
-        } else if (User.class.equals(model)) {
-            return USERS;
-        } else {
-            throw new IllegalArgumentException("unknown model: " + model);
-        }
     }
 }
