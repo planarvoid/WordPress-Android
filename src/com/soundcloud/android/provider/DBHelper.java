@@ -293,6 +293,8 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_ID = "user_id";
         public static final String COLLECTION_TYPE = "collection_type";
         public static final String POSITION = "position";
+
+        public static final String SORT_ORDER = POSITION + " ASC";
     }
 
       public static final class Users extends ResourceTable implements BaseColumns {

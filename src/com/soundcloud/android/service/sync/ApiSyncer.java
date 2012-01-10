@@ -90,14 +90,14 @@ public class ApiSyncer {
         return changed;
     }
 
-    public boolean syncActivities(Request request, Uri contentUri) throws IOException {
+    /* package */ boolean syncActivities(Request request, Uri contentUri) throws IOException {
         final long start = System.currentTimeMillis();
         Activities a = ActivitiesCache.get(mApp, mApp.getAccount(), request);
         LocalCollection.insertLocalCollection(mResolver, contentUri, System.currentTimeMillis(), a.size());
         return true; // TODO, make this an actual result (true if something changed). not bothering now cause this is going to be changed
     }
 
-    public boolean syncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
+    /* package */ boolean syncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
         ContentValues[] cv = quickSync(contentUri, endpoint, loadModel == Track.class ? trackAdditions : userAdditions);
         collectionValues.put(contentUri, cv);
         return cv.length > 0;
@@ -107,7 +107,7 @@ public class ApiSyncer {
         return CloudUtils.isWifiConnected(mApp) ? WIFI_STALE_TIME : Consts.SYNC_STALE_TIME;
     }
 
-    public void performDbAdditions() throws IOException {
+    /* package */ void performDbAdditions() throws IOException {
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Resolving Database");
 
         // our new tracks/users, compiled so we didn't do duplicate lookups
@@ -138,8 +138,10 @@ public class ApiSyncer {
 
         final long itemStart = System.currentTimeMillis();
         // get remote collection
-        List<Long> local = idCursorToList(mResolver.query(uri, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                null,null, DBHelper.CollectionItems.POSITION + " ASC"));
+        List<Long> local = idCursorToList(mResolver.query(uri,
+                new String[]{DBHelper.CollectionItems.ITEM_ID},
+                null, null,
+                DBHelper.CollectionItems.SORT_ORDER));
 
         Content c = Content.match(uri);
         List<Long> remote = getCollectionIds(mApp, c.remoteUri);
@@ -188,8 +190,11 @@ public class ApiSyncer {
 
 
         Content c = Content.match(uri);
-        List<Long> pageIds = idCursorToList(mResolver.query(uri, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                null, null, DBHelper.CollectionItems.POSITION + " ASC"));
+        List<Long> pageIds = idCursorToList(mResolver.query(uri,
+                new String[] { DBHelper.CollectionItems.ITEM_ID },
+                null, null,
+                DBHelper.CollectionItems.SORT_ORDER));
+
         final int itemCount = pageIds.size();
         SoundCloudDB.bulkInsertParcelables(mApp, getAdditionsFromIds(mApp, pageIds, c, false));
         return itemCount;
@@ -199,8 +204,11 @@ public class ApiSyncer {
 
         final long start = System.currentTimeMillis();
         int size = 0;
-        List<Long> local = idCursorToList(mResolver.query(contentUri, new String[]{DBHelper.CollectionItems.ITEM_ID},
-                null,null, DBHelper.CollectionItems.POSITION + " ASC"));
+        List<Long> local = idCursorToList(mResolver.query(
+                contentUri,
+                new String[] { DBHelper.CollectionItems.ITEM_ID },
+                null,null,
+                DBHelper.CollectionItems.SORT_ORDER));
 
         List<Long> remote = getCollectionIds(mApp, endpoint);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
@@ -318,7 +326,7 @@ public class ApiSyncer {
 
     private static HttpResponse validateResponse(HttpResponse response) throws IOException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK
-                && response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_MODIFIED) {
+            && response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_MODIFIED) {
             throw new IOException("Invalid response: " + response.getStatusLine());
         }
         return response;
@@ -329,8 +337,11 @@ public class ApiSyncer {
         final Uri pagedUri = content.uri.buildUpon().appendQueryParameter("offset", String.valueOf(pageIndex * Consts.COLLECTION_PAGE_SIZE))
                     .appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build();
 
-        Cursor c = mResolver.query(pagedUri, new String[]{DBHelper.CollectionItems.ITEM_ID, DBHelper.TrackView.LAST_UPDATED},
-                null,null,DBHelper.CollectionItems.POSITION + " ASC");
+        Cursor c = mResolver.query(pagedUri,
+                new String[] {DBHelper.CollectionItems.ITEM_ID, DBHelper.TrackView.LAST_UPDATED },
+                null, null,
+                DBHelper.CollectionItems.SORT_ORDER);
+
         List<Long> staleItems = new ArrayList<Long>();
         final long cutoff = System.currentTimeMillis() - getStaleTime();
         if (c != null && c.moveToFirst()) {
