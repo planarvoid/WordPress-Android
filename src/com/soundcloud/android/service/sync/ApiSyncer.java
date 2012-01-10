@@ -54,6 +54,8 @@ public class ApiSyncer {
         mResolver = app.getContentResolver();
     }
 
+
+
     public boolean syncContent(Content c, boolean manualRefresh) throws IOException {
         boolean changed = false;
         if (c.remoteUri != null) {
@@ -104,27 +106,28 @@ public class ApiSyncer {
         return CloudUtils.isWifiConnected(mApp) ? WIFI_STALE_TIME : Consts.SYNC_STALE_TIME;
     }
 
-    public void performDbAdditions() throws IOException {
+    public void performDbAdditions(boolean doLookups) throws IOException {
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Resolving Database");
 
         // our new tracks/users, compiled so we didn't do duplicate lookups
         final long addStart = System.currentTimeMillis();
 
-        List<Parcelable> itemsToAdd = new ArrayList<Parcelable>();
-        itemsToAdd.addAll(getAdditionsFromIds(mApp, trackAdditions, Track.class, false));
-        itemsToAdd.addAll(getAdditionsFromIds(mApp, userAdditions, User.class, false));
-        int added = SoundCloudDB.bulkInsertParcelables(mApp, itemsToAdd, null, 0, 0);
+        if (doLookups) {
+            List<Parcelable> itemsToAdd = new ArrayList<Parcelable>();
+            itemsToAdd.addAll(getAdditionsFromIds(mApp, trackAdditions, Track.class, false));
+            itemsToAdd.addAll(getAdditionsFromIds(mApp, userAdditions, User.class, false));
+            int added = SoundCloudDB.bulkInsertParcelables(mApp, itemsToAdd, null, 0, 0);
+            Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " parcelables added in " + (System.currentTimeMillis() - addStart) + " ms");
+        }
 
-        Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " parcelables added in " + (System.currentTimeMillis() - addStart) + " ms");
 
         // do collection inserts
         final long itemStart = System.currentTimeMillis();
+        int added = 0;
         for (Map.Entry<Uri, ContentValues[]> entry : collectionValues.entrySet()) {
             if (entry.getValue().length > 0) {
                 Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Upserting " + entry.getValue().length + " new collection items");
-                added = mResolver.bulkInsert(entry.getKey(), entry.getValue());
-            } else {
-                added = 0;
+                added += mResolver.bulkInsert(entry.getKey(), entry.getValue());
             }
             LocalCollection.insertLocalCollection(mResolver, entry.getKey(), System.currentTimeMillis(), added);
         }

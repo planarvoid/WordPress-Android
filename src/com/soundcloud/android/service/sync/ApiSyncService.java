@@ -19,11 +19,7 @@ import com.soundcloud.api.Request;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class ApiSyncService extends IntentService{
 
@@ -31,7 +27,7 @@ public class ApiSyncService extends IntentService{
 
     public static final String EXTRA_STATUS_RECEIVER = "com.soundcloud.android.sync.extra.STATUS_RECEIVER";
     public static final String EXTRA_SYNC_RESULT = "com.soundcloud.android.sync.extra.SYNC_RESULT";
-    public static final String EXTRA_CHECK_STALE_PAGE = "com.soundcloud.android.sync.extra.CHECK_STALE_PAGE";
+    public static final String EXTRA_CHECK_PERFORM_LOOKUPS = "com.soundcloud.android.sync.extra.PERFORM_LOOKUPS";
 
     public static final String SYNC_ACTION = "com.soundcloud.android.sync.action.SYNC";
     public static final String REFRESH_ACTION = "com.soundcloud.android.sync.action.REFRESH";
@@ -77,7 +73,7 @@ public class ApiSyncService extends IntentService{
                 for (String c : contents) {
                     resultData.putBoolean(c, apiSyncer.syncContent(Content.byUri(Uri.parse(c)), manualRefresh));
                 }
-                apiSyncer.performDbAdditions();
+                apiSyncer.performDbAdditions(intent.getBooleanExtra(EXTRA_CHECK_PERFORM_LOOKUPS,true));
                 Log.d(LOG_TAG, "Cloud Api service: Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
                 if (receiver != null) receiver.send(STATUS_SYNC_FINISHED, resultData);
 

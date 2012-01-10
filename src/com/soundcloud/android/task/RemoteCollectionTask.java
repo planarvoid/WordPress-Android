@@ -52,6 +52,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
         public int pageIndex;
         public boolean isRefresh;
         public Request request;
+        public boolean refreshPageItems;
 
         @Override
         public String toString() {
@@ -108,11 +109,19 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
             return doRemoteLoad();
 
         } else {
-
             if (mParams.request != null){
                 LocalData localData = mParams.contentUri != null ? new LocalData(mApp.getContentResolver(), mParams) : null;
-                // TODO stale check??, failure check??
-                refreshLocalItems(mApp.getContentResolver(), localData);
+
+                if (mParams.refreshPageItems){
+                    // TODO stale check??, failure check??
+                    refreshLocalItems(mApp.getContentResolver(), localData);
+                }
+
+                try {
+                    insertMissingItems(localData.idList);
+                } catch (IOException e) {
+                    Log.e(TAG, "error", e);
+                }
             }
 
             if (mParams.contentUri != null) {
@@ -162,7 +171,6 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
     private boolean refreshLocalItems(ContentResolver resolver, LocalData localData) {
         try {
 
-
             final String resourceUrl = mParams.request.toUrl();
             Request idRequest = new Request(resourceUrl.substring(0, resourceUrl.indexOf("?")) + "/ids");
             for (String key : mParams.request.getParams().keySet()){
@@ -191,15 +199,15 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
                     Log.i(TAG, getClass().getSimpleName() + " inserted local page " + lcp);
 
                    // create updated id list
-                    ids = new ArrayList<Long>();
+                    localData.idList = new ArrayList<Long>();
                     ApiSyncer.IdHolder holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ApiSyncer.IdHolder.class);
-                    if (holder.collection != null) ids.addAll(holder.collection);
+                    if (holder.collection != null) localData.idList.addAll(holder.collection);
 
 
-                    ContentValues[] cv = new ContentValues[ids.size()];
+                    ContentValues[] cv = new ContentValues[localData.idList.size()];
                     int i = 0;
                     final long userId = mApp.getCurrentUserId();
-                    for (Long id : ids) {
+                    for (Long id : localData.idList) {
                         cv[i] = new ContentValues();
                         cv[i].put(DBHelper.CollectionItems.POSITION, mParams.pageIndex * Consts.COLLECTION_PAGE_SIZE + i + 1);
                         cv[i].put(DBHelper.CollectionItems.ITEM_ID, id);
@@ -210,15 +218,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
 
                     Log.i(TAG, getClass().getSimpleName() + " inserted ids, size " + added);
 
-                } else {
-                    ids = localData.idList;
                 }
-
-                // todo, maybe we should insert missing items in another task, so the UI is freed up
-
-                int added = insertMissingItems(ids);
-
-                Log.i(TAG, getClass().getSimpleName() + " added missing parcelables, size " + added);
 
             }
             if (mParams.pageIndex == 0) localData.localCollection.updateLasySyncTime(resolver, System.currentTimeMillis());

@@ -466,6 +466,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         final Intent intent = new Intent(mActivity, ApiSyncService.class);
         intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
         intent.setData(mContent.uri);
+        intent.putExtra(ApiSyncService.EXTRA_CHECK_PERFORM_LOOKUPS,false);
         mActivity.startService(intent);
     }
 
@@ -482,6 +483,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
                 pageIndex = getPageIndex();
                 request = buildRequest();
                 isRefresh = isRefreshing();
+                refreshPageItems = !isSyncable();
             }};
     }
 

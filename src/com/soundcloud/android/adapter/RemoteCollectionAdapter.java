@@ -40,7 +40,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
             boolean sync = true;
             if (!userRefresh) {
-                executeRefreshTask(userRefresh);
+                executeRefreshTask();
                 sync = isStale();
             }
 
@@ -51,13 +51,13 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             }
 
         } else {
-            executeRefreshTask(userRefresh);
+            executeRefreshTask();
         }
 
         notifyDataSetChanged();
     }
 
-    private void executeRefreshTask(final boolean userRefresh){
+    private void executeRefreshTask(){
          mRefreshTask = buildTask();
          mRefreshTask.execute(getCollectionParams());
     }
@@ -176,11 +176,12 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             }
             case ApiSyncService.STATUS_SYNC_FINISHED: {
                 mWaitingOnSync = false;
-                if (resultData.getBoolean(mContentUri.toString())){
+                executeRefreshTask();
+                /*if (resultData.getBoolean(mContentUri.toString())){
                     executeRefreshTask(false);
                 } else {
                     doneRefreshing();
-                }
+                }*/
 
                 break;
             }
