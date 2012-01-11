@@ -72,6 +72,7 @@ object Mavenizer {
                 <outputDirectory>tests/lib</outputDirectory>
                 <excludeTransitive>false</excludeTransitive>
                 <includeScope>test</includeScope>
+                <excludeArtificatIds>com.soundcloud:soundcloud-android</excludeArtificatIds>
               </configuration>
             </execution>
           </executions>

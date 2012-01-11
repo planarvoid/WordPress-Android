@@ -74,6 +74,7 @@
                             <outputDirectory>tests/lib</outputDirectory>
                             <excludeTransitive>false</excludeTransitive>
                             <includeScope>test</includeScope>
+                            <excludeArtificatIds>com.soundcloud:soundcloud-android</excludeArtificatIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -227,7 +228,6 @@
             <artifactId>robolectric</artifactId>
             <version>1.1-SNAPSHOT</version>
             <scope>test</scope>
-            <classifier>jar-with-dependencies</classifier>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

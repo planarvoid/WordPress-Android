@@ -18,10 +18,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URLStreamHandler;
-import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -115,11 +112,8 @@ public class ApiSyncService extends IntentService {
                 }
                 syncer.performDbAdditions(intent.getBooleanExtra(EXTRA_CHECK_PERFORM_LOOKUPS, true));
                 Log.d(LOG_TAG, "Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
-
-
                 success = true;
                 return this;
-
             } catch (CloudAPI.InvalidTokenException e) {
                 Log.e(LOG_TAG, "Problem while syncing", e);
                 syncResult.stats.numAuthExceptions++;
