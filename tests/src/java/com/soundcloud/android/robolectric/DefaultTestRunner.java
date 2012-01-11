@@ -1,7 +1,7 @@
 package com.soundcloud.android.robolectric;
 
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
+import com.soundcloud.android.provider.DelegatingContentResolver;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
@@ -21,7 +21,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
             @Override public String getApplicationName() {
                 return TestApplication.class.getSimpleName();
             }
-        }, new SQLiteMap());
+        });
     }
 
     @Override
@@ -34,6 +34,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         super.bindShadowClasses();
         Robolectric.bindShadowClass(ShadowLog.class);
         Robolectric.bindShadowClass(ShadowHandlerThread.class);
+        Robolectric.bindShadowClass(DelegatingContentResolver.class);
     }
 
     @SuppressWarnings({"UseOfSystemOutOrSystemErr", "UnusedDeclaration", "CallToPrintStackTrace"})

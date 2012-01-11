@@ -9,14 +9,14 @@ import java.io.File
 import com.xtremelabs.robolectric.res.ResourceLoader
 import org.scalatest._
 import com.xtremelabs.robolectric.util.DatabaseConfig.{UsingDatabaseMap, DatabaseMap}
-import com.xtremelabs.robolectric.util.{H2Map, DatabaseConfig}
+import com.xtremelabs.robolectric.util.DatabaseConfig
 
 
 trait RobolectricSuite extends Suite {
   lazy val instrumentedClass = RobolectricSuite.classLoader.bootstrap(this.getClass)
   lazy val instrumentedInstance = instrumentedClass.newInstance().asInstanceOf[RobolectricSuite]
   lazy val robolectricConfig = new RobolectricConfig(new File("."))
-  lazy val defaultDatabaseMap = new H2Map
+  lazy val defaultDatabaseMap: DatabaseMap = new com.xtremelabs.robolectric.util.SQLiteMap()
 
   lazy val resourceLoader = {
     new ResourceLoader(robolectricConfig.getRealSdkVersion,

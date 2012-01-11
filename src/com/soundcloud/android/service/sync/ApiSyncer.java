@@ -37,13 +37,12 @@ import java.util.Set;
 
 
 public class ApiSyncer {
-
     static final String LOG_TAG = ApiSyncer.class.getSimpleName();
 
     static final Long WIFI_STALE_TIME = 1000l;//10*60*1000
 
     private SoundCloudApplication mApp;
-    private ContentResolver mResolver;
+    private final ContentResolver mResolver;
 
     private HashMap<Uri, ContentValues[]> collectionValues = new HashMap<Uri, ContentValues[]>();
     private ArrayList<Long> trackAdditions = new ArrayList<Long>();

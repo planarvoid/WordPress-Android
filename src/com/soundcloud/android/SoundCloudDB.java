@@ -38,7 +38,6 @@ public class SoundCloudDB {
         }
     }
 
-
     // ---Make sure the database is up to date with this track info---
     public static Track getTrackById(ContentResolver resolver, long trackId) {
         Cursor cursor = resolver.query(Content.TRACKS.buildUpon()
@@ -161,8 +160,8 @@ public class SoundCloudDB {
     public static int bulkInsertParcelables(SoundCloudApplication app, List<Parcelable> items) {
         return bulkInsertParcelables(app,items,null,-1,-1);
     }
-    public static int bulkInsertParcelables(SoundCloudApplication app, List<Parcelable> items, Uri collectionUri, long owner, int startIndex) {
 
+    public static int bulkInsertParcelables(SoundCloudApplication app, List<Parcelable> items, Uri collectionUri, long owner, int startIndex) {
         int i = 0;
         Set<User> usersToInsert = new HashSet<User>();
         Set<Track> tracksToInsert = new HashSet<Track>();
@@ -207,17 +206,16 @@ public class SoundCloudDB {
             i++;
         }
 
-        int inserted = app.getContentResolver().bulkInsert(Content.TRACKS.uri, tracksCv);
-        Log.i(TAG,inserted + " tracks bulk inserted");
+        int tracksInserted = app.getContentResolver().bulkInsert(Content.TRACKS.uri, tracksCv);
+        Log.d(TAG,tracksInserted + " tracks bulk inserted");
 
-        inserted += app.getContentResolver().bulkInsert(Content.USERS.uri, usersCv);
-        Log.i(TAG,inserted + " users bulk inserted");
+        int usersInserted = app.getContentResolver().bulkInsert(Content.USERS.uri, usersCv);
+        Log.d(TAG, usersInserted + " users bulk inserted");
 
         if (bulkValues != null){
-            inserted = app.getContentResolver().bulkInsert(collectionUri, bulkValues);
-            Log.i(TAG,inserted + " colleciton items bulk inserted");
+            int itemsInserted = app.getContentResolver().bulkInsert(collectionUri, bulkValues);
+            Log.d(TAG, itemsInserted + " collection items bulk inserted");
         }
-
-        return inserted;
+        return usersInserted+tracksInserted;
     }
 }

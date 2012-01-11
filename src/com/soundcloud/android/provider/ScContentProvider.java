@@ -409,17 +409,20 @@ public class ScContentProvider extends ContentProvider {
                     extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(SEARCH)};
                     break;
                 default:
-
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
+            boolean failed = false;
+            for (ContentValues v : values) {
+                if (extraCV != null) v.put(extraCV[0],extraCV[1]);
+                Log.d(TAG, "bulkInsert: "+v);
 
-
-            int numValues = values.length;
-            for (int i = 0; i < numValues; i++) {
-                if (extraCV != null) values[i].put(extraCV[0],extraCV[1]);
-                if (db.replace(tblName, null, values[i]) < 0) return 0;
+                if (db.replace(tblName, null, v) < 0) {
+                    Log.w(TAG, "replace returned failure");
+                    failed = true;
+                    break;
+                }
             }
-            db.setTransactionSuccessful();
+            if (!failed) db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }

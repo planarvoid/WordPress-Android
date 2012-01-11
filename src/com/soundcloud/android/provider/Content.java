@@ -41,14 +41,14 @@ public enum Content {
     ME_EXCLUSIVE_STREAM("/me/activities/tracks/exclusive", Endpoints.MY_EXCLUSIVE_TRACKS, 151, Event.class, -1),
     ME_ACTIVITIES("/me/activities/all/own", Endpoints.MY_NEWS, 152, Event.class, -1),
 
-    TRACKS("/tracks", null, 201, Track.class, TRACK),
+    TRACKS("/tracks", Endpoints.TRACKS, 201, Track.class, TRACK),
     TRACK_ITEM("/tracks/#", null, 202, Track.class, -1),
     TRACK_COMMENTS("/tracks/#/comments", null, 203, Comment.class, -1),
     TRACK_PERMISSIONS("/tracks/#/permissions", null, 204, null, -1),
     TRACK_SECRET_TOKEN("/tracks/#/secret-token", null, 205, null, -1),
 
 
-    USERS("/users", null, 301, User.class, -1),
+    USERS("/users", Endpoints.USERS, 301, User.class, -1),
     USER_ITEM("/users/#", null, 302, User.class, -1),
     USER_TRACKS("/users/#/tracks", null, 303, Track.class, TRACK),
     USER_FAVORITES("/users/#/favorites", null, 304, Track.class, FAVORITE),

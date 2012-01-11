@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApiSyncService extends IntentService{
+public class ApiSyncService extends IntentService {
     public static final String LOG_TAG = ApiSyncer.class.getSimpleName();
 
     public static final String EXTRA_STATUS_RECEIVER = "com.soundcloud.android.sync.extra.STATUS_RECEIVER";
@@ -112,8 +112,6 @@ public class ApiSyncService extends IntentService{
                 Log.e(LOG_TAG, "Problem while appending", e);
                 if (receiver != null) receiver.send(STATUS_APPEND_ERROR, null);
             }
-
-
         }
     }
 
@@ -126,46 +124,6 @@ public class ApiSyncService extends IntentService{
             contents.add(intent.getData().toString());
         }
         return contents;
-    }
-
-    private int slowSyncCollection(Uri contentUri, String endpoint, Class<?> loadModel) throws IOException {
-        final long start = System.currentTimeMillis();
-
-        int i = 0;
-        int page_size = 50;
-        CollectionHolder holder = null;
-        List<Parcelable> items = new ArrayList<Parcelable>();
-        do {
-            Request request = Request.to(endpoint);
-            request.add("offset",i * 50);
-            request.add("limit", page_size);
-            request.add("linked_partitioning", "1");
-            InputStream is = getApp().get(request).getEntity().getContent();
-            if (Track.class.equals(loadModel)) {
-                holder = getApp().getMapper().readValue(is, ApiSyncer.TracklistItemHolder.class);
-                for (TracklistItem t : (ApiSyncer.TracklistItemHolder) holder) {
-                    items.add(new Track(t));
-                }
-            } else if (User.class.equals(loadModel)) {
-                holder = getApp().getMapper().readValue(is, ApiSyncer.UserlistItemHolder.class);
-                for (UserlistItem u : (ApiSyncer.UserlistItemHolder) holder) {
-                    items.add(new User(u));
-                }
-            }
-            i++;
-        } while (!TextUtils.isEmpty(holder.next_href));
-
-        getContentResolver().delete(contentUri, null, null);
-        SoundCloudDB.bulkInsertParcelables(getApp(), items, contentUri, getApp().getCurrentUserId(), 0);
-        LocalCollection.insertLocalCollection(getContentResolver(),contentUri,System.currentTimeMillis(),items.size());
-
-        Log.d(LOG_TAG, "synced " + contentUri + " in " + (System.currentTimeMillis() - start) + " ms");
-
-        return items.size();
-    }
-
-    private SoundCloudApplication getApp() {
-        return (SoundCloudApplication) getApplication();
     }
 
     private void sendSyncError(ResultReceiver receiver, SyncResult syncResult){
