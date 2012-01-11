@@ -58,7 +58,7 @@ public class ApiSyncer {
 
 
 
-    public boolean syncContent(Content c, boolean manualRefresh) throws IOException {
+    public boolean syncContent(Content c) throws IOException {
         boolean changed = false;
         if (c.remoteUri != null) {
             switch (c) {

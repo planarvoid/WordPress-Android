@@ -106,6 +106,7 @@ public class SyncAdapterService extends Service {
             } else {
                 Log.d(TAG, "skipping sync because Wifi is diabled");
             }
+            Log.i(TAG,"Done with sync " + syncResult);
         }
     }
 
@@ -115,10 +116,9 @@ public class SyncAdapterService extends Service {
                                     Bundle extras,
                                     ContentProviderClient provider,
                                     final SyncResult syncResult) {
-
         if (app.useAccount(account).valid()) {
             final boolean force = extras.getBoolean(ContentResolver.SYNC_EXTRAS_FORCE, false);
-            final Intent intent = new Intent(app, ApiSyncService.class);
+            final Intent intent = new Intent(app,ApiSyncService.class);
             ArrayList<String> urisToSync = new ArrayList<String>();
 
             if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
@@ -144,7 +144,6 @@ public class SyncAdapterService extends Service {
                 urisToSync.add(Content.TRACK_CLEANUP.uri.toString());
                 urisToSync.add(Content.USERS_CLEANUP.uri.toString());
             }
-
             intent.putStringArrayListExtra("syncUris", urisToSync);
             Looper.prepare();
             intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
@@ -198,8 +197,8 @@ public class SyncAdapterService extends Service {
                 }
             });
 
-            Looper.loop();
             app.startService(intent);
+            Looper.loop();
         } else {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;

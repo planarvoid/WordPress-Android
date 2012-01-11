@@ -28,7 +28,7 @@ public class ApiSyncServiceTest {
     public void shouldSync() throws Exception {
         ApiSyncService svc = new ApiSyncService();
 
-        Intent intent = new Intent(ApiSyncService.SYNC_ACTION, Content.ME_TRACKS.uri);
+        Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri);
 
         final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<Integer, Bundle>();
         intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler(Looper.myLooper())) {
