@@ -37,11 +37,6 @@ public class ApiSyncService extends IntentService {
     public static final int STATUS_RUNNING = 0x1;
     public static final int STATUS_SYNC_ERROR = 0x2;
     public static final int STATUS_SYNC_FINISHED = 0x3;
-    public static final int STATUS_REFRESH_PAGE_FINISHED = 0x4;
-    public static final int STATUS_REFRESH_PAGE_ERROR = 0x4;
-
-    public static final String SYNC_COLLECTION_ACTION = "com.soundcloud.android.sync.action.SYNC_COLLECTION";
-    public static final String REFRESH_PAGE_ACTION = "com.soundcloud.android.sync.action.REFRESH_PAGE";
 
     public static final int MAX_TASK_LIMIT = 3;
     private int mActiveTaskCount;
@@ -113,19 +108,14 @@ public class ApiSyncService extends IntentService {
             ApiSyncer syncer = new ApiSyncer((SoundCloudApplication) getApplication());
 
             try {
-                if (intent.getAction() == REFRESH_PAGE_ACTION) {
-                        syncer.loadContent(intent.getData());
-                } else {
-
-                    final long startSync = System.currentTimeMillis();
-                    for (Uri u : getUrisToSync(intent)) {
-                        Log.i(LOG_TAG, "Syncing content with uri: " + u.toString());
-                        resultData.putBoolean(u.toString(), syncer.syncContent(Content.byUri(u)));
-                    }
-                    syncer.performDbAdditions(intent.getBooleanExtra(EXTRA_CHECK_PERFORM_LOOKUPS, true));
-                    Log.d(LOG_TAG, "Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
-
+                final long startSync = System.currentTimeMillis();
+                for (Uri u : getUrisToSync(intent)) {
+                    Log.i(LOG_TAG, "Syncing content with uri: " + u.toString());
+                    resultData.putBoolean(u.toString(), syncer.syncContent(Content.byUri(u)));
                 }
+                syncer.performDbAdditions(intent.getBooleanExtra(EXTRA_CHECK_PERFORM_LOOKUPS, true));
+                Log.d(LOG_TAG, "Done sync in " + (System.currentTimeMillis() - startSync) + " ms");
+
 
                 success = true;
                 return this;
@@ -143,17 +133,12 @@ public class ApiSyncService extends IntentService {
         }
 
         public void publishResult() {
-            if (resultReceiver != null){
-                if (intent.getAction() == REFRESH_PAGE_ACTION) {
-                    resultReceiver.send(success ? STATUS_REFRESH_PAGE_FINISHED : STATUS_REFRESH_PAGE_ERROR, resultData);
-                }  else {
-                    if (success){
-                        resultReceiver.send(STATUS_SYNC_FINISHED, resultData);
-                    } else {
-                        sendSyncError(resultReceiver, syncResult);
-                    }
+            if (resultReceiver != null) {
+                if (success) {
+                    resultReceiver.send(STATUS_SYNC_FINISHED, resultData);
+                } else {
+                    sendSyncError(resultReceiver, syncResult);
                 }
-
             }
         }
     }
