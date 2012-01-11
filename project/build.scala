@@ -51,8 +51,7 @@ object AndroidBuild extends Build {
     "org.mockito" % "mockito-core" % "1.8.5" % "test",
     "org.hamcrest" % "hamcrest-core" % "1.1" % "test",
     "com.github.xian" % "great-expectations" % "0.10" % "test",
-    "org.xerial" % "sqlite-jdbc" % "3.7.2" % "test",
-    "com.novocode" % "junit-interface" % "0.7" % "test" intransitive()
+    "com.novocode" % "junit-interface" % "0.7" % "test" intransitive(),
     "org.scalatest" %% "scalatest" % "1.6.1" % "test",
     "org.scala-lang" % "scala-compiler" % "2.9.1" % "test"
   )
