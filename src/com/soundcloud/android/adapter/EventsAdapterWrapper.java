@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Event;
@@ -8,6 +9,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.RefreshEventsTask;
+import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.api.Request;
 
@@ -69,18 +71,23 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
                         i++;
                     }
                 }
+
             } else {
                 mNextHref = nextHref;
+                mKeepGoing = TextUtils.isEmpty(mNextHref);
                 getData().addAll(newItems);
             }
+
         }
 
         if (!mWaitingOnSync) { // reset state to not refreshing
-            if (mState < ERROR) mState = TextUtils.isEmpty(mNextHref) ? DONE : WAITING;
             if (mListView != null) {
                 mListView.onRefreshComplete(false);
                 setListLastUpdated();
             }
+
+            // if this is the end of the initial refresh, then allow appending
+            if (mState < APPENDING) mState = IDLE;
 
             applyEmptyView();
             mPendingView = null;
@@ -96,7 +103,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         boolean sync = true;
         if (!userRefresh) {
             startRefreshTask();
-            sync = isStale();
+            sync = isStale(true);
         }
 
         if (sync) {

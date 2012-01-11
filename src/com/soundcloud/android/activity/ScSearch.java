@@ -181,7 +181,7 @@ public class ScSearch extends ScActivity {
     @Override
     public Object onRetainNonConfigurationInstance() {
         return new Object[]{
-                mList.getWrapper().getLoadModel(),
+                mList.getWrapper().getLoadModel(true),
                 mList.getVisibility(),
                 mTrackAdpWrapper.saveState(),
                 mUserAdpWrapper.saveState(),
@@ -236,7 +236,7 @@ public class ScSearch extends ScActivity {
             mTrackAdpWrapper.clearSections();
             mTrackAdpWrapper.addSection(new SectionedAdapter.Section(getString(R.string.list_header_track_results_for,
                     query), Track.class, new ArrayList<Parcelable>(),
-                    CloudUtils.replaceWildcard(Content.SEARCHES_TRACKS_ITEM.uri,query),
+                    null, //CloudUtils.replaceWildcard(Content.SEARCHES_TRACKS_ITEM.uri,query),
                     Request.to(Endpoints.TRACKS).with("q", query)
             ));
 
@@ -249,7 +249,7 @@ public class ScSearch extends ScActivity {
             mUserAdpWrapper.clearSections();
             mUserAdpWrapper.addSection(new SectionedAdapter.Section(getString(R.string.list_header_user_results_for,
                     query), User.class, new ArrayList<Parcelable>(),
-                    CloudUtils.replaceWildcard(Content.SEARCHES_USERS_ITEM.uri,query),
+                    null, //CloudUtils.replaceWildcard(Content.SEARCHES_USERS_ITEM.uri,query),
                     Request.to(Endpoints.USERS).with("q", query)
             ));
 

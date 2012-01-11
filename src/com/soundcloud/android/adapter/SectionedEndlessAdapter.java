@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import android.util.Log;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.api.Request;
@@ -8,7 +9,6 @@ import org.apache.http.HttpStatus;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -44,21 +44,21 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
     }
 
     @Override
-    public Uri getContentUri() {
+    public Uri getContentUri(boolean refresh) {
         if (mSectionIndex > getWrappedAdapter().sections.size()) return null;
-        return getWrappedAdapter().sections.get(mState == REFRESHING ? 0 : mSectionIndex).content;
+        return getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).content;
     }
 
     @Override
-    protected Request getRequest() {
+    protected Request getRequest(boolean refresh) {
         if (mSectionIndex > getWrappedAdapter().sections.size()) return null;
-        return getWrappedAdapter().sections.get(mState == REFRESHING ? 0 : mSectionIndex).getRequest(mState == REFRESHING);
+        return getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).getRequest(refresh);
     }
 
     @Override
-    public int getPageIndex() {
+    public int getPageIndex(boolean refresh) {
         if (mSectionIndex > getWrappedAdapter().sections.size()) return 0;
-        return mState == REFRESHING ? 0 : getWrappedAdapter().sections.get(mState == REFRESHING ? 0 : mSectionIndex).pageIndex;
+        return refresh ? 0 : getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).pageIndex;
     }
 
     @Override
@@ -67,8 +67,8 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
     }
 
     @Override
-    public Class<?> getLoadModel() {
-        return getWrappedAdapter().getLoadModel(mState == REFRESHING ? 0 : mSectionIndex);
+    public Class<?> getLoadModel(boolean refresh) {
+        return getWrappedAdapter().getLoadModel(refresh ? 0 : mSectionIndex);
     }
 
     @Override
@@ -105,7 +105,6 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
     }
 
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
-
         if ((newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK) {
             addNewItems(newItems);
 
@@ -116,8 +115,9 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
             if (!keepGoing) {
                 nextAdapterSection();
             } else {
+                mKeepGoing = true;
+                mState = IDLE;
                 increasePageIndex();
-                mState = WAITING;
             }
 
 
@@ -147,6 +147,7 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
     }
     @Override
     protected void addNewItems(List<Parcelable> newItems){
+        if (newItems == null || newItems.size() == 0)  return;
         for (Parcelable newItem : newItems) {
             getWrappedAdapter().addItem(mSectionIndex,newItem);
         }
@@ -167,10 +168,11 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
             mSectionIndex++;
             getWrappedAdapter().sections.get(mSectionIndex).pageIndex = 0;
             getWrappedAdapter().sections.get(mSectionIndex).nextHref = null;
-            mState = WAITING;
+            mKeepGoing = true;
         } else {
-            mState = DONE;
+            mKeepGoing = false;
         }
+        mState = IDLE;
         notifyDataSetChanged();
     }
 
@@ -178,16 +180,12 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
     protected void onEmptyRefresh(){
        if (super.getCount() == 0) {
            if (mSectionIndex >= getWrappedAdapter().sections.size() - 1) {
-               mState = DONE;
+               mKeepGoing = false;
+               mState = IDLE;
            } else {
                nextAdapterSection();
            }
         }
-    }
-
-    @Override
-    public void allowInitialLoading(){
-        super.allowInitialLoading();
     }
 
     public interface SectionListener {

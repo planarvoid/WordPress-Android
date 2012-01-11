@@ -26,10 +26,10 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     private Uri mSyncDataUri;
     private boolean mWaitingOnSync;
-    private UpdateCollectionTask mUpdateCollectionTask;
+
 
     public RemoteCollectionAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
-        super(activity,wrapped,contentUri,request,autoAppend);
+        super(activity, wrapped, contentUri, request, autoAppend);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             boolean sync = true;
             if (!userRefresh) {
                 executeRefreshTask();
-                sync = isStale();
+                sync = isStale(true);
             }
 
             if (sync) {
@@ -59,7 +59,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     private void executeRefreshTask(){
          mRefreshTask = buildTask();
-         mRefreshTask.execute(getCollectionParams());
+         mRefreshTask.execute(getCollectionParams(true));
     }
 
     protected RemoteCollectionTask buildTask() {
@@ -67,16 +67,15 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
+        mKeepGoing = keepGoing;
+        mNextHref = nextHref;
+
         if ((newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK) {
-            mState = keepGoing ? WAITING : DONE;
-            mNextHref = nextHref;
+            addNewItems(newItems);
+            mState = IDLE;
             increasePageIndex();
         } else {
             handleResponseCode(responseCode);
-        }
-
-        if (newItems != null && newItems.size() > 0) {
-            addNewItems(newItems);
         }
 
         // configure the empty view depending on possible exceptions
@@ -88,48 +87,29 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
         if (handleResponseCode(responseCode) || (newItems != null && newItems.size() > 0)) {
-            // TODO : cancel any running update task, they will get rerun if needed
             reset(false);
-            mNextHref = nextHref;
-            addNewItems(newItems);
-            increasePageIndex();
-        } else {
-            onEmptyRefresh();
+            onPostTaskExecute(newItems,nextHref,responseCode,keepGoing);
+        } else if (!mWaitingOnSync) {
+            applyEmptyView();
         }
 
-        if (!mWaitingOnSync) {
-            doneRefreshing();
-        } else {
-            // this needs to be set to keep refresh state for the task started after sync returns
-            mState = REFRESHING;
-            notifyDataSetChanged();
-        }
-    }
-
-    private void doneRefreshing() {
-        // reset state to not refreshing
-        if (getWrappedAdapter().getCount() < Consts.COLLECTION_PAGE_SIZE) {
-            if (mState < ERROR) mState = DONE;
-        } else mState = WAITING;
-
-        if (mListView != null) {
+        if (!mWaitingOnSync && mListView != null) {
             mListView.onRefreshComplete(false);
             setListLastUpdated();
         }
 
-        applyEmptyView();
-        mPendingView = null;
         mRefreshTask = null;
-        mAppendTask = null;
         notifyDataSetChanged();
     }
 
     protected void addNewItems(List<Parcelable> newItems){
+        if (newItems == null || newItems.size() == 0)  return;
         for (Parcelable newItem : newItems) {
             getWrappedAdapter().addItem(newItem);
         }
         checkForStaleItems(newItems);
     }
+
     protected void checkForStaleItems(List<Parcelable> newItems){
         final long stale = System.currentTimeMillis() - Consts.SYNC_STALE_TIME;
         final boolean doUpdate = CloudUtils.isWifiConnected(mActivity);
@@ -145,11 +125,21 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         }
 
         if (toUpdate.size() > 0){
-            mUpdateCollectionTask =new UpdateCollectionTask(mActivity.getApp(),getLoadModel());
+            mUpdateCollectionTask =new UpdateCollectionTask(mActivity.getApp(),getLoadModel(false));
             mUpdateCollectionTask.setAdapter(this);
             mUpdateCollectionTask.execute(toUpdate);
         }
 
+    }
+
+    protected void clearUpdateTask() {
+        if (mUpdateCollectionTask != null && !CloudUtils.isTaskFinished(mUpdateCollectionTask)) mUpdateCollectionTask.cancel(true);
+        mUpdateCollectionTask = null;
+    }
+
+    @Override
+    public boolean isRefreshing() {
+        return mRefreshTask != null || mWaitingOnSync == true;
     }
 
 

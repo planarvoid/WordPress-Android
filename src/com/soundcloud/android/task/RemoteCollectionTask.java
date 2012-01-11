@@ -117,7 +117,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
                     refreshLocalItems(mApp.getContentResolver(), localData);
                 }
             }
-
+            keepGoing = localData.idList.size() == Consts.COLLECTION_PAGE_SIZE;
             try {
                 insertMissingItems(localData.idList);
             } catch (IOException e) {
@@ -125,7 +125,6 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
             }
 
             mNewItems = (List<Parcelable>) loadLocalContent();
-            keepGoing = mNewItems.size() == Consts.COLLECTION_PAGE_SIZE;
             publishProgress(mNewItems);
             return true;
 
@@ -257,6 +256,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
             localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(contentResolver, mParams.contentUri);
             if (localCollection == null) {
                 localCollection = insertLocalCollection(contentResolver, mParams.contentUri);
+                 idList = new ArrayList<Long>();
             } else {
                 idList = Content.match(mParams.contentUri).getStoredIds(contentResolver,mParams.pageIndex);
                 // look for content page and check its size against the DB

@@ -2,6 +2,7 @@
 package com.soundcloud.android.adapter;
 
 
+import android.util.Log;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -17,6 +18,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.RemoteCollectionTask;
+import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.view.EmptyCollection;
@@ -30,7 +32,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +43,7 @@ import java.util.List;
 public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener, DetachableResultReceiver.Receiver {
     protected RemoteCollectionTask mAppendTask;
     protected RemoteCollectionTask mRefreshTask;
+    protected UpdateCollectionTask mUpdateCollectionTask;
 
     protected ScListView mListView;
     protected ScActivity mActivity;
@@ -52,23 +54,20 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     protected Request mRequest;
     protected String mNextHref;
-    private String mFirstPageEtag;
     protected int mPageIndex;
 
     private EmptyCollection mEmptyView;
     private EmptyCollection mDefaultEmptyView;
     private String mEmptyViewText = "";
-    protected boolean mWaitingOnSync;
 
+    protected boolean mKeepGoing;
 
     protected int mState;
     int INITIALIZED     = 0; // no loading yet
     int READY           = 1; // ready for initial load (considered a refresh)
-    int REFRESHING      = 2; // currently refreshing
-    int WAITING         = 3; // idle with next href available, append on user scroll to end
-    int APPENDING       = 4; // currently appending
-    int DONE            = 5; // idle with no next href, no more appends
-    int ERROR           = 6; // idle with error, no more appends
+    int APPENDING       = 3; // currently appending
+    int IDLE            = 4; // idle with next href available, append on user scroll to end
+    int ERROR           = 5; // idle with error, no more appends
     private DetachableResultReceiver mDetachableReceiver;
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
@@ -79,7 +78,10 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mContentUri = contentUri;
         mContent = Content.match(contentUri);
         wrapped.setWrapper(this);
-        if (autoAppend) mState = READY;
+        if (autoAppend) {
+            mState = READY;
+            mKeepGoing = true;
+        }
     }
 
 
@@ -93,7 +95,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     public void setListLastUpdated() {
         if (mListView != null) {
-            final long lastUpdated = LocalCollection.getLastSync(mActivity.getContentResolver(), getContentUri());
+            final long lastUpdated = LocalCollection.getLastSync(mActivity.getContentResolver(), getContentUri(true));
             if (lastUpdated > 0) mListView.setLastUpdated(lastUpdated);
         }
     }
@@ -130,7 +132,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     private String getEmptyText(){
-        final Class loadModel = getLoadModel();
+        final Class loadModel = getLoadModel(true);
         final boolean error = mState == ERROR;
         if (Track.class.equals(loadModel)) {
             return !error ? mActivity.getResources().getString(
@@ -181,10 +183,11 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
                 getData(),
                 getRefreshTask(),
                 getAppendTask(),
+                getUpdateTask(),
                 savePagingData(),
                 saveExtraData(),
                 mListView == null ? null : mListView.getLastUpdated(),
-                mListView == null ? null : mListView.getFirstVisiblePosition() == 0 && mState != REFRESHING ? 1 : mListView.getFirstVisiblePosition(),
+                mListView == null ? null : mListView.getFirstVisiblePosition() == 0 && mRefreshTask == null ? 1 : mListView.getFirstVisiblePosition(),
                 mListView == null ? null : mListView.getChildAt(0) == null ||
                         mListView.getFirstVisiblePosition() == 0 ? 0 : mListView.getChildAt(0).getTop(),
                 saveResultReceiver()
@@ -196,11 +199,12 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         if (state[0] != null) getData().addAll((Collection<? extends Parcelable>) state[0]);
         if (state[1] != null) restoreRefreshTask((RemoteCollectionTask) state[1]);
         if (state[2] != null) restoreAppendTask((RemoteCollectionTask) state[2]);
-        if (state[3] != null) restorePagingData((int[]) state[3]);
-        if (state[4] != null) restoreExtraData((String) state[4]);
-        if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
-        if (state[6] != null) mListView.postSelect(Math.max(mState == REFRESHING ? 0 : 1, Integer.valueOf(state[6].toString())),Integer.valueOf(state[7].toString()), true);
-        if (state[8] != null) {restoreResultReceiver((DetachableResultReceiver) state[8]);
+        if (state[2] != null) restoreUpdateTask((UpdateCollectionTask) state[3]);
+        if (state[3] != null) restorePagingData((int[]) state[4]);
+        if (state[4] != null) restoreExtraData((String) state[5]);
+        if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[6].toString()));
+        if (state[6] != null) mListView.postSelect(Math.max(mRefreshTask != null ? 0 : 1, Integer.valueOf(state[7].toString())),Integer.valueOf(state[8].toString()), true);
+        if (state[8] != null) {restoreResultReceiver((DetachableResultReceiver) state[9]);
 
         }
     }
@@ -230,6 +234,13 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         }
     }
 
+    public void restoreUpdateTask(UpdateCollectionTask ut) {
+        if (ut != null) {
+            mUpdateCollectionTask = ut;
+            ut.setAdapter(this);
+        }
+    }
+
     public void restoreRefreshTask(RemoteCollectionTask rt) {
         if (rt != null) {
             mRefreshTask = rt;
@@ -239,6 +250,10 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     public RemoteCollectionTask getAppendTask() {
         return mAppendTask;
+    }
+
+    public UpdateCollectionTask getUpdateTask() {
+        return mUpdateCollectionTask;
     }
 
     public RemoteCollectionTask getRefreshTask() {
@@ -255,13 +270,15 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         int[] ret = new int[3];
         ret[0] = mState;
         ret[1] = mPageIndex;
+        ret[2] = mKeepGoing ? 1 : 0;
         return ret;
     }
 
     protected void restorePagingData(int[] restore) {
         mState = restore[0];
         mPageIndex = restore[1];
-        if (mState >= DONE) {
+        mKeepGoing = restore[2] == 1;
+        if (!mKeepGoing) {
             applyEmptyView();
         }
     }
@@ -274,7 +291,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mNextHref = restore;
     }
 
-    public Class<?> getLoadModel() {
+    public Class<?> getLoadModel(boolean refresh) {
         return getWrappedAdapter().getLoadModel();
     }
 
@@ -284,7 +301,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     @Override
     public int getCount() {
-        if (mState == WAITING || mState == APPENDING || (mState >= DONE && getWrappedAdapter().getCount() == 0)) {
+        if (canAppend() || mState == APPENDING || canShowEmptyView()) {
             return super.getCount() + 1; // extra row for an append row or an empty view
         } else {
             return super.getCount();
@@ -297,11 +314,11 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
             return mListView.getEmptyView();
         }
 
-        if (position >= Math.max(0,super.getCount() - Consts.ROW_APPEND_BUFFER) && mState == WAITING) {
+        if (position >= Math.max(0,super.getCount() - Consts.ROW_APPEND_BUFFER) && canAppend()) {
             append();
         }
 
-        if (position == super.getCount() && (mState == WAITING || mState == APPENDING)) {
+        if (position == super.getCount() && (canAppend() || mState == APPENDING)) {
             if (mPendingView == null) {
                 mPendingView = (convertView != null) ? convertView :
                             ((LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
@@ -316,29 +333,37 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         return (super.getView(position, convertView, parent));
     }
 
+    protected boolean canAppend() {
+        return (mState == IDLE && mKeepGoing);
+    }
+
     protected boolean canShowEmptyView(){
-       return mState >= DONE && super.getCount() == 0;
+       return (mState >= IDLE && !mKeepGoing) && super.getCount() == 0;
     }
 
     protected void onEmptyRefresh(){
-        if (mState < DONE) mState = DONE;
+        //if (!mKeepGoing) mState = DONE;
     }
 
     public void setRequest(Request request) {
         mRequest = request;
     }
 
-    protected Request getRequest() {
+    protected Request getRequest(boolean isRefresh) {
         if (mRequest == null) return null;
-        return !(mState == REFRESHING) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : new Request(mRequest);
+        return !(isRefresh) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : new Request(mRequest);
     }
 
     public Uri getContentUri() {
+        return getContentUri(false);
+    }
+
+    public Uri getContentUri(boolean isRefresh) {
         return mContentUri;
     }
 
-    public int getPageIndex() {
-        return mState == REFRESHING ? 0 : mPageIndex;
+    public int getPageIndex(boolean isRefresh) {
+        return isRefresh ? 0 : mPageIndex;
     }
 
     protected void increasePageIndex() {
@@ -358,23 +383,31 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         resetData();
         mPageIndex = 0;
         mNextHref = "";
-        mState = READY;
+        mKeepGoing = false;
         clearAppendTask();
-//        clearRefreshTask();
+        clearUpdateTask();
+        clearRefreshTask();
+        mState = READY;
          if (notifyChange) notifyDataSetChanged();
     }
 
     public void cleanup() {
-        mState = DONE;
+        mState = INITIALIZED;
+        mKeepGoing = false;
         getWrappedAdapter().setData(new ArrayList<Parcelable>());
         clearAppendTask();
         notifyDataSetChanged();
     }
 
-    private void clearAppendTask() {
+    protected void clearAppendTask() {
         if (mAppendTask != null && !CloudUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
         mAppendTask = null;
         mPendingView = null;
+    }
+
+    protected void clearUpdateTask() {
+        if (mUpdateCollectionTask != null && !CloudUtils.isTaskFinished(mUpdateCollectionTask)) mUpdateCollectionTask.cancel(true);
+        mUpdateCollectionTask = null;
     }
 
     public void clearRefreshTask() {
@@ -387,8 +420,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
      *
      * @return the url
      */
-    protected Request buildRequest() {
-        Request request = getRequest();
+    protected Request buildRequest(boolean isRefresh) {
+        Request request = getRequest(isRefresh);
         if (request != null) {
             request.add("linked_partitioning", "1");
             request.add("limit", Consts.PAGE_SIZE);
@@ -406,7 +439,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     public boolean isRefreshing() {
-        return mState == REFRESHING;
+        return mRefreshTask != null;
     }
 
     public boolean isEmpty(){
@@ -416,6 +449,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     public void allowInitialLoading(){
         if (mState == INITIALIZED){
             mState = READY;
+            mKeepGoing = true;
         }
     }
 
@@ -425,7 +459,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     public void onConnected() {
        if (mState == ERROR){
-           mState = getWrappedAdapter().getCount() == 0 ? READY : WAITING;
+           mState = getWrappedAdapter().getCount() == 0 ? READY : IDLE;
            notifyDataSetChanged();
        }
     }
@@ -458,7 +492,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         } else {
             reset();
         }
-        mState = REFRESHING;
     }
     protected abstract RemoteCollectionTask buildTask();
 
@@ -473,23 +506,23 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     public void append() {
         mState = APPENDING;
         mAppendTask = buildTask();
-        mAppendTask.execute(getCollectionParams());
+        mAppendTask.execute(getCollectionParams(false));
     }
 
-    protected RemoteCollectionTask.CollectionParams getCollectionParams(){
+    protected RemoteCollectionTask.CollectionParams getCollectionParams(final boolean refresh){
         return new RemoteCollectionTask.CollectionParams() {{
-                loadModel = getLoadModel();
-                contentUri = mContentUri;
-                pageIndex = getPageIndex();
-                request = buildRequest();
-                isRefresh = isRefreshing();
+                loadModel = getLoadModel(refresh);
+                contentUri = LazyEndlessAdapter.this instanceof EventsAdapterWrapper ? null : getContentUri(refresh);
+                pageIndex = getPageIndex(refresh);
+                request = buildRequest(refresh);
+                isRefresh = refresh;
                 refreshPageItems = !isSyncable();
             }};
     }
 
-    protected boolean isStale(){
-        long lastsync = LocalCollection.getLastSync(mActivity.getContentResolver(), getContentUri());
-        return (getPageIndex() == 0 && System.currentTimeMillis() - lastsync > Consts.DEFAULT_REFRESH_MINIMUM);
+    protected boolean isStale(boolean refresh){
+        long lastsync = LocalCollection.getLastSync(mActivity.getContentResolver(), getContentUri(refresh));
+        return (getPageIndex(refresh) == 0 && System.currentTimeMillis() - lastsync > Consts.DEFAULT_REFRESH_MINIMUM);
     }
 
     protected boolean isSyncable(){
