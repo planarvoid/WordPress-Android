@@ -205,7 +205,6 @@ public class DBHelper extends SQLiteOpenHelper {
             "collection_id INTEGER, " +
             "page_index INTEGER," +
             "etag VARCHAR(255), " +
-            "next_href VARCHAR(255), " +
             "size INTEGER, " +
             "PRIMARY KEY(collection_id, page_index) ON CONFLICT REPLACE)";
 
@@ -397,7 +396,6 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String ID = "_id";
         public static final String COLLECTION_ID = "collection_id";
         public static final String ETAG = "etag";
-        public static final String NEXT_HREF = "next_href";
         public static final String SIZE = "size";
         public static final String PAGE_INDEX = "page_index";
     }

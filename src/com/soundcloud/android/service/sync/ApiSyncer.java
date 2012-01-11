@@ -3,16 +3,11 @@ package com.soundcloud.android.service.sync;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TracklistItem;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.model.UserlistItem;
+import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -34,6 +29,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.model.LocalCollection.insertLocalCollection;
 
 
 public class ApiSyncer {
@@ -178,33 +176,7 @@ public class ApiSyncer {
         return added;
     }
 
-    /**
-     * @param uri : a URI representing what is being requested, e.g. content://com.soundcloud.android/me/favorites?offset=100&limit=50
-     */
-    public int loadContent(Uri uri) throws IOException {
-
-        // get local collection
-
-        // get last update time
-
-        //  not exists or stale
-
-
-        Content c = Content.match(uri);
-        List<Long> pageIds = idCursorToList(mResolver.query(uri,
-                new String[] { DBHelper.CollectionItems.ITEM_ID },
-                null, null,
-                DBHelper.CollectionItems.SORT_ORDER));
-
-        final int itemCount = pageIds.size();
-        SoundCloudDB.bulkInsertParcelables(mApp, getAdditionsFromIds(mApp, pageIds, c, false));
-        return itemCount;
-    }
-
     private ContentValues[] quickSync(Content c, ArrayList<Long> additions) throws IOException {
-
-
-
         final long start = System.currentTimeMillis();
         int size = 0;
         List<Long> local = idCursorToList(mResolver.query(
@@ -318,6 +290,7 @@ public class ApiSyncer {
     public static  List<Long> getCollectionIds(SoundCloudApplication app, String endpoint) throws IOException {
         List<Long> items = new ArrayList<Long>();
         IdHolder holder = null;
+        if (endpoint.contains("?")) endpoint = endpoint.substring(0,endpoint.indexOf("?"));
         do {
             Request request =  (holder == null) ? Request.to(endpoint + "/ids") : Request.to(holder.next_href);
             request.add("linked_partitioning", "1");
@@ -336,29 +309,115 @@ public class ApiSyncer {
         return response;
     }
 
-    public void refreshPage(Content content, int pageIndex) throws IOException {
-        Log.d(LOG_TAG, "Refreshing page items " + content.uri);
-        final Uri pagedUri = content.uri.buildUpon().appendQueryParameter("offset", String.valueOf(pageIndex * Consts.COLLECTION_PAGE_SIZE))
-                    .appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build();
+    public void loadContent(Uri contentUri) throws IOException {
 
-        Cursor c = mResolver.query(pagedUri,
-                new String[] {DBHelper.CollectionItems.ITEM_ID, DBHelper.TrackView.LAST_UPDATED },
-                null, null,
-                DBHelper.CollectionItems.SORT_ORDER);
+        final int pageIndex = extractPageFromUri(contentUri);
+        Content c = Content.match(contentUri);
+        final ContentResolver resolver = mApp.getContentResolver();
 
-        List<Long> staleItems = new ArrayList<Long>();
-        final long cutoff = System.currentTimeMillis() - getStaleTime();
-        if (c != null && c.moveToFirst()) {
-            do {
-                if (c.getLong(1) < cutoff) staleItems.add(c.getLong(0));
-            } while (c.moveToNext());
+        LocalData localData = new LocalData(resolver, contentUri, pageIndex);
+
+        if (c.remoteUri != null) {
+
+            Request idRequest = new Request(c.remoteUri.substring(0, c.remoteUri.indexOf("?")) + "/ids")
+                    .add("offset", pageIndex * Consts.COLLECTION_PAGE_SIZE)
+                    .add("limit", Consts.COLLECTION_PAGE_SIZE)
+                    .add("linked_partitioning", "1");
+
+            if (localData.localCollectionPage != null) localData.localCollectionPage.applyEtag(idRequest);
+
+            HttpResponse resp = mApp.get(idRequest);
+            final int responseCode = resp.getStatusLine().getStatusCode();
+
+            Log.i(TAG, getClass().getSimpleName() + " got id response " + resp);
+            if (responseCode != HttpStatus.SC_OK && responseCode != HttpStatus.SC_NOT_MODIFIED) {
+                throw new IOException("Invalid response: " + resp.getStatusLine());
+
+            } else {
+                List<Long> ids;
+
+                if (responseCode == HttpStatus.SC_OK) {
+
+
+                    // create updated id list
+                    localData.idList = new ArrayList<Long>();
+                    ApiSyncer.IdHolder holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ApiSyncer.IdHolder.class);
+                    if (holder.collection != null) localData.idList.addAll(holder.collection);
+
+                    // update the new page
+                    LocalCollection.deletePagesFrom(resolver, localData.localCollection.id, pageIndex);
+                    LocalCollectionPage lcp = new LocalCollectionPage(localData.localCollection.id, pageIndex, localData.idList.size(), Http.etag(resp));
+                    resolver.insert(Content.COLLECTION_PAGES.uri, lcp.toContentValues());
+                    Log.i(TAG, getClass().getSimpleName() + " inserted local page " + lcp);
+
+
+                    ContentValues[] cv = new ContentValues[localData.idList.size()];
+                    int i = 0;
+                    final long userId = mApp.getCurrentUserId();
+                    for (Long id : localData.idList) {
+                        cv[i] = new ContentValues();
+                        cv[i].put(DBHelper.CollectionItems.POSITION, pageIndex * Consts.COLLECTION_PAGE_SIZE + i + 1);
+                        cv[i].put(DBHelper.CollectionItems.ITEM_ID, id);
+                        cv[i].put(DBHelper.CollectionItems.USER_ID, userId);
+                        i++;
+                    }
+                    int added = resolver.bulkInsert(contentUri, cv);
+
+                    Log.i(TAG, getClass().getSimpleName() + " inserted ids, size " + added);
+
+                } else {
+                    // not modified
+                }
+
+            }
+            // TODO: WTF
+            if (pageIndex == 0) localData.localCollection.updateLasySyncTime(resolver, System.currentTimeMillis());
         }
-        if (c != null) c.close();
 
-        int updated = SoundCloudDB.bulkInsertParcelables(mApp,
-                getAdditionsFromIds(mApp, staleItems, content, true), null, 0, 0);
+        int newitems = SoundCloudDB.bulkInsertParcelables(mApp, getAdditionsFromIds(mApp, localData.idList, c, false));
+        Log.i(TAG, "Inserted new items " + newitems);
 
-        Log.d(LOG_TAG, "Updated " + updated + " items");
+    }
+
+    private static int extractPageFromUri(Uri uri){
+        if (TextUtils.isEmpty(uri.getQueryParameter("limit"))){
+            return -1;
+        }
+        final String offset = uri.getQueryParameter("offset");
+        if (TextUtils.isEmpty(offset)){
+            return 0;
+        }
+        return Integer.parseInt(offset) / Consts.COLLECTION_PAGE_SIZE;
+    }
+
+    private static class LocalData {
+        LocalCollection localCollection;
+        LocalCollectionPage localCollectionPage;
+        List<Long> idList;
+
+        public LocalData(ContentResolver contentResolver, Uri contentUri, int pageIndex) {
+            localCollectionPage = null;
+            localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(contentResolver, contentUri);
+            if (localCollection == null) {
+                localCollection = insertLocalCollection(contentResolver, contentUri);
+            } else {
+                idList = Content.match(contentUri).getStoredIds(contentResolver,pageIndex);
+                // look for content page and check its size against the DB
+                localCollectionPage = LocalCollectionPage.fromCollectionAndIndex(contentResolver, localCollection.id, pageIndex);
+                if (localCollectionPage != null && (idList == null || idList.size() != localCollectionPage.size)) {
+                    localCollectionPage = null;
+                }
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "LocalData{" +
+                    "localCollection=" + localCollection +
+                    ", localCollectionPage=" + localCollectionPage +
+                    ", idList=" + idList +
+                    '}';
+        }
     }
 
 

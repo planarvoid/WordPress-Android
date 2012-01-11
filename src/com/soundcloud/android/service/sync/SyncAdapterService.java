@@ -119,6 +119,7 @@ public class SyncAdapterService extends Service {
         if (app.useAccount(account).valid()) {
             final boolean force = extras.getBoolean(ContentResolver.SYNC_EXTRAS_FORCE, false);
             final Intent intent = new Intent(app,ApiSyncService.class);
+            intent.setAction(ApiSyncService.SYNC_COLLECTION_ACTION);
             ArrayList<String> urisToSync = new ArrayList<String>();
 
             if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {

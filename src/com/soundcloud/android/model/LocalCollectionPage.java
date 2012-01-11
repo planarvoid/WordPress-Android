@@ -15,22 +15,19 @@ public class LocalCollectionPage {
     public int collection_id;
     public int page_index;
     public int size;
-    String nextHref;
     String etag;
 
     public LocalCollectionPage(Cursor c){
         collection_id = c.getInt(c.getColumnIndex(DBHelper.CollectionPages.COLLECTION_ID));
         page_index = c.getInt(c.getColumnIndex(DBHelper.CollectionPages.PAGE_INDEX));
         size = c.getInt(c.getColumnIndex(DBHelper.CollectionPages.SIZE));
-        nextHref = c.getString(c.getColumnIndex(DBHelper.CollectionPages.NEXT_HREF));
         etag = c.getString(c.getColumnIndex(DBHelper.CollectionPages.ETAG));
     }
 
-    public LocalCollectionPage(int collection_id, int page_index, int size, String nextHref, String etag){
+    public LocalCollectionPage(int collection_id, int page_index, int size, String etag){
         this.collection_id = collection_id;
         this.page_index = page_index;
         this.size = size;
-        this.nextHref = nextHref;
         this.etag = etag;
     }
 
@@ -45,9 +42,6 @@ public class LocalCollectionPage {
         cv.put(DBHelper.CollectionPages.PAGE_INDEX, page_index);
         cv.put(DBHelper.CollectionPages.ETAG, etag);
         cv.put(DBHelper.CollectionPages.SIZE, size);
-        if (nextHref != null) {
-            cv.put(DBHelper.CollectionPages.NEXT_HREF, nextHref);
-        }
         return cv;
     }
 
@@ -70,7 +64,6 @@ public class LocalCollectionPage {
                 "collection_id=" + collection_id +
                 ", page_index=" + page_index +
                 ", size=" + size +
-                ", nextHref='" + nextHref + '\'' +
                 ", etag='" + etag + '\'' +
                 '}';
     }

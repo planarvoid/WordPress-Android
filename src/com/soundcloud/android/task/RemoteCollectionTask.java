@@ -190,18 +190,16 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
 
                 if (mResponseCode == HttpStatus.SC_OK) {
 
-                    // update the new page
-                    LocalCollection.deletePagesFrom(resolver, localData.localCollection.id,mParams.pageIndex);
-                    LocalCollectionPage lcp = new LocalCollectionPage(localData.localCollection.id, mParams.pageIndex, mNewItems.size(), mNextHref, Http.etag(resp));
-                    resolver.insert(Content.COLLECTION_PAGES.uri, lcp.toContentValues());
-
-                    Log.i(TAG, getClass().getSimpleName() + " inserted local page " + lcp);
-
-                   // create updated id list
+                    // create updated id list
                     localData.idList = new ArrayList<Long>();
                     ApiSyncer.IdHolder holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ApiSyncer.IdHolder.class);
                     if (holder.collection != null) localData.idList.addAll(holder.collection);
 
+                    // update the new page
+                    LocalCollection.deletePagesFrom(resolver, localData.localCollection.id,mParams.pageIndex);
+                    LocalCollectionPage lcp = new LocalCollectionPage(localData.localCollection.id, mParams.pageIndex, localData.idList.size(), Http.etag(resp));
+                    resolver.insert(Content.COLLECTION_PAGES.uri, lcp.toContentValues());
+                    Log.i(TAG, getClass().getSimpleName() + " inserted local page " + lcp);
 
                     ContentValues[] cv = new ContentValues[localData.idList.size()];
                     int i = 0;

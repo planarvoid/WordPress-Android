@@ -112,7 +112,7 @@ public enum Content {
     public final Class<? extends Parcelable> resourceType;
     public final Uri uri;
     public final String uriPath;
-    public final String remoteUri;
+    public String remoteUri;
 
     static final private UriMatcher sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static final private Map<Integer, Content> sMap = new HashMap<Integer, Content>();
@@ -142,10 +142,16 @@ public enum Content {
         return uri.buildUpon();
     }
 
+
     public static Content match(Uri uri) {
         if (uri == null) return null;
         final int match = sMatcher.match(uri);
-        return match != -1 ? sMap.get(match) : UNKNOWN;
+        if (match != -1){
+            final Content matched = sMap.get(match);
+            matched.remoteUri = uri.toString();
+            return matched;
+        }
+        return UNKNOWN;
     }
 
     public static boolean isSyncable(Uri uri) {
@@ -164,7 +170,7 @@ public enum Content {
         return sUris.get(uri);
     }
 
-    public List<Long> getStoredIds(ContentResolver resolver){
+    public List<Long> getStoredIds(ContentResolver resolver, String query){
         return getStoredIds(resolver,-1);
     }
     public List<Long> getStoredIds(ContentResolver resolver, int pageIndex){
