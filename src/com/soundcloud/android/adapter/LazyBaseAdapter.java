@@ -140,7 +140,6 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
     class NotifyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            Log.i("asdf", "Notify Dataset Changed");
             notifyDataSetChanged();
         }
     }

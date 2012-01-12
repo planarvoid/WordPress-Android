@@ -12,7 +12,7 @@ import java.util.EnumSet;
     PREPARED,           // initial buffering finished
     PLAYING,            // currently playing
     PAUSED,             // paused by user
-    PAUSED_FOR_BUFFERING, // paused by framework
+    PAUSED_FOR_BUFFERING, // paused by framework for buffering
     COMPLETED;            // onComplete() was called
 
     // see Valid and invalid states on http://developer.android.com/reference/android/media/MediaPlayer.html

@@ -242,7 +242,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     @Override
     public void focusGained() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "focusGained");
-        if (state == State.PAUSED && mFocusLost) {
+        if (state.isSupposedToBePlaying() && mFocusLost) {
+            play();
             mPlayerHandler.sendEmptyMessage(FADE_IN);
             mFocusLost = false;
         } else {
@@ -255,7 +256,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "focusLost("+isTransient+", canDuck="+canDuck+")");
         }
-        if (state == PLAYING) {
+        if (state.isSupposedToBePlaying()) {
             mPlayerHandler.sendEmptyMessage(canDuck ? DUCK : FADE_OUT);
         }
         mFocusLost = isTransient;
@@ -439,13 +440,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
 
     /* package */ void play() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "play(state="+state+")");
-        if (mCurrentTrack != null) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "play(state=" + state + ")");
+        if (mCurrentTrack != null && mFocus.requestMusicFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             if (mMediaPlayer != null && state.isStartable()) {
                 // resume
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.start");
 
-                mFocus.requestMusicFocus();
                 mMediaPlayer.start();
                 state = PLAYING;
 
@@ -849,6 +849,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     break;
                 case FADE_IN:
                     removeMessages(FADE_OUT);
+
                     if (!state.isSupposedToBePlaying()) {
                         mCurrentVolume = 0f;
                         setVolume(0f);
@@ -871,7 +872,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                         if (mCurrentVolume > 0f) {
                             sendEmptyMessageDelayed(FADE_OUT, 10);
                         } else {
-                            pause();
+                            mMediaPlayer.pause();
                             mCurrentVolume = 0f;
                         }
                         setVolume(mCurrentVolume);
@@ -1018,15 +1019,17 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                             Log.d(TAG, "resuming to "+mResumeTime);
                         }
                         seek(mResumeTime, true);
-                        play();
                         mResumeTime = mResumeTrackId -1;
                         resumeSeeking = true;
+                        play();
+
                     // normal play, unless first start (autopause=true)
-                    } else if (!mAutoPause) {
-                        setVolume(0);
+                    } else {
                         //  FADE_IN will call play()
-                        mPlayerHandler.sendEmptyMessage(FADE_IN);
                         notifyChange(BUFFERING_COMPLETE);
+                        if (!mAutoPause && mFocus.requestMusicFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                            mPlayerHandler.sendEmptyMessage(FADE_IN);
+                        }
                     }
                 } else {
                     stop();
