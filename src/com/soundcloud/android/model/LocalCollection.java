@@ -8,26 +8,33 @@ import android.net.Uri;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
+/**
+ * Represents the state of a local collection sync, including last sync and size.
+ * See {@link DBHelper.Collections}.
+ */
 public class LocalCollection {
-    public int id;
-    public Uri uri;
-    public long last_sync;
-    public int size;
+    public final int id;
+    public final Uri uri;
+    public final long last_sync;
+    public final int size;
 
-     public LocalCollection(Cursor c){
-         id = c.getInt(c.getColumnIndex(DBHelper.Collections.ID));
-         uri = Uri.parse(c.getString(c.getColumnIndex(DBHelper.Collections.URI)));
-         last_sync = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
-         size = c.getInt(c.getColumnIndex(DBHelper.Collections.SIZE));
-     }
-    public LocalCollection(String id, Uri uri){
-         this.id = Integer.parseInt(id);
-         this.uri = uri;
-     }
+    public LocalCollection(Cursor c) {
+        id = c.getInt(c.getColumnIndex(DBHelper.Collections.ID));
+        uri = Uri.parse(c.getString(c.getColumnIndex(DBHelper.Collections.URI)));
+        last_sync = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
+        size = c.getInt(c.getColumnIndex(DBHelper.Collections.SIZE));
+    }
 
-    public static LocalCollection fromContentUri(ContentResolver contentResolver, Uri contentUri){
+    public LocalCollection(int id, Uri uri, long lastSync, int size) {
+        this.id = id;
+        this.uri = uri;
+        this.last_sync = lastSync;
+        this.size = size;
+    }
+
+    public static LocalCollection fromContentUri(ContentResolver resolver, Uri contentUri) {
         LocalCollection lc = null;
-        Cursor c = contentResolver.query(Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
+        Cursor c = resolver.query(Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
         if (c != null && c.moveToFirst()) {
             lc = new LocalCollection(c);
         }
@@ -35,29 +42,30 @@ public class LocalCollection {
         return lc;
     }
 
-    public static LocalCollection insertLocalCollection(ContentResolver contentResolver, Uri contentUri) {
-        return insertLocalCollection(contentResolver,contentUri,-1,-1);
+    public static LocalCollection insertLocalCollection(ContentResolver resolver, Uri contentUri) {
+        return insertLocalCollection(resolver, contentUri, -1, -1);
     }
 
-    public static LocalCollection insertLocalCollection(ContentResolver contentResolver, Uri contentUri, long lastRefresh, int size) {
+    public static LocalCollection insertLocalCollection(ContentResolver resolver, Uri contentUri, long lastRefresh, int size) {
         // insert if not there
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.URI, contentUri.toString());
         if (lastRefresh != -1) cv.put(DBHelper.Collections.LAST_SYNC, lastRefresh);
-        if (size != -1) cv.put(DBHelper.Collections.SIZE, size);
+        if (size != -1)        cv.put(DBHelper.Collections.SIZE, size);
 
-        Uri inserted = contentResolver.insert(Content.COLLECTIONS.uri, cv);
+        Uri inserted = resolver.insert(Content.COLLECTIONS.uri, cv);
         if (inserted != null) {
-            return new LocalCollection(inserted.getLastPathSegment(),contentUri);
+            return new LocalCollection(Integer.parseInt(inserted.getLastPathSegment()),
+                    contentUri, lastRefresh, size);
         } else {
             return null;
         }
     }
 
-    public static long getLastSync(ContentResolver contentResolver, Uri contentUri) {
+    public static long getLastSync(ContentResolver resolver, Uri contentUri) {
         long lastSync = -1;
         if (contentUri != null) {
-            Cursor c = contentResolver.query(Content.COLLECTIONS.uri,
+            Cursor c = resolver.query(Content.COLLECTIONS.uri,
                     new String[]{DBHelper.Collections.LAST_SYNC}, "uri = ?", new String[]{contentUri.toString()}, null);
             if (c != null && c.moveToFirst()) {
                 lastSync = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
@@ -77,15 +85,20 @@ public class LocalCollection {
                 '}';
     }
 
-    public boolean updateLasySyncTime(ContentResolver contentResolver, long time) {
-        ContentValues cv = new ContentValues();
+    public boolean updateLastSyncTime(ContentResolver resolver, long time) {
+        ContentValues cv = toContentValues();
         cv.put(DBHelper.Collections.LAST_SYNC, time);
-        Uri inserted = contentResolver.insert(Content.COLLECTIONS.uri, cv);
-        if (inserted != null) {
-            return true;
-        } else {
-            return false;
-        }
+        Uri inserted = resolver.insert(Content.COLLECTIONS.uri, cv);
+        return inserted != null;
+    }
+
+    private ContentValues toContentValues() {
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Collections.ID, id);
+        cv.put(DBHelper.Collections.LAST_SYNC, last_sync);
+        cv.put(DBHelper.Collections.URI, uri.toString());
+        cv.put(DBHelper.Collections.SIZE, size);
+        return cv;
     }
 
     public static void deletePagesFrom(ContentResolver resolver, int collection_id, int page_index) {
