@@ -32,17 +32,15 @@ import java.util.Set;
 public class ApiSyncer {
     static final String LOG_TAG = ApiSyncer.class.getSimpleName();
 
-    static final Long WIFI_STALE_TIME = 1000l;//10*60*1000
-
     private SoundCloudApplication mApp;
     private final ContentResolver mResolver;
 
-    private HashMap<Uri, ContentValues[]> collectionValues = new HashMap<Uri, ContentValues[]>();
-    private ArrayList<Long> trackAdditions = new ArrayList<Long>();
-    private ArrayList<Long> userAdditions = new ArrayList<Long>();
+    private Map<Uri, ContentValues[]> collectionValues = new HashMap<Uri, ContentValues[]>();
+    private List<Long> trackAdditions = new ArrayList<Long>();
+    private List<Long> userAdditions = new ArrayList<Long>();
 
-    private static int API_LOOKUP_BATCH_SIZE = 200;
-    private static int RESOLVER_BATCH_SIZE = 100;
+    private static final int API_LOOKUP_BATCH_SIZE = 200;
+    private static final int RESOLVER_BATCH_SIZE = 100;
 
     public ApiSyncer(SoundCloudApplication app) {
         mApp = app;
@@ -56,7 +54,7 @@ public class ApiSyncer {
                 case ME_ACTIVITIES:
                 case ME_EXCLUSIVE_STREAM:
                 case ME_SOUND_STREAM:
-                    changed = syncActivities(Request.to(c.remoteUri), c.uri);
+                    changed = syncActivities(c);
                     break;
 
                 case ME_TRACKS:
@@ -67,7 +65,6 @@ public class ApiSyncer {
                     break;
             }
         } else {
-
             switch (c) {
                 case TRACK_CLEANUP:
                 case USERS_CLEANUP:
@@ -82,10 +79,9 @@ public class ApiSyncer {
         return changed;
     }
 
-    /* package */ boolean syncActivities(Request request, Uri contentUri) throws IOException {
-        final long start = System.currentTimeMillis();
-        Activities a = ActivitiesCache.get(mApp, mApp.getAccount(), request);
-        LocalCollection.insertLocalCollection(mResolver, contentUri, System.currentTimeMillis(), a.size());
+    /* package */ boolean syncActivities(Content content) throws IOException {
+        Activities a = ActivitiesCache.get(mApp, mApp.getAccount(), Request.to(content.remoteUri));
+        LocalCollection.insertLocalCollection(mResolver, content.uri, System.currentTimeMillis(), a.size());
         return true; // TODO, make this an actual result (true if something changed). not bothering now cause this is going to be changed
     }
 
@@ -95,9 +91,6 @@ public class ApiSyncer {
         return cv.length > 0;
     }
 
-    private long getStaleTime() {
-        return CloudUtils.isWifiConnected(mApp) ? WIFI_STALE_TIME : Consts.SYNC_STALE_TIME;
-    }
 
     /* package */ void performDbAdditions(boolean doLookups) throws IOException {
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Resolving Database");
@@ -126,7 +119,7 @@ public class ApiSyncer {
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " items added in " + (System.currentTimeMillis() - itemStart) + " ms");
     }
 
-    private ContentValues[] quickSync(Content c, ArrayList<Long> additions) throws IOException {
+    private ContentValues[] quickSync(Content c, List<Long> additions) throws IOException {
         final long start = System.currentTimeMillis();
         int size = 0;
         List<Long> local = idCursorToList(mResolver.query(

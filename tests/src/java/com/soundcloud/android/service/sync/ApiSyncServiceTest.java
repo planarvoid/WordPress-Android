@@ -25,10 +25,10 @@ import java.util.LinkedHashMap;
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncServiceTest {
 
-    @Test
-    public void shouldSync() throws Exception {
-        ApiSyncService svc = new ApiSyncService();
 
+    @Test
+    public void shouldProvideFeedbackViaResultReceiver() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
         Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri);
 
         final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<Integer, Bundle>();
@@ -47,12 +47,33 @@ public class ApiSyncServiceTest {
         expect(received.size()).toBe(2);
         expect(received.containsKey(ApiSyncService.STATUS_RUNNING)).toBeTrue();
         expect(received.containsKey(ApiSyncService.STATUS_SYNC_ERROR)).toBeFalse();
+    }
 
+
+    @Test
+    public void shouldSync() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+
+        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
+        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+
+        svc.onHandleIntent(new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri));
         // make sure tracks+users got written
         assertContentUriCount(Content.TRACKS, 3);
         assertContentUriCount(Content.COLLECTION_ITEMS, 3);
         assertContentUriCount(Content.USERS, 1);
     }
+
+
+    @Test
+    public void shouldSyncActivities() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+        addResourceResponse("/me/activities/tracks?limit=20", "incoming_1.json");
+        addResourceResponse("/me/activities/tracks?limit=20", "incoming_2.json");
+
+        svc.onHandleIntent(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri));
+    }
+
 
     private void addResourceResponse(String url, String resource) throws IOException {
         Robolectric.addHttpResponseRule(url, resource(resource));

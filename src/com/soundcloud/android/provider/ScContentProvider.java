@@ -170,7 +170,7 @@ public class ScContentProvider extends ContentProvider {
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(final Uri uri, final ContentValues values) {
         final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
         long id;
         Uri result;

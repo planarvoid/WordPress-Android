@@ -3,7 +3,6 @@ package com.soundcloud.android.task;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.model.LocalCollection.insertLocalCollection;
 import static com.soundcloud.android.service.sync.ApiSyncer.getAdditionsFromIds;
-import static com.soundcloud.android.service.sync.ApiSyncer.idCursorToList;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -217,7 +216,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
                 }
 
             }
-            if (mParams.pageIndex == 0) localData.localCollection.updateLasySyncTime(resolver, System.currentTimeMillis());
+            if (mParams.pageIndex == 0) localData.localCollection.updateLastSyncTime(resolver, System.currentTimeMillis());
             return true;
 
         } catch (IOException e) {
