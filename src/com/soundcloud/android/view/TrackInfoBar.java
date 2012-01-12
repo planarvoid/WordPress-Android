@@ -161,6 +161,7 @@ public class TrackInfoBar extends RelativeLayout {
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
 
+
         CloudUtils.setStats(mTrack.playback_count, mPlayCount, mPlayCountSeparator, mTrack.comment_count,
                 mCommentCount, mCommentCountSeparator, mTrack.favoritings_count, mFavoriteCount, keepHeight);
 
@@ -169,6 +170,7 @@ public class TrackInfoBar extends RelativeLayout {
         } else {
             mFavoriteCount.setCompoundDrawables(getFavoritesDrawable(),null, null, null);
         }
+
 
         if (mTrack.id == playingId) {
             SpannableStringBuilder sb = new SpannableStringBuilder();
@@ -180,6 +182,7 @@ public class TrackInfoBar extends RelativeLayout {
             mTitle.setText(mTrack.title);
         }
         if (shouldLoadIcon) loadIcon();
+
     }
 
     public void onConnected(){
@@ -195,20 +198,21 @@ public class TrackInfoBar extends RelativeLayout {
             ImageLoader.get(getContext()).unbind(mIcon); // no artwork
         } else {
             mCurrentIconBindResult = ImageLoader.get(getContext()).bind(mIcon,
-                    iconUrl,
-                    new ImageLoader.Callback() {
-                        @Override
-                        public void onImageError(ImageView view, String url, Throwable error) {
-                            mCurrentIconBindResult = ImageLoader.BindResult.ERROR;
-                        }
-
-                        @Override
-                        public void onImageLoaded(ImageView view, String url) {
-                            mCurrentIconBindResult = ImageLoader.BindResult.OK;
-                        }
-
-                    }, ICON_OPTIONS);
+                    iconUrl, mImageLoaderCallback, ICON_OPTIONS);
         }
     }
+
+    private ImageLoader.Callback mImageLoaderCallback = new ImageLoader.Callback() {
+        @Override
+        public void onImageError(ImageView view, String url, Throwable error) {
+            mCurrentIconBindResult = ImageLoader.BindResult.ERROR;
+        }
+
+        @Override
+        public void onImageLoaded(ImageView view, String url) {
+            mCurrentIconBindResult = ImageLoader.BindResult.OK;
+        }
+
+    };
 
 }
