@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.playback;
 
+import android.util.Log;
 import com.soundcloud.android.model.Track;
 
 import android.os.RemoteException;
