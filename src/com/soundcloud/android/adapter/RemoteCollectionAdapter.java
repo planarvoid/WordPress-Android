@@ -87,8 +87,18 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
         if (handleResponseCode(responseCode) || (newItems != null && newItems.size() > 0)) {
+
             reset(false);
-            onPostTaskExecute(newItems,nextHref,responseCode,keepGoing);
+            mKeepGoing = keepGoing;
+            mNextHref = nextHref;
+            addNewItems(newItems);
+            increasePageIndex();
+
+            if (!mWaitingOnSync){
+                mState = IDLE;
+            }
+
+
         } else if (!mWaitingOnSync) {
             applyEmptyView();
         }

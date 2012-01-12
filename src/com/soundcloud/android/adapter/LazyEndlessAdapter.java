@@ -199,12 +199,12 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         if (state[0] != null) getData().addAll((Collection<? extends Parcelable>) state[0]);
         if (state[1] != null) restoreRefreshTask((RemoteCollectionTask) state[1]);
         if (state[2] != null) restoreAppendTask((RemoteCollectionTask) state[2]);
-        if (state[2] != null) restoreUpdateTask((UpdateCollectionTask) state[3]);
-        if (state[3] != null) restorePagingData((int[]) state[4]);
-        if (state[4] != null) restoreExtraData((String) state[5]);
-        if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[6].toString()));
-        if (state[6] != null) mListView.postSelect(Math.max(mRefreshTask != null ? 0 : 1, Integer.valueOf(state[7].toString())),Integer.valueOf(state[8].toString()), true);
-        if (state[8] != null) {restoreResultReceiver((DetachableResultReceiver) state[9]);
+        if (state[3] != null) restoreUpdateTask((UpdateCollectionTask) state[3]);
+        if (state[4] != null) restorePagingData((int[]) state[4]);
+        if (state[5] != null) restoreExtraData((String) state[5]);
+        if (state[6] != null) mListView.setLastUpdated(Long.valueOf(state[6].toString()));
+        if (state[7] != null) mListView.postSelect(Math.max(mRefreshTask != null ? 0 : 1, Integer.valueOf(state[7].toString())),Integer.valueOf(state[8].toString()), true);
+        if (state[9] != null) {restoreResultReceiver((DetachableResultReceiver) state[9]);
 
         }
     }
