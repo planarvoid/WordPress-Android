@@ -103,7 +103,7 @@ public class ApiSyncService extends IntentService {
 
         public ApiSyncRequest execute() {
             ApiSyncer syncer = new ApiSyncer((SoundCloudApplication) getApplication());
-
+            resultReceiver.send(STATUS_RUNNING, null);
             try {
                 final long startSync = System.currentTimeMillis();
                 for (Uri u : getUrisToSync(intent)) {

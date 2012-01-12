@@ -7,7 +7,6 @@ import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Http;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -30,10 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.model.LocalCollection.insertLocalCollection;
-
-
 public class ApiSyncer {
     static final String LOG_TAG = ApiSyncer.class.getSimpleName();
 
@@ -53,9 +48,7 @@ public class ApiSyncer {
         mApp = app;
         mResolver = app.getContentResolver();
     }
-
-
-
+    
     public boolean syncContent(Content c) throws IOException {
         boolean changed = false;
         if (c.remoteUri != null) {
@@ -168,7 +161,7 @@ public class ApiSyncer {
 
         // tracks/users that this collection depends on
         // store these to add shortly, they will depend on the tracks/users being there
-        Set<Long> newAdditions = new HashSet(remote);
+        Set<Long> newAdditions = new HashSet<Long>(remote);
         newAdditions.removeAll(local);
         additions.addAll(newAdditions);
 
@@ -216,7 +209,7 @@ public class ApiSyncer {
             InputStream is = validateResponse(app.get(Request.to(content.remoteUri)
                     .add("linked_partitioning", "1").add("limit", API_LOOKUP_BATCH_SIZE).add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
 
-            CollectionHolder holder = null;
+            CollectionHolder holder;
             if (Track.class.equals(content.resourceType)) {
                 holder = app.getMapper().readValue(is, TracklistItemHolder.class);
                 for (TracklistItem t : (TracklistItemHolder) holder) {
