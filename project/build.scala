@@ -77,9 +77,8 @@ object AndroidBuild extends Build {
       compileOrder := CompileOrder.JavaThenScala,
       javaSource in Test <<= (baseDirectory) (_ / "tests" / "src" / "java"),
       scalaSource in Test <<= (baseDirectory) (_ / "tests" / "src" / "scala"),
-      resourceDirectory in Test <<= (javaSource in Test) (js => js),
+      resourceDirectory in Test <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
       parallelExecution in Test := false,
-      (excludeFilter in resources) in Test := "*.java", // does not work atm
       unmanagedClasspath in Test <<= (unmanagedClasspath in Test) map (cp => Seq.empty)
     ) ++ AndroidInstall.settings
       ++ Mavenizer.settings

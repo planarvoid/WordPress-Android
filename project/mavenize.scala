@@ -10,7 +10,7 @@ object Mavenizer {
       <testSourceDirectory>tests/src/java</testSourceDirectory>
       <testResources>
         <testResource>
-          <directory>tests/src/java</directory>
+          <directory>tests/src/resources</directory>
         </testResource>
       </testResources>
       <plugins>
