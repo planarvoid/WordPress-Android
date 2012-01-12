@@ -37,6 +37,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.utils.ImageUtils;
 
 import java.io.File;
@@ -1081,7 +1082,11 @@ public final class ImageLoader {
                 return;
             }
             if (!adapter.isEmpty()) {
-                adapter.notifyDataSetChanged();
+                if (adapter instanceof LazyBaseAdapter){
+                    ((LazyBaseAdapter) adapter).scheduleNotifyDataSetChanged();
+                } else {
+                    adapter.notifyDataSetChanged();
+                }
             } else {
                 // The adapter is empty or no longer in use.
                 // It is important that BaseAdapter#notifyDataSetChanged()

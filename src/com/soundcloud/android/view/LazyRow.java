@@ -5,6 +5,7 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
@@ -21,6 +22,7 @@ import android.widget.ImageView;
 
 public abstract class LazyRow extends FrameLayout {
 
+    public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
     protected IScAdapter mAdapter;
     protected ImageLoader mImageLoader;
     protected ImageView mIcon;
@@ -62,7 +64,9 @@ public abstract class LazyRow extends FrameLayout {
         mCurrentPosition = position;
         final String iconUri = getIconRemoteUri();
         if (CloudUtils.checkIconShouldLoad(iconUri)) {
-            final Bitmap bmp = mImageLoader.getBitmap(iconUri,null,new ImageLoader.Options(false));
+        //if (false){
+            //mImageLoader.bind((LazyBaseAdapter) mAdapter,mIcon,iconUri);
+            final Bitmap bmp = mImageLoader.getBitmap(iconUri,null, ICON_OPTIONS);
             if (bmp != null){
                 Drawable drawable = mAdapter.getDrawableFromPosition(position);
                 if (drawable == null){

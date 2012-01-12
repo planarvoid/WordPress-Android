@@ -24,6 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class TrackInfoBar extends RelativeLayout {
+    public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(true, true);
     private Track mTrack;
 
     private TextView mUser;
@@ -206,7 +207,7 @@ public class TrackInfoBar extends RelativeLayout {
                             mCurrentIconBindResult = ImageLoader.BindResult.OK;
                         }
 
-                    }, new ImageLoader.Options(true, true));
+                    }, ICON_OPTIONS);
         }
     }
 

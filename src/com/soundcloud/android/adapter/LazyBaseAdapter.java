@@ -1,6 +1,9 @@
 
 package com.soundcloud.android.adapter;
 
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import com.soundcloud.android.view.LazyRow;
 
 import android.content.Context;
@@ -17,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter {
+    public static final int NOTIFY_DELAY = 250;
     protected Context mContext;
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
@@ -25,6 +29,8 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
 
     protected Map<Integer, Drawable> mIconAnimations = new HashMap<Integer, Drawable>();
     protected Set<Integer> mLoadingIcons = new HashSet<Integer>();
+
+    private Handler mNotifyHandler = new NotifyHandler();
 
     @SuppressWarnings("unchecked")
     public LazyBaseAdapter(Context context, List<? extends Parcelable> data, Class<?> model) {
@@ -118,5 +124,24 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
 
     public boolean needsItems() {
         return getCount() == 0;
+    }
+
+    public void notifyDataSetChanged() {
+        mNotifyHandler.removeMessages(1);
+        super.notifyDataSetChanged();
+    }
+
+    public void scheduleNotifyDataSetChanged(){
+        if (!mNotifyHandler.hasMessages(1)){
+            mNotifyHandler.sendMessageDelayed(mNotifyHandler.obtainMessage(1), NOTIFY_DELAY);
+        }
+    }
+
+    class NotifyHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.i("asdf", "Notify Dataset Changed");
+            notifyDataSetChanged();
+        }
     }
 }
