@@ -125,6 +125,9 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
             }
 
             mNewItems = (List<Parcelable>) loadLocalContent();
+            for (Parcelable p : mNewItems) {
+                ((ScModel) p).resolve(mApp);
+            }
             publishProgress(mNewItems);
             return true;
 

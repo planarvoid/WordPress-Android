@@ -257,6 +257,11 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         SoundCloudDB.writeTrack(app.getContentResolver(), this, SoundCloudDB.WriteState.insert_only, app.getCurrentUserId());
     }
 
+    @Override
+    public void resolve(SoundCloudApplication application) {
+        mElapsedTime = CloudUtils.getTimeElapsed(application.getResources(),created_at.getTime());
+    }
+
     public Track updateFromDb(ContentResolver resolver, User user) {
         return updateFromDb(resolver, user.id);
     }

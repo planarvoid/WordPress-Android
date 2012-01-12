@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.model;
 
+import android.widget.TextView;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.utils.CloudUtils;
@@ -45,6 +46,7 @@ public class Event extends ScModel implements Origin, Playable {
 
     @Override
     public void resolve(SoundCloudApplication application) {
+        mElapsedTime = CloudUtils.getTimeElapsed(application.getResources(),created_at.getTime());
         if (origin instanceof Comment) {
             Comment c = (Comment)origin;
             if (c.track.user == null) {
