@@ -10,8 +10,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
@@ -37,7 +37,7 @@ import java.util.Set;
 
 
 @RunWith(DefaultTestRunner.class)
-public class SyncAdapterServiceTest extends ApiTests {
+public class SyncAdapterServiceTest {
 
     @After
     public void after() {
@@ -46,9 +46,9 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetNewIncomingEvents() throws Exception {
-        addCannedEvents(
-            "incoming_1.json",
-            "incoming_2.json"
+        addCannedActivities(
+                "incoming_1.json",
+                "incoming_2.json"
         );
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
@@ -61,7 +61,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetNewIncomingEventsExclusive() throws Exception {
-        addCannedEvents("exclusives_1.json");
+        addCannedActivities("exclusives_1.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, null, true);
@@ -74,9 +74,9 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetOwnEvents() throws Exception {
-        addCannedEvents(
-            "own_1.json",
-            "own_2.json"
+        addCannedActivities(
+                "own_1.json",
+                "own_2.json"
         );
 
         Activities events = SyncAdapterService.getOwnEvents(
@@ -89,14 +89,14 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testWithSince() throws Exception {
-        addCannedEvents("incoming_1.json");
+        addCannedActivities("incoming_1.json");
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
                 null,false).filter(1310462679000l);
 
         expect(events.size()).toEqual(1);
 
-        addCannedEvents("incoming_1.json");
+        addCannedActivities("incoming_1.json");
         events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
                 null, false).filter(1310462016000l);
@@ -106,7 +106,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testGetUniqueUsersFromEvents() throws Exception {
-        addCannedEvents("incoming_2.json");
+        addCannedActivities("incoming_2.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, null, false);
@@ -122,7 +122,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testIncomingMessaging() throws Exception {
-        addCannedEvents("incoming_2.json");
+        addCannedActivities("incoming_2.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, null, false);
@@ -135,7 +135,7 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void testExclusiveMessaging() throws Exception {
-        addCannedEvents("incoming_2.json");
+        addCannedActivities("incoming_2.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application, null, false);
@@ -148,10 +148,10 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldNotifyIfSyncedBefore() throws Exception {
-        addCannedEvents(
-            "incoming_2.json",
-            "empty_events.json",
-            "empty_events.json"
+        addCannedActivities(
+                "incoming_2.json",
+                "empty_events.json",
+                "empty_events.json"
         );
 
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false);
@@ -165,18 +165,18 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldNotRepeatNotification() throws Exception {
-        addCannedEvents(
-            "incoming_2.json",
-            "empty_events.json",
-            "own_2.json"
+        addCannedActivities(
+                "incoming_2.json",
+                "empty_events.json",
+                "own_2.json"
         );
 
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false);
 
         expect(result.notifications.size()).toEqual(2);
 
-        addCannedEvents(
-            "empty_events.json"
+        addCannedActivities(
+                "empty_events.json"
         );
 
         result = doPerformSync(DefaultTestRunner.application, false);
@@ -187,10 +187,10 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldNotifyAboutIncomingAndExclusives() throws Exception {
-        addCannedEvents(
-            "incoming_2.json",
-            "exclusives_1.json",
-            "empty_events.json"
+        addCannedActivities(
+                "incoming_2.json",
+                "exclusives_1.json",
+                "empty_events.json"
         );
 
         SoundCloudApplication app = DefaultTestRunner.application;
@@ -209,11 +209,11 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldSendTwoSeparateNotifications() throws Exception {
-        addCannedEvents(
-            "incoming_2.json",
-            "empty_events.json",
-            "own_1.json",
-            "own_2.json"
+        addCannedActivities(
+                "incoming_2.json",
+                "empty_events.json",
+                "own_1.json",
+                "own_2.json"
         );
 
         List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false).notifications;
@@ -320,11 +320,11 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldNotify99PlusItems() throws Exception {
-        addCannedEvents(
-            "incoming_1.json",
-            "incoming_2.json",
-            "exclusives_1.json",
-            "empty_events.json");
+        addCannedActivities(
+                "incoming_1.json",
+                "incoming_2.json",
+                "exclusives_1.json",
+                "empty_events.json");
 
         List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false).notifications;
         expect(notifications.size()).toEqual(1);
@@ -360,14 +360,14 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldUseCachedActivitiesToUpdateNotifications() throws Exception {
-        addCannedEvents("empty_events.json", "empty_events.json", "activities_1.json");
+        addCannedActivities("empty_events.json", "empty_events.json", "activities_1.json");
         SyncOutcome first = doPerformSync(DefaultTestRunner.application, false);
 
         expect(first.getTicker()).toEqual("39 new activities");
         expect(first.getInfo().getContentTitle().toString()).toEqual("39 new activities");
         expect(first.getInfo().getContentText().toString()).toEqual("Comments and likes from EddieSongWriter, changmangoo and others");
 
-        addCannedEvents("empty_events.json", "empty_events.json", "activities_2.json");
+        addCannedActivities("empty_events.json", "empty_events.json", "activities_2.json");
         SyncOutcome second = doPerformSync(DefaultTestRunner.application, false);
 
         expect(second.getTicker()).toEqual("41 new activities");
@@ -377,10 +377,10 @@ public class SyncAdapterServiceTest extends ApiTests {
 
     @Test
     public void shouldUseCachedActivitiesToUpdateNotificationsWhenUserHasSeen() throws Exception {
-        addCannedEvents(
-            "empty_events.json",
-            "empty_events.json",
-            "activities_1.json"
+        addCannedActivities(
+                "empty_events.json",
+                "empty_events.json",
+                "activities_1.json"
         );
 
         SyncOutcome first = doPerformSync(DefaultTestRunner.application, false);
@@ -395,11 +395,11 @@ public class SyncAdapterServiceTest extends ApiTests {
             AndroidCloudAPI.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime()
         );
 
-       addCannedEvents(
-            "empty_events.json",
-            "empty_events.json",
-            "activities_2.json"
-        );
+       addCannedActivities(
+               "empty_events.json",
+               "empty_events.json",
+               "activities_2.json"
+       );
         SyncOutcome second = doPerformSync(DefaultTestRunner.application, false);
 
         expect(second.getTicker()).toEqual("3 new activities");
@@ -457,7 +457,7 @@ public class SyncAdapterServiceTest extends ApiTests {
     }
 
     private void assertNotification(String resource, String ticker, String title, String content) throws Exception {
-         addCannedEvents(
+         addCannedActivities(
                  "empty_events.json",
                  "empty_events.json",
                  resource
@@ -490,9 +490,7 @@ public class SyncAdapterServiceTest extends ApiTests {
         }
     }
 
-    void addCannedEvents(String... resources) throws IOException {
-        for (String r : resources) {
-            addPendingHttpResponse(200, resource(r));
-        }
+    void addCannedActivities(String... resources) throws IOException {
+        TestHelper.addCannedResponses(SyncAdapterServiceTest.class, resources);
     }
 }

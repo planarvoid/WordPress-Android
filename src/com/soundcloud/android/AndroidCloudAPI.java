@@ -2,9 +2,9 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.json.EventDeserializer;
-import com.soundcloud.android.json.EventSerializer;
-import com.soundcloud.android.model.Event;
+import com.soundcloud.android.json.ActivityDeserializer;
+import com.soundcloud.android.json.ActivitySerializer;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
@@ -25,7 +25,6 @@ import android.content.IntentFilter;
 import android.net.SSLCertificateSocketFactory;
 import android.net.SSLSessionCache;
 import android.os.Build;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -36,7 +35,6 @@ import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -62,8 +60,8 @@ public interface AndroidCloudAPI extends CloudAPI {
         public static final ObjectMapper Mapper = createMapper();
         static {
             Mapper.registerModule(new SimpleModule("EventSupport", new Version(1, 0, 0, null))
-                .addDeserializer(Event.class, new EventDeserializer())
-                .addSerializer(Event.class, new EventSerializer()));
+                .addDeserializer(Activity.class, new ActivityDeserializer())
+                .addSerializer(Activity.class, new ActivitySerializer()));
         }
 
         private Context mContext;

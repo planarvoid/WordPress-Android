@@ -3,7 +3,7 @@ package com.soundcloud.android.adapter;
 
 import android.os.Parcelable;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.ActivityRow;
 import com.soundcloud.android.view.IncomingRow;
@@ -33,7 +33,7 @@ public class EventsAdapter extends TracklistAdapter {
 
     @Override
     public Track getTrackAt(int index) {
-        return ((Event) getItem(index)).getTrack();
+        return ((Activity) getItem(index)).getTrack();
     }
 
     public boolean isActivityFeed() {

@@ -19,7 +19,6 @@ import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.ScListView;
 
 import android.accounts.Account;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -49,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class ScActivity extends Activity {
+public abstract class ScActivity extends android.app.Activity {
     private Boolean mIsConnected;
 
     protected Object[] mPreviousState;
@@ -624,8 +623,8 @@ public abstract class ScActivity extends Activity {
     private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
         @Override
         public void onEventClick(EventsAdapterWrapper wrapper, int position) {
-            final Event e = (Event) wrapper.getItem(position);
-            if (Event.Types.FAVORITING.contentEquals(e.type)) {
+            final Activity e = (Activity) wrapper.getItem(position);
+            if (Activity.Types.FAVORITING.contentEquals(e.type)) {
                 Intent i = new Intent(ScActivity.this, TrackFavoriters.class);
                 i.putExtra("track_id", e.getTrack().id);
                 startActivity(i);

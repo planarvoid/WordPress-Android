@@ -232,6 +232,13 @@ public class ScContentProvider extends ContentProvider {
                 } else {
                     throw new SQLException("No insert available for: " + uri);
                 }
+                
+            case ME_SOUND_STREAM:
+            case ME_ACTIVITIES:
+            case ME_EXCLUSIVE_STREAM:
+                id = db.insertWithOnConflict(Table.ACTIVITIES.name(),  null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                return result;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);

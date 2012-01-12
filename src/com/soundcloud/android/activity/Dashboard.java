@@ -6,7 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
-import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.EmptyCollection;
@@ -63,7 +63,7 @@ public class Dashboard extends ScActivity {
                         });
 
                 trackListView = createList(getIncomingType(),
-                        Event.class,
+                        Activity.class,
                         ec,
                         Consts.ListId.LIST_STREAM, false);
                 mTrackingPath = Consts.Tracking.STREAM;
@@ -109,7 +109,7 @@ public class Dashboard extends ScActivity {
 
 
                 trackListView = createList(Content.ME_ACTIVITIES,
-                        Event.class,
+                        Activity.class,
                         ec,
                         Consts.ListId.LIST_ACTIVITY, true);
                 mTrackingPath = Consts.Tracking.ACTIVITY;

@@ -1,10 +1,8 @@
 package com.soundcloud.android.view;
 
-import android.graphics.Color;
-import android.util.Log;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -120,9 +118,9 @@ public class TrackInfoBar extends RelativeLayout {
     }
 
     protected void setTrackTime(Parcelable p) {
-        if (p instanceof Event) {
-            if (((Event) p).created_at != null){
-                mCreatedAt.setText(((Event) p).getElapsedTime(getContext()));
+        if (p instanceof Activity) {
+            if (((Activity) p).created_at != null){
+                mCreatedAt.setText(((Activity) p).getElapsedTime(getContext()));
             }
         } else {
             if (mTrack.created_at != null){
@@ -134,7 +132,7 @@ public class TrackInfoBar extends RelativeLayout {
     /** update the views with the data corresponding to selection index */
     public void display(Parcelable p, boolean shouldLoadIcon, long playingId, boolean keepHeight, long currentUserId) {
         mShouldLoadIcon = shouldLoadIcon;
-        mTrack = p instanceof Event ? ((Event) p).getTrack() :
+        mTrack = p instanceof Activity ? ((Activity) p).getTrack() :
                  p instanceof Track ? (Track) p : null;
         if (mTrack == null) return;
 

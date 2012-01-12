@@ -25,7 +25,6 @@ import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -161,35 +160,35 @@ public class SyncAdapterService extends Service {
                             break;
                         }
                         case ApiSyncService.STATUS_SYNC_FINISHED: {
-                            if (shouldUpdateDashboard(app)) {
-                                try {
-                                    final long notificationsFrequency = getNotificationsFrequency(app) * 1000;
-                                    if (System.currentTimeMillis() - app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_AT) > notificationsFrequency) {
-                                        final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
-                                        final File incomingFile = ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_ACTIVITIES));
-                                        final Activities incoming = !isIncomingEnabled(app) || !incomingFile.exists() ? Activities.EMPTY
-                                                : Activities.fromJSON(incomingFile);
-
-                                        final File exclusivesFile = ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_EXCLUSIVE_TRACKS));
-                                        final Activities exclusive = !isExclusiveEnabled(app) || !exclusivesFile.exists() ? Activities.EMPTY
-                                                : Activities.fromJSON(exclusivesFile);
-
-                                        checkIncoming(app, incoming.filter(lastIncomingSeen), exclusive.filter(lastIncomingSeen));
-                                    }
-
-                                    if (System.currentTimeMillis() - app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_AT) > notificationsFrequency) {
-                                        final File activityFile = ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_NEWS));
-                                        final Activities news = !isActivitySyncEnabled(app) || !activityFile.exists() ? Activities.EMPTY
-                                                : Activities.fromJSON(activityFile);
-
-                                        checkOwn(app, news.filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN)));
-                                    }
-
-                                } catch (IOException e) {
-                                    Log.w(TAG, e);
-                                    syncResult.stats.numIoExceptions++;
-                                }
-                            }
+//                            if (shouldUpdateDashboard(app)) {
+//                                try {
+//                                    final long notificationsFrequency = getNotificationsFrequency(app) * 1000;
+//                                    if (System.currentTimeMillis() - app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_AT) > notificationsFrequency) {
+//                                        final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
+//                                        final File incomingFile = ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_ACTIVITIES));
+//                                        final Activities incoming = !isIncomingEnabled(app) || !incomingFile.exists() ? Activities.EMPTY
+//                                                : Activities.fromJSON(incomingFile);
+//
+//                                        final File exclusivesFile = ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_EXCLUSIVE_TRACKS));
+//                                        final Activities exclusive = !isExclusiveEnabled(app) || !exclusivesFile.exists() ? Activities.EMPTY
+//                                                : Activities.fromJSON(exclusivesFile);
+//
+//                                        checkIncoming(app, incoming.filter(lastIncomingSeen), exclusive.filter(lastIncomingSeen));
+//                                    }
+//
+//                                    if (System.currentTimeMillis() - app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_AT) > notificationsFrequency) {
+//                                        final File activityFile = ActivitiesCache.getCacheFile(app, Request.to(Endpoints.MY_NEWS));
+//                                        final Activities news = !isActivitySyncEnabled(app) || !activityFile.exists() ? Activities.EMPTY
+//                                                : Activities.fromJSON(activityFile);
+//
+//                                        checkOwn(app, news.filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN)));
+//                                    }
+//
+//                                } catch (IOException e) {
+//                                    Log.w(TAG, e);
+//                                    syncResult.stats.numIoExceptions++;
+//                                }
+//                            }
                             Looper.myLooper().quit();
                             break;
                         }
@@ -245,7 +244,7 @@ public class SyncAdapterService extends Service {
         }
     }
     static Activities getOwnEvents(SoundCloudApplication app, Account account) throws IOException {
-        return ActivitiesCache.get(app, account, Request.to(Endpoints.MY_NEWS));
+        return Activities.get(app, account, Request.to(Endpoints.MY_NEWS));
     }
 
     /* package */ private static void checkOwn(SoundCloudApplication app, Activities events) {
@@ -270,8 +269,8 @@ public class SyncAdapterService extends Service {
         if ((!exclusive && !isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
             return Activities.EMPTY;
         } else {
-            return ActivitiesCache.get(app, account,
-                Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES));
+            return Activities.get(app, account,
+                    Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES));
         }
     }
 
@@ -356,7 +355,7 @@ public class SyncAdapterService extends Service {
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, 1);
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, 1);
                 app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, 1);
-                ActivitiesCache.clear(app);
+                Activities.clear(app);
                 break;
             case 1:
                 app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) - (24 * 3600000));
@@ -365,7 +364,7 @@ public class SyncAdapterService extends Service {
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM) - (24 * 3600000));
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM) - (24 * 3600000));
                 app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM) - (24 * 3600000));
-                ActivitiesCache.clear(app);
+                Activities.clear(app);
                 break;
         }
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());

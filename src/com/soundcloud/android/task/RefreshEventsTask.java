@@ -3,7 +3,6 @@ package com.soundcloud.android.task;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.service.sync.ActivitiesCache;
 import com.soundcloud.api.Request;
 
 import java.io.File;
@@ -16,7 +15,7 @@ public class RefreshEventsTask extends RemoteCollectionTask {
     public RefreshEventsTask(SoundCloudApplication app, EventsAdapterWrapper lazyEndlessAdapter, Request request) {
         super(app, lazyEndlessAdapter);
         setAdapter(lazyEndlessAdapter);
-        cacheFile = ActivitiesCache.getCacheFile(app,request);
+//        cacheFile = ActivitiesCache.getCacheFile(app,request);
     }
 
     @Override

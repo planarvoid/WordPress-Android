@@ -1,6 +1,6 @@
 package com.soundcloud.android.service.sync;
 
-import com.soundcloud.android.Consts;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.model.*;
@@ -13,6 +13,7 @@ import org.apache.http.HttpStatus;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcelable;
@@ -30,10 +31,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class ApiSyncer {
-    static final String LOG_TAG = ApiSyncer.class.getSimpleName();
-
-    private SoundCloudApplication mApp;
+    private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
+    private final Context mContext;
 
     private Map<Uri, ContentValues[]> collectionValues = new HashMap<Uri, ContentValues[]>();
     private List<Long> trackAdditions = new ArrayList<Long>();
@@ -43,8 +43,9 @@ public class ApiSyncer {
     private static final int RESOLVER_BATCH_SIZE = 100;
 
     public ApiSyncer(SoundCloudApplication app) {
-        mApp = app;
+        mApi = app;
         mResolver = app.getContentResolver();
+        mContext = app;
     }
 
     public boolean syncContent(Content c) throws IOException {
@@ -69,7 +70,7 @@ public class ApiSyncer {
                 case TRACK_CLEANUP:
                 case USERS_CLEANUP:
                     changed = mResolver.update(c.uri, null, null, null) > 0;
-                    PreferenceManager.getDefaultSharedPreferences(mApp).edit().putLong("lastSyncCleanup", System.currentTimeMillis());
+                    PreferenceManager.getDefaultSharedPreferences(mContext).edit().putLong("lastSyncCleanup", System.currentTimeMillis());
                     break;
                 default:
                     Log.w(ApiSyncService.LOG_TAG, "no remote URI defined for " + c);
@@ -80,13 +81,26 @@ public class ApiSyncer {
     }
 
     /* package */ boolean syncActivities(Content content) throws IOException {
-        Activities a = ActivitiesCache.get(mApp, mApp.getAccount(), Request.to(content.remoteUri));
-        LocalCollection.insertLocalCollection(mResolver, content.uri, System.currentTimeMillis(), a.size());
-        return true; // TODO, make this an actual result (true if something changed). not bothering now cause this is going to be changed
+        LocalCollection collection = LocalCollection.fromContentUri(mResolver, content.uri);
+        String future_href = null;
+        if (collection != null) {
+            future_href = collection.sync_state;
+        }
+        Request request = future_href == null ? content.request() : Request.to(future_href);
+        Activities activities = Activities.fetch(mApi, request, null, -1);
+
+        LocalCollection.insertLocalCollection(mResolver,
+                content.uri,
+                activities.future_href,
+                System.currentTimeMillis(), activities.size());
+
+        return !activities.isEmpty();
     }
 
     /* package */ boolean syncCollection(Content c) throws IOException {
-        ContentValues[] cv = quickSync(c, c.resourceType == Track.class ? trackAdditions : userAdditions);
+        ContentValues[] cv = quickSync(c,
+                SoundCloudApplication.getUserIdFromContext(mContext),
+                c.resourceType == Track.class ? trackAdditions : userAdditions);
         collectionValues.put(c.uri, cv);
         return cv.length > 0;
     }
@@ -100,9 +114,9 @@ public class ApiSyncer {
 
         if (doLookups) {
             List<Parcelable> itemsToAdd = new ArrayList<Parcelable>();
-            itemsToAdd.addAll(getAdditionsFromIds(mApp, trackAdditions, Content.TRACKS, false));
-            itemsToAdd.addAll(getAdditionsFromIds(mApp, userAdditions, Content.USERS, false));
-            int added = SoundCloudDB.bulkInsertParcelables(mApp, itemsToAdd, null, 0, 0);
+            itemsToAdd.addAll(getAdditionsFromIds(mApi, mResolver, trackAdditions, Content.TRACKS, false));
+            itemsToAdd.addAll(getAdditionsFromIds(mApi, mResolver, userAdditions, Content.USERS, false));
+            int added = SoundCloudDB.bulkInsertParcelables(mResolver, itemsToAdd, null, 0, 0);
             Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " parcelables added in " + (System.currentTimeMillis() - addStart) + " ms");
         }
 
@@ -114,12 +128,12 @@ public class ApiSyncer {
                 Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Upserting to " + entry.getKey() + " " + entry.getValue().length + " new collection items");
                 added += mResolver.bulkInsert(entry.getKey(), entry.getValue());
             }
-            LocalCollection.insertLocalCollection(mResolver, entry.getKey(), System.currentTimeMillis(), added);
+            LocalCollection.insertLocalCollection(mResolver, entry.getKey(), null, System.currentTimeMillis(), added);
         }
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " items added in " + (System.currentTimeMillis() - itemStart) + " ms");
     }
 
-    private ContentValues[] quickSync(Content c, List<Long> additions) throws IOException {
+    private ContentValues[] quickSync(Content c, final long userId, final List<Long> additions) throws IOException {
         final long start = System.currentTimeMillis();
         int size = 0;
         List<Long> local = idCursorToList(mResolver.query(
@@ -129,7 +143,7 @@ public class ApiSyncer {
                 new String[]{String.valueOf(c.collectionType)},
                 DBHelper.CollectionItems.SORT_ORDER));
 
-        List<Long> remote = getCollectionIds(mApp, c.remoteUri);
+        List<Long> remote = getCollectionIds(mApi, c.remoteUri);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
 
 
@@ -161,7 +175,6 @@ public class ApiSyncer {
         // the new collection relationships, send these back, as they may depend on track/user additions
         ContentValues[] cv = new ContentValues[remote.size()];
         i = 0;
-        final long userId = mApp.getCurrentUserId();
         for (Long id : remote) {
             cv[i] = new ContentValues();
             cv[i].put(DBHelper.CollectionItems.POSITION, i + 1);
@@ -169,11 +182,11 @@ public class ApiSyncer {
             cv[i].put(DBHelper.CollectionItems.USER_ID, userId);
             i++;
         }
-
         return cv;
     }
 
-    public static List<Parcelable> getAdditionsFromIds(SoundCloudApplication app,
+    public static List<Parcelable> getAdditionsFromIds(AndroidCloudAPI app,
+                                                       ContentResolver resolver,
                                                        List<Long> additions,
                                                        Content content,
                                                        boolean ignoreStored) throws IOException {
@@ -186,7 +199,7 @@ public class ApiSyncer {
             List<Long> storedIds = new ArrayList<Long>();
             while (i < additions.size()) {
                 List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
-                storedIds.addAll(idCursorToList(app.getContentResolver().query(content.uri, new String[]{DBHelper.Tracks._ID},
+                storedIds.addAll(idCursorToList(resolver.query(content.uri, new String[]{DBHelper.Tracks._ID},
                         CloudUtils.getWhereIds(DBHelper.Tracks.ID, batch), CloudUtils.longListToStringArr(batch), null)));
                 i += RESOLVER_BATCH_SIZE;
             }
@@ -230,7 +243,7 @@ public class ApiSyncer {
         return ids;
     }
 
-    private static List<Long> getCollectionIds(SoundCloudApplication app, String endpoint) throws IOException {
+    private static List<Long> getCollectionIds(AndroidCloudAPI app, String endpoint) throws IOException {
         List<Long> items = new ArrayList<Long>();
         IdHolder holder = null;
         if (endpoint.contains("?")) endpoint = endpoint.substring(0,endpoint.indexOf("?"));

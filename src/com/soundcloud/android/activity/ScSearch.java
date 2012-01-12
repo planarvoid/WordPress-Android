@@ -153,7 +153,7 @@ public class ScSearch extends ScActivity {
     private void refreshHistory() {
 
         Cursor cursor = getContentResolver().query(Content.SEARCHES.uri,
-                new String[]{DBHelper.Searches.ID, DBHelper.Searches.SEARCH_TYPE, DBHelper.Searches.QUERY, DBHelper.Searches.CREATED_AT},
+                new String[]{DBHelper.Searches._ID, DBHelper.Searches.SEARCH_TYPE, DBHelper.Searches.QUERY, DBHelper.Searches.CREATED_AT},
                 DBHelper.Searches.USER_ID + " = ?",
                 new String[]{Long.toString(getCurrentUserId())},
                 DBHelper.Searches.CREATED_AT + " DESC");
@@ -266,7 +266,7 @@ public class ScSearch extends ScActivity {
         // check for a duplicate to update
         if (updateId == -1) {
             Cursor cursor = getContentResolver().query(Content.SEARCHES.uri,
-                    new String[]{DBHelper.Searches.ID},
+                    new String[]{DBHelper.Searches._ID},
                     DBHelper.Searches.USER_ID + " = ? AND " + DBHelper.Searches.QUERY + " = ? AND " + DBHelper.Searches.SEARCH_TYPE + " = ?",
                     new String[]{Long.toString(getCurrentUserId()), query, String.valueOf(searchType)}, null);
 

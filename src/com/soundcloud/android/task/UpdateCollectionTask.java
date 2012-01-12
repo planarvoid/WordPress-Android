@@ -1,28 +1,33 @@
 package com.soundcloud.android.task;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.Log;
-import com.soundcloud.android.Consts;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.model.*;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.Resource;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TracklistItem;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserlistItem;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.codehaus.jackson.map.type.TypeFactory;
+
+import android.os.AsyncTask;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class UpdateCollectionTask extends AsyncTask<Map<Long, Resource>, String, Boolean> {
     protected SoundCloudApplication mApp;
@@ -85,12 +90,12 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, Resource>, String,
                 }
             }
             publishProgress();
-            SoundCloudDB.bulkInsertParcelables(mApp, objectsToWrite);
+            SoundCloudDB.bulkInsertParcelables(mApp.getContentResolver(), objectsToWrite);
 
             return true;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(TAG, e);
         }
         return false;
     }

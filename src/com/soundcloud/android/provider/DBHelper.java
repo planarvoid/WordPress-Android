@@ -193,14 +193,21 @@ public class DBHelper extends SQLiteOpenHelper {
             "position INTEGER null" +
             "user_id INTEGER null);";
 
+    /**
+     * {@link DBHelper.Collections}
+     */
     static final String DATABASE_CREATE_COLLECTIONS = "create table Collections(_id INTEGER primary key AUTOINCREMENT, " +
             "uri VARCHAR(255)," +
-            "last_addition VARCHAR(255), " +
-            "size INTEGER, " +
+            "last_addition INTEGER, " +
             "last_sync INTEGER, " +
+            "size INTEGER, " +
             "status INTEGER, " +
+            "sync_state VARCHAR(255), " +
             "UNIQUE (uri));";
 
+    /**
+     * {@link DBHelper.CollectionPages}
+     */
     static final String DATABASE_CREATE_COLLECTION_PAGES = "create table CollectionPages(" +
             "collection_id INTEGER, " +
             "page_index INTEGER," +
@@ -208,6 +215,9 @@ public class DBHelper extends SQLiteOpenHelper {
             "size INTEGER, " +
             "PRIMARY KEY(collection_id, page_index) ON CONFLICT REPLACE)";
 
+    /**
+     * {@link DBHelper.CollectionItems}
+     */
     static final String DATABASE_CREATE_COLLECTION_ITEMS = "create table CollectionItems(" +
             "user_id INTEGER, " +
             "item_id INTEGER," +
@@ -287,8 +297,6 @@ public class DBHelper extends SQLiteOpenHelper {
      * {@link DBHelper.DATABASE_CREATE_TRACK_PLAYS}
      */
     public static final class TrackPlays implements BaseColumns {
-
-        public static final String ID = "_id";
         public static final String TRACK_ID = "track_id";
         public static final String USER_ID = "user_id";
     }
@@ -330,7 +338,6 @@ public class DBHelper extends SQLiteOpenHelper {
      * {@link DBHelper.DATABASE_CREATE_RECORDINGS}
      */
     public static final class Recordings implements BaseColumns {
-        public static final String ID = "_id";
         public static final String USER_ID = "user_id";
         public static final String TIMESTAMP = "timestamp";
         public static final String LONGITUDE = "longitude";
@@ -353,14 +360,47 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * {@link DBHelper.DATABASE_CREATE_ACTIVITIES}
+     */
+    public static final class Activities implements BaseColumns {
+        public static final String TYPE = "type";
+        public static final String TAGS = "tags";
+        public static final String USER_ID = "user_id";
+        public static final String TRACK_ID = "track_id";
+        public static final String CREATED_AT  = "created_at";
+    }
+
+    /**
      * {@link DBHelper.DATABASE_CREATE_SEARCHES}
      */
     public static final class Searches implements BaseColumns {
-        public static final String ID = "_id";
         public static final String USER_ID = "user_id";
         public static final String SEARCH_TYPE = "search_type";
         public static final String CREATED_AT = "created_at";
         public static final String QUERY = "query";
+    }
+
+
+    /**
+     * {@link DBHelper.DATABASE_CREATE_COLLECTIONS}
+     */
+    public static final class Collections implements BaseColumns {
+        public static final String URI = "uri";                      // local content provider uri
+        public static final String LAST_ADDITION = "last_addition";  // last addition (from API, not used)
+        public static final String LAST_SYNC = "last_sync";          // timestamp of last sync
+        public static final String SIZE = "size";
+        public static final String SYNC_STATE = "sync_state";        // general purpose state field
+        public static final String STATUS = "status";
+    }
+
+    /**
+     * {@link DBHelper.DATABASE_CREATE_COLLECTION_PAGES}
+     */
+    public static final class CollectionPages implements BaseColumns {
+        public static final String COLLECTION_ID = "collection_id";
+        public static final String ETAG = "etag";
+        public static final String SIZE = "size";
+        public static final String PAGE_INDEX = "page_index";
     }
 
     public static final class TrackView implements BaseColumns {
@@ -398,37 +438,13 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_PLAYED = "user_played";
     }
 
-    /**
-     * {@link DBHelper.DATABASE_CREATE_COLLECTIONS}
-     */
-    public static final class Collections implements BaseColumns {
-        public static final String ID = "_id";
-        public static final String URI = "uri";                        // local content provider uri
-        public static final String LAST_ADDITION = "last_addition";
-        public static final String LAST_SYNC = "last_sync";            // timestamp of last sync
-        public static final String SIZE = "size";
-        public static final String STATUS = "status";
-    }
-
-    /**
-     * {@link DBHelper.DATABASE_CREATE_COLLECTION_PAGES}
-     */
-    public static final class CollectionPages implements BaseColumns {
-        public static final String ID = "_id";
-        public static final String COLLECTION_ID = "collection_id";
-        public static final String ETAG = "etag";
-        public static final String SIZE = "size";
-        public static final String PAGE_INDEX = "page_index";
-    }
-
-
     /*
     * altered id naming for content resolver
     */
     private static boolean upgradeTo4(SQLiteDatabase db, int oldVersion) {
         try {
-            alterTableColumns(db, Table.TRACKS, new String[]{"id"}, new String[]{"_id"});
-            alterTableColumns(db, Table.USERS, new String[]{"id"}, new String[]{"_id"});
+            alterTableColumns(db, Table.TRACKS, new String[] {"id"}, new String[] {"_id"});
+            alterTableColumns(db, Table.USERS, new String[] {"id"}, new String[] {"_id"});
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade4 " +

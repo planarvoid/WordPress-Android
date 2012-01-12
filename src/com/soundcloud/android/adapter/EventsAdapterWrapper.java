@@ -1,15 +1,13 @@
 
 package com.soundcloud.android.adapter;
 
-import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.RefreshEventsTask;
-import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.api.Request;
 
@@ -49,7 +47,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         if (newItems != null && !newItems.isEmpty()) {
             SoundCloudApplication app = mActivity.getApp();
 
-            final Event first = (Event) newItems.get(0);
+            final Activity first = (Activity) newItems.get(0);
             final long lastSeen = app.getAccountDataLong(lastSeenKey);
 
             if (lastSeen < first.created_at.getTime()) {

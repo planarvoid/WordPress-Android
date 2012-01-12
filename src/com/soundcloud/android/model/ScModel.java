@@ -43,9 +43,9 @@ public abstract class ScModel implements Parcelable {
             for (UserlistItem u : (UserlistItemHolder) holder) {
                 items.add(new User(u));
             }
-        } else if (Event.class.equals(loadModel)) {
-            holder = mapper.readValue(is, EventsHolder.class);
-            for (Event e : (EventsHolder) holder) {
+        } else if (Activity.class.equals(loadModel)) {
+            holder = mapper.readValue(is, Activities.class);
+            for (Activity e : (Activities) holder) {
                 items.add(e);
             }
         } else if (Friend.class.equals(loadModel)) {
@@ -189,15 +189,6 @@ public abstract class ScModel implements Parcelable {
         return baseUri.buildUpon().appendPath(Long.toString(id)).build();
     }
 
-    protected boolean getBooleanFromInt(int value){
-        return value == 1;
-    }
-
-    protected boolean getBooleanFromString(String value){
-        return Boolean.getBoolean(value);
-        //return (!TextUtils.isEmpty(value) && value.equalsIgnoreCase("true"));
-    }
-
     public ContentValues buildContentValues() {
         return null;
     }
@@ -208,8 +199,6 @@ public abstract class ScModel implements Parcelable {
 
     public void assertInDb(SoundCloudApplication app) { }
 
-
-    public static class EventsHolder extends CollectionHolder<Event> {}
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
     public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
     public static class FriendHolder extends CollectionHolder<Friend> {}

@@ -32,16 +32,28 @@ public class LocalCollectionTest {
     @Test
     public void shouldInsertCollectionWithParams() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = LocalCollection.insertLocalCollection(resolver, uri, 1, 2);
+        LocalCollection c = LocalCollection.insertLocalCollection(resolver, uri, "some-state", 1, 2);
         expect(c.uri).toEqual(uri);
         expect(c.last_sync).toBe(1L);
         expect(c.size).toBe(2);
+        expect(c.sync_state).toEqual("some-state");
+        
+        expect(c).toEqual(LocalCollection.fromContentUri(resolver, uri));
+    }
+
+    @Test
+    public void shouldSupportEqualsAndHashcode() throws Exception {
+        LocalCollection c1 = new LocalCollection(1, Uri.parse("foo"), 1, null, 0);
+        LocalCollection c2 = new LocalCollection(1, Uri.parse("foo"), 1, null, 0);
+        LocalCollection c3 = new LocalCollection(100, Uri.parse("foo"), 1, null, 0);
+        expect(c1).toEqual(c2);
+        expect(c2).not.toEqual(c3);
     }
 
     @Test
     public void shouldPersistLocalCollection() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = LocalCollection.insertLocalCollection(resolver, uri, 100, 0);
+        LocalCollection c = LocalCollection.insertLocalCollection(resolver, uri, "some-state", 100, 0);
         LocalCollection c2 = LocalCollection.fromContentUri(resolver, uri);
 
         expect(c.id).toEqual(c2.id);
@@ -58,7 +70,7 @@ public class LocalCollectionTest {
     @Test
     public void shouldgetLastSync() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = LocalCollection.insertLocalCollection(resolver, uri, 100, 0);
+        LocalCollection c = LocalCollection.insertLocalCollection(resolver, uri, null, 100, 0);
         expect(c).not.toBeNull();
         expect(LocalCollection.getLastSync(resolver, uri)).toEqual(100L);
     }

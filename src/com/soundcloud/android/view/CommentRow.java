@@ -1,27 +1,14 @@
 package com.soundcloud.android.view;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
-import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.style.ImageSpan;
-import android.text.style.StyleSpan;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.UserBrowser;
+
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.SectionedCommentAdapter;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Event;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import java.util.Date;

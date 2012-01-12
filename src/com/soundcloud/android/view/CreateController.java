@@ -744,7 +744,7 @@ public class CreateController {
 
 
     private void checkUnsavedFiles() {
-        String[] columns = { DBHelper.Recordings.ID };
+        String[] columns = { DBHelper.Recordings._ID };
         Cursor cursor;
 
         // XXX background thread?

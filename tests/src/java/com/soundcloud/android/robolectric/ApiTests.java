@@ -1,7 +1,6 @@
 package com.soundcloud.android.robolectric;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,14 +12,13 @@ import com.soundcloud.api.Token;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+@Deprecated
 public class ApiTests implements Endpoints {
     protected AndroidCloudAPI mockedApi;
     protected AndroidCloudAPI api;

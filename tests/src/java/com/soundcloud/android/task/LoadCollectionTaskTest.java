@@ -1,19 +1,9 @@
 package com.soundcloud.android.task;
 
-import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-import com.soundcloud.android.model.Event;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.os.Parcelable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @RunWith(DefaultTestRunner.class)

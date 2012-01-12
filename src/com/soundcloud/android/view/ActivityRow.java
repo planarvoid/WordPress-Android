@@ -4,11 +4,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcelable;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
@@ -22,13 +21,12 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Date;
 
 public class ActivityRow extends LazyRow {
-    private Event mEvent;
+    private Activity mActivity;
     private final TextView mUser;
     private final TextView mTitle;
     private final TextView mCreatedAt;
@@ -70,30 +68,30 @@ public class ActivityRow extends LazyRow {
     // override these for non-dashboard activities to account for different parcelable structures
 
     protected boolean fillParcelable(Parcelable p){
-        mEvent = (Event) p;
-        return mEvent != null;
+        mActivity = (Activity) p;
+        return mActivity != null;
     }
 
     protected ActivityType getType(){
-        if (mEvent.origin instanceof Comment){
+        if (mActivity.origin instanceof Comment){
             return ActivityType.Comment;
         } else return ActivityType.Favorite;
     }
 
     protected Track getTrack(){
-        return mEvent.getTrack();
+        return mActivity.getTrack();
     }
 
     protected Comment getComment(){
-        return (mEvent.origin instanceof Comment) ? (Comment) mEvent.origin : null;
+        return (mActivity.origin instanceof Comment) ? (Comment) mActivity.origin : null;
     }
 
     protected User getOriginUser(){
-        return (mEvent == null || mEvent.getUser() == null) ? null : mEvent.getUser();
+        return (mActivity == null || mActivity.getUser() == null) ? null : mActivity.getUser();
     }
 
     protected Date getOriginCreatedAt(){
-        return mEvent.created_at;
+        return mActivity.created_at;
     }
 
     protected SpannableStringBuilder createSpan() {
@@ -112,8 +110,8 @@ public class ActivityRow extends LazyRow {
 
     @Override
     public String getIconRemoteUri() {
-        if (mEvent == null || mEvent.getUser() == null || mEvent.getUser().avatar_url == null) return "";
-        return ImageUtils.formatGraphicsUriForList(getContext(), mEvent.getUser().avatar_url);
+        if (mActivity == null || mActivity.getUser() == null || mActivity.getUser().avatar_url == null) return "";
+        return ImageUtils.formatGraphicsUriForList(getContext(), mActivity.getUser().avatar_url);
     }
 
     // end override

@@ -6,23 +6,34 @@ import com.soundcloud.android.AndroidCloudAPI
 import android.database.Cursor
 import com.soundcloud.android.robolectric.{Utils, DefaultSpec}
 import Utils._
-import com.soundcloud.android.model.{User, CollectionHolder, Track}
 import org.scalatest.OneInstancePerTest
+import com.soundcloud.android.service.sync.SyncAdapterServiceTest
+import com.soundcloud.android.model._
 
-class ContentProviderSpec extends DefaultSpec with OneInstancePerTest {
+class ScContentProviderSpec extends DefaultSpec with OneInstancePerTest {
   val mapper = AndroidCloudAPI.Mapper
   lazy val provider = new ScContentProvider() { onCreate() }
 
-  lazy val favorites: CollectionHolder[Track] = {
+  lazy val favorites: CollectionHolder[Track] =
     mapper.readValue(getClass.getResourceAsStream("user_favorites.json"), classOf[Track.TrackHolder])
-  }
 
-  def insertTracks(tracks: Iterable[Track], endpoint: Uri) {
+  lazy val activities: CollectionHolder[Activity] =
+    mapper.readValue(classOf[SyncAdapterServiceTest].getResourceAsStream("incoming_1.json"), classOf[Activities])
+
+  def insertTracks(tracks: Iterable[Track], uri: Uri) {
     for (t <- tracks) {
       val user  = provider.insert(Content.USERS.uri, t.user.buildContentValues(false))
-      val track = provider.insert(endpoint, t.buildContentValues())
+      val track = provider.insert(uri, t.buildContentValues())
       user should not be (null)
       track should not be (null)
+    }
+  }
+
+  def insertModels(models: Iterable[ScModel], uri: Uri) = {
+    models.map { m =>
+      val model = provider.insert(uri, m.buildContentValues())
+      model should not be (null)
+      model
     }
   }
 
@@ -87,5 +98,9 @@ class ContentProviderSpec extends DefaultSpec with OneInstancePerTest {
 
     val users = query(Content.USERS.uri)(_.map(new User(_)))
     users.size should equal(14)
+  }
+
+  it should "insert and query activities" in {
+    val models = insertModels(activities, Content.ME_SOUND_STREAM.uri)
   }
 }

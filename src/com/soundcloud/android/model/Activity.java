@@ -1,13 +1,14 @@
 
 package com.soundcloud.android.model;
 
-import android.widget.TextView;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.CloudUtils;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -15,7 +16,7 @@ import android.os.Parcelable;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Event extends ScModel implements Origin, Playable {
+public class Activity extends ScModel implements Origin, Playable {
     @JsonProperty public Date created_at;
     @JsonProperty public String type;
     @JsonProperty public String tags;
@@ -25,10 +26,10 @@ public class Event extends ScModel implements Origin, Playable {
     private CharSequence mElapsedTime;
     public String next_href;
 
-    public Event() {
+    public Activity() {
     }
 
-    public Event(Parcel in) {
+    public Activity(Parcel in) {
         readFromParcel(in);
     }
 
@@ -59,13 +60,13 @@ public class Event extends ScModel implements Origin, Playable {
         }
     }
 
-    public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
-        public Event createFromParcel(Parcel in) {
-            return new Event(in);
+    public static final Parcelable.Creator<Activity> CREATOR = new Parcelable.Creator<Activity>() {
+        public Activity createFromParcel(Parcel in) {
+            return new Activity(in);
         }
 
-        public Event[] newArray(int size) {
-            return new Event[size];
+        public Activity[] newArray(int size) {
+            return new Activity[size];
         }
     };
 
@@ -128,7 +129,7 @@ public class Event extends ScModel implements Origin, Playable {
 
     @Override
     public String toString() {
-        return "Event{" +
+        return "Activity{" +
                 "type='" + type + '\'' +
                 ", track=" + (getTrack() == null ? "" : getTrack().title) +
                 ", user="  + (getUser() == null ? "" : getUser().username) +
@@ -137,17 +138,32 @@ public class Event extends ScModel implements Origin, Playable {
 
 
     @Override
+    public ContentValues buildContentValues() {
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Activities.TYPE, type);
+        cv.put(DBHelper.Activities.TAGS, tags);
+        
+        if (getUser() != null) {
+            cv.put(DBHelper.Activities.USER_ID, getUser().id);
+        }
+        if (getTrack() != null) {
+            cv.put(DBHelper.Activities.TRACK_ID, getTrack().id);
+        }
+        return cv;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        Event event = (Event) o;
+        Activity activity = (Activity) o;
 
-        if (created_at != null ? !created_at.equals(event.created_at) : event.created_at != null) return false;
-        if (origin != null ? !origin.equals(event.origin) : event.origin != null) return false;
-        if (tags != null ? !tags.equals(event.tags) : event.tags != null) return false;
-        if (type != null ? !type.equals(event.type) : event.type != null) return false;
+        if (created_at != null ? !created_at.equals(activity.created_at) : activity.created_at != null) return false;
+        if (origin != null ? !origin.equals(activity.origin) : activity.origin != null) return false;
+        if (tags != null ? !tags.equals(activity.tags) : activity.tags != null) return false;
+        if (type != null ? !type.equals(activity.type) : activity.type != null) return false;
 
         return true;
     }

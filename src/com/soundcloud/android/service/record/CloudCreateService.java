@@ -135,7 +135,7 @@ public class CloudCreateService extends Service {
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.NOT_YET_UPLOADED);
             cv.put(Recordings.UPLOAD_ERROR, true);
-            int x = getContentResolver().update(Content.RECORDINGS.uri,cv, Recordings.ID+"="+ mCurrentUpload.local_recording_id, null);
+            int x = getContentResolver().update(Content.RECORDINGS.uri,cv, Recordings._ID+"="+ mCurrentUpload.local_recording_id, null);
             Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
@@ -285,13 +285,13 @@ public class CloudCreateService extends Service {
         mPlayer.reset();
         mPlaybackFile = new File(playbackPath);
 
-        String[] columns = { Recordings.ID, Recordings.WHERE_TEXT, Recordings.WHAT_TEXT };
+        String[] columns = { Recordings._ID, Recordings.WHERE_TEXT, Recordings.WHAT_TEXT };
         Cursor cursor = getContentResolver().query(Content.RECORDINGS.uri,
                 columns, Recordings.AUDIO_PATH + "= ?",new String[]{playbackPath}, null);
 
         if (cursor != null && cursor.moveToFirst()) {
             mPlaybackLocal = Content.RECORDINGS.buildUpon().appendPath(
-                    String.valueOf(cursor.getLong(cursor.getColumnIndex(Recordings.ID)))).build();
+                    String.valueOf(cursor.getLong(cursor.getColumnIndex(Recordings._ID)))).build();
 
             mPlaybackTitle = CloudUtils.generateRecordingSharingNote(
                     getResources(),
@@ -403,7 +403,7 @@ public class CloudCreateService extends Service {
         if (upload.local_recording_id != 0){
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.UPLOADING);
-            int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings.ID+"="+ upload.local_recording_id, null);
+            int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings._ID+"="+ upload.local_recording_id, null);
         }
 
         upload.upload_status = Upload.UploadStatus.UPLOADING;
@@ -494,7 +494,7 @@ public class CloudCreateService extends Service {
                     ContentValues cv = new ContentValues();
                     cv.put(Recordings.AUDIO_PATH, param.encodedFile.getAbsolutePath());
                     cv.put(Recordings.AUDIO_PROFILE, Profile.ENCODED_HIGH);
-                    int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings.ID+"="+ mCurrentUpload.local_recording_id, null);
+                    int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings._ID+"="+ mCurrentUpload.local_recording_id, null);
                     Log.d(TAG, x + " row(s) audio path updated.");
 
                     mCurrentUpload.trackPath = mCurrentUpload.encodedFile.getAbsolutePath();
@@ -630,7 +630,7 @@ public class CloudCreateService extends Service {
 
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.UPLOADED);
-            int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings.ID+"="+ mCurrentUpload.local_recording_id, null);
+            int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings._ID+"="+ mCurrentUpload.local_recording_id, null);
             Log.d(TAG, x+" row(s) marked as uploaded.");
 
             mCurrentUpload = null;
@@ -649,7 +649,7 @@ public class CloudCreateService extends Service {
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_ERROR, true);
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.NOT_YET_UPLOADED);
-            int x = getContentResolver().update(Content.RECORDINGS.uri, cv, Recordings.ID + "=" + mCurrentUpload.local_recording_id, null);
+            int x = getContentResolver().update(Content.RECORDINGS.uri, cv, Recordings._ID + "=" + mCurrentUpload.local_recording_id, null);
             Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
@@ -701,7 +701,7 @@ public class CloudCreateService extends Service {
         if (mCurrentUpload != null){
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.NOT_YET_UPLOADED);
-            int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings.ID+"="+ mCurrentUpload.local_recording_id, null);
+            int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings._ID+"="+ mCurrentUpload.local_recording_id, null);
             Log.d(TAG, x+" row(s) marked with upload error.");
             mCurrentUpload.upload_status = Upload.UploadStatus.NOT_YET_UPLOADED;
         }

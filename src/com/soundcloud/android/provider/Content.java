@@ -3,7 +3,7 @@ package com.soundcloud.android.provider;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
@@ -11,6 +11,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import android.content.ContentResolver;
 import android.content.UriMatcher;
@@ -37,9 +38,9 @@ public enum Content {
     ME_FRIENDS("/me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND),
     SUGGESTED_USERS("/users/suggested", null, 161, User.class, SUGGESTED_USER),
 
-    ME_SOUND_STREAM("/me/activities/tracks", Endpoints.MY_ACTIVITIES, 150, Event.class, -1),
-    ME_EXCLUSIVE_STREAM("/me/activities/tracks/exclusive", Endpoints.MY_EXCLUSIVE_TRACKS, 151, Event.class, -1),
-    ME_ACTIVITIES("/me/activities/all/own", Endpoints.MY_NEWS, 152, Event.class, -1),
+    ME_SOUND_STREAM("/me/activities/tracks", Endpoints.MY_ACTIVITIES, 150, Activity.class, -1),
+    ME_EXCLUSIVE_STREAM("/me/activities/tracks/exclusive", Endpoints.MY_EXCLUSIVE_TRACKS, 151, Activity.class, -1),
+    ME_ACTIVITIES("/me/activities/all/own", Endpoints.MY_NEWS, 152, Activity.class, -1),
 
     TRACKS("/tracks", Endpoints.TRACKS, 201, Track.class, TRACK),
     TRACK_ITEM("/tracks/#", null, 202, Track.class, -1),
@@ -79,8 +80,8 @@ public enum Content {
     RECORDINGS("/recordings", null, 1100, Recording.class, -1),
     RECORDING_ITEM("/recordings/#", null, 1101, Recording.class, -1),
 
-    EVENTS("/events", null, 1200, Event.class, -1),
-    EVENT_ITEM("/events/#", null, 1201, Event.class, -1),
+    EVENTS("/events", null, 1200, Activity.class, -1),
+    EVENT_ITEM("/events/#", null, 1201, Activity.class, -1),
 
     TRACK_PLAYS("/track_plays", null, 1300, null, -1),
     TRACK_PLAYS_ITEM("/track_plays/#", null, 1301, null, -1),
@@ -141,7 +142,15 @@ public enum Content {
     public Uri.Builder buildUpon() {
         return uri.buildUpon();
     }
-
+    
+    
+    public Request request() {
+        if (remoteUri != null) {
+            return Request.to(remoteUri);
+        } else {
+            throw new IllegalArgumentException("no remoteuri defined for content"+this);
+        }
+    }
 
     public static Content match(Uri uri) {
         if (uri == null) return null;
@@ -165,11 +174,7 @@ public enum Content {
         return sUris.get(uri);
     }
 
-    public List<Long> getStoredIds(ContentResolver resolver, String query){
-        return getStoredIds(resolver,-1);
-    }
     public List<Long> getStoredIds(ContentResolver resolver, int pageIndex){
-
         return ApiSyncer.idCursorToList(resolver.query(
                         pageIndex == -1 ? Content.COLLECTION_ITEMS.uri : CloudUtils.getPagedUri(Content.COLLECTION_ITEMS.uri, pageIndex),
                         new String[]{DBHelper.CollectionItems.ITEM_ID},

@@ -1,15 +1,13 @@
 package com.soundcloud.android.service.beta;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
-import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static com.xtremelabs.robolectric.Robolectric.*;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
-import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
@@ -24,9 +22,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -52,7 +47,7 @@ public class BetaServiceTest {
 
     @Test
     public void testOnStartCommand() throws Exception {
-        addPendingHttpResponse(200, resource("bucket_contents.xml"));
+        TestHelper.addCannedResponses(getClass(), "bucket_contents.xml");
 
         // HEAD http://soundcloud-android-beta.s3.amazonaws.com/com.soundcloud.android-28.apk
         addPendingHttpResponse(200, "", headers(
@@ -77,14 +72,6 @@ public class BetaServiceTest {
         expect(shadowOf(n).getLatestEventInfo().getContentTitle()).toEqual("New beta version downloaded");
     }
 
-    protected String resource(String res) throws IOException {
-        StringBuilder sb = new StringBuilder(65536);
-        int n;
-        byte[] buffer = new byte[8192];
-        InputStream is = getClass().getResourceAsStream(res);
-        while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n));
-        return sb.toString();
-    }
 
     public static Header[] headers(String... keyValues) {
         Header[] headers = new Header[keyValues.length / 2];

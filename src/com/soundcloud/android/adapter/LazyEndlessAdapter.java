@@ -2,14 +2,13 @@
 package com.soundcloud.android.adapter;
 
 
-import android.util.Log;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Event;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
@@ -147,7 +146,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
             return !error ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.commentslist_error);
-        } else if (Event.class.equals(loadModel)) {
+        } else if (Activity.class.equals(loadModel)) {
             return !error ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);

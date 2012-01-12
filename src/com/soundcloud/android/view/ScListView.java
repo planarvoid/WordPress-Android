@@ -1,6 +1,5 @@
 package com.soundcloud.android.view;
 
-import android.net.Uri;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
@@ -9,7 +8,6 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.utils.CloudUtils;
 
@@ -21,8 +19,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
-
-import java.util.List;
 
 
 /*
@@ -387,7 +383,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
             if (item instanceof Track) {
                 mListener.onTrackClick(wrapper, position);
-            } else if (item instanceof Event) {
+            } else if (item instanceof Activity) {
                 mListener.onEventClick((EventsAdapterWrapper) wrapper, position);
             } else if (item instanceof User) {
                 mListener.onUserClick((User) item);

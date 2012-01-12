@@ -4,10 +4,13 @@ package com.soundcloud.android.service.sync;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.service.sync.ApiSyncServiceTest.Utils.assertContentUriCount;
 
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -19,12 +22,14 @@ import android.os.Looper;
 import android.os.ResultReceiver;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.LinkedHashMap;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncServiceTest {
 
+    @After public void after() {
+        expect(Robolectric.getFakeHttpLayer().hasPendingResponses()).toBeFalse();
+    }
 
     @Test
     public void shouldProvideFeedbackViaResultReceiver() throws Exception {
@@ -64,19 +69,30 @@ public class ApiSyncServiceTest {
         assertContentUriCount(Content.USERS, 1);
     }
 
-
     @Test
     public void shouldSyncActivities() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-        addResourceResponse("/me/activities/tracks?limit=20", "incoming_1.json");
-        addResourceResponse("/me/activities/tracks?limit=20", "incoming_2.json");
+
+        TestHelper.addCannedResponses(SyncAdapterServiceTest.class,
+                "incoming_1.json",
+                "incoming_2.json");
 
         svc.onHandleIntent(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri));
+        
+        assertContentUriCount(Content.COLLECTIONS, 1);
+        LocalCollection collection = LocalCollection.fromContentUri(
+                        Robolectric.application.getContentResolver(),
+                        Content.ME_SOUND_STREAM.uri);
+
+        expect(collection).not.toBeNull();
+        expect(collection.last_sync).toBeGreaterThan(0L);
+        expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+        
+        assertContentUriCount(Content.ME_SOUND_STREAM, 100);
     }
 
-
     private void addResourceResponse(String url, String resource) throws IOException {
-        Robolectric.addHttpResponseRule(url, resource(resource));
+        TestHelper.addCannedResponse(getClass(), url, resource);
     }
 
     private void addIdResponse(String url, int... ids) {
@@ -90,14 +106,6 @@ public class ApiSyncServiceTest {
         Robolectric.addHttpResponseRule(url, new TestHttpResponse(200, sb.toString()));
     }
 
-    protected String resource(String res) throws IOException {
-        StringBuilder sb = new StringBuilder(65536);
-        int n;
-        byte[] buffer = new byte[8192];
-        InputStream is = getClass().getResourceAsStream(res);
-        while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n));
-        return sb.toString();
-    }
 
     static class Utils {
         public static void assertContentUriCount(Content content, int count) {

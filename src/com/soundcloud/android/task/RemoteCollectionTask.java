@@ -231,7 +231,9 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
 
     private int insertMissingItems(List<Long> pageIds) throws IOException {
         Content c = Content.match(mParams.contentUri);
-        return SoundCloudDB.bulkInsertParcelables(mApp, getAdditionsFromIds(mApp, pageIds, c, false));
+        return SoundCloudDB.bulkInsertParcelables(
+                mApp.getContentResolver(),
+                getAdditionsFromIds(mApp, mApp.getContentResolver(), pageIds, c, false));
     }
 
     private long getCollectionOwner() {

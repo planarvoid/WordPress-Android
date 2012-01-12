@@ -6,8 +6,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Expect;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
+import com.soundcloud.api.Request;
 import org.codehaus.jackson.JsonNode;
 import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
@@ -32,7 +35,7 @@ public class ActivitiesTest {
 
     @Test
     public void testFull() throws Exception {
-        Activities activities = new Activities(new Event(), new Event());
+        Activities activities = new Activities(new Activity(), new Activity());
         assertThat(activities.isEmpty(), is(false));
         assertThat(activities.size(), is(2));
     }
@@ -41,9 +44,9 @@ public class ActivitiesTest {
     public void testGetUniqueUsers() throws Exception {
         Activities activities = new Activities();
         assertThat(activities.getUniqueUsers().size(), is(0));
-        Event e1 = new Event() { public User getUser() { return new User() { { id = 1; } }; } };
-        Event e2 = new Event() { public User getUser() { return new User() { { id = 1; } }; } };
-        Event e3 = new Event() { public User getUser() { return new User() { { id = 3; } }; } };
+        Activity e1 = new Activity() { public User getUser() { return new User() { { id = 1; } }; } };
+        Activity e2 = new Activity() { public User getUser() { return new User() { { id = 1; } }; } };
+        Activity e3 = new Activity() { public User getUser() { return new User() { { id = 3; } }; } };
         activities = new Activities(e1, e2, e3);
         assertThat(activities.getUniqueUsers().size(), is(2));
     }
@@ -52,9 +55,9 @@ public class ActivitiesTest {
     public void testGetUniqueTracks() throws Exception {
         Activities activities = new Activities();
         assertThat(activities.getUniqueTracks().size(), is(0));
-        Event e1 = new Event() { public Track getTrack() { return new Track() { { id = 1; } }; } };
-        Event e2 = new Event() { public Track getTrack() { return new Track() { { id = 1; } }; } };
-        Event e3 = new Event() { public Track getTrack() { return new Track() { { id = 3; } }; } };
+        Activity e1 = new Activity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
+        Activity e2 = new Activity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
+        Activity e3 = new Activity() { public Track getTrack() { return new Track() { { id = 3; } }; } };
         activities = new Activities(e1, e2, e3);
         assertThat(activities.getUniqueTracks().size(), is(2));
     }
@@ -103,7 +106,7 @@ public class ActivitiesTest {
 
     @Test
     public void testOriginIsSetOnAllActivities() throws Exception {
-        for (Event e : getActivities()) {
+        for (Activity e : getActivities()) {
             assertThat(e.origin, not(CoreMatchers.<Object>nullValue()));
         }
     }
@@ -122,7 +125,7 @@ public class ActivitiesTest {
 
     @Test
     public void testSubTypes() throws Exception {
-        for (Event a : getActivities()) {
+        for (Activity a : getActivities()) {
             assertTrue(a.origin.getClass().equals(a.getOriginClass()));
         }
     }
@@ -202,7 +205,6 @@ public class ActivitiesTest {
         expect(trimmed.next_href).toEqual("https://api.soundcloud.com/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
     }
 
-
     @Test
     public void testFilter() throws Exception {
         Activities a2 = Activities.fromJSON(getClass().getResourceAsStream("activities_2.json"));
@@ -218,5 +220,26 @@ public class ActivitiesTest {
         Activities a1 = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
         assertTrue(a1.hasMore());
         assertThat(a1.getNextRequest().toUrl(), equalTo("/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738"));
+    }
+
+    @Test
+    public void shouldFetchFromApi() throws Exception {
+        TestHelper.addCannedResponses(SyncAdapterServiceTest.class,
+                "incoming_1.json",
+                "incoming_2.json");
+
+        Activities a = Activities.fetch(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), null, -1);
+        expect(a.size()).toEqual(100);
+        expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+    }
+
+    @Test
+    public void shouldFetchOnlyUpToMaxItems() throws Exception {
+        TestHelper.addCannedResponses(SyncAdapterServiceTest.class,
+                "incoming_1.json");
+
+        Activities a = Activities.fetch(DefaultTestRunner.application,  Content.ME_SOUND_STREAM.request(), null, 20);
+        expect(a.size()).toEqual(20);
+        expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
     }
 }
