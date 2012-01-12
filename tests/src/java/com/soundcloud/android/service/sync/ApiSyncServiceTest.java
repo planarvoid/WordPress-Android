@@ -2,6 +2,7 @@ package com.soundcloud.android.service.sync;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.service.sync.ApiSyncServiceTest.Utils.assertContentUriCount;
 
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -47,10 +48,10 @@ public class ApiSyncServiceTest {
         expect(received.containsKey(ApiSyncService.STATUS_RUNNING)).toBeTrue();
         expect(received.containsKey(ApiSyncService.STATUS_SYNC_ERROR)).toBeFalse();
 
-        // make sure tracks got written
-        Cursor c = Robolectric.application.getContentResolver().query(Content.TRACKS.uri, null, null, null, null);
-        expect(c).not.toBeNull();
-        expect(c.getCount()).toBe(3);
+        // make sure tracks+users got written
+        assertContentUriCount(Content.TRACKS, 3);
+        assertContentUriCount(Content.COLLECTION_ITEMS, 3);
+        assertContentUriCount(Content.USERS, 1);
     }
 
     private void addResourceResponse(String url, String resource) throws IOException {
@@ -75,5 +76,13 @@ public class ApiSyncServiceTest {
         InputStream is = getClass().getResourceAsStream(res);
         while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n));
         return sb.toString();
+    }
+
+    static class Utils {
+        public static void assertContentUriCount(Content content, int count) {
+            Cursor c = Robolectric.application.getContentResolver().query(content.uri, null, null, null, null);
+            expect(c).not.toBeNull();
+            expect(c.getCount()).toBe(count);
+        }
     }
 }

@@ -75,8 +75,8 @@ object AndroidBuild extends Build {
       libraryDependencies ++= coreDependencies ++ providedDependencies ++ testDependencies,
       resolvers ++= repos,
       compileOrder := CompileOrder.JavaThenScala,
-      javaSource in Test <<= (baseDirectory) (_ / "tests" / "java" / "src"),
-      scalaSource in Test <<= (baseDirectory) (_ / "tests" / "scala" / "src"),
+      javaSource in Test <<= (baseDirectory) (_ / "tests" / "src" / "java"),
+      scalaSource in Test <<= (baseDirectory) (_ / "tests" / "src" / "scala"),
       resourceDirectory in Test <<= (javaSource in Test) (js => js),
       parallelExecution in Test := false,
       (excludeFilter in resources) in Test := "*.java", // does not work atm

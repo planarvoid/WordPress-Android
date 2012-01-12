@@ -48,7 +48,7 @@ public class ApiSyncer {
         mApp = app;
         mResolver = app.getContentResolver();
     }
-    
+
     public boolean syncContent(Content c) throws IOException {
         boolean changed = false;
         if (c.remoteUri != null) {
@@ -237,7 +237,7 @@ public class ApiSyncer {
         return ids;
     }
 
-    public static  List<Long> getCollectionIds(SoundCloudApplication app, String endpoint) throws IOException {
+    private static List<Long> getCollectionIds(SoundCloudApplication app, String endpoint) throws IOException {
         List<Long> items = new ArrayList<Long>();
         IdHolder holder = null;
         if (endpoint.contains("?")) endpoint = endpoint.substring(0,endpoint.indexOf("?"));
