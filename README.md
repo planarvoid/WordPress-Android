@@ -18,6 +18,16 @@ If you don't want to use maven (who does?!) and have [sbt][] installed:
 
     $ sbt android:package-debug
 
+## Handling dependencies / pom.xml
+
+Dependencies should not be included in the repo, they are declared in the sbt
+build file `project/build.scala`, split in `coreDependencies`,
+`providedDependencies` and `testDependencies`.
+
+Based on `build.scala` you can generate the `pom.xml` using `sbt mavenize`. To
+actually download the dependencies to your working directory use `mvn
+process-resources`, this will populate `lib/` and `tests/lib`.
+
 ## Releasing
 
   * Make sure build is green (cf [Builder][])

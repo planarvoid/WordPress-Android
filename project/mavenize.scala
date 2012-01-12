@@ -64,7 +64,7 @@ object Mavenizer {
             </execution>
             <execution>
               <id>test-libs</id>
-              <phase>install</phase>
+              <phase>process-resources</phase>
               <goals>
                 <goal>copy-dependencies</goal>
               </goals>
@@ -72,7 +72,8 @@ object Mavenizer {
                 <outputDirectory>tests/lib</outputDirectory>
                 <excludeTransitive>false</excludeTransitive>
                 <includeScope>test</includeScope>
-                <excludeArtificatIds>com.soundcloud:soundcloud-android</excludeArtificatIds>
+                <excludeArtifactIds>soundcloud-android</excludeArtifactIds>
+                <overWriteSnapshots>true</overWriteSnapshots>
               </configuration>
             </execution>
           </executions>
