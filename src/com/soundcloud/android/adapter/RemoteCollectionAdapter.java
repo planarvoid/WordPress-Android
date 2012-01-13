@@ -173,9 +173,6 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
-            case ApiSyncService.STATUS_RUNNING: {
-                break;
-            }
             case ApiSyncService.STATUS_SYNC_FINISHED: {
                 mWaitingOnSync = false;
                 executeRefreshTask();

@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ApiSyncer {
+    public static final int MINIMUM_LOCAL_ITEMS_STORED = 100;
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
     private final Context mContext;
@@ -62,7 +63,7 @@ public class ApiSyncer {
                 case ME_FAVORITES:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
-                    changed = syncCollection(c);
+                    changed = quickSync(c, SoundCloudApplication.getUserIdFromContext(mContext));
                     break;
             }
         } else {
@@ -97,43 +98,7 @@ public class ApiSyncer {
         return !activities.isEmpty();
     }
 
-    /* package */ boolean syncCollection(Content c) throws IOException {
-        ContentValues[] cv = quickSync(c,
-                SoundCloudApplication.getUserIdFromContext(mContext),
-                c.resourceType == Track.class ? trackAdditions : userAdditions);
-        collectionValues.put(c.uri, cv);
-        return cv.length > 0;
-    }
-
-
-    /* package */ void performDbAdditions(boolean doLookups) throws IOException {
-        Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Resolving Database");
-
-        // our new tracks/users, compiled so we didn't do duplicate lookups
-        final long addStart = System.currentTimeMillis();
-
-        if (doLookups) {
-            List<Parcelable> itemsToAdd = new ArrayList<Parcelable>();
-            itemsToAdd.addAll(getAdditionsFromIds(mApi, mResolver, trackAdditions, Content.TRACKS, false));
-            itemsToAdd.addAll(getAdditionsFromIds(mApi, mResolver, userAdditions, Content.USERS, false));
-            int added = SoundCloudDB.bulkInsertParcelables(mResolver, itemsToAdd, null, 0, 0);
-            Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " parcelables added in " + (System.currentTimeMillis() - addStart) + " ms");
-        }
-
-        // do collection inserts
-        final long itemStart = System.currentTimeMillis();
-        int added = 0;
-        for (Map.Entry<Uri, ContentValues[]> entry : collectionValues.entrySet()) {
-            if (entry.getValue().length > 0) {
-                Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: Upserting to " + entry.getKey() + " " + entry.getValue().length + " new collection items");
-                added += mResolver.bulkInsert(entry.getKey(), entry.getValue());
-            }
-            LocalCollection.insertLocalCollection(mResolver, entry.getKey(), null, System.currentTimeMillis(), added);
-        }
-        Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: " + added + " items added in " + (System.currentTimeMillis() - itemStart) + " ms");
-    }
-
-    private ContentValues[] quickSync(Content c, final long userId, final List<Long> additions) throws IOException {
+    private boolean quickSync(Content c, final long userId) throws IOException {
         final long start = System.currentTimeMillis();
         int size = 0;
         List<Long> local = idCursorToList(mResolver.query(
@@ -149,7 +114,7 @@ public class ApiSyncer {
 
         if (local.equals(remote)){
             Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
-            return new ContentValues[0];
+            return false;
         }
 
         // deletions can happen here, has no impact
@@ -165,14 +130,6 @@ public class ApiSyncer {
             i += RESOLVER_BATCH_SIZE;
         }
 
-
-        // tracks/users that this collection depends on
-        // store these to add shortly, they will depend on the tracks/users being there
-        Set<Long> newAdditions = new HashSet<Long>(remote);
-        newAdditions.removeAll(local);
-        additions.addAll(newAdditions);
-
-        // the new collection relationships, send these back, as they may depend on track/user additions
         ContentValues[] cv = new ContentValues[remote.size()];
         i = 0;
         for (Long id : remote) {
@@ -182,8 +139,17 @@ public class ApiSyncer {
             cv[i].put(DBHelper.CollectionItems.USER_ID, userId);
             i++;
         }
-        return cv;
+        mResolver.bulkInsert(c.uri, cv);
+        LocalCollection.insertLocalCollection(mResolver, c.uri, null, System.currentTimeMillis(), remote.size());
+
+        // ensure the first couple of pages of items for quick loading
+        int added = SoundCloudDB.bulkInsertParcelables(mResolver,getAdditionsFromIds(mApi,mResolver,remote.subList(0, Math.min(remote.size(),MINIMUM_LOCAL_ITEMS_STORED)),
+                    c.resourceType.equals(Track.class) ? Content.TRACKS : Content.USERS,false));
+
+        Log.d(ApiSyncService.LOG_TAG, "Added " + added + " new items for this endpoint");
+        return true;
     }
+
 
     public static List<Parcelable> getAdditionsFromIds(AndroidCloudAPI app,
                                                        ContentResolver resolver,
