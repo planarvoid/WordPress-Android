@@ -36,6 +36,11 @@ public class Friend extends ScModel implements Resource {
     }
 
     @Override
+    public long getStaleTime() {
+        return user.getStaleTime();
+    }
+
+    @Override
     public long getResourceId() {
         return user.id;
     }

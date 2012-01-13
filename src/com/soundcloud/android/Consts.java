@@ -39,7 +39,7 @@ public final class Consts {
     public static final int DEFAULT_REFRESH_MINIMUM = 600 * 1000; // 10 mins
     //static final Long WIFI_STALE_TIME = 600000l;//10*60*1000
 
-    public static final Long SYNC_STALE_TIME = 3600000l;//60*60*1000
+
     //public static final Long SYNC_STALE_TIME = 5000l;//60*60*1000
 
 

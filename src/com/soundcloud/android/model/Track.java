@@ -521,6 +521,11 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         return last_updated;
     }
 
+    @Override
+    public long getStaleTime() {
+        return 3600000l;//60*60*1000 = 1hr
+    }
+
     public Track updateFrom(ScModel updatedItem) {
          if (updatedItem instanceof TracklistItem){
              updateFromTracklistItem((TracklistItem) updatedItem);

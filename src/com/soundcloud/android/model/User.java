@@ -265,6 +265,11 @@ public class User extends ScModel implements PageTrackable, Resource {
         return last_updated;
     }
 
+    @Override
+    public long getStaleTime() {
+        return 86400000;//24*60*60*1000 = 24hr
+    }
+
 
     public User updateFrom(ScModel updatedItem) {
          if (updatedItem instanceof UserlistItem){

@@ -548,9 +548,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
-            case ApiSyncService.STATUS_RUNNING: {
-                break;
-            }
             case ApiSyncService.STATUS_SYNC_FINISHED: {
                 break;
             }

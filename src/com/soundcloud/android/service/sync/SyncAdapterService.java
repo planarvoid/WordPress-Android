@@ -149,9 +149,6 @@ public class SyncAdapterService extends Service {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
                     switch (resultCode) {
-                        case ApiSyncService.STATUS_RUNNING: {
-                            break;
-                        }
                         case ApiSyncService.STATUS_SYNC_ERROR: {
                             SyncResult serviceResult = resultData.getParcelable(ApiSyncService.EXTRA_SYNC_RESULT);
                             syncResult.stats.numAuthExceptions = serviceResult.stats.numAuthExceptions;

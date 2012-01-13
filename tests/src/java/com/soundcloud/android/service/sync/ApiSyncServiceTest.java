@@ -4,6 +4,8 @@ package com.soundcloud.android.service.sync;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.service.sync.ApiSyncServiceTest.Utils.assertContentUriCount;
 
+import android.net.Uri;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -24,7 +26,9 @@ import android.os.Looper;
 import android.os.ResultReceiver;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 @DatabaseConfig.UsingDatabaseMap(FileMap.class)
@@ -52,11 +56,51 @@ public class ApiSyncServiceTest {
 
         svc.onHandleIntent(intent);
 
-        expect(received.size()).toBe(2);
-        expect(received.containsKey(ApiSyncService.STATUS_RUNNING)).toBeTrue();
+        expect(received.size()).toBe(1);
         expect(received.containsKey(ApiSyncService.STATUS_SYNC_ERROR)).toBeFalse();
     }
 
+    @Test
+    public void shouldQueue() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+
+        SoundCloudApplication app = DefaultTestRunner.application;
+
+        Intent intent = new Intent(Intent.ACTION_SYNC);
+        List<String> urisToSync = new ArrayList<String>();
+        urisToSync.add(Content.ME_TRACKS.uri.toString());
+        urisToSync.add(Content.ME_FAVORITES.uri.toString());
+        urisToSync.add(Content.ME_FOLLOWERS.uri.toString());
+        intent.putStringArrayListExtra("syncUris", (ArrayList<String>) urisToSync);
+
+        ApiSyncService.ApiSyncRequest request1 = new ApiSyncService.ApiSyncRequest(app, intent);
+        ApiSyncService.ApiSyncRequest request2 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
+        ApiSyncService.ApiSyncRequest request3 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
+
+        svc.enqueueRequest(request1);
+        expect(svc.mUriRequests.size()).toBe(3);
+        svc.enqueueRequest(request2);
+
+        expect(svc.mUriRequests.size()).toBe(3);
+        svc.enqueueRequest(request3);
+        expect(svc.mUriRequests.size()).toBe(4);
+    }
+
+    @Test
+    public void shouldRemove() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+
+        SoundCloudApplication app = DefaultTestRunner.application;
+
+        svc.mRunningRequests.add(Content.ME_FAVORITES.uri);
+        svc.mRunningRequests.add(Content.ME_FOLLOWINGS.uri);
+
+        ApiSyncService.UriSyncRequest.Result result = new ApiSyncService.UriSyncRequest.Result(Content.ME_FAVORITES.uri);
+        result.success = true;
+
+        svc.onUriSyncResult(result);
+        expect(svc.mRunningRequests.size()).toBe(1);
+    }
 
     @Test
     public void shouldSync() throws Exception {
