@@ -121,12 +121,14 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     protected void checkForStaleItems(List<Parcelable> newItems){
-        final long stale = System.currentTimeMillis() - Consts.SYNC_STALE_TIME;
-        final boolean doUpdate = CloudUtils.isWifiConnected(mActivity);
+        if (!(CloudUtils.isWifiConnected(mActivity)) || newItems == null || newItems.size() == 0 || !(newItems.get(0) instanceof Resource))
+            return;
+
+        final long stale = System.currentTimeMillis() - ((Resource) newItems.get(0)).getStaleTime();
 
         Map<Long, Resource> toUpdate = new HashMap<Long, Resource>();
         for (Parcelable newItem : newItems) {
-            if (doUpdate && newItem instanceof Resource){
+            if (newItem instanceof Resource){
                 Resource resource = (Resource) newItem;
                 if (resource.getLastUpdated() < stale) {
                     toUpdate.put(resource.getResourceId(), resource);
