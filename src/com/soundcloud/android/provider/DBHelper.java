@@ -166,7 +166,6 @@ public class DBHelper extends SQLiteOpenHelper {
             "body VARCHAR(255)," +
             "created_at INTEGER);";
 
-
     static final String DATABASE_CREATE_ACTIVITIES = "create table Activities (_id INTEGER primary key AUTOINCREMENT, " +
             "user_id INTEGER," +
             "track_id INTEGER," +

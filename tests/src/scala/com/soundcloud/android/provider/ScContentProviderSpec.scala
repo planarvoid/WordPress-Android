@@ -20,41 +20,13 @@ class ScContentProviderSpec extends DefaultSpec with OneInstancePerTest {
   lazy val activities: CollectionHolder[Activity] =
     mapper.readValue(classOf[SyncAdapterServiceTest].getResourceAsStream("incoming_1.json"), classOf[Activities])
 
-  def insertTracks(tracks: Iterable[Track], uri: Uri) {
-    for (t <- tracks) {
-      val user  = provider.insert(Content.USERS.uri, t.user.buildContentValues(false))
-      val track = provider.insert(uri, t.buildContentValues())
-      user should not be (null)
-      track should not be (null)
-    }
-  }
-
-  def insertModels(models: Iterable[ScModel], uri: Uri) = {
-    models.map { m =>
-      val model = provider.insert(uri, m.buildContentValues())
-      model should not be (null)
-      model
-    }
-  }
-
-  def query[T](uri: Uri)(fun: Cursor => T) = {
-    val cursor = provider.query(uri, null, null, null, null)
-    try {
-      fun(cursor)
-    } finally {
-      cursor.close()
-    }
-  }
 
   it should "insert and write back a user" in {
     val user = favorites.head.user
     val userUri = provider.insert(Content.USERS.uri, user.buildContentValues())
     userUri.toString should equal("content://com.soundcloud.android.provider.ScContentProvider/users/172720")
 
-    val readUser = query(userUri) { c =>
-      c.getCount should equal(1)
-      c.map(new User(_))
-    }.head
+    val readUser = query(userUri, 1)(_.map(new User(_))).head
 
     readUser.id should equal(user.id)
     readUser.permalink should equal(user.permalink)
@@ -66,14 +38,11 @@ class ScContentProviderSpec extends DefaultSpec with OneInstancePerTest {
     val track = favorites.head
     // need to insert the user to get the track to show
     val userUri = provider.insert(Content.USERS.uri, track.getUser.buildContentValues())
-    userUri should not be(null)
+    userUri should not be (null)
     val trackUri = provider.insert(Content.TRACKS.uri, track.buildContentValues())
     trackUri.toString should equal("content://com.soundcloud.android.provider.ScContentProvider/tracks/27583938")
 
-    val readTrack = query(trackUri) { c =>
-      c.getCount should equal(1)
-      c.map(new Track(_))
-    }.head
+    val readTrack = query(trackUri, 1)(_.map(new Track(_))).head
 
     readTrack.id should equal(track.id)
     readTrack.title should equal(track.title)
@@ -85,22 +54,52 @@ class ScContentProviderSpec extends DefaultSpec with OneInstancePerTest {
   }
 
   it should "insert and query user favorites" in {
-    favorites.size should equal(15)
+    favorites should have size (15)
+    insertTracks(Content.ME_FAVORITES.uri, favorites)
 
-    insertTracks(favorites, Content.ME_FAVORITES.uri)
-
-    val tracks = query(Content.ME_FAVORITES.uri) { c =>
-      c.getCount should equal(favorites.size)
-      c.map(new Track(_))
-    }
-
-    tracks.size should equal(favorites.size)
-
+    val tracks = query(Content.ME_FAVORITES.uri, favorites.size)(_.map(new Track(_)))
     val users = query(Content.USERS.uri)(_.map(new User(_)))
-    users.size should equal(14)
+    users should have size (14)
   }
 
   it should "insert and query activities" in {
-    val models = insertModels(activities, Content.ME_SOUND_STREAM.uri)
+    val inserted = bulkInsertModels(Content.ME_SOUND_STREAM.uri, activities)
+    inserted should be (activities.size)
+    
+    query(Content.ME_SOUND_STREAM.uri,  activities.size) { cursor =>
+      for (c:Cursor <- cursor) {
+        c.getLong(DBHelper.Activities.CREATED_AT) should be >= (0L)
+        c.getString(DBHelper.Activities.TAGS) should not be (null)
+      }
+    }
+  }
+
+  def insertTracks(uri: Uri, tracks: Iterable[Track]) = tracks.map { t =>
+    val user = provider.insert(Content.USERS.uri, t.user.buildContentValues(false))
+    val track = provider.insert(uri, t.buildContentValues())
+    user should not be (null)
+    track should not be (null)
+    track
+  }
+
+  def insertModels(uri: Uri, models: Iterable[ScModel]) = models.map { m =>
+    val model = provider.insert(uri, m.buildContentValues())
+    model should not be (null)
+    model
+  }
+  
+  def bulkInsertModels(uri: Uri, models: Iterable[ScModel]) =
+    provider.bulkInsert(uri, models.map(_.buildContentValues()).toArray)
+
+  def query[T](uri: Uri, expectedCount: Int = -1)(fun: Cursor => T) = {
+    val cursor = provider.query(uri, null, null, null, null)
+    try {
+      if (expectedCount >= 0) {
+        cursor.getCount should be(expectedCount)
+      }
+      fun(cursor)
+    } finally {
+      cursor.close()
+    }
   }
 }

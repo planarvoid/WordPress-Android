@@ -80,9 +80,6 @@ public enum Content {
     RECORDINGS("/recordings", null, 1100, Recording.class, -1),
     RECORDING_ITEM("/recordings/#", null, 1101, Recording.class, -1),
 
-    EVENTS("/events", null, 1200, Activity.class, -1),
-    EVENT_ITEM("/events/#", null, 1201, Activity.class, -1),
-
     TRACK_PLAYS("/track_plays", null, 1300, null, -1),
     TRACK_PLAYS_ITEM("/track_plays/#", null, 1301, null, -1),
 

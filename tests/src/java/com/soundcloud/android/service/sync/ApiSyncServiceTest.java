@@ -7,9 +7,11 @@ import static com.soundcloud.android.service.sync.ApiSyncServiceTest.Utils.asser
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.FileMap;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +27,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 
 @RunWith(DefaultTestRunner.class)
+@DatabaseConfig.UsingDatabaseMap(FileMap.class)
 public class ApiSyncServiceTest {
 
     @After public void after() {
@@ -78,7 +81,7 @@ public class ApiSyncServiceTest {
                 "incoming_2.json");
 
         svc.onHandleIntent(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri));
-        
+
         assertContentUriCount(Content.COLLECTIONS, 1);
         LocalCollection collection = LocalCollection.fromContentUri(
                         Robolectric.application.getContentResolver(),
@@ -87,7 +90,7 @@ public class ApiSyncServiceTest {
         expect(collection).not.toBeNull();
         expect(collection.last_sync).toBeGreaterThan(0L);
         expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
-        
+
         assertContentUriCount(Content.ME_SOUND_STREAM, 100);
     }
 

@@ -110,7 +110,6 @@ public class ScContentProvider extends ContentProvider {
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
                 break;
 
-
             case SEARCHES:
                 qb.setTables(Table.SEARCHES.name);
                 whereAppend = Table.SEARCHES.id + " = "+ userId;
@@ -154,6 +153,12 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(Table.RECORDINGS.name);
                 whereAppend = Table.RECORDINGS.id + " = "+ uri.getLastPathSegment();
                 selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                break;
+
+            case ME_SOUND_STREAM:
+            case ME_ACTIVITIES:
+            case ME_EXCLUSIVE_STREAM:
+                qb.setTables(Table.ACTIVITIES.name);
                 break;
 
             case UNKNOWN:
@@ -415,6 +420,12 @@ public class ScContentProvider extends ContentProvider {
                     tblName = Table.COLLECTION_ITEMS.name;
                     extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(SEARCH)};
                     break;
+                case ME_SOUND_STREAM:
+                case ME_ACTIVITIES:
+                case ME_EXCLUSIVE_STREAM:
+                    tblName = Table.ACTIVITIES.name;
+                    break;
+
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }

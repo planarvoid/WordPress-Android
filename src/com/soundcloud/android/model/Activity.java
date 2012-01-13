@@ -143,6 +143,10 @@ public class Activity extends ScModel implements Origin, Playable {
         cv.put(DBHelper.Activities.TYPE, type);
         cv.put(DBHelper.Activities.TAGS, tags);
         
+        if (created_at != null) {
+            cv.put(DBHelper.Activities.CREATED_AT, created_at.getTime());
+        }
+        
         if (getUser() != null) {
             cv.put(DBHelper.Activities.USER_ID, getUser().id);
         }

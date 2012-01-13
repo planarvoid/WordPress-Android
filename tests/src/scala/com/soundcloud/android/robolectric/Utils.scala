@@ -16,6 +16,8 @@ object Utils {
         underlying
       }
     }
+    def getString(s: String) = underlying.getString(underlying.getColumnIndex(s));
+    def getLong(s: String) = underlying.getLong(underlying.getColumnIndex(s));
   }
 
   case class Response(code: Int, body: String)
