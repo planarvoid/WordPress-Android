@@ -4,13 +4,15 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.api.CloudAPI;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.util.Log;
 
@@ -21,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.Executor;
 
-public class ApiSyncService extends IntentService {
+public class ApiSyncService extends Service {
     public static final String LOG_TAG = ApiSyncer.class.getSimpleName();
 
     public static final String EXTRA_STATUS_RECEIVER = "com.soundcloud.android.sync.extra.STATUS_RECEIVER";
@@ -35,21 +37,24 @@ public class ApiSyncService extends IntentService {
     public static final int MAX_TASK_LIMIT = 3;
     private int mActiveTaskCount;
 
-
     /* package */ final List<ApiSyncRequest> mRequests = new ArrayList<ApiSyncRequest>();
-    /* package */ final LinkedList<UriSyncRequest> mUriRequests = new LinkedList<UriSyncRequest>();
-    /* package */ final List<Uri> mRunningRequests = new ArrayList<Uri>();
+    /* package */ final LinkedList<UriSyncRequest> mPendingUriRequests = new LinkedList<UriSyncRequest>();
+    /* package */ final List<Uri> mRunningRequestUris = new ArrayList<Uri>();
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
 
-    public ApiSyncService() {
-        super(ApiSyncService.class.getSimpleName());
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
+        enqueueRequest(new ApiSyncRequest((SoundCloudApplication) getApplication(), intent));
+        flushUriRequests();
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        Log.d(LOG_TAG, "Cloud Api service started");
-        enqueueRequest(new ApiSyncRequest((SoundCloudApplication) getApplication(), intent));
-        flushUriRequests();
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     /* package */ void enqueueRequest(ApiSyncRequest request) {
@@ -57,15 +62,14 @@ public class ApiSyncService extends IntentService {
         for (Uri uri : request.urisToSync){
             // ghetto linked list search
             boolean found = false;
-            for (UriSyncRequest req : mUriRequests){
+            for (UriSyncRequest req : mPendingUriRequests){
                 if (req.uri.equals(uri)) {
                     found = true;
                     break;
                 }
             }
-            if (!found && !mRunningRequests.contains(uri)) {
-                mUriRequests.add(new UriSyncRequest((SoundCloudApplication) getApplication(),uri));
-            } else {
+            if (!found && !mRunningRequestUris.contains(uri)) {
+                mPendingUriRequests.add(new UriSyncRequest((SoundCloudApplication) getApplication(),uri));
             }
         }
     }
@@ -76,15 +80,18 @@ public class ApiSyncService extends IntentService {
                 mRequests.remove(request);
             }
         }
-        mRunningRequests.remove(result.uri);
+        mRunningRequestUris.remove(result.uri);
     }
 
     void flushUriRequests() {
-        while (mActiveTaskCount < MAX_TASK_LIMIT && !mUriRequests.isEmpty()) {
-            final UriSyncRequest syncRequest = mUriRequests.poll();
-            mRunningRequests.add(syncRequest.uri);
-            new ApiSyncTask().executeOnThreadPool(syncRequest);
-
+        if (mPendingUriRequests.isEmpty() && mRunningRequestUris.isEmpty()){
+            stopSelf();
+        } else {
+            while (mActiveTaskCount < MAX_TASK_LIMIT && !mPendingUriRequests.isEmpty()) {
+                final UriSyncRequest syncRequest = mPendingUriRequests.poll();
+                mRunningRequestUris.add(syncRequest.uri);
+                new ApiSyncTask().executeOnThreadPool(syncRequest);
+            }
         }
     }
 

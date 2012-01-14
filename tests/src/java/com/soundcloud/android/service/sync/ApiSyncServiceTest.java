@@ -54,7 +54,7 @@ public class ApiSyncServiceTest {
         addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
         addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
 
-        svc.onHandleIntent(intent);
+        svc.onStart(intent, 0);
 
         expect(received.size()).toBe(1);
         expect(received.containsKey(ApiSyncService.STATUS_SYNC_ERROR)).toBeFalse();
@@ -78,12 +78,12 @@ public class ApiSyncServiceTest {
         ApiSyncService.ApiSyncRequest request3 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
 
         svc.enqueueRequest(request1);
-        expect(svc.mUriRequests.size()).toBe(3);
+        expect(svc.mPendingUriRequests.size()).toBe(3);
         svc.enqueueRequest(request2);
 
-        expect(svc.mUriRequests.size()).toBe(3);
+        expect(svc.mPendingUriRequests.size()).toBe(3);
         svc.enqueueRequest(request3);
-        expect(svc.mUriRequests.size()).toBe(4);
+        expect(svc.mPendingUriRequests.size()).toBe(4);
     }
 
     @Test
@@ -92,14 +92,14 @@ public class ApiSyncServiceTest {
 
         SoundCloudApplication app = DefaultTestRunner.application;
 
-        svc.mRunningRequests.add(Content.ME_FAVORITES.uri);
-        svc.mRunningRequests.add(Content.ME_FOLLOWINGS.uri);
+        svc.mRunningRequestUris.add(Content.ME_FAVORITES.uri);
+        svc.mRunningRequestUris.add(Content.ME_FOLLOWINGS.uri);
 
         ApiSyncService.UriSyncRequest.Result result = new ApiSyncService.UriSyncRequest.Result(Content.ME_FAVORITES.uri);
         result.success = true;
 
         svc.onUriSyncResult(result);
-        expect(svc.mRunningRequests.size()).toBe(1);
+        expect(svc.mRunningRequestUris.size()).toBe(1);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class ApiSyncServiceTest {
         addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
         addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
 
-        svc.onHandleIntent(new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri));
+        svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri),1);
         // make sure tracks+users got written
         assertContentUriCount(Content.TRACKS, 3);
         assertContentUriCount(Content.COLLECTION_ITEMS, 3);
@@ -124,7 +124,7 @@ public class ApiSyncServiceTest {
                 "incoming_1.json",
                 "incoming_2.json");
 
-        svc.onHandleIntent(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri));
+        svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
 
         assertContentUriCount(Content.COLLECTIONS, 1);
         LocalCollection collection = LocalCollection.fromContentUri(
