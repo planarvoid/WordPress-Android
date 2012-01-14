@@ -19,8 +19,8 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "SoundCloud";
     private static final int DATABASE_VERSION = 9;
 
-    DBHelper(Context scApp) {
-        super(scApp, DATABASE_NAME, null, DATABASE_VERSION);
+    DBHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
