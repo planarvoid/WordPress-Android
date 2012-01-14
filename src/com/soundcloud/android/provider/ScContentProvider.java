@@ -161,6 +161,10 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(Table.ACTIVITIES.name);
                 break;
 
+            case COMMENTS:
+                qb.setTables(Table.COMMENTS.name);
+                break;
+
             case UNKNOWN:
             default:
                 throw new IllegalArgumentException("No query available for: " + uri);
@@ -237,7 +241,7 @@ public class ScContentProvider extends ContentProvider {
                 } else {
                     throw new SQLException("No insert available for: " + uri);
                 }
-                
+
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
             case ME_EXCLUSIVE_STREAM:
@@ -424,6 +428,10 @@ public class ScContentProvider extends ContentProvider {
                 case ME_ACTIVITIES:
                 case ME_EXCLUSIVE_STREAM:
                     tblName = Table.ACTIVITIES.name;
+                    break;
+
+                case COMMENTS:
+                    tblName = Table.COMMENTS.name;
                     break;
 
                 default:

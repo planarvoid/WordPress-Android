@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -62,6 +63,7 @@ public abstract class ScModel implements Parcelable {
         return holder;
     }
 
+    @Deprecated // this is slow (reflection)
     protected void readFromParcel(Parcel in) {
         Bundle data = in.readBundle(getClass().getClassLoader());
         for (String key : data.keySet()) {
@@ -78,7 +80,7 @@ public abstract class ScModel implements Parcelable {
         this.id = data.getLong("id");
     }
 
-    @Override
+    @Override // AVOID THIS: slow (reflection)
     public void writeToParcel(Parcel out, int flags) {
         Bundle data = new Bundle();
         for (Field f : getClass().getDeclaredFields()) {
@@ -190,7 +192,9 @@ public abstract class ScModel implements Parcelable {
     }
 
     public ContentValues buildContentValues() {
-        return null;
+        ContentValues cv = new ContentValues();
+        cv.put(BaseColumns._ID, id);
+        return cv;
     }
 
     public long getLastUpdated(){

@@ -432,23 +432,6 @@ public class CloudUtils {
         return emptyView;
     }
 
-    public static Comment buildComment( Context context, long userId, long trackId, long timestamp, String commentBody, long replyToId){
-        return buildComment(context, userId, trackId, timestamp, commentBody, replyToId, "");
-    }
-
-    public static Comment buildComment( Context context, long userId, long trackId, long timestamp, String commentBody, long replyToId, String replyToUsername){
-        Comment comment = new Comment();
-        comment.track_id = trackId;
-        comment.created_at = new Date(System.currentTimeMillis());
-        comment.user_id = userId;
-        comment.user = SoundCloudDB.getUserById(context.getContentResolver(), comment.user_id);
-        comment.timestamp = timestamp;
-        comment.body = commentBody;
-        comment.reply_to_id = replyToId;
-        comment.reply_to_username = replyToUsername;
-        return comment;
-    }
-
     public static CharSequence getElapsedTimeString(Resources r, long start, boolean longerText) {
         double elapsed = Double.valueOf(Math.ceil((System.currentTimeMillis() - start) / 1000d)).longValue();
 

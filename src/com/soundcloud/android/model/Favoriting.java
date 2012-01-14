@@ -6,6 +6,8 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonView;
 
+import android.os.Parcel;
+
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Favoriting implements Origin {
     @JsonProperty @JsonView(Views.Mini.class) public Track track;
@@ -37,4 +39,28 @@ public class Favoriting implements Origin {
         result = 31 * result + (user != null ? user.hashCode() : 0);
         return result;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(track, 0);
+        dest.writeParcelable(user, 0);
+    }
+
+    public static final Creator<Favoriting> CREATOR = new Creator<Favoriting>() {
+        public Favoriting createFromParcel(Parcel in) {
+            Favoriting t = new Favoriting();
+            t.track = in.readParcelable(Track.class.getClassLoader());
+            t.user = in.readParcelable(User.class.getClassLoader());
+            return t;
+        }
+        public Favoriting[] newArray(int size) {
+            return new Favoriting[size];
+        }
+    };
 }

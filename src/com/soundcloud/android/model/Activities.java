@@ -5,26 +5,21 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.accounts.Account;
+import android.content.ContentValues;
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,7 +94,7 @@ public class Activities extends CollectionHolder<Activity> {
         return tracks;
     }
 
-    public Activities selectType(String type) {
+    public Activities selectType(Activity.Type type) {
         List<Activity> activities = new ArrayList<Activity>();
         for (Activity e : this) {
             if (type.equals(e.type)) {
@@ -110,19 +105,19 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public Activities favoritings() {
-        return selectType(Activity.Types.FAVORITING);
+        return selectType(Activity.Type.FAVORITING);
     }
 
     public Activities comments() {
-        return selectType(Activity.Types.COMMENT);
+        return selectType(Activity.Type.COMMENT);
     }
 
     public Activities sharings() {
-        return selectType(Activity.Types.TRACK_SHARING);
+        return selectType(Activity.Type.TRACK_SHARING);
     }
 
     public Activities tracks() {
-        return selectType(Activity.Types.TRACK);
+        return selectType(Activity.Type.TRACK);
     }
 
     public Map<Track, Activities> groupedByTrack() {
@@ -160,6 +155,7 @@ public class Activities extends CollectionHolder<Activity> {
         return AndroidCloudAPI.Mapper.viewWriter(view).writeValueAsString(this);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public Activities toJSON(File f, Class<?> view) throws IOException {
         AndroidCloudAPI.Mapper.viewWriter(Views.Mini.class).writeValue(f, this);
         return this;
@@ -249,7 +245,6 @@ public class Activities extends CollectionHolder<Activity> {
         String next_href = null;
         List<Activity> activityList = new ArrayList<Activity>();
 
-        
         Request remote = new Request(request).add("limit", 20);
         do {
             Log.d(TAG, "Making request " + remote);
@@ -333,4 +328,64 @@ public class Activities extends CollectionHolder<Activity> {
         return null;
     }
 
+    public ContentValues[] buildContentValues() {
+        ContentValues[] cv = new ContentValues[size()];
+        for (int i=0; i<size(); i++) {
+            cv[i] = get(i).buildContentValues();
+        }
+        return cv;
+    }
+
+    public List<Track> getTracks() {
+        final List<Track> tracks = new ArrayList<Track>();
+        for (Activity a : this) {
+            Track t = a.getTrack();
+            if (t != null && !tracks.contains(t)) {
+                tracks.add(t);
+            }
+        }
+        return tracks;
+    }
+
+    public List<User> getUsers() {
+        final List<User> users = new ArrayList<User>();
+        for (Activity a : this) {
+            User u = a.getUser();
+            if (u != null && !users.contains(u)) {
+                users.add(u);
+            }
+        }
+        return users;
+    }
+
+    public List<Comment> getComments() {
+        final List<Comment> comments = new ArrayList<Comment>();
+        for (Activity a : selectType(Activity.Type.COMMENT)) {
+            Comment c = a.getComment();
+            if (c != null && !comments.contains(c)) {
+                comments.add(c);
+            }
+        }
+        return comments;
+    }
+
+    public ContentValues[] getTrackContentValues() {
+        return buildContentValues(getTracks());
+    }
+
+    public ContentValues[] getUserContentValues() {
+        return buildContentValues(getUsers());
+    }
+
+    public ContentValues[] getCommentContentValues() {
+        return buildContentValues(getComments());
+    }
+
+    public static ContentValues[] buildContentValues(List<? extends ScModel> models) {
+        ContentValues[] cv = new ContentValues[models.size()];
+        for (int i=0; i<models.size(); i++) {
+            cv[i] = models.get(i).buildContentValues();
+        }
+        return cv;
+    }
 }

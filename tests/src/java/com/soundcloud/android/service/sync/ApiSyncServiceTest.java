@@ -31,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-@DatabaseConfig.UsingDatabaseMap(FileMap.class)
 public class ApiSyncServiceTest {
 
     @After public void after() {
@@ -67,12 +66,12 @@ public class ApiSyncServiceTest {
         SoundCloudApplication app = DefaultTestRunner.application;
 
         Intent intent = new Intent(Intent.ACTION_SYNC);
-        List<String> urisToSync = new ArrayList<String>();
-        urisToSync.add(Content.ME_TRACKS.uri.toString());
-        urisToSync.add(Content.ME_FAVORITES.uri.toString());
-        urisToSync.add(Content.ME_FOLLOWERS.uri.toString());
-        intent.putStringArrayListExtra("syncUris", (ArrayList<String>) urisToSync);
+        ArrayList<Uri> urisToSync = new ArrayList<Uri>();
+        urisToSync.add(Content.ME_TRACKS.uri);
+        urisToSync.add(Content.ME_FAVORITES.uri);
+        urisToSync.add(Content.ME_FOLLOWERS.uri);
 
+        intent.putParcelableArrayListExtra("syncUris", urisToSync);
         ApiSyncService.ApiSyncRequest request1 = new ApiSyncService.ApiSyncRequest(app, intent);
         ApiSyncService.ApiSyncRequest request2 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
         ApiSyncService.ApiSyncRequest request3 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
@@ -117,7 +116,7 @@ public class ApiSyncServiceTest {
     }
 
     @Test
-    public void shouldSyncActivities() throws Exception {
+    public void shouldSyncActivitiesIncoming() throws Exception {
         ApiSyncService svc = new ApiSyncService();
 
         TestHelper.addCannedResponses(SyncAdapterServiceTest.class,
@@ -136,6 +135,22 @@ public class ApiSyncServiceTest {
         expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
 
         assertContentUriCount(Content.ME_SOUND_STREAM, 100);
+        assertContentUriCount(Content.TRACKS, 99);
+        assertContentUriCount(Content.USERS, 52);
+    }
+
+    @Test
+    public void shouldSyncActivitiesOwn() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+
+        TestHelper.addCannedResponses(SyncAdapterServiceTest.class,
+                "own_1.json",
+                "own_2.json");
+
+        svc.onHandleIntent(new Intent(Intent.ACTION_SYNC, Content.ME_ACTIVITIES.uri));
+
+        assertContentUriCount(Content.ME_ACTIVITIES, 42);
+        assertContentUriCount(Content.COMMENTS, 15);
     }
 
     private void addResourceResponse(String url, String resource) throws IOException {

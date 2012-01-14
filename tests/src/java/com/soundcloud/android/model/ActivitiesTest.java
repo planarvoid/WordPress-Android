@@ -17,6 +17,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentValues;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -126,7 +128,7 @@ public class ActivitiesTest {
     @Test
     public void testSubTypes() throws Exception {
         for (Activity a : getActivities()) {
-            assertTrue(a.origin.getClass().equals(a.getOriginClass()));
+            assertTrue(a.origin.getClass().equals(a.type.typeClass));
         }
     }
 
@@ -241,5 +243,12 @@ public class ActivitiesTest {
         Activities a = Activities.fetch(DefaultTestRunner.application,  Content.ME_SOUND_STREAM.request(), null, 20);
         expect(a.size()).toEqual(20);
         expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+    }
+
+    @Test
+    public void shouldBuildContentValues() throws Exception {
+        Activities a = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
+        ContentValues[] cv = a.buildContentValues();
+        expect(cv.length).toEqual(a.size());
     }
 }

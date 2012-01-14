@@ -5,6 +5,9 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonView;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
 public class TrackSharing implements Origin {
@@ -63,4 +66,31 @@ public class TrackSharing implements Origin {
         result = 31 * result + (sharing_note != null ? sharing_note.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(track, 0);
+        dest.writeString(sharing_note.text);
+        dest.writeLong(sharing_note.created_at.getTime());
+    }
+
+    public static final Parcelable.Creator<TrackSharing> CREATOR = new Parcelable.Creator<TrackSharing>() {
+        public TrackSharing createFromParcel(Parcel in) {
+            TrackSharing ts = new TrackSharing();
+            ts.track = in.readParcelable(Track.class.getClassLoader());
+            ts.sharing_note = new SharingNote();
+            ts.sharing_note.text = in.readString();
+            ts.sharing_note.created_at = new Date(in.readLong());
+            return ts;
+        }
+
+        public TrackSharing[] newArray(int size) {
+            return new TrackSharing[size];
+        }
+    };
 }

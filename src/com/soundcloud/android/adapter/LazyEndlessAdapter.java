@@ -525,7 +525,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     protected boolean isSyncable(){
-        return mContent == null ? false : mContent.isSyncable();
+        return mContent != null && mContent.isSyncable();
     }
 
     protected DetachableResultReceiver getReceiver(){
@@ -535,7 +535,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     public void restoreResultReceiver(DetachableResultReceiver receiver){
-        mDetachableReceiver = (DetachableResultReceiver) receiver;
+        mDetachableReceiver = receiver;
         mDetachableReceiver.setReceiver(this);
 
     }

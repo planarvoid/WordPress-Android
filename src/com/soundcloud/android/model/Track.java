@@ -328,8 +328,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public ContentValues buildContentValues(){
-        ContentValues cv = new ContentValues();
-        cv.put(Tracks.ID, id);
+        ContentValues cv = super.buildContentValues();
         cv.put(Tracks.LAST_UPDATED, System.currentTimeMillis());
         cv.put(Tracks.PERMALINK, permalink);
         // account for partial objects, don't overwrite local full objects

@@ -36,7 +36,7 @@ public class ApiSyncer {
     private final ContentResolver mResolver;
     private final Context mContext;
 
-    private Map<Uri, ContentValues[]> collectionValues = new HashMap<Uri, ContentValues[]>();
+    private Map<Content, ContentValues[]> collectionValues = new HashMap<Content, ContentValues[]>();
     private List<Long> trackAdditions = new ArrayList<Long>();
     private List<Long> userAdditions = new ArrayList<Long>();
 
@@ -87,8 +87,17 @@ public class ApiSyncer {
         if (collection != null) {
             future_href = collection.sync_state;
         }
+
         Request request = future_href == null ? content.request() : Request.to(future_href);
         Activities activities = Activities.fetch(mApi, request, null, -1);
+
+        mResolver.bulkInsert(content.uri, activities.buildContentValues());
+        mResolver.bulkInsert(Content.TRACKS.uri, activities.getTrackContentValues());
+        mResolver.bulkInsert(Content.USERS.uri, activities.getUserContentValues());
+
+        if (content == Content.ME_ACTIVITIES) {
+            mResolver.bulkInsert(Content.COMMENTS.uri, activities.getCommentContentValues());
+        }
 
         LocalCollection.insertLocalCollection(mResolver,
                 content.uri,

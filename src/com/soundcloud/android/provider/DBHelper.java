@@ -115,11 +115,13 @@ public class DBHelper extends SQLiteOpenHelper {
             "favoritings_count INTEGER," +
             "shared_to_count INTEGER," +
             "user_id INTEGER," +
-            "filelength INTEGER);";
+            "filelength INTEGER"+
+            ");";
 
     static final String DATABASE_CREATE_TRACK_PLAYS = "create table TrackPlays (_id INTEGER primary key AUTOINCREMENT, " +
             "track_id INTEGER null, " +
-            "user_id INTEGER null);";
+            "user_id INTEGER null"+
+            ");";
 
     static final String DATABASE_CREATE_USERS = "create table Users (_id INTEGER primary key, " +
             "last_updated INTEGER," +
@@ -136,7 +138,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "track_count INTEGER," +
             "website VARCHAR(255)," +
             "website_title VARCHAR(255), " +
-            "description text);";
+            "description text"+
+            ");";
 
     static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id INTEGER primary key AUTOINCREMENT, " +
             "user_id INTEGER," +
@@ -157,40 +160,46 @@ public class DBHelper extends SQLiteOpenHelper {
             "external_upload BOOLEAN," +
             "audio_profile INTEGER," +
             "upload_status INTEGER DEFAULT 0," +
-            "upload_error BOOLEAN);";
+            "upload_error BOOLEAN"+
+            ");";
 
     static final String DATABASE_CREATE_COMMENTS = "create table Comments (_id INTEGER primary key AUTOINCREMENT, " +
             "user_id INTEGER," +
             "track_id INTEGER," +
             "timestamp INTEGER," +
-            "body VARCHAR(255)," +
-            "created_at INTEGER);";
+            "created_at INTEGER," +
+            "body VARCHAR(255)" +
+            ");";
 
     static final String DATABASE_CREATE_ACTIVITIES = "create table Activities (_id INTEGER primary key AUTOINCREMENT, " +
             "user_id INTEGER," +
             "track_id INTEGER," +
+            "comment_id INTEGER," +
             "type VARCHAR(255)," +
             "tags VARCHAR(255)," +
-            "created_at INTEGER);";
-
+            "created_at INTEGER"+
+            ");";
 
     static final String DATABASE_CREATE_SEARCHES = "create table Searches (_id INTEGER primary key AUTOINCREMENT, " +
             "created_at INTEGER," +
             "user_id INTEGER," +
             "query VARCHAR(255)," +
-            "search_type INTEGER);";
+            "search_type INTEGER"+
+            ");";
 
     static final String DATABASE_CREATE_PLAYLIST = "create table Playlists (_id INTEGER primary key AUTOINCREMENT, " +
             "created_at INTEGER," +
             "position INTEGER," +
             "seek_pos INTEGER," +
-            "user_id INTEGER);";
+            "user_id INTEGER"+
+            ");";
 
     static final String DATABASE_CREATE_PLAYLIST_ITEMS = "create table PlaylistItems (_id INTEGER primary key AUTOINCREMENT, " +
             "playlist_id INTEGER null, " +
             "track_id INTEGER null" +
             "position INTEGER null" +
-            "user_id INTEGER null);";
+            "user_id INTEGER null"+
+            ");";
 
     /**
      * {@link DBHelper.Collections}
@@ -202,7 +211,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "size INTEGER, " +
             "status INTEGER, " +
             "sync_state VARCHAR(255), " +
-            "UNIQUE (uri));";
+            "UNIQUE (uri)"+
+            ");";
 
     /**
      * {@link DBHelper.CollectionPages}
@@ -225,8 +235,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "PRIMARY KEY(user_id, item_id, collection_type) ON CONFLICT REPLACE);";
 
 
-    static final String DATABASE_CREATE_TRACK_VIEW = "CREATE VIEW TrackView" +
-            " AS SELECT " +
+    static final String DATABASE_CREATE_TRACK_VIEW = "CREATE VIEW TrackView AS SELECT " +
             "Tracks." + Tracks.ID + " as " + TrackView._ID + "," +
             "Tracks." + Tracks.LAST_UPDATED + " as " + TrackView.LAST_UPDATED + "," +
             "Tracks." + Tracks.PERMALINK + " as " + TrackView.PERMALINK + "," +
@@ -258,9 +267,57 @@ public class DBHelper extends SQLiteOpenHelper {
             " JOIN Users ON(" +
             " Tracks." + Tracks.USER_ID + " = " + "Users." + Users.ID + ")";
 
-    public static class ResourceTable {
+    /** A view which combines activity data + tracks/users/comments */
+    static final String DATABASE_CREATE_ACTIVITY_VIEW = "CREATE VIEW ActivityView AS SELECT " +
+            "Activities." + Activities._ID + " as " + ActivityView._ID + "," +
+            "Activities." + Activities.TYPE + " as " + ActivityView.TYPE+","+
+            "Activities." + Activities.TAGS + " as " + ActivityView.TAGS+","+
+            "Activities." + Activities.CREATED_AT + " as " + ActivityView.CREATED_AT+","+
+            // track data
+            "Tracks." + Tracks.LAST_UPDATED + " as " + ActivityView.LAST_UPDATED + "," +
+            "Tracks." + Tracks.PERMALINK + " as " + ActivityView.PERMALINK + "," +
+            "Tracks." + Tracks.CREATED_AT + " as " + ActivityView.CREATED_AT + "," +
+            "Tracks." + Tracks.DURATION + " as " + ActivityView.DURATION + "," +
+            "Tracks." + Tracks.TAG_LIST + " as " + ActivityView.TAG_LIST + "," +
+            "Tracks." + Tracks.TRACK_TYPE + " as " + ActivityView.TRACK_TYPE + "," +
+            "Tracks." + Tracks.TITLE + " as " + ActivityView.TITLE + "," +
+            "Tracks." + Tracks.PERMALINK_URL + " as " + ActivityView.PERMALINK_URL + "," +
+            "Tracks." + Tracks.ARTWORK_URL + " as " + ActivityView.ARTWORK_URL + "," +
+            "Tracks." + Tracks.WAVEFORM_URL + " as " + ActivityView.WAVEFORM_URL + "," +
+            "Tracks." + Tracks.DOWNLOADABLE + " as " + ActivityView.DOWNLOADABLE + "," +
+            "Tracks." + Tracks.DOWNLOAD_URL + " as " + ActivityView.DOWNLOAD_URL + "," +
+            "Tracks." + Tracks.STREAM_URL + " as " + ActivityView.STREAM_URL + "," +
+            "Tracks." + Tracks.STREAMABLE + " as " + ActivityView.STREAMABLE + "," +
+            "Tracks." + Tracks.COMMENTABLE + " as " + ActivityView.COMMENTABLE + "," +
+            "Tracks." + Tracks.SHARING + " as " + ActivityView.SHARING + "," +
+            "Tracks." + Tracks.PLAYBACK_COUNT + " as " + ActivityView.PLAYBACK_COUNT + "," +
+            "Tracks." + Tracks.DOWNLOAD_COUNT + " as " + ActivityView.DOWNLOAD_COUNT + "," +
+            "Tracks." + Tracks.COMMENT_COUNT + " as " + ActivityView.COMMENT_COUNT + "," +
+            "Tracks." + Tracks.FAVORITINGS_COUNT + " as " + ActivityView.FAVORITINGS_COUNT + "," +
+            "Tracks." + Tracks.SHARED_TO_COUNT + " as " + ActivityView.SHARED_TO_COUNT + "," +
+            "Tracks." + Tracks.FILELENGTH + " as " + ActivityView.FILELENGTH + "," +
+            // user data
+            "Users." + Users.ID + " as " + ActivityView.USER_ID + "," +
+            "Users." + Users.USERNAME + " as " + ActivityView.USERNAME + "," +
+            "Users." + Users.PERMALINK + " as " + ActivityView.USER_PERMALINK + "," +
+            "Users." + Users.AVATAR_URL + " as " + ActivityView.USER_AVATAR_URL + ","+
+            // comment data
+            "Comments." + Comments.BODY + " as " + ActivityView.COMMENT_BODY + " ," +
+            "Comments." + Comments.CREATED_AT + " as " + ActivityView.COMMENT_CREATED_AT + " ," +
+            "Comments." + Comments.TIMESTAMP + " as " +ActivityView.COMMENT_TIMESTAMP +
+            " FROM Activities" +
+            " JOIN Users ON(" +
+            " Activities." + Activities.USER_ID + " = " + "Users." + Users.ID + ")" +
+            " JOIN Tracks ON(" +
+            " Activities." + Activities.TRACK_ID + " = " + "Tracks." + Tracks.ID + ")" +
+            " LEFT JOIN Comments ON(" +
+            " Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments.ID + ")"
+            ;
+
+    public static class ResourceTable implements BaseColumns {
         public static final String ID = BaseColumns._ID;
 
+        public static final String CREATED_AT = "created_at";
         public static final String LAST_UPDATED = "last_updated";
         public static final String PERMALINK    = "permalink";
     }
@@ -268,8 +325,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper.DATABASE_CREATE_TRACKS}
      */
-    public static final class Tracks extends ResourceTable implements BaseColumns {
-        public static final String CREATED_AT = "created_at";
+    public static final class Tracks extends ResourceTable  {
         public static final String DURATION = "duration";
         public static final String TAG_LIST = "tag_list";
         public static final String TRACK_TYPE = "track_type";
@@ -315,7 +371,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper.DATABASE_CREATE_USERS}
      */
-    public static final class Users extends ResourceTable implements BaseColumns {
+    public static final class Users extends ResourceTable  {
         public static final String USERNAME = "username";
         public static final String AVATAR_URL = "avatar_url";
         public static final String CITY = "city";
@@ -331,6 +387,13 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String DESCRIPTION = "description";
         public static final String USER_FOLLOWING = "user_following";
         public static final String USER_FOLLOWER = "user_follower";
+    }
+
+    public static final class Comments extends ResourceTable {
+        public static final String BODY = "body";
+        public static final String TIMESTAMP = "timestamp";
+        public static final String USER_ID = "user_id";
+        public static final String TRACK_ID = "track_id";
     }
 
     /**
@@ -366,6 +429,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String TAGS = "tags";
         public static final String USER_ID = "user_id";
         public static final String TRACK_ID = "track_id";
+        public static final String COMMENT_ID = "comment_id";
         public static final String CREATED_AT  = "created_at";
     }
 
@@ -402,8 +466,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String PAGE_INDEX = "page_index";
     }
 
-    public static final class TrackView implements BaseColumns {
-
+    public static class TrackView implements BaseColumns {
         public static final String LAST_UPDATED = Tracks.LAST_UPDATED;
         public static final String PERMALINK = Tracks.PERMALINK;
         public static final String CREATED_AT = Tracks.CREATED_AT;
@@ -435,6 +498,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
         public static final String USER_FAVORITE = "user_favorite";
         public static final String USER_PLAYED = "user_played";
+    }
+
+    public final static class ActivityView extends TrackView {
+        public static final String COMMENT_BODY = "comment_body";
+        public static final String COMMENT_TIMESTAMP = "comment_timestamp";
+        public static final String COMMENT_CREATED_AT = "comment_created_at";
+
+        public static final String TYPE = Activities.TYPE;
+        public static final String TAGS = Activities.TAGS;
     }
 
     /*

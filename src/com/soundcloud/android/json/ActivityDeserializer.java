@@ -17,10 +17,10 @@ public class ActivityDeserializer extends JsonDeserializer<Activity> {
     public Activity deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         JsonNode node = mapper.readValue(parser, JsonNode.class);
         Activity e = new Activity();
-        e.type = node.get("type").getValueAsText();
+        e.type = Activity.Type.fromString(node.get("type").getValueAsText());
         e.created_at = context.parseDate(node.get("created_at").getValueAsText());
         e.tags = node.get("tags").getValueAsText();
-        e.origin = mapper.readValue(node.path("origin"), e.getOriginClass());
+        e.origin = mapper.readValue(node.path("origin"), e.type.typeClass);
         return e;
     }
 }

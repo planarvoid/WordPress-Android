@@ -59,7 +59,8 @@ public enum Content {
     USER_GROUPS("/users/#/groups", null, 308, null, -1),
     USER_PLAYLISTS("/users/#/playlists", null, 309, null, -1),
 
-    COMMENT_ITEM("/comments/#", null, 400, Comment.class, -1),
+    COMMENTS("/comments", null, 400, Comment.class, -1),
+    COMMENT_ITEM("/comments/#", null, 401, Comment.class, -1),
 
     PLAYLISTS("/playlists", null, 501, null, -1),
     PLAYLIST_ITEM("/playlists/#", null, 502, null, -1),
@@ -139,8 +140,8 @@ public enum Content {
     public Uri.Builder buildUpon() {
         return uri.buildUpon();
     }
-    
-    
+
+
     public Request request() {
         if (remoteUri != null) {
             return Request.to(remoteUri);
