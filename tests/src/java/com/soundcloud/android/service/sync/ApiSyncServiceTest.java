@@ -4,22 +4,21 @@ package com.soundcloud.android.service.sync;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.service.sync.ApiSyncServiceTest.Utils.assertContentUriCount;
 
-import android.net.Uri;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.FileMap;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -28,7 +27,6 @@ import android.os.ResultReceiver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncServiceTest {
@@ -89,8 +87,6 @@ public class ApiSyncServiceTest {
     public void shouldRemove() throws Exception {
         ApiSyncService svc = new ApiSyncService();
 
-        SoundCloudApplication app = DefaultTestRunner.application;
-
         svc.mRunningRequests.add(Content.ME_FAVORITES.uri);
         svc.mRunningRequests.add(Content.ME_FOLLOWINGS.uri);
 
@@ -102,7 +98,7 @@ public class ApiSyncServiceTest {
     }
 
     @Test
-    public void shouldSync() throws Exception {
+    public void shouldSyncTracks() throws Exception {
         ApiSyncService svc = new ApiSyncService();
 
         addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
@@ -118,43 +114,72 @@ public class ApiSyncServiceTest {
     @Test
     public void shouldSyncActivitiesIncoming() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-
-        TestHelper.addCannedResponses(SyncAdapterServiceTest.class,
+        sync(svc, Content.ME_SOUND_STREAM,
                 "incoming_1.json",
                 "incoming_2.json");
 
-        svc.onHandleIntent(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri));
-
         assertContentUriCount(Content.COLLECTIONS, 1);
         LocalCollection collection = LocalCollection.fromContentUri(
-                        Robolectric.application.getContentResolver(),
-                        Content.ME_SOUND_STREAM.uri);
+                Content.ME_SOUND_STREAM.uri, Robolectric.application.getContentResolver()
+        );
 
         expect(collection).not.toBeNull();
         expect(collection.last_sync).toBeGreaterThan(0L);
         expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
 
         assertContentUriCount(Content.ME_SOUND_STREAM, 100);
+        assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 1);
         assertContentUriCount(Content.TRACKS, 99);
         assertContentUriCount(Content.USERS, 52);
+
+        Activities incoming = Activities.get(
+                Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver()
+        );
+
+        expect(incoming.size()).toEqual(100);
     }
 
     @Test
     public void shouldSyncActivitiesOwn() throws Exception {
         ApiSyncService svc = new ApiSyncService();
 
-        TestHelper.addCannedResponses(SyncAdapterServiceTest.class,
+        sync(svc, Content.ME_ACTIVITIES,
                 "own_1.json",
                 "own_2.json");
 
-        svc.onHandleIntent(new Intent(Intent.ACTION_SYNC, Content.ME_ACTIVITIES.uri));
-
         assertContentUriCount(Content.ME_ACTIVITIES, 42);
         assertContentUriCount(Content.COMMENTS, 15);
+
+        Activities own = Activities.get(
+            Content.ME_ACTIVITIES, Robolectric.application.getContentResolver());
+
+        expect(own.size()).toEqual(42);
+    }
+
+    @Test
+    public void shouldSyncDifferentEndoints() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+        sync(svc, Content.ME_ACTIVITIES,
+                "own_1.json",
+                "own_2.json");
+
+        sync(svc, Content.ME_SOUND_STREAM,
+                "incoming_1.json",
+                "incoming_2.json");
+
+        assertContentUriCount(Content.ME_SOUND_STREAM, 100);
+        assertContentUriCount(Content.ME_ACTIVITIES, 42);
+        assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 1);
+        assertContentUriCount(Content.ME_ALL_ACTIVITIES, 142);
     }
 
     private void addResourceResponse(String url, String resource) throws IOException {
         TestHelper.addCannedResponse(getClass(), url, resource);
+    }
+
+    private void sync(ApiSyncService svc, Content content, String... fixtures) throws IOException {
+        TestHelper.addCannedResponses(SyncAdapterServiceTest.class, fixtures);
+        svc.onHandleIntent(new Intent(Intent.ACTION_SYNC, content.uri));
     }
 
     private void addIdResponse(String url, int... ids) {
@@ -168,12 +193,11 @@ public class ApiSyncServiceTest {
         Robolectric.addHttpResponseRule(url, new TestHttpResponse(200, sb.toString()));
     }
 
-
     static class Utils {
         public static void assertContentUriCount(Content content, int count) {
             Cursor c = Robolectric.application.getContentResolver().query(content.uri, null, null, null, null);
             expect(c).not.toBeNull();
-            expect(c.getCount()).toBe(count);
+            expect(c.getCount()).toEqual(count);
         }
     }
 }

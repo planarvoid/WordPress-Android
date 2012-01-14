@@ -1,8 +1,5 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.*;
-import android.net.Uri;
-import android.os.*;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -14,15 +11,26 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 
 import android.accounts.Account;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.AbstractThreadedSyncAdapter;
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SyncResult;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -65,7 +73,7 @@ public class SyncAdapterService extends Service {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
             for (SyncContent sc : SyncContent.values()){
                 if (sp.getBoolean(sc.prefSyncEnabledKey, true)) {
-                    final long lastUpdated = LocalCollection.getLastSync(c.getContentResolver(), sc.content.uri);
+                    final long lastUpdated = LocalCollection.getLastSync(sc.content.uri, c.getContentResolver());
                     if (System.currentTimeMillis() - lastUpdated > sc.syncDelay || force){
                         urisToSync.add(sc.content.uri);
                     }
@@ -241,9 +249,6 @@ public class SyncAdapterService extends Service {
             }
         }
     }
-    static Activities getOwnEvents(SoundCloudApplication app, Account account) throws IOException {
-        return Activities.get(app, account, Request.to(Endpoints.MY_NEWS));
-    }
 
     /* package */ private static void checkOwn(SoundCloudApplication app, Activities events) {
         if (!events.isEmpty()) {
@@ -262,13 +267,13 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    /* package */ static Activities getNewIncomingEvents(SoundCloudApplication app, Account account, boolean exclusive)
+    /* package */ static Activities getNewIncomingEvents(SoundCloudApplication app, boolean exclusive)
             throws IOException {
         if ((!exclusive && !isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
             return Activities.EMPTY;
         } else {
-            return Activities.get(app, account,
-                    Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES));
+            return Activities.get(exclusive ? Content.ME_EXCLUSIVE_STREAM : Content.ME_SOUND_STREAM, app.getContentResolver()
+            );
         }
     }
 

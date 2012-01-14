@@ -10,6 +10,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -41,13 +42,22 @@ public class Activity extends ScModel implements Origin, Playable {
         next_href = in.readString();
     }
 
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        out.writeLong(created_at.getTime());
-        out.writeString(type.toString());
-        out.writeString(tags);
-        out.writeParcelable(origin, 0);
-        out.writeString(next_href);
+    public Activity(Cursor c) {
+        type =  Type.fromString(c.getString(c.getColumnIndex(DBHelper.ActivityView.TYPE)));
+        tags = c.getString(c.getColumnIndex(DBHelper.ActivityView.TAGS));
+        created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.CREATED_AT)));
+        switch (type) {
+            case TRACK:
+            case TRACK_SHARING:
+                origin = new Track(c);
+                break;
+            case COMMENT:
+                origin = new Comment(c, true);
+                break;
+            case FAVORITING:
+                origin = new Favoriting(c);
+                break;
+        }
     }
 
     public User getUser() {
@@ -141,6 +151,7 @@ public class Activity extends ScModel implements Origin, Playable {
         return result;
     }
 
+
     public enum Type {
         TRACK("track", Track.class),
         TRACK_SHARING("track-sharing", TrackSharing.class),
@@ -174,6 +185,15 @@ public class Activity extends ScModel implements Origin, Playable {
         public String toString() {
             return type;
         }
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeLong(created_at.getTime());
+        out.writeString(type.toString());
+        out.writeString(tags);
+        out.writeParcelable(origin, 0);
+        out.writeString(next_href);
     }
 
     public static final Parcelable.Creator<Activity> CREATOR = new Parcelable.Creator<Activity>() {

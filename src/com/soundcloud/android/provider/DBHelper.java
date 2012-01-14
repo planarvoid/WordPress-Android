@@ -273,6 +273,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "Activities." + Activities.TYPE + " as " + ActivityView.TYPE+","+
             "Activities." + Activities.TAGS + " as " + ActivityView.TAGS+","+
             "Activities." + Activities.CREATED_AT + " as " + ActivityView.CREATED_AT+","+
+            "Activities." + Activities.COMMENT_ID + " as " + ActivityView.COMMENT_ID+","+
+            "Activities." + Activities.TRACK_ID + " as " + ActivityView.TRACK_ID+","+
             // track data
             "Tracks." + Tracks.LAST_UPDATED + " as " + ActivityView.LAST_UPDATED + "," +
             "Tracks." + Tracks.PERMALINK + " as " + ActivityView.PERMALINK + "," +
@@ -507,6 +509,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
         public static final String TYPE = Activities.TYPE;
         public static final String TAGS = Activities.TAGS;
+        public static final String COMMENT_ID = Activities.COMMENT_ID;
+        public static final String TRACK_ID = Activities.TRACK_ID;
     }
 
     /*

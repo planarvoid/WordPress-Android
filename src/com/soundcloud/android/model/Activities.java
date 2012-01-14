@@ -3,8 +3,8 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -12,9 +12,10 @@ import org.apache.http.HttpStatus;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonView;
 
-import android.accounts.Account;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.util.Log;
 
 import java.io.File;
@@ -291,41 +292,18 @@ public class Activities extends CollectionHolder<Activity> {
     public static void clear(Context c) {
     }
 
-
-    public static Activities get(SoundCloudApplication context,
-                                 Account account,
-                                 final Request request) throws IOException {
-
-
-//        Activities activities;
-//        try {
-//            if (cachedFile.exists()) {
-//                Activities cached = fromJSON(cachedFile);
-//                String future_href = cached.future_href;
-//
-//                Log.d(TAG, "future_href href is " + future_href);
-//                Log.d(TAG, "read from activities cache "+cachedFile+
-//                        ", requesting updates from " +(future_href == null ? request.toUrl() : future_href));
-//
-//                if (future_href != null) {
-//                    Activities updates = fetch(context, cached.size() > 0 ? cached.get(0) : null, Request.to(future_href));
-//                    activities = updates == EMPTY ? cached : updates.merge(cached);
-//                } else {
-//                    activities = cached;
-//                }
-//            } else {
-//              activities = fetch(context, null, request);
-//            }
-//        } catch (IOException e) {
-//            Log.w(TAG, "error", e);
-//            // fallback, load events from normal resource
-//            activities = fetch(context, null, request);
-//        }
-//
-//        Log.d(TAG, "caching activities to "+cachedFile);
-//        return activities.trimBelow(SyncAdapterService.NOTIFICATION_MAX)
-//                         .toJSON(cachedFile, Views.Mini.class);
-        return null;
+    public static Activities get(Content content, ContentResolver resolver) throws IOException {
+        Activities activities = new Activities();
+        LocalCollection lc = LocalCollection.fromContentUri(content.uri, resolver);
+        if (lc != null) {
+            activities.future_href = lc.sync_state;
+        }
+        Cursor c = resolver.query(content.uri, null, null, null, null);
+        while (c != null && c.moveToNext()) {
+            activities.add(new Activity(c));
+        }
+        if (c != null) c.close();
+        return activities;
     }
 
     public ContentValues[] buildContentValues() {

@@ -15,7 +15,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -25,10 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class ApiSyncer {
     public static final int MINIMUM_LOCAL_ITEMS_STORED = 100;
@@ -82,7 +79,7 @@ public class ApiSyncer {
     }
 
     /* package */ boolean syncActivities(Content content) throws IOException {
-        LocalCollection collection = LocalCollection.fromContentUri(mResolver, content.uri);
+        LocalCollection collection = LocalCollection.fromContentUri(content.uri, mResolver);
         String future_href = null;
         if (collection != null) {
             future_href = collection.sync_state;
@@ -99,10 +96,8 @@ public class ApiSyncer {
             mResolver.bulkInsert(Content.COMMENTS.uri, activities.getCommentContentValues());
         }
 
-        LocalCollection.insertLocalCollection(mResolver,
-                content.uri,
-                activities.future_href,
-                System.currentTimeMillis(), activities.size());
+        LocalCollection.insertLocalCollection(content.uri, activities.future_href, System.currentTimeMillis(), activities.size(), mResolver
+        );
 
         return !activities.isEmpty();
     }
@@ -149,7 +144,7 @@ public class ApiSyncer {
             i++;
         }
         mResolver.bulkInsert(c.uri, cv);
-        LocalCollection.insertLocalCollection(mResolver, c.uri, null, System.currentTimeMillis(), remote.size());
+        LocalCollection.insertLocalCollection(c.uri, null, System.currentTimeMillis(), remote.size(), mResolver);
 
         // ensure the first couple of pages of items for quick loading
         int added = SoundCloudDB.bulkInsertParcelables(mResolver,getAdditionsFromIds(mApi,mResolver,remote.subList(0, Math.min(remote.size(),MINIMUM_LOCAL_ITEMS_STORED)),

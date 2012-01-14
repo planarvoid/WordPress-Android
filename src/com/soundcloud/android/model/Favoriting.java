@@ -6,12 +6,21 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonView;
 
+import android.database.Cursor;
 import android.os.Parcel;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Favoriting implements Origin {
     @JsonProperty @JsonView(Views.Mini.class) public Track track;
     @JsonProperty @JsonView(Views.Mini.class) public User user;
+
+    public Favoriting() {
+    }
+
+    public Favoriting(Cursor c) {
+//        user = new User(c);
+        track = new Track(c);
+    }
 
     @Override @JsonIgnore
     public Track getTrack() {

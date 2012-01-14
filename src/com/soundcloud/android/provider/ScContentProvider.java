@@ -1,5 +1,6 @@
 package com.soundcloud.android.provider;
 
+import static com.soundcloud.android.model.Activity.Type;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
 import com.soundcloud.android.SoundCloudApplication;
@@ -31,17 +32,20 @@ public class ScContentProvider extends ContentProvider {
     }
 
     @Override
-    // XXX don't overwrite arguments
-    public Cursor query(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(final Uri uri,
+                        final String[] columns,
+                        final String selection,
+                        final String[] selectionArgs,
+                        final String sortOrder) {
         final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
-        SCQueryBuilder qb = new SCQueryBuilder();
-        String whereAppend;
-
-        Content content = Content.match(uri);
+        final SCQueryBuilder qb = new SCQueryBuilder();
+        String[] _columns = columns;
+        String _sortOrder = sortOrder;
+        final Content content = Content.match(uri);
         switch (content) {
             case COLLECTION_ITEMS:
                 qb.setTables(Table.COLLECTION_ITEMS.name);
-                sortOrder = makeCollectionSort(uri, sortOrder);
+                _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case COLLECTIONS:
                 qb.setTables(Table.COLLECTIONS.name);
@@ -52,115 +56,117 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_TRACKS:
             case ME_FAVORITES:
-                if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
-                selection = makeCollectionSelection(selection, String.valueOf(userId), content.collectionType);
-                sortOrder = makeCollectionSort(uri, sortOrder);
+                if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
+                makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
+                _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
             case ME_FRIENDS:
             case SUGGESTED_USERS:
-                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(Table.USERS));
-                selection = makeCollectionSelection(selection, String.valueOf(userId), content.collectionType);
-                sortOrder = makeCollectionSort(uri, sortOrder);
+                if (_columns == null) _columns = formatWithUser(fullUserColumns, userId);
+                makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
+                _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case USER_TRACKS:
             case USER_FAVORITES:
-                if (columns == null) columns = formatWithUser(fullTrackColumns, userId);
                 qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
-                selection = makeCollectionSelection(selection, uri.getPathSegments().get(1), content.collectionType);
-                sortOrder = makeCollectionSort(uri, sortOrder);
+                if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
+                makeCollectionSelection(qb, uri.getPathSegments().get(1), content.collectionType);
+                _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
-
 
             case USER_FOLLOWERS:
             case USER_FOLLOWINGS:
-                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(Table.USERS));
-                selection = makeCollectionSelection(selection,uri.getPathSegments().get(1), content.collectionType);
-                sortOrder = makeCollectionSort(uri, sortOrder);
+                if (_columns == null) _columns = formatWithUser(fullUserColumns,userId);
+                makeCollectionSelection(qb, uri.getPathSegments().get(1), content.collectionType);
+                _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
 
             case TRACKS:
-                if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(Table.TRACK_VIEW.name);
+                if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
                 break;
             case TRACK_ITEM:
-                if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(Table.TRACK_VIEW.name);
-                whereAppend = Table.TRACK_VIEW.id + " = " + uri.getLastPathSegment();
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.appendWhere(Table.TRACK_VIEW.id + " = " + uri.getLastPathSegment());
+                if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
                 break;
 
-
             case USERS:
-                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(Table.USERS.name);
+                if (_columns == null) _columns = formatWithUser(fullUserColumns,userId);
                 break;
 
             case USER_ITEM:
-                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(Table.USERS.name);
-                whereAppend = Table.USERS.id + " = " + uri.getLastPathSegment();
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.appendWhere(Table.USERS.id + " = " + uri.getLastPathSegment());
+                if (_columns == null) _columns = formatWithUser(fullUserColumns,userId);
                 break;
 
             case SEARCHES:
                 qb.setTables(Table.SEARCHES.name);
-                whereAppend = Table.SEARCHES.id + " = "+ userId;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.appendWhere(Table.SEARCHES.id + " = "+ userId);
                 break;
 
             case SEARCHES_USERS_ITEM:
-                if (columns == null) columns = formatWithUser(fullUserColumns,userId);
+                if (_columns == null) _columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(Table.USERS));
-                selection = makeCollectionSelection(selection, String.valueOf(userId), SEARCH);
-                sortOrder = makeCollectionSort(uri, sortOrder);
+                makeCollectionSelection(qb, String.valueOf(userId), SEARCH);
+                _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case SEARCHES_TRACKS_ITEM:
-                if (columns == null) columns = formatWithUser(fullTrackColumns,userId);
+                if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
-                selection = makeCollectionSelection(selection, String.valueOf(userId), SEARCH);
-                sortOrder = makeCollectionSort(uri, sortOrder);
+                makeCollectionSelection(qb, String.valueOf(userId), SEARCH);
+                _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
             case TRACK_PLAYS:
                 qb.setTables(Table.TRACK_PLAYS.name);
-                whereAppend = Table.TRACK_PLAYS.id + " = "+ userId;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.appendWhere(Table.TRACK_PLAYS.id + " = "+ userId);
                 break;
 
             case TRACK_PLAYS_ITEM:
                 qb.setTables(Table.TRACK_PLAYS.name);
-                whereAppend = Table.TRACK_PLAYS.id + " = "+ userId + " AND "
-                        + Table.TRACK_PLAYS.id + " = " + uri.getLastPathSegment();
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.appendWhere(Table.TRACK_PLAYS.id + " = " + uri.getLastPathSegment());
                 break;
 
             case RECORDINGS:
                 qb.setTables(Table.RECORDINGS.name);
-                whereAppend = Table.RECORDINGS.id + " = "+ userId;
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.appendWhere(Table.RECORDINGS.id + " = "+ userId);
                 break;
 
             case RECORDING_ITEM:
                 qb.setTables(Table.RECORDINGS.name);
-                whereAppend = Table.RECORDINGS.id + " = "+ uri.getLastPathSegment();
-                selection = selection == null ? whereAppend : selection + " AND " + whereAppend;
+                qb.appendWhere(Table.RECORDINGS.id + " = "+ uri.getLastPathSegment());
                 break;
 
+            case ME_ALL_ACTIVITIES:
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
             case ME_EXCLUSIVE_STREAM:
-                qb.setTables(Table.ACTIVITIES.name);
+                qb.setTables(Table.ACTIVITY_VIEW.name);
+                switch (content) {
+                    case ME_SOUND_STREAM:
+                        selectActivityTypes(qb, Type.TRACK, Type.TRACK_SHARING);
+                        break;
+                    case ME_EXCLUSIVE_STREAM:
+                        selectActivityTypes(qb, Type.TRACK, Type.TRACK_SHARING)
+                            .appendWhere(" AND "+DBHelper.ActivityView.TAGS+" LIKE '%exclusive%'");
+                        break;
+                    case ME_ACTIVITIES:
+                        selectActivityTypes(qb, Type.FAVORITING, Type.COMMENT);
+                        break;
+                }
                 break;
-
             case COMMENTS:
                 qb.setTables(Table.COMMENTS.name);
                 break;
@@ -170,13 +176,16 @@ public class ScContentProvider extends ContentProvider {
                 throw new IllegalArgumentException("No query available for: " + uri);
         }
 
-        final String q = qb.buildQuery(columns, selection, selectionArgs, null, null, sortOrder, null);
+        final String q = qb.buildQuery(_columns, selection, selectionArgs /* ignored, see below */,
+                null, null, _sortOrder, null);
         Log.d(TAG, "query: "+q);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor c = db.rawQuery(q, selectionArgs);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
+
+
 
     @Override
     public Uri insert(final Uri uri, final ContentValues values) {
@@ -256,7 +265,6 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
-        final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
         String tableName;
@@ -288,8 +296,9 @@ public class ScContentProvider extends ContentProvider {
             case USER_FAVORITES:
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
-                where = makeCollectionSelection(where, String.valueOf(userId), content.collectionType);
                 tableName = Table.COLLECTION_ITEMS.name;
+                //TODO
+                //makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
                 break;
 
             default:
@@ -378,7 +387,6 @@ public class ScContentProvider extends ContentProvider {
     }
 
     @Override
-    // to replace rows
     public int bulkInsert(Uri uri, ContentValues[] values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
@@ -472,12 +480,12 @@ public class ScContentProvider extends ContentProvider {
             " ON (" + table.name+"._id"+" = " + DBHelper.CollectionItems.ITEM_ID+ ")";
     }
 
-    static String makeCollectionSelection(String selection, String userId, int collectionType) {
-        final String whereAppend =
-                Table.COLLECTION_ITEMS.name+"."+
-                DBHelper.CollectionItems.USER_ID + " = " + userId
-                + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType;
-        return selection == null ? whereAppend : selection + " AND " + whereAppend;
+    static SCQueryBuilder makeCollectionSelection(SCQueryBuilder qb,
+                                                      String userId, int collectionType) {
+
+        qb.appendWhere(Table.COLLECTION_ITEMS.name+"."+ DBHelper.CollectionItems.USER_ID + " = " + userId);
+        qb.appendWhere(" AND "+DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType);
+        return qb;
     }
 
 
@@ -539,5 +547,19 @@ public class ScContentProvider extends ContentProvider {
         int FRIEND = 5;
         int SUGGESTED_USER = 6;
         int SEARCH = 7;
+    }
+
+    private static SCQueryBuilder selectActivityTypes(SCQueryBuilder qb, Type... types) {
+        if (types.length > 0) {
+            StringBuilder sb = new StringBuilder("type in(");
+            for (int i=0; i<types.length; i++) {
+                sb.append("'").append(types[i].type).append("'");
+                if (i<types.length -1 ) sb.append(',');
+            }
+            sb.append(")");
+
+            qb.appendWhere(sb);
+        }
+        return qb;
     }
 }

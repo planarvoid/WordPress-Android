@@ -60,6 +60,7 @@ public class User extends ScModel implements PageTrackable, Resource {
     }
 
     public User(Cursor cursor) {
+        // TODO don't use reflection
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
             if (key.contentEquals(Users.ID)) {

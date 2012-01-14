@@ -12,6 +12,7 @@ import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 
@@ -36,6 +37,21 @@ public class Comment extends ScModel implements Origin {
     public Bitmap avatar;
 
     public Comment nextComment; //pointer to the next comment at this timestamp
+
+    public Comment(Cursor c, boolean view) {
+        track = new Track(c);
+        if (view) {
+            id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_ID));
+            body = c.getString(c.getColumnIndex(DBHelper.ActivityView.COMMENT_BODY));
+            timestamp = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_TIMESTAMP));
+            created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_CREATED_AT)));
+        } else {
+            id = c.getLong(c.getColumnIndex(DBHelper.Comments._ID));
+            body = c.getString(c.getColumnIndex(DBHelper.Comments.BODY));
+            timestamp = c.getLong(c.getColumnIndex(DBHelper.Comments.TIMESTAMP));
+            created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.Comments.CREATED_AT)));
+        }
+    }
 
     public void calculateXPos(int parentWidth, long duration){
         this.xPos = (int) ((this.timestamp * parentWidth)/duration);
