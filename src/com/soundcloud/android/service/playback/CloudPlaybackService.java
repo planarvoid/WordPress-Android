@@ -5,9 +5,6 @@ import static com.soundcloud.android.service.playback.State.*;
 import android.app.NotificationManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -22,7 +19,6 @@ import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
 import android.app.Notification;
@@ -215,7 +211,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public boolean onUnbind(Intent intent) {
         mServiceInUse = false;
 
-        mPlaylistManager.saveQueue(true, mCurrentTrack == null ? 0 : getPosition());
+        mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
 
         if (state.isSupposedToBePlaying() || mResumeAfterCall) {
             // something is currently playing, or will be playing once
@@ -306,7 +302,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
 
         sendBroadcast(i);
-        mPlaylistManager.saveQueue(what.equals(QUEUE_CHANGED), mCurrentTrack == null ? 0 : getPosition());
+        mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
 
         // Share this notification directly with our widgets
         mAppWidgetProvider.notifyChange(this, i.putExtra("trackParcel", getTrack()));
@@ -519,7 +515,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         scheduleServiceShutdownCheck();
         stopForeground(false);
 
-        if (Build.VERSION.SDK_INT >= 11){
+        if (Build.VERSION.SDK_INT >= 11 && status != null){
             ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
             NotificationManager mManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mManager.notify(PLAYBACKSERVICE_STATUS_ID, status);
@@ -815,7 +811,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     Log.d(TAG, "DelayedStopHandler: stopping service");
                 }
 
-                mPlaylistManager.saveQueue(true, mCurrentTrack == null ? 0 : getPosition());
+                mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
                 stopSelf(mServiceStartId);
             }
         }
@@ -881,17 +877,13 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
         Track track = intent.getParcelableExtra("track");
         if (track != null) {
-            if (intent.hasExtra("track_ids")) {
-                long[] ids = intent.getLongArrayExtra("track_ids");
-                mPlaylistManager.setTracks(ids, track);
-            }  else if (intent.getData() != null) {
-                mPlaylistManager.setTracks(intent.getData(), track);
-            } else {
-                mPlaylistManager.setTrack(track);
-            }
+            mPlaylistManager.setTrack(track);
+            openCurrent();
+        } else if (intent.getData() != null) {
+            mPlaylistManager.setUri(intent.getData(), intent.getIntExtra(PlaylistManager.EXTRA_PLAY_POS, 0));
             openCurrent();
         } else {
-            Log.w(TAG, "playAction called without track");
+            Log.w(TAG, "invalid play action");
         }
     }
 
