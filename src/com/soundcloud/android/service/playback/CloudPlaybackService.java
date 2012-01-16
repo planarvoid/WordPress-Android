@@ -71,6 +71,10 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public static final String NEXT_ACTION        = "com.soundcloud.android.musicservicecommand.next";
     public static final String PLAY               = "com.soundcloud.android.musicservicecommand.play";
     public static final String RESET_ALL          = "com.soundcloud.android.musicservicecommand.resetall";
+    public static final String STOP_ACTION        = "com.soundcloud.android.musicservicecommand.stop";
+
+    public static final String EXTRA_FROM_NOTIFICATION  = "com.soundcloud.android.musicserviceextra.fromNotification";
+
 
     public static final String ADD_FAVORITE       = "com.soundcloud.android.favorite.add";
     public static final String REMOVE_FAVORITE    = "com.soundcloud.android.favorite.remove";
@@ -159,6 +163,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         commandFilter.addAction(ADD_FAVORITE);
         commandFilter.addAction(REMOVE_FAVORITE);
         commandFilter.addAction(RESET_ALL);
+        commandFilter.addAction(STOP_ACTION);
         registerReceiver(mIntentReceiver, commandFilter);
         registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
@@ -552,7 +557,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11);
             }
             ((PlaybackRemoteViews) mNotificationView).setCurrentTrack(track);
-            ((PlaybackRemoteViews) mNotificationView).linkButtons(this,track);
+            ((PlaybackRemoteViews) mNotificationView).linkButtons(this,track, EXTRA_FROM_NOTIFICATION);
             ((PlaybackRemoteViews) mNotificationView).setPlaybackStatus(state.isSupposedToBePlaying());
 
             final String artworkUri = track.getListArtworkUrl(getApplicationContext());
@@ -819,6 +824,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private final BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             String action = intent.getAction();
             String cmd = intent.getStringExtra("command");
 
@@ -840,8 +846,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 }
             } else if (CMDPAUSE.equals(cmd) || PAUSE_ACTION.equals(action)) {
                 pause();
-            } else if (CMDSTOP.equals(cmd)) {
-                stop();
             } else if (PlayerAppWidgetProvider.CMDAPPWIDGETUPDATE.equals(cmd)) {
                 // Someone asked us to refresh a set of specific widgets,
                 // probably because they were just added.
@@ -860,6 +864,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             } else if (RESET_ALL.equals(action)) {
                 stop();
                 mPlaylistManager.clear();
+            } else if (CMDSTOP.equals(cmd) || STOP_ACTION.equals(action)) {
+                if (state.isSupposedToBePlaying()) pause();
+                stop();
+                if (intent.getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
+                    stopForeground(true);
+                }
             }
         }
     };

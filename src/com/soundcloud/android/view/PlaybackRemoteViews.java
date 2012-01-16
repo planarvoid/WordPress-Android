@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
 import com.soundcloud.android.Actions;
@@ -25,25 +26,39 @@ public class PlaybackRemoteViews extends RemoteViews{
     }
 
     public void linkButtons(Context context, Track track) {
+        linkButtons(context,track,null);
+    }
+
+    public void linkButtons(Context context, Track track, String extraFlag) {
         // Connect up various buttons and touch events
         final ComponentName name = new ComponentName(context, CloudPlaybackService.class);
         final Intent previous = new Intent(CloudPlaybackService.PREVIOUS_ACTION).setComponent(name);
+        if (!TextUtils.isEmpty(extraFlag)) previous.putExtra(extraFlag,true);
         setOnClickPendingIntent(R.id.prev, PendingIntent.getService(context,
                 0 /* requestCode */, previous, 0 /* flags */));
 
         final Intent toggle = new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION).setComponent(name);
+        if (!TextUtils.isEmpty(extraFlag)) toggle.putExtra(extraFlag,true);
         setOnClickPendingIntent(R.id.pause, PendingIntent.getService(context,
                 0 /* requestCode */, toggle, 0 /* flags */));
 
         final Intent next = new Intent(CloudPlaybackService.NEXT_ACTION).setComponent(name);
+        if (!TextUtils.isEmpty(extraFlag)) next.putExtra(extraFlag,true);
         setOnClickPendingIntent(R.id.next, PendingIntent.getService(context,
                 0 /* requestCode */, next, 0 /* flags */));
 
         final Intent player = new Intent(Actions.PLAYER).addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
+        if (!TextUtils.isEmpty(extraFlag)) player.putExtra(extraFlag,true);
         setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context, 0, player, 0));
+
+        final Intent close = new Intent(CloudPlaybackService.STOP_ACTION).setComponent(name);
+        if (!TextUtils.isEmpty(extraFlag)) close.putExtra(extraFlag,true);
+        setOnClickPendingIntent(R.id.close, PendingIntent.getService(context,
+                0 /* requestCode */, close, 0 /* flags */));
 
         if (track != null) {
             final Intent browser = new Intent(context, UserBrowser.class).putExtra("userId", track.user.id);
+            if (!TextUtils.isEmpty(extraFlag)) browser.putExtra(extraFlag,true);
             setOnClickPendingIntent(R.id.user_txt,
                     PendingIntent.getActivity(context, 0, browser, PendingIntent.FLAG_UPDATE_CURRENT));
 
@@ -53,6 +68,7 @@ public class PlaybackRemoteViews extends RemoteViews{
                             CloudPlaybackService.ADD_FAVORITE)
                     .setComponent(name)
                     .putExtra("trackId", track.id);
+            if (!TextUtils.isEmpty(extraFlag)) toggleLike.putExtra(extraFlag,true);
             setOnClickPendingIntent(R.id.btn_favorite, PendingIntent.getService(context,
                     0 /* requestCode */, toggleLike, PendingIntent.FLAG_UPDATE_CURRENT));
         }
