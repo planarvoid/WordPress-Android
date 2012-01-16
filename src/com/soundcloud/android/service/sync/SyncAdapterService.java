@@ -1,7 +1,5 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.*;
-import android.os.*;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -13,15 +11,26 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 
 import android.accounts.Account;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.AbstractThreadedSyncAdapter;
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SyncResult;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -39,16 +48,16 @@ public class SyncAdapterService extends Service {
     private static final long DEFAULT_NOTIFICATIONS_FREQUENCY = 14400; //60*60*4
     public static final long DEFAULT_POLL_FREQUENCY = 3600; //60*60*4
 
-    private static final long DEFAULT_DELAY = 3600000; //60*60*1000 1 hr in ms
+    private static final long DEFAULT_DELAY    = 3600000; //60*60*1000 1 hr in ms
     private static final long TRACK_SYNC_DELAY = DEFAULT_DELAY;
-    private static final long USER_SYNC_DELAY = DEFAULT_DELAY * 4; // every 2 hours, users aren't as crucial
-    private static final long CLEANUP_DELAY = DEFAULT_DELAY * 24; // every 24 hours
+    private static final long USER_SYNC_DELAY  = DEFAULT_DELAY * 4; // every 2 hours, users aren't as crucial
+    private static final long CLEANUP_DELAY    = DEFAULT_DELAY * 24; // every 24 hours
 
     public enum SyncContent {
-        MySounds(Content.ME_TRACKS, TRACK_SYNC_DELAY, "syncMySounds"),
-        MyFavorites(Content.ME_FAVORITES, TRACK_SYNC_DELAY, "syncMyFavorites"),
+        MySounds(Content.ME_TRACKS, TRACK_SYNC_DELAY,        "syncMySounds"),
+        MyFavorites(Content.ME_FAVORITES, TRACK_SYNC_DELAY,  "syncMyFavorites"),
         MyFollowings(Content.ME_FOLLOWINGS, USER_SYNC_DELAY, "syncMyFollowings"),
-        MyFollowers(Content.ME_FOLLOWERS, USER_SYNC_DELAY, "syncMyFollowers");
+        MyFollowers(Content.ME_FOLLOWERS, USER_SYNC_DELAY,   "syncMyFollowers");
 
         SyncContent(Content content, long syncDelay, String syncEnabledKey) {
             this.content = content;
@@ -60,13 +69,13 @@ public class SyncAdapterService extends Service {
         public final long syncDelay;
         public final String prefSyncEnabledKey;
 
-        public static void configureSyncExtrasArray(Context c, List<String> urisToSync, boolean force){
+        public static void configureSyncExtrasArray(Context c, List<Uri> urisToSync, boolean force){
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
             for (SyncContent sc : SyncContent.values()){
                 if (sp.getBoolean(sc.prefSyncEnabledKey, true)) {
-                    final long lastUpdated = LocalCollection.getLastSync(c.getContentResolver(), sc.content.uri);
+                    final long lastUpdated = LocalCollection.getLastSync(sc.content.uri, c.getContentResolver());
                     if (System.currentTimeMillis() - lastUpdated > sc.syncDelay || force){
-                        urisToSync.add(sc.content.uri.toString());
+                        urisToSync.add(sc.content.uri);
                     }
                 }
             }
@@ -118,7 +127,7 @@ public class SyncAdapterService extends Service {
         if (app.useAccount(account).valid()) {
             final boolean force = extras.getBoolean(ContentResolver.SYNC_EXTRAS_FORCE, false);
             final Intent intent = new Intent(app,ApiSyncService.class);
-            ArrayList<String> urisToSync = new ArrayList<String>();
+            final ArrayList<Uri> urisToSync = new ArrayList<Uri>();
 
             if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
                 final long now = System.currentTimeMillis();
@@ -129,9 +138,9 @@ public class SyncAdapterService extends Service {
             }
 
             if (shouldUpdateDashboard(app)) {
-                if (isIncomingEnabled(app)) urisToSync.add(Content.ME_SOUND_STREAM.uri.toString());
-                if (isExclusiveEnabled(app)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri.toString());
-                if (isActivitySyncEnabled(app)) urisToSync.add(Content.ME_ACTIVITIES.uri.toString());
+                if (isIncomingEnabled(app)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
+                if (isExclusiveEnabled(app)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri);
+                if (isActivitySyncEnabled(app)) urisToSync.add(Content.ME_ACTIVITIES.uri);
             }
 
             if (shouldSyncCollections(app)) {
@@ -140,10 +149,10 @@ public class SyncAdapterService extends Service {
 
             final long lastCleanup = PreferenceManager.getDefaultSharedPreferences(app).getLong("lastSyncCleanup", System.currentTimeMillis());
             if (System.currentTimeMillis() - lastCleanup > CLEANUP_DELAY || force) {
-                urisToSync.add(Content.TRACK_CLEANUP.uri.toString());
-                urisToSync.add(Content.USERS_CLEANUP.uri.toString());
+                urisToSync.add(Content.TRACK_CLEANUP.uri);
+                urisToSync.add(Content.USERS_CLEANUP.uri);
             }
-            intent.putStringArrayListExtra("syncUris", urisToSync);
+            intent.putParcelableArrayListExtra("syncUris", urisToSync);
             Looper.prepare();
             intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler()) {
                 @Override
@@ -240,9 +249,6 @@ public class SyncAdapterService extends Service {
             }
         }
     }
-    static Activities getOwnEvents(SoundCloudApplication app, Account account) throws IOException {
-        return Activities.get(app, account, Request.to(Endpoints.MY_NEWS));
-    }
 
     /* package */ private static void checkOwn(SoundCloudApplication app, Activities events) {
         if (!events.isEmpty()) {
@@ -261,13 +267,13 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    /* package */ static Activities getNewIncomingEvents(SoundCloudApplication app, Account account, boolean exclusive)
+    /* package */ static Activities getNewIncomingEvents(SoundCloudApplication app, boolean exclusive)
             throws IOException {
         if ((!exclusive && !isIncomingEnabled(app)) || (exclusive && !isExclusiveEnabled(app))) {
             return Activities.EMPTY;
         } else {
-            return Activities.get(app, account,
-                    Request.to(exclusive ? Endpoints.MY_EXCLUSIVE_TRACKS : Endpoints.MY_ACTIVITIES));
+            return Activities.get(exclusive ? Content.ME_EXCLUSIVE_STREAM : Content.ME_SOUND_STREAM, app.getContentResolver()
+            );
         }
     }
 

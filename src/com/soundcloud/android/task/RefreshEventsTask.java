@@ -29,7 +29,7 @@ public class RefreshEventsTask extends RemoteCollectionTask {
     @Override
     protected Boolean doInBackground(CollectionParams... params) {
         try {
-            if (cacheFile.exists()) {
+            if (cacheFile != null && cacheFile.exists()) {
                 Activities a = Activities.fromJSON(cacheFile);
                 mNewItems.addAll(a.collection);
                 mNextHref = a.next_href;

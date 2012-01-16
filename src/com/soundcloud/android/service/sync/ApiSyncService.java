@@ -59,6 +59,7 @@ public class ApiSyncService extends Service {
 
     /* package */ void enqueueRequest(ApiSyncRequest request) {
         mRequests.add(request);
+
         for (Uri uri : request.urisToSync){
             // ghetto linked list search
             boolean found = false;
@@ -96,14 +97,10 @@ public class ApiSyncService extends Service {
     }
 
     private static List<Uri> getUrisToSync(Intent intent) {
-        ArrayList<Uri> contents = new ArrayList<Uri>();
-        final ArrayList<String> syncUriStrings = intent.getStringArrayListExtra("syncUris");
-        if (syncUriStrings != null) {
-            for (String s : intent.getStringArrayListExtra("syncUris")) {
-                contents.add(Uri.parse(s));
-            }
+        ArrayList<Uri> contents = intent.getParcelableArrayListExtra("syncUris");
+        if (contents == null) {
+            contents = new ArrayList<Uri>();
         }
-
         if (intent.getData() != null) {
             contents.add(intent.getData());
         }
@@ -120,7 +117,7 @@ public class ApiSyncService extends Service {
         private final Bundle resultData = new Bundle();
         private final SyncResult requestResult = new SyncResult();
 
-        public ApiSyncRequest(SoundCloudApplication application, Intent intent){
+        public ApiSyncRequest(SoundCloudApplication application, Intent intent) {
             app = application;
             resultReceiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
             urisToSync = getUrisToSync(intent);

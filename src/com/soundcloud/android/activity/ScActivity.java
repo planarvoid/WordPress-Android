@@ -624,7 +624,7 @@ public abstract class ScActivity extends android.app.Activity {
         @Override
         public void onEventClick(EventsAdapterWrapper wrapper, int position) {
             final Activity e = (Activity) wrapper.getItem(position);
-            if (Activity.Types.FAVORITING.contentEquals(e.type)) {
+            if (Activity.Type.FAVORITING == e.type) {
                 Intent i = new Intent(ScActivity.this, TrackFavoriters.class);
                 i.putExtra("track_id", e.getTrack().id);
                 startActivity(i);

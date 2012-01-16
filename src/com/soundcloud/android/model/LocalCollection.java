@@ -35,7 +35,7 @@ public class LocalCollection {
         this.size = size;
     }
 
-    public static LocalCollection fromContentUri(ContentResolver resolver, Uri contentUri) {
+    public static LocalCollection fromContentUri(Uri contentUri, ContentResolver resolver) {
         LocalCollection lc = null;
         Cursor c = resolver.query(Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
         if (c != null && c.moveToFirst()) {
@@ -45,22 +45,18 @@ public class LocalCollection {
         return lc;
     }
 
-    public static LocalCollection insertLocalCollection(ContentResolver resolver, Uri contentUri) {
-        return insertLocalCollection(resolver, contentUri, null, -1, -1);
+    public static LocalCollection insertLocalCollection(Uri contentUri, ContentResolver resolver) {
+        return insertLocalCollection(contentUri, null, -1, -1, resolver);
     }
 
-    public static LocalCollection insertLocalCollection(ContentResolver resolver,
-                                                        Uri contentUri,
-                                                        String syncState,
-                                                        long lastRefresh,
-                                                        int size) {
+    public static LocalCollection insertLocalCollection(Uri contentUri, String syncState, long lastRefresh, int size, ContentResolver resolver) {
         // insert if not there
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.URI, contentUri.toString());
         if (lastRefresh != -1) cv.put(DBHelper.Collections.LAST_SYNC, lastRefresh);
         if (size != -1)        cv.put(DBHelper.Collections.SIZE, size);
         cv.put(DBHelper.Collections.SYNC_STATE, syncState);
-        
+
         Uri inserted = resolver.insert(Content.COLLECTIONS.uri, cv);
         if (inserted != null) {
             return new LocalCollection(Integer.parseInt(inserted.getLastPathSegment()),
@@ -70,7 +66,7 @@ public class LocalCollection {
         }
     }
 
-    public static long getLastSync(ContentResolver resolver, Uri contentUri) {
+    public static long getLastSync(Uri contentUri, ContentResolver resolver) {
         long lastSync = -1;
         if (contentUri != null) {
             Cursor c = resolver.query(Content.COLLECTIONS.uri,
@@ -93,7 +89,7 @@ public class LocalCollection {
                 '}';
     }
 
-    public boolean updateLastSyncTime(ContentResolver resolver, long time) {
+    public boolean updateLastSyncTime(long time, ContentResolver resolver) {
         ContentValues cv = buildContentValues();
         cv.put(DBHelper.Collections.LAST_SYNC, time);
         Uri inserted = resolver.insert(Content.COLLECTIONS.uri, cv);

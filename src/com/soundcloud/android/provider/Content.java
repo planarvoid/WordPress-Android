@@ -38,9 +38,10 @@ public enum Content {
     ME_FRIENDS("/me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND),
     SUGGESTED_USERS("/users/suggested", null, 161, User.class, SUGGESTED_USER),
 
-    ME_SOUND_STREAM("/me/activities/tracks", Endpoints.MY_ACTIVITIES, 150, Activity.class, -1),
-    ME_EXCLUSIVE_STREAM("/me/activities/tracks/exclusive", Endpoints.MY_EXCLUSIVE_TRACKS, 151, Activity.class, -1),
-    ME_ACTIVITIES("/me/activities/all/own", Endpoints.MY_NEWS, 152, Activity.class, -1),
+    ME_ALL_ACTIVITIES("/me/activities", null, 150, Activity.class, -1),
+    ME_SOUND_STREAM("/me/activities/tracks", Endpoints.MY_ACTIVITIES, 151, Activity.class, -1),
+    ME_EXCLUSIVE_STREAM("/me/activities/tracks/exclusive", Endpoints.MY_EXCLUSIVE_TRACKS, 152, Activity.class, -1),
+    ME_ACTIVITIES("/me/activities/all/own", Endpoints.MY_NEWS, 153, Activity.class, -1),
 
     TRACKS("/tracks", Endpoints.TRACKS, 201, Track.class, TRACK),
     TRACK_ITEM("/tracks/#", null, 202, Track.class, -1),
@@ -59,7 +60,8 @@ public enum Content {
     USER_GROUPS("/users/#/groups", null, 308, null, -1),
     USER_PLAYLISTS("/users/#/playlists", null, 309, null, -1),
 
-    COMMENT_ITEM("/comments/#", null, 400, Comment.class, -1),
+    COMMENTS("/comments", null, 400, Comment.class, -1),
+    COMMENT_ITEM("/comments/#", null, 401, Comment.class, -1),
 
     PLAYLISTS("/playlists", null, 501, null, -1),
     PLAYLIST_ITEM("/playlists/#", null, 502, null, -1),
@@ -99,7 +101,7 @@ public enum Content {
     Content(String uri, String remoteUri, int code, Class<? extends Parcelable> resourceType, int collectionType) {
         this.uriPath =  uri;
         this.uri = Uri.parse("content://" + ScContentProvider.AUTHORITY + uriPath);
-        this.code = code;
+        this.code = code;    // TODO: ordinal() ?
         this.resourceType = resourceType;
         this.collectionType = collectionType;
         this.remoteUri = remoteUri;
@@ -139,8 +141,8 @@ public enum Content {
     public Uri.Builder buildUpon() {
         return uri.buildUpon();
     }
-    
-    
+
+
     public Request request() {
         if (remoteUri != null) {
             return Request.to(remoteUri);

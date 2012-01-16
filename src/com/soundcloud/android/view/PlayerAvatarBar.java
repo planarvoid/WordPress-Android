@@ -91,6 +91,17 @@ public class PlayerAvatarBar extends View {
         }
     }
 
+    public static Consts.GraphicSize getAvatarBarGraphicSize(Context c) {
+        if (CloudUtils.isScreenXL(c)) {
+            return Consts.GraphicSize.LARGE;
+        } else {
+            return c.getResources().getDisplayMetrics().density > 1 ?
+                    Consts.GraphicSize.BADGE :
+                    Consts.GraphicSize.SMALL;
+        }
+
+    }
+
     public int getAvatarWidth(){
         return mAvatarWidth;
     }
@@ -148,7 +159,7 @@ public class PlayerAvatarBar extends View {
             return;
 
 
-        ImageUtils.getBitmapSubstitute(mContext, c.user.avatar_url, c.getAvatarBarGraphicSize(mContext), new BitmapCallback() {
+        ImageUtils.getBitmapSubstitute(mContext, c.user.avatar_url, getAvatarBarGraphicSize(mContext), new BitmapCallback() {
             @Override
             public void onImageLoaded(Bitmap mBitmap, String uri) {
                 c.avatar = mBitmap;

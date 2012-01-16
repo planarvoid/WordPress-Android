@@ -59,13 +59,8 @@ public class User extends ScModel implements PageTrackable, Resource {
         readFromParcel(in);
     }
 
-    public User(SoundCloudApplication scApp){
-        id = scApp.getAccountDataLong(DataKeys.USER_ID);
-        username = scApp.getAccountData(DataKeys.USERNAME);
-        primary_email_confirmed = scApp.getAccountDataBoolean(DataKeys.EMAIL_CONFIRMED);
-    }
-
     public User(Cursor cursor) {
+        // TODO don't use reflection
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
             if (key.contentEquals(Users.ID)) {

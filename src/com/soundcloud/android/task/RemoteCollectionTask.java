@@ -219,7 +219,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
                 }
 
             }
-            if (mParams.pageIndex == 0) localData.localCollection.updateLastSyncTime(resolver, System.currentTimeMillis());
+            if (mParams.pageIndex == 0) localData.localCollection.updateLastSyncTime(System.currentTimeMillis(), resolver);
             return true;
 
         } catch (IOException e) {
@@ -257,9 +257,9 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
 
         public LocalData(ContentResolver contentResolver, CollectionParams mParams) {
             localCollectionPage = null;
-            localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(contentResolver, mParams.contentUri);
+            localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(mParams.contentUri, contentResolver);
             if (localCollection == null) {
-                localCollection = insertLocalCollection(contentResolver, mParams.contentUri);
+                localCollection = insertLocalCollection(mParams.contentUri, contentResolver);
                  idList = new ArrayList<Long>();
             } else {
                 idList = Content.match(mParams.contentUri).getStoredIds(contentResolver,mParams.pageIndex);

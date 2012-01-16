@@ -6,6 +6,6 @@ public class FileMap extends SQLiteMap {
 
     @Override
     public String getConnectionString() {
-        return "jdbc:sqlite:file.db";
+        return "jdbc:sqlite:file.sqlite";
     }
 }

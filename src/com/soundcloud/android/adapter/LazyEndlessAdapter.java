@@ -94,7 +94,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     public void setListLastUpdated() {
         if (mListView != null) {
-            final long lastUpdated = LocalCollection.getLastSync(mActivity.getContentResolver(), getContentUri(true));
+            final long lastUpdated = LocalCollection.getLastSync(getContentUri(true), mActivity.getContentResolver());
             if (lastUpdated > 0) mListView.setLastUpdated(lastUpdated);
         }
     }
@@ -520,12 +520,12 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     protected boolean isStale(boolean refresh){
-        long lastsync = LocalCollection.getLastSync(mActivity.getContentResolver(), getContentUri(refresh));
+        long lastsync = LocalCollection.getLastSync(getContentUri(refresh), mActivity.getContentResolver());
         return (getPageIndex(refresh) == 0 && System.currentTimeMillis() - lastsync > Consts.DEFAULT_REFRESH_MINIMUM);
     }
 
     protected boolean isSyncable(){
-        return mContent == null ? false : mContent.isSyncable();
+        return mContent != null && mContent.isSyncable();
     }
 
     protected DetachableResultReceiver getReceiver(){
@@ -535,7 +535,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     public void restoreResultReceiver(DetachableResultReceiver receiver){
-        mDetachableReceiver = (DetachableResultReceiver) receiver;
+        mDetachableReceiver = receiver;
         mDetachableReceiver.setReceiver(this);
 
     }

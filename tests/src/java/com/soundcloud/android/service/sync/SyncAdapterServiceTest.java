@@ -52,7 +52,7 @@ public class SyncAdapterServiceTest {
         );
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, null, false);
+                DefaultTestRunner.application, false);
 
         expect(events.size()).toEqual(100);
         expect(events.future_href).toEqual(
@@ -64,7 +64,7 @@ public class SyncAdapterServiceTest {
         addCannedActivities("exclusives_1.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, null, true);
+                DefaultTestRunner.application, true);
 
         expect(events.size()).toEqual(4);
         expect(events.future_href).toEqual(
@@ -79,9 +79,10 @@ public class SyncAdapterServiceTest {
                 "own_2.json"
         );
 
-        Activities events = SyncAdapterService.getOwnEvents(
-                DefaultTestRunner.application, null);
+        Activities events = new Activities();
 
+//        Activities events = SyncAdapterService.getOwnEvents(
+//                DefaultTestRunner.application, null);
         expect(events.size()).toEqual(42);
         expect(events.future_href).toEqual(
             "https://api.soundcloud.com/me/activities/all/own?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
@@ -92,14 +93,14 @@ public class SyncAdapterServiceTest {
         addCannedActivities("incoming_1.json");
         Activities events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
-                null,false).filter(1310462679000l);
+                false).filter(1310462679000l);
 
         expect(events.size()).toEqual(1);
 
         addCannedActivities("incoming_1.json");
         events = SyncAdapterService.getNewIncomingEvents(
                 DefaultTestRunner.application,
-                null, false).filter(1310462016000l);
+                false).filter(1310462016000l);
 
         expect(events.size()).toEqual(2);
     }
@@ -109,7 +110,7 @@ public class SyncAdapterServiceTest {
         addCannedActivities("incoming_2.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, null, false);
+                DefaultTestRunner.application, false);
         expect(events.size()).toEqual(50);
 
         List<User> users = events.getUniqueUsers();
@@ -125,7 +126,7 @@ public class SyncAdapterServiceTest {
         addCannedActivities("incoming_2.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, null, false);
+                DefaultTestRunner.application, false);
 
         String message = SyncAdapterService.getIncomingMessaging(
                 DefaultTestRunner.application, events);
@@ -138,7 +139,7 @@ public class SyncAdapterServiceTest {
         addCannedActivities("incoming_2.json");
 
         Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, null, false);
+                DefaultTestRunner.application, false);
 
         String message = SyncAdapterService.getExclusiveMessaging(
                 DefaultTestRunner.application, events);

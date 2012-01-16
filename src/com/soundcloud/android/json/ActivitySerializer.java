@@ -50,13 +50,13 @@ public class ActivitySerializer extends JsonSerializer<Activity> {
         jgen.writeStartObject();
 
         jgen.writeFieldName("type");
-        jgen.writeString(activity.type);
+        jgen.writeString(activity.type.type);
 
         jgen.writeFieldName("created_at");
         provider.defaultSerializeDateValue(activity.created_at, jgen);
 
         jgen.writeFieldName("origin");
-        provider.serializeValue(provider.getConfig().withView(activity.getView(provider.getSerializationView())),
+        provider.serializeValue(provider.getConfig().withView(activity.type.getView(provider.getSerializationView())),
                 jgen, activity.origin, FACTORY);
 
         jgen.writeFieldName("tags");

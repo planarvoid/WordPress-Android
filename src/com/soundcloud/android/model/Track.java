@@ -244,10 +244,14 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         favoritings_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.FAVORITINGS_COUNT));
         shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.SHARED_TO_COUNT));
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
-        user_favorite = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE)) == 1;
         filelength = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.FILELENGTH));
         commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENTABLE)) == 1;
         user = User.fromTrackView(cursor);
+        // gets joined in
+        final int favIndex = cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE);
+        if (favIndex != -1) {
+            user_favorite = cursor.getInt(favIndex) == 1;
+        }
     }
 
 
@@ -328,8 +332,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public ContentValues buildContentValues(){
-        ContentValues cv = new ContentValues();
-        cv.put(Tracks.ID, id);
+        ContentValues cv = super.buildContentValues();
         cv.put(Tracks.LAST_UPDATED, System.currentTimeMillis());
         cv.put(Tracks.PERMALINK, permalink);
         // account for partial objects, don't overwrite local full objects

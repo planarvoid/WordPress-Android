@@ -770,8 +770,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         switch (mode) {
             case TOUCH_MODE_COMMENT_DRAG:
                 if (isOnTouchBar(input.y)) {
-                    mAddComment = CloudUtils.buildComment(mPlayer, mPlayer.getCurrentUserId(),
-                            mPlayingTrack.id, stampFromPosition(input.x), "", 0);
+                    mAddComment = Comment.build(mPlayer, mPlayer.getCurrentUserId(),
+                            mPlayingTrack.id, stampFromPosition(input.x), "", 0, "");
                     queueUnique(UI_ADD_COMMENT);
                 } else return;
 

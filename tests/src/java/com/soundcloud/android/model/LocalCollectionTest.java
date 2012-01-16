@@ -23,7 +23,7 @@ public class LocalCollectionTest {
     @Test
     public void shouldInsertCollection() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = LocalCollection.insertLocalCollection(resolver, uri);
+        LocalCollection c = LocalCollection.insertLocalCollection(uri, resolver);
         expect(c.uri).toEqual(uri);
         expect(c.last_sync).toBe(-1L);
         expect(c.size).toBe(-1);
@@ -32,13 +32,13 @@ public class LocalCollectionTest {
     @Test
     public void shouldInsertCollectionWithParams() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = LocalCollection.insertLocalCollection(resolver, uri, "some-state", 1, 2);
+        LocalCollection c = LocalCollection.insertLocalCollection(uri, "some-state", 1, 2, resolver);
         expect(c.uri).toEqual(uri);
         expect(c.last_sync).toBe(1L);
         expect(c.size).toBe(2);
         expect(c.sync_state).toEqual("some-state");
-        
-        expect(c).toEqual(LocalCollection.fromContentUri(resolver, uri));
+
+        expect(c).toEqual(LocalCollection.fromContentUri(uri, resolver));
     }
 
     @Test
@@ -53,8 +53,8 @@ public class LocalCollectionTest {
     @Test
     public void shouldPersistLocalCollection() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = LocalCollection.insertLocalCollection(resolver, uri, "some-state", 100, 0);
-        LocalCollection c2 = LocalCollection.fromContentUri(resolver, uri);
+        LocalCollection c = LocalCollection.insertLocalCollection(uri, "some-state", 100, 0, resolver);
+        LocalCollection c2 = LocalCollection.fromContentUri(uri, resolver);
 
         expect(c.id).toEqual(c2.id);
         expect(c.uri).toEqual(c2.uri);
@@ -64,22 +64,22 @@ public class LocalCollectionTest {
 
     @Test
     public void shouldReturnNullIfCollectionNotFound() throws Exception {
-        expect(LocalCollection.fromContentUri(resolver, Uri.parse("blaz"))).toBeNull();
+        expect(LocalCollection.fromContentUri(Uri.parse("blaz"), resolver)).toBeNull();
     }
 
     @Test
     public void shouldgetLastSync() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = LocalCollection.insertLocalCollection(resolver, uri, null, 100, 0);
+        LocalCollection c = LocalCollection.insertLocalCollection(uri, null, 100, 0, resolver);
         expect(c).not.toBeNull();
-        expect(LocalCollection.getLastSync(resolver, uri)).toEqual(100L);
+        expect(LocalCollection.getLastSync(uri, resolver)).toEqual(100L);
     }
 
     @Test
     public void shouldUpdateLastSyncTime() throws Exception {
         final Uri uri = Uri.parse("foo");
-        LocalCollection c = LocalCollection.insertLocalCollection(resolver, uri);
-        c.updateLastSyncTime(resolver, 200);
-        expect(LocalCollection.fromContentUri(resolver, uri).last_sync).toEqual(200L);
+        LocalCollection c = LocalCollection.insertLocalCollection(uri, resolver);
+        c.updateLastSyncTime(200, resolver);
+        expect(LocalCollection.fromContentUri(uri, resolver).last_sync).toEqual(200L);
     }
 }
