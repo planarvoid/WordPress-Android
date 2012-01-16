@@ -69,7 +69,10 @@ public class ApiSyncer {
                 case TRACK_CLEANUP:
                 case USERS_CLEANUP:
                     changed = mResolver.update(c.uri, null, null, null) > 0;
-                    PreferenceManager.getDefaultSharedPreferences(mContext).edit().putLong("lastSyncCleanup", System.currentTimeMillis());
+                    PreferenceManager.getDefaultSharedPreferences(mContext)
+                            .edit()
+                            .putLong(SyncAdapterService.PREF_LAST_SYNC_CLEANUP, System.currentTimeMillis())
+                            .commit();
                     break;
                 default:
                     Log.w(ApiSyncService.LOG_TAG, "no remote URI defined for " + c);

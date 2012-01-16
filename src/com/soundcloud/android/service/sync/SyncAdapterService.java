@@ -39,17 +39,20 @@ import java.util.List;
 
 public class SyncAdapterService extends Service {
     private static final String TAG = SoundCloudApplication.class.getSimpleName();
+    public static final String PREF_NOTIFICATIONS_FREQUENCY = "notificationsFrequency";
+    public static final String PREF_LAST_SYNC_CLEANUP = "lastSyncCleanup";
+
     private ScSyncAdapter mSyncAdapter;
 
     public static final int NOTIFICATION_MAX = 100;
     private static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
 
-    private static final long DEFAULT_NOTIFICATIONS_FREQUENCY = 14400; //60*60*4
-    public static final long DEFAULT_POLL_FREQUENCY = 3600; //60*60*4
+    private static final long DEFAULT_NOTIFICATIONS_FREQUENCY = 60*60*1000*4L; // 4h
+    public static final long DEFAULT_POLL_FREQUENCY = 3600L;
 
-    private static final long DEFAULT_DELAY    = 3600000; //60*60*1000 1 hr in ms
+    private static final long DEFAULT_DELAY    = 60*60*1000;         // 1 hr in ms
     private static final long TRACK_SYNC_DELAY = DEFAULT_DELAY;
-    private static final long USER_SYNC_DELAY  = DEFAULT_DELAY * 4; // every 2 hours, users aren't as crucial
+    private static final long USER_SYNC_DELAY  = DEFAULT_DELAY * 4;  // users aren't as crucial
     private static final long CLEANUP_DELAY    = DEFAULT_DELAY * 24; // every 24 hours
 
     enum SyncContent {
@@ -133,6 +136,7 @@ public class SyncAdapterService extends Service {
         final Intent intent = new Intent(app, ApiSyncService.class);
         final ArrayList<Uri> urisToSync = new ArrayList<Uri>();
 
+        // for first sync set all last seen flags to "now"
         if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
             final long now = System.currentTimeMillis();
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
@@ -152,7 +156,7 @@ public class SyncAdapterService extends Service {
         }
 
         final long lastCleanup = PreferenceManager.getDefaultSharedPreferences(app).getLong(
-                "lastSyncCleanup",
+                PREF_LAST_SYNC_CLEANUP,
                 System.currentTimeMillis());
         if (System.currentTimeMillis() - lastCleanup > CLEANUP_DELAY || force) {
             urisToSync.add(Content.TRACK_CLEANUP.uri);
@@ -189,9 +193,10 @@ public class SyncAdapterService extends Service {
                 }
                 case ApiSyncService.STATUS_SYNC_FINISHED: {
                     if (shouldUpdateDashboard(app)) {
-                        final long notificationsFrequency = getNotificationsFrequency(app) * 1000;
-                        if (System.currentTimeMillis() - app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_AT)
-                                > notificationsFrequency) {
+                        final long frequency = getNotificationsFrequency(app);
+                        final long delta = System.currentTimeMillis() -
+                                app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_AT);
+                        if (delta > frequency) {
                             final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
 
                             final Activities incoming = !isIncomingEnabled(app) ? Activities.EMPTY :
@@ -201,13 +206,18 @@ public class SyncAdapterService extends Service {
                                     : Activities.get(Content.ME_EXCLUSIVE_STREAM, app.getContentResolver());
 
                             checkIncoming(app, incoming.filter(lastIncomingSeen), exclusive.filter(lastIncomingSeen));
+                        } else {
+                            Log.d(TAG, "skipping incoming notification, delta "+delta+" > frequency="+frequency);
                         }
 
-                        if (System.currentTimeMillis() - app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_AT)
-                                > notificationsFrequency) {
+                        final long delta2 = System.currentTimeMillis() -
+                                app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_AT);
+                        if (delta2 > frequency) {
                             final Activities news = !isActivitySyncEnabled(app) ? Activities.EMPTY :
                                     Activities.get(Content.ME_ACTIVITIES, app.getContentResolver());
                             checkOwn(app, news.filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN)));
+                        } else {
+                            Log.d(TAG, "skipping own notification, delta "+delta2+" > frequency="+frequency);
                         }
                     }
                     Looper.myLooper().quit();
@@ -371,8 +381,8 @@ public class SyncAdapterService extends Service {
 
 
     private static long getNotificationsFrequency(Context c) {
-        if (PreferenceManager.getDefaultSharedPreferences(c).contains("notificationsFrequency")) {
-            return Long.parseLong(PreferenceManager.getDefaultSharedPreferences(c).getString("notificationsFrequency",
+        if (PreferenceManager.getDefaultSharedPreferences(c).contains(PREF_NOTIFICATIONS_FREQUENCY)) {
+            return Long.parseLong(PreferenceManager.getDefaultSharedPreferences(c).getString(PREF_NOTIFICATIONS_FREQUENCY,
                     String.valueOf(DEFAULT_NOTIFICATIONS_FREQUENCY)));
         } else {
             return DEFAULT_NOTIFICATIONS_FREQUENCY;

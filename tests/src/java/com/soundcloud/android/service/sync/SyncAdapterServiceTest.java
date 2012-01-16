@@ -36,6 +36,7 @@ import android.content.TestIntentSender;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ public class SyncAdapterServiceTest {
 
     @Before
     public void before() {
+        // pretend we're connected via wifi
         ConnectivityManager cm = (ConnectivityManager)
                 Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
         Robolectric.shadowOf(cm).setBackgroundDataSetting(true);
@@ -58,6 +60,12 @@ public class SyncAdapterServiceTest {
         cv.put(DBHelper.Users._ID, 133201L);
         cv.put(DBHelper.Users.USERNAME, "Foo Bar");
         Robolectric.application.getContentResolver().insert(Content.USERS.uri, cv);
+
+        // always notify
+        PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
+                .edit()
+                .putString(SyncAdapterService.PREF_NOTIFICATIONS_FREQUENCY, 0+"")
+                .commit();
     }
 
     @After
@@ -102,9 +110,9 @@ public class SyncAdapterServiceTest {
 
         expect(result.notifications.size()).toEqual(2);
 
-        addCannedActivities("empty_events.json");
+        addCannedActivities("empty_events.json", "empty_events.json", "empty_events.json");
         result = doPerformSync(DefaultTestRunner.application, false, null);
-        expect(result.notifications.size()).toEqual(0);
+        expect(result.notifications).toBeEmpty();
     }
 
 
@@ -259,6 +267,7 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void shouldFlagSoftErrorWhenIOError() throws Exception {
+        addCannedActivities("empty_events.json");
         addPendingHttpResponse(500, "errors");
         addPendingHttpResponse(500, "errors");
 
@@ -269,7 +278,12 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void shouldNotNotifyOnFirstSync() throws Exception {
-        expect(doPerformSync(DefaultTestRunner.application, true, null).notifications.size()).toEqual(0);
+        addCannedActivities(
+                "empty_events.json",
+                "empty_events.json",
+                "activities_1.json"
+        );
+        expect(doPerformSync(DefaultTestRunner.application, true, null).notifications).toBeEmpty();
     }
 
     @Test
@@ -291,12 +305,7 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void shouldUseCachedActivitiesToUpdateNotificationsWhenUserHasSeen() throws Exception {
-        addCannedActivities(
-                "empty_events.json",
-                "empty_events.json",
-                "activities_1.json"
-        );
-
+        addCannedActivities("empty_events.json", "empty_events.json", "activities_1.json");
         SyncOutcome first = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(first.getTicker()).toEqual("39 new activities");
@@ -309,10 +318,7 @@ public class SyncAdapterServiceTest {
                 AndroidCloudAPI.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime()
         );
 
-       addCannedActivities(
-               "empty_events.json",
-               "empty_events.json",
-               "activities_2.json"
+       addCannedActivities("empty_events.json", "empty_events.json", "activities_2.json"
        );
         SyncOutcome second = doPerformSync(DefaultTestRunner.application, false, null);
 
@@ -365,6 +371,7 @@ public class SyncAdapterServiceTest {
 
 
         if (intent != null) {
+            // robolectric doesn't run the service code for us, need to do it manually
             @SuppressWarnings("unchecked")
             Class<? extends Service> klazz =
                     (Class<? extends Service>) Class.forName(intent.getComponent().getClassName());

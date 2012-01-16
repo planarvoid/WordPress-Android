@@ -92,7 +92,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    static final String DATABASE_CREATE_TRACKS = "create table Tracks (_id INTEGER primary key, " +
+    static final String DATABASE_CREATE_TRACKS = "CREATE TABLE Tracks (_id INTEGER primary key, " +
             "last_updated INTEGER," +
             "permalink VARCHAR(255)," +
             "duration INTEGER," +
@@ -119,12 +119,12 @@ public class DBHelper extends SQLiteOpenHelper {
             "filelength INTEGER"+
             ");";
 
-    static final String DATABASE_CREATE_TRACK_PLAYS = "create table TrackPlays (_id INTEGER primary key AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_TRACK_PLAYS = "CREATE TABLE TrackPlays (_id INTEGER primary key AUTOINCREMENT, " +
             "track_id INTEGER null, " +
             "user_id INTEGER null"+
             ");";
 
-    static final String DATABASE_CREATE_USERS = "create table Users (_id INTEGER primary key, " +
+    static final String DATABASE_CREATE_USERS = "CREATE TABLE Users (_id INTEGER primary key, " +
             "last_updated INTEGER," +
             "username VARCHAR(255)," +
             "avatar_url VARCHAR(255)," +
@@ -142,7 +142,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "description text"+
             ");";
 
-    static final String DATABASE_CREATE_RECORDINGS = "create table Recordings (_id INTEGER primary key AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_RECORDINGS = "CREATE TABLE Recordings (_id INTEGER primary key AUTOINCREMENT, " +
             "user_id INTEGER," +
             "timestamp INTEGER," +
             "longitude VARCHAR(255)," +
@@ -164,7 +164,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "upload_error BOOLEAN"+
             ");";
 
-    static final String DATABASE_CREATE_COMMENTS = "create table Comments (_id INTEGER primary key AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_COMMENTS = "CREATE TABLE Comments (_id INTEGER primary key AUTOINCREMENT, " +
             "user_id INTEGER," +
             "track_id INTEGER," +
             "timestamp INTEGER," +
@@ -172,30 +172,31 @@ public class DBHelper extends SQLiteOpenHelper {
             "body VARCHAR(255)" +
             ");";
 
-    static final String DATABASE_CREATE_ACTIVITIES = "create table Activities (_id INTEGER primary key AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_ACTIVITIES = "CREATE TABLE Activities (_id INTEGER primary key AUTOINCREMENT, " +
             "user_id INTEGER," +
             "track_id INTEGER," +
             "comment_id INTEGER," +
             "type VARCHAR(255)," +
             "tags VARCHAR(255)," +
-            "created_at INTEGER"+
-            ");";
+            "created_at INTEGER" +
+            ");" +
+            "CREATE INDEX activities_created_at_idx on Activities(created_at);";
 
-    static final String DATABASE_CREATE_SEARCHES = "create table Searches (_id INTEGER primary key AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_SEARCHES = "CREATE TABLE Searches (_id INTEGER primary key AUTOINCREMENT, " +
             "created_at INTEGER," +
             "user_id INTEGER," +
             "query VARCHAR(255)," +
             "search_type INTEGER"+
             ");";
 
-    static final String DATABASE_CREATE_PLAYLIST = "create table Playlists (_id INTEGER primary key AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_PLAYLIST = "CREATE TABLE Playlists (_id INTEGER primary key AUTOINCREMENT, " +
             "created_at INTEGER," +
             "position INTEGER," +
             "seek_pos INTEGER," +
             "user_id INTEGER"+
             ");";
 
-    static final String DATABASE_CREATE_PLAYLIST_ITEMS = "create table PlaylistItems (_id INTEGER primary key AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_PLAYLIST_ITEMS = "CREATE TABLE PlaylistItems (_id INTEGER primary key AUTOINCREMENT, " +
             "playlist_id INTEGER null, " +
             "track_id INTEGER null" +
             "position INTEGER null" +
@@ -205,7 +206,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper.Collections}
      */
-    static final String DATABASE_CREATE_COLLECTIONS = "create table Collections(_id INTEGER primary key AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_COLLECTIONS = "CREATE TABLE Collections(_id INTEGER primary key AUTOINCREMENT, " +
             "uri VARCHAR(255)," +
             "last_addition INTEGER, " +
             "last_sync INTEGER, " +
@@ -218,7 +219,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper.CollectionPages}
      */
-    static final String DATABASE_CREATE_COLLECTION_PAGES = "create table CollectionPages(" +
+    static final String DATABASE_CREATE_COLLECTION_PAGES = "CREATE TABLE CollectionPages(" +
             "collection_id INTEGER, " +
             "page_index INTEGER," +
             "etag VARCHAR(255), " +
@@ -228,7 +229,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper.CollectionItems}
      */
-    static final String DATABASE_CREATE_COLLECTION_ITEMS = "create table CollectionItems(" +
+    static final String DATABASE_CREATE_COLLECTION_ITEMS = "CREATE TABLE CollectionItems(" +
             "user_id INTEGER, " +
             "item_id INTEGER," +
             "collection_type INTEGER, " +
@@ -297,7 +298,8 @@ public class DBHelper extends SQLiteOpenHelper {
             " JOIN TrackView ON(" +
             "   Activities." + Activities.TRACK_ID + " = " + "TrackView." + TrackView._ID + ")" +
             " LEFT JOIN Comments ON(" +
-            "   Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")"
+            "   Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")" +
+            " ORDER BY created_at DESC"
             ;
 
     public static class ResourceTable implements BaseColumns {
@@ -587,7 +589,7 @@ public class DBHelper extends SQLiteOpenHelper {
                                             String[] toAppendCols) {
 
         db.execSQL("DROP TABLE IF EXISTS bck_" + tbl.name);
-        db.execSQL(tbl.createString.replace("create table " + tbl.name, "create table bck_" + tbl.name));
+        db.execSQL(tbl.createString.replace("CREATE TABLE " + tbl.name, "CREATE TABLE bck_" + tbl.name));
         List<String> columns = getColumnNames(db, "bck_" + tbl.name);
         columns.retainAll(getColumnNames(db, tbl.name));
         String cols = TextUtils.join(",", columns);

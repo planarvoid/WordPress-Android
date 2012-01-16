@@ -356,7 +356,7 @@ public class ScContentProvider extends ContentProvider {
 
                     final long start = System.currentTimeMillis();
                     count = db.delete(Table.TRACKS.name,where,null);
-                    Log.i(TAG,"Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
+                    Log.d(TAG,"Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
                     getContext().getContentResolver().notifyChange(Content.TRACKS.uri, null, false);
                     return count;
                 }
@@ -374,8 +374,8 @@ public class ScContentProvider extends ContentProvider {
                                     + ")"
                                 + ") AND _id <> " + userId;
                     final long start = System.currentTimeMillis();
-                    count = db.delete(Table.USERS.name,where,null);
-                    Log.i(TAG,"User cleanup done: deleted " + count + " users in " + (System.currentTimeMillis() - start) + " ms");
+                    count = db.delete(Table.USERS.name, where, null);
+                    Log.d(TAG,"User cleanup done: deleted " + count + " users in " + (System.currentTimeMillis() - start) + " ms");
                     getContext().getContentResolver().notifyChange(Content.USERS.uri, null, false);
                     return count;
                 }
