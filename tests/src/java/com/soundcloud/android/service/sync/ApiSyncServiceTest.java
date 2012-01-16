@@ -237,7 +237,7 @@ public class ApiSyncServiceTest {
 
         expect(favoriting.getTrack().id).toEqual(13090155L);
         expect(favoriting.getTrack().permalink).toEqual("p-watzlawick-anleitung-zum");
-        expect(favoriting.getTrack().title).toEqual("P. Watzlawick - Anleitung zum Unglücklichsein");
+        expect(favoriting.getTrack().title).toEqual("P. Watzlawick - Anleitung zum Ungl\u00fccklichsein");
         expect(favoriting.getTrack().user_id).toEqual(133201L);
         expect(favoriting.getTrack().user.username).toEqual("Foo Bar");
     }
