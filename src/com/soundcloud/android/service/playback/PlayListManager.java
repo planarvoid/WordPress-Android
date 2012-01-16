@@ -1,7 +1,11 @@
 package com.soundcloud.android.service.playback;
 
 
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
@@ -9,18 +13,26 @@ import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 
 import android.content.Context;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-/* package */ class PlaylistManager implements LoadTrackInfoTask.LoadTrackInfoListener {
+/* package */ class PlaylistManager {
     private static final String TAG = "PlaylistManager";
 
+    public static final String EXTRA_PLAY_POS = "playPos";
+
     private SoundCloudApplication mApp;
-    private final List<Long> mPlaylist = new ArrayList<Long>();
+    private Track[] mPlaylist = new Track[0];
+    private Cursor mTrackCursor;
+    private Uri mTrackUri;
+
     private int mPlayPos;
     private Context mContext;
     private TrackCache mCache;
@@ -33,11 +45,11 @@ import java.util.List;
     }
 
     public int length() {
-        return mPlaylist.size();
+        return mPlaylist.length;
     }
 
     public boolean isEmpty() {
-        return mPlaylist.isEmpty();
+        return mPlaylist.length == 0;
     }
 
     public int getPosition() {
@@ -45,7 +57,7 @@ import java.util.List;
     }
 
     public boolean setPosition(int playPos) {
-        if (playPos < mPlaylist.size()) {
+        if (playPos < mPlaylist.length) {
             mPlayPos = playPos;
             return true;
         } else {
@@ -58,35 +70,23 @@ import java.util.List;
     }
 
     public Track getTrackAt(int pos) {
-        if (pos >= 0 && pos < mPlaylist.size()) {
-            Track cached = mCache.get(mPlaylist.get(pos));
-            if (cached != null) {
-                return cached;
-            } else {
-                // cache miss
-                //Track t = SoundCloudDB.getTrackById(mContext.getContentResolver(), mPlaylist.get(pos));
-                Track t = null;
-                if (t == null) {
-                    t = new Track();
-                    t.id = mPlaylist.get(pos);
-                    t.load_info_task = new LoadTrackInfoTask(mApp, t.id, true, true);
-                    t.load_info_task.addListener(this);
-                    t.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mPlaylist.get(pos)));
+        if (pos >= 0 && pos < mPlaylist.length) {
+            if (mPlaylist[pos] == null){
+                if (mTrackCursor != null && !mTrackCursor.isClosed() && mTrackCursor.moveToPosition(pos)){
+                    mPlaylist[pos] = new Track(mTrackCursor);
                 }
-                mCache.put(t);
-                return t;
             }
+            mCache.put(mPlaylist[pos]);
+            return mPlaylist[pos];
+
         } else {
             return null;
         }
     }
 
     public long getTrackIdAt(int pos) {
-        if (pos >= 0 && pos < length()) {
-            return mPlaylist.get(pos);
-        } else {
-            return -1;
-        }
+        Track t = getTrackAt(pos);
+        return t== null ? -1 : t.id;
     }
 
     public boolean prev() {
@@ -120,49 +120,44 @@ import java.util.List;
 
     public void setTrack(Track toBePlayed) {
         mCache.put(toBePlayed);
-        mPlaylist.clear();
-        mPlaylist.add(toBePlayed.id);
+        mPlaylist = new Track[]{toBePlayed};
+        mTrackUri = null;
         mPlayPos = 0;
     }
 
-    public void setTracks(long[] toBePlayed, Track current) {
-        mPlaylist.clear();
-        for (long id : toBePlayed) mPlaylist.add(id);
-        mPlayPos = mPlaylist.indexOf(current.id);
-    }
-
-    public void setTracks(List<Track> toBePlayed, Track current) {
-        mPlaylist.clear();
-        for (Track t : toBePlayed) {
-            mCache.put(t);
-            mPlaylist.add(t.id);
-        }
-        mPlayPos = mPlaylist.indexOf(current.id);
-    }
-
-    public void setTracks(Uri uri, Track current) {
+    public void setUri(Uri uri, int position) {
+        mTrackUri = uri;
         List<Track> tracks = SoundCloudDB.getTracks(mContext.getContentResolver(), uri);
-        setTracks(tracks, current);
+        if (mTrackCursor != null){
+            if (!mTrackCursor.isClosed()) mTrackCursor.close();
+        }
+        mTrackCursor = mContext.getContentResolver().query(uri, null, null, null, null);
+        mPlaylist = new Track[mTrackCursor.getCount()];
+        if (position >=0 && position < mTrackCursor.getCount()){
+            mPlayPos = position;
+            mTrackCursor.moveToPosition(position);
+        }
     }
 
     public void clear() {
-        mPlaylist.clear();
+        mPlaylist = new Track[0];
     }
 
-    public void saveQueue(boolean full, long seekPos) {
-        long start = System.currentTimeMillis();
-        Log.d(TAG, "saved state in " + (System.currentTimeMillis() - start) + " ms");
+    public void saveQueue(long seekPos) {
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
+        editor.putString("sc_playlist_uri", mTrackUri == null ? "" : mTrackUri.toString());
+        editor.putInt("sc_playlist_pos",mPlayPos);
+        editor.putLong("sc_playlist_time", seekPos);
+        editor.commit();
     }
 
     public long reloadQueue() {
+        // TODO, save the track id, check it, in case the uri has changed
+        final String lastUriString = PreferenceManager.getDefaultSharedPreferences(mContext).getString("sc_playlist_uri","");
+        if (!TextUtils.isEmpty(lastUriString)){
+            setUri(Uri.parse(lastUriString),PreferenceManager.getDefaultSharedPreferences(mContext).getInt("sc_playlist_pos", 0));
+            return PreferenceManager.getDefaultSharedPreferences(mContext).getLong("sc_playlist_time", 0);
+        }
         return 0; // seekpos
     }
-
-    @Override
-    public void onTrackInfoLoaded(Track track, String action) {
-        mCache.put(track);
-    }
-
-    @Override
-    public void onTrackInfoError(long trackId) {}
 }

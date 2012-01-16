@@ -42,7 +42,7 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playTrack(mTrack, null, true, false);
+                playTrack(mTrack, true, false);
             }
         });
 

@@ -270,10 +270,36 @@ public abstract class ScActivity extends android.app.Activity {
         if (position < wrapper.getWrappedAdapter().getCount() -1 && wrapper.getItem(position + 1) instanceof Playable){
             SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position + 1)).getTrack());
         }
-        playTrack(((Playable) wrapper.getItem(position)).getTrack(),wrapper,goToPlayer,commentMode);
+        final Track t = ((Playable) wrapper.getItem(position)).getTrack();
+
+        if (!handleTrackAlreadyPlaying(t, goToPlayer, commentMode)) {
+            startService(new Intent(this, CloudPlaybackService.class)
+                    .putExtra("playPos", position)
+                    .setData(wrapper.getContentUri())
+                    .setAction(CloudPlaybackService.PLAY));
+
+            if (goToPlayer) {
+                launchPlayer(commentMode);
+                mIgnorePlaybackStatus = true;
+            }
+        }
     }
 
-    public void playTrack(final Track track, final LazyEndlessAdapter wrapper, boolean goToPlayer, boolean commentMode) {
+    public void playTrack(final Track track, boolean goToPlayer, boolean commentMode) {
+        // find out if this track is already playing. If it is, just go to the player
+        if (!handleTrackAlreadyPlaying(track, goToPlayer, commentMode)) {
+            startService(new Intent(this, CloudPlaybackService.class)
+                    .putExtra("track", track)
+                    .setAction(CloudPlaybackService.PLAY));
+
+            if (goToPlayer) {
+                launchPlayer(commentMode);
+                mIgnorePlaybackStatus = true;
+            }
+        }
+    }
+
+    private boolean handleTrackAlreadyPlaying(Track track, boolean goToPlayer, boolean commentMode) {
         // find out if this track is already playing. If it is, just go to the player
         try {
             final Track playingTrack = mPlaybackService != null ? mPlaybackService.getTrack() : null;
@@ -284,27 +310,13 @@ public abstract class ScActivity extends android.app.Activity {
                 } else {
                     mPlaybackService.play();
                 }
-                return;
+                return true;
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
 
-        final Intent playIntent = new Intent(this, CloudPlaybackService.class)
-                .putExtra("track", track)
-                .setAction(CloudPlaybackService.PLAY);
-
-        if (wrapper instanceof EventsAdapterWrapper || wrapper.getContentUri() == null) {
-            playIntent.putExtra("track_ids", wrapper.getTrackIds());
-        } else {
-            playIntent.setData(wrapper.getContentUri());
-        }
-        startService(playIntent);
-
-        if (goToPlayer) {
-            launchPlayer(commentMode);
-            mIgnorePlaybackStatus = true;
-        }
+        return false;
     }
 
     public void launchPlayer(boolean commentMode) {
