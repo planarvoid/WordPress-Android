@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.util.Log;
@@ -26,6 +25,7 @@ import java.util.concurrent.Executor;
 public class ApiSyncService extends Service {
     public static final String LOG_TAG = ApiSyncer.class.getSimpleName();
 
+    public static final String EXTRA_SYNC_URIS = "com.soundcloud.android.sync.extra.SYNC_URIS";
     public static final String EXTRA_STATUS_RECEIVER = "com.soundcloud.android.sync.extra.STATUS_RECEIVER";
     public static final String EXTRA_SYNC_RESULT = "com.soundcloud.android.sync.extra.SYNC_RESULT";
     public static final String EXTRA_CHECK_PERFORM_LOOKUPS = "com.soundcloud.android.sync.extra.PERFORM_LOOKUPS";
@@ -97,7 +97,7 @@ public class ApiSyncService extends Service {
     }
 
     private static List<Uri> getUrisToSync(Intent intent) {
-        ArrayList<Uri> contents = intent.getParcelableArrayListExtra("syncUris");
+        ArrayList<Uri> contents = intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS);
         if (contents == null) {
             contents = new ArrayList<Uri>();
         }

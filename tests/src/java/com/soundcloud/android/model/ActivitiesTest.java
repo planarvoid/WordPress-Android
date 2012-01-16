@@ -235,6 +235,9 @@ public class ActivitiesTest {
         expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
     }
 
+
+
+
     @Test
     public void shouldFetchOnlyUpToMaxItems() throws Exception {
         TestHelper.addCannedResponses(SyncAdapterServiceTest.class,

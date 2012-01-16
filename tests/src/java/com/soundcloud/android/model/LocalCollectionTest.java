@@ -73,6 +73,7 @@ public class LocalCollectionTest {
         LocalCollection c = LocalCollection.insertLocalCollection(uri, null, 100, 0, resolver);
         expect(c).not.toBeNull();
         expect(LocalCollection.getLastSync(uri, resolver)).toEqual(100L);
+        expect(LocalCollection.getLastSync(Uri.parse("notfound"), resolver)).toEqual(-1L);
     }
 
     @Test

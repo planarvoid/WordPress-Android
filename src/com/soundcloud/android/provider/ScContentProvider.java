@@ -488,7 +488,6 @@ public class ScContentProvider extends ContentProvider {
         return qb;
     }
 
-
     @Override
     public String getType(Uri uri) {
         return null;

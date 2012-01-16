@@ -2,6 +2,7 @@ package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
+import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
@@ -10,6 +11,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.api.Token;
@@ -17,27 +20,45 @@ import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.accounts.Account;
-import android.accounts.OperationCanceledException;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.Service;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.content.TestIntentSender;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 @RunWith(DefaultTestRunner.class)
 public class SyncAdapterServiceTest {
+
+    @Before
+    public void before() {
+        ConnectivityManager cm = (ConnectivityManager)
+                Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Robolectric.shadowOf(cm).setBackgroundDataSetting(true);
+        Robolectric.shadowOf(cm).setNetworkInfo(ConnectivityManager.TYPE_WIFI,
+                newInstanceOf(NetworkInfo.class));
+
+        // the current sc user, assumed to be already in the db
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Users._ID, 133201L);
+        cv.put(DBHelper.Users.USERNAME, "Foo Bar");
+        Robolectric.application.getContentResolver().insert(Content.USERS.uri, cv);
+    }
 
     @After
     public void after() {
@@ -45,103 +66,18 @@ public class SyncAdapterServiceTest {
     }
 
     @Test
-    public void testGetNewIncomingEvents() throws Exception {
-        addCannedActivities(
-                "incoming_1.json",
-                "incoming_2.json"
-        );
-
-        Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, false);
-
-        expect(events.size()).toEqual(100);
-        expect(events.future_href).toEqual(
-            "https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
-    }
-
-    @Test
-    public void testGetNewIncomingEventsExclusive() throws Exception {
-        addCannedActivities("exclusives_1.json");
-
-        Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, true);
-
-        expect(events.size()).toEqual(4);
-        expect(events.future_href).toEqual(
-            "https://api.soundcloud.com/me/activities/tracks/exclusive?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
-    }
-
-
-    @Test
-    public void testGetOwnEvents() throws Exception {
-        addCannedActivities(
-                "own_1.json",
-                "own_2.json"
-        );
-
-        Activities events = new Activities();
-
-//        Activities events = SyncAdapterService.getOwnEvents(
-//                DefaultTestRunner.application, null);
-        expect(events.size()).toEqual(42);
-        expect(events.future_href).toEqual(
-            "https://api.soundcloud.com/me/activities/all/own?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
-    }
-
-    @Test
-    public void testWithSince() throws Exception {
-        addCannedActivities("incoming_1.json");
-        Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application,
-                false).filter(1310462679000l);
-
-        expect(events.size()).toEqual(1);
-
-        addCannedActivities("incoming_1.json");
-        events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application,
-                false).filter(1310462016000l);
-
-        expect(events.size()).toEqual(2);
-    }
-
-    @Test
-    public void testGetUniqueUsersFromEvents() throws Exception {
-        addCannedActivities("incoming_2.json");
-
-        Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, false);
-        expect(events.size()).toEqual(50);
-
-        List<User> users = events.getUniqueUsers();
-        expect(users.size()).toEqual(31);
-
-        Set<Long> ids = new HashSet<Long>();
-        for (User u : users) ids.add(u.id);
-        expect(ids.size()).toEqual(users.size());
-    }
-
-    @Test
-    public void testIncomingMessaging() throws Exception {
-        addCannedActivities("incoming_2.json");
-
-        Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, false);
-
-        String message = SyncAdapterService.getIncomingMessaging(
-                DefaultTestRunner.application, events);
+    public void testIncomingNotificationMessage() throws Exception {
+        Activities activities = Activities.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
+        String message = SyncAdapterService.getIncomingNotificationMessage(
+                DefaultTestRunner.application, activities);
 
         expect(message).toEqual("from All Tomorrows Parties, DominoRecordCo and others");
     }
 
     @Test
-    public void testExclusiveMessaging() throws Exception {
-        addCannedActivities("incoming_2.json");
-
-        Activities events = SyncAdapterService.getNewIncomingEvents(
-                DefaultTestRunner.application, false);
-
-        String message = SyncAdapterService.getExclusiveMessaging(
+    public void testExclusiveNotificationMessage() throws Exception {
+        Activities events = Activities.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
+        String message = SyncAdapterService.getExclusiveNotificationMessage(
                 DefaultTestRunner.application, events);
 
         expect(message).toEqual("exclusives from All Tomorrows Parties, DominoRecordCo and others");
@@ -149,13 +85,8 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void shouldNotifyIfSyncedBefore() throws Exception {
-        addCannedActivities(
-                "incoming_2.json",
-                "empty_events.json",
-                "empty_events.json"
-        );
-
-        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false);
+        addCannedActivities("incoming_2.json", "empty_events.json", "empty_events.json");
+        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(result.getInfo().getContentText().toString()).toEqual(
             "from All Tomorrows Parties, DominoRecordCo and others");
@@ -166,36 +97,23 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void shouldNotRepeatNotification() throws Exception {
-        addCannedActivities(
-                "incoming_2.json",
-                "empty_events.json",
-                "own_2.json"
-        );
-
-        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false);
+        addCannedActivities("incoming_2.json", "empty_events.json", "own_2.json");
+        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(result.notifications.size()).toEqual(2);
 
-        addCannedActivities(
-                "empty_events.json"
-        );
-
-        result = doPerformSync(DefaultTestRunner.application, false);
-
+        addCannedActivities("empty_events.json");
+        result = doPerformSync(DefaultTestRunner.application, false, null);
         expect(result.notifications.size()).toEqual(0);
     }
 
 
     @Test
     public void shouldNotifyAboutIncomingAndExclusives() throws Exception {
-        addCannedActivities(
-                "incoming_2.json",
-                "exclusives_1.json",
-                "empty_events.json"
-        );
+        addCannedActivities("incoming_2.json", "exclusives_1.json", "empty_events.json");
 
         SoundCloudApplication app = DefaultTestRunner.application;
-        List<NotificationInfo> notifications = doPerformSync(app, false).notifications;
+        List<NotificationInfo> notifications = doPerformSync(app, false, null).notifications;
 
         expect(notifications.size()).toEqual(1);
         NotificationInfo n = notifications.get(0);
@@ -210,14 +128,9 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void shouldSendTwoSeparateNotifications() throws Exception {
-        addCannedActivities(
-                "incoming_2.json",
-                "empty_events.json",
-                "own_1.json",
-                "own_2.json"
-        );
+        addCannedActivities("incoming_2.json", "empty_events.json", "own_1.json", "own_2.json");
 
-        List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false).notifications;
+        List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false, null).notifications;
         expect(notifications.size()).toEqual(2);
 
         expect(notifications.get(0).info.getContentTitle().toString())
@@ -327,7 +240,7 @@ public class SyncAdapterServiceTest {
                 "exclusives_1.json",
                 "empty_events.json");
 
-        List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false).notifications;
+        List<NotificationInfo> notifications = doPerformSync(DefaultTestRunner.application, false, null).notifications;
         expect(notifications.size()).toEqual(1);
         NotificationInfo n = notifications.get(0);
         expect(n.info.getContentTitle().toString())
@@ -338,7 +251,7 @@ public class SyncAdapterServiceTest {
     @Test
     public void shouldNotSyncWhenTokenIsInvalidAndFlagError() throws Exception {
         // will throw if actually syncing
-        SyncResult result = doPerformSync(new TestApplication(new Token(null, null, null)), false).result;
+        SyncResult result = doPerformSync(new TestApplication(new Token(null, null, null)), false, null).result;
         expect(result.hasError()).toBeTrue();
         expect(result.hasHardError()).toBeTrue();
         expect(result.hasSoftError()).toBeFalse();
@@ -349,27 +262,27 @@ public class SyncAdapterServiceTest {
         addPendingHttpResponse(500, "errors");
         addPendingHttpResponse(500, "errors");
 
-        SyncResult result = doPerformSync(DefaultTestRunner.application, false).result;
+        SyncResult result = doPerformSync(DefaultTestRunner.application, false, null).result;
         expect(result.hasHardError()).toBeFalse();
         expect(result.hasSoftError()).toBeTrue();
     }
 
     @Test
     public void shouldNotNotifyOnFirstSync() throws Exception {
-        expect(doPerformSync(DefaultTestRunner.application, true).notifications.size()).toEqual(0);
+        expect(doPerformSync(DefaultTestRunner.application, true, null).notifications.size()).toEqual(0);
     }
 
     @Test
     public void shouldUseCachedActivitiesToUpdateNotifications() throws Exception {
         addCannedActivities("empty_events.json", "empty_events.json", "activities_1.json");
-        SyncOutcome first = doPerformSync(DefaultTestRunner.application, false);
+        SyncOutcome first = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(first.getTicker()).toEqual("39 new activities");
         expect(first.getInfo().getContentTitle().toString()).toEqual("39 new activities");
         expect(first.getInfo().getContentText().toString()).toEqual("Comments and likes from EddieSongWriter, changmangoo and others");
 
         addCannedActivities("empty_events.json", "empty_events.json", "activities_2.json");
-        SyncOutcome second = doPerformSync(DefaultTestRunner.application, false);
+        SyncOutcome second = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(second.getTicker()).toEqual("41 new activities");
         expect(second.getInfo().getContentTitle().toString()).toEqual("41 new activities");
@@ -384,7 +297,7 @@ public class SyncAdapterServiceTest {
                 "activities_1.json"
         );
 
-        SyncOutcome first = doPerformSync(DefaultTestRunner.application, false);
+        SyncOutcome first = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(first.getTicker()).toEqual("39 new activities");
         expect(first.getInfo().getContentTitle().toString()).toEqual("39 new activities");
@@ -392,8 +305,8 @@ public class SyncAdapterServiceTest {
 
         // user has already seen some stuff
         DefaultTestRunner.application.setAccountData(
-            User.DataKeys.LAST_OWN_SEEN,
-            AndroidCloudAPI.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime()
+                User.DataKeys.LAST_OWN_SEEN,
+                AndroidCloudAPI.CloudDateFormat.fromString("2011/07/23 11:51:29 +0000").getTime()
         );
 
        addCannedActivities(
@@ -401,7 +314,7 @@ public class SyncAdapterServiceTest {
                "empty_events.json",
                "activities_2.json"
        );
-        SyncOutcome second = doPerformSync(DefaultTestRunner.application, false);
+        SyncOutcome second = doPerformSync(DefaultTestRunner.application, false, null);
 
         expect(second.getTicker()).toEqual("3 new activities");
         expect(second.getInfo().getContentTitle().toString()).toEqual("3 new activities");
@@ -411,6 +324,7 @@ public class SyncAdapterServiceTest {
     static class SyncOutcome {
         List<NotificationInfo> notifications;
         SyncResult result;
+        Intent intent;
 
         Intent getIntent() {
             expect(notifications.size()).toEqual(1);
@@ -428,11 +342,14 @@ public class SyncAdapterServiceTest {
         }
     }
 
-    private static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime)
-            throws OperationCanceledException {
-
+    private static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime, Bundle extras)
+            throws Exception {
         if (!firstTime) {
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
+        }
+
+        if (extras == null) {
+            extras = new Bundle();
         }
 
         ShadowNotificationManager m = shadowOf((NotificationManager)
@@ -441,11 +358,21 @@ public class SyncAdapterServiceTest {
         m.cancelAll();
 
         SyncResult result = new SyncResult();
-        SyncAdapterService.performSync(
+        Intent intent = SyncAdapterService.performSync(
                 app,
                 new Account("foo", "bar"),
-                null, null, result);
+                extras, null, result);
 
+
+        if (intent != null) {
+            @SuppressWarnings("unchecked")
+            Class<? extends Service> klazz =
+                    (Class<? extends Service>) Class.forName(intent.getComponent().getClassName());
+
+            Service svc = klazz.newInstance();
+            svc.onCreate();
+            svc.onStart(intent, 0);
+        }
 
         List<NotificationInfo> list = new ArrayList<NotificationInfo>();
         for (Notification n : m.getAllNotifications()) {
@@ -454,6 +381,7 @@ public class SyncAdapterServiceTest {
         SyncOutcome outcome = new SyncOutcome();
         outcome.notifications = list;
         outcome.result = result;
+        outcome.intent = intent;
         return outcome;
     }
 
@@ -467,7 +395,7 @@ public class SyncAdapterServiceTest {
         SoundCloudApplication app = DefaultTestRunner.application;
         app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
         app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1l);
-        List<NotificationInfo> notifications = doPerformSync(app, false).notifications;
+        List<NotificationInfo> notifications = doPerformSync(app, false, null).notifications;
         expect(notifications.size()).toEqual(1);
         NotificationInfo n = notifications.get(0);
         expect(n.n.tickerText.toString()).toEqual(ticker);

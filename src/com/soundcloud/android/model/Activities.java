@@ -16,6 +16,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -245,7 +246,6 @@ public class Activities extends CollectionHolder<Activity> {
         String future_href = null;
         String next_href = null;
         List<Activity> activityList = new ArrayList<Activity>();
-
         Request remote = new Request(request).add("limit", 20);
         do {
             Log.d(TAG, "Making request " + remote);
@@ -253,7 +253,7 @@ public class Activities extends CollectionHolder<Activity> {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 Activities activities = fromJSON(response.getEntity().getContent());
                 remote = activities.hasMore() ? activities.getNextRequest() : null;
-                if (future_href == null) {
+                if (future_href == null && !TextUtils.isEmpty(activities.future_href)) {
                     future_href = URLDecoder.decode(activities.future_href);
                 }
 
@@ -289,10 +289,11 @@ public class Activities extends CollectionHolder<Activity> {
         return new Activities(activityList, future_href, next_href);
     }
 
-    public static void clear(Context c) {
+    public static void clear(ContentResolver resolver) {
+        // TODO
     }
 
-    public static Activities get(Content content, ContentResolver resolver) throws IOException {
+    public static Activities get(Content content, ContentResolver resolver)  {
         Activities activities = new Activities();
         LocalCollection lc = LocalCollection.fromContentUri(content.uri, resolver);
         if (lc != null) {

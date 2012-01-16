@@ -71,16 +71,12 @@ public class LocalCollection {
     }
 
     public static long getLastSync(Uri contentUri, ContentResolver resolver) {
-        long lastSync = -1;
-        if (contentUri != null) {
-            Cursor c = resolver.query(Content.COLLECTIONS.uri,
-                    new String[]{DBHelper.Collections.LAST_SYNC}, "uri = ?", new String[]{contentUri.toString()}, null);
-            if (c != null && c.moveToFirst()) {
-                lastSync = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
-            }
-            if (c != null) c.close();
+        LocalCollection lc = fromContentUri(contentUri, resolver);
+        if (lc == null) {
+            return -1;
+        } else {
+            return lc.last_sync;
         }
-        return lastSync;
     }
 
     @Override

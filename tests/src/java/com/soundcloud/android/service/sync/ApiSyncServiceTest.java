@@ -80,7 +80,7 @@ public class ApiSyncServiceTest {
         urisToSync.add(Content.ME_FAVORITES.uri);
         urisToSync.add(Content.ME_FOLLOWERS.uri);
 
-        intent.putParcelableArrayListExtra("syncUris", urisToSync);
+        intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
         ApiSyncService.ApiSyncRequest request1 = new ApiSyncService.ApiSyncRequest(app, intent);
         ApiSyncService.ApiSyncRequest request2 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
         ApiSyncService.ApiSyncRequest request3 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
