@@ -142,7 +142,6 @@ public enum Content {
         return uri.buildUpon();
     }
 
-
     public Request request() {
         if (remoteUri != null) {
             return Request.to(remoteUri);

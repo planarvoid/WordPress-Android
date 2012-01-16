@@ -79,6 +79,15 @@ public class User extends ScModel implements PageTrackable, Resource {
         }
     }
 
+    public static User fromActivityView(Cursor c) {
+        User u = new User();
+        u.id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
+        u.username = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_USERNAME));
+        u.permalink = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_PERMALINK));
+        u.avatar_url = c.getString(c.getColumnIndex(DBHelper.ActivityView.USER_AVATAR_URL));
+        return u;
+    }
+
     public User(UserlistItem userlistItem) {
         updateFromUserlistItem(userlistItem);
     }

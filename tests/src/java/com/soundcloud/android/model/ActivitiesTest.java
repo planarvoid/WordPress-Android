@@ -160,8 +160,8 @@ public class ActivitiesTest {
 
     @Test
     public void testToJsonEqualsOriginal2() throws Exception {
-        JsonNode original = AndroidCloudAPI.Mapper.readTree(getClass().getResourceAsStream("incoming_1.json"));
-        String json = Activities.fromJSON(getClass().getResourceAsStream("incoming_1.json")).toJSON();
+        JsonNode original = AndroidCloudAPI.Mapper.readTree(getClass().getResourceAsStream("incoming.json"));
+        String json = Activities.fromJSON(getClass().getResourceAsStream("incoming.json")).toJSON();
 
         FileOutputStream fos = new FileOutputStream(new File("out.json"));
         fos.write(json.getBytes("UTF-8"));

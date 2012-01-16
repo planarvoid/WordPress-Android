@@ -114,6 +114,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "comment_count INTEGER," +
             "favoritings_count INTEGER," +
             "shared_to_count INTEGER," +
+            "sharing_note_text VARCHAR(255),"+
             "user_id INTEGER," +
             "filelength INTEGER"+
             ");";
@@ -259,13 +260,14 @@ public class DBHelper extends SQLiteOpenHelper {
             "Tracks." + Tracks.FAVORITINGS_COUNT + " as " + TrackView.FAVORITINGS_COUNT + "," +
             "Tracks." + Tracks.SHARED_TO_COUNT + " as " + TrackView.SHARED_TO_COUNT + "," +
             "Tracks." + Tracks.FILELENGTH + " as " + TrackView.FILELENGTH + "," +
+            "Tracks." + Tracks.SHARING_NOTE_TEXT + " as " + TrackView.SHARING_NOTE_TEXT + "," +
             "Users." + Users._ID + " as " + TrackView.USER_ID + "," +
             "Users." + Users.USERNAME + " as " + TrackView.USERNAME + "," +
             "Users." + Users.PERMALINK + " as " + TrackView.USER_PERMALINK + "," +
             "Users." + Users.AVATAR_URL + " as " + TrackView.USER_AVATAR_URL +
             " FROM Tracks" +
             " JOIN Users ON(" +
-            " Tracks." + Tracks.USER_ID + " = " + "Users." + Users._ID + ")";
+            "   Tracks." + Tracks.USER_ID + " = " + "Users." + Users._ID + ")";
 
     /** A view which combines activity data + tracks/users/comments */
     static final String DATABASE_CREATE_ACTIVITY_VIEW = "CREATE VIEW ActivityView AS SELECT " +
@@ -275,45 +277,27 @@ public class DBHelper extends SQLiteOpenHelper {
             "Activities." + Activities.CREATED_AT + " as " + ActivityView.CREATED_AT+","+
             "Activities." + Activities.COMMENT_ID + " as " + ActivityView.COMMENT_ID+","+
             "Activities." + Activities.TRACK_ID + " as " + ActivityView.TRACK_ID+","+
-            // track data
-            "Tracks." + Tracks.LAST_UPDATED + " as " + ActivityView.LAST_UPDATED + "," +
-            "Tracks." + Tracks.PERMALINK + " as " + ActivityView.PERMALINK + "," +
-            "Tracks." + Tracks.CREATED_AT + " as " + ActivityView.CREATED_AT + "," +
-            "Tracks." + Tracks.DURATION + " as " + ActivityView.DURATION + "," +
-            "Tracks." + Tracks.TAG_LIST + " as " + ActivityView.TAG_LIST + "," +
-            "Tracks." + Tracks.TRACK_TYPE + " as " + ActivityView.TRACK_TYPE + "," +
-            "Tracks." + Tracks.TITLE + " as " + ActivityView.TITLE + "," +
-            "Tracks." + Tracks.PERMALINK_URL + " as " + ActivityView.PERMALINK_URL + "," +
-            "Tracks." + Tracks.ARTWORK_URL + " as " + ActivityView.ARTWORK_URL + "," +
-            "Tracks." + Tracks.WAVEFORM_URL + " as " + ActivityView.WAVEFORM_URL + "," +
-            "Tracks." + Tracks.DOWNLOADABLE + " as " + ActivityView.DOWNLOADABLE + "," +
-            "Tracks." + Tracks.DOWNLOAD_URL + " as " + ActivityView.DOWNLOAD_URL + "," +
-            "Tracks." + Tracks.STREAM_URL + " as " + ActivityView.STREAM_URL + "," +
-            "Tracks." + Tracks.STREAMABLE + " as " + ActivityView.STREAMABLE + "," +
-            "Tracks." + Tracks.COMMENTABLE + " as " + ActivityView.COMMENTABLE + "," +
-            "Tracks." + Tracks.SHARING + " as " + ActivityView.SHARING + "," +
-            "Tracks." + Tracks.PLAYBACK_COUNT + " as " + ActivityView.PLAYBACK_COUNT + "," +
-            "Tracks." + Tracks.DOWNLOAD_COUNT + " as " + ActivityView.DOWNLOAD_COUNT + "," +
-            "Tracks." + Tracks.COMMENT_COUNT + " as " + ActivityView.COMMENT_COUNT + "," +
-            "Tracks." + Tracks.FAVORITINGS_COUNT + " as " + ActivityView.FAVORITINGS_COUNT + "," +
-            "Tracks." + Tracks.SHARED_TO_COUNT + " as " + ActivityView.SHARED_TO_COUNT + "," +
-            "Tracks." + Tracks.FILELENGTH + " as " + ActivityView.FILELENGTH + "," +
-            // user data
-            "Users." + Users._ID + " as " + ActivityView.USER_ID + "," +
-            "Users." + Users.USERNAME + " as " + ActivityView.USERNAME + "," +
+            "Activities." + Activities.USER_ID + " as " + ActivityView.USER_ID +","+
+
+            // activity user (who commented, favorited etc. on contained following)
+            "Users." + Users.USERNAME + " as " + ActivityView.USER_USERNAME + "," +
             "Users." + Users.PERMALINK + " as " + ActivityView.USER_PERMALINK + "," +
-            "Users." + Users.AVATAR_URL + " as " + ActivityView.USER_AVATAR_URL + ","+
-            // comment data
+            "Users." + Users.AVATAR_URL + " as " + ActivityView.USER_AVATAR_URL + "," +
+
+            // track+user data
+            "TrackView.*," +
+
+            // comment data (only for type=comment
             "Comments." + Comments.BODY + " as " + ActivityView.COMMENT_BODY + " ," +
             "Comments." + Comments.CREATED_AT + " as " + ActivityView.COMMENT_CREATED_AT + " ," +
             "Comments." + Comments.TIMESTAMP + " as " +ActivityView.COMMENT_TIMESTAMP +
             " FROM Activities" +
             " JOIN Users ON(" +
-            " Activities." + Activities.USER_ID + " = " + "Users." + Users._ID + ")" +
-            " JOIN Tracks ON(" +
-            " Activities." + Activities.TRACK_ID + " = " + "Tracks." + Tracks._ID + ")" +
+            "   Activities." + Activities.USER_ID + " = " + "Users." + Users._ID + ")" +
+            " JOIN TrackView ON(" +
+            "   Activities." + Activities.TRACK_ID + " = " + "TrackView." + TrackView._ID + ")" +
             " LEFT JOIN Comments ON(" +
-            " Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")"
+            "   Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")"
             ;
 
     public static class ResourceTable implements BaseColumns {
@@ -344,6 +328,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String COMMENT_COUNT = "comment_count";
         public static final String FAVORITINGS_COUNT = "favoritings_count";
         public static final String SHARED_TO_COUNT = "shared_to_count";
+        public static final String SHARING_NOTE_TEXT = "sharing_note_text";
         public static final String USER_ID = "user_id";
         public static final String FILELENGTH = "filelength";
     }
@@ -424,7 +409,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper.DATABASE_CREATE_ACTIVITIES}
      */
-    public static final class Activities implements BaseColumns {
+    public static class Activities implements BaseColumns {
         public static final String TYPE = "type";
         public static final String TAGS = "tags";
         public static final String USER_ID = "user_id";
@@ -466,7 +451,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String PAGE_INDEX = "page_index";
     }
 
-    public static class TrackView implements BaseColumns {
+    public final static class TrackView implements BaseColumns {
         public static final String LAST_UPDATED = Tracks.LAST_UPDATED;
         public static final String PERMALINK = Tracks.PERMALINK;
         public static final String CREATED_AT = Tracks.CREATED_AT;
@@ -488,27 +473,26 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String COMMENT_COUNT = Tracks.COMMENT_COUNT;
         public static final String FAVORITINGS_COUNT = Tracks.FAVORITINGS_COUNT;
         public static final String SHARED_TO_COUNT = Tracks.SHARED_TO_COUNT;
+        public static final String SHARING_NOTE_TEXT = Tracks.SHARING_NOTE_TEXT;
         public static final String FILELENGTH = Tracks.FILELENGTH;
 
-        public static final String USER_ID = Tracks.USER_ID;
-        public static final String USERNAME = Users.USERNAME;
+        public static final String USER_ID         = "track_user_id";
+        public static final String USERNAME        = "track_user_username";
+        public static final String USER_PERMALINK  = "track_user_permalink";
 
-        public static final String USER_PERMALINK = "user_permalink";
-        public static final String USER_AVATAR_URL = "user_avatar_url";
-
-        public static final String USER_FAVORITE = "user_favorite";
-        public static final String USER_PLAYED = "user_played";
+        public static final String USER_AVATAR_URL = "track_user_avatar_url";
+        public static final String USER_FAVORITE   = "track_user_favorite";
+        public static final String USER_PLAYED     = "track_user_played";
     }
 
-    public final static class ActivityView extends TrackView {
+    public final static class ActivityView extends Activities {
         public static final String COMMENT_BODY = "comment_body";
         public static final String COMMENT_TIMESTAMP = "comment_timestamp";
         public static final String COMMENT_CREATED_AT = "comment_created_at";
 
-        public static final String TYPE = Activities.TYPE;
-        public static final String TAGS = Activities.TAGS;
-        public static final String COMMENT_ID = Activities.COMMENT_ID;
-        public static final String TRACK_ID = Activities.TRACK_ID;
+        public static final String USER_USERNAME = "activity_user_username";
+        public static final String USER_PERMALINK = "activity_user_permalink";
+        public static final String USER_AVATAR_URL = "activity_user_avatar_url";
     }
 
     /*

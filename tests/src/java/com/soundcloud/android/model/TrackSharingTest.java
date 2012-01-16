@@ -25,8 +25,19 @@ public class TrackSharingTest {
         ts.writeToParcel(p, 0);
         TrackSharing ts2 = TrackSharing.CREATOR.createFromParcel(p);
 
+        expect(ts.sharing_note.isEmpty()).toBeFalse();
         expect(ts.track).toEqual(ts2.track);
         expect(ts.sharing_note.text).toEqual(ts2.sharing_note.text);
         expect(ts.sharing_note.created_at).toEqual(ts2.sharing_note.created_at);
+    }
+
+    @Test
+    public void shouldTestSharingNoteEmpty() throws Exception {
+        TrackSharing ts = new TrackSharing();
+        ts.track = new Track();
+        ts.sharing_note = new TrackSharing.SharingNote();
+        expect(ts.sharing_note.isEmpty()).toBeTrue();
+        ts.sharing_note.text = "cool";
+        expect(ts.sharing_note.isEmpty()).toBeFalse();
     }
 }

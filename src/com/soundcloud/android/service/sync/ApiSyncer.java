@@ -50,6 +50,7 @@ public class ApiSyncer {
         boolean changed = false;
         if (c.remoteUri != null) {
             switch (c) {
+                case ME_ALL_ACTIVITIES:
                 case ME_ACTIVITIES:
                 case ME_EXCLUSIVE_STREAM:
                 case ME_SOUND_STREAM:
@@ -92,12 +93,14 @@ public class ApiSyncer {
         mResolver.bulkInsert(Content.TRACKS.uri, activities.getTrackContentValues());
         mResolver.bulkInsert(Content.USERS.uri, activities.getUserContentValues());
 
-        if (content == Content.ME_ACTIVITIES) {
+        if (content == Content.ME_ACTIVITIES || content == Content.ME_ALL_ACTIVITIES) {
             mResolver.bulkInsert(Content.COMMENTS.uri, activities.getCommentContentValues());
         }
 
-        LocalCollection.insertLocalCollection(content.uri, activities.future_href, System.currentTimeMillis(), activities.size(), mResolver
-        );
+        LocalCollection.insertLocalCollection(content.uri,
+                activities.future_href,
+                System.currentTimeMillis(), activities.size(),
+                mResolver);
 
         return !activities.isEmpty();
     }

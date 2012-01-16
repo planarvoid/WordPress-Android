@@ -53,7 +53,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @JsonView(Views.Full.class) public int duration;
     @JsonView(Views.Full.class) public boolean commentable;
     @JsonView(Views.Full.class) public String state;
-    @JsonView(Views.Full.class) public String sharing;
+    @JsonView(Views.Full.class) public String sharing;  //  public | private
     @JsonView(Views.Full.class) public String tag_list;
     @JsonView(Views.Mini.class) public String permalink;
     @JsonView(Views.Full.class) public String description;
@@ -224,7 +224,12 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public Track(Cursor cursor) {
-        id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView._ID));
+        final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.TRACK_ID);
+        if (trackIdIdx == -1) {
+            id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView._ID));
+        } else {
+            id = cursor.getLong(cursor.getColumnIndex(DBHelper.ActivityView.TRACK_ID));
+        }
         permalink = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.PERMALINK));
         duration = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DURATION));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.CREATED_AT)));
@@ -247,6 +252,11 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
         filelength = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.FILELENGTH));
         commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENTABLE)) == 1;
+        final int sharingNoteIdx = cursor.getColumnIndex(DBHelper.TrackView.SHARING_NOTE_TEXT);
+        if (sharingNoteIdx != -1) {
+            sharing_note = new TrackSharing.SharingNote();
+            sharing_note.text = cursor.getString(sharingNoteIdx);
+        }
         user = User.fromTrackView(cursor);
         // gets joined in
         final int favIndex = cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE);
@@ -357,6 +367,9 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         if (commentable) cv.put(Tracks.COMMENTABLE, commentable);
         if (favoritings_count != -1) cv.put(Tracks.FAVORITINGS_COUNT, favoritings_count);
         if (shared_to_count != -1) cv.put(Tracks.SHARED_TO_COUNT, shared_to_count);
+        if (sharing_note != null && !sharing_note.isEmpty()) {
+            cv.put(Tracks.SHARING_NOTE_TEXT, sharing_note.text);
+        }
         // app level, only add these 2 if they have been set, otherwise they
         // might overwrite valid db values
         if (filelength > 0) cv.put(Tracks.FILELENGTH, filelength);

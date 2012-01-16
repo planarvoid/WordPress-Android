@@ -1,0 +1,187 @@
+{
+  "collection": [
+      {
+      "type": "track",
+      "created_at": "2011\/07\/12 09:27:19 +0000",
+      "origin": {
+        "id": 18876167,
+        "created_at": "2011\/07\/12 09:27:12 +0000",
+        "user_id": 3207,
+        "duration": 8127,
+        "commentable": true,
+        "state": "finished",
+        "sharing": "public",
+        "tag_list": "",
+        "permalink": "grand-piano-keys",
+        "description": "",
+        "streamable": true,
+        "downloadable": true,
+        "genre": "",
+        "release": "",
+        "purchase_url": null,
+        "label_id": null,
+        "label_name": "",
+        "isrc": "",
+        "video_url": null,
+        "track_type": "stem",
+        "key_signature": "",
+        "bpm": null,
+        "title": "Grand Piano Keys",
+        "release_year": null,
+        "release_month": null,
+        "release_day": null,
+        "original_format": "m4a",
+        "license": "cc-by",
+        "uri": "https:\/\/api.soundcloud.com\/tracks\/18876167",
+        "permalink_url": "http:\/\/soundcloud.com\/jwagener\/grand-piano-keys",
+        "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000009195725-njfi16-large.jpg?a1786a9",
+        "waveform_url": "http:\/\/w1.sndcdn.com\/M74psyJhKBAz_m.png",
+        "user": {
+          "id": 3207,
+          "permalink": "jwagener",
+          "username": "Johannes Wagener",
+          "uri": "https:\/\/api.soundcloud.com\/users\/3207",
+          "permalink_url": "http:\/\/soundcloud.com\/jwagener",
+          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000001552142-pbw8yd-large.jpg?a1786a9"
+        },
+        "stream_url": "https:\/\/api.soundcloud.com\/tracks\/18876167\/stream",
+        "download_url": "https:\/\/api.soundcloud.com\/tracks\/18876167\/download",
+        "user_playback_count": 1,
+        "user_favorite": false,
+        "playback_count": 60,
+        "download_count": 0,
+        "favoritings_count": 0,
+        "comment_count": 1,
+        "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18876167\/attachments",
+        "sharing_note": {
+          "text": "Bla Bla Bla",
+          "created_at": "2011\/07\/12 09:27:12 +0000"
+        }
+      },
+      "tags": "affiliated, exclusive"
+    },
+    {
+      "type": "track-sharing",
+      "created_at": "2011\/07\/11 20:42:34 +0000",
+      "origin": {
+        "track": {
+          "id": 18676478,
+          "created_at": "2011\/07\/09 00:46:02 +0000",
+          "user_id": 2161555,
+          "duration": 5898970,
+          "commentable": true,
+          "state": "finished",
+          "sharing": "public",
+          "tag_list": "trance house vocal instrumental progressive",
+          "permalink": "live-in-vegas",
+          "description": "Well this past week I went to Las Vegas for the very first time and I was lucky enough to get the opportunity to celebrate the 4th of July with my American neighbours! I found Las Vegas to be such an inspirational city. I was able to transform this inspiration into musical creativity and I came up with the massive set that I have been promising you guys, Live in Vegas! I hope everyone enjoys my hard work and I really look forward to hearing everybody\u2019s thoughts and comments - don't be shy! Also on a side note, my album art is a picture I took of Vegas from the plane, pretty cool!\n\nCheers,\n-Jade\n\nTrack List:\nEgbert - Open\nSignalrunners - Meet Me In Montauk\nAbove & Beyond - Cant Sleep (Ian Carey Vocal Remix)\nAudien - Fall Into Place\nSan Vs Wendel Kos - Kiss Of Life (Ibiza Sunrise mix)\nGafry IMore- D Camera\nMio feat Mavoks- Someone Like You (chris kaye and tristan chase dub remix)\nEdu &Cramp - Silver Sand\nGroovy Faction - About Nothing\nMeHilove - Reality Bites\nGai Barone - Astronave\nDinka - Green Leaf (Ft. Lizzie Curious)\nFranchezza - Babe I Wanna (Kingpin Remix)\nZachary Zamarripa - Lies In Wait\nOceanlab - Breaking Ties (Jaytech & James Grant Remix)",
+          "streamable": true,
+          "downloadable": true,
+          "genre": "Progressive Trance",
+          "release": "",
+          "purchase_url": null,
+          "label_id": null,
+          "label_name": "",
+          "isrc": "",
+          "video_url": null,
+          "track_type": "demo",
+          "key_signature": "",
+          "bpm": null,
+          "title": "Live in Vegas",
+          "release_year": null,
+          "release_month": null,
+          "release_day": null,
+          "original_format": "mp3",
+          "license": "all-rights-reserved",
+          "uri": "https:\/\/api.soundcloud.com\/tracks\/18676478",
+          "permalink_url": "http:\/\/soundcloud.com\/dj-jade\/live-in-vegas",
+          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000009086878-mwsj4x-large.jpg?a1786a9",
+          "waveform_url": "http:\/\/w1.sndcdn.com\/EDFLZtXCqKBU_m.png",
+          "user": {
+            "id": 2161555,
+            "permalink": "dj-jade",
+            "username": "Dj Jade",
+            "uri": "https:\/\/api.soundcloud.com\/users\/2161555",
+            "permalink_url": "http:\/\/soundcloud.com\/dj-jade",
+            "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003597384-frj1w7-large.jpg?a1786a9"
+          },
+          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/18676478\/stream",
+          "download_url": "https:\/\/api.soundcloud.com\/tracks\/18676478\/download",
+          "user_playback_count": 1,
+          "user_favorite": false,
+          "playback_count": 146,
+          "download_count": 27,
+          "favoritings_count": 10,
+          "comment_count": 38,
+          "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18676478\/attachments"
+        },
+        "sharing_note": {
+          "text": "Enjoy, share, and dont be shy leave me your thoughts!",
+          "created_at": "2011\/07\/11 20:28:04 +0000"
+        }
+      },
+      "tags": "first"
+    },
+    {
+      "type": "comment",
+      "created_at": "2011\/07\/29 15:26:44 +0000",
+      "origin": {
+        "id": 22140210,
+        "created_at": "2011\/07\/29 15:26:44 +0000",
+        "user_id": 1360,
+        "track_id": 20023414,
+        "timestamp": null,
+        "body": "Hach, Fernweh.",
+        "uri": "https:\/\/api.soundcloud.com\/comments\/22140210",
+        "user": {
+          "id": 1360,
+          "permalink": "jensnikolaus",
+          "username": "jensnikolaus",
+          "uri": "https:\/\/api.soundcloud.com\/users\/1360",
+          "permalink_url": "http:\/\/soundcloud.com\/jensnikolaus",
+          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003534540-77he5z-large.jpg?8935bc4"
+        },
+        "track": {
+          "id": 20023414,
+          "permalink": "sounds-from-dalston-kingsland",
+          "title": "Sounds from Dalston Kingsland Railway Station (DLK)",
+          "user_id": 133201,
+          "uri": "https:\/\/api.soundcloud.com\/tracks\/20023414",
+          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
+          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sounds-from-dalston-kingsland",
+          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/20023414\/stream",
+          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000009823303-xte9r2-large.jpg?8935bc4"
+        }
+      },
+      "tags": "own, affiliated"
+    },
+    {
+      "type": "favoriting",
+      "created_at": "2011\/07\/29 22:30:59 +0000",
+      "origin": {
+        "track": {
+          "id": 13090155,
+          "permalink": "p-watzlawick-anleitung-zum",
+          "title": "P. Watzlawick - Anleitung zum Ungl\u00fccklichsein",
+          "user_id": 133201,
+          "uri": "https:\/\/api.soundcloud.com\/tracks\/13090155",
+          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
+          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/p-watzlawick-anleitung-zum",
+          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/13090155\/stream"
+        },
+        "user": {
+          "id": 6311652,
+          "permalink": "paulko",
+          "username": "Paul Ko",
+          "uri": "https:\/\/api.soundcloud.com\/users\/6311652",
+          "permalink_url": "http:\/\/soundcloud.com\/paulko",
+          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000005077051-ttwttz-large.jpg?8935bc4"
+        }
+      },
+      "tags": "own"
+    }
+  ],
+  "next_href": "",
+  "future_href": ""
+}
+

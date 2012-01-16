@@ -35,6 +35,10 @@ public class LocalCollection {
         this.size = size;
     }
 
+    public static LocalCollection fromContent(Content content, ContentResolver resolver) {
+        return fromContentUri(content.uri, resolver);
+    }
+
     public static LocalCollection fromContentUri(Uri contentUri, ContentResolver resolver) {
         LocalCollection lc = null;
         Cursor c = resolver.query(Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);

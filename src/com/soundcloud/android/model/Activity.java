@@ -48,8 +48,10 @@ public class Activity extends ScModel implements Origin, Playable {
         created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.CREATED_AT)));
         switch (type) {
             case TRACK:
-            case TRACK_SHARING:
                 origin = new Track(c);
+                break;
+            case TRACK_SHARING:
+                origin = new TrackSharing(c);
                 break;
             case COMMENT:
                 origin = new Comment(c, true);
@@ -70,6 +72,14 @@ public class Activity extends ScModel implements Origin, Playable {
 
     public Comment getComment() {
         return origin instanceof Comment ? (Comment) origin : null;
+    }
+
+    public Favoriting getFavoriting() {
+        return origin instanceof Favoriting ? (Favoriting) origin : null;
+    }
+
+    public TrackSharing getTrackSharing() {
+        return origin instanceof TrackSharing ? (TrackSharing) origin : null;
     }
 
     @Override

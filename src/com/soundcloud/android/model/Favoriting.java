@@ -18,7 +18,7 @@ public class Favoriting implements Origin {
     }
 
     public Favoriting(Cursor c) {
-//        user = new User(c);
+        user = User.fromActivityView(c);
         track = new Track(c);
     }
 

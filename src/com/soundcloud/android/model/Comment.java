@@ -42,11 +42,14 @@ public class Comment extends ScModel implements Origin {
         track = new Track(c);
         if (view) {
             id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_ID));
+            user_id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.USER_ID));
+            user = User.fromActivityView(c);
             body = c.getString(c.getColumnIndex(DBHelper.ActivityView.COMMENT_BODY));
             timestamp = c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_TIMESTAMP));
             created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.COMMENT_CREATED_AT)));
         } else {
             id = c.getLong(c.getColumnIndex(DBHelper.Comments._ID));
+            user_id = c.getLong(c.getColumnIndex(DBHelper.Comments.USER_ID));
             body = c.getString(c.getColumnIndex(DBHelper.Comments.BODY));
             timestamp = c.getLong(c.getColumnIndex(DBHelper.Comments.TIMESTAMP));
             created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.Comments.CREATED_AT)));
