@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
+import com.soundcloud.android.view.PlaybackRemoteViews;
 
 public class PlayerAppWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "PlayerWidget";
@@ -47,13 +48,13 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     }
 
     private void defaultAppWidget(Context context, int[] appWidgetIds) {
-        final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_player);
+        final PlaybackRemoteViews views = new PlaybackRemoteViews(context.getPackageName(), R.layout.appwidget_player);
         views.setTextViewText(R.id.title_txt, context.getString(R.string.widget_touch_to_open));
         views.setViewVisibility(R.id.by_txt, View.GONE);
         views.setViewVisibility(R.id.user_txt, View.GONE);
 
         // initialize controls
-        linkButtons(context, views, null);
+        views.linkButtons(context, null);
         pushUpdate(context, appWidgetIds, views);
     }
 
@@ -91,13 +92,10 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
     }
 
     /* package */  void performUpdate(Context context, int[] appWidgetIds, Intent intent) {
-        final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_player);
+        final PlaybackRemoteViews views = new PlaybackRemoteViews(context.getPackageName(), R.layout.appwidget_player);
 
 
-        final boolean playing = intent.getBooleanExtra("isSupposedToBePlaying", false);
-        views.setImageViewResource(R.id.pause,
-                playing ? R.drawable.ic_widget_pause_states : R.drawable.ic_widget_play_states);
-
+        views.setPlaybackStatus(intent.getBooleanExtra("isSupposedToBePlaying", false));
 
         Track current = intent.getParcelableExtra("trackParcel");
 
@@ -106,50 +104,14 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                     current.user_favorite ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_favorite_states);
             if (mCurrentTrackId != current.id) {
                 mCurrentTrackId = current.id;
-
-                views.setTextViewText(R.id.title_txt, current.title);
-                views.setTextViewText(R.id.user_txt, current.user.username);
-                views.setViewVisibility(R.id.by_txt, View.VISIBLE);
-                views.setViewVisibility(R.id.user_txt, View.VISIBLE);
+                views.setCurrentTrack(current);
             }
 
-            linkButtons(context, views, current);
+            views.linkButtons(context, current);
             pushUpdate(context, appWidgetIds, views);
         }
     }
 
-    private void linkButtons(Context context, RemoteViews views, Track track) {
-        // Connect up various buttons and touch events
-        final ComponentName name = new ComponentName(context, CloudPlaybackService.class);
-        final Intent previous = new Intent(CloudPlaybackService.PREVIOUS_ACTION).setComponent(name);
-        views.setOnClickPendingIntent(R.id.prev, PendingIntent.getService(context,
-                0 /* requestCode */, previous, 0 /* flags */));
 
-        final Intent toggle = new Intent(CloudPlaybackService.TOGGLEPAUSE_ACTION).setComponent(name);
-        views.setOnClickPendingIntent(R.id.pause, PendingIntent.getService(context,
-                0 /* requestCode */, toggle, 0 /* flags */));
-
-        final Intent next = new Intent(CloudPlaybackService.NEXT_ACTION).setComponent(name);
-        views.setOnClickPendingIntent(R.id.next, PendingIntent.getService(context,
-                0 /* requestCode */, next, 0 /* flags */));
-
-        final Intent player = new Intent(Actions.PLAYER).addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-        views.setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context, 0, player, 0));
-
-        if (track != null) {
-            final Intent browser = new Intent(context, UserBrowser.class).putExtra("userId", track.user.id);
-            views.setOnClickPendingIntent(R.id.user_txt,
-                    PendingIntent.getActivity(context, 0, browser, PendingIntent.FLAG_UPDATE_CURRENT));
-
-            final Intent toggleLike = new Intent(
-                    track.user_favorite ?
-                        CloudPlaybackService.REMOVE_FAVORITE :
-                        CloudPlaybackService.ADD_FAVORITE)
-                    .setComponent(name)
-                    .putExtra("trackId", track.id);
-            views.setOnClickPendingIntent(R.id.btn_favorite, PendingIntent.getService(context,
-                    0 /* requestCode */, toggleLike, PendingIntent.FLAG_UPDATE_CURRENT));
-        }
-    }
 }
 

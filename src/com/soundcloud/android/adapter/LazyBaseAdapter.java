@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter {
-    public static final int NOTIFY_DELAY = 250;
+    public static final int NOTIFY_DELAY = 600;
     protected Context mContext;
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;

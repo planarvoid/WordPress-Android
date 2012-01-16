@@ -2,6 +2,13 @@ package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.service.playback.State.*;
 
+import android.app.NotificationManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -15,6 +22,7 @@ import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
 import android.app.Notification;
@@ -36,8 +44,10 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
+import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 public class CloudPlaybackService extends Service implements FocusHelper.MusicFocusable {
     public static final String TAG = "CloudPlaybackService";
@@ -128,6 +138,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private State state = STOPPED;
 
     private final IBinder mBinder = new ServiceStub(this);
+    private WeakReference<Bitmap> mDefaultArtwork;
+    public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
+    private Notification status;
 
     @Override
     public void onCreate() {
@@ -376,8 +389,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     private void startTrack(Track track) {
-        setPlayingNotification(track);
-
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "startTrack("+track.title+")");
         }
@@ -448,7 +459,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
                 mMediaPlayer.start();
                 state = PLAYING;
-
                 setPlayingNotification(mCurrentTrack);
 
                 mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
@@ -502,7 +512,13 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         state = newState;
         mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
         scheduleServiceShutdownCheck();
-        stopForeground(true);
+        stopForeground(false);
+
+        if (Build.VERSION.SDK_INT >= 11){
+            ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
+            NotificationManager mManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mManager.notify(PLAYBACKSERVICE_STATUS_ID, status);
+        }
     }
 
     /* package */ State getState() {
@@ -518,27 +534,63 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
 
-    private void setPlayingNotification(Track track) {
+    private void setPlayingNotification(final Track track) {
         if (track == null) return;
 
-        if (mNotificationView == null) {
-            mNotificationView = new RemoteViews(getPackageName(), R.layout.playback_service_status_play);
-            mNotificationView.setImageViewResource(R.id.icon, R.drawable.statusbar);
-        }
+        if (Build.VERSION.SDK_INT < 11) {
+            if (mNotificationView == null) {
+                mNotificationView = new RemoteViews(getPackageName(), R.layout.playback_service_status_play);
+                mNotificationView.setImageViewResource(R.id.icon, R.drawable.statusbar);
+            }
+            mNotificationView.setTextViewText(R.id.trackname, track.title);
+            mNotificationView.setTextViewText(R.id.username, track.getUserName());
+            mNotificationView.setTextViewText(R.id.progress, "");
 
-        mNotificationView.setTextViewText(R.id.trackname, track.title);
-        mNotificationView.setTextViewText(R.id.username, track.getUserName());
-        mNotificationView.setTextViewText(R.id.progress, "");
+        } else {
+
+            if (mNotificationView == null){
+                mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11);
+            }
+            ((PlaybackRemoteViews) mNotificationView).setCurrentTrack(track);
+            ((PlaybackRemoteViews) mNotificationView).linkButtons(this,track);
+            ((PlaybackRemoteViews) mNotificationView).setPlaybackStatus(state.isSupposedToBePlaying());
+
+            final String artworkUri = track.getListArtworkUrl(getApplicationContext());
+            final Bitmap bmp = ImageLoader.get(getApplicationContext()).getBitmap(artworkUri,null, ICON_OPTIONS);
+            if (bmp != null){
+                ((PlaybackRemoteViews) mNotificationView).setIcon(bmp);
+            } else {
+                ((PlaybackRemoteViews) mNotificationView).setIcon(getDefaultArtwork());
+                ImageLoader.get(getApplicationContext()).getBitmap(artworkUri,new ImageLoader.BitmapCallback(){
+                    public void onImageLoaded(Bitmap mBitmap, String uri) {if (track == mCurrentTrack) setPlayingNotification(mCurrentTrack);}
+                    public void onImageError(String uri, Throwable error) {}
+                });
+
+            }
+        }
 
         Intent intent = new Intent(Actions.PLAYER);
         intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
 
-        Notification status = new Notification();
+        status = new Notification();
         status.contentView = mNotificationView;
         status.flags |= Notification.FLAG_ONGOING_EVENT;
         status.icon = R.drawable.statusbar;
         status.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
         startForeground(PLAYBACKSERVICE_STATUS_ID, status);
+
+
+    }
+
+    private Bitmap getDefaultArtwork() {
+        if (mDefaultArtwork == null || mDefaultArtwork.get() == null){
+            Bitmap defaultArtwork = null;
+            try {
+                 defaultArtwork = BitmapFactory.decodeResource(getResources(),R.drawable.artwork_badge);
+            } catch (OutOfMemoryError ignored){}
+            if (defaultArtwork != null) mDefaultArtwork = new WeakReference(defaultArtwork);
+        }
+        return mDefaultArtwork.get();
     }
 
     /* package */ void setQueuePosition(int pos) {
@@ -785,7 +837,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     play();
                 } else {
                     openCurrent();
-                    setPlayingNotification(mCurrentTrack);
                 }
             } else if (CMDPAUSE.equals(cmd) || PAUSE_ACTION.equals(action)) {
                 pause();

@@ -14,6 +14,7 @@ import com.soundcloud.android.provider.DBHelper.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.FlowLayout;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -555,5 +556,10 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         favoritings_count = tracklistItem.favoritings_count;
         user_favorite = tracklistItem.user_favorite;
         shared_to_count = tracklistItem.shared_to_count;
+    }
+
+    public String getListArtworkUrl(Context context){
+        final String iconUrl = getArtwork();
+        return TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(context, iconUrl);
     }
 }

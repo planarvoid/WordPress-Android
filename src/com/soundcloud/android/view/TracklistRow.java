@@ -77,11 +77,6 @@ public class TracklistRow extends LazyRow {
 
     @Override
     public String getIconRemoteUri() {
-        if (mTrack == null){
-           return "";
-        } else {
-            final String iconUrl = mTrack.getArtwork();
-            return TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(getContext(),mTrack.getArtwork());
-        }
+        return mTrack == null ? "" : mTrack.getListArtworkUrl(getContext());
     }
 }
