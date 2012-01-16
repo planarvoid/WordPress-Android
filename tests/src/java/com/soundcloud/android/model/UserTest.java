@@ -31,7 +31,7 @@ public class UserTest {
         u.buildContentValues(true);
         u.id = 1000L;
         ContentValues cv = u.buildContentValues(false);
-        expect(cv.getAsLong(DBHelper.Users.ID)).toBe(1000L);
+        expect(cv.getAsLong(DBHelper.Users._ID)).toBe(1000L);
     }
 
     @Test

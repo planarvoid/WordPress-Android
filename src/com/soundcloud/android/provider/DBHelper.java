@@ -236,7 +236,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     static final String DATABASE_CREATE_TRACK_VIEW = "CREATE VIEW TrackView AS SELECT " +
-            "Tracks." + Tracks.ID + " as " + TrackView._ID + "," +
+            "Tracks." + Tracks._ID + " as " + TrackView._ID + "," +
             "Tracks." + Tracks.LAST_UPDATED + " as " + TrackView.LAST_UPDATED + "," +
             "Tracks." + Tracks.PERMALINK + " as " + TrackView.PERMALINK + "," +
             "Tracks." + Tracks.CREATED_AT + " as " + TrackView.CREATED_AT + "," +
@@ -259,13 +259,13 @@ public class DBHelper extends SQLiteOpenHelper {
             "Tracks." + Tracks.FAVORITINGS_COUNT + " as " + TrackView.FAVORITINGS_COUNT + "," +
             "Tracks." + Tracks.SHARED_TO_COUNT + " as " + TrackView.SHARED_TO_COUNT + "," +
             "Tracks." + Tracks.FILELENGTH + " as " + TrackView.FILELENGTH + "," +
-            "Users." + Users.ID + " as " + TrackView.USER_ID + "," +
+            "Users." + Users._ID + " as " + TrackView.USER_ID + "," +
             "Users." + Users.USERNAME + " as " + TrackView.USERNAME + "," +
             "Users." + Users.PERMALINK + " as " + TrackView.USER_PERMALINK + "," +
             "Users." + Users.AVATAR_URL + " as " + TrackView.USER_AVATAR_URL +
             " FROM Tracks" +
             " JOIN Users ON(" +
-            " Tracks." + Tracks.USER_ID + " = " + "Users." + Users.ID + ")";
+            " Tracks." + Tracks.USER_ID + " = " + "Users." + Users._ID + ")";
 
     /** A view which combines activity data + tracks/users/comments */
     static final String DATABASE_CREATE_ACTIVITY_VIEW = "CREATE VIEW ActivityView AS SELECT " +
@@ -299,7 +299,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "Tracks." + Tracks.SHARED_TO_COUNT + " as " + ActivityView.SHARED_TO_COUNT + "," +
             "Tracks." + Tracks.FILELENGTH + " as " + ActivityView.FILELENGTH + "," +
             // user data
-            "Users." + Users.ID + " as " + ActivityView.USER_ID + "," +
+            "Users." + Users._ID + " as " + ActivityView.USER_ID + "," +
             "Users." + Users.USERNAME + " as " + ActivityView.USERNAME + "," +
             "Users." + Users.PERMALINK + " as " + ActivityView.USER_PERMALINK + "," +
             "Users." + Users.AVATAR_URL + " as " + ActivityView.USER_AVATAR_URL + ","+
@@ -309,16 +309,14 @@ public class DBHelper extends SQLiteOpenHelper {
             "Comments." + Comments.TIMESTAMP + " as " +ActivityView.COMMENT_TIMESTAMP +
             " FROM Activities" +
             " JOIN Users ON(" +
-            " Activities." + Activities.USER_ID + " = " + "Users." + Users.ID + ")" +
+            " Activities." + Activities.USER_ID + " = " + "Users." + Users._ID + ")" +
             " JOIN Tracks ON(" +
-            " Activities." + Activities.TRACK_ID + " = " + "Tracks." + Tracks.ID + ")" +
+            " Activities." + Activities.TRACK_ID + " = " + "Tracks." + Tracks._ID + ")" +
             " LEFT JOIN Comments ON(" +
-            " Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments.ID + ")"
+            " Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")"
             ;
 
     public static class ResourceTable implements BaseColumns {
-        public static final String ID = BaseColumns._ID;
-
         public static final String CREATED_AT = "created_at";
         public static final String LAST_UPDATED = "last_updated";
         public static final String PERMALINK    = "permalink";

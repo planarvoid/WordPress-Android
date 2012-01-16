@@ -170,7 +170,7 @@ public class ApiSyncer {
             while (i < additions.size()) {
                 List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
                 storedIds.addAll(idCursorToList(resolver.query(content.uri, new String[]{DBHelper.Tracks._ID},
-                        CloudUtils.getWhereIds(DBHelper.Tracks.ID, batch), CloudUtils.longListToStringArr(batch), null)));
+                        CloudUtils.getWhereIds(DBHelper.Tracks._ID, batch), CloudUtils.longListToStringArr(batch), null)));
                 i += RESOLVER_BATCH_SIZE;
             }
             additions.removeAll(storedIds);

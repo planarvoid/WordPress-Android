@@ -63,7 +63,7 @@ public class User extends ScModel implements PageTrackable, Resource {
         // TODO don't use reflection
         String[] keys = cursor.getColumnNames();
         for (String key : keys) {
-            if (key.contentEquals(Users.ID)) {
+            if (key.contentEquals(Users._ID)) {
                 id = cursor.getLong(cursor.getColumnIndex(key));
             } else {
                 try {
@@ -128,7 +128,7 @@ public class User extends ScModel implements PageTrackable, Resource {
 
     public ContentValues buildContentValues(boolean isCurrentUser){
         ContentValues cv = new ContentValues();
-        cv.put(Users.ID, id);
+        cv.put(Users._ID, id);
         cv.put(Users.USERNAME, username);
         cv.put(Users.PERMALINK, permalink);
         cv.put(Users.AVATAR_URL, avatar_url);

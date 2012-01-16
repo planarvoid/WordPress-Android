@@ -91,7 +91,7 @@ public class TrackTest {
         t.id = 1000;
         ContentValues v = t.buildContentValues();
         assertNotNull(v);
-        assertThat(v.getAsLong(DBHelper.Tracks.ID), is(1000L));
+        assertThat(v.getAsLong(DBHelper.Tracks._ID), is(1000L));
     }
 
     @Test
