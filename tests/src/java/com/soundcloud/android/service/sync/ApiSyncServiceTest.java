@@ -87,15 +87,10 @@ public class ApiSyncServiceTest {
     public void shouldRemove() throws Exception {
         ApiSyncService svc = new ApiSyncService();
 
-<<<<<<< HEAD
         SoundCloudApplication app = DefaultTestRunner.application;
 
         svc.mRunningRequestUris.add(Content.ME_FAVORITES.uri);
         svc.mRunningRequestUris.add(Content.ME_FOLLOWINGS.uri);
-=======
-        svc.mRunningRequests.add(Content.ME_FAVORITES.uri);
-        svc.mRunningRequests.add(Content.ME_FOLLOWINGS.uri);
->>>>>>> f4a4e482d824aef18ebe7a02e881116ddcbef5ee
 
         ApiSyncService.UriSyncRequest.Result result = new ApiSyncService.UriSyncRequest.Result(Content.ME_FAVORITES.uri);
         result.success = true;
@@ -125,11 +120,8 @@ public class ApiSyncServiceTest {
                 "incoming_1.json",
                 "incoming_2.json");
 
-<<<<<<< HEAD
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
 
-=======
->>>>>>> f4a4e482d824aef18ebe7a02e881116ddcbef5ee
         assertContentUriCount(Content.COLLECTIONS, 1);
         LocalCollection collection = LocalCollection.fromContentUri(
                 Content.ME_SOUND_STREAM.uri, Robolectric.application.getContentResolver()
@@ -191,7 +183,7 @@ public class ApiSyncServiceTest {
 
     private void sync(ApiSyncService svc, Content content, String... fixtures) throws IOException {
         TestHelper.addCannedResponses(SyncAdapterServiceTest.class, fixtures);
-        svc.onHandleIntent(new Intent(Intent.ACTION_SYNC, content.uri));
+        svc.onStart(new Intent(Intent.ACTION_SYNC, content.uri), 1);
     }
 
     private void addIdResponse(String url, int... ids) {
