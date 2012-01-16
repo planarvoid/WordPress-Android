@@ -120,8 +120,6 @@ public class ApiSyncServiceTest {
                 "incoming_1.json",
                 "incoming_2.json");
 
-        svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
-
         assertContentUriCount(Content.COLLECTIONS, 1);
         LocalCollection collection = LocalCollection.fromContentUri(
                 Content.ME_SOUND_STREAM.uri, Robolectric.application.getContentResolver()
