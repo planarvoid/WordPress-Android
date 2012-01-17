@@ -254,12 +254,6 @@ public class ActivitiesTest {
             Activities.get(Content.ME_SOUND_STREAM,
             Robolectric.application.getContentResolver(), -1).size()
         ).toEqual(50);
-
-        expect(
-            Activities.get(Content.ME_SOUND_STREAM,
-            Robolectric.application.getContentResolver(),
-            toTime("2011/07/12 09:13:36 +0000")).size()
-        ).toEqual(2);
     }
 
     @Test

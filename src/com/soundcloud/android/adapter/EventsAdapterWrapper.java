@@ -7,7 +7,6 @@ import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.task.RefreshEventsTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.api.Request;
 
@@ -35,8 +34,6 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         mRequest = Request.to(c.remoteUri);
         setListLastUpdated();
     }
-
-
 
     @Override
     public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
