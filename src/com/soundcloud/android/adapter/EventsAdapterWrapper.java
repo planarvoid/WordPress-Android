@@ -19,7 +19,6 @@ import java.util.List;
 
 public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     public DetachableResultReceiver mReceiver;
-    private boolean mWaitingOnSync;
 
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Content content) {
         super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
@@ -40,7 +39,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
 
     @Override
-    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
+    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
         final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
                 User.DataKeys.LAST_OWN_SEEN : User.DataKeys.LAST_INCOMING_SEEN;
 
@@ -54,7 +53,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
                 app.setAccountData(lastSeenKey, first.created_at.getTime());
             }
         }
-        super.onPostTaskExecute(newItems, nextHref, responseCode, keepGoing);
+        super.onPostTaskExecute(newItems, nextHref, responseCode, keepGoing, wasRefresh);
     }
 
     public void onPostRefresh(List<Parcelable> newItems, String nextHref, boolean success) {
@@ -78,57 +77,35 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
         }
 
-        if (!mWaitingOnSync) { // reset state to not refreshing
+
             if (mListView != null) {
                 mListView.onRefreshComplete(false);
                 setListLastUpdated();
             }
 
             // if this is the end of the initial refresh, then allow appending
-            if (mState < APPENDING) mState = IDLE;
+            if (mState < LOADING) mState = IDLE;
 
             applyEmptyView();
             mPendingView = null;
-            mRefreshTask = null;
             mAppendTask = null;
-        }
 
         notifyDataSetChanged();
     }
 
     @SuppressWarnings("unchecked")
     public void refresh(final boolean userRefresh) {
-        boolean sync = true;
-        if (!userRefresh) {
-            startRefreshTask();
-            sync = isStale(true);
-        }
-
-        if (sync) {
-            // send an intent to update our event cache
-            mWaitingOnSync = true;
-            requestSync();
-        }
+        requestSync();
         notifyDataSetChanged();
     }
 
-    protected void startRefreshTask(){
-        mRefreshTask = new RefreshEventsTask(mActivity.getApp(),this, mRequest);
-        mRefreshTask.execute();
-    }
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
-            case ApiSyncService.STATUS_SYNC_FINISHED: {
-                mWaitingOnSync = false;
-                 startRefreshTask();
-                break;
-            }
+            case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                mWaitingOnSync = false;
-                mState = ERROR;
-                onPostRefresh(null, "", false);
+                doneRefreshing();
                 break;
             }
         }

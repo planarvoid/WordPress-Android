@@ -21,8 +21,12 @@ public class UserCache extends LruCache<Long, User> implements IResourceCache{
     public Parcelable fromListItem(Parcelable listItem) {
         if (listItem instanceof UserlistItem){
             final UserlistItem u = (UserlistItem)listItem;
-            final User user = get(((UserlistItem) listItem).id);
-            return user == null ? put(new User(u)) : user.updateFromUserlistItem(u);
+            User user = get(((UserlistItem) listItem).id);
+            if (user == null) {
+                user = new User(u);
+                put(user);
+            }
+            return user;
         } else {
             throw new IllegalArgumentException("Illegal param, tracklistitem required");
         }

@@ -132,19 +132,6 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
         notifyDataSetChanged();
     }
 
-    public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
-        if (handleResponseCode(responseCode) || (newItems != null && newItems.size() > 0)) {
-            reset(false);
-            onPostTaskExecute(newItems,nextHref,HttpStatus.SC_OK,keepGoing);
-        } else {
-            onEmptyRefresh();
-        }
-
-        if (mListView != null) {
-            mListView.onRefreshComplete(false);
-        }
-
-    }
     @Override
     protected void addNewItems(List<Parcelable> newItems){
         if (newItems == null || newItems.size() == 0)  return;
@@ -190,9 +177,5 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
 
     public interface SectionListener {
         void onSectionLoaded(SectionedAdapter.Section seection);
-    }
-
-    @Override public boolean needsRefresh() {
-        return getWrappedAdapter().sections.size() > 0 && super.needsRefresh();
     }
 }

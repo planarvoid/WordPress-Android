@@ -3,6 +3,9 @@ package com.soundcloud.android.adapter;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.database.ContentObserver;
+import android.os.Handler;
+import android.text.TextUtils;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Resource;
@@ -24,12 +27,18 @@ import java.util.Map;
 
 public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
-    private Uri mSyncDataUri;
-    private boolean mWaitingOnSync;
-
-
+    private ChangeObserver mChangeObserver;
     public RemoteCollectionAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(activity, wrapped, contentUri, request, autoAppend);
+
+        if (contentUri != null){
+            mChangeObserver = new ChangeObserver();
+            activity.getContentResolver().registerContentObserver(contentUri, true, mChangeObserver);
+        }
+
+        if (isSyncable() && isStale(false)){
+            refresh(false);
+        }
     }
 
     @Override
@@ -37,40 +46,29 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         super.refresh(userRefresh);
 
         if (isSyncable()) {
-
-            boolean sync = true;
-            if (!userRefresh) {
-                executeRefreshTask();
-                sync = isStale(true);
-            }
-
-            if (sync) {
-                // send an intent to update our event cache
-                mWaitingOnSync = true;
-                requestSync();
-            }
-
+            requestSync();
         } else {
-            executeRefreshTask();
+            clearAppendTask();
+            load(true);
         }
 
         notifyDataSetChanged();
-    }
-
-    private void executeRefreshTask(){
-         mRefreshTask = buildTask();
-         mRefreshTask.execute(getCollectionParams(true));
     }
 
     protected RemoteCollectionTask buildTask() {
         return new RemoteCollectionTask(mActivity.getApp(), this);
     }
 
-    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
+    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
         mKeepGoing = keepGoing;
         mNextHref = nextHref;
 
-        if ((newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK) {
+        boolean success = (newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK;
+        if (success) {
+            if (wasRefresh){
+                reset();
+                if (mListView != null && mContentUri != null) setListLastUpdated();
+            }
             addNewItems(newItems);
             mState = IDLE;
             increasePageIndex();
@@ -78,37 +76,13 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             handleResponseCode(responseCode);
         }
 
-        // configure the empty view depending on possible exceptions
+        if (wasRefresh || !mRefreshing){
+            doneRefreshing();
+        }
+
         applyEmptyView();
         mPendingView = null;
         mAppendTask = null;
-        notifyDataSetChanged();
-    }
-
-    public void onPostRefresh(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
-        if (handleResponseCode(responseCode) || (newItems != null && newItems.size() > 0)) {
-
-            reset(false);
-            mKeepGoing = keepGoing;
-            mNextHref = nextHref;
-            addNewItems(newItems);
-            increasePageIndex();
-
-            if (!mWaitingOnSync){
-                mState = IDLE;
-            }
-
-
-        } else if (!mWaitingOnSync) {
-            applyEmptyView();
-        }
-
-        if (!mWaitingOnSync && mListView != null) {
-            mListView.onRefreshComplete(false);
-            setListLastUpdated();
-        }
-
-        mRefreshTask = null;
         notifyDataSetChanged();
     }
 
@@ -149,12 +123,6 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         mUpdateCollectionTask = null;
     }
 
-    @Override
-    public boolean isRefreshing() {
-        return mRefreshTask != null || mWaitingOnSync == true;
-    }
-
-
     protected boolean handleResponseCode(int responseCode) {
         switch (responseCode) {
             case HttpStatus.SC_OK: // do nothing
@@ -173,24 +141,28 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
-            case ApiSyncService.STATUS_SYNC_FINISHED: {
-                mWaitingOnSync = false;
-                executeRefreshTask();
-                /*if (resultData.getBoolean(mContentUri.toString())){
-                    executeRefreshTask(false);
-                } else {
-                    doneRefreshing();
-                }*/
-
-                break;
-            }
+            case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                mWaitingOnSync = false;
-                onPostRefresh(null,null, HttpStatus.SC_NO_CONTENT, false);
+                mRefreshing = false;
+                if (!resultData.getBoolean(mContentUri.toString())) doneRefreshing(); // nothing changed
                 break;
             }
         }
     }
 
+    private class ChangeObserver extends ContentObserver {
+        public ChangeObserver() {
+            super(new Handler());
+        }
 
+        @Override
+        public boolean deliverSelfNotifications() {
+            return true;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            reset();
+        }
+    }
 }

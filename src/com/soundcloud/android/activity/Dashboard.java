@@ -217,7 +217,6 @@ public class Dashboard extends ScActivity {
                                                 .putBoolean(EXCLUSIVE_ONLY_KEY, which == 1).commit();
                                         ((EventsAdapterWrapper) mListView.getWrapper()).setContent(which == 1 ?
                                                 Content.ME_EXCLUSIVE_STREAM : Content.ME_SOUND_STREAM);
-                                        mListView.getWrapper().clearRefreshTask();
                                         mListView.getWrapper().reset();
                                         mListView.invalidateViews();
                                         mListView.post(new Runnable() {
