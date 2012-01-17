@@ -201,15 +201,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             getWrapper().notifyDataSetChanged();
         }
         if (mOnRefreshListener != null) {
-            if (mOnRefreshListener.isRefreshing()) {
-                prepareForRefresh();
-                if (getFirstVisiblePosition() != 0) {
-                    postSelect(0, 0, false);
-                }
-            } else if (mOnRefreshListener.needsRefresh()) {
-                onRefresh(false);
-                setSelection(0);
-            } else {
+            if (!mOnRefreshListener.isRefreshing()) {
                 checkHeaderVisibility();
             }
         }
@@ -218,7 +210,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     public void onConnected(boolean isForeground) {
         if (mOnRefreshListener != null) {
             mOnRefreshListener.onConnected();
-            if (isForeground && mOnRefreshListener.needsRefresh()) onRefresh(false);
         }
         getBaseAdapter().notifyDataSetChanged();
     }
@@ -697,8 +688,6 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         void onRefresh(boolean manual);
 
         void onConnected();
-
-        boolean needsRefresh();
 
         boolean isRefreshing();
     }

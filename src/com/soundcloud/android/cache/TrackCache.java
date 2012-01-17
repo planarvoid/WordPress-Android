@@ -31,8 +31,12 @@ public class TrackCache extends LruCache<Long, Track> implements IResourceCache{
     public Parcelable fromListItem(Parcelable listItem) {
         if (listItem instanceof TracklistItem){
             final TracklistItem t = (TracklistItem)listItem;
-            final Track track = get(((TracklistItem)listItem).id);
-            return track == null ? put(new Track(t)) : track.updateFromTracklistItem(t);
+            Track track = get(((TracklistItem) listItem).id);
+            if (track == null) {
+                track = new Track(t);
+                put(track);
+            }
+            return track;
         } else {
             throw new IllegalArgumentException("Illegal param, tracklistitem required");
         }

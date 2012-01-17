@@ -90,11 +90,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
     private void respond(){
         RemoteCollectionAdapter adapter = (RemoteCollectionAdapter) mAdapterReference.get();
         if (adapter != null) {
-            if (mParams.isRefresh){
-                adapter.onPostRefresh(mNewItems, mNextHref, mResponseCode, keepGoing);
-            } else {
-                adapter.onPostTaskExecute(mNewItems, mNextHref, mResponseCode, keepGoing);
-            }
+            adapter.onPostTaskExecute(mNewItems, mNextHref, mResponseCode, keepGoing, mParams.isRefresh);
         }
     }
 
