@@ -1,5 +1,8 @@
 package com.soundcloud.android.cache;
 
+import android.os.Parcelable;
+import com.soundcloud.android.model.TracklistItem;
+
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;

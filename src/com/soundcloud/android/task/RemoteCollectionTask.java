@@ -1,9 +1,5 @@
 package com.soundcloud.android.task;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.model.LocalCollection.insertLocalCollection;
-import static com.soundcloud.android.service.sync.ApiSyncer.getAdditionsFromIds;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -12,7 +8,6 @@ import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
@@ -32,6 +27,10 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.soundcloud.android.SoundCloudApplication.*;
+import static com.soundcloud.android.model.LocalCollection.insertLocalCollection;
+import static com.soundcloud.android.service.sync.ApiSyncer.getAdditionsFromIds;
 
 public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.CollectionParams, List<? super Parcelable>, Boolean> {
 
@@ -145,10 +144,9 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
                 throw new IOException("Invalid response: " + resp.getStatusLine());
             }
 
-            Log.i(TAG, getClass().getSimpleName() + " got response " + resp);
-
             // process new items and publish them
-            CollectionHolder holder = ScModel.getCollectionFromStream(resp.getEntity().getContent(), mApp.getMapper(), mParams.loadModel, mNewItems);
+            CollectionHolder holder = ScModel.getCollectionFromStream(resp.getEntity().getContent(), mApp.getMapper(),
+                    mParams.loadModel, mNewItems, cacheFromLoadModel(mParams.loadModel));
             mNextHref = holder == null || TextUtils.isEmpty(holder.next_href) ? null : holder.next_href;
             keepGoing = !TextUtils.isEmpty(mNextHref);
             for (Parcelable p : mNewItems) {
@@ -163,9 +161,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
             Log.e(TAG, "error", e);
             keepGoing = false;
         }
-
         return false;
-
     }
 
     private boolean refreshLocalItems(ContentResolver resolver, LocalData localData) {
@@ -287,17 +283,16 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
             if (itemsCursor != null && itemsCursor.moveToFirst()) {
                 do {
                     if (Track.class.equals(mParams.loadModel)) {
-                        items.add(new Track(itemsCursor));
+                        final Parcelable t = TRACK_CACHE.fromCursor(itemsCursor);
+                        items.add(t);
                     } else if (User.class.equals(mParams.loadModel)) {
-                        items.add(new User(itemsCursor));
+                        items.add(USER_CACHE.fromCursor(itemsCursor));
                     } else if (Friend.class.equals(mParams.loadModel)) {
-                        items.add(new User(itemsCursor));
+                        items.add(USER_CACHE.fromCursor(itemsCursor));
                     }
                 } while (itemsCursor.moveToNext());
             }
         if (itemsCursor != null) itemsCursor.close();
         return items;
     }
-
-
 }

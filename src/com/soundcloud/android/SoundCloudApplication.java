@@ -17,11 +17,9 @@ import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.cache.Connections;
-import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.cache.TrackCache;
+import com.soundcloud.android.cache.*;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -61,6 +59,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public static final boolean API_PRODUCTION = true;
     public static final TrackCache TRACK_CACHE = new TrackCache();
+    public static final UserCache USER_CACHE = new UserCache();
 
     public static boolean DEV_MODE, BETA_MODE;
     private RecordListener mRecListener;
@@ -614,5 +613,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                     .penaltyDeath()
                     .build());
         }
+    }
+
+    public static IResourceCache cacheFromLoadModel(Class<?> loadModel){
+        return (loadModel == User.class) ? USER_CACHE
+                    : (loadModel == Track.class) ? TRACK_CACHE
+                    : null;
     }
 }

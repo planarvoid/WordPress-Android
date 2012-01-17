@@ -224,6 +224,10 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public Track(Cursor cursor) {
+        updateFromCursor(cursor);
+    }
+
+    public Track updateFromCursor(Cursor cursor) {
         final int trackIdIdx = cursor.getColumnIndex(DBHelper.ActivityView.TRACK_ID);
         if (trackIdIdx == -1) {
             id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView._ID));
@@ -263,6 +267,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         if (favIndex != -1) {
             user_favorite = cursor.getInt(favIndex) == 1;
         }
+        return this;
     }
 
 
@@ -550,7 +555,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         return this;
     }
 
-    private void updateFromTracklistItem(TracklistItem tracklistItem) {
+    public Track updateFromTracklistItem(TracklistItem tracklistItem) {
         id = tracklistItem.id;
         title = tracklistItem.title;
         created_at = tracklistItem.created_at;
@@ -569,6 +574,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         favoritings_count = tracklistItem.favoritings_count;
         user_favorite = tracklistItem.user_favorite;
         shared_to_count = tracklistItem.shared_to_count;
+        return this;
     }
 
     public String getListArtworkUrl(Context context){

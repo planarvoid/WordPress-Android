@@ -19,6 +19,8 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
 
+import java.util.Date;
+
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 @SuppressWarnings({"UnusedDeclaration"})
@@ -60,23 +62,28 @@ public class User extends ScModel implements PageTrackable, Resource {
     }
 
     public User(Cursor cursor) {
-        // TODO don't use reflection
-        String[] keys = cursor.getColumnNames();
-        for (String key : keys) {
-            if (key.contentEquals(Users._ID)) {
-                id = cursor.getLong(cursor.getColumnIndex(key));
-            } else {
-                try {
-                    setFieldFromCursor(this,
-                            User.class.getDeclaredField(key),
-                            cursor, key);
-                } catch (SecurityException e) {
-                    Log.e(TAG, "error", e);
-                } catch (NoSuchFieldException e) {
-                    Log.e(TAG, "error", e);
-                }
-            }
-        }
+        updateFromCursor(cursor);
+    }
+
+    public User updateFromCursor(Cursor cursor) {
+        id = cursor.getLong(cursor.getColumnIndex(Users._ID));
+        permalink = cursor.getString(cursor.getColumnIndex(Users.PERMALINK));
+        username = cursor.getString(cursor.getColumnIndex(Users.USERNAME));
+        track_count = cursor.getInt(cursor.getColumnIndex(Users.TRACK_COUNT));
+        discogs_name = cursor.getString(cursor.getColumnIndex(Users.DISCOGS_NAME));
+        city = cursor.getString(cursor.getColumnIndex(Users.CITY));
+        avatar_url = cursor.getString(cursor.getColumnIndex(Users.AVATAR_URL));
+        full_name = cursor.getString(cursor.getColumnIndex(Users.FULL_NAME));
+        followers_count = cursor.getInt(cursor.getColumnIndex(Users.FOLLOWERS_COUNT));
+        followings_count = cursor.getInt(cursor.getColumnIndex(Users.FOLLOWINGS_COUNT));
+        myspace_name = cursor.getString(cursor.getColumnIndex(Users.MYSPACE_NAME));
+        country = cursor.getString(cursor.getColumnIndex(Users.COUNTRY));
+        user_follower = cursor.getInt(cursor.getColumnIndex(Users.USER_FOLLOWER)) == 1;
+        user_following = cursor.getInt(cursor.getColumnIndex(Users.USER_FOLLOWING)) == 1;
+        last_updated = cursor.getLong(cursor.getColumnIndex(Users.LAST_UPDATED));
+        final String tempDesc = cursor.getString(cursor.getColumnIndex(Users.DESCRIPTION));
+        if (TextUtils.isEmpty(tempDesc)) description = tempDesc;
+        return this;
     }
 
     public static User fromActivityView(Cursor c) {
@@ -282,7 +289,7 @@ public class User extends ScModel implements PageTrackable, Resource {
         return this;
     }
 
-    private void updateFromUserlistItem(UserlistItem userlistItem) {
+    public User updateFromUserlistItem(UserlistItem userlistItem) {
        this.id = userlistItem.id;
         this.username = userlistItem.username;
         this.track_count = userlistItem.track_count;
@@ -295,5 +302,6 @@ public class User extends ScModel implements PageTrackable, Resource {
         this.followings_count = userlistItem.followings_count;
         this.public_favorites_count = userlistItem.public_favorites_count;
         this.private_tracks_count = userlistItem.private_tracks_count;
+        return this;
     }
 }

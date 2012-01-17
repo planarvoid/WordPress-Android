@@ -184,19 +184,7 @@ public class ApiSyncer {
             List<Long> batch = additions.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, additions.size()));
             InputStream is = validateResponse(app.get(Request.to(content.remoteUri)
                     .add("linked_partitioning", "1").add("limit", API_LOOKUP_BATCH_SIZE).add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
-
-            CollectionHolder holder;
-            if (Track.class.equals(content.resourceType)) {
-                holder = app.getMapper().readValue(is, TracklistItemHolder.class);
-                for (TracklistItem t : (TracklistItemHolder) holder) {
-                    items.add(new Track(t));
-                }
-            } else if (User.class.equals(content.resourceType)) {
-                holder = app.getMapper().readValue(is, UserlistItemHolder.class);
-                for (UserlistItem u : (UserlistItemHolder) holder) {
-                    items.add(new User(u));
-                }
-            }
+            ScModel.getCollectionFromStream(is,app.getMapper(),content.resourceType,items,SoundCloudApplication.cacheFromLoadModel(content.resourceType));
             i += API_LOOKUP_BATCH_SIZE;
         }
         return items;
