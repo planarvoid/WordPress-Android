@@ -137,7 +137,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
         }
     }
 
-    private boolean doRemoteLoad() {
+    protected boolean doRemoteLoad() {
         try {
             HttpResponse resp = mApp.get(mParams.request);
             mResponseCode = resp.getStatusLine().getStatusCode();

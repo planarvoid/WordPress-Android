@@ -114,7 +114,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
     protected void startRefreshTask(){
         mRefreshTask = new RefreshEventsTask(mActivity.getApp(),this, mRequest);
-        mRefreshTask.execute(null);
+        mRefreshTask.execute();
     }
 
     @Override

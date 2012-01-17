@@ -291,6 +291,10 @@ public class Activities extends CollectionHolder<Activity> {
         // TODO
     }
 
+    public static Activities get(Content content, ContentResolver contentResolver) {
+        return get(content,contentResolver,0);
+    }
+
     public static Activities get(Content content, ContentResolver resolver, long since)  {
         Activities activities = new Activities();
         LocalCollection lc = LocalCollection.fromContentUri(content.uri, resolver);
@@ -382,4 +386,5 @@ public class Activities extends CollectionHolder<Activity> {
         }
         return created;
     }
+
 }
