@@ -185,6 +185,10 @@ public interface AndroidCloudAPI extends CloudAPI {
             }
         }
 
+        public static long toTime(String s) {
+            return fromString(s).getTime();
+        }
+
         private CloudDateFormat() {}
 
         @SuppressWarnings({"CloneDoesntCallSuperClone"})

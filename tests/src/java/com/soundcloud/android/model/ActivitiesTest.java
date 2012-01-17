@@ -1,22 +1,27 @@
 package com.soundcloud.android.model;
 
+import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.*;
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.robolectric.TestHelper.assertContentUriCount;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
-import com.soundcloud.api.Request;
+import com.xtremelabs.robolectric.Robolectric;
 import org.codehaus.jackson.JsonNode;
 import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 
 import java.io.File;
@@ -122,7 +127,7 @@ public class ActivitiesTest {
     }
 
     private Activities getActivities() throws IOException {
-        return Activities.fromJSON(getClass().getResourceAsStream("activities.json"));
+        return Activities.fromJSON(getClass().getResourceAsStream("activities_all.json"));
     }
 
     @Test
@@ -152,8 +157,8 @@ public class ActivitiesTest {
     // set to ignored because mutually exclusive annotation
     // @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public void testToJsonEqualsOriginal1() throws Exception {
-        JsonNode original = AndroidCloudAPI.Mapper.readTree(getClass().getResourceAsStream("activities.json"));
-        String json = Activities.fromJSON(getClass().getResourceAsStream("activities.json")).toJSON();
+        JsonNode original = AndroidCloudAPI.Mapper.readTree(getClass().getResourceAsStream("activities_all.json"));
+        String json = Activities.fromJSON(getClass().getResourceAsStream("activities_all.json")).toJSON();
         JsonNode copy = AndroidCloudAPI.Mapper.readTree(json);
         assertThat(original, equalTo(copy));
     }
@@ -176,7 +181,7 @@ public class ActivitiesTest {
     public void testMerge() throws Exception {
         Activities a1 = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
         Activities a2 = Activities.fromJSON(getClass().getResourceAsStream("activities_2.json"));
-        Activities all = Activities.fromJSON(getClass().getResourceAsStream("activities.json"));
+        Activities all = Activities.fromJSON(getClass().getResourceAsStream("activities_all.json"));
 
         Activities merged = a2.merge(a1);
         assertThat(merged.size(), is(all.size()));
@@ -210,7 +215,7 @@ public class ActivitiesTest {
     @Test
     public void testFilter() throws Exception {
         Activities a2 = Activities.fromJSON(getClass().getResourceAsStream("activities_2.json"));
-        Date start = AndroidCloudAPI.CloudDateFormat.fromString("2011/07/29 15:36:44 +0000");
+        Date start = fromString("2011/07/29 15:36:44 +0000");
 
         Activities filtered = a2.filter(start);
         assertThat(filtered.size(), is(1));
@@ -235,9 +240,6 @@ public class ActivitiesTest {
         expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
     }
 
-
-
-
     @Test
     public void shouldFetchOnlyUpToMaxItems() throws Exception {
         TestHelper.addCannedResponses(SyncAdapterServiceTest.class,
@@ -254,4 +256,112 @@ public class ActivitiesTest {
         ContentValues[] cv = a.buildContentValues();
         expect(cv.length).toEqual(a.size());
     }
+
+    @Test
+    public void shouldInsertActivitiesIntoDb() throws Exception {
+        Activities a = Activities.fromJSON(
+                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+        a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
+        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+    }
+
+    @Test
+    public void shouldGetActivitiesFromDB() throws Exception {
+        Activities a = Activities.fromJSON(
+                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+        a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
+        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+
+        expect(
+            Activities.get(Content.ME_SOUND_STREAM,
+            Robolectric.application.getContentResolver(), -1).size()
+        ).toEqual(50);
+
+        expect(
+            Activities.get(Content.ME_SOUND_STREAM,
+            Robolectric.application.getContentResolver(),
+            toTime("2011/07/12 09:13:36 +0000")).size()
+        ).toEqual(2);
+    }
+
+    @Test
+    public void shouldGetActivitiesFromDBWithTimeFiltering() throws Exception {
+        Activities a = Activities.fromJSON(
+                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+        a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
+        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+
+        expect(
+                Activities.get(Content.ME_SOUND_STREAM,
+                        Robolectric.application.getContentResolver(),
+                        toTime("2011/07/12 09:13:36 +0000")).size()
+        ).toEqual(2);
+    }
+
+    @Test
+    public void shouldPersistAllActivityTypes() throws Exception {
+        Activities a = Activities.fromJSON(
+                getClass().getResourceAsStream("one_of_each_activity_type.json"));
+
+        // need to insert track owner for joins to work
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Users._ID, 133201L);
+        cv.put(DBHelper.Users.USERNAME, "Foo Bar");
+
+        ContentResolver resolver = Robolectric.application.getContentResolver();
+        resolver.insert(Content.USERS.uri, cv);
+
+        a.insert(Content.ME_ACTIVITIES, resolver);
+
+        assertContentUriCount(Content.ME_ALL_ACTIVITIES, 4);
+
+        Activities activities = Activities.get(Content.ME_ALL_ACTIVITIES, resolver, -1);
+        expect(activities.size()).toEqual(4);
+
+        Activity track = activities.get(2);
+        expect(track.type).toEqual(Activity.Type.TRACK);
+        expect(track.tags).toEqual("affiliated, exclusive");
+        expect(track.getTrack().id).toEqual(18876167L);
+        expect(track.getTrack().permalink).toEqual("grand-piano-keys");
+        expect(track.getTrack().title).toEqual("Grand Piano Keys");
+        expect(track.getTrack().artwork_url).toEqual("http://i1.sndcdn.com/artworks-000009195725-njfi16-large.jpg?a1786a9");
+        expect(track.getTrack().sharing_note).not.toBeNull();
+        expect(track.getTrack().sharing_note.text).toEqual("Bla Bla Bla");
+
+        expect(track.getTrack().user.id).toEqual(3207L);
+        expect(track.getTrack().user.permalink).toEqual("jwagener");
+
+        Activity sharing = activities.get(3);
+        expect(sharing.type).toEqual(Activity.Type.TRACK_SHARING);
+        expect(sharing.getTrack().id).toEqual(18676478L);
+        expect(sharing.getTrack().permalink).toEqual("live-in-vegas");
+        expect(sharing.getTrack().title).toEqual("Live in Vegas");
+        expect(sharing.getTrack().sharing_note).not.toBeNull();
+        expect(sharing.getTrack().sharing_note.text).toEqual("Enjoy, share, and dont be shy leave me your thoughts!");
+
+        Activity comment = activities.get(1);
+        expect(comment.type).toEqual(Activity.Type.COMMENT);
+        expect(comment.getComment()).not.toBeNull();
+        expect(comment.getComment().id).toEqual(22140210L);
+
+        expect(comment.getTrack().id).toEqual(20023414L);
+        expect(comment.getTrack().permalink).toEqual("sounds-from-dalston-kingsland");
+        expect(comment.getTrack().title).toEqual("Sounds from Dalston Kingsland Railway Station (DLK)");
+        expect(comment.getTrack().user_id).toEqual(133201L);
+        expect(comment.getTrack().user.username).toEqual("Foo Bar");
+
+        Activity favoriting = activities.get(0);
+
+        expect(favoriting.type).toEqual(Activity.Type.FAVORITING);
+        expect(favoriting.getFavoriting()).not.toBeNull();
+
+        expect(favoriting.getFavoriting().track).toBe(favoriting.getTrack());
+
+        expect(favoriting.getTrack().id).toEqual(13090155L);
+        expect(favoriting.getTrack().permalink).toEqual("p-watzlawick-anleitung-zum");
+        expect(favoriting.getTrack().title).toEqual("P. Watzlawick - Anleitung zum Ungl\u00fccklichsein");
+        expect(favoriting.getTrack().user_id).toEqual(133201L);
+        expect(favoriting.getTrack().user.username).toEqual("Foo Bar");
+    }
+
 }

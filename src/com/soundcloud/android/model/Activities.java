@@ -14,7 +14,6 @@ import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
 import android.util.Log;
@@ -240,8 +239,7 @@ public class Activities extends CollectionHolder<Activity> {
     public static Activities fetch(AndroidCloudAPI api,
                                    final Request request,
                                    final Activity lastCached,
-                                   int max)
-            throws IOException {
+                                   int max) throws IOException {
         boolean caughtUp = false;
         String future_href = null;
         String next_href = null;
@@ -293,13 +291,18 @@ public class Activities extends CollectionHolder<Activity> {
         // TODO
     }
 
-    public static Activities get(Content content, ContentResolver resolver)  {
+    public static Activities get(Content content, ContentResolver resolver, long since)  {
         Activities activities = new Activities();
         LocalCollection lc = LocalCollection.fromContentUri(content.uri, resolver);
         if (lc != null) {
             activities.future_href = lc.sync_state;
         }
-        Cursor c = resolver.query(content.uri, null, null, null, null);
+        Cursor c;
+        if (since > 0) {
+            c = resolver.query(content.uri, null, "created_at > ?", new String[] { String.valueOf(since) }, null);
+        } else {
+            c = resolver.query(content.uri, null, null, null, null);
+        }
         while (c != null && c.moveToNext()) {
             activities.add(new Activity(c));
         }
@@ -366,5 +369,17 @@ public class Activities extends CollectionHolder<Activity> {
             cv[i] = models.get(i).buildContentValues();
         }
         return cv;
+    }
+
+    public int insert(Content content, ContentResolver resolver) {
+        int created = 0;
+        created += resolver.bulkInsert(content.uri, buildContentValues());
+        created += resolver.bulkInsert(Content.TRACKS.uri, getTrackContentValues());
+        created += resolver.bulkInsert(Content.USERS.uri, getUserContentValues());
+
+        if (content == Content.ME_ACTIVITIES || content == Content.ME_ALL_ACTIVITIES) {
+            created += resolver.bulkInsert(Content.COMMENTS.uri, getCommentContentValues());
+        }
+        return created;
     }
 }

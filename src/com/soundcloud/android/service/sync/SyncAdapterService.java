@@ -200,12 +200,12 @@ public class SyncAdapterService extends Service {
                             final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
 
                             final Activities incoming = !isIncomingEnabled(app) ? Activities.EMPTY :
-                                    Activities.get(Content.ME_SOUND_STREAM, app.getContentResolver());
+                                    Activities.get(Content.ME_SOUND_STREAM, app.getContentResolver(), lastIncomingSeen);
 
                             final Activities exclusive = !isExclusiveEnabled(app) ? Activities.EMPTY
-                                    : Activities.get(Content.ME_EXCLUSIVE_STREAM, app.getContentResolver());
+                                    : Activities.get(Content.ME_EXCLUSIVE_STREAM, app.getContentResolver(), lastIncomingSeen);
 
-                            checkIncoming(app, incoming.filter(lastIncomingSeen), exclusive.filter(lastIncomingSeen));
+                            maybeNotifyIncoming(app, incoming, exclusive);
                         } else {
                             Log.d(TAG, "skipping incoming notification, delta "+delta+" > frequency="+frequency);
                         }
@@ -213,9 +213,10 @@ public class SyncAdapterService extends Service {
                         final long delta2 = System.currentTimeMillis() -
                                 app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_AT);
                         if (delta2 > frequency) {
+                            final long lastOwnSeen = app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN);
                             final Activities news = !isActivitySyncEnabled(app) ? Activities.EMPTY :
-                                    Activities.get(Content.ME_ACTIVITIES, app.getContentResolver());
-                            checkOwn(app, news.filter(app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN)));
+                                    Activities.get(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
+                            maybeNotifyOwn(app, news);
                         } else {
                             Log.d(TAG, "skipping own notification, delta "+delta2+" > frequency="+frequency);
                         }
@@ -227,7 +228,9 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    /* package */ private static void checkIncoming(SoundCloudApplication app, Activities incoming, Activities exclusive) {
+    /* package */ private static Notification maybeNotifyIncoming(SoundCloudApplication app,
+                                                                  Activities incoming,
+                                                                  Activities exclusive) {
 
         final int totalUnseen = Activities.getUniqueTrackCount(incoming, exclusive);
         final boolean hasIncoming  = !incoming.isEmpty();
@@ -255,32 +258,35 @@ public class SyncAdapterService extends Service {
             if (incoming.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM)) ||
                 exclusive.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM))) {
 
-                createDashboardNotification(app, ticker, title, message,
-                    Actions.STREAM,
-                    Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
+                Notification n = showDashboardNotification(app, ticker, title, message,
+                        Actions.STREAM,
+                        Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
 
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, System.currentTimeMillis());
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM,
                         Math.max(incoming.getTimestamp(), exclusive.getTimestamp()));
-            }
-        }
+
+                return n;
+            } else return null;
+        } else return null;
     }
 
-    /* package */ private static void checkOwn(SoundCloudApplication app, Activities events) {
-        if (!events.isEmpty()) {
-            Activities favoritings = isFavoritingEnabled(app) ? events.favoritings() : Activities.EMPTY;
-            Activities comments    = isCommentsEnabled(app) ? events.comments() : Activities.EMPTY;
+    /* package */ private static Notification maybeNotifyOwn(SoundCloudApplication app, Activities activities) {
+        if (!activities.isEmpty()) {
+            Activities favoritings = isFavoritingEnabled(app) ? activities.favoritings() : Activities.EMPTY;
+            Activities comments    = isCommentsEnabled(app) ? activities.comments() : Activities.EMPTY;
 
-            Message msg = new Message(app.getResources(), events, favoritings, comments);
+            Message msg = new Message(app.getResources(), activities, favoritings, comments);
 
-            if (events.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
-                createDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
-                    Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
+            if (activities.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
+                Notification n = showDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
+                        Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
 
                 app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, System.currentTimeMillis());
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, events.getTimestamp());
-            }
-        }
+                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, activities.getTimestamp());
+                return n;
+            } else return null;
+        } else return null;
     }
 
     /* package */ static String getIncomingNotificationMessage(SoundCloudApplication app, Activities activites) {
@@ -333,10 +339,10 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    private static void createDashboardNotification(Context context,
-                                                    CharSequence ticker,
-                                                    CharSequence title,
-                                                    CharSequence message, String action, int id) {
+    private static Notification showDashboardNotification(Context context,
+                                                          CharSequence ticker,
+                                                          CharSequence title,
+                                                          CharSequence message, String action, int id) {
         NotificationManager nm = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -352,6 +358,7 @@ public class SyncAdapterService extends Service {
         n.flags = Notification.FLAG_AUTO_CANCEL;
         n.setLatestEventInfo(context.getApplicationContext(), title, message, pi);
         nm.notify(id, n);
+        return n;
     }
 
     // only used for debugging
@@ -391,7 +398,7 @@ public class SyncAdapterService extends Service {
 
     private static class Message {
         public final CharSequence title, message, ticker;
-        public Message(Resources res, Activities events, Activities favoritings, Activities comments) {
+        public Message(Resources res, Activities activities, Activities favoritings, Activities comments) {
             if (!favoritings.isEmpty() && comments.isEmpty()) {
                 // only favoritings
                 List<Track> tracks = favoritings.getUniqueTracks();
@@ -446,15 +453,15 @@ public class SyncAdapterService extends Service {
                 }
             } else {
                // mix of favoritings and comments
-                List<Track> tracks = events.getUniqueTracks();
-                List<User> users = events.getUniqueUsers();
+                List<Track> tracks = activities.getUniqueTracks();
+                List<User> users = activities.getUniqueUsers();
                 ticker = res.getQuantityString(R.plurals.dashboard_notifications_activity_ticker_activity,
-                        events.size(),
-                        events.size());
+                        activities.size(),
+                        activities.size());
 
                 title = res.getQuantityString(R.plurals.dashboard_notifications_activity_title_activity,
-                        events.size(),
-                        events.size());
+                        activities.size(),
+                        activities.size());
 
                 message = res.getQuantityString(R.plurals.dashboard_notifications_activity_message_activity,
                         users.size(),
