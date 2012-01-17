@@ -1,16 +1,16 @@
 package com.soundcloud.android.model;
 
-import android.content.ContentValues;
-import android.net.Uri;
+import static com.soundcloud.android.SoundCloudApplication.*;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.IResourceCache;
-import com.soundcloud.android.cache.LruCache;
-import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.json.Views;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonView;
 
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -26,26 +26,26 @@ import java.lang.reflect.Modifier;
 import java.util.Date;
 import java.util.List;
 
-import static com.soundcloud.android.SoundCloudApplication.*;
-
 public abstract class ScModel implements Parcelable {
     @JsonView(Views.Mini.class) public long id = -1;
 
     public ScModel() {
     }
 
-    public static CollectionHolder getCollectionFromStream(InputStream is, ObjectMapper mapper, Class<?> loadModel,
-                                                           List<? super Parcelable> items, IResourceCache cache) throws IOException {
+    public static CollectionHolder getCollectionFromStream(InputStream is,
+                                                           ObjectMapper mapper,
+                                                           Class<?> loadModel,
+                                                           List<? super Parcelable> items) throws IOException {
         CollectionHolder holder = null;
         if (Track.class.equals(loadModel)) {
             holder = mapper.readValue(is, TracklistItemHolder.class);
             for (TracklistItem t : (TracklistItemHolder) holder) {
-                items.add(TRACK_CACHE.fromListItem(t));
+                items.add(new Track(t));
             }
         } else if (User.class.equals(loadModel)) {
             holder = mapper.readValue(is, UserlistItemHolder.class);
             for (UserlistItem u : (UserlistItemHolder) holder) {
-                items.add(USER_CACHE.fromListItem(u));
+                items.add(new User(u));
             }
         } else if (Activity.class.equals(loadModel)) {
             holder = mapper.readValue(is, Activities.class);
@@ -55,7 +55,6 @@ public abstract class ScModel implements Parcelable {
         } else if (Friend.class.equals(loadModel)) {
             holder = mapper.readValue(is, FriendHolder.class);
             for (Friend f : (FriendHolder) holder) {
-                USER_CACHE.put(f.user);
                 items.add(f);
             }
         } else if (Comment.class.equals(loadModel)) {
@@ -104,7 +103,6 @@ public abstract class ScModel implements Parcelable {
     public int describeContents() {
         return 0;
     }
-
 
     protected static void setBundleFromField(Bundle bundle, String fieldName, Class fieldType, Object fieldValue) {
         if (fieldType == String.class && !TextUtils.isEmpty(String.valueOf(fieldValue)))

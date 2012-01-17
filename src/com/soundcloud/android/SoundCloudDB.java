@@ -161,7 +161,11 @@ public class SoundCloudDB {
         return bulkInsertParcelables(resolver,items, null, -1, -1);
     }
 
-    public static int bulkInsertParcelables(ContentResolver resolver, List<Parcelable> items, Uri collectionUri, long owner, int startIndex) {
+    public static int bulkInsertParcelables(ContentResolver resolver,
+                                            List<Parcelable> items,
+                                            Uri collectionUri,
+                                            long owner,
+                                            int startIndex) {
         int i = 0;
         Set<User> usersToInsert = new HashSet<User>();
         Set<Track> tracksToInsert = new HashSet<Track>();
@@ -183,7 +187,7 @@ public class SoundCloudDB {
                 usersToInsert.add(((Friend) p).user);
             }
 
-            if (bulkValues != null){
+            if (bulkValues != null) {
                 ContentValues itemCv = new ContentValues();
                 itemCv.put(DBHelper.CollectionItems.USER_ID, owner);
                 itemCv.put(DBHelper.CollectionItems.POSITION, startIndex + i);

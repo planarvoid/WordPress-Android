@@ -15,6 +15,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.Date;
+import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Activity extends ScModel implements Origin, Playable {
@@ -22,13 +23,15 @@ public class Activity extends ScModel implements Origin, Playable {
     @JsonProperty public Type type;
     @JsonProperty public String tags;
 
+    static final long NUM_100NS_INTERVALS_SINCE_UUID_EPOCH = 0x01b21dd213814000L;
+
     /**
      * This maps to {@link Type}.
      */
     public Origin origin;
 
-    private CharSequence mElapsedTime;
-    public String next_href;
+    // cache human readable elapsed time
+    private String _elapsedTime;
 
     /** needed for {@link com.soundcloud.android.json.ActivityDeserializer} */
     public Activity() {
@@ -39,7 +42,6 @@ public class Activity extends ScModel implements Origin, Playable {
         type = Type.fromString(in.readString());
         tags = in.readString();
         origin = in.readParcelable(Activity.class.getClassLoader());
-        next_href = in.readString();
     }
 
     public Activity(Cursor c) {
@@ -84,7 +86,6 @@ public class Activity extends ScModel implements Origin, Playable {
 
     @Override
     public void resolve(SoundCloudApplication application) {
-        mElapsedTime = CloudUtils.getTimeElapsed(application.getResources(),created_at.getTime());
         if (origin instanceof Comment) {
             Comment c = (Comment)origin;
             if (c.track.user == null) {
@@ -99,10 +100,31 @@ public class Activity extends ScModel implements Origin, Playable {
 
 
     public CharSequence getElapsedTime(Context c) {
-        if (mElapsedTime == null) {
-            mElapsedTime = CloudUtils.getTimeElapsed(c.getResources(),created_at.getTime());
+        if (_elapsedTime == null) {
+            _elapsedTime = CloudUtils.getTimeElapsed(c.getResources(),created_at.getTime());
         }
-        return mElapsedTime;
+        return _elapsedTime;
+    }
+
+
+    public UUID toUUID() {
+        if (created_at == null) {
+            return null;
+        } else {
+            // snippet from http://wiki.apache.org/cassandra/FAQ#working_with_timeuuid_in_java
+            final long origTime = created_at.getTime();
+            final long time = origTime * 10000 + NUM_100NS_INTERVALS_SINCE_UUID_EPOCH;
+            final long timeLow = time &       0xffffffffL;
+            final long timeMid = time &   0xffff00000000L;
+            final long timeHi  = time & 0xfff000000000000L;
+            final long upperLong = (timeLow << 32) | (timeMid >> 16) | (1 << 12) | (timeHi >> 48) ;
+            return new UUID(upperLong, 0xC000000000000000L);
+        }
+    }
+
+    public String toGUID() {
+        final UUID uuid = toUUID();
+        return uuid != null ? toUUID().toString() : null;
     }
 
     @Override
@@ -161,7 +183,6 @@ public class Activity extends ScModel implements Origin, Playable {
         return result;
     }
 
-
     public enum Type {
         TRACK("track", Track.class),
         TRACK_SHARING("track-sharing", TrackSharing.class),
@@ -203,7 +224,6 @@ public class Activity extends ScModel implements Origin, Playable {
         out.writeString(type.toString());
         out.writeString(tags);
         out.writeParcelable(origin, 0);
-        out.writeString(next_href);
     }
 
     public static final Parcelable.Creator<Activity> CREATOR = new Parcelable.Creator<Activity>() {

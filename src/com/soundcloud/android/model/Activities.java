@@ -167,9 +167,6 @@ public class Activities extends CollectionHolder<Activity> {
         merged.future_href = future_href;
         merged.next_href = old.next_href;
 
-        Activity last = lastEvent();
-        if (last != null) last.next_href = next_href;
-
         for (Activity e : old) {
             if (!merged.collection.contains(e)) {
                 merged.collection.add(e);
@@ -206,18 +203,6 @@ public class Activities extends CollectionHolder<Activity> {
         return this;
     }
 
-    public Activities trimBelow(int max) {
-        if (collection.size() <= max) return this;
-        int i = max;
-        while (i > 0 && collection.get(i-1).next_href == null){ i--; }
-
-
-        Activities trimmed = new Activities(new ArrayList<Activity>(collection.subList(0, i)));
-        trimmed.next_href = trimmed.isEmpty() ? null : trimmed.lastEvent().next_href;
-        trimmed.future_href = future_href;
-        return trimmed;
-    }
-
     public long getTimestamp() {
         if (collection.isEmpty()) {
             return 0;
@@ -242,7 +227,7 @@ public class Activities extends CollectionHolder<Activity> {
                                    int max) throws IOException {
         boolean caughtUp = false;
         String future_href = null;
-        String next_href = null;
+        String next_href;
         List<Activity> activityList = new ArrayList<Activity>();
         Request remote = new Request(request).add("limit", 20);
         do {
@@ -253,10 +238,6 @@ public class Activities extends CollectionHolder<Activity> {
                 remote = activities.hasMore() ? activities.getNextRequest() : null;
                 if (future_href == null && !TextUtils.isEmpty(activities.future_href)) {
                     future_href = URLDecoder.decode(activities.future_href);
-                }
-
-                if (next_href != null) {
-                    activityList.get(activityList.size()-1).next_href = next_href;
                 }
                 next_href = activities.next_href;
 

@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,7 @@ import org.junit.runner.RunWith;
 import android.content.ContentValues;
 
 import java.util.Date;
+import java.util.UUID;
 
 @RunWith(DefaultTestRunner.class)
 public class ActivityTest {
@@ -40,6 +42,26 @@ public class ActivityTest {
         expect(a1).not.toEqual(a2);
         a2.type = a1.type;
         expect(a1).toEqual(a2);
+    }
+
+
+    @Test
+    public void shouldGenerateAGuidBasedOnCreatedAt() throws Exception {
+        Activity a = new Activity();
+        expect(a.toGUID()).toBeNull();
+        a.created_at = AndroidCloudAPI.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+        expect(a.toGUID()).toEqual("f6864180-3931-11e1-c000-000000000000");
+    }
+
+    @Test
+    public void shouldGenerateAUUIDBasedOnCreatedAt() throws Exception {
+        Activity a = new Activity();
+        expect(a.toUUID()).toBeNull();
+        a.created_at = AndroidCloudAPI.CloudDateFormat.fromString("2012/01/07 13:17:35 +0000");
+        UUID uuid = a.toUUID();
+        expect(uuid.version()).toEqual(1);
+        expect(uuid.variant()).toEqual(6);
+        expect(uuid.toString()).toEqual("f6864180-3931-11e1-c000-000000000000");
     }
 
     @Test

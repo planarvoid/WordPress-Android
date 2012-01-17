@@ -147,8 +147,13 @@ public class ApiSyncer {
         LocalCollection.insertLocalCollection(c.uri, null, System.currentTimeMillis(), remote.size(), mResolver);
 
         // ensure the first couple of pages of items for quick loading
-        int added = SoundCloudDB.bulkInsertParcelables(mResolver,getAdditionsFromIds(mApi,mResolver,remote.subList(0, Math.min(remote.size(),MINIMUM_LOCAL_ITEMS_STORED)),
-                    c.resourceType.equals(Track.class) ? Content.TRACKS : Content.USERS,false));
+        int added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
+                    mApi,
+                    mResolver,
+                    remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED)),
+                    c.resourceType.equals(Track.class) ? Content.TRACKS : Content.USERS,
+                    false
+                ));
 
         Log.d(ApiSyncService.LOG_TAG, "Added " + added + " new items for this endpoint");
         return true;
@@ -182,9 +187,18 @@ public class ApiSyncer {
         while (i < additions.size()) {
 
             List<Long> batch = additions.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, additions.size()));
-            InputStream is = validateResponse(app.get(Request.to(content.remoteUri)
-                    .add("linked_partitioning", "1").add("limit", API_LOOKUP_BATCH_SIZE).add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
-            ScModel.getCollectionFromStream(is,app.getMapper(),content.resourceType,items,SoundCloudApplication.cacheFromLoadModel(content.resourceType));
+            InputStream is = validateResponse(
+               app.get(
+                Request.to(content.remoteUri)
+                    .add("linked_partitioning", "1")
+                    .add("limit", API_LOOKUP_BATCH_SIZE)
+                    .add("ids", TextUtils.join(",", batch)))).getEntity().getContent();
+
+            ScModel.getCollectionFromStream(is,
+                    app.getMapper(),
+                    content.resourceType,
+                    items
+            );
             i += API_LOOKUP_BATCH_SIZE;
         }
         return items;

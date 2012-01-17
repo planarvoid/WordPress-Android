@@ -76,7 +76,8 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @JsonView(Views.Full.class) public int download_count;
     @JsonView(Views.Full.class) public int comment_count;
     @JsonView(Views.Full.class) public int favoritings_count;
-    @JsonView(Views.Full.class) public int shared_to_count;
+    @JsonView(Views.Full.class) @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
+    public int shared_to_count;
 
     @JsonView(Views.Mini.class) public String title;
 

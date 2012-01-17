@@ -229,7 +229,7 @@ public class SyncAdapterServiceTest {
         assertNotification("own_comment_favoriting_different_tracks_two_users.json",
                 "5 new activities",
                 "5 new activities",
-                "Comments and likes from fronx and bronx");
+                "Comments and likes from bronx and fronx");
     }
 
     @Test
@@ -237,7 +237,7 @@ public class SyncAdapterServiceTest {
         assertNotification("own_comment_favoriting_different_tracks.json",
                 "5 new activities",
                 "5 new activities",
-                "Comments and likes from fronx, bronx and others");
+                "Comments and likes from Paul Ko, changmangoo and others");
     }
 
     @Test

@@ -146,7 +146,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
 
             // process new items and publish them
             CollectionHolder holder = ScModel.getCollectionFromStream(resp.getEntity().getContent(), mApp.getMapper(),
-                    mParams.loadModel, mNewItems, cacheFromLoadModel(mParams.loadModel));
+                    mParams.loadModel, mNewItems);
             mNextHref = holder == null || TextUtils.isEmpty(holder.next_href) ? null : holder.next_href;
             keepGoing = !TextUtils.isEmpty(mNextHref);
             for (Parcelable p : mNewItems) {

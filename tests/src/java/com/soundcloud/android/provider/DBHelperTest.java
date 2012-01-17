@@ -1,17 +1,20 @@
 package com.soundcloud.android.provider;
 
+import static com.soundcloud.android.Expect.expect;
+
 import android.database.sqlite.SQLiteDatabase;
+
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 
 @RunWith(DefaultTestRunner.class)
 public class DBHelperTest {
 
     @Test
-    public void shouldCreateDatabase() throws Exception {
-        SQLiteDatabase db = SQLiteDatabase.openDatabase("path", null, 0);
-        new DBHelper(DefaultTestRunner.application).onCreate(db);
+    public void shouldGetWritableDatabase() throws Exception {
+        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+        expect(db.isOpen()).toBeTrue();
+        expect(db.isReadOnly()).toBeFalse();
     }
 }

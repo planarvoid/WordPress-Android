@@ -57,39 +57,8 @@
         }
       },
       "tags": "own, affiliated"
-    },
-    {
-      "type": "comment",
-      "created_at": "2011\/07\/23 11:52:29 +0000",
-      "origin": {
-        "id": 21623911,
-        "created_at": "2011\/07\/23 11:52:28 +0000",
-        "user_id": 4253183,
-        "track_id": 19446062,
-        "timestamp": 58982,
-        "body": "its a very quiet lullaby....eddie...",
-        "uri": "https:\/\/api.soundcloud.com\/comments\/21623911",
-        "user": {
-          "id": 4253183,
-          "permalink": "eddiesongwriter",
-          "username": "EddieSongWriter",
-          "uri": "https:\/\/api.soundcloud.com\/users\/4253183",
-          "permalink_url": "http:\/\/soundcloud.com\/eddiesongwriter",
-          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003378812-m83f4d-large.jpg?0dfc9e6"
-        },
-        "track": {
-          "id": 19446062,
-          "permalink": "lullaby",
-          "title": "lullaby",
-          "user_id": 133201,
-          "uri": "https:\/\/api.soundcloud.com\/tracks\/19446062",
-          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
-          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/lullaby",
-          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/19446062\/stream"
-        }
-      },
-      "tags": "own"
     }
+
   ],
   "next_href": null,
   "future_href": "https:\/\/api.soundcloud.com\/me\/activities\/tracks?uuid[to]=new_href"
