@@ -50,6 +50,13 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
     }
 
     @Override
+    protected void setNextHref(String nextHref) {
+        if (!TextUtils.isEmpty(nextHref)) {
+            getWrappedAdapter().sections.get(mSectionIndex).nextHref = nextHref;
+        }
+    }
+
+    @Override
     protected Request getRequest(boolean refresh) {
         if (mSectionIndex > getWrappedAdapter().sections.size()) return null;
         return getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).getRequest(refresh);
@@ -96,7 +103,7 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
         if (state[0] != null) getWrappedAdapter().sections = (List<SectionedAdapter.Section>) state[0];
         if (state[1] != null) restoreAppendTask((RemoteCollectionTask) state[1]);
         if (state[2] != null) restorePagingData((int[]) state[2]);
-        if (state[3] != null) restoreExtraData((String) state[3]);
+        if (state[3] != null) restoreExtraData((Object[]) state[3]);
     }
 
     @Override
@@ -104,32 +111,21 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
         return (SectionedAdapter) super.getWrappedAdapter();
     }
 
-    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing) {
-        if ((newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK) {
-            addNewItems(newItems);
-
-            if (!TextUtils.isEmpty(nextHref)) {
-                getWrappedAdapter().sections.get(mSectionIndex).nextHref = nextHref;
-            }
-
-            if (!keepGoing) {
-                nextAdapterSection();
-            } else {
-                mKeepGoing = true;
-                mState = IDLE;
-                increasePageIndex();
-            }
-
-
-        } else {
-            handleResponseCode(responseCode);
-            applyEmptyView();
+    @Override
+    public boolean onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
+        boolean success = super.onPostTaskExecute(newItems,nextHref,responseCode,keepGoing,wasRefresh);
+        if (success && !mKeepGoing){
+            nextAdapterSection();
         }
+        return success;
+    }
 
-        // configure the empty view depending on possible exceptions
-        mPendingView = null;
-        mAppendTask = null;
-        notifyDataSetChanged();
+    @Override
+    public void applyEmptyView() {
+        // only let the empty view be applied if we are at the end of the sections
+        if (getWrappedAdapter().sections.size() - 1 == mSectionIndex){
+            super.applyEmptyView();
+        }
     }
 
     @Override

@@ -52,7 +52,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     protected Uri mContentUri;
 
     protected Request mRequest;
-    protected String mNextHref;
     protected int mPageIndex;
 
     private boolean mAutoAppend;
@@ -69,7 +68,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     int IDLE           = 1; // ready for initial load (considered a refresh)
     int LOADING = 3; // currently appending
     int ERROR           = 4; // idle with error, no more appends
-    private DetachableResultReceiver mDetachableReceiver;
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(wrapped);
@@ -78,13 +76,17 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mRequest = request;
         mContentUri = contentUri;
         mContent = Content.match(contentUri);
+        mAutoAppend = autoAppend;
         wrapped.setWrapper(this);
-        if (autoAppend) {
+    }
+
+    public void onResume() {
+        if (mAutoAppend && mState == INITIALIZED) {
             mState = IDLE;
             mKeepGoing = true;
         }
+        notifyDataSetChanged();
     }
-
 
     /**
      * Create an empty view for the list this adapter will control. This is done
@@ -93,15 +95,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     public void configureViews(final ScListView lv) {
         mListView = lv;
     }
-
-    public void setListLastUpdated() {
-        if (mListView != null) {
-            final long lastUpdated = LocalCollection.getLastSync(getContentUri(true), mActivity.getContentResolver());
-            if (lastUpdated > 0) mListView.setLastUpdated(lastUpdated);
-        }
-    }
-
-
 
     public void setEmptyViewText(String str) {
         mEmptyViewText = str;
@@ -129,7 +122,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
                 mListView.setEmptyView(mDefaultEmptyView);
             }
         }
-
     }
 
     private String getEmptyText(){
@@ -189,8 +181,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
                 mListView == null ? null : mListView.getLastUpdated(),
                 mListView == null ? null : mListView.getFirstVisiblePosition(),
                 mListView == null ? null : mListView.getFirstVisiblePosition() == 0 && isRefreshing() ? 1 : mListView.getFirstVisiblePosition(),
-
-                saveResultReceiver()
         };
     }
 
@@ -200,12 +190,9 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         if (state[1] != null) restoreAppendTask((RemoteCollectionTask) state[1]);
         if (state[2] != null) restoreUpdateTask((UpdateCollectionTask) state[2]);
         if (state[3] != null) restorePagingData((int[]) state[3]);
-        if (state[4] != null) restoreExtraData((String) state[4]);
+        if (state[4] != null) restoreExtraData((Object[]) state[4]);
         if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
         if (state[6] != null) mListView.postSelect(Math.max(isRefreshing() ? 0 : 1, Integer.valueOf(state[6].toString())),Integer.valueOf(state[7].toString()), true);
-        if (state[8] != null) {restoreResultReceiver((DetachableResultReceiver) state[8]);
-
-        }
     }
 
     public long[] getTrackIds() {
@@ -271,13 +258,9 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         }
     }
 
-    public String saveExtraData() {
-        return mNextHref;
-    }
+    abstract public Object[] saveExtraData();
 
-    public void restoreExtraData(String restore) {
-        mNextHref = restore;
-    }
+    abstract public void restoreExtraData(Object[] restore);
 
     public Class<?> getLoadModel(boolean refresh) {
         return getWrappedAdapter().getLoadModel();
@@ -337,10 +320,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mRequest = request;
     }
 
-    protected Request getRequest(boolean isRefresh) {
-        if (mRequest == null) return null;
-        return !(isRefresh) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : new Request(mRequest);
-    }
+    abstract protected Request getRequest(boolean isRefresh);
 
     public Uri getContentUri() {
         return getContentUri(false);
@@ -366,7 +346,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     public void reset() {
         resetData();
         mPageIndex = 0;
-        mNextHref = "";
         clearAppendTask();
         clearUpdateTask();
         mKeepGoing = mAutoAppend;
@@ -443,7 +422,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     @Override
     public String toString() {
         return "LazyEndlessAdapter{" +
-                " mNextHref='" + mNextHref + '\'' +
                 ", mRequest=" + mRequest +
                 ", mEmptyViewText='" + mEmptyViewText + '\'' +
                 ", mState=" + mState +
@@ -470,19 +448,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         }
     }
 
-    protected void doneRefreshing(){
-        if  (mListView != null) mListView.onRefreshComplete(false);;
-    }
-
     protected abstract RemoteCollectionTask buildTask();
-
-    protected void requestSync(){
-        final Intent intent = new Intent(mActivity, ApiSyncService.class);
-        intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
-        intent.setData(mContent.uri);
-        intent.putExtra(ApiSyncService.EXTRA_CHECK_PERFORM_LOOKUPS,false);
-        mActivity.startService(intent);
-    }
 
     public void load(boolean isRefresh) {
         mState = LOADING;
@@ -490,54 +456,5 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mAppendTask.execute(getCollectionParams(isRefresh));
     }
 
-    protected RemoteCollectionTask.CollectionParams getCollectionParams(final boolean refresh){
-        return new RemoteCollectionTask.CollectionParams() {{
-                loadModel = getLoadModel(refresh);
-                contentUri = LazyEndlessAdapter.this instanceof EventsAdapterWrapper ? null : getContentUri(refresh);
-                pageIndex = getPageIndex(refresh);
-                request = buildRequest(refresh);
-                isRefresh = refresh;
-                refreshPageItems = !isSyncable();
-            }};
-    }
-
-    protected boolean isStale(boolean refresh){
-        long lastsync = LocalCollection.getLastSync(getContentUri(refresh), mActivity.getContentResolver());
-        return (getPageIndex(refresh) == 0 && System.currentTimeMillis() - lastsync > Consts.DEFAULT_REFRESH_MINIMUM);
-    }
-
-    protected boolean isSyncable(){
-        return mContent != null && mContent.isSyncable();
-    }
-
-    protected DetachableResultReceiver getReceiver(){
-        if (mDetachableReceiver == null) mDetachableReceiver = new DetachableResultReceiver(new Handler());
-        mDetachableReceiver.setReceiver(this);
-        return mDetachableReceiver;
-    }
-
-    public void restoreResultReceiver(DetachableResultReceiver receiver){
-        mDetachableReceiver = receiver;
-        mDetachableReceiver.setReceiver(this);
-
-    }
-
-    public DetachableResultReceiver saveResultReceiver() {
-        if (mDetachableReceiver != null) mDetachableReceiver.clearReceiver();
-        return mDetachableReceiver;
-    }
-
-    @Override
-    public void onReceiveResult(int resultCode, Bundle resultData) {
-        switch (resultCode) {
-            case ApiSyncService.STATUS_SYNC_FINISHED: {
-                break;
-            }
-            case ApiSyncService.STATUS_SYNC_ERROR: {
-                break;
-            }
-        }
-    }
-
-
+    protected abstract RemoteCollectionTask.CollectionParams getCollectionParams(boolean refresh);
 }

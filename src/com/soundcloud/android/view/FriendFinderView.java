@@ -170,7 +170,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         }
 
         if (refresh) {
-            if (mSeen) mFriendList.getWrapper().allowInitialLoading();
             mFriendList.getWrapper().refresh(false);
             mFriendList.prepareForRefresh();
         }

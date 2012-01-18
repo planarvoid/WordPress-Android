@@ -35,13 +35,14 @@ public enum Content {
     ME_GROUPS("/me/groups", null, 109, null, -1),
     ME_PLAYLISTS("/me/playlists", null, 110, null, -1),
 
+    ME_SOUND_STREAM("/me/activities/tracks", Endpoints.MY_ACTIVITIES, 140, Activity.class, -1),
+    ME_EXCLUSIVE_STREAM("/me/activities/tracks/exclusive", Endpoints.MY_EXCLUSIVE_TRACKS, 141, Activity.class, -1),
+    ME_ACTIVITIES("/me/activities/all/own", Endpoints.MY_NEWS, 142, Activity.class, -1),
+    ME_ALL_ACTIVITIES("/me/activities", null, 150, Activity.class, -1),
+
     ME_FRIENDS("/me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND),
     SUGGESTED_USERS("/users/suggested", null, 161, User.class, SUGGESTED_USER),
 
-    ME_ALL_ACTIVITIES("/me/activities", null, 150, Activity.class, -1),
-    ME_SOUND_STREAM("/me/activities/tracks", Endpoints.MY_ACTIVITIES, 151, Activity.class, -1),
-    ME_EXCLUSIVE_STREAM("/me/activities/tracks/exclusive", Endpoints.MY_EXCLUSIVE_TRACKS, 152, Activity.class, -1),
-    ME_ACTIVITIES("/me/activities/all/own", Endpoints.MY_NEWS, 153, Activity.class, -1),
 
     TRACKS("/tracks", Endpoints.TRACKS, 201, Track.class, TRACK),
     TRACK_ITEM("/tracks/#", null, 202, Track.class, -1),

@@ -1,18 +1,17 @@
 
 package com.soundcloud.android.adapter;
 
+import android.os.Parcelable;
+import android.text.TextUtils;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.task.LoadActivitiesTask;
+import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.api.Request;
-
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.text.TextUtils;
 
 import java.util.List;
 
@@ -36,7 +35,12 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     }
 
     @Override
-    public void onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
+    protected Request getRequest(boolean isRefresh) {
+        if (mRequest == null) return null;
+        return !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : null;
+    }
+
+    public boolean onNewEvents(List<Parcelable> newItems, String nextCursor, int responseCode, boolean keepGoing, boolean wasRefresh) {
         final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
                 User.DataKeys.LAST_OWN_SEEN : User.DataKeys.LAST_INCOMING_SEEN;
 
@@ -50,62 +54,21 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
                 app.setAccountData(lastSeenKey, first.created_at.getTime());
             }
         }
-        super.onPostTaskExecute(newItems, nextHref, responseCode, keepGoing, wasRefresh);
-    }
 
-    public void onPostRefresh(List<Parcelable> newItems, String nextHref, boolean success) {
-        if (success) { // apply cached items
-            if (getWrappedAdapter().getCount() > 0 && newItems.contains(getData().get(0))) {
-                int i = 0;
-                for (Parcelable e : newItems) {
-                    if (getData().contains(e)) {
-                        break;
-                    } else {
-                        getData().add(i, e);
-                        i++;
-                    }
-                }
-
-            } else {
-                mNextHref = nextHref;
-                mKeepGoing = TextUtils.isEmpty(mNextHref);
-                getData().addAll(newItems);
+        String nextHref = null;
+        if (responseCode == 0 || !TextUtils.isEmpty(nextCursor)){
+            keepGoing = true;
+            Request nextRequest = new Request(mRequest);
+                if (!TextUtils.isEmpty(nextCursor)){
+                nextRequest.add("cursor",nextCursor);
             }
-
+            nextHref = nextRequest.toUrl();
         }
-
-
-            if (mListView != null) {
-                mListView.onRefreshComplete(false);
-                setListLastUpdated();
-            }
-
-            // if this is the end of the initial refresh, then allow appending
-            if (mState < LOADING) mState = IDLE;
-
-            applyEmptyView();
-            mPendingView = null;
-            mAppendTask = null;
-
-        notifyDataSetChanged();
+        return super.onPostTaskExecute(newItems, nextHref, responseCode, keepGoing, wasRefresh);
     }
-
-    @SuppressWarnings("unchecked")
-    public void refresh(final boolean userRefresh) {
-        requestSync();
-        notifyDataSetChanged();
-    }
-
 
     @Override
-    public void onReceiveResult(int resultCode, Bundle resultData) {
-        switch (resultCode) {
-            case ApiSyncService.STATUS_SYNC_FINISHED:
-            case ApiSyncService.STATUS_SYNC_ERROR: {
-                doneRefreshing();
-                break;
-            }
-        }
+    protected RemoteCollectionTask buildTask() {
+        return new LoadActivitiesTask(mActivity.getApp(), this);
     }
-
 }

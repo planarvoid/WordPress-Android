@@ -368,4 +368,7 @@ public class Activities extends CollectionHolder<Activity> {
         return created;
     }
 
+    public String getLastCursor() {
+        return isEmpty() ? null : collection.get(collection.size()-1).toGUID();
+    }
 }

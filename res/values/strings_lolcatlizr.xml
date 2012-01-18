@@ -358,7 +358,6 @@
   <string name="private_message_upload_title">Your sound message got saved.</string>
   <string name="pull_to_refresh_last_updated">updated %1$s</string>
   <string name="pull_to_refresh_pull_label">Pull to refresh...</string>
-  <string name="pull_to_refresh_refreshing_label">Loading...</string>
   <string name="pull_to_refresh_release_label">Release to refresh...</string>
   <string name="raw">Raw</string>
   <string name="record_another_sound">Record another sound</string>

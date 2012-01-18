@@ -22,4 +22,6 @@
 
     <string name="btn_follow">Follow</string>
     <string name="btn_following">Following</string>
+
+    <string name="pull_to_refresh_refreshing_label">Refreshing...</string>
 </resources>
