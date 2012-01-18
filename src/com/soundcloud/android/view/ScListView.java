@@ -198,7 +198,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
 
     public void onResume() {
         if (getWrapper() != null) {
-            getWrapper().notifyDataSetChanged();
+            getWrapper().onResume();
         }
         if (mOnRefreshListener != null) {
             if (!mOnRefreshListener.isRefreshing()) {

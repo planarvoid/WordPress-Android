@@ -115,6 +115,7 @@ public class ApiSyncer {
         List<Long> remote = getCollectionIds(mApi, c.remoteUri);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
 
+        LocalCollection.insertLocalCollection(c.uri, null, System.currentTimeMillis(), remote.size(), mResolver);
 
         if (local.equals(remote)){
             Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
@@ -144,7 +145,7 @@ public class ApiSyncer {
             i++;
         }
         mResolver.bulkInsert(c.uri, cv);
-        LocalCollection.insertLocalCollection(c.uri, null, System.currentTimeMillis(), remote.size(), mResolver);
+
 
         // ensure the first couple of pages of items for quick loading
         int added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
