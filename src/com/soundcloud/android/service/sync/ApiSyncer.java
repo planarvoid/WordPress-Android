@@ -92,7 +92,7 @@ public class ApiSyncer {
         Request request = future_href == null ? content.request() : Request.to(future_href);
         Activities activities = Activities.fetch(mApi, request, null, API_LOOKUP_BATCH_SIZE);
         final int inserted = activities.insert(content, mResolver);
-        Log.d(ApiSyncService.LOG_TAG, "activities: inserted "+inserted + " activities");
+        Log.d(ApiSyncService.LOG_TAG, "activities: inserted "+inserted + " objects");
 
         LocalCollection.insertLocalCollection(content.uri,
                 activities.future_href,
@@ -238,8 +238,5 @@ public class ApiSyncer {
     }
 
 
-
     public static class IdHolder extends CollectionHolder<Long> {}
-    public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
-    public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
 }
