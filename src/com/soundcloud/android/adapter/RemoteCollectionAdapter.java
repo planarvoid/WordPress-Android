@@ -31,6 +31,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     private ChangeObserver mChangeObserver;
     private DetachableResultReceiver mDetachableReceiver;
+    private Boolean mIsSyncable;
     protected String mNextHref;
     protected long mLastUpdated = -1;
 
@@ -96,6 +97,11 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     public void reset() {
         super.reset();
         mNextHref = "";
+    }
+
+    @Override
+    protected boolean canShowEmptyView(){
+       return (!isSyncable() || mLastUpdated > 0) && super.canShowEmptyView();
     }
 
     protected void setNextHref(String nextHref) {
@@ -213,7 +219,10 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     protected boolean isSyncable(){
-        return mContent != null && mContent.isSyncable();
+        if (mIsSyncable == null){
+            mIsSyncable = mContent != null && mContent.isSyncable();
+        }
+        return mIsSyncable;
     }
 
     protected DetachableResultReceiver getReceiver(){
