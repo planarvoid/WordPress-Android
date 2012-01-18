@@ -218,19 +218,19 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             // something is currently playing, or will be playing once
             // an in-progress call ends, so don't stop the service now.
             return true;
-        }
+
         // If there is a playlist but playback is paused, then wait a while
         // before stopping the service, so that pause/resume isn't slow.
         // Also delay stopping the service if we're transitioning between
         // tracks.
-        if (!mPlaylistManager.isEmpty() || mPlayerHandler.hasMessages(TRACK_ENDED)) {
+        } else if (!mPlaylistManager.isEmpty() || mPlayerHandler.hasMessages(TRACK_ENDED)) {
             mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
             return true;
+        } else {
+            // No active playlist, OK to stop the service right now
+            stopSelf(mServiceStartId);
+            return true;
         }
-
-        // No active playlist, OK to stop the service right now
-        stopSelf(mServiceStartId);
-        return true;
     }
 
 
