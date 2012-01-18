@@ -13,7 +13,6 @@ import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-import com.google.android.filecache.FileResponseCache;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.c2dm.C2DMReceiver;
@@ -34,12 +33,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ContentHandler;
+import java.net.ResponseCache;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static android.content.pm.PackageManager.*;
@@ -90,7 +90,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             }
         }
 
-        createImageLoaders();
+        mImageLoader = createImageLoader();
         final Account account = getAccount();
         //noinspection ConstantConditions
         mCloudApi = new Wrapper(
@@ -125,9 +125,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 new ComponentName(this, WifiMonitor.class),
                 BETA_MODE ? COMPONENT_ENABLED_STATE_ENABLED : COMPONENT_ENABLED_STATE_DISABLED,
                 DONT_KILL_APP);
-
-        new FileCache.TrimCacheTask(Consts.MAX_IMAGE_CACHE)
-                      .execute(CloudUtils.getCacheDir(this));
     }
 
     public synchronized User getLoggedInUser() {
@@ -180,12 +177,24 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         setAccountData(User.DataKeys.EMAIL_CONFIRMED, true);
     }
 
-    private void createImageLoaders() {
-        FileCache.install(this);
-        ContentHandler mBitmapHandler = FileResponseCache.capture(new BitmapContentHandler(), null);
-        ContentHandler prefetchHandler = FileResponseCache.capture(FileResponseCache.sink(), null);
-        mImageLoader = new ImageLoader(ImageLoader.DEFAULT_TASK_LIMIT,null,mBitmapHandler,prefetchHandler,ImageLoader.DEFAULT_CACHE_SIZE,null);
-        //mImageLoader = new ImageLoader(3, null, mBitmapHandler, prefetchHandler, null);
+    private ImageLoader createImageLoader() {
+        final File cacheDir = CloudUtils.getCacheDir(this);
+        ResponseCache cache = FileCache.install(cacheDir, Consts.MAX_IMAGE_CACHE);
+        ContentHandler bitmapHandler;
+        if (cache instanceof FileCache) {
+            // workaround various SDK bugs by wrapping the handler
+            bitmapHandler = FileCache.capture(new BitmapContentHandler(), null);
+            FileCache.trim(cache);
+        } else {
+            // must be ICS - no workaround+trimming needed
+            bitmapHandler = new BitmapContentHandler();
+        }
+        return new ImageLoader(ImageLoader.DEFAULT_TASK_LIMIT,
+                null, /* streamFactory */
+                bitmapHandler,
+                null  /* prefetch handler */,
+                ImageLoader.DEFAULT_CACHE_SIZE,
+                null  /* handler */);
     }
 
     @Override
@@ -208,7 +217,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public void setRecordListener(RecordListener listener) {
         this.mRecListener = listener;
     }
-
 
     public Account getAccount() {
         Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));

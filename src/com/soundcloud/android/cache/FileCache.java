@@ -1,20 +1,15 @@
 package com.soundcloud.android.cache;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
+import com.google.android.filecache.CacheResponse;
 import com.google.android.filecache.FileResponseCache;
 import com.soundcloud.android.utils.CloudUtils;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.ResponseCache;
 import java.net.URI;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -22,16 +17,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Local disk caching helper class. Uses FileResponseCache library found at
- * {@link} http://code.google.com/p/libs-for-android/
- * 
- * @author jschmidt
+ * Local disk caching helper class.
+ *
+ * Uses the new ICS
+ * <a href="http://developer.android.com/reference/android/net/http/HttpResponseCache.html">HttpResponseCache</a>
+ * if available or falls back to FileResponseCache library found at
+ * <a href="http://code.google.com/p/libs-for-android/"> http://code.google.com/p/libs-for-android/</a>.
  */
 public class FileCache extends FileResponseCache {
-    private final Context mContext;
+    public static final String TAG = FileCache.class.getSimpleName();
 
-    public FileCache(Context context) {
-        mContext = context;
+    private final File dir;
+    private final long size;
+
+    public FileCache(File dir, long size) {
+        this.dir = dir;
+        this.size = size;
     }
 
     @Override protected boolean isStale(File file, URI uri, String requestMethod, Map<String,
@@ -44,35 +45,64 @@ public class FileCache extends FileResponseCache {
     }
 
     @Override protected File getFile(URI uri, String requestMethod, Map<String, List<String>> requestHeaders, Object cookie) {
-        try {
-            File parent = CloudUtils.getCacheDir(mContext);
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(String.valueOf(uri).getBytes("UTF-8"));
-            byte[] output = digest.digest();
-            StringBuilder builder = new StringBuilder();
-            for (byte anOutput : output) {
-                builder.append(Integer.toHexString(0xFF & anOutput));
-            }
-            String filename = builder.toString();
+        return new File(dir, CloudUtils.md5(uri.toString()));
+    }
 
-            return new File(parent, filename);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+    public CacheResponse getCacheResponse(String uri) {
+        File f = getFile(URI.create(uri), null, null, null);
+        if (f.exists()) {
+            return new CacheResponse(f);
+        } else {
+            return null;
         }
     }
 
-    public static void install(Context context) {
-        ResponseCache responseCache = ResponseCache.getDefault();
-        if (responseCache instanceof FileCache) {
-            Log.d(TAG, "Cache has already been installed.");
-        } else if (responseCache == null) {
-            FileCache dropCache = new FileCache(context);
-            ResponseCache.setDefault(dropCache);
+    @Override
+    public String toString() {
+        return "FileCache{" +
+                "dir=" + dir +
+                ", size=" + size +
+                '}';
+    }
+
+    /**
+     * Installs a VM wide HTTP file cache - use the new HttpResponseCache in ICS or fall back
+     * to {@link FileCache}.
+     * <em>Only</em> active when using {@link java.net.HttpURLConnection}.
+     * @param cacheDir where to store cache items
+     * @param size     max cache size in bytes
+     * @return         the installed response cache, or null if incompatible cache installed.
+     */
+    public static ResponseCache install(File cacheDir, long size) {
+        try {
+            ResponseCache cache = (ResponseCache) Class.forName("android.net.http.HttpResponseCache")
+                    .getMethod("install", File.class, long.class)
+                    .invoke(null, cacheDir, size);
+            Log.d(TAG, "Using ICS HttpResponseCache");
+            return cache;
+        } catch (Exception httpResponseCacheNotAvailable) {
+            // not on ICS: use plain FileCache
+            ResponseCache responseCache = ResponseCache.getDefault();
+            if (responseCache instanceof FileCache) {
+                Log.d(TAG, "Cache has already been installed.");
+                return responseCache;
+            } else if (responseCache == null) {
+                FileCache cache = new FileCache(cacheDir, size);
+                ResponseCache.setDefault(cache);
+                return cache;
+            } else {
+                Class<? extends ResponseCache> type = responseCache.getClass();
+                Log.e(TAG, "Another ResponseCache has already been installed: " + type);
+                return null;
+            }
+        }
+    }
+
+    public static AsyncTask<FileCache, Integer, Boolean> trim(ResponseCache cache) {
+        if (cache instanceof FileCache) {
+            return new TrimCacheTask().execute((FileCache)cache);
         } else {
-            Class<? extends ResponseCache> type = responseCache.getClass();
-            Log.e(TAG, "Another ResponseCache has already been installed: " + type);
+            return null;
         }
     }
 
@@ -83,16 +113,21 @@ public class FileCache extends FileResponseCache {
             this.recurse = recurse;
         }
 
-        @Override protected Boolean doInBackground(File... dirs) {
-            if (recurse) deleteRecursively(dirs); else deletePlain(dirs);
+        @Override protected Boolean doInBackground(File... params) {
+            final File dir = params[0];
+            if (recurse) {
+                deleteRecursively(dir);
+            } else {
+                deletePlain(dir);
+            }
             return true;
         }
 
-        private void deleteRecursively(File[] dirs) {
+        private void deleteRecursively(File... dirs) {
             for (File d : dirs) if (d.isDirectory()) CloudUtils.deleteDir(d);
         }
 
-        private void deletePlain(File[] dirs) {
+        private void deletePlain(File... dirs) {
             List<File> allFiles = new ArrayList<File>();
             for (File dir : dirs) if (dir.isDirectory()) allFiles.addAll(Arrays.asList(dir.listFiles()));
 
@@ -104,23 +139,20 @@ public class FileCache extends FileResponseCache {
         }
     }
 
-    public static class TrimCacheTask extends AsyncTask<File, Integer, Boolean> {
-        final long maxCacheSize;
-
-        public TrimCacheTask(long max) {
-            this.maxCacheSize = max;
-        }
-
+    public static class TrimCacheTask extends AsyncTask<FileCache, Integer, Boolean> {
         @Override
-        protected Boolean doInBackground(File... params) {
-            final File dir = params[0];
-
-            final long dirSize = CloudUtils.dirSize(dir);
+        protected Boolean doInBackground(FileCache... params) {
+            final FileCache cache = params[0];
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "trimming cache "+cache);
+            }
+            final long dirSize = CloudUtils.dirSize(cache.dir);
+            final long maxCacheSize = cache.size;
             if (dirSize < maxCacheSize) return false;
 
             long toTrim = dirSize - maxCacheSize;
 
-            File[] files = dir.listFiles();
+            File[] files = cache.dir.listFiles();
             Arrays.sort(files, new Comparator<File>() {
                 public int compare(File f1, File f2) {
                     long result = f2.lastModified() - f1.lastModified();

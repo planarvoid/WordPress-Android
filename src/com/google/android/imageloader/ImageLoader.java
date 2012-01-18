@@ -37,18 +37,25 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
+
+import com.google.android.filecache.FileResponseCache;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.ImageUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.CacheResponse;
 import java.net.ContentHandler;
+import java.net.ResponseCache;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -854,6 +861,22 @@ public final class ImageLoader {
         }
 
         private Bitmap loadImage(URL url, Options options) throws IOException {
+            // check cache first if we have a standard FileCache installed
+            // needed because cache doesn't work if connection drops on older devices
+            // TODO: staleness checks
+            ResponseCache cache = ResponseCache.getDefault();
+            if (cache instanceof FileCache) {
+                CacheResponse response = ((FileCache) cache).getCacheResponse(url.toString());
+                if (response != null) {
+                    InputStream body = response.getBody();
+                    try {
+                        return processBitmap(BitmapFactory.decodeStream(body), options);
+                    } finally {
+                        body.close();
+                    }
+                }
+            }
+            // fallback - open connection and use whatever is provided by the system
             URLConnection connection = url.openConnection();
             return processBitmap((Bitmap) mBitmapContentHandler.getContent(connection), options);
         }
@@ -992,7 +1015,7 @@ public final class ImageLoader {
     }
 
     public final class ImageViewCallback implements ImageCallback {
-        
+
         // TODO: Use WeakReferences?
         private final WeakReference<ImageView> mImageView;
         private final Callback mCallback;
@@ -1005,7 +1028,7 @@ public final class ImageLoader {
             mImageView = new WeakReference<ImageView>(imageView);
             mCallback = callback;
         }
-        
+
         /** {@inheritDoc} */
         public boolean unwanted() {
             // Always complete the callback
@@ -1061,7 +1084,7 @@ public final class ImageLoader {
         public BaseAdapterCallback(BaseAdapter adapter) {
             mAdapter = new WeakReference<BaseAdapter>(adapter);
         }
-        
+
         /** {@inheritDoc} */
         public boolean unwanted() {
             return mAdapter.get() == null;
@@ -1108,7 +1131,7 @@ public final class ImageLoader {
         public BaseExpandableListAdapterCallback(BaseExpandableListAdapter adapter) {
             mAdapter = new WeakReference<BaseExpandableListAdapter>(adapter);
         }
-        
+
         /** {@inheritDoc} */
         public boolean unwanted() {
             return mAdapter.get() == null;

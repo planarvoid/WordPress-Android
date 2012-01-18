@@ -152,7 +152,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mWaveformHolder.addView(mCommentLines);
 
         mOverlay.setVisibility(View.INVISIBLE);
-        //mProgressBar.setVisibility(View.INVISIBLE);
         mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
 
         LightingColorFilter lcf = new LightingColorFilter(1, mPlayer.getResources().getColor(
@@ -160,11 +159,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mOverlay.setBackgroundColor(Color.TRANSPARENT);
         mOverlay.setColorFilter(lcf);
         mOverlay.setScaleType(ScaleType.FIT_XY);
-
-        File dirFile = new File(CloudUtils.getCacheDirPath(mPlayer) + "/waves/");
-
         setStaticTransformationsEnabled(true);
-        mkdirs(dirFile);
         mPlayerTouchBar.setLandscape(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
 
     }
@@ -420,7 +415,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (mPlayer.isConnected()) ImageLoader.get(mPlayer).clearErrors();
         }
 
-        if (TextUtils.isEmpty(track.waveform_url)){
+        if (track != null && TextUtils.isEmpty(track.waveform_url)){
             waveformResult = BindResult.ERROR;
             mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
             showWaveform(false);
