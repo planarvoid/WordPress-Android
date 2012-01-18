@@ -243,7 +243,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     protected void doneRefreshing(){
         if (isSyncable()) setListLastUpdated();
-        if  (mListView != null) mListView.onRefreshComplete(false);;
+        if  (mListView != null) mListView.onRefreshComplete(false);
     }
 
     @Override
