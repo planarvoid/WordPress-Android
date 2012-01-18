@@ -19,7 +19,7 @@ public class LruCacheTest {
     public void testTracingInUsedObject() {
         LruCache<Integer, Integer> cache = new LruCache<Integer, Integer>(2);
         Integer key = Integer.valueOf(1);
-        Integer value = new Integer(3);
+        Integer value = Integer.valueOf(3);
         cache.put(key, value);
         for (int i = 0; i < 3; ++i) {
             cache.put(i + 10, i * i);
@@ -31,7 +31,7 @@ public class LruCacheTest {
     @Test
     public void testLruAlgorithm() {
         LruCache<Integer, Integer> cache = new LruCache<Integer, Integer>(2);
-        cache.put(0, new Integer(0));
+        cache.put(0, Integer.valueOf(0));
         for (int i = 0; i < 3; ++i) {
             cache.put(i + 1, i * i);
             cache.get(0);
