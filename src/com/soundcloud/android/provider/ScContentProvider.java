@@ -198,8 +198,6 @@ public class ScContentProvider extends ContentProvider {
         return c;
     }
 
-
-
     @Override
     public Uri insert(final Uri uri, final ContentValues values) {
         final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
@@ -305,6 +303,13 @@ public class ScContentProvider extends ContentProvider {
                 where = TextUtils.isEmpty(where) ? DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment()
                         : where + " AND " + DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment();
                 tableName = Table.PLAYLIST_ITEMS.name;
+                break;
+
+            case ME_ALL_ACTIVITIES:
+            case ME_ACTIVITIES:
+            case ME_SOUND_STREAM:
+            case ME_EXCLUSIVE_STREAM:
+                tableName = Table.ACTIVITIES.name;
                 break;
 
             case ME_TRACKS:

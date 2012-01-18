@@ -55,6 +55,7 @@ public class SyncAdapterService extends Service {
     private static final long USER_SYNC_DELAY  = DEFAULT_DELAY * 4;  // users aren't as crucial
     private static final long CLEANUP_DELAY    = DEFAULT_DELAY * 24; // every 24 hours
 
+
     enum SyncContent {
         MySounds(Content.ME_TRACKS, TRACK_SYNC_DELAY),
         MyFavorites(Content.ME_FAVORITES, TRACK_SYNC_DELAY),
@@ -363,7 +364,7 @@ public class SyncAdapterService extends Service {
 
     // only used for debugging
     public static void requestNewSync(SoundCloudApplication app, int clearMode) {
-        switch (clearMode){
+        switch (clearMode) {
             case 0:
                 app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
                 app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
@@ -371,21 +372,24 @@ public class SyncAdapterService extends Service {
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, 1);
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, 1);
                 app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, 1);
-                Activities.clear(app.getContentResolver());
                 break;
             case 1:
-                app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) - (24 * 3600000));
-                app.setAccountData(User.DataKeys.LAST_OWN_SEEN, app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN) - (24 * 3600000));
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM) - (24 * 3600000));
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM) - (24 * 3600000));
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM) - (24 * 3600000));
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM) - (24 * 3600000));
-                Activities.clear(app.getContentResolver());
+                final long rewindTime = 24 * 3600000L; // 1d
+                rewind(app, User.DataKeys.LAST_INCOMING_SEEN, rewindTime);
+                rewind(app, User.DataKeys.LAST_OWN_SEEN, rewindTime);
+                rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_ITEM, rewindTime);
+                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, rewindTime);
+                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_AT, rewindTime);
+                rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_AT, rewindTime);
                 break;
         }
+        Activities.clear(null, app.getContentResolver());
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
     }
 
+    private static void rewind(SoundCloudApplication app, String key, long amount) {
+        app.setAccountData(key, app.getAccountDataLong(key) - amount);
+    }
 
     private static long getNotificationsFrequency(Context c) {
         if (PreferenceManager.getDefaultSharedPreferences(c).contains(PREF_NOTIFICATIONS_FREQUENCY)) {

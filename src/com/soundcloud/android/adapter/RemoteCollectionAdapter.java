@@ -29,7 +29,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
-    private ChangeObserver mChangeObserver;
     private DetachableResultReceiver mDetachableReceiver;
     private Boolean mIsSyncable;
     protected String mNextHref;
@@ -39,7 +38,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         super(activity, wrapped, contentUri, request, autoAppend);
 
         if (contentUri != null){
-            mChangeObserver = new ChangeObserver();
+            ChangeObserver mChangeObserver = new ChangeObserver();
             activity.getContentResolver().registerContentObserver(contentUri, true, mChangeObserver);
         }
     }
@@ -82,15 +81,13 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     @Override
     public void refresh(final boolean userRefresh) {
         super.refresh(userRefresh);
-
         if (isSyncable()) {
             requestSync();
         } else {
             clearAppendTask();
             executeRefreshTask();
+            notifyDataSetChanged();
         }
-
-        notifyDataSetChanged();
     }
 
     @Override
@@ -241,17 +238,17 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         return mDetachableReceiver;
     }
 
-    protected void requestSync(){
-        final Intent intent = new Intent(mActivity, ApiSyncService.class);
-        intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
-        intent.putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true);
-        intent.setData(mContent.uri);
+    protected void requestSync() {
+        Intent intent = new Intent(mActivity, ApiSyncService.class)
+            .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+            .putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE, true)
+            .setData(mContent.uri);
         mActivity.startService(intent);
     }
 
     protected void doneRefreshing(){
         if (isSyncable()) setListLastUpdated();
-        if  (mListView != null) mListView.onRefreshComplete(false);;
+        if  (mListView != null) mListView.onRefreshComplete(false);
     }
 
     @Override

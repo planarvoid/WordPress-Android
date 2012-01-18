@@ -18,6 +18,7 @@ import android.content.UriMatcher;
 import android.net.Uri;
 import android.os.Parcelable;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,6 +121,12 @@ public enum Content {
     static final private Map<Uri, Content> sUris = new HashMap<Uri, Content>();
 
     public static final int SYNCABLE_CEILING = 150;
+
+    public static final EnumSet<Content> ACTIVITIES = EnumSet.of(
+        Content.ME_ACTIVITIES,
+        Content.ME_SOUND_STREAM,
+        Content.ME_EXCLUSIVE_STREAM
+    );
 
     static {
         for (Content c : Content.values()) {

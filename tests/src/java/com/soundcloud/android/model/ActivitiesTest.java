@@ -213,9 +213,9 @@ public class ActivitiesTest {
                 "incoming_1.json",
                 "incoming_2.json");
 
-        Activities a = Activities.fetch(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), null, -1);
+        Activities a = Activities.fetch(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), -1);
         expect(a.size()).toEqual(100);
-        expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+        expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
     }
 
     @Test
@@ -223,9 +223,9 @@ public class ActivitiesTest {
         TestHelper.addCannedResponses(SyncAdapterServiceTest.class,
                 "incoming_1.json");
 
-        Activities a = Activities.fetch(DefaultTestRunner.application,  Content.ME_SOUND_STREAM.request(), null, 20);
+        Activities a = Activities.fetch(DefaultTestRunner.application,  Content.ME_SOUND_STREAM.request(), 20);
         expect(a.size()).toEqual(20);
-        expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+        expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
     }
 
     @Test
@@ -268,6 +268,30 @@ public class ActivitiesTest {
                         Robolectric.application.getContentResolver(),
                         toTime("2011/07/12 09:13:36 +0000")).size()
         ).toEqual(2);
+    }
+
+    @Test
+    public void shouldClearAllActivities() throws Exception {
+        Activities a = Activities.fromJSON(
+                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+
+        a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
+        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+
+        LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
+                a.future_href,
+                System.currentTimeMillis(), a.size(),
+                Robolectric.application.getContentResolver());
+
+        Activities.clear(null, Robolectric.application.getContentResolver());
+
+        assertContentUriCount(Content.ME_SOUND_STREAM, 0);
+        assertContentUriCount(Content.COLLECTIONS, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowIfContentPassedToClearIsUnrelated() throws Exception {
+        Activities.clear(Content.ME, Robolectric.application.getContentResolver());
     }
 
     @Test

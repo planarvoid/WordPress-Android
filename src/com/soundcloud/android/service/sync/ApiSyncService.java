@@ -47,6 +47,8 @@ public class ApiSyncService extends Service {
 
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
+        Log.d(LOG_TAG, "onStart("+intent+")");
+
         enqueueRequest(new ApiSyncRequest((SoundCloudApplication) getApplication(), intent));
         flushUriRequests();
     }

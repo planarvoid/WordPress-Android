@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EventsAdapterWrapper extends RemoteCollectionAdapter {
-    public DetachableResultReceiver mReceiver;
-
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Content content) {
         super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
     }
