@@ -80,7 +80,7 @@ public class ApiSyncServiceTest {
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
         ApiSyncService.ApiSyncRequest request1 = new ApiSyncService.ApiSyncRequest(app, intent);
         ApiSyncService.ApiSyncRequest request2 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
-        ApiSyncService.ApiSyncRequest request3 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
+        ApiSyncService.ApiSyncRequest request3 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
 
         svc.enqueueRequest(request1);
         expect(svc.mPendingUriRequests.size()).toBe(3);
@@ -89,6 +89,8 @@ public class ApiSyncServiceTest {
         expect(svc.mPendingUriRequests.size()).toBe(3);
         svc.enqueueRequest(request3);
         expect(svc.mPendingUriRequests.size()).toBe(4);
+        expect(svc.mPendingUriRequests.poll().getUri()).toBe(Content.ME_FOLLOWINGS.uri);
+        expect(svc.mPendingUriRequests.size()).toBe(3);
     }
 
     @Test

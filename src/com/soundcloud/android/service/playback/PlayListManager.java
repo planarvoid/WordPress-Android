@@ -4,38 +4,35 @@ package com.soundcloud.android.service.playback;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.cache.TrackCache;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 
 import android.content.Context;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.task.LoadTrackInfoTask;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.CloudUtils;
 
-import java.sql.Array;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /* package */ class PlaylistManager {
     private static final String TAG = "PlaylistManager";
 
-    public static final String EXTRA_PLAY_POS = "playPos";
-
     private SoundCloudApplication mApp;
     private Track[] mPlaylist = new Track[0];
     private Cursor mTrackCursor;
-    private Uri mTrackUri;
+    private Uri mPlaylistUri;
 
     private int mPlayPos;
     private Context mContext;
     private TrackCache mCache;
+    private static final int DEFAULT_PLAYLIST = 0;
+    private static final Uri DEFAULT_PLAYLIST_URI = CloudUtils.replaceWildcard(Content.PLAYLIST_ITEMS.uri, DEFAULT_PLAYLIST);
 
     public PlaylistManager(Context context,
                            SoundCloudApplication app, TrackCache cache) {
@@ -121,12 +118,12 @@ import java.util.List;
     public void setTrack(Track toBePlayed) {
         mCache.put(toBePlayed);
         mPlaylist = new Track[]{toBePlayed};
-        mTrackUri = null;
+        mPlaylistUri = null;
         mPlayPos = 0;
     }
 
     public void setUri(Uri uri, int position) {
-        mTrackUri = uri;
+        mPlaylistUri = uri;
         List<Track> tracks = SoundCloudDB.getTracks(mContext.getContentResolver(), uri);
         if (mTrackCursor != null){
             if (!mTrackCursor.isClosed()) mTrackCursor.close();
@@ -139,13 +136,46 @@ import java.util.List;
         }
     }
 
+    public void setPlaylist(final List<Parcelable> playlist, int playPos) {
+        // cache a new tracklist
+        mPlaylist = new Track[playlist.size()];
+
+        int i = 0;
+        for (Parcelable p : playlist){
+            if (p instanceof Track) {
+                mPlaylist[i] = (Track) p;
+            } else if (p instanceof Activity) {
+                mPlaylist[i] = ((Activity) p).getTrack();
+            } else {
+                // not playable, must be a recording.
+                // ignore it and decrease play index to account for it
+                playPos--;
+                continue;
+            }
+            i++;
+        }
+
+        mPlaylistUri = DEFAULT_PLAYLIST_URI;
+        mPlayPos = Math.max(0,playPos);
+
+        // TODO, only do this on exit???
+        new Thread() {
+            @Override
+            public void run() {
+                mApp.getContentResolver().delete(DEFAULT_PLAYLIST_URI,null,null);
+                SoundCloudDB.bulkInsertParcelables(mApp.getContentResolver(), playlist, DEFAULT_PLAYLIST_URI, mApp.getCurrentUserId(), 0);
+            }
+        }.start();
+
+    }
+
     public void clear() {
         mPlaylist = new Track[0];
     }
 
     public void saveQueue(long seekPos) {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-        editor.putString("sc_playlist_uri", mTrackUri == null ? "" : mTrackUri.toString());
+        editor.putString("sc_playlist_uri", mPlaylistUri == null ? "" : mPlaylistUri.toString());
         editor.putInt("sc_playlist_pos",mPlayPos);
         editor.putLong("sc_playlist_time", seekPos);
         editor.commit();

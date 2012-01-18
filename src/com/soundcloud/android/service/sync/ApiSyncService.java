@@ -28,8 +28,7 @@ public class ApiSyncService extends Service {
     public static final String EXTRA_SYNC_URIS = "com.soundcloud.android.sync.extra.SYNC_URIS";
     public static final String EXTRA_STATUS_RECEIVER = "com.soundcloud.android.sync.extra.STATUS_RECEIVER";
     public static final String EXTRA_SYNC_RESULT = "com.soundcloud.android.sync.extra.SYNC_RESULT";
-    public static final String EXTRA_CHECK_PERFORM_LOOKUPS = "com.soundcloud.android.sync.extra.PERFORM_LOOKUPS";
-    public static final String EXTRA_IS_MANUAL_SYNC = "com.soundcloud.android.sync.extra.IS_MANUAL_SYNC";
+    public static final String EXTRA_IS_UI_RESPONSE = "com.soundcloud.android.sync.extra.IS_UI_RESPONSE";
 
     public static final int STATUS_SYNC_ERROR = 0x2;
     public static final int STATUS_SYNC_FINISHED = 0x3;
@@ -72,7 +71,12 @@ public class ApiSyncService extends Service {
                 }
             }
             if (!found && !mRunningRequestUris.contains(uri)) {
-                mPendingUriRequests.add(new UriSyncRequest((SoundCloudApplication) getApplication(),uri));
+                final UriSyncRequest uriSyncRequest = new UriSyncRequest((SoundCloudApplication) getApplication(), uri);
+                if (request.isUIResponse){
+                    mPendingUriRequests.add(0, uriSyncRequest);
+                } else {
+                    mPendingUriRequests.add(uriSyncRequest);
+                }
             }
         }
     }
@@ -115,6 +119,8 @@ public class ApiSyncService extends Service {
         private final List<Uri> urisToSync;
         private final Set<Uri> urisRemaining;
 
+        public boolean isUIResponse;
+
         // results
         private final Bundle resultData = new Bundle();
         private final SyncResult requestResult = new SyncResult();
@@ -122,12 +128,9 @@ public class ApiSyncService extends Service {
         public ApiSyncRequest(SoundCloudApplication application, Intent intent) {
             app = application;
             resultReceiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
+            isUIResponse = intent.getBooleanExtra(EXTRA_IS_UI_RESPONSE, false);
             urisToSync = getUrisToSync(intent);
             urisRemaining = new HashSet<Uri>(urisToSync);
-        }
-
-        public List<Uri> getUriRequests() {
-            return urisToSync;
         }
 
         public boolean onUriResult(UriSyncRequest.Result uriResult) {
@@ -210,6 +213,10 @@ public class ApiSyncService extends Service {
         @Override
         public int hashCode() {
             return uri != null ? uri.hashCode() : 0;
+        }
+
+        public Uri getUri(){
+            return uri;
         }
     }
 

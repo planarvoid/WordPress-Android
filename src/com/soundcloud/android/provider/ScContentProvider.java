@@ -170,6 +170,19 @@ public class ScContentProvider extends ContentProvider {
             case COMMENTS:
                 qb.setTables(Table.COMMENTS.name);
                 break;
+            case PLAYLISTS:
+                qb.setTables(Table.PLAYLIST.name);
+                qb.appendWhere("_id = "+ userId);
+                break;
+
+            case PLAYLIST_ITEMS:
+                qb.setTables(Table.TRACK_VIEW + " INNER JOIN " + Table.PLAYLIST_ITEMS.name +
+                        " ON (" + Table.TRACK_VIEW + "._id" + " = " + DBHelper.PlaylistItems.ITEM_ID + ")");
+                if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
+                qb.appendWhere(Table.PLAYLIST_ITEMS.name+"."+ DBHelper.PlaylistItems.USER_ID + " = " + userId);
+                qb.appendWhere(" AND "+DBHelper.PlaylistItems.PLAYLIST_ID + " = " + uri.getLastPathSegment());
+                _sortOrder = makeCollectionSort(uri, sortOrder);
+                break;
 
             case UNKNOWN:
             default:
@@ -284,6 +297,12 @@ public class ScContentProvider extends ContentProvider {
                 break;
             case SEARCHES:
                 tableName = Table.SEARCHES.name;
+                break;
+            case PLAYLIST_ITEMS:
+
+                where = TextUtils.isEmpty(where) ? DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment()
+                        : where + " AND " + DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment();
+                tableName = Table.PLAYLIST_ITEMS.name;
                 break;
 
             case ME_ALL_ACTIVITIES:
@@ -445,6 +464,13 @@ public class ScContentProvider extends ContentProvider {
 
                 case COMMENTS:
                     tblName = Table.COMMENTS.name;
+                    break;
+                case PLAYLISTS:
+                    tblName = Table.PLAYLIST.name;
+                    break;
+                case PLAYLIST_ITEMS:
+                    tblName = Table.PLAYLIST_ITEMS.name;
+                    extraCV = new String[]{DBHelper.PlaylistItems.PLAYLIST_ID, String.valueOf(uri.getLastPathSegment())};
                     break;
 
                 default:

@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.net.Uri;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -273,10 +274,20 @@ public abstract class ScActivity extends android.app.Activity {
         final Track t = ((Playable) wrapper.getItem(position)).getTrack();
 
         if (!handleTrackAlreadyPlaying(t, goToPlayer, commentMode)) {
-            startService(new Intent(this, CloudPlaybackService.class)
+            final Uri contentUri = wrapper.getContentUri();
+            if (contentUri != null){
+                startService(new Intent(this, CloudPlaybackService.class)
+                        .putExtra("playPos", position)
+                        .setData(wrapper.getContentUri())
+                        .setAction(CloudPlaybackService.PLAY));
+            } else {
+                CloudPlaybackService.PLAYLIST_XFER = wrapper.getData();
+                startService(new Intent(this, CloudPlaybackService.class)
                     .putExtra("playPos", position)
-                    .setData(wrapper.getContentUri())
+                    .putExtra("playFromXferCache", true)
                     .setAction(CloudPlaybackService.PLAY));
+            }
+
 
             if (goToPlayer) {
                 launchPlayer(commentMode);
