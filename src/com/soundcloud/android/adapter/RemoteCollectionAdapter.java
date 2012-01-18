@@ -45,6 +45,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     @Override
     public void onResume() {
+        super.onResume();
         if (isSyncable()) {
             setListLastUpdated();
             if (isStale(false)) {
@@ -196,7 +197,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     protected RemoteCollectionTask.CollectionParams getCollectionParams(final boolean refresh){
         return new RemoteCollectionTask.CollectionParams() {{
                 loadModel = getLoadModel(refresh);
-                contentUri = RemoteCollectionAdapter.this instanceof EventsAdapterWrapper ? null : getContentUri(refresh);
+                contentUri = getContentUri(refresh);
                 pageIndex = getPageIndex(refresh);
                 request = buildRequest(refresh);
                 isRefresh = refresh;
