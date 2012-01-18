@@ -803,6 +803,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     break;
                 case FADE_IN:
                     removeMessages(FADE_OUT);
+
                     if (!state.isSupposedToBePlaying()) {
                         mCurrentVolume = 0f;
                         setVolume(0f);
@@ -825,7 +826,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                         if (mCurrentVolume > 0f) {
                             sendEmptyMessageDelayed(FADE_OUT, 10);
                         } else {
-                            pause();
+                            mMediaPlayer.pause();
                             mCurrentVolume = 0f;
                         }
                         setVolume(mCurrentVolume);
