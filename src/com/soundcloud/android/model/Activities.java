@@ -273,13 +273,12 @@ public class Activities extends CollectionHolder<Activity> {
         if (content != null) {
             contentToDelete = content;
         }
-        if (contentToDelete.resourceType != Activity.class) {
-            throw new IllegalArgumentException("specified Content type != Activity");
+        if (!Activity.class.isAssignableFrom(contentToDelete.resourceType)) {
+            throw new IllegalArgumentException("specified content is not an activity");
         }
-
         // make sure to delete corresponding collection
         if (contentToDelete == Content.ME_ALL_ACTIVITIES) {
-            for (Content c : SyncAdapterService.ACTIVITIES) {
+            for (Content c : Content.ACTIVITIES) {
                 LocalCollection.deleteUri(c.uri, resolver);
             }
         } else {

@@ -55,11 +55,6 @@ public class SyncAdapterService extends Service {
     private static final long USER_SYNC_DELAY  = DEFAULT_DELAY * 4;  // users aren't as crucial
     private static final long CLEANUP_DELAY    = DEFAULT_DELAY * 24; // every 24 hours
 
-    public static final Content[] ACTIVITIES = new Content[] {
-            Content.ME_ACTIVITIES,
-            Content.ME_SOUND_STREAM,
-            Content.ME_EXCLUSIVE_STREAM
-    };
 
     enum SyncContent {
         MySounds(Content.ME_TRACKS, TRACK_SYNC_DELAY),
