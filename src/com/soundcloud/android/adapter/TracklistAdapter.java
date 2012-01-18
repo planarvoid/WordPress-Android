@@ -1,5 +1,6 @@
 package com.soundcloud.android.adapter;
 
+import android.graphics.drawable.Drawable;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Track;
@@ -27,10 +28,9 @@ public class TracklistAdapter extends LazyBaseAdapter implements ITracklistAdapt
         if (ScActivity.class.isAssignableFrom(c.getClass())){
             mQuickTrackMenu = new QuickTrackMenu((ScActivity) c, this);
         }
-
     }
 
-    @Override
+   @Override
     protected LazyRow createRow(int position) {
         return new TracklistRow(mContext, this);
     }

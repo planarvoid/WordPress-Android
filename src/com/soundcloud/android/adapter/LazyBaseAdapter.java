@@ -4,6 +4,9 @@ package com.soundcloud.android.adapter;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.LazyRow;
 
 import android.content.Context;
@@ -27,8 +30,8 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
     protected int mPage = 1;
     private Class<?> mLoadModel;
 
-    protected Map<Integer, Drawable> mIconAnimations = new HashMap<Integer, Drawable>();
-    protected Set<Integer> mLoadingIcons = new HashSet<Integer>();
+    protected Map<Long, Drawable> mIconAnimations = new HashMap<Long, Drawable>();
+    protected Set<Long> mLoadingIcons = new HashSet<Long>();
 
     private Handler mNotifyHandler = new NotifyHandler();
 
@@ -68,8 +71,16 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
         return mData.get(location);
     }
 
-    public long getItemId(int i) {
-        return i;
+    public long getItemId(int position){
+        if (position < getCount()){
+            Object o = getItem(position);
+            if (o instanceof Activity) {
+                return ((Activity) o).created_at.getTime();
+            }else if (o instanceof ScModel && ((ScModel) o).id != -1) {
+                return ((ScModel) o).id;
+            }
+        }
+            return position;
     }
 
     public View getView(int index, View row, ViewGroup parent) {
@@ -98,24 +109,27 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
 
     public void onDestroy(){}
 
+    public void addItem(int position, Parcelable newItem) {
+        getData().add(position,newItem);
+    }
     public void addItem(Parcelable newItem) {
         getData().add(newItem);
     }
 
-    public Drawable getDrawableFromPosition(int position){
-        return mIconAnimations.get(position);
+    public Drawable getDrawableFromId(Long id){
+        return mIconAnimations.get(id);
     }
 
-    public void assignDrawableToPosition(Integer position, Drawable drawable){
-        mIconAnimations.put(position, drawable);
+    public void assignDrawableToId(Long id, Drawable drawable){
+        mIconAnimations.put(id, drawable);
     }
 
-    public Boolean getIconLoading(int position){
-        return mLoadingIcons.contains(position);
+    public Boolean getIconLoading(Long id){
+        return mLoadingIcons.contains(id);
     }
 
-    public void setIconLoading(Integer position){
-        mLoadingIcons.add(position);
+    public void setIconLoading(Long id){
+        mLoadingIcons.add(id);
     }
 
     public void onEndOfList(){

@@ -22,7 +22,7 @@ import android.view.animation.RotateAnimation;
 
 
 /*
-    pull-to-refresh original source: https://github.com/johannilsson/android-pulltorefresh
+    pull-to-executeRefreshTask original source: https://github.com/johannilsson/android-pulltorefresh
  */
 public class ScListView extends ListView implements AbsListView.OnScrollListener {
 
@@ -296,7 +296,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
     /**
-     * Resets the list to a normal state after a refresh.
+     * Resets the list to a normal state after a executeRefreshTask.
      */
     public void onRefreshComplete(boolean setLastUpdated) {
         if (setLastUpdated) mLastUpdated = System.currentTimeMillis();
@@ -409,8 +409,8 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem,
                          int visibleItemCount, int totalItemCount) {
-        // When the refresh view is completely visible, change the text to say
-        // "Release to refresh..." and flip the arrow drawable.
+        // When the executeRefreshTask view is completely visible, change the text to say
+        // "Release to executeRefreshTask..." and flip the arrow drawable.
         if (mCurrentScrollState == SCROLL_STATE_TOUCH_SCROLL
                 && mRefreshState != REFRESHING) {
             if (firstVisibleItem == 0) {
@@ -488,12 +488,12 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
                 if (getFirstVisiblePosition() == 0 && mRefreshState != REFRESHING) {
                     if (mRefreshView.getBottom() > mRefreshViewHeight + mRefreshVerticalTolerance
                             && mRefreshState == RELEASE_TO_REFRESH) {
-                        // Initiate the refresh
+                        // Initiate the executeRefreshTask
                         mRefreshState = REFRESHING;
                         prepareForRefresh();
                         onRefresh(true);
                     } else {
-                        // Abort refresh and scroll down below the refresh view
+                        // Abort executeRefreshTask and scroll down below the executeRefreshTask view
                         resetHeader();
                         setSelection(1);
                     }

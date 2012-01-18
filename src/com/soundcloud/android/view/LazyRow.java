@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import android.util.Log;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -62,15 +63,14 @@ public abstract class LazyRow extends FrameLayout {
     /** update the views with the data corresponding to selection index */
     public void display(int position) {
         mCurrentPosition = position;
+        final Long id = mAdapter.getItemId(mCurrentPosition);
         final String iconUri = getIconRemoteUri();
         if (CloudUtils.checkIconShouldLoad(iconUri)) {
-        //if (false){
-            //mImageLoader.bind((LazyBaseAdapter) mAdapter,mIcon,iconUri);
             final Bitmap bmp = mImageLoader.getBitmap(iconUri,null, ICON_OPTIONS);
             if (bmp != null){
-                Drawable drawable = mAdapter.getDrawableFromPosition(position);
+                Drawable drawable = mAdapter.getDrawableFromId(id);
                 if (drawable == null){
-                    if (mAdapter.getIconLoading(position)){
+                    if (mAdapter.getIconLoading(id)){
                         TransitionDrawable tDrawable = (TransitionDrawable) (drawable = new TransitionDrawable(new Drawable[]{mIcon.getBackground(),new BitmapDrawable(bmp)}));
                         tDrawable.setCrossFadeEnabled(true);
                         tDrawable.setCallback(new android.graphics.drawable.Drawable.Callback(){
@@ -83,10 +83,10 @@ public abstract class LazyRow extends FrameLayout {
                         drawable = new BitmapDrawable(bmp);
                     }
                 }
-                mAdapter.assignDrawableToPosition(position, drawable);
+                mAdapter.assignDrawableToId(id, drawable);
                 mIcon.setImageDrawable(drawable);
             } else {
-                mAdapter.setIconLoading(position);
+                mAdapter.setIconLoading(id);
                 mImageLoader.bind((BaseAdapter) mAdapter, mIcon, iconUri, mIconOptions);
             }
         } else {

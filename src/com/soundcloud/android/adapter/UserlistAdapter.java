@@ -1,8 +1,10 @@
 
 package com.soundcloud.android.adapter;
 
+import android.graphics.drawable.Drawable;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistRow;

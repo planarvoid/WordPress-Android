@@ -486,7 +486,7 @@ public class ScContentProvider extends ContentProvider {
         } finally {
             db.endTransaction();
         }
-        getContext().getContentResolver().notifyChange(uri, null, false);
+        if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
         return values.length;
     }
 

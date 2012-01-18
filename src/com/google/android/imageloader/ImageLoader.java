@@ -57,7 +57,7 @@ import java.util.*;
 import java.util.concurrent.Executor;
 
 /**
- * A helper class to load images asynchronously.
+ * A helper class to executeAppendTask images asynchronously.
  */
 public final class ImageLoader {
 
@@ -126,7 +126,7 @@ public final class ImageLoader {
     }
 
     /**
-     * Callback interface for load and error events.
+     * Callback interface for executeAppendTask and error events.
      * <p>
      * This interface is only applicable when binding a stand-alone
      * {@link ImageView}. When the target {@link ImageView} is in an
@@ -171,7 +171,7 @@ public final class ImageLoader {
          */
         LOADING,
         /**
-         * Returned when an attempt to load the image has already been made and
+         * Returned when an attempt to executeAppendTask the image has already been made and
          * it failed.
          * <p>
          * Callers may wish to show an error indicator when this value is
@@ -246,7 +246,7 @@ public final class ImageLoader {
      * @param streamFactory a {@link URLStreamHandlerFactory} for creating
      *            connections to special URLs such as {@code content://} URIs.
      *            This parameter can be {@code null} if the {@link ImageLoader}
-     *            only needs to load images over HTTP or if a custom
+     *            only needs to executeAppendTask images over HTTP or if a custom
      *            {@link URLStreamHandlerFactory} has already been passed to
      *            {@link URL#setURLStreamHandlerFactory(URLStreamHandlerFactory)}
      * @param bitmapHandler a {@link ContentHandler} for loading images.
@@ -650,7 +650,7 @@ public final class ImageLoader {
      * Clears any cached errors.
      * <p>
      * Call this method when a network connection is restored, or the user
-     * invokes a manual refresh of the screen.
+     * invokes a manual executeRefreshTask of the screen.
      */
     public void clearErrors() {
         mErrors.clear();
@@ -660,7 +660,7 @@ public final class ImageLoader {
      * Pre-loads an image into memory.
      * <p>
      * The image may be unloaded if memory is low. Use {@link #prefetch(String, Options)}
-     * and a file-based cache to pre-load more images.
+     * and a file-based cache to pre-executeAppendTask more images.
      *
      * @param url the image URL
      * @throws NullPointerException if the URL is {@code null}
@@ -674,7 +674,7 @@ public final class ImageLoader {
             return;
         }
         if (null != getError(url)) {
-            // A recent attempt to load the image failed,
+            // A recent attempt to executeAppendTask the image failed,
             // therefore this attempt is likely to fail as well.
             return;
         }
@@ -696,9 +696,9 @@ public final class ImageLoader {
      * @param cursor a {@link Cursor} containing the image URLs.
      * @param columnIndex the column index of the image URL. The column value
      *            may be {@code NULL}.
-     * @param start the first position to load. For example, {@code
+     * @param start the first position to executeAppendTask. For example, {@code
      *            selectedPosition - 5}.
-     * @param end the first position not to load. For example, {@code
+     * @param end the first position not to executeAppendTask. For example, {@code
      *            selectedPosition + 5}.
      * @see #preload(String, Options)
      */
@@ -737,7 +737,7 @@ public final class ImageLoader {
             return;
         }
         if (null != getError(url)) {
-            // A recent attempt to load or prefetch the image failed,
+            // A recent attempt to executeAppendTask or prefetch the image failed,
             // therefore this attempt is likely to fail as well.
             return;
         }
@@ -754,7 +754,7 @@ public final class ImageLoader {
      * support for persistent caching was passed to the constructor.
      * <p>
      * Typically, an {@link Activity} would register a {@link DataSetObserver}
-     * and call this method from {@link DataSetObserver#onChanged()} to load
+     * and call this method from {@link DataSetObserver#onChanged()} to executeAppendTask
      * off-screen images into a file-based cache when they are not already
      * present in the cache.
      *
@@ -823,7 +823,7 @@ public final class ImageLoader {
         }
 
         /**
-         * Creates an {@link ImageTask} to load a {@link Bitmap} for an
+         * Creates an {@link ImageTask} to executeAppendTask a {@link Bitmap} for an
          * {@link ImageView} in an {@link android.widget.AdapterView}.
          */
         public ImageRequest(BaseAdapter adapter, String url, Options options) {
@@ -831,7 +831,7 @@ public final class ImageLoader {
         }
 
         /**
-         * Creates an {@link ImageTask} to load a {@link Bitmap} for an
+         * Creates an {@link ImageTask} to executeAppendTask a {@link Bitmap} for an
          * {@link ImageView} in an {@link android.widget.ExpandableListView}.
          */
         public ImageRequest(BaseExpandableListAdapter adapter, String url, Options options) {
@@ -839,7 +839,7 @@ public final class ImageLoader {
         }
 
         /**
-         * Creates an {@link ImageTask} to load a {@link Bitmap} for an
+         * Creates an {@link ImageTask} to executeAppendTask a {@link Bitmap} for an
          * {@link ImageView}.
          */
         public ImageRequest(ImageView view, String url, Callback callback, Options options) {
@@ -871,7 +871,7 @@ public final class ImageLoader {
                         return false;
                     }
                 }
-                // Check if the last attempt to load the URL had an error
+                // Check if the last attempt to executeAppendTask the URL had an error
                 mError = getError(mUrl);
                 if (mError != null) {
                     return true;

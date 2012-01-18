@@ -43,7 +43,7 @@ public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Reque
 
     @Override
     protected Model doInBackground(Request... request) {
-        if (request == null || request.length == 0) throw new IllegalArgumentException("need path to load");
+        if (request == null || request.length == 0) throw new IllegalArgumentException("need path to executeAppendTask");
 
         try {
             HttpResponse resp = mApi.get(request[0]);

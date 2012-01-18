@@ -87,7 +87,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             requestSync();
         } else {
             clearAppendTask();
-            load(true);
+            executeRefreshTask();
         }
 
         notifyDataSetChanged();
@@ -127,7 +127,6 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         } else {
             handleResponseCode(responseCode);
         }
-
 
         if (wasRefresh || !mRefreshing){
             doneRefreshing();
@@ -269,6 +268,10 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         }
     }
 
+    protected void onContentChanged(){
+        reset();
+    }
+
     private class ChangeObserver extends ContentObserver {
         public ChangeObserver() {
             super(new Handler());
@@ -281,7 +284,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
         @Override
         public void onChange(boolean selfChange) {
-            reset();
+            onContentChanged();
         }
     }
 }

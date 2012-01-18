@@ -124,7 +124,7 @@ public class SignUp extends Activity {
                 }
 
                 if (user != null) {
-                    // need to create user account as soon as possible, so the refresh logic in
+                    // need to create user account as soon as possible, so the executeRefreshTask logic in
                     // SoundCloudApplication works properly
                     final boolean signedUp = app.addUserAccount(user, app.getToken());
 
