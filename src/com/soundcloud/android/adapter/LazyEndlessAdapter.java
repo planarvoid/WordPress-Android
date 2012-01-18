@@ -2,7 +2,6 @@
 package com.soundcloud.android.adapter;
 
 
-import android.util.Log;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -11,12 +10,9 @@ import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -26,10 +22,7 @@ import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -42,6 +35,7 @@ import java.util.List;
 
 public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener, DetachableResultReceiver.Receiver {
     protected RemoteCollectionTask mAppendTask;
+    protected RemoteCollectionTask mRefreshTask;
     protected UpdateCollectionTask mUpdateCollectionTask;
 
     protected ScListView mListView;
@@ -65,8 +59,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     protected int mState;
     int INITIALIZED     = 0; // no loading yet
-    int IDLE           = 1; // ready for initial load (considered a refresh)
-    int LOADING = 3; // currently appending
+    int IDLE           = 1; // ready for initial executeAppendTask (considered a executeRefreshTask)
+    int APPENDING = 3; // currently appending
     int ERROR           = 4; // idle with error, no more appends
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
@@ -175,6 +169,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         return new Object[] {
                 getData(),
                 getAppendTask(),
+                getRefreshTask(),
                 getUpdateTask(),
                 savePagingData(),
                 saveExtraData(),
@@ -188,27 +183,13 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     public void restoreState(final Object[] state){
         if (state[0] != null) getData().addAll((Collection<? extends Parcelable>) state[0]);
         if (state[1] != null) restoreAppendTask((RemoteCollectionTask) state[1]);
-        if (state[2] != null) restoreUpdateTask((UpdateCollectionTask) state[2]);
-        if (state[3] != null) restorePagingData((int[]) state[3]);
-        if (state[4] != null) restoreExtraData((Object[]) state[4]);
-        if (state[5] != null) mListView.setLastUpdated(Long.valueOf(state[5].toString()));
-        if (state[6] != null) mListView.postSelect(Math.max(isRefreshing() ? 0 : 1, Integer.valueOf(state[6].toString())),Integer.valueOf(state[7].toString()), true);
+        if (state[2] != null) restoreRefreshTask((RemoteCollectionTask) state[2]);
+        if (state[3] != null) restoreUpdateTask((UpdateCollectionTask) state[3]);
+        if (state[4] != null) restorePagingData((int[]) state[4]);
+        if (state[5] != null) restoreExtraData((Object[]) state[5]);
+        if (state[6] != null) mListView.setLastUpdated(Long.valueOf(state[6].toString()));
+        if (state[7] != null) mListView.postSelect(Math.max(isRefreshing() ? 0 : 1, Integer.valueOf(state[7].toString())),Integer.valueOf(state[8].toString()), true);
     }
-
-    public long[] getTrackIds() {
-        List<Long> idList = new ArrayList<Long>();
-        for (Parcelable p : getData()) {
-            if (p instanceof Playable) {
-                idList.add(((Playable) p).getTrack().id);
-             }
-        }
-        long[] ids = new long[idList.size()];
-        for (int i=0; i<idList.size(); i++) {
-            ids[i] = idList.get(i);
-        }
-        return ids;
-    }
-
     /**
      * Restore a possibly still running task that could have been passed in on
      * creation
@@ -217,6 +198,12 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         if (ap != null) {
             mAppendTask = ap;
             ap.setAdapter(this);
+        }
+    }
+    public void restoreRefreshTask(RemoteCollectionTask rt) {
+        if (rt != null) {
+            mRefreshTask = rt;
+            rt.setAdapter(this);
         }
     }
 
@@ -230,7 +217,9 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     public RemoteCollectionTask getAppendTask() {
         return mAppendTask;
     }
-
+    public RemoteCollectionTask getRefreshTask() {
+        return mRefreshTask;
+    }
     public UpdateCollectionTask getUpdateTask() {
         return mUpdateCollectionTask;
     }
@@ -272,8 +261,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     @Override
     public int getCount() {
-        if (canAppend() || mState == LOADING || canShowEmptyView()) {
-            return super.getCount() + 1; // extra row for an load row or an empty view
+        if (canAppend() || mState == APPENDING || canShowEmptyView()) {
+            return super.getCount() + 1; // extra row for an executeAppendTask row or an empty view
         } else {
             return super.getCount();
         }
@@ -286,10 +275,10 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         }
 
         if (position >= Math.max(0,super.getCount() - Consts.ROW_APPEND_BUFFER) && canAppend()) {
-            load(false);
+            executeAppendTask();
         }
 
-        if (position == super.getCount() && (canAppend() || mState == LOADING)) {
+        if (position == super.getCount() && (canAppend() || mState == APPENDING)) {
             if (mPendingView == null) {
                 mPendingView = (convertView != null) ? convertView :
                             ((LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
@@ -346,6 +335,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         resetData();
         mPageIndex = 0;
         clearAppendTask();
+        clearRefreshTask();
         clearUpdateTask();
         mKeepGoing = mAutoAppend;
         mState = mAutoAppend ? IDLE : INITIALIZED;
@@ -364,6 +354,11 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         if (mAppendTask != null && !CloudUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
         mAppendTask = null;
         mPendingView = null;
+    }
+
+    protected void clearRefreshTask() {
+        if (mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
+        mRefreshTask = null;
     }
 
     protected void clearUpdateTask() {
@@ -449,10 +444,15 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     protected abstract RemoteCollectionTask buildTask();
 
-    public void load(boolean isRefresh) {
-        mState = LOADING;
+    public void executeRefreshTask() {
+        mRefreshTask = buildTask();
+        mRefreshTask.execute(getCollectionParams(true));
+    }
+
+    public void executeAppendTask() {
+        mState = APPENDING;
         mAppendTask = buildTask();
-        mAppendTask.execute(getCollectionParams(isRefresh));
+        mAppendTask.execute(getCollectionParams(false));
     }
 
     protected abstract RemoteCollectionTask.CollectionParams getCollectionParams(boolean refresh);

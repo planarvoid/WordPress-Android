@@ -25,7 +25,7 @@ public class LoadActivitiesTask extends RemoteCollectionTask {
     protected void respond(){
         EventsAdapterWrapper adapter = (EventsAdapterWrapper) mAdapterReference.get();
         if (adapter != null) {
-            adapter.onNewEvents(mNewItems, mLastCursor, mResponseCode, keepGoing, mParams.isRefresh);
+            adapter.onNewEvents(mNewItems, mNextHref, mLastCursor, mResponseCode, keepGoing, mParams.isRefresh);
         }
     }
 

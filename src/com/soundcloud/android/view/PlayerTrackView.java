@@ -252,7 +252,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
             ImageLoader.get(getContext()).unbind(mArtwork);
             mArtwork.setVisibility(View.INVISIBLE);
         } else {
-            // load artwork as necessary
+            // executeAppendTask artwork as necessary
             if ((mCurrentArtBindResult = ImageUtils.loadImageSubstitute(
                     getContext(),
                     mArtwork,

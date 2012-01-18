@@ -146,7 +146,7 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
             }
         }
 
-        // load next section as necessary
+        // executeAppendTask next section as necessary
         if (getWrappedAdapter().sections.size() - 1 > mSectionIndex) {
             mSectionIndex++;
             getWrappedAdapter().sections.get(mSectionIndex).pageIndex = 0;

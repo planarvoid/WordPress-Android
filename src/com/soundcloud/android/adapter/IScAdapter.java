@@ -6,13 +6,15 @@ import android.widget.BaseAdapter;
 import com.soundcloud.android.model.User;
 
 public interface IScAdapter {
-    Drawable getDrawableFromPosition(int position);
+    long getItemId(int position);
 
-    Boolean getIconLoading(int position);
+    Drawable getDrawableFromId(Long id);
 
-    void assignDrawableToPosition(Integer position, Drawable drawable);
+    Boolean getIconLoading(Long id);
 
-    void setIconLoading(Integer position);
+    void assignDrawableToId(Long id, Drawable drawable);
+
+    void setIconLoading(Long id);
 
     void onEndOfList();
 }

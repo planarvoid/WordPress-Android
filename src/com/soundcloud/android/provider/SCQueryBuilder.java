@@ -89,9 +89,9 @@ public class SCQueryBuilder
      * by parenthesis and ANDed with the selection passed to {@link #query}. The final
      * WHERE clause looks like:
      *
-     * WHERE (&lt;load chunk 1>&lt;load chunk2>) AND (&lt;query() selection parameter>)
+     * WHERE (&lt;executeAppendTask chunk 1>&lt;executeAppendTask chunk2>) AND (&lt;query() selection parameter>)
      *
-     * @param inWhere the chunk of text to load to the WHERE clause.
+     * @param inWhere the chunk of text to executeAppendTask to the WHERE clause.
      */
     public void appendWhere(CharSequence inWhere) {
         if (mWhereClause == null) {
@@ -108,9 +108,9 @@ public class SCQueryBuilder
      * by parenthesis and ANDed with the selection passed to {@link #query}. The final
      * WHERE clause looks like:
      *
-     * WHERE (&lt;load chunk 1>&lt;load chunk2>) AND (&lt;query() selection parameter>)
+     * WHERE (&lt;executeAppendTask chunk 1>&lt;executeAppendTask chunk2>) AND (&lt;query() selection parameter>)
      *
-     * @param inWhere the chunk of text to load to the WHERE clause. it will be escaped
+     * @param inWhere the chunk of text to executeAppendTask to the WHERE clause. it will be escaped
      * to avoid SQL injection attacks
      */
     public void appendWhereEscapeString(String inWhere) {

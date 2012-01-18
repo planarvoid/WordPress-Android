@@ -844,7 +844,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             } else if (CMDPAUSE.equals(cmd) || PAUSE_ACTION.equals(action)) {
                 pause();
             } else if (PlayerAppWidgetProvider.CMDAPPWIDGETUPDATE.equals(cmd)) {
-                // Someone asked us to refresh a set of specific widgets,
+                // Someone asked us to executeRefreshTask a set of specific widgets,
                 // probably because they were just added.
                 int[] appWidgetIds = intent
                         .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
