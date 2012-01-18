@@ -82,7 +82,6 @@ public class FocusHelper {
         }
     }
 
-    @SuppressWarnings({"UnusedDeclaration"})
     public static void unregisterRemoteControl(Context context) {
         if (sUnregisterMediaButtonEventReceiver == null) return;
         try {

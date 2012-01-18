@@ -583,6 +583,7 @@ public class DBHelper extends SQLiteOpenHelper {
             alterTableColumns(db, Table.TRACKS, null, null);
             alterTableColumns(db, Table.USERS, null, null);
             db.execSQL(DATABASE_CREATE_TRACK_VIEW);
+            db.execSQL(DATABASE_CREATE_COMMENTS);
             db.execSQL(DATABASE_CREATE_ACTIVITIES);
             db.execSQL(DATABASE_CREATE_ACTIVITY_VIEW);
             db.execSQL(DATABASE_CREATE_COLLECTIONS);
