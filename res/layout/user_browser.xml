@@ -95,14 +95,14 @@
                 <Button
                   android:id="@+id/btn_followingState"
                   android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
+                  android:layout_height="40dp"
                   style="@style/btn_following"
                   android:visibility="invisible"/>
 
                 <Button
                   android:id="@+id/btn_followState"
                   android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
+                  android:layout_height="40dp"
                   style="@style/btn_follow"
                   android:visibility="invisible"
                   android:layout_alignLeft="@id/btn_followingState"
