@@ -65,7 +65,7 @@ public enum Content {
     COMMENT_ITEM("/comments/#", null, 401, Comment.class, -1),
 
     PLAYLISTS("/playlists", null, 501, null, -1),
-    PLAYLIST_ITEM("/playlists/#", null, 502, null, -1),
+    PLAYLIST_ITEMS("/playlists/#", null, 502, null, -1),
 
     GROUPS("/groups", null, 600, null, -1),
     GROUP_ITEM("/groups/#", null, 602, null, -1),

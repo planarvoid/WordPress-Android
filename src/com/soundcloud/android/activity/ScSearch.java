@@ -53,9 +53,6 @@ public class ScSearch extends ScActivity {
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-
-
-
         setContentView(R.layout.workspace_view);
 
         mWorkspaceView = (WorkspaceView) ((ViewGroup) findViewById(android.R.id.content)).findViewById(R.id.workspace_view);
@@ -260,7 +257,6 @@ public class ScSearch extends ScActivity {
 
         cv.put(DBHelper.Searches.SEARCH_TYPE, searchType);
 
-
         // check for a duplicate to update
         if (updateId == -1) {
             Cursor cursor = getContentResolver().query(Content.SEARCHES.uri,
@@ -283,9 +279,7 @@ public class ScSearch extends ScActivity {
         }
         refreshHistory();
 
-        mList.setVisibility(View.VISIBLE);
         mList.setLastUpdated(0);
-        mList.onRefresh(false);
         mList.setVisibility(View.VISIBLE);
 
         if (mWorkspaceView.getChildCount() < 2){

@@ -5,6 +5,7 @@ import static com.soundcloud.android.service.playback.State.*;
 import android.app.NotificationManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.*;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -31,11 +32,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Build;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.PowerManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -44,9 +40,14 @@ import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 public class CloudPlaybackService extends Service implements FocusHelper.MusicFocusable {
     public static final String TAG = "CloudPlaybackService";
+
+    public static List<Parcelable> PLAYLIST_XFER;
+    public static final String PLAY_EXTRA_PLAY_POSITION  = "playPos";
+    public static final String PLAY_EXTRA_PLAY_FROM_XFER_CACHE  = "playFromXferCache";
 
     public static final String PLAYSTATE_CHANGED  = "com.soundcloud.android.playstatechanged";
     public static final String META_CHANGED       = "com.soundcloud.android.metachanged";
@@ -880,7 +881,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             mPlaylistManager.setTrack(track);
             openCurrent();
         } else if (intent.getData() != null) {
-            mPlaylistManager.setUri(intent.getData(), intent.getIntExtra(PlaylistManager.EXTRA_PLAY_POS, 0));
+            mPlaylistManager.setUri(intent.getData(), intent.getIntExtra(PLAY_EXTRA_PLAY_POSITION, 0));
+            openCurrent();
+        } else if (intent.getBooleanExtra(PLAY_EXTRA_PLAY_FROM_XFER_CACHE, false)) {
+            mPlaylistManager.setPlaylist(PLAYLIST_XFER,intent.getIntExtra(PLAY_EXTRA_PLAY_POSITION, 0));
+            PLAYLIST_XFER = null;
             openCurrent();
         } else {
             Log.w(TAG, "invalid play action");

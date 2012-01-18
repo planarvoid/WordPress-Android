@@ -39,6 +39,7 @@ import java.net.ContentHandler;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static android.content.pm.PackageManager.*;

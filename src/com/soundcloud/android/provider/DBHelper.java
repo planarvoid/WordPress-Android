@@ -198,8 +198,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_CREATE_PLAYLIST_ITEMS = "CREATE TABLE PlaylistItems (_id INTEGER primary key AUTOINCREMENT, " +
             "playlist_id INTEGER null, " +
-            "track_id INTEGER null" +
-            "position INTEGER null" +
+            "item_id INTEGER null," +
+            "position INTEGER null," +
             "user_id INTEGER null"+
             ");";
 
@@ -453,6 +453,16 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String PAGE_INDEX = "page_index";
     }
 
+    /**
+     * {@link DBHelper.DATABASE_CREATE_PLAYLIST_ITEMS}
+     */
+    public final static class PlaylistItems implements BaseColumns{
+        public static final String PLAYLIST_ID = "playlist_id";
+        public static final String ITEM_ID = "item_id";
+        public static final String POSITION = "position";
+        public static final String USER_ID = "user_id";
+    }
+
     public final static class TrackView implements BaseColumns {
         public static final String LAST_UPDATED = Tracks.LAST_UPDATED;
         public static final String PERMALINK = Tracks.PERMALINK;
@@ -496,6 +506,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_PERMALINK = "activity_user_permalink";
         public static final String USER_AVATAR_URL = "activity_user_avatar_url";
     }
+
 
     /*
     * altered id naming for content resolver
