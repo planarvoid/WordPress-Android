@@ -371,7 +371,7 @@ public class SyncAdapterService extends Service {
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, 1);
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, 1);
                 app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, 1);
-                Activities.clear(app.getContentResolver());
+                Activities.clear(null, app.getContentResolver());
                 break;
             case 1:
                 app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) - (24 * 3600000));
@@ -380,7 +380,7 @@ public class SyncAdapterService extends Service {
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM) - (24 * 3600000));
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM) - (24 * 3600000));
                 app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM) - (24 * 3600000));
-                Activities.clear(app.getContentResolver());
+                Activities.clear(null, app.getContentResolver());
                 break;
         }
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());

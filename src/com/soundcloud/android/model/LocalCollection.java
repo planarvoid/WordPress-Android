@@ -85,6 +85,7 @@ public class LocalCollection {
                 "id=" + id +
                 ", uri=" + uri +
                 ", last_sync=" + last_sync +
+                ", sync_state='" + sync_state + '\'' +
                 ", size=" + size +
                 '}';
     }

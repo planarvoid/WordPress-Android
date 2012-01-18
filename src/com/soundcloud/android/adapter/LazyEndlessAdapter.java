@@ -300,8 +300,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         } else if (convertView == mPendingView) {
             return (super.getView(position, null, parent));
         }
-
-        return (super.getView(position, convertView, parent));
+        return super.getView(position, convertView, parent);
     }
 
     protected boolean canAppend() {

@@ -29,7 +29,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
-    private ChangeObserver mChangeObserver;
     private DetachableResultReceiver mDetachableReceiver;
     protected String mNextHref;
     protected long mLastUpdated = -1;
@@ -38,7 +37,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         super(activity, wrapped, contentUri, request, autoAppend);
 
         if (contentUri != null){
-            mChangeObserver = new ChangeObserver();
+            ChangeObserver mChangeObserver = new ChangeObserver();
             activity.getContentResolver().registerContentObserver(contentUri, true, mChangeObserver);
         }
     }
@@ -81,15 +80,13 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     @Override
     public void refresh(final boolean userRefresh) {
         super.refresh(userRefresh);
-
         if (isSyncable()) {
             requestSync();
         } else {
             clearAppendTask();
             load(true);
+            notifyDataSetChanged();
         }
-
-        notifyDataSetChanged();
     }
 
     @Override
@@ -233,11 +230,14 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         return mDetachableReceiver;
     }
 
-    protected void requestSync(){
-        final Intent intent = new Intent(mActivity, ApiSyncService.class);
-        intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
-        intent.setData(mContent.uri);
-        intent.putExtra(ApiSyncService.EXTRA_CHECK_PERFORM_LOOKUPS,false);
+    protected void requestSync() {
+        Log.d(TAG, getClass().getSimpleName()+" requestSync()");
+
+        Intent intent = new Intent(mActivity, ApiSyncService.class)
+            .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+            .setData(mContent.uri)
+            .putExtra(ApiSyncService.EXTRA_CHECK_PERFORM_LOOKUPS, false);
+
         mActivity.startService(intent);
     }
 

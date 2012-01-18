@@ -88,9 +88,9 @@ public class ApiSyncer {
         if (collection != null) {
             future_href = collection.sync_state;
         }
-
+        Log.d(ApiSyncService.LOG_TAG, "syncActivities(collection="+collection+")");
         Request request = future_href == null ? content.request() : Request.to(future_href);
-        Activities activities = Activities.fetch(mApi, request, null, API_LOOKUP_BATCH_SIZE);
+        Activities activities = Activities.fetch(mApi, request, API_LOOKUP_BATCH_SIZE);
         final int inserted = activities.insert(content, mResolver);
         Log.d(ApiSyncService.LOG_TAG, "activities: inserted "+inserted + " objects");
 
@@ -103,13 +103,11 @@ public class ApiSyncer {
     }
 
     private boolean quickSync(Content c, final long userId) throws IOException {
-        final long start = System.currentTimeMillis();
-        int size = 0;
         List<Long> local = idCursorToList(mResolver.query(
                 Content.COLLECTION_ITEMS.uri,
-                new String[]{DBHelper.CollectionItems.ITEM_ID},
+                new String[] { DBHelper.CollectionItems.ITEM_ID },
                 DBHelper.CollectionItems.COLLECTION_TYPE + " = ?",
-                new String[]{String.valueOf(c.collectionType)},
+                new String[] { String.valueOf(c.collectionType) },
                 DBHelper.CollectionItems.SORT_ORDER));
 
         List<Long> remote = getCollectionIds(mApi, c.remoteUri);

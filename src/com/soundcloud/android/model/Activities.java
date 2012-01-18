@@ -223,7 +223,6 @@ public class Activities extends CollectionHolder<Activity> {
 
     public static Activities fetch(AndroidCloudAPI api,
                                    final Request request,
-                                   final Activity lastCached,
                                    int max) throws IOException {
         boolean caughtUp = false;
         String future_href = null;
@@ -244,8 +243,7 @@ public class Activities extends CollectionHolder<Activity> {
                 Log.d(TAG,"Got events " + activities.size());
 
                 for (Activity evt : activities) {
-                    if ((lastCached == null || !evt.equals(lastCached)) &&
-                        (max < 0 ||  activityList.size() < max)) {
+                    if (max < 0 || activityList.size() < max) {
                         activityList.add(evt);
                     } else {
                         caughtUp = true;
@@ -254,6 +252,7 @@ public class Activities extends CollectionHolder<Activity> {
                 }
             } else {
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+                    Log.d(TAG, "Got no content response (204)");
                     return EMPTY;
                 } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
                     throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
@@ -268,8 +267,15 @@ public class Activities extends CollectionHolder<Activity> {
         return new Activities(activityList, future_href, next_href);
     }
 
-    public static void clear(ContentResolver resolver) {
-        // TODO
+    public static int clear(Content content, ContentResolver resolver) {
+        Content contentToDelete = Content.ME_ALL_ACTIVITIES;
+        if (content != null) {
+            contentToDelete = content;
+        }
+        if (contentToDelete.resourceType != Activity.class) {
+            throw new IllegalArgumentException("specified Content type != Activity");
+        }
+        return resolver.delete(contentToDelete.uri, null, null);
     }
 
     public static Activities get(Content content, ContentResolver contentResolver) {
