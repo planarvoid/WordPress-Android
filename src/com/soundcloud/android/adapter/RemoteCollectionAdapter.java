@@ -245,8 +245,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     protected void requestSync(){
         final Intent intent = new Intent(mActivity, ApiSyncService.class);
         intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver());
+        intent.putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true);
         intent.setData(mContent.uri);
-        intent.putExtra(ApiSyncService.EXTRA_CHECK_PERFORM_LOOKUPS,false);
         mActivity.startService(intent);
     }
 
