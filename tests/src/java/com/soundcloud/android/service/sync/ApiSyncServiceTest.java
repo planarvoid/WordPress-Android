@@ -133,7 +133,7 @@ public class ApiSyncServiceTest {
 
         expect(collection).not.toBeNull();
         expect(collection.last_sync).toBeGreaterThan(0L);
-        expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+        expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
 
         assertContentUriCount(Content.ME_SOUND_STREAM, 100);
         assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 1);
@@ -190,10 +190,10 @@ public class ApiSyncServiceTest {
 
         expect(collection).not.toBeNull();
         expect(collection.last_sync).toBeGreaterThan(0L);
-        expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+        expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
 
         addCannedResponse(SyncAdapterServiceTest.class,
-                "https://api.soundcloud.com/me/activities/tracks?uuid%5Bto%5D=e46666c4-a7e6-11e0-8c30-73a2e4b61738&limit=20",
+                "https://api.soundcloud.com/me/activities/tracks?uuid%5Bto%5D=future-href-incoming-1&limit=20",
                 "empty_events.json");
 
         // next sync request should go this url
