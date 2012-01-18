@@ -380,25 +380,21 @@ public class SyncAdapterService extends Service {
                 break;
             case 1:
                 final long rewindTime = 24 * 3600000L; // 1d
-                app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN,
-                        app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) - rewindTime);
-                app.setAccountData(User.DataKeys.LAST_OWN_SEEN,
-                        app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN) - rewindTime);
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM,
-                        app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM) - rewindTime);
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM,
-                        app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM) - rewindTime);
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT,
-                        app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_AT) - rewindTime);
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT,
-                        app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_AT) - rewindTime);
+                rewind(app, User.DataKeys.LAST_INCOMING_SEEN, rewindTime);
+                rewind(app, User.DataKeys.LAST_OWN_SEEN, rewindTime);
+                rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_ITEM, rewindTime);
+                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, rewindTime);
+                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_AT, rewindTime);
+                rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_AT, rewindTime);
                 break;
         }
         Activities.clear(null, app.getContentResolver());
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
     }
 
-
+    private static void rewind(SoundCloudApplication app, String key, long amount) {
+        app.setAccountData(key, app.getAccountDataLong(key) - amount);
+    }
 
     private static long getNotificationsFrequency(Context c) {
         if (PreferenceManager.getDefaultSharedPreferences(c).contains(PREF_NOTIFICATIONS_FREQUENCY)) {
