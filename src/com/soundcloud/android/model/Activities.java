@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -275,6 +276,16 @@ public class Activities extends CollectionHolder<Activity> {
         if (contentToDelete.resourceType != Activity.class) {
             throw new IllegalArgumentException("specified Content type != Activity");
         }
+
+        // make sure to delete corresponding collection
+        if (contentToDelete == Content.ME_ALL_ACTIVITIES) {
+            for (Content c : SyncAdapterService.ACTIVITIES) {
+                LocalCollection.deleteUri(c.uri, resolver);
+            }
+        } else {
+            LocalCollection.deleteUri(contentToDelete.uri, resolver);
+        }
+
         return resolver.delete(contentToDelete.uri, null, null);
     }
 

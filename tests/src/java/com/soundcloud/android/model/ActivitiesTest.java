@@ -274,10 +274,19 @@ public class ActivitiesTest {
     public void shouldClearAllActivities() throws Exception {
         Activities a = Activities.fromJSON(
                 SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+
         a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
         assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+
+        LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
+                a.future_href,
+                System.currentTimeMillis(), a.size(),
+                Robolectric.application.getContentResolver());
+
         Activities.clear(null, Robolectric.application.getContentResolver());
+
         assertContentUriCount(Content.ME_SOUND_STREAM, 0);
+        assertContentUriCount(Content.COLLECTIONS, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)

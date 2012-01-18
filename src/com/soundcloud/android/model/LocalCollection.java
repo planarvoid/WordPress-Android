@@ -70,6 +70,13 @@ public class LocalCollection {
         }
     }
 
+    public static boolean deleteUri(Uri contentUri, ContentResolver resolver) {
+        return resolver.delete(Content.COLLECTIONS.uri,
+                "uri = ?",
+                new String[] { contentUri.toString() }) == 1;
+
+    }
+
     public static long getLastSync(Uri contentUri, ContentResolver resolver) {
         LocalCollection lc = fromContentUri(contentUri, resolver);
         if (lc == null) {
