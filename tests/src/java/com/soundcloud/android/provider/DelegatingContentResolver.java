@@ -76,7 +76,7 @@ public class DelegatingContentResolver {
         public final boolean syncToNetwork;
         public final ContentObserver observer;
 
-        NotifiedUri(Uri uri, ContentObserver observer, boolean syncToNetwork) {
+        public NotifiedUri(Uri uri, ContentObserver observer, boolean syncToNetwork) {
             this.uri = uri;
             this.syncToNetwork = syncToNetwork;
             this.observer = observer;

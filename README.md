@@ -26,7 +26,7 @@ build file `project/build.scala`, split in `coreDependencies`,
 
 Based on `build.scala` you can generate the `pom.xml` using `sbt mavenize`. To
 actually download the dependencies to your working directory use `mvn
-process-resources`, this will populate `lib/` and `tests/lib`.
+process-resources -U`, this will populate `lib/` and `tests/lib`.
 
 ## Releasing
 
