@@ -3,6 +3,8 @@ $ 33
   _ 2012-01-19
   ! Maintenance
     * Stop player from starting after audio notifications
+    - machine tag for dedicated recordings
+    - localisable follow/unfollow buttons
 
 $ 32
   % v 2.1.1

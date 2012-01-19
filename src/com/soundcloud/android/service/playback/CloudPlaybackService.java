@@ -1025,7 +1025,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         @Override
         public void onCallStateChanged(int callState, String incomingNumber) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onCallStateChanged("+incomingNumber+")");
+                Log.d(TAG, "onCallStateChanged(state="+callState+", resume="+mResumeAfterCall+")");
             }
             if (callState == TelephonyManager.CALL_STATE_OFFHOOK ||
                (callState == TelephonyManager.CALL_STATE_RINGING &&
