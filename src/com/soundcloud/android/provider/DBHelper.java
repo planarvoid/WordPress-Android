@@ -180,7 +180,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "tags VARCHAR(255)," +
             "created_at INTEGER," +
             "content_id INTEGER," +
-            "UNIQUE (created_at, type, tags, content_id)" +
+            "UNIQUE (created_at, type, content_id, track_id, user_id)" +
             ");";
 
     static final String DATABASE_CREATE_SEARCHES = "CREATE TABLE Searches (_id INTEGER primary key AUTOINCREMENT, " +

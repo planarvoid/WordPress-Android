@@ -150,7 +150,7 @@ public class SyncAdapterServiceTest {
                 .toEqual(Actions.STREAM);
 
         expect(notifications.get(1).info.getContentTitle().toString())
-                .toEqual("42 new activities");
+                .toEqual("41 new activities");
         expect(notifications.get(1).info.getContentText().toString())
                 .toEqual("Comments and likes from Paul Ko, jensnikolaus and others");
 
@@ -205,7 +205,7 @@ public class SyncAdapterServiceTest {
         assertNotification("own_three_comments.json",
                 "3 new comments",
                 "3 new comments",
-                "3 new comments on Autotune at MTV from fronx, bronx and others");
+                "3 new comments on Autotune at MTV from fronx, cronx and others");
     }
 
     @Test
