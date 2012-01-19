@@ -188,6 +188,10 @@ public interface AndroidCloudAPI extends CloudAPI {
         public static long toTime(String s) {
             return fromString(s).getTime();
         }
+        
+        public static String format(long tstamp) {
+            return CLOUDDATEFMT.format(tstamp);
+        }
 
         private CloudDateFormat() {}
 

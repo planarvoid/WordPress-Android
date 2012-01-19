@@ -316,6 +316,7 @@ public class ActivitiesTest {
 
         Activity track = activities.get(2);
         expect(track.type).toEqual(Activity.Type.TRACK);
+        expect(track.getDateString()).toEqual("2011/07/12 09:27:19 +0000");
         expect(track.tags).toEqual("affiliated, exclusive");
         expect(track.getTrack().id).toEqual(18876167L);
         expect(track.getTrack().permalink).toEqual("grand-piano-keys");
@@ -329,6 +330,7 @@ public class ActivitiesTest {
 
         Activity sharing = activities.get(3);
         expect(sharing.type).toEqual(Activity.Type.TRACK_SHARING);
+        expect(sharing.getDateString()).toEqual("2011/07/11 20:42:34 +0000");
         expect(sharing.getTrack().id).toEqual(18676478L);
         expect(sharing.getTrack().permalink).toEqual("live-in-vegas");
         expect(sharing.getTrack().title).toEqual("Live in Vegas");
@@ -337,6 +339,7 @@ public class ActivitiesTest {
 
         Activity comment = activities.get(1);
         expect(comment.type).toEqual(Activity.Type.COMMENT);
+        expect(comment.getDateString()).toEqual("2011/07/29 15:26:44 +0000");
         expect(comment.getComment()).not.toBeNull();
         expect(comment.getComment().id).toEqual(22140210L);
 
@@ -349,6 +352,7 @@ public class ActivitiesTest {
         Activity favoriting = activities.get(0);
 
         expect(favoriting.type).toEqual(Activity.Type.FAVORITING);
+        expect(favoriting.getDateString()).toEqual("2011/07/29 22:30:59 +0000");
         expect(favoriting.getFavoriting()).not.toBeNull();
 
         expect(favoriting.getFavoriting().track).toBe(favoriting.getTrack());

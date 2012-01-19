@@ -44,7 +44,6 @@ public class ActivityTest {
         expect(a1).toEqual(a2);
     }
 
-
     @Test
     public void shouldGenerateAGuidBasedOnCreatedAt() throws Exception {
         Activity a = new Activity();
@@ -97,4 +96,11 @@ public class ActivityTest {
         expect(cv.getAsLong("created_at")).toEqual(date.getTime());
     }
 
+    @Test
+    public void shouldGenerateADateString() throws Exception {
+        Activity a = new Activity();
+        final String date = "2012/01/07 13:17:35 +0000";
+        a.created_at = AndroidCloudAPI.CloudDateFormat.fromString(date);
+        expect(a.getDateString()).toEqual(date);
+    }
 }

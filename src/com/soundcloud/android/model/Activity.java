@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
@@ -105,8 +106,12 @@ public class Activity extends ScModel implements Origin, Playable {
         }
         return _elapsedTime;
     }
-
-
+    
+    public String getDateString() {
+        return created_at == null ? null :
+                AndroidCloudAPI.CloudDateFormat.format(created_at.getTime());
+    }
+    
     public UUID toUUID() {
         if (created_at == null) {
             return null;
