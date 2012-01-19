@@ -3,7 +3,7 @@ package com.soundcloud.android.adapter;
 
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Activity;
@@ -11,11 +11,8 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.LoadActivitiesTask;
 import com.soundcloud.android.task.RemoteCollectionTask;
-import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpStatus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class EventsAdapterWrapper extends RemoteCollectionAdapter {
@@ -48,36 +45,24 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             if (mListView != null && mContentUri != null) setListLastUpdated();
         }
         boolean success = (newItems != null && !newItems.isEmpty());
-        if (success) {
-            final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
-                    User.DataKeys.LAST_OWN_SEEN : User.DataKeys.LAST_INCOMING_SEEN;
-
-            SoundCloudApplication app = mActivity.getApp();
-
-            final Activity first = (Activity) newItems.get(0);
-            final long lastSeen = app.getAccountDataLong(lastSeenKey);
-
-            if (lastSeen < first.created_at.getTime()) {
-                app.setAccountData(lastSeenKey, first.created_at.getTime());
-            }
-            if (wasRefresh) {
-                if (!getData().isEmpty() && newItems.contains(getData().get(0))) {
-                    // merge and notify
-                    int i = 0;
-                    for (Parcelable a : newItems) {
-                        if (getData().contains(a)) {
-                            break;
-                        } else {
-                            getData().add(i, newItems.get(i));
-                            i++;
-                        }
+        if (success && wasRefresh) {
+            if (!getData().isEmpty() && newItems.contains(getData().get(0))) {
+                // merge and notify
+                int i = 0;
+                for (Parcelable a : newItems) {
+                    if (getData().contains(a)) {
+                        break;
+                    } else {
+                        getData().add(i, newItems.get(i));
+                        i++;
                     }
-                    notifyDataSetChanged();
-                    return true; //done
-
-                } else {
-                    reset();
                 }
+                setLastSeen((Activity) getData().get(0));
+                notifyDataSetChanged();
+                return true; //done
+
+            } else {
+                reset();
             }
         }
 
@@ -89,7 +74,21 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             }
             nextHref = nextRequest.toUrl();
         }
+
+        if (getData().isEmpty() && success) setLastSeen((Activity) newItems.get(0));
         return super.onPostTaskExecute(newItems, nextHref, responseCode, keepGoing, wasRefresh);
+    }
+
+    private void setLastSeen(Activity first) {
+        final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
+                User.DataKeys.LAST_OWN_SEEN : User.DataKeys.LAST_INCOMING_SEEN;
+
+        SoundCloudApplication app = mActivity.getApp();
+        final long lastSeen = app.getAccountDataLong(lastSeenKey);
+
+        if (lastSeen < first.created_at.getTime()) {
+            app.setAccountData(lastSeenKey, first.created_at.getTime());
+        }
     }
 
     @Override
