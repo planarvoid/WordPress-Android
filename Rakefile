@@ -101,10 +101,13 @@ end
       end
 
       namespace :db do
+        # needs root on device
         db_path = "/data/data/#{package}/databases/SoundCloud"
+        tmp_path = "/sdcard/SoundCloud.sqlite"
         desc "get db from #{t}"
           task :pull do
-            sh "adb #{flag} pull #{db_path} ."
+            sh "adb shell su -c 'cp -f #{db_path} #{tmp_path}'"
+            sh "adb #{flag} pull #{tmp_path} ."
           end
       end
 
