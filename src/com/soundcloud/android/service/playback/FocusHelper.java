@@ -201,7 +201,7 @@ public class FocusHelper {
     private static int requestAudioFocusCompat(AudioManager audioManager,
                                                 Object focusChangeListener, int stream, int durationHint) {
         if (sMethodRequestAudioFocus == null)
-            return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+            return AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
         try {
             Object[] args = new Object[3];
@@ -227,14 +227,14 @@ public class FocusHelper {
             }
         } catch (IllegalAccessException e) {
             Log.e(TAG, "IllegalAccessException invoking requestAudioFocus.");
-            return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+            return AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         }
     }
 
     private static int abandonAudioFocusCompat(AudioManager audioManager,
                                                 Object focusChangeListener) {
         if (sMethodAbandonAudioFocus == null)
-            return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+            return AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
         try {
             Object ret = sMethodAbandonAudioFocus.invoke(audioManager, focusChangeListener);
@@ -256,7 +256,7 @@ public class FocusHelper {
             }
         } catch (IllegalAccessException e) {
             Log.e(TAG, "IllegalAccessException invoking abandonAudioFocus.");
-            return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+            return AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         }
     }
 }
