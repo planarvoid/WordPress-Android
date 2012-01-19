@@ -300,7 +300,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "   Activities." + Activities.TRACK_ID + " = " + "TrackView." + TrackView._ID + ")" +
             " LEFT JOIN Comments ON(" +
             "   Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")" +
-            " ORDER BY created_at DESC"
+            " ORDER BY " + ActivityView.CREATED_AT + " DESC"
             ;
 
     public static class ResourceTable implements BaseColumns {
