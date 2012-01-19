@@ -208,7 +208,7 @@ public class SyncAdapterService extends Service {
 
                             maybeNotifyIncoming(app, incoming, exclusive);
                         } else {
-                            Log.d(TAG, "skipping incoming notification, delta "+delta+" > frequency="+frequency);
+                            Log.d(TAG, "skipping incoming notification, delta "+delta+" < frequency="+frequency);
                         }
 
                         final long delta2 = System.currentTimeMillis() -
@@ -219,7 +219,7 @@ public class SyncAdapterService extends Service {
                                     Activities.get(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
                             maybeNotifyOwn(app, news);
                         } else {
-                            Log.d(TAG, "skipping own notification, delta "+delta2+" > frequency="+frequency);
+                            Log.d(TAG, "skipping own notification, delta "+delta2+" < frequency="+frequency);
                         }
                     }
                     Looper.myLooper().quit();
