@@ -55,8 +55,9 @@ public class SyncAdapterService extends Service {
     private static final long USER_SYNC_DELAY  = DEFAULT_DELAY * 4;  // users aren't as crucial
     private static final long CLEANUP_DELAY    = DEFAULT_DELAY * 24; // every 24 hours
 
-    public static final int CLEAR_ALL = 0;
-    public static final int REWIND_LAST_DAY = 1;
+    public static final String EXTRA_CLEAR_MODE = "clearMode";
+    public static final int CLEAR_ALL       = 1;
+    public static final int REWIND_LAST_DAY = 2;
 
     enum SyncContent {
         MySounds(Content.ME_TRACKS, TRACK_SYNC_DELAY),
@@ -165,6 +166,7 @@ public class SyncAdapterService extends Service {
         final long lastCleanup = PreferenceManager.getDefaultSharedPreferences(app).getLong(
                 PREF_LAST_SYNC_CLEANUP,
                 System.currentTimeMillis());
+
         if (System.currentTimeMillis() - lastCleanup > CLEANUP_DELAY || force) {
             urisToSync.add(Content.TRACK_CLEANUP.uri);
             urisToSync.add(Content.USERS_CLEANUP.uri);
@@ -172,7 +174,8 @@ public class SyncAdapterService extends Service {
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
         Looper.prepare();
-        intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ServiceResultReceiver(new Handler(), app, syncResult));
+        intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
+                new ServiceResultReceiver(app, syncResult, extras));
         app.startService(intent);
         Looper.loop();
         return intent;
@@ -181,11 +184,13 @@ public class SyncAdapterService extends Service {
     static class ServiceResultReceiver extends ResultReceiver {
         private SyncResult result;
         private SoundCloudApplication app;
+        private int clearMode;
 
-        public ServiceResultReceiver(Handler handler, SoundCloudApplication app, SyncResult result) {
-            super(handler);
+        public ServiceResultReceiver(SoundCloudApplication app, SyncResult result, Bundle extras) {
+            super(new Handler());
             this.result = result;
             this.app = app;
+            this.clearMode = extras.getInt(EXTRA_CLEAR_MODE);
         }
 
         @Override
@@ -204,7 +209,9 @@ public class SyncAdapterService extends Service {
                         final long delta = System.currentTimeMillis() -
                                 app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_AT);
                         if (delta > frequency) {
-                            final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
+                            // XXX tmp hack until last seen is fixed
+                            final long lastIncomingSeen = clearMode == CLEAR_ALL ? -1 :
+                                    app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
 
                             final Activities incoming = !isIncomingEnabled(app) ? Activities.EMPTY :
                                     Activities.get(Content.ME_SOUND_STREAM, app.getContentResolver(), lastIncomingSeen);
@@ -216,10 +223,13 @@ public class SyncAdapterService extends Service {
                         } else if (Log.isLoggable(TAG, Log.DEBUG)) {
                                 Log.d(TAG, "skipping incoming notification, delta "+delta+" < frequency="+frequency);
                         }
+
                         final long delta2 = System.currentTimeMillis() -
                                 app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_AT);
                         if (delta2 > frequency) {
-                            final long lastOwnSeen = app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN);
+                            // XXX tmp hack until last seen is fixed
+                            final long lastOwnSeen = clearMode == CLEAR_ALL ? -1 :
+                                    app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN);
                             final Activities news = !isActivitySyncEnabled(app) ? Activities.EMPTY :
                                     Activities.get(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
                             maybeNotifyOwn(app, news);
@@ -389,13 +399,16 @@ public class SyncAdapterService extends Service {
                 rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_AT, null, rewindTime);
                 break;
             default:
-                Log.w(TAG, "unknown clear mode "+clearMode);
+                throw new IllegalArgumentException("unknown clear mode "+clearMode);
         }
+        // drop all activities before re-sync
         int deleted = Activities.clear(null, app.getContentResolver());
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "deleted "+deleted+ " activities");
         }
-        ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
+        final Bundle extras = new Bundle();
+        extras.putInt(EXTRA_CLEAR_MODE, clearMode);
+        ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
     }
 
     private static void rewind(SoundCloudApplication app, String key1, String key2, long amount) {
