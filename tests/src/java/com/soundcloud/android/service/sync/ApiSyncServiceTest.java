@@ -175,11 +175,11 @@ public class ApiSyncServiceTest {
                 "own_1.json",
                 "own_2.json");
 
-        assertContentUriCount(Content.ME_ACTIVITIES, 42);
+        assertContentUriCount(Content.ME_ACTIVITIES, 41);
         assertContentUriCount(Content.COMMENTS, 15);
 
         Activities own = Activities.get(Content.ME_ACTIVITIES, resolver, -1);
-        expect(own.size()).toEqual(42);
+        expect(own.size()).toEqual(41);
         assertResolverNotificationCount(5);
         assertResolverNotified(Content.TRACKS.uri, Content.USERS.uri);
     }
@@ -196,9 +196,23 @@ public class ApiSyncServiceTest {
                 "incoming_2.json");
 
         assertContentUriCount(Content.ME_SOUND_STREAM, 100);
-        assertContentUriCount(Content.ME_ACTIVITIES, 42);
+        assertContentUriCount(Content.ME_ACTIVITIES, 41);
         assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 1);
-        assertContentUriCount(Content.ME_ALL_ACTIVITIES, 142);
+        assertContentUriCount(Content.ME_ALL_ACTIVITIES, 141);
+    }
+
+    @Test
+    public void shouldNotProduceDuplicatesWhenSyncing() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+        sync(svc, Content.ME_SOUND_STREAM,
+                "exclusives_1.json");
+
+        sync(svc, Content.ME_EXCLUSIVE_STREAM,
+                "exclusives_1.json");
+
+        assertContentUriCount(Content.ME_SOUND_STREAM, 4);
+        assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 4);
+        assertContentUriCount(Content.ME_ALL_ACTIVITIES, 4);
     }
 
     @Test
