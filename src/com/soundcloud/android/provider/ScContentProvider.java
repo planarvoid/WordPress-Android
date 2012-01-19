@@ -412,6 +412,8 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
+        if (values == null || values.length == 0) return 0;
+
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
 

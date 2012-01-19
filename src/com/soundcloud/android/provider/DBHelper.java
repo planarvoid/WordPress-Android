@@ -289,7 +289,7 @@ public class DBHelper extends SQLiteOpenHelper {
             // track+user data
             "TrackView.*," +
 
-            // comment data (only for type=comment
+            // comment data (only for type=comment)
             "Comments." + Comments.BODY + " as " + ActivityView.COMMENT_BODY + " ," +
             "Comments." + Comments.CREATED_AT + " as " + ActivityView.COMMENT_CREATED_AT + " ," +
             "Comments." + Comments.TIMESTAMP + " as " +ActivityView.COMMENT_TIMESTAMP +

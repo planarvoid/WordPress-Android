@@ -9,6 +9,9 @@ import Utils._
 import org.scalatest.OneInstancePerTest
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest
 import com.soundcloud.android.model._
+import android.content.ContentValues
+import android.provider.BaseColumns
+import com.xtremelabs.robolectric.Robolectric
 
 class ScContentProviderSpec extends DefaultSpec with OneInstancePerTest {
   val mapper = AndroidCloudAPI.Mapper
@@ -65,13 +68,22 @@ class ScContentProviderSpec extends DefaultSpec with OneInstancePerTest {
   it should "insert and query activities" in {
     val inserted = bulkInsertModels(Content.ME_SOUND_STREAM.uri, activities)
     inserted should be (activities.size)
-    
+
     query(Content.ME_SOUND_STREAM.uri,  activities.size) { cursor =>
       for (c:Cursor <- cursor) {
         c.getLong(DBHelper.Activities.CREATED_AT) should be >= (0L)
         c.getString(DBHelper.Activities.TAGS) should not be (null)
       }
     }
+  }
+
+  it should "not notify on empty bulk insert" in {
+    provider.bulkInsert(Content.ME_ACTIVITIES.uri, new Array[ContentValues](0)) should be (0)
+    provider.bulkInsert(Content.ME_ACTIVITIES.uri, null) should be (0)
+
+    val resolver = Robolectric.shadowOf(Robolectric.application.getContentResolver)
+
+    resolver.getNotifiedUris.size should be (0)
   }
 
   def insertTracks(uri: Uri, tracks: Iterable[Track]) = tracks.map { t =>
@@ -87,7 +99,7 @@ class ScContentProviderSpec extends DefaultSpec with OneInstancePerTest {
     model should not be (null)
     model
   }
-  
+
   def bulkInsertModels(uri: Uri, models: Iterable[ScModel]) =
     provider.bulkInsert(uri, models.map(_.buildContentValues()).toArray)
 

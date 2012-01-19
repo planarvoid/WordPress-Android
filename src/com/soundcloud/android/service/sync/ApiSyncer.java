@@ -90,7 +90,7 @@ public class ApiSyncer {
         }
         Log.d(ApiSyncService.LOG_TAG, "syncActivities(collection="+collection+")");
         Request request = future_href == null ? content.request() : Request.to(future_href);
-        Activities activities = Activities.fetch(mApi, request, API_LOOKUP_BATCH_SIZE);
+        Activities activities = Activities.fetch(mApi, request, MINIMUM_LOCAL_ITEMS_STORED);
         final int inserted = activities.insert(content, mResolver);
         Log.d(ApiSyncService.LOG_TAG, "activities: inserted "+inserted + " objects");
 

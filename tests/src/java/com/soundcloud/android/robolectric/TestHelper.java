@@ -4,12 +4,16 @@ import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DelegatingContentResolver;
 import com.xtremelabs.robolectric.Robolectric;
 
 import android.database.Cursor;
+import android.net.Uri;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestHelper {
     private TestHelper() {}
@@ -37,5 +41,21 @@ public class TestHelper {
         Cursor c = Robolectric.application.getContentResolver().query(content.uri, null, null, null, null);
         expect(c).not.toBeNull();
         expect(c.getCount()).toEqual(count);
+    }
+
+    public static void assertResolverNotificationCount(int n) {
+        DelegatingContentResolver res  =
+                Robolectric.shadowOf_(Robolectric.application.getContentResolver());
+        expect(res.getNotifiedUris().size()).toEqual(n);
+    }
+
+    public static void assertResolverNotified(Uri... uris) {
+        DelegatingContentResolver res  =
+                Robolectric.shadowOf_(Robolectric.application.getContentResolver());
+        List<Uri> _uris = new ArrayList<Uri>();
+        for (DelegatingContentResolver.NotifiedUri u : res.getNotifiedUris()) {
+            _uris.add(u.uri);
+        }
+        expect(_uris).toContain(uris);
     }
 }

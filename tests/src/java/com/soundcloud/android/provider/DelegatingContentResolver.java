@@ -6,13 +6,18 @@ import com.xtremelabs.robolectric.internal.Implements;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @Implements(ContentResolver.class)
 public class DelegatingContentResolver {
     public final ContentProvider delegate;
+    private final List<NotifiedUri> notifiedUris = new ArrayList<NotifiedUri>();
 
     public DelegatingContentResolver() {
         this(new ScContentProvider());
@@ -50,5 +55,31 @@ public class DelegatingContentResolver {
     public final int update(Uri uri, ContentValues values, String where,
                             String[] selectionArgs) {
         return delegate.update(uri, values, where, selectionArgs);
+    }
+
+    @Implementation
+    public void notifyChange(Uri uri, ContentObserver observer, boolean syncToNetwork) {
+        notifiedUris.add(new NotifiedUri(uri, observer, syncToNetwork));
+    }
+
+    @Implementation
+    public void notifyChange(Uri uri, ContentObserver observer) {
+        notifyChange(uri, observer, false);
+    }
+
+    public List<NotifiedUri> getNotifiedUris() {
+        return notifiedUris;
+    }
+
+    public static class NotifiedUri {
+        public final Uri uri;
+        public final boolean syncToNetwork;
+        public final ContentObserver observer;
+
+        NotifiedUri(Uri uri, ContentObserver observer, boolean syncToNetwork) {
+            this.uri = uri;
+            this.syncToNetwork = syncToNetwork;
+            this.observer = observer;
+        }
     }
 }

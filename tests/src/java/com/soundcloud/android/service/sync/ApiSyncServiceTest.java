@@ -2,8 +2,7 @@ package com.soundcloud.android.service.sync;
 
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.addCannedResponse;
-import static com.soundcloud.android.robolectric.TestHelper.assertContentUriCount;
+import static com.soundcloud.android.robolectric.TestHelper.*;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
@@ -119,6 +118,8 @@ public class ApiSyncServiceTest {
         assertContentUriCount(Content.TRACKS, 3);
         assertContentUriCount(Content.COLLECTION_ITEMS, 3);
         assertContentUriCount(Content.USERS, 1);
+
+        assertResolverNotificationCount(4);
     }
 
     @Test
@@ -143,6 +144,7 @@ public class ApiSyncServiceTest {
         Activities incoming = Activities.get(Content.ME_SOUND_STREAM, resolver, -1);
 
         expect(incoming.size()).toEqual(100);
+        assertResolverNotificationCount(4);
     }
 
     @Test
@@ -158,6 +160,8 @@ public class ApiSyncServiceTest {
 
         Activities own = Activities.get(Content.ME_ACTIVITIES, resolver, -1);
         expect(own.size()).toEqual(42);
+        assertResolverNotificationCount(5);
+        assertResolverNotified(Content.TRACKS.uri, Content.USERS.uri);
     }
 
     @Test
