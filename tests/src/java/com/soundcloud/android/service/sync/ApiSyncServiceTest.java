@@ -90,6 +90,11 @@ public class ApiSyncServiceTest {
         expect(svc.mPendingUriRequests.size()).toBe(4);
         expect(svc.mPendingUriRequests.poll().getUri()).toBe(Content.ME_FOLLOWINGS.uri);
         expect(svc.mPendingUriRequests.size()).toBe(3);
+
+        expect(svc.mPendingUriRequests.peek().getUri()).toBe(Content.ME_TRACKS.uri);
+        ApiSyncService.ApiSyncRequest request4 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
+        svc.enqueueRequest(request4);
+        expect(svc.mPendingUriRequests.peek().getUri()).toBe(Content.ME_FAVORITES.uri);
     }
 
     @Test

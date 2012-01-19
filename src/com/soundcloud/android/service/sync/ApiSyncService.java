@@ -63,20 +63,23 @@ public class ApiSyncService extends Service {
 
         for (Uri uri : request.urisToSync){
             // ghetto linked list search
-            boolean found = false;
+            UriSyncRequest existingRequest = null;
             for (UriSyncRequest req : mPendingUriRequests){
                 if (req.uri.equals(uri)) {
-                    found = true;
+                    existingRequest = req;
                     break;
                 }
             }
-            if (!found && !mRunningRequestUris.contains(uri)) {
+            if (existingRequest == null && !mRunningRequestUris.contains(uri)) {
                 final UriSyncRequest uriSyncRequest = new UriSyncRequest((SoundCloudApplication) getApplication(), uri);
                 if (request.isUIResponse){
                     mPendingUriRequests.add(0, uriSyncRequest);
                 } else {
                     mPendingUriRequests.add(uriSyncRequest);
                 }
+            } else if (existingRequest != null && request.isUIResponse && !mPendingUriRequests.getFirst().equals(existingRequest)){
+                mPendingUriRequests.remove(existingRequest);
+                mPendingUriRequests.addFirst(existingRequest);
             }
         }
     }
