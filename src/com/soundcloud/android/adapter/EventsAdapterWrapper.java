@@ -43,9 +43,6 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     }
 
     public boolean onNewEvents(List<Parcelable> newItems, String nextHref, String nextCursor, int responseCode, boolean keepGoing, boolean wasRefresh) {
-        final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
-                User.DataKeys.LAST_OWN_SEEN : User.DataKeys.LAST_INCOMING_SEEN;
-
         if (wasRefresh) {
             doneRefreshing();
             if (mListView != null && mContentUri != null) setListLastUpdated();
@@ -53,6 +50,9 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
         boolean success = (newItems != null && !newItems.isEmpty());
         if (success) {
+            final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
+                    User.DataKeys.LAST_OWN_SEEN : User.DataKeys.LAST_INCOMING_SEEN;
+
             SoundCloudApplication app = mActivity.getApp();
 
             final Activity first = (Activity) newItems.get(0);

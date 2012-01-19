@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
@@ -300,7 +301,11 @@ public class Activities extends CollectionHolder<Activity> {
         }
         Cursor c;
         if (since > 0) {
-            c = resolver.query(content.uri, null, "created_at > ?", new String[] { String.valueOf(since) }, null);
+            c = resolver.query(content.uri,
+                    null,
+                    DBHelper.ActivityView.CREATED_AT+"> ?",
+                    new String[] { String.valueOf(since) },
+                    null);
         } else {
             c = resolver.query(content.uri, null, null, null, null);
         }

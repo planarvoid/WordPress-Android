@@ -269,7 +269,10 @@ public class SyncAdapterService extends Service {
 
                 return n;
             } else return null;
-        } else return null;
+        } else {
+            Log.d(TAG, "no items, skip track notfication");
+            return null;
+        }
     }
 
     /* package */ private static Notification maybeNotifyOwn(SoundCloudApplication app, Activities activities) {
@@ -375,20 +378,22 @@ public class SyncAdapterService extends Service {
                 break;
             case 1:
                 final long rewindTime = 24 * 3600000L; // 1d
-                rewind(app, User.DataKeys.LAST_INCOMING_SEEN, rewindTime);
-                rewind(app, User.DataKeys.LAST_OWN_SEEN, rewindTime);
-                rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_ITEM, rewindTime);
-                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, rewindTime);
-                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_AT, rewindTime);
-                rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_AT, rewindTime);
+                rewind(app, User.DataKeys.LAST_INCOMING_SEEN, null, rewindTime);
+                rewind(app, User.DataKeys.LAST_OWN_SEEN, null, rewindTime);
+                rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_ITEM, null,  rewindTime);
+                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, null,  rewindTime);
+                rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_AT, null, rewindTime);
+                rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_AT, null, rewindTime);
                 break;
         }
-        Activities.clear(null, app.getContentResolver());
+
+        int deleted = Activities.clear(null, app.getContentResolver());
+        Log.d(TAG, "deleted "+deleted+ " activities");
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
     }
 
-    private static void rewind(SoundCloudApplication app, String key, long amount) {
-        app.setAccountData(key, app.getAccountDataLong(key) - amount);
+    private static void rewind(SoundCloudApplication app, String key1, String key2, long amount) {
+        app.setAccountData(key1, app.getAccountDataLong(key2 == null ? key1 : key2) - amount);
     }
 
     private static long getNotificationsFrequency(Context c) {
