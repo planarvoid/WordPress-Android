@@ -3,7 +3,6 @@ package com.soundcloud.android.adapter;
 
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
@@ -17,7 +16,6 @@ import com.soundcloud.api.Request;
 import java.util.List;
 
 public class EventsAdapterWrapper extends RemoteCollectionAdapter {
-
     private boolean mVisible;
     private long mSetLastSeenTo;
 
@@ -122,6 +120,4 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     protected void onContentChanged() {
         executeRefreshTask();
     }
-
-
 }
