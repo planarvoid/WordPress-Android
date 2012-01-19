@@ -582,4 +582,18 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         final String iconUrl = getArtwork();
         return TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(context, iconUrl);
     }
+
+    public static Track fromIntent(Intent intent) {
+        if (intent == null) throw new IllegalArgumentException("intent is null");
+        Track t = intent.getParcelableExtra("track");
+        if (t == null) {
+            long id = intent.getLongExtra("track_id", 0);
+            t = SoundCloudApplication.TRACK_CACHE.get(id);
+        }
+        if (t == null) {
+            throw new IllegalArgumentException("Could not obtain track from intent "+intent);
+        } else {
+            return t;
+        }
+    }
 }

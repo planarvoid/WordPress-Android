@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Track;
@@ -12,7 +11,6 @@ import com.soundcloud.android.view.TrackInfoBar;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,17 +25,8 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
         super.onCreate(bundle);
         setContentView(R.layout.track_info_collection);
 
-
-        Intent i = getIntent();
-        if (!i.hasExtra("track_id")) throw new IllegalArgumentException("No track id supplied with intent");
-        mTrack = SoundCloudApplication.TRACK_CACHE.get(i.getLongExtra("track_id", 0));
-
+        mTrack = Track.fromIntent(getIntent());
         mTrackInfoBar = ((TrackInfoBar) findViewById(R.id.track_info_bar));
-
-        // overly cautious, should never happen
-        if (mTrack == null) return;
-
-
         mTrackInfoBar.display(mTrack, true, -1, true, getCurrentUserId());
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,7 +44,6 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
         mListView.setFadingEdgeLength(0);
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 
-
         adapterWrapper.configureViews(mListView);
         adapterWrapper.setEmptyViewText(getResources().getString(R.string.empty_list));
         mListView.setAdapter(adapterWrapper, true);
@@ -66,7 +54,6 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
             if (CloudUtils.isTaskFinished(mTrack.load_info_task)) {
                 mTrack.load_info_task = new LoadTrackInfoTask(getApp(), mTrack.id, true, true);
             }
-
             mTrack.load_info_task.addListener(this);
             if (CloudUtils.isTaskPending(mTrack.load_info_task)) {
                 mTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mTrack.id));

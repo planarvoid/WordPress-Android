@@ -264,6 +264,7 @@ public abstract class ScActivity extends android.app.Activity {
     }
 
     public void playTrack(final int position, final LazyEndlessAdapter wrapper, boolean goToPlayer, boolean commentMode) {
+        // XXX this looks scary
         SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position)).getTrack());
         if (position > 0 && wrapper.getItem(position) instanceof Playable){
             SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position - 1)).getTrack());
@@ -272,10 +273,9 @@ public abstract class ScActivity extends android.app.Activity {
             SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position + 1)).getTrack());
         }
         final Track t = ((Playable) wrapper.getItem(position)).getTrack();
-
         if (!handleTrackAlreadyPlaying(t, goToPlayer, commentMode)) {
             final Uri contentUri = wrapper.getContentUri();
-            if (contentUri != null){
+            if (contentUri != null) {
                 startService(new Intent(this, CloudPlaybackService.class)
                         .putExtra("playPos", position)
                         .setData(wrapper.getContentUri())
@@ -550,8 +550,6 @@ public abstract class ScActivity extends android.app.Activity {
                 menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
         }
 
-
-
         menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
                 .setIcon(android.R.drawable.ic_menu_preferences);
 
@@ -559,7 +557,6 @@ public abstract class ScActivity extends android.app.Activity {
             menu.add(menu.size(), Consts.OptionsMenu.SECRET_DEV_BUTTON, menu.size(), "Super Secret Dev Button")
                 .setIcon(android.R.drawable.ic_menu_compass);
         }
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -605,7 +602,6 @@ public abstract class ScActivity extends android.app.Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-
     }
 
     private Handler connHandler = new Handler() {
@@ -647,10 +643,10 @@ public abstract class ScActivity extends android.app.Activity {
         @Override
         public void onEventClick(EventsAdapterWrapper wrapper, int position) {
             final Activity e = (Activity) wrapper.getItem(position);
-            if (Activity.Type.FAVORITING == e.type) {
-                Intent i = new Intent(ScActivity.this, TrackFavoriters.class);
-                i.putExtra("track_id", e.getTrack().id);
-                startActivity(i);
+            if (e.type == Activity.Type.FAVORITING) {
+                SoundCloudApplication.TRACK_CACHE.put(e.getTrack());
+                startActivity(new Intent(ScActivity.this, TrackFavoriters.class)
+                    .putExtra("track_id", e.getTrack().id));
             } else {
                 playTrack(position, wrapper, true, false);
             }

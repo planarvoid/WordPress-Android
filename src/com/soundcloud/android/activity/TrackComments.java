@@ -13,12 +13,6 @@ import com.soundcloud.api.Request;
 import java.util.ArrayList;
 
 public class TrackComments extends TrackInfoCollection {
-
-    @Override
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-    }
-
     @Override
     protected SectionedAdapter createSectionedAdapter() {
         return new SectionedCommentAdapter(this, mTrack);
@@ -37,6 +31,4 @@ public class TrackComments extends TrackInfoCollection {
             trackPage(mTrack.pageTrack("comments"));
         }
     }
-
-
 }

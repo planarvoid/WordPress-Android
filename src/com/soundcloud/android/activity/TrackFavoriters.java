@@ -13,12 +13,6 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 
 public class TrackFavoriters extends TrackInfoCollection {
-
-    @Override
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-    }
-
     @Override
     protected SectionedAdapter createSectionedAdapter() {
         return new SectionedUserlistAdapter(this);
@@ -37,6 +31,4 @@ public class TrackFavoriters extends TrackInfoCollection {
             trackPage(mTrack.pageTrack("favorites"));
         }
     }
-
-
 }

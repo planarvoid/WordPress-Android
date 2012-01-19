@@ -1,5 +1,6 @@
 package com.soundcloud.android.robolectric;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.provider.DelegatingContentResolver;
 import com.xtremelabs.robolectric.Robolectric;
@@ -27,6 +28,12 @@ public class DefaultTestRunner extends RobolectricTestRunner {
     @Override
     public void beforeTest(Method method) {
         application = (TestApplication) Robolectric.application;
+    }
+
+    @Override
+    protected void resetStaticState() {
+        SoundCloudApplication.TRACK_CACHE.clear();
+        SoundCloudApplication.USER_CACHE.clear();
     }
 
     @Override
