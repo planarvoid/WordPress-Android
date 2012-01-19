@@ -3,6 +3,7 @@ package com.soundcloud.android.adapter;
 
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
@@ -16,6 +17,10 @@ import com.soundcloud.api.Request;
 import java.util.List;
 
 public class EventsAdapterWrapper extends RemoteCollectionAdapter {
+
+    private boolean mVisible;
+    private long mSetLastSeenTo;
+
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Content content) {
         super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
     }
@@ -23,6 +28,20 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
      @Override
     public EventsAdapter getWrappedAdapter() {
         return (EventsAdapter) super.getWrappedAdapter();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mVisible = true;
+        if (mSetLastSeenTo != -1){
+            setLastSeen(mSetLastSeenTo);
+            mSetLastSeenTo = -1;
+        }
+    }
+
+    public void onPause() {
+        mVisible = false;
     }
 
     public void setContent(Content c){
@@ -57,7 +76,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
                         i++;
                     }
                 }
-                setLastSeen((Activity) getData().get(0));
+                setLastSeen(((Activity) getData().get(0)).created_at.getTime());
                 notifyDataSetChanged();
                 return true; //done
 
@@ -75,19 +94,23 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             nextHref = nextRequest.toUrl();
         }
 
-        if (getData().isEmpty() && success) setLastSeen((Activity) newItems.get(0));
+        if (getData().isEmpty() && success) setLastSeen(((Activity) newItems.get(0)).created_at.getTime());
         return super.onPostTaskExecute(newItems, nextHref, responseCode, keepGoing, wasRefresh);
     }
 
-    private void setLastSeen(Activity first) {
+    private void setLastSeen(long time) {
         final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
                 User.DataKeys.LAST_OWN_SEEN : User.DataKeys.LAST_INCOMING_SEEN;
 
         SoundCloudApplication app = mActivity.getApp();
         final long lastSeen = app.getAccountDataLong(lastSeenKey);
 
-        if (lastSeen < first.created_at.getTime()) {
-            app.setAccountData(lastSeenKey, first.created_at.getTime());
+        if (lastSeen < time) {
+            if (mVisible) {
+                mActivity.getApp().setAccountData(lastSeenKey, time);
+            } else {
+                mSetLastSeenTo = time;
+            }
         }
     }
 
@@ -99,4 +122,6 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     protected void onContentChanged() {
         executeRefreshTask();
     }
+
+
 }

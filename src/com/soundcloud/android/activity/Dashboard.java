@@ -147,12 +147,22 @@ public class Dashboard extends ScActivity {
     @Override
     public void onResume() {
         super.onResume();
+
+
         trackPage(mTrackingPath);
 
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
                 .cancel(mIsActivityTab ?
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID :
                         Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mListView != null && mListView.getWrapper() != null){
+            ((EventsAdapterWrapper) mListView.getWrapper()).onPause();
+        }
     }
 
     protected ScTabView createList(Content content, Class<?> model, EmptyCollection emptyView, int listId, boolean isNews) {
