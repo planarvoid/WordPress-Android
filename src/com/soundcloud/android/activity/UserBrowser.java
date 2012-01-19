@@ -406,14 +406,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mMyTracksView = new ScTabView(this);
         mMyTracksView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_TRACKS, true);
 
-
-
-
         // Favorites View
         adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
 
         adpWrap = new RemoteCollectionAdapter(this, adp,
-                isMe ?  Content.ME_FAVORITES.uri : CloudUtils.replaceWildcard(Content.USER_FAVORITES.uri, mUser.id),
+                isMe ?  Content.ME_FAVORITES.uri : null,//CloudUtils.replaceWildcard(Content.USER_FAVORITES.uri, mUser.id),
                 isMe ?  null : Request.to(Endpoints.USER_FAVORITES, mUser.id), false);
 
         if (isMe) {
@@ -448,7 +445,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         // Followings View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new RemoteCollectionAdapter(this, adp,
-                isMe ?  Content.ME_FOLLOWINGS.uri : CloudUtils.replaceWildcard(Content.USER_FOLLOWINGS.uri, mUser.id),
+                isMe ?  Content.ME_FOLLOWINGS.uri : null, //CloudUtils.replaceWildcard(Content.USER_FOLLOWINGS.uri, mUser.id),
                 isMe ?  null : Request.to(Endpoints.USER_FOLLOWINGS, mUser.id), false);
 
         if (isMe) {
@@ -481,7 +478,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         // Followers View
         adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
         adpWrap = new RemoteCollectionAdapter(this, adp,
-                isMe ?  Content.ME_FOLLOWERS.uri : CloudUtils.replaceWildcard(Content.USER_FOLLOWERS.uri, mUser.id),
+                isMe ?  Content.ME_FOLLOWERS.uri : null,//CloudUtils.replaceWildcard(Content.USER_FOLLOWERS.uri, mUser.id),
                 isMe ?  null : Request.to(Endpoints.USER_FOLLOWERS, mUser.id), false);
         if (isMe) {
             if (mUser.track_count > 0){
