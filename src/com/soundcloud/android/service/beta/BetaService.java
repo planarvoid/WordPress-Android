@@ -122,7 +122,8 @@ public class BetaService extends Service {
                         } else {
                              try {
                                  Beta local = Beta.fromJSON(recent.getMetaDataFile());
-                                 if (!local.isInstalled(BetaService.this)) {
+                                 if (!local.isInstalled(BetaService.this) &&
+                                     !SoundCloudApplication.DEV_MODE) {
                                      // nag user to install the new beta version
                                      notifyNewVersion(local);
                                      Log.d(TAG, "new version downloaded but not installed");
