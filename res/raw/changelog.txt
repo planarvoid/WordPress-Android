@@ -1,5 +1,13 @@
-$ 32
+$ 33
   % v current
+  _ 2012-01-19
+  ! Maintenance
+    * Stop player from starting after audio notifications
+    - machine tag for dedicated recordings
+    - localisable follow/unfollow buttons
+
+$ 32
+  % v 2.1.1
   _ 2011-12-16
   ! Maintenance
     * Patch for Android 2.1

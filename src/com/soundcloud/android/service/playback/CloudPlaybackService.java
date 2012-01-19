@@ -51,7 +51,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     public static final String PLAYSTATE_CHANGED  = "com.soundcloud.android.playstatechanged";
     public static final String META_CHANGED       = "com.soundcloud.android.metachanged";
-    public static final String QUEUE_CHANGED      = "com.soundcloud.android.queuechanged";
     public static final String PLAYBACK_COMPLETE  = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_ERROR     = "com.soundcloud.android.trackerror";
     public static final String STREAM_DIED        = "com.soundcloud.android.streamdied";
@@ -115,7 +114,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     private int mServiceStartId = -1;
     private boolean mServiceInUse = false;
-    private boolean mResumeAfterCall = false;
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
     private static final int IDLE_DELAY = 60*1000;            // interval after which we stop the service when idle
@@ -134,7 +132,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     // audio focus related
     private FocusHelper mFocus;
-    private boolean mFocusLost;
+    private boolean mTransientFocusLoss;
 
     private State state = STOPPED;
 
@@ -214,7 +212,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
         mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
 
-        if (state.isSupposedToBePlaying() || mResumeAfterCall) {
+        if (state.isSupposedToBePlaying() || state == PAUSED_FOCUS_LOST) {
             // something is currently playing, or will be playing once
             // an in-progress call ends, so don't stop the service now.
             return true;
@@ -257,10 +255,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     @Override
     public void focusGained() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "focusGained");
-        if (state.isSupposedToBePlaying() && mFocusLost) {
-            play();
+        if ((state.isSupposedToBePlaying() || state == State.PAUSED_FOCUS_LOST) && mTransientFocusLoss) {
             mPlayerHandler.sendEmptyMessage(FADE_IN);
-            mFocusLost = false;
+            mTransientFocusLoss = false;
         } else {
             setVolume(1.0f);
         }
@@ -274,7 +271,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (state.isSupposedToBePlaying()) {
             mPlayerHandler.sendEmptyMessage(canDuck ? DUCK : FADE_OUT);
         }
-        mFocusLost = isTransient;
+        mTransientFocusLoss = isTransient;
     }
 
     private void scheduleServiceShutdownCheck() {
@@ -590,7 +587,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             try {
                  defaultArtwork = BitmapFactory.decodeResource(getResources(),R.drawable.artwork_badge);
             } catch (OutOfMemoryError ignored){}
-            if (defaultArtwork != null) mDefaultArtwork = new WeakReference(defaultArtwork);
+            if (defaultArtwork != null) mDefaultArtwork = new WeakReference<Bitmap>(defaultArtwork);
         }
         return mDefaultArtwork.get();
     }
@@ -805,7 +802,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         @Override
         public void handleMessage(Message msg) {
             // Check again to make sure nothing is playing right now
-            if (!state.isSupposedToBePlaying() && !mResumeAfterCall && !mServiceInUse
+            if (!state.isSupposedToBePlaying()
+                    && state != PAUSED_FOCUS_LOST
+                    && !mServiceInUse
                     && !mPlayerHandler.hasMessages(TRACK_ENDED)) {
 
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -930,8 +929,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                         if (mCurrentVolume > 0f) {
                             sendEmptyMessageDelayed(FADE_OUT, 10);
                         } else {
-                            mMediaPlayer.pause();
                             mCurrentVolume = 0f;
+                            mMediaPlayer.pause();
+                            state = PAUSED_FOCUS_LOST;
                         }
                         setVolume(mCurrentVolume);
                     } else {
@@ -1083,6 +1083,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
                     // normal play, unless first start (autopause=true)
                     } else {
+                        setVolume(0);
                         //  FADE_IN will call play()
                         notifyChange(BUFFERING_COMPLETE);
                         if (!mAutoPause && mFocus.requestMusicFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
@@ -1124,25 +1125,19 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
     };
 
-    // this is only used in pre 2.2 phones where there is no audiofocus support
+    // this is only used in pre 2.2 phones where there is no audio focus support
     private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
         @Override
         public void onCallStateChanged(int callState, String incomingNumber) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onCallStateChanged("+incomingNumber+")");
+                Log.d(TAG, "onCallStateChanged(state="+callState+", playerState="+state+")");
             }
             if (callState == TelephonyManager.CALL_STATE_OFFHOOK ||
                (callState == TelephonyManager.CALL_STATE_RINGING &&
                  mAudioManager.getStreamVolume(AudioManager.STREAM_RING) > 0)) {
-                    mResumeAfterCall = (state.isSupposedToBePlaying() || mResumeAfterCall) && mCurrentTrack != null;
-                    mPlayerHandler.sendEmptyMessage(FADE_OUT);
+                focusLost(true, false);
             } else if (callState == TelephonyManager.CALL_STATE_IDLE) {
-                // start playing again
-                if (mResumeAfterCall) {
-                    // resume playback only if music was playing when the call was answered
-                    mPlayerHandler.sendEmptyMessageDelayed(FADE_IN, 10);
-                    mResumeAfterCall = false;
-                }
+                focusGained();
             }
         }
     };

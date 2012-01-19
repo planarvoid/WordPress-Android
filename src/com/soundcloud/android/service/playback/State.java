@@ -12,21 +12,23 @@ import java.util.EnumSet;
     PREPARED,           // initial buffering finished
     PLAYING,            // currently playing
     PAUSED,             // paused by user
-    PAUSED_FOR_BUFFERING, // paused by framework for buffering
+    PAUSED_FOR_BUFFERING, // paused by framework
+    PAUSED_FOCUS_LOST,    // paused because the focus got lost
     COMPLETED;            // onComplete() was called
+
 
     // see Valid and invalid states on http://developer.android.com/reference/android/media/MediaPlayer.html
     public static final EnumSet<State> SEEKABLE =
-            EnumSet.of(PREPARED, PLAYING, PAUSED, PAUSED_FOR_BUFFERING, COMPLETED);
+            EnumSet.of(PREPARED, PLAYING, PAUSED, PAUSED_FOR_BUFFERING, PAUSED_FOCUS_LOST, COMPLETED);
 
     public static final EnumSet<State> STARTABLE =
-            EnumSet.of(PREPARED, PLAYING, PAUSED, PAUSED_FOR_BUFFERING, COMPLETED);
+            EnumSet.of(PREPARED, PLAYING, PAUSED, PAUSED_FOR_BUFFERING, PAUSED_FOCUS_LOST, COMPLETED);
 
     public static final EnumSet<State> STOPPABLE =
-            EnumSet.of(PREPARED, PLAYING, STOPPED, PAUSED, PAUSED_FOR_BUFFERING, COMPLETED);
+            EnumSet.of(PREPARED, PLAYING, STOPPED, PAUSED, PAUSED_FOR_BUFFERING, PAUSED_FOCUS_LOST, COMPLETED);
 
     public static final EnumSet<State> PAUSEABLE =
-            EnumSet.of(PLAYING, PAUSED_FOR_BUFFERING, PAUSED);
+            EnumSet.of(PLAYING, PAUSED_FOR_BUFFERING, PAUSED_FOCUS_LOST, PAUSED);
 
     public boolean isPausable() {
         return PAUSEABLE.contains(this);
