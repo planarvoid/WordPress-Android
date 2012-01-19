@@ -294,6 +294,7 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public static Activities get(Content content, ContentResolver resolver, long since)  {
+        Log.d(TAG, "Activities.get("+content+", since="+since+")");
         Activities activities = new Activities();
         LocalCollection lc = LocalCollection.fromContentUri(content.uri, resolver);
         if (lc != null) {

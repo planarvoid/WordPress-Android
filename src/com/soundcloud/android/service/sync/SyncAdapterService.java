@@ -55,6 +55,8 @@ public class SyncAdapterService extends Service {
     private static final long USER_SYNC_DELAY  = DEFAULT_DELAY * 4;  // users aren't as crucial
     private static final long CLEANUP_DELAY    = DEFAULT_DELAY * 24; // every 24 hours
 
+    public static final int CLEAR_ALL = 0;
+    public static final int REWIND_LAST_DAY = 1;
 
     enum SyncContent {
         MySounds(Content.ME_TRACKS, TRACK_SYNC_DELAY),
@@ -334,8 +336,6 @@ public class SyncAdapterService extends Service {
                             app.getString(R.string.dashboard_notifications_message_exclusive_2),
                             users.get(0).username, users.get(1).username);
                 default:
-
-
                     return String.format(app
                             .getString(R.string.dashboard_notifications_message_exclusive_others),
                             users.get(0).username, users.get(1).username);
@@ -368,7 +368,7 @@ public class SyncAdapterService extends Service {
     // only used for debugging
     public static void requestNewSync(SoundCloudApplication app, int clearMode) {
         switch (clearMode) {
-            case 0:
+            case CLEAR_ALL:
                 app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1);
                 app.setAccountData(User.DataKeys.LAST_OWN_SEEN, 1);
                 app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, 1);
@@ -376,7 +376,7 @@ public class SyncAdapterService extends Service {
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, 1);
                 app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, 1);
                 break;
-            case 1:
+            case REWIND_LAST_DAY:
                 final long rewindTime = 24 * 3600000L; // 1d
                 rewind(app, User.DataKeys.LAST_INCOMING_SEEN, null, rewindTime);
                 rewind(app, User.DataKeys.LAST_OWN_SEEN, null, rewindTime);
@@ -385,6 +385,8 @@ public class SyncAdapterService extends Service {
                 rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_AT, null, rewindTime);
                 rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_AT, null, rewindTime);
                 break;
+            default:
+                Log.w(TAG, "unknown clear mode "+clearMode);
         }
 
         int deleted = Activities.clear(null, app.getContentResolver());

@@ -158,6 +158,11 @@ public enum Content {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Content." + name();
+    }
+
     public static Content match(Uri uri) {
         if (uri == null) return null;
         final int match = sMatcher.match(uri);

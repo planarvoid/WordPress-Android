@@ -47,7 +47,6 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             doneRefreshing();
             if (mListView != null && mContentUri != null) setListLastUpdated();
         }
-
         boolean success = (newItems != null && !newItems.isEmpty());
         if (success) {
             final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
