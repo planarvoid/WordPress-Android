@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SyncAdapterService extends Service {
-    private static final String TAG = SoundCloudApplication.class.getSimpleName();
+    private static final String TAG = SyncAdapterService.class.getSimpleName();
     public static final String PREF_NOTIFICATIONS_FREQUENCY = "notificationsFrequency";
     public static final String PREF_LAST_SYNC_CLEANUP = "lastSyncCleanup";
 
@@ -117,9 +117,13 @@ public class SyncAdapterService extends Service {
             if (shouldUpdateDashboard(mApp) || shouldSyncCollections(mApp)) {
                 SyncAdapterService.performSync(mApp, account, extras, provider, syncResult);
             } else {
-                Log.d(TAG, "skipping sync because Wifi is diabled");
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "skipping sync because Wifi is diabled");
+                }
             }
-            Log.d(TAG,"Done with sync " + syncResult);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG,"Done with sync " + syncResult);
+            }
         }
     }
 
@@ -209,10 +213,9 @@ public class SyncAdapterService extends Service {
                                     : Activities.get(Content.ME_EXCLUSIVE_STREAM, app.getContentResolver(), lastIncomingSeen);
 
                             maybeNotifyIncoming(app, incoming, exclusive);
-                        } else {
-                            Log.d(TAG, "skipping incoming notification, delta "+delta+" < frequency="+frequency);
+                        } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+                                Log.d(TAG, "skipping incoming notification, delta "+delta+" < frequency="+frequency);
                         }
-
                         final long delta2 = System.currentTimeMillis() -
                                 app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_AT);
                         if (delta2 > frequency) {
@@ -220,7 +223,7 @@ public class SyncAdapterService extends Service {
                             final Activities news = !isActivitySyncEnabled(app) ? Activities.EMPTY :
                                     Activities.get(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
                             maybeNotifyOwn(app, news);
-                        } else {
+                        } else if (Log.isLoggable(TAG, Log.DEBUG))  {
                             Log.d(TAG, "skipping own notification, delta "+delta2+" < frequency="+frequency);
                         }
                     }
@@ -272,7 +275,7 @@ public class SyncAdapterService extends Service {
                 return n;
             } else return null;
         } else {
-            Log.d(TAG, "no items, skip track notfication");
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "no items, skip track notfication");
             return null;
         }
     }
@@ -388,9 +391,10 @@ public class SyncAdapterService extends Service {
             default:
                 Log.w(TAG, "unknown clear mode "+clearMode);
         }
-
         int deleted = Activities.clear(null, app.getContentResolver());
-        Log.d(TAG, "deleted "+deleted+ " activities");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "deleted "+deleted+ " activities");
+        }
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, new Bundle());
     }
 
