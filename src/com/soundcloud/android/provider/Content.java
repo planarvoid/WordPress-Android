@@ -36,6 +36,7 @@ public enum Content {
     ME_GROUPS("/me/groups", null, 109, null, -1),
     ME_PLAYLISTS("/me/playlists", null, 110, null, -1),
 
+    // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("/me/activities/tracks", Endpoints.MY_ACTIVITIES, 140, Activity.class, -1),
     ME_EXCLUSIVE_STREAM("/me/activities/tracks/exclusive", Endpoints.MY_EXCLUSIVE_TRACKS, 141, Activity.class, -1),
     ME_ACTIVITIES("/me/activities/all/own", Endpoints.MY_NEWS, 142, Activity.class, -1),
@@ -44,13 +45,11 @@ public enum Content {
     ME_FRIENDS("/me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND),
     SUGGESTED_USERS("/users/suggested", null, 161, User.class, SUGGESTED_USER),
 
-
     TRACKS("/tracks", Endpoints.TRACKS, 201, Track.class, TRACK),
     TRACK_ITEM("/tracks/#", null, 202, Track.class, -1),
     TRACK_COMMENTS("/tracks/#/comments", null, 203, Comment.class, -1),
     TRACK_PERMISSIONS("/tracks/#/permissions", null, 204, null, -1),
     TRACK_SECRET_TOKEN("/tracks/#/secret-token", null, 205, null, -1),
-
 
     USERS("/users", Endpoints.USERS, 301, User.class, -1),
     USER_ITEM("/users/#", null, 302, User.class, -1),
@@ -100,17 +99,17 @@ public enum Content {
     ;
 
 
-    Content(String uri, String remoteUri, int code, Class<? extends Parcelable> resourceType, int collectionType) {
+    Content(String uri, String remoteUri, int id, Class<? extends Parcelable> resourceType, int collectionType) {
         this.uriPath =  uri;
         this.uri = Uri.parse("content://" + ScContentProvider.AUTHORITY + uriPath);
-        this.code = code;    // TODO: ordinal() ?
+        this.id = id;
         this.resourceType = resourceType;
         this.collectionType = collectionType;
         this.remoteUri = remoteUri;
     }
 
     public final int collectionType;
-    public final int code;
+    public final int id;
     public final Class<? extends Parcelable> resourceType;
     public final Uri uri;
     public final String uriPath;
@@ -121,6 +120,7 @@ public enum Content {
     static final private Map<Uri, Content> sUris = new HashMap<Uri, Content>();
 
     public static final int SYNCABLE_CEILING = 150;
+    public static final int MINE_CEILING     = 200;
 
     public static final EnumSet<Content> ACTIVITIES = EnumSet.of(
         Content.ME_ACTIVITIES,
@@ -130,20 +130,20 @@ public enum Content {
 
     static {
         for (Content c : Content.values()) {
-            if (c.code >= 0 && c.uri != null) {
-                sMatcher.addURI(ScContentProvider.AUTHORITY, c.uriPath.substring(1, c.uriPath.length()), c.code);
-                sMap.put(c.code, c);
+            if (c.id >= 0 && c.uri != null) {
+                sMatcher.addURI(ScContentProvider.AUTHORITY, c.uriPath.substring(1, c.uriPath.length()), c.id);
+                sMap.put(c.id, c);
                 sUris.put(c.uri, c);
             }
         }
     }
 
     public boolean isSyncable() {
-        return code < SYNCABLE_CEILING;
+        return id < SYNCABLE_CEILING;
     }
 
     public boolean isMine() {
-        return code < 200;
+        return id < MINE_CEILING;
     }
 
     public Uri.Builder buildUpon() {
@@ -194,5 +194,4 @@ public enum Content {
                         DBHelper.CollectionItems.SORT_ORDER));
 
     }
-
 }

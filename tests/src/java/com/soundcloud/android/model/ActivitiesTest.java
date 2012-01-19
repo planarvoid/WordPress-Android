@@ -231,7 +231,7 @@ public class ActivitiesTest {
     @Test
     public void shouldBuildContentValues() throws Exception {
         Activities a = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
-        ContentValues[] cv = a.buildContentValues();
+        ContentValues[] cv = a.buildContentValues(-1);
         expect(cv.length).toEqual(a.size());
     }
 

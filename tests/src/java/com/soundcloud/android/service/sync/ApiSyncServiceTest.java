@@ -157,7 +157,7 @@ public class ApiSyncServiceTest {
         expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
 
         assertContentUriCount(Content.ME_SOUND_STREAM, 100);
-        assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 1);
+        assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 0);
         assertContentUriCount(Content.TRACKS, 99);
         assertContentUriCount(Content.USERS, 52);
 
@@ -197,7 +197,7 @@ public class ApiSyncServiceTest {
 
         assertContentUriCount(Content.ME_SOUND_STREAM, 100);
         assertContentUriCount(Content.ME_ACTIVITIES, 41);
-        assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 1);
+        assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 0);
         assertContentUriCount(Content.ME_ALL_ACTIVITIES, 141);
     }
 
@@ -212,7 +212,7 @@ public class ApiSyncServiceTest {
 
         assertContentUriCount(Content.ME_SOUND_STREAM, 4);
         assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 4);
-        assertContentUriCount(Content.ME_ALL_ACTIVITIES, 4);
+        assertContentUriCount(Content.ME_ALL_ACTIVITIES, 8);
     }
 
     @Test

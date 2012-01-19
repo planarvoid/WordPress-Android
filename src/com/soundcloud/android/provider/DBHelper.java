@@ -179,7 +179,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "type VARCHAR(255)," +
             "tags VARCHAR(255)," +
             "created_at INTEGER," +
-            "UNIQUE (created_at, type, tags)" +
+            "content_id INTEGER," +
+            "UNIQUE (created_at, type, tags, content_id)" +
             ");";
 
     static final String DATABASE_CREATE_SEARCHES = "CREATE TABLE Searches (_id INTEGER primary key AUTOINCREMENT, " +
@@ -279,6 +280,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "Activities." + Activities.COMMENT_ID + " as " + ActivityView.COMMENT_ID+","+
             "Activities." + Activities.TRACK_ID + " as " + ActivityView.TRACK_ID+","+
             "Activities." + Activities.USER_ID + " as " + ActivityView.USER_ID +","+
+            "Activities." + Activities.CONTENT_ID + " as " + ActivityView.CONTENT_ID +","+
 
             // activity user (who commented, favorited etc. on contained following)
             "Users." + Users.USERNAME + " as " + ActivityView.USER_USERNAME + "," +
@@ -418,6 +420,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String TRACK_ID = "track_id";
         public static final String COMMENT_ID = "comment_id";
         public static final String CREATED_AT  = "created_at";
+        public static final String CONTENT_ID  = "content_id";
     }
 
     /**

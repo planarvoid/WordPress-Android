@@ -154,17 +154,9 @@ public class ScContentProvider extends ContentProvider {
             case ME_ACTIVITIES:
             case ME_EXCLUSIVE_STREAM:
                 qb.setTables(Table.ACTIVITY_VIEW.name);
-                switch (content) {
-                    case ME_SOUND_STREAM:
-                        selectActivityTypes(qb, Type.TRACK, Type.TRACK_SHARING);
-                        break;
-                    case ME_EXCLUSIVE_STREAM:
-                        selectActivityTypes(qb, Type.TRACK, Type.TRACK_SHARING)
-                            .appendWhere(" AND "+DBHelper.ActivityView.TAGS+" LIKE '%exclusive%'");
-                        break;
-                    case ME_ACTIVITIES:
-                        selectActivityTypes(qb, Type.FAVORITING, Type.COMMENT);
-                        break;
+                if (content != Content.ME_ALL_ACTIVITIES) {
+                    // TODO prepared query
+                    qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id);
                 }
                 break;
             case COMMENTS:
@@ -310,8 +302,11 @@ public class ScContentProvider extends ContentProvider {
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
                 tableName = Table.ACTIVITIES.name;
+                if (content != Content.ME_ALL_ACTIVITIES) {
+                    where = DBHelper.Activities.CONTENT_ID+"= ?";
+                    whereArgs = new String[] {String.valueOf(content.id) };
+                }
                 break;
-
             case ME_TRACKS:
             case ME_FAVORITES:
             case ME_FOLLOWINGS:
@@ -571,13 +566,13 @@ public class ScContentProvider extends ContentProvider {
 
 
     public interface CollectionItemTypes {
-        int TRACK = 1;
-        int FAVORITE = 2;
-        int FOLLOWING = 3;
-        int FOLLOWER = 4;
-        int FRIEND = 5;
-        int SUGGESTED_USER = 6;
-        int SEARCH = 7;
+        int TRACK          = 0;
+        int FAVORITE       = 1;
+        int FOLLOWING      = 2;
+        int FOLLOWER       = 3;
+        int FRIEND         = 4;
+        int SUGGESTED_USER = 5;
+        int SEARCH         = 6;
     }
 
     private static SCQueryBuilder selectActivityTypes(SCQueryBuilder qb, Type... types) {

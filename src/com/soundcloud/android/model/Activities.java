@@ -6,7 +6,6 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -317,10 +316,13 @@ public class Activities extends CollectionHolder<Activity> {
         return activities;
     }
 
-    public ContentValues[] buildContentValues() {
+    public ContentValues[] buildContentValues(final int contentId) {
         ContentValues[] cv = new ContentValues[size()];
         for (int i=0; i<size(); i++) {
             cv[i] = get(i).buildContentValues();
+            if (contentId >= 0) {
+                cv[i].put(DBHelper.Activities.CONTENT_ID, contentId);
+            }
         }
         return cv;
     }
@@ -380,7 +382,7 @@ public class Activities extends CollectionHolder<Activity> {
 
     public int insert(Content content, ContentResolver resolver) {
         int created = 0;
-        created += resolver.bulkInsert(content.uri, buildContentValues());
+        created += resolver.bulkInsert(content.uri, buildContentValues(content.id));
         created += resolver.bulkInsert(Content.TRACKS.uri, getTrackContentValues());
         created += resolver.bulkInsert(Content.USERS.uri, getUserContentValues());
 
