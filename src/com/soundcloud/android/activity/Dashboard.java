@@ -147,6 +147,8 @@ public class Dashboard extends ScActivity {
     @Override
     public void onResume() {
         super.onResume();
+
+
         trackPage(mTrackingPath);
 
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
@@ -155,12 +157,21 @@ public class Dashboard extends ScActivity {
                         Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mListView != null && mListView.getWrapper() != null){
+            ((EventsAdapterWrapper) mListView.getWrapper()).onPause();
+        }
+    }
+
     protected ScTabView createList(Content content, Class<?> model, EmptyCollection emptyView, int listId, boolean isNews) {
         EventsAdapter adp = new EventsAdapter(this, new ArrayList<Parcelable>(), isNews, model);
         EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, content);
 
         final ScTabView view = new ScTabView(this);
         mListView = view.setLazyListView(buildList(!isNews), adpWrap, listId, true);
+        mListView.setFastScrollEnabled(true);
         adpWrap.setEmptyView(emptyView);
         return view;
     }
