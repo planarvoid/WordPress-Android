@@ -122,6 +122,7 @@ end
                StreamProxy
                StreamStorage
                C2DMReceiver
+               SyncAdapterService
               ).each do |tag|
               sh "adb #{flag} shell setprop log.tag.#{tag} #{level.upcase}"
             end

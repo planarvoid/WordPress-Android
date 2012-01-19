@@ -175,7 +175,7 @@ public class Settings extends PreferenceActivity {
                     new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            SyncAdapterService.requestNewSync(getApp(), 0);
+                            SyncAdapterService.requestNewSync(getApp(), SyncAdapterService.CLEAR_ALL);
                             return true;
                         }
                     });
@@ -184,7 +184,7 @@ public class Settings extends PreferenceActivity {
                     new Preference.OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            SyncAdapterService.requestNewSync(getApp(), 1);
+                            SyncAdapterService.requestNewSync(getApp(), SyncAdapterService.REWIND_LAST_DAY);
                             return true;
                         }
                     });

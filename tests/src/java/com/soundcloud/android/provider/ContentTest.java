@@ -3,14 +3,11 @@ package com.soundcloud.android.provider;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(DefaultTestRunner.class)
 public class ContentTest {
-
 
     @Test
     public void shouldDefineRequest() throws Exception {
@@ -26,5 +23,10 @@ public class ContentTest {
     @Test
     public void shouldFindContentByUri() throws Exception {
         expect(Content.byUri(Content.ME.uri)).toBe(Content.ME);
+    }
+
+    @Test
+    public void shouldProvideToString() throws Exception {
+        expect(Content.ME_ACTIVITIES.toString()).toEqual("Content.ME_ACTIVITIES");
     }
 }
