@@ -148,7 +148,6 @@ public class ApiSyncer {
             int added = SoundCloudDB.bulkInsertParcelables(mResolver, firstUsers,c.uri,userId,1);
 
             // remove items from master remote list and adjust start index
-            List<Long> toRemove = new ArrayList<Long>();
             for (Parcelable u : firstUsers){
                 remote.remove(((User)u).id);
             }
