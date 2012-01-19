@@ -161,6 +161,7 @@ public class Dashboard extends ScActivity {
 
         final ScTabView view = new ScTabView(this);
         mListView = view.setLazyListView(buildList(!isNews), adpWrap, listId, true);
+        mListView.setFastScrollEnabled(true);
         adpWrap.setEmptyView(emptyView);
         return view;
     }
