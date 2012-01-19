@@ -156,8 +156,7 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(Table.ACTIVITY_VIEW.name);
                 switch (content) {
                     case ME_SOUND_STREAM:
-                        selectActivityTypes(qb, Type.TRACK, Type.TRACK_SHARING)
-                           .appendWhere(" AND "+DBHelper.ActivityView.TAGS+" NOT LIKE '%exclusive%'");
+                        selectActivityTypes(qb, Type.TRACK, Type.TRACK_SHARING);
                         break;
                     case ME_EXCLUSIVE_STREAM:
                         selectActivityTypes(qb, Type.TRACK, Type.TRACK_SHARING)
