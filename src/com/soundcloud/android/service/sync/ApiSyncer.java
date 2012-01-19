@@ -116,7 +116,7 @@ public class ApiSyncer {
 
         LocalCollection.insertLocalCollection(c.uri, null, System.currentTimeMillis(), remote.size(), mResolver);
 
-        if (local.equals(remote) && !(c.equals(Content.ME_FOLLOWERS) || c.equals(Content.ME_FOLLOWINGS))){
+        if (local.equals(remote) && !(c == Content.ME_FOLLOWERS || c == Content.ME_FOLLOWINGS)){
             Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
             return false;
         }
@@ -135,39 +135,42 @@ public class ApiSyncer {
         }
 
         int startPosition = 1;
+        int added;
+        switch (c) {
+            case ME_FOLLOWERS:
+            case ME_FOLLOWINGS:
+                // load the first page of items to get proper last_seen ordering
+                InputStream is = validateResponse(mApi.get(Request.to(c.remoteUri)
+                        .add("linked_partitioning", "1").add("limit", Consts.COLLECTION_PAGE_SIZE)))
+                        .getEntity().getContent();
 
-        if (c.equals(Content.ME_FOLLOWERS) || c.equals(Content.ME_FOLLOWINGS)){
-             // load the first page of items to get proper last_seen ordering
-            InputStream is = validateResponse(mApi.get(Request.to(c.remoteUri)
-                    .add("linked_partitioning", "1").add("limit", Consts.COLLECTION_PAGE_SIZE)))
-                    .getEntity().getContent();
+                // parse and add first items
+                List<Parcelable> firstUsers = new ArrayList<Parcelable>();
+                ScModel.getCollectionFromStream(is, mApi.getMapper(), User.class, firstUsers);
+                added = SoundCloudDB.bulkInsertParcelables(mResolver, firstUsers, c.uri, userId, 1);
 
-            // parse and add first items
-            List<Parcelable> firstUsers = new ArrayList<Parcelable>();
-            ScModel.getCollectionFromStream(is,mApi.getMapper(),User.class,firstUsers);
-            int added = SoundCloudDB.bulkInsertParcelables(mResolver, firstUsers,c.uri,userId,1);
+                // remove items from master remote list and adjust start index
+                for (Parcelable u : firstUsers) {
+                    remote.remove(((User) u).id);
+                }
+                startPosition = firstUsers.size();
+                break;
 
-            // remove items from master remote list and adjust start index
-            for (Parcelable u : firstUsers){
-                remote.remove(((User)u).id);
-            }
-            startPosition = firstUsers.size();
-
-        } else {
-            // ensure the first couple of pages of items for quick loading
-            int added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
-                    mApi,
-                    mResolver,
-                    remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED)),
-                    c.resourceType.equals(Track.class) ? Content.TRACKS : Content.USERS,
-                    false
+            default:
+                // ensure the first couple of pages of items for quick loading
+                added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
+                        mApi,
+                        mResolver,
+                        remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED)),
+                        c.resourceType.equals(Track.class) ? Content.TRACKS : Content.USERS,
+                        false
                 ));
-            Log.d(ApiSyncService.LOG_TAG, "Added " + added + " new items for this endpoint");
+                break;
         }
+        Log.d(ApiSyncService.LOG_TAG, "Added " + added + " new items for this endpoint");
 
         ContentValues[] cv = new ContentValues[remote.size()];
         i = 0;
-        Log.i("asdf","i is" + i);
         for (Long id : remote) {
             cv[i] = new ContentValues();
             cv[i].put(DBHelper.CollectionItems.POSITION, startPosition + i);

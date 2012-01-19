@@ -4,6 +4,7 @@ package com.soundcloud.android.service.sync;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.*;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.LocalCollection;
@@ -126,6 +127,20 @@ public class ApiSyncServiceTest {
 
         assertResolverNotificationCount(4);
     }
+
+    @Test
+    public void shouldSyncFollowers() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+
+        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addResourceResponse("/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+
+        svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri), 1);
+        // make sure tracks+users got written
+        assertContentUriCount(Content.ME_FOLLOWERS, 3);
+        assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
+    }
+
 
     @Test
     public void shouldSyncActivitiesIncoming() throws Exception {

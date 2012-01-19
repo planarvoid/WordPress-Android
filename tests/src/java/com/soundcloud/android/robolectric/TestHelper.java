@@ -43,6 +43,13 @@ public class TestHelper {
         expect(c.getCount()).toEqual(count);
     }
 
+    public static void assertFirstIdToBe(Content content, long id) {
+        Cursor c = Robolectric.application.getContentResolver().query(content.uri, null, null, null, null);
+        expect(c).not.toBeNull();
+        c.moveToFirst();
+        expect(c.getLong(c.getColumnIndex("_id"))).toEqual(id);
+    }
+
     public static void assertResolverNotificationCount(int n) {
         DelegatingContentResolver res  =
                 Robolectric.shadowOf_(Robolectric.application.getContentResolver());
