@@ -382,13 +382,13 @@ public class Activities extends CollectionHolder<Activity> {
 
     public int insert(Content content, ContentResolver resolver) {
         int created = 0;
-        created += resolver.bulkInsert(content.uri, buildContentValues(content.id));
         created += resolver.bulkInsert(Content.TRACKS.uri, getTrackContentValues());
         created += resolver.bulkInsert(Content.USERS.uri, getUserContentValues());
 
         if (content == Content.ME_ACTIVITIES || content == Content.ME_ALL_ACTIVITIES) {
             created += resolver.bulkInsert(Content.COMMENTS.uri, getCommentContentValues());
         }
+        created += resolver.bulkInsert(content.uri, buildContentValues(content.id));
         return created;
     }
 
