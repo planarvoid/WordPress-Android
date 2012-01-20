@@ -1,5 +1,11 @@
+$ 34
+  % v 2.2.0-BETA1
+  _ 2012-01-20
+  ! Local caching
+    * Local caching of tracks, users & activities
+
 $ 33
-  % v current
+  % v 2.1.2
   _ 2012-01-20
   ! Maintenance
     * Fixed issue with unexpected playback after audio notifications
