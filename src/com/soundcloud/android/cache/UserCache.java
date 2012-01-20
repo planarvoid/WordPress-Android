@@ -1,14 +1,13 @@
 package com.soundcloud.android.cache;
 
-import android.database.Cursor;
-import android.os.Parcelable;
-import android.util.Log;
-import com.soundcloud.android.model.*;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.UserlistItem;
 import com.soundcloud.android.provider.DBHelper;
 
-import java.util.ArrayList;
+import android.database.Cursor;
+import android.os.Parcelable;
 
-public class UserCache extends LruCache<Long, User> implements IResourceCache{
+public class UserCache extends LruCache<Long, User> {
     public UserCache() {
         super(200);
     }
@@ -17,7 +16,6 @@ public class UserCache extends LruCache<Long, User> implements IResourceCache{
         return u != null ? put(u.id, u) : null;
     }
 
-    @Override
     public Parcelable fromListItem(Parcelable listItem) {
         if (listItem instanceof UserlistItem){
             final UserlistItem u = (UserlistItem)listItem;
@@ -32,7 +30,6 @@ public class UserCache extends LruCache<Long, User> implements IResourceCache{
         }
     }
 
-    @Override
     public Parcelable fromCursor(Cursor cursor) {
         final long id = cursor.getLong(cursor.getColumnIndex(DBHelper.Users._ID));
         User user = get(id);
