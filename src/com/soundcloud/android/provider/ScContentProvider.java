@@ -540,7 +540,6 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
-
     /**
      * Suggest tracks and users based on partial user input.
      * @return a cursor with search suggestions. See {@link SearchManager} for documentation
@@ -555,12 +554,12 @@ public class ScContentProvider extends ContentProvider {
         }
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         SCQueryBuilder qb = new SCQueryBuilder();
-        qb.setTables(Table.TRACKS.name());
+        qb.setTables(Table.TRACK_VIEW.name);
         String limit = uri.getQueryParameter("limit");
 
-        qb.appendWhere( DBHelper.Tracks.TITLE+" LIKE '%"+selectionArgs[0]+"%'");
+        qb.appendWhere( DBHelper.TrackView.TITLE+" LIKE '%"+selectionArgs[0]+"%'");
         String query = qb.buildQuery(
-                new String[]{BaseColumns._ID, DBHelper.Tracks.TITLE},
+                new String[]{ DBHelper.TrackView._ID, DBHelper.TrackView.TITLE, DBHelper.TrackView.USERNAME },
                 null, null, null, null, null, limit);
         Log.d(TAG, "suggest: query="+query);
         Cursor cursor = db.rawQuery(query, null);
@@ -568,6 +567,7 @@ public class ScContentProvider extends ContentProvider {
             MatrixCursor suggest = new MatrixCursor(
                     new String[] {BaseColumns._ID,
                                   SearchManager.SUGGEST_COLUMN_TEXT_1,
+                                  SearchManager.SUGGEST_COLUMN_TEXT_2,
                                   SearchManager.SUGGEST_COLUMN_INTENT_DATA,
                                   SearchManager.SUGGEST_COLUMN_SHORTCUT_ID},
                     cursor.getCount());
@@ -575,9 +575,11 @@ public class ScContentProvider extends ContentProvider {
             while (cursor.moveToNext()) {
                 long trackId = cursor.getLong(0);
                 String title = cursor.getString(1);
+                String username = cursor.getString(2);
                 suggest.addRow(new Object[] {
                         trackId,
                         title,
+                        username,
                         Track.getClientUri(trackId),
                         SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT});
             }
