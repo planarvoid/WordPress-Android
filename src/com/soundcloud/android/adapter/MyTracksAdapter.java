@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
+import android.util.Log;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
@@ -64,12 +65,14 @@ public class MyTracksAdapter extends TracklistAdapter {
     private void refreshCursor() {
         mCursor = mContext.getContentResolver().query(Content.RECORDINGS.uri, null,
                 Recordings.UPLOAD_STATUS + " < 2", null, Recordings.TIMESTAMP + " DESC");
+
         if (mCursor != null) {
             mDataValid = true;
             mRecordingData = loadRecordings(mCursor);
         } else {
             mDataValid = false;
         }
+
         if (mCursor != null) {
             mCursor.close();
             mCursor = null;

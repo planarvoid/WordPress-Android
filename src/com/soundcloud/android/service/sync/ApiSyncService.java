@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.api.CloudAPI;
 
@@ -84,7 +85,7 @@ public class ApiSyncService extends Service {
         }
     }
 
-    /* package */ void onUriSyncResult(UriSyncRequest.Result result){
+    /* package */ void onUriSyncResult(ApiSyncer.Result result){
         for (ApiSyncRequest request : new ArrayList<ApiSyncRequest>(mRequests)){
             if (request.onUriResult(result)){
                 mRequests.remove(request);
@@ -136,7 +137,7 @@ public class ApiSyncService extends Service {
             urisRemaining = new HashSet<Uri>(urisToSync);
         }
 
-        public boolean onUriResult(UriSyncRequest.Result uriResult) {
+        public boolean onUriResult(ApiSyncer.Result uriResult) {
             if (urisRemaining.contains(uriResult.uri)) {
                 urisRemaining.remove(uriResult.uri);
                 resultData.putBoolean(uriResult.uri.toString(), uriResult.wasChanged);
@@ -170,36 +171,30 @@ public class ApiSyncService extends Service {
             this.uri = uri;
         }
 
-        public Result execute() {
+        public ApiSyncer.Result execute() {
             ApiSyncer syncer = new ApiSyncer(app);
-            Result result = new Result(uri);
+            LocalCollection lc = LocalCollection.fromContentUri(uri,app.getContentResolver(),true);
+            lc.updateSyncState(LocalCollection.SyncState.SYNCING, app.getContentResolver());
             try {
-                result.wasChanged = syncer.syncContent(Content.byUri(uri));
+                ApiSyncer.Result result = syncer.syncContent(Content.byUri(uri));
+                lc.onSyncComplete(result, app.getContentResolver());
                 result.success = true;
                 return result;
 
             } catch (CloudAPI.InvalidTokenException e) {
                 Log.e(LOG_TAG, "Problem while syncing", e);
-                result.syncResult.stats.numAuthExceptions++;
+                lc.updateSyncState(LocalCollection.SyncState.IDLE, app.getContentResolver());
+                return ApiSyncer.Result.fromAuthException(uri);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Problem while syncing", e);
-                result.syncResult.stats.numIoExceptions++;
+                lc.updateSyncState(LocalCollection.SyncState.IDLE, app.getContentResolver());
+                return ApiSyncer.Result.fromIOException(uri);
             }
 
-            result.success = false;
-            return result;
+
         }
 
-        public static class Result {
-            public final Uri uri;
-            public boolean success;
-            public boolean wasChanged;
-            public SyncResult syncResult;
-            public Result(Uri uri){
-                this.uri = uri;
-                syncResult = new SyncResult();
-            }
-        }
+
 
         @Override
         public boolean equals(Object o) {
@@ -223,9 +218,9 @@ public class ApiSyncService extends Service {
         }
     }
 
-     private class ApiSyncTask extends AsyncTask<UriSyncRequest, UriSyncRequest.Result, Void> {
+     private class ApiSyncTask extends AsyncTask<UriSyncRequest, ApiSyncer.Result, Void> {
 
-        public final android.os.AsyncTask<UriSyncRequest, UriSyncRequest.Result, Void> executeOnThreadPool(
+        public final android.os.AsyncTask<UriSyncRequest, ApiSyncer.Result, Void> executeOnThreadPool(
                 UriSyncRequest... params) {
             if (Build.VERSION.SDK_INT < 11) {
                 // The execute() method uses a thread pool
@@ -266,8 +261,8 @@ public class ApiSyncService extends Service {
         }
 
         @Override
-        protected void onProgressUpdate(UriSyncRequest.Result... values) {
-            for (UriSyncRequest.Result result : values) {
+        protected void onProgressUpdate(ApiSyncer.Result... values) {
+            for (ApiSyncer.Result result : values) {
                 onUriSyncResult(result);
             }
         }

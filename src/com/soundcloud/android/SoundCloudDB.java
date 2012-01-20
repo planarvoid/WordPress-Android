@@ -60,14 +60,6 @@ public class SoundCloudDB {
         return null;
     }
 
-    public static List<Track> getTracks(ContentResolver resolver, long[] ids) {
-        List<Track> tracks = new ArrayList<Track>(ids.length);
-        for (long id : ids) {
-            tracks.add(getTrackById(resolver, id));
-        }
-        return tracks;
-    }
-
     public static List<Track> getTracks(ContentResolver resolver, Uri uri) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         if (cursor != null) {

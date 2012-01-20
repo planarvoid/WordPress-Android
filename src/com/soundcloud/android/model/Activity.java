@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.CloudUtils;
@@ -51,7 +52,7 @@ public class Activity extends ScModel implements Origin, Playable {
         created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.CREATED_AT)));
         switch (type) {
             case TRACK:
-                origin = new Track(c);
+                origin = SoundCloudApplication.TRACK_CACHE.fromActivityCursor(c);
                 break;
             case TRACK_SHARING:
                 origin = new TrackSharing(c);

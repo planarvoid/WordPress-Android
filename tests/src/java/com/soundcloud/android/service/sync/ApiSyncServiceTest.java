@@ -105,7 +105,7 @@ public class ApiSyncServiceTest {
         svc.mRunningRequestUris.add(Content.ME_FAVORITES.uri);
         svc.mRunningRequestUris.add(Content.ME_FOLLOWINGS.uri);
 
-        ApiSyncService.UriSyncRequest.Result result = new ApiSyncService.UriSyncRequest.Result(Content.ME_FAVORITES.uri);
+        ApiSyncer.Result result = new ApiSyncer.Result(Content.ME_FAVORITES.uri);
         result.success = true;
 
         svc.onUriSyncResult(result);

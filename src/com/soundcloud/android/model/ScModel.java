@@ -40,12 +40,12 @@ public abstract class ScModel implements Parcelable {
         if (Track.class.equals(loadModel)) {
             holder = mapper.readValue(is, TracklistItemHolder.class);
             for (TracklistItem t : (TracklistItemHolder) holder) {
-                items.add(new Track(t));
+                items.add(TRACK_CACHE.fromListItem(t));
             }
         } else if (User.class.equals(loadModel)) {
             holder = mapper.readValue(is, UserlistItemHolder.class);
             for (UserlistItem u : (UserlistItemHolder) holder) {
-                items.add(new User(u));
+                items.add(USER_CACHE.fromListItem(u));
             }
         } else if (Activity.class.equals(loadModel)) {
             holder = mapper.readValue(is, Activities.class);

@@ -25,6 +25,8 @@ public class UserCache extends LruCache<Long, User> implements IResourceCache{
             if (user == null) {
                 user = new User(u);
                 put(user);
+            } else {
+                user.updateFrom((ScModel) listItem);
             }
             return user;
         } else {
@@ -38,6 +40,16 @@ public class UserCache extends LruCache<Long, User> implements IResourceCache{
         User user = get(id);
         if (user == null) {
             user = new User(cursor);
+            put(user);
+        }
+        return user;
+    }
+
+    public User fromTrackView(Cursor cursor) {
+        final long id = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
+        User user = get(id);
+        if (user == null) {
+            user = User.fromTrackView(cursor);
             put(user);
         }
         return user;

@@ -1,5 +1,6 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -17,7 +18,7 @@ public class TrackSharing implements Origin {
     @JsonProperty @JsonView(Views.Mini.class) public SharingNote sharing_note;
 
     public TrackSharing(Cursor c) {
-        track = new Track(c);
+        track = SoundCloudApplication.TRACK_CACHE.fromActivityCursor(c);
         sharing_note = track.sharing_note;
     }
 

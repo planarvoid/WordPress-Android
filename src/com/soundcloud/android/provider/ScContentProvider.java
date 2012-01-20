@@ -137,7 +137,7 @@ public class ScContentProvider extends ContentProvider {
 
             case TRACK_PLAYS:
                 qb.setTables(Table.TRACK_PLAYS.name);
-                qb.appendWhere(Table.TRACK_PLAYS.id + " = "+ userId);
+                qb.appendWhere(DBHelper.TrackPlays.USER_ID + " = "+ userId);
                 break;
 
             case TRACK_PLAYS_ITEM:
@@ -147,7 +147,7 @@ public class ScContentProvider extends ContentProvider {
 
             case RECORDINGS:
                 qb.setTables(Table.RECORDINGS.name);
-                qb.appendWhere(Table.RECORDINGS.id + " = "+ userId);
+                qb.appendWhere(DBHelper.Recordings.USER_ID + " = "+ userId);
                 break;
 
             case RECORDING_ITEM:

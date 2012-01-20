@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.os.Parcelable;
 import android.util.Log;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.provider.DBHelper;
@@ -35,6 +36,8 @@ public class TrackCache extends LruCache<Long, Track> implements IResourceCache{
             if (track == null) {
                 track = new Track(t);
                 put(track);
+            } else {
+                track.updateFromTracklistItem((TracklistItem) listItem);
             }
             return track;
         } else {
@@ -48,6 +51,16 @@ public class TrackCache extends LruCache<Long, Track> implements IResourceCache{
         Track track = get(id);
         if (track == null) {
             track = new Track(cursor);
+            put(track);
+        }
+        return track;
+    }
+
+    public Track fromActivityCursor(Cursor c) {
+        final long id = c.getLong(c.getColumnIndex(DBHelper.ActivityView.TRACK_ID));
+        Track track = get(id);
+        if (track == null) {
+            track = new Track(c);
             put(track);
         }
         return track;

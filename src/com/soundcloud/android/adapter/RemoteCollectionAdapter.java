@@ -246,7 +246,11 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     @Override
     public boolean isRefreshing() {
-        return mLocalCollection.sync_state == LocalCollection.SyncState.SYNCING;
+        if (mLocalCollection != null){
+            return mLocalCollection.sync_state == LocalCollection.SyncState.SYNCING;
+        } else {
+            return super.isRefreshing();
+        }
     }
 
     protected void doneRefreshing(){

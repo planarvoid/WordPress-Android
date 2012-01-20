@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.SoundCloudDB;
 import com.soundcloud.android.activity.TracksByTag;
+import com.soundcloud.android.cache.UserCache;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -262,7 +263,8 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
             sharing_note = new TrackSharing.SharingNote();
             sharing_note.text = cursor.getString(sharingNoteIdx);
         }
-        user = User.fromTrackView(cursor);
+
+        user = SoundCloudApplication.USER_CACHE.fromTrackView(cursor);
         // gets joined in
         final int favIndex = cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE);
         if (favIndex != -1) {
@@ -270,8 +272,6 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         }
         return this;
     }
-
-
 
     public void assertInDb(SoundCloudApplication app) {
         if (user != null) user.assertInDb(app);

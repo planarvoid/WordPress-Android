@@ -1,5 +1,7 @@
 package com.soundcloud.android.service.sync;
 
+import android.content.SyncResult;
+import android.net.Uri;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -41,35 +43,38 @@ public class ApiSyncer {
     private static final int API_LOOKUP_BATCH_SIZE = 200;
     private static final int RESOLVER_BATCH_SIZE = 100;
 
+
+
     public ApiSyncer(SoundCloudApplication app) {
         mApi = app;
         mResolver = app.getContentResolver();
         mContext = app;
     }
 
-    public boolean syncContent(Content c) throws IOException {
-        boolean changed = false;
+    public Result syncContent(Content c) throws IOException {
+        Result result = null;
         if (c.remoteUri != null) {
             switch (c) {
                 case ME_ALL_ACTIVITIES:
                 case ME_ACTIVITIES:
                 case ME_EXCLUSIVE_STREAM:
                 case ME_SOUND_STREAM:
-                    changed = syncActivities(c);
+                    result = syncActivities(c);
                     break;
 
                 case ME_TRACKS:
                 case ME_FAVORITES:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
-                    changed = quickSync(c, SoundCloudApplication.getUserIdFromContext(mContext));
+                    result = quickSync(c, SoundCloudApplication.getUserIdFromContext(mContext));
                     break;
             }
         } else {
             switch (c) {
                 case TRACK_CLEANUP:
                 case USERS_CLEANUP:
-                    changed = mResolver.update(c.uri, null, null, null) > 0;
+                    result = new Result(c.uri);
+                    result.wasChanged = mResolver.update(c.uri, null, null, null) > 0;
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()
                             .putLong(SyncAdapterService.PREF_LAST_SYNC_CLEANUP, System.currentTimeMillis())
@@ -80,29 +85,28 @@ public class ApiSyncer {
             }
 
         }
-        return changed;
+        return result;
     }
 
-    /* package */ boolean syncActivities(Content content) throws IOException {
-        LocalCollection collection = LocalCollection.fromContentUri(content.uri, mResolver, true);
-        String future_href = TextUtils.isEmpty(collection.extra) ? null : collection.extra;
+    /* package */ Result syncActivities(Content content) throws IOException {
+        Result result = new Result(content.uri);
 
-        collection.setSyncState(LocalCollection.SyncState.SYNCING, mResolver);
-        Log.d(ApiSyncService.LOG_TAG, "syncActivities(collection="+collection+")");
+        String future_href = LocalCollection.getExtraFromUri(content.uri, mResolver);
+
+        Log.d(ApiSyncService.LOG_TAG, "syncActivities("+content+")");
         Request request = future_href == null ? content.request() : Request.to(future_href);
         Activities activities = Activities.fetch(mApi, request, MINIMUM_LOCAL_ITEMS_STORED);
         final int inserted = activities.insert(content, mResolver);
         Log.d(ApiSyncService.LOG_TAG, "activities: inserted "+inserted + " objects");
 
-        LocalCollection.insertLocalCollection(content.uri,
-                LocalCollection.SyncState.IDLE, System.currentTimeMillis(), activities.size(),
-                activities.future_href,
-                mResolver);
+        result.setSyncData(System.currentTimeMillis(),activities.size(),activities.future_href);
 
-        return !activities.isEmpty();
+        return result;
     }
 
-    private boolean quickSync(Content c, final long userId) throws IOException {
+    private Result quickSync(Content c, final long userId) throws IOException {
+        Result result = new Result(c.uri);
+
         List<Long> local = idCursorToList(mResolver.query(
                 Content.COLLECTION_ITEMS.uri,
                 new String[] { DBHelper.CollectionItems.ITEM_ID },
@@ -114,12 +118,10 @@ public class ApiSyncer {
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
 
         if (local.equals(remote) && !(c == Content.ME_FOLLOWERS || c == Content.ME_FOLLOWINGS)){
-            LocalCollection.insertLocalCollection(c.uri, LocalCollection.SyncState.IDLE, System.currentTimeMillis(), remote.size(), null, mResolver);
             Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
-            return false;
+            return result;
         }
-
-        LocalCollection lc = LocalCollection.insertLocalCollection(c.uri, LocalCollection.SyncState.SYNCING, System.currentTimeMillis(), remote.size(), null, mResolver);
+        result.setSyncData(System.currentTimeMillis(),remote.size(),null);
 
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);
@@ -179,9 +181,7 @@ public class ApiSyncer {
             i++;
         }
         mResolver.bulkInsert(c.uri, cv);
-
-        lc.setSyncState(LocalCollection.SyncState.IDLE,mResolver);
-        return true;
+        return result;
     }
 
 
@@ -264,4 +264,38 @@ public class ApiSyncer {
 
 
     public static class IdHolder extends CollectionHolder<Long> {}
+
+    public static class Result {
+        public Uri uri;
+        public boolean wasChanged;
+        public SyncResult syncResult;
+        public boolean success;
+
+        public long synced_at;
+        public int new_size;
+        public String extra;
+
+        public Result(Uri uri) {
+            this.uri = uri;
+            syncResult = new SyncResult();
+        }
+
+        public void setSyncData(long synced_at, int new_size, String extra){
+            this.synced_at = synced_at;
+            this.new_size = new_size;
+            this.extra = extra;
+        }
+
+        public static Result fromAuthException(Uri uri) {
+            Result r = new Result(uri);
+            r.syncResult.stats.numAuthExceptions++;
+            return r;
+        }
+
+        public static Result fromIOException(Uri uri) {
+            Result r = new Result(uri);
+            r.syncResult.stats.numIoExceptions++;
+            return r;
+        }
+    }
 }

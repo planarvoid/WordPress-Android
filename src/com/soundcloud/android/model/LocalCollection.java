@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.utils.CloudUtils;
 
 /**
@@ -20,10 +21,10 @@ import com.soundcloud.android.utils.CloudUtils;
 public class LocalCollection {
     public final int id;
     public final Uri uri;
-    public long last_sync;
-    public int sync_state;
+    public long last_sync = -1;
+    public int sync_state = -1;
+    public int size = -1;
     public String extra;
-    public int size;
 
     private ContentResolver mContentResolver;
     private ContentObserver mChangeObserver;
@@ -57,8 +58,17 @@ public class LocalCollection {
         this.extra = extra;
     }
 
+    public boolean onSyncComplete(ApiSyncer.Result result, ContentResolver resolver) {
+        last_sync = result.synced_at;
+        size = result.new_size;
+        extra = result.extra;
+        sync_state = SyncState.IDLE;
+
+        return (resolver.update(CloudUtils.replaceWildcard(Content.COLLECTIONS_ITEM.uri,id), buildContentValues(), null,null) == 1);
+    }
+
     public static LocalCollection fromContent(Content content, ContentResolver resolver) {
-        return fromContent(content,resolver,false);
+        return fromContent(content, resolver, false);
     }
 
     public static LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
@@ -138,19 +148,11 @@ public class LocalCollection {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections._ID, id);
         if (sync_state != -1) cv.put(DBHelper.Collections.SYNC_STATE, sync_state);
-        if (last_sync != -1) cv.put(DBHelper.Collections.LAST_SYNC, last_sync);
         if (size != -1) cv.put(DBHelper.Collections.SIZE, size);
+        if (last_sync != -1) cv.put(DBHelper.Collections.LAST_SYNC, last_sync);
         if (!TextUtils.isEmpty(extra)) cv.put(DBHelper.Collections.EXTRA, extra);
         cv.put(DBHelper.Collections.URI, uri.toString());
         return cv;
-    }
-
-    public void setSyncState(int newSyncState, ContentResolver resolver) {
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Collections.SYNC_STATE, newSyncState);
-        if (resolver.update(CloudUtils.replaceWildcard(Content.COLLECTIONS_ITEM.uri,id), cv, null,null) == 1){
-            sync_state = newSyncState;
-        }
     }
 
     public int getSyncStateByUri(Uri uri, ContentResolver resolver) {
@@ -163,6 +165,23 @@ public class LocalCollection {
             c.close();
         }
         return -1;
+    }
+
+
+    public boolean updateSyncState(int newSyncState, ContentResolver resolver) {
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Collections.SYNC_STATE, newSyncState);
+        return (resolver.update(CloudUtils.replaceWildcard(Content.COLLECTIONS_ITEM.uri,id), cv, null,null) == 1);
+    }
+
+    public static String getExtraFromUri(Uri contentUri, ContentResolver resolver) {
+        String extra = null;
+        Cursor c = resolver.query(Content.COLLECTIONS.uri, new String[]{DBHelper.Collections.EXTRA}, "uri = ?", new String[]{contentUri.toString()}, null);
+        if (c != null && c.moveToFirst()) {
+            extra = c.getString(0);
+        }
+        if (c != null) c.close();
+        return extra;
     }
 
 
