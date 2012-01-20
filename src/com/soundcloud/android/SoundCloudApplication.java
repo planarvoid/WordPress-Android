@@ -623,10 +623,4 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                     .build());
         }
     }
-
-    public static IResourceCache cacheFromLoadModel(Class<?> loadModel){
-        return (loadModel == User.class) ? USER_CACHE
-                    : (loadModel == Track.class) ? TRACK_CACHE
-                    : null;
-    }
 }

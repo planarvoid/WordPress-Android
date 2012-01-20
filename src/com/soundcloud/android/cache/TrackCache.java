@@ -2,7 +2,6 @@ package com.soundcloud.android.cache;
 
 import android.database.Cursor;
 import android.os.Parcelable;
-import android.util.Log;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.Track;
@@ -11,7 +10,7 @@ import com.soundcloud.android.provider.DBHelper;
 
 import java.util.ArrayList;
 
-public class TrackCache extends LruCache<Long, Track> implements IResourceCache{
+public class TrackCache extends LruCache<Long, Track> {
     public TrackCache() {
         super(200);
     }
@@ -28,7 +27,6 @@ public class TrackCache extends LruCache<Long, Track> implements IResourceCache{
         }
     }
 
-    @Override
     public Parcelable fromListItem(Parcelable listItem) {
         if (listItem instanceof TracklistItem){
             final TracklistItem t = (TracklistItem)listItem;
