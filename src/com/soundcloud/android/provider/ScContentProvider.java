@@ -1,22 +1,27 @@
 package com.soundcloud.android.provider;
 
-import static com.soundcloud.android.model.Activity.Type;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Track;
 
 import android.accounts.Account;
+import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
+
+import java.util.Arrays;
 
 
 public class ScContentProvider extends ContentProvider {
@@ -42,6 +47,7 @@ public class ScContentProvider extends ContentProvider {
         String[] _columns = columns;
         String _sortOrder = sortOrder;
         final Content content = Content.match(uri);
+
         switch (content) {
             case COLLECTION_ITEMS:
                 qb.setTables(Table.COLLECTION_ITEMS.name);
@@ -175,6 +181,13 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere(" AND "+DBHelper.PlaylistItems.PLAYLIST_ID + " = " + uri.getLastPathSegment());
                 _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
+            case ANDROID_SEARCH_SUGGEST:
+            case ANDROID_SEARCH_SUGGEST_PATH:
+                return suggest(uri, columns, selection, selectionArgs);
+
+            case ANDROID_SEARCH_REFRESH:
+            case ANDROID_SEARCH_REFRESH_PATH:
+                return refresh(uri, columns, selection, selectionArgs, sortOrder);
 
             case UNKNOWN:
             default:
@@ -189,6 +202,7 @@ public class ScContentProvider extends ContentProvider {
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
+
 
     @Override
     public Uri insert(final Uri uri, final ContentValues values) {
@@ -517,6 +531,70 @@ public class ScContentProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
+        switch(Content.match(uri)) {
+            case ANDROID_SEARCH_SUGGEST:
+            case ANDROID_SEARCH_SUGGEST_PATH:
+                return SearchManager.SUGGEST_MIME_TYPE;
+            default:
+                return null;
+        }
+    }
+
+
+    /**
+     * Suggest tracks and users based on partial user input.
+     * @return a cursor with search suggestions. See {@link SearchManager} for documentation
+     *         on schema etc.
+     */
+    private Cursor suggest(Uri uri, String[] columns, String selection, String[] selectionArgs) {
+        Log.d(TAG, "suggest("+uri+","+ Arrays.toString(columns)+","+selection+","+Arrays.toString(selectionArgs)+")");
+        if (selectionArgs == null) {
+            throw new IllegalArgumentException("selectionArgs must be provided for the Uri: " + uri);
+        }
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        SCQueryBuilder qb = new SCQueryBuilder();
+        qb.setTables(Table.TRACKS.name());
+        String limit = uri.getQueryParameter("limit");
+
+        qb.appendWhere( DBHelper.Tracks.TITLE+" LIKE '%"+selectionArgs[0]+"%'");
+        String query = qb.buildQuery(
+                new String[]{BaseColumns._ID, DBHelper.Tracks.TITLE},
+                null, null, null, null, null, limit);
+        Log.d(TAG, "suggest: query="+query);
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor != null) {
+            MatrixCursor suggest = new MatrixCursor(
+                    new String[] {BaseColumns._ID,
+                                  SearchManager.SUGGEST_COLUMN_TEXT_1,
+                                  SearchManager.SUGGEST_COLUMN_INTENT_DATA,
+                                  SearchManager.SUGGEST_COLUMN_SHORTCUT_ID},
+                    cursor.getCount());
+
+            while (cursor.moveToNext()) {
+                long trackId = cursor.getLong(0);
+                String title = cursor.getString(1);
+                suggest.addRow(new Object[] {
+                        trackId,
+                        title,
+                        Track.getClientUri(trackId),
+                        SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT});
+            }
+            cursor.close();
+            return suggest;
+        } else {
+            Log.d(TAG, "suggest: cursor is null");
+            // no results
+            return new MatrixCursor(
+                   new String[] {BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1}, 0);
+        }
+    }
+
+    /**
+     * Called when suggest returns {@link SearchManager#SUGGEST_COLUMN_SHORTCUT_ID}.
+     * Currently not used.
+     */
+    @SuppressWarnings("UnusedParameters")
+    private Cursor refresh(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
         return null;
     }
 
@@ -573,19 +651,5 @@ public class ScContentProvider extends ContentProvider {
         int FRIEND         = 4;
         int SUGGESTED_USER = 5;
         int SEARCH         = 6;
-    }
-
-    private static SCQueryBuilder selectActivityTypes(SCQueryBuilder qb, Type... types) {
-        if (types.length > 0) {
-            StringBuilder sb = new StringBuilder("type in(");
-            for (int i=0; i<types.length; i++) {
-                sb.append("'").append(types[i].type).append("'");
-                if (i<types.length -1 ) sb.append(',');
-            }
-            sb.append(")");
-
-            qb.appendWhere(sb);
-        }
-        return qb;
     }
 }

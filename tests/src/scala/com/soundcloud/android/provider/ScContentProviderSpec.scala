@@ -80,10 +80,15 @@ class ScContentProviderSpec extends DefaultSpec with OneInstancePerTest {
   it should "not notify on empty bulk insert" in {
     provider.bulkInsert(Content.ME_ACTIVITIES.uri, new Array[ContentValues](0)) should be (0)
     provider.bulkInsert(Content.ME_ACTIVITIES.uri, null) should be (0)
-
     val resolver = Robolectric.shadowOf(Robolectric.application.getContentResolver)
-
     resolver.getNotifiedUris.size should be (0)
+  }
+
+  it should "provide the global Android search" in {
+    insertTracks(Content.TRACKS.uri, favorites)
+    val cursor = provider.query(Content.ANDROID_SEARCH_SUGGEST.uri, null, null, Array[String]("missing"), null)
+    cursor.getCount should be(1)
+    // TODO: does not work currently - needs MatrixCursor shadow
   }
 
   def insertTracks(uri: Uri, tracks: Iterable[Track]) = tracks.map { t =>

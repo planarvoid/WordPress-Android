@@ -92,6 +92,9 @@
                 <action android:name="com.soundcloud.android.action.PLAYER"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+
+            <meta-data android:name="android.app.searchable"
+                       android:resource="@xml/searchable" />
         </activity>
 
         <activity android:name=".activity.auth.Start" android:label="@string/app_name" android:exported="true"/>
@@ -247,6 +250,9 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>
         </receiver>
+
+        <meta-data android:name="android.app.default_searchable"
+                   android:value=".activity.Main"/>
     </application>
 
     <!-- Used for install referrer tracking -->

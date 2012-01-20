@@ -248,6 +248,8 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
     private boolean handleViewUrl(Intent intent) {
         Uri data = intent.getData();
+        // TODO resolve locally first
+        // XXX broken for soundcloud:tracks:XXX
         if (data != null && !data.getPathSegments().isEmpty()) {
             // only handle the first 2 path segments (resource only for now, actions to be implemented later)
             int cutoff = 0;

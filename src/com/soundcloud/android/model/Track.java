@@ -596,4 +596,9 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
             return t;
         }
     }
+
+    public static Uri getClientUri(long id) {
+//        return Uri.parse("soundcloud:tracks:"+id);
+        return Uri.parse("https://api.soundcloud.com/tracks/"+id);
+    }
 }

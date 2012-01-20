@@ -13,6 +13,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.UriMatcher;
 import android.net.Uri;
@@ -95,6 +96,12 @@ public enum Content {
 
     TRACK_CLEANUP("cleanup/tracks", null, 9998, null, -1),
     USERS_CLEANUP("cleanup/users", null, 9999, null, -1),
+
+    //Android global search
+    ANDROID_SEARCH_SUGGEST(SearchManager.SUGGEST_URI_PATH_QUERY, null, 10000, null, -1),
+    ANDROID_SEARCH_SUGGEST_PATH(SearchManager.SUGGEST_URI_PATH_QUERY+"/*", null, 10001, null, -1),
+    ANDROID_SEARCH_REFRESH(SearchManager.SUGGEST_URI_PATH_SHORTCUT, null, 10002, null, -1),
+    ANDROID_SEARCH_REFRESH_PATH(SearchManager.SUGGEST_URI_PATH_SHORTCUT+"/*", null, 10003, null, -1),
 
     UNKNOWN(null, null, -1, null, -1)
     ;
