@@ -2,11 +2,16 @@ package com.soundcloud.android.model;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 
+import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.CloudUtils;
 
 /**
  * Represents the state of a local collection sync, including last sync and size.
@@ -15,56 +20,81 @@ import com.soundcloud.android.provider.DBHelper;
 public class LocalCollection {
     public final int id;
     public final Uri uri;
-    public final long last_sync;
-    public final String sync_state;
-    public final int size;
+    public long last_sync;
+    public int sync_state;
+    public String extra;
+    public int size;
+
+    private ContentResolver mContentResolver;
+    private ContentObserver mChangeObserver;
+
+    public interface SyncState {
+        int UNDEFINED = -1;
+        int IDLE = 0;
+        int PENDING = 1;
+        int SYNCING = 2;
+    }
 
     public LocalCollection(Cursor c) {
         id = c.getInt(c.getColumnIndex(DBHelper.Collections._ID));
         uri = Uri.parse(c.getString(c.getColumnIndex(DBHelper.Collections.URI)));
+        setFromCursor(c);
+    }
+
+    public void setFromCursor(Cursor c) {
         last_sync = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
-        sync_state = c.getString(c.getColumnIndex(DBHelper.Collections.SYNC_STATE));
+        sync_state = c.getInt(c.getColumnIndex(DBHelper.Collections.SYNC_STATE));
+        extra = c.getString(c.getColumnIndex(DBHelper.Collections.EXTRA));
         size = c.getInt(c.getColumnIndex(DBHelper.Collections.SIZE));
     }
 
-    public LocalCollection(int id, Uri uri, long lastSync, String syncState, int size) {
+    public LocalCollection(int id, Uri uri, long lastSync, int syncState, int size, String extra) {
         this.id = id;
         this.uri = uri;
         this.last_sync = lastSync;
         this.sync_state = syncState;
         this.size = size;
+        this.extra = extra;
     }
 
     public static LocalCollection fromContent(Content content, ContentResolver resolver) {
-        return fromContentUri(content.uri, resolver);
+        return fromContent(content,resolver,false);
     }
 
-    public static LocalCollection fromContentUri(Uri contentUri, ContentResolver resolver) {
+    public static LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
+        return fromContentUri(content.uri, resolver, createIfNecessary);
+    }
+
+    public static LocalCollection fromContentUri(Uri contentUri, ContentResolver resolver, boolean createIfNecessary) {
         LocalCollection lc = null;
         Cursor c = resolver.query(Content.COLLECTIONS.uri, null, "uri = ?", new String[]{contentUri.toString()}, null);
         if (c != null && c.moveToFirst()) {
             lc = new LocalCollection(c);
         }
         if (c != null) c.close();
+        if (lc == null){
+            lc = insertLocalCollection(contentUri,resolver);
+        }
         return lc;
     }
 
     public static LocalCollection insertLocalCollection(Uri contentUri, ContentResolver resolver) {
-        return insertLocalCollection(contentUri, null, -1, -1, resolver);
+        return insertLocalCollection(contentUri, 0, -1, -1, null, resolver);
     }
 
-    public static LocalCollection insertLocalCollection(Uri contentUri, String syncState, long lastRefresh, int size, ContentResolver resolver) {
+    public static LocalCollection insertLocalCollection(Uri contentUri, int syncState, long lastRefresh, int size, String extra, ContentResolver resolver) {
         // insert if not there
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.URI, contentUri.toString());
         if (lastRefresh != -1) cv.put(DBHelper.Collections.LAST_SYNC, lastRefresh);
         if (size != -1)        cv.put(DBHelper.Collections.SIZE, size);
         cv.put(DBHelper.Collections.SYNC_STATE, syncState);
+        cv.put(DBHelper.Collections.EXTRA, extra);
 
         Uri inserted = resolver.insert(Content.COLLECTIONS.uri, cv);
         if (inserted != null) {
             return new LocalCollection(Integer.parseInt(inserted.getLastPathSegment()),
-                    contentUri, lastRefresh, syncState, size);
+                    contentUri, lastRefresh, syncState, size, extra);
         } else {
             return null;
         }
@@ -78,7 +108,7 @@ public class LocalCollection {
     }
 
     public static long getLastSync(Uri contentUri, ContentResolver resolver) {
-        LocalCollection lc = fromContentUri(contentUri, resolver);
+        LocalCollection lc = fromContentUri(contentUri, resolver, false);
         if (lc == null) {
             return -1;
         } else {
@@ -107,17 +137,70 @@ public class LocalCollection {
     private ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections._ID, id);
+        if (sync_state != -1) cv.put(DBHelper.Collections.SYNC_STATE, sync_state);
         if (last_sync != -1) cv.put(DBHelper.Collections.LAST_SYNC, last_sync);
-        if (last_sync != -1) cv.put(DBHelper.Collections.SIZE, size);
+        if (size != -1) cv.put(DBHelper.Collections.SIZE, size);
+        if (!TextUtils.isEmpty(extra)) cv.put(DBHelper.Collections.EXTRA, extra);
         cv.put(DBHelper.Collections.URI, uri.toString());
         return cv;
     }
+
+    public void setSyncState(int newSyncState, ContentResolver resolver) {
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Collections.SYNC_STATE, newSyncState);
+        if (resolver.update(CloudUtils.replaceWildcard(Content.COLLECTIONS_ITEM.uri,id), cv, null,null) == 1){
+            sync_state = newSyncState;
+        }
+    }
+
+    public int getSyncStateByUri(Uri uri, ContentResolver resolver) {
+        Cursor c = resolver.query(Content.COLLECTIONS.uri,new String[]{DBHelper.Collections.SYNC_STATE},
+                DBHelper.Collections.URI + " = ?", new String[]{String.valueOf(uri)}, null);
+        if (c != null){
+            if (c.moveToFirst()){
+                return c.getInt(0);
+            }
+            c.close();
+        }
+        return -1;
+    }
+
 
     public static void deletePagesFrom(ContentResolver resolver, int collection_id, int page_index) {
         resolver.delete(Content.COLLECTION_PAGES.uri,
                 DBHelper.CollectionPages.COLLECTION_ID + " = ? AND " + DBHelper.CollectionPages.PAGE_INDEX + " > ?",
                 new String[]{String.valueOf(collection_id), String.valueOf(page_index)});
 
+    }
+
+    public void startObservingSelf(ContentResolver contentResolver) {
+        mContentResolver = contentResolver;
+        mChangeObserver = new ChangeObserver();
+        contentResolver.registerContentObserver(Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build(), true, mChangeObserver);
+    }
+    public void stopObservingSelf() {
+        if (mChangeObserver != null) mContentResolver.unregisterContentObserver(mChangeObserver);
+    }
+
+    private class ChangeObserver extends ContentObserver {
+        public ChangeObserver() {
+            super(new Handler());
+        }
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return true;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            LocalCollection lc = null;
+            Cursor c = mContentResolver.query(Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(id)}, null);
+            if (c != null && c.moveToFirst()) {
+                setFromCursor(c);
+            }
+            if (c != null) c.close();
+        }
     }
 
     @Override
@@ -129,7 +212,8 @@ public class LocalCollection {
         if (id != that.id) return false;
         if (last_sync != that.last_sync) return false;
         if (size != that.size) return false;
-        if (sync_state != null ? !sync_state.equals(that.sync_state) : that.sync_state != null) return false;
+        if (sync_state != that.sync_state) return false;
+        if (extra != null ? !extra.equals(that.extra) : that.extra != null) return false;
         if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
 
         return true;
@@ -140,8 +224,9 @@ public class LocalCollection {
         int result = id;
         result = 31 * result + (uri != null ? uri.hashCode() : 0);
         result = 31 * result + (int) (last_sync ^ (last_sync >>> 32));
-        result = 31 * result + (sync_state != null ? sync_state.hashCode() : 0);
         result = 31 * result + size;
+        result = 31 * result + sync_state;
+        result = 31 * result + (extra != null ? extra.hashCode() : 0);
         return result;
     }
 }

@@ -339,6 +339,8 @@ public class ScContentProvider extends ContentProvider {
         }
 
         count = db.delete(tableName, where, whereArgs);
+
+        System.out.println("NOTIFY delete " + uri);
         getContext().getContentResolver().notifyChange(uri, null, false);
         return count;
 
@@ -350,6 +352,11 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
         switch (Content.match(uri)) {
+            case COLLECTIONS_ITEM:
+                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                count = db.update(Table.COLLECTIONS.name, values, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null, false);
+                return count;
             case TRACK_ITEM:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.update(Table.TRACKS.name, values, where, whereArgs);

@@ -53,6 +53,10 @@ public class TestHelper {
     public static void assertResolverNotificationCount(int n) {
         DelegatingContentResolver res  =
                 Robolectric.shadowOf_(Robolectric.application.getContentResolver());
+        for (DelegatingContentResolver.NotifiedUri uri : res.getNotifiedUris()){
+        System.out.println(uri.uri.toString());
+        }
+
         expect(res.getNotifiedUris().size()).toEqual(n);
     }
 

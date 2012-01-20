@@ -212,8 +212,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "last_addition INTEGER, " +
             "last_sync INTEGER, " +
             "size INTEGER, " +
-            "status INTEGER, " +
-            "sync_state VARCHAR(255), " +
+            "sync_state INTEGER, " +
+            "extra VARCHAR(255), " +
             "UNIQUE (uri)"+
             ");";
 
@@ -442,8 +442,8 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String LAST_ADDITION = "last_addition";  // last addition (from API, not used)
         public static final String LAST_SYNC = "last_sync";          // timestamp of last sync
         public static final String SIZE = "size";
-        public static final String SYNC_STATE = "sync_state";        // general purpose state field
-        public static final String STATUS = "status";
+        public static final String SYNC_STATE = "sync_state";        // are we currently syncing?
+        public static final String EXTRA = "extra";                  // general purpose field
     }
 
     /**

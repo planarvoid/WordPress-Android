@@ -249,7 +249,7 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
 
         public LocalData(ContentResolver contentResolver, CollectionParams mParams) {
             localCollectionPage = null;
-            localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(mParams.contentUri, contentResolver);
+            localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(mParams.contentUri, contentResolver, false);
             if (localCollection == null) {
                 localCollection = insertLocalCollection(mParams.contentUri, contentResolver);
                  idList = new ArrayList<Long>();

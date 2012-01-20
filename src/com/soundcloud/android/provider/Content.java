@@ -77,9 +77,12 @@ public enum Content {
     GROUP_TRACKS("groups/#/tracks", null, 607, Track.class, -1),
 
     // LOCAL URIS
-    COLLECTION_ITEMS("collection_items", null, 1000, null, -1),
-    COLLECTIONS("collections", null, 1001, null, -1),
+    COLLECTIONS("collections", null, 1000, null, -1),
+    COLLECTIONS_ITEM("collections/#", null, 1001, null, -1),
     COLLECTION_PAGES("collection_pages", null, 1002, null, -1),
+    COLLECTION_PAGES_ITEM("collection_pages/#", null, 1003, null, -1),
+    COLLECTION_ITEMS("collection_items", null, 1004, null, -1),
+    COLLECTION_ITEMS_ITEM("collection_items/#", null, 1005, null, -1),
 
     RECORDINGS("recordings", null, 1100, Recording.class, -1),
     RECORDING_ITEM("recordings/#", null, 1101, Recording.class, -1),

@@ -53,8 +53,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     private EmptyCollection mDefaultEmptyView;
     private String mEmptyViewText = "";
 
-    protected boolean mRefreshing;
-
     protected boolean mKeepGoing;
 
     protected int mState;
@@ -390,7 +388,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     public boolean isRefreshing() {
-        return mRefreshing;
+        return mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask);
     }
 
     public boolean isEmpty(){
@@ -431,7 +429,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     public void refresh(final boolean userRefresh){
-        mRefreshing = true;
         if (userRefresh) {
             if (getWrappedAdapter() instanceof FollowStatus.Listener) {
                 FollowStatus.get().requestUserFollowings(mActivity.getApp(),
@@ -456,4 +453,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     }
 
     protected abstract RemoteCollectionTask.CollectionParams getCollectionParams(boolean refresh);
+
+    public void onDestroy() {}
 }

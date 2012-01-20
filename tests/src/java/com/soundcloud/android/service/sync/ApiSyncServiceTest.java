@@ -125,7 +125,7 @@ public class ApiSyncServiceTest {
         assertContentUriCount(Content.COLLECTION_ITEMS, 3);
         assertContentUriCount(Content.USERS, 1);
 
-        assertResolverNotificationCount(4);
+        assertResolverNotificationCount(5);
     }
 
     @Test
@@ -150,11 +150,11 @@ public class ApiSyncServiceTest {
                 "incoming_2.json");
 
         assertContentUriCount(Content.COLLECTIONS, 1);
-        LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver);
+        LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
 
         expect(collection).not.toBeNull();
         expect(collection.last_sync).toBeGreaterThan(0L);
-        expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
+        expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
 
         assertContentUriCount(Content.ME_SOUND_STREAM, 100);
         assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 0);
@@ -164,7 +164,7 @@ public class ApiSyncServiceTest {
         Activities incoming = Activities.get(Content.ME_SOUND_STREAM, resolver, -1);
 
         expect(incoming.size()).toEqual(100);
-        assertResolverNotificationCount(4);
+        assertResolverNotificationCount(6);
     }
 
     @Test
@@ -180,7 +180,7 @@ public class ApiSyncServiceTest {
 
         Activities own = Activities.get(Content.ME_ACTIVITIES, resolver, -1);
         expect(own.size()).toEqual(41);
-        assertResolverNotificationCount(5);
+        assertResolverNotificationCount(7);
         assertResolverNotified(Content.TRACKS.uri, Content.USERS.uri);
     }
 
@@ -224,11 +224,11 @@ public class ApiSyncServiceTest {
                 "incoming_2.json");
 
         assertContentUriCount(Content.COLLECTIONS, 1);
-        LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver);
+        LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
 
         expect(collection).not.toBeNull();
         expect(collection.last_sync).toBeGreaterThan(0L);
-        expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
+        expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
 
         addCannedResponse(SyncAdapterServiceTest.class,
                 "https://api.soundcloud.com/me/activities/tracks?uuid%5Bto%5D=future-href-incoming-1&limit=20",
@@ -238,8 +238,8 @@ public class ApiSyncServiceTest {
         sync(svc, Content.ME_SOUND_STREAM);
 
         assertContentUriCount(Content.COLLECTIONS, 1);
-        collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver);
-        expect(collection.sync_state).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+        collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
+        expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
     }
 
     private void addResourceResponse(String url, String resource) throws IOException {

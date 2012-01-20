@@ -295,9 +295,9 @@ public class Activities extends CollectionHolder<Activity> {
     public static Activities get(Content content, ContentResolver resolver, long since)  {
         Log.d(TAG, "Activities.get("+content+", since="+since+")");
         Activities activities = new Activities();
-        LocalCollection lc = LocalCollection.fromContentUri(content.uri, resolver);
+        LocalCollection lc = LocalCollection.fromContentUri(content.uri, resolver, false);
         if (lc != null) {
-            activities.future_href = lc.sync_state;
+            activities.future_href = lc.extra;
         }
         Cursor c;
         if (since > 0) {

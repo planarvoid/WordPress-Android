@@ -31,14 +31,19 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     private DetachableResultReceiver mDetachableReceiver;
     private Boolean mIsSyncable;
+    private LocalCollection mLocalCollection;
+    private ChangeObserver mChangeObserver;
+
     protected String mNextHref;
-    protected long mLastUpdated = -1;
 
     public RemoteCollectionAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(activity, wrapped, contentUri, request, autoAppend);
 
         if (contentUri != null){
-            ChangeObserver mChangeObserver = new ChangeObserver();
+            mLocalCollection = LocalCollection.fromContentUri(contentUri,activity.getContentResolver(), true);
+            mLocalCollection.startObservingSelf(activity.getContentResolver());
+
+            mChangeObserver = new ChangeObserver();
             activity.getContentResolver().registerContentObserver(contentUri, true, mChangeObserver);
         }
     }
@@ -58,7 +63,6 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     public Object[] saveExtraData() {
         return new Object[]{
                 mNextHref,
-                mLastUpdated,
                 saveResultReceiver()
         };
     }
@@ -66,9 +70,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     @Override
     public void restoreExtraData(Object[] state) {
         mNextHref = (String) state[0];
-        mLastUpdated = Long.parseLong(String.valueOf(state[1]));
-        if (state[2] != null) {
-            restoreResultReceiver((DetachableResultReceiver) state[2]);
+        if (state[1] != null) {
+            restoreResultReceiver((DetachableResultReceiver) state[1]);
         }
     }
 
@@ -98,7 +101,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     @Override
     protected boolean canShowEmptyView(){
-       return (!isSyncable() || mLastUpdated > 0) && super.canShowEmptyView();
+       return (!isSyncable() || mLocalCollection.last_sync > 0) && super.canShowEmptyView();
     }
 
     protected void setNextHref(String nextHref) {
@@ -125,7 +128,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             handleResponseCode(responseCode);
         }
 
-        if (wasRefresh || !mRefreshing){
+        if (wasRefresh || isRefreshing()){
             doneRefreshing();
         }
 
@@ -146,9 +149,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     public void setListLastUpdated() {
         if (mListView != null) {
-            final long lastUpdated = LocalCollection.getLastSync(getContentUri(true), mActivity.getContentResolver());
-            mLastUpdated = lastUpdated;
-            if (lastUpdated > 0) mListView.setLastUpdated(lastUpdated);
+            if (mLocalCollection.last_sync > 0) mListView.setLastUpdated(mLocalCollection.last_sync);
         }
     }
 
@@ -208,10 +209,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     protected boolean isStale(boolean refresh){
-        if (mLastUpdated == -1){
-            mLastUpdated = LocalCollection.getLastSync(getContentUri(refresh), mActivity.getContentResolver());
-        }
-        return (getPageIndex(refresh) == 0 && System.currentTimeMillis() - mLastUpdated > Consts.DEFAULT_REFRESH_MINIMUM);
+        return (getPageIndex(refresh) == 0 && System.currentTimeMillis() - mLocalCollection.last_sync > Consts.DEFAULT_REFRESH_MINIMUM);
     }
 
     protected boolean isSyncable(){
@@ -246,6 +244,11 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         mActivity.startService(intent);
     }
 
+    @Override
+    public boolean isRefreshing() {
+        return mLocalCollection.sync_state == LocalCollection.SyncState.SYNCING;
+    }
+
     protected void doneRefreshing(){
         if (isSyncable()) setListLastUpdated();
         if  (mListView != null) mListView.onRefreshComplete(false);
@@ -256,12 +259,20 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                mRefreshing = false;
-                if (!resultData.getBoolean(mContentUri.toString())){
+                if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
                     doneRefreshing(); // nothing changed
                 }
                 break;
             }
+        }
+    }
+
+    public void onDestroy() {
+        if (mChangeObserver != null) {
+            mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);
+        }
+        if (mLocalCollection != null){
+            mLocalCollection.stopObservingSelf();
         }
     }
 

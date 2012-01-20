@@ -84,11 +84,10 @@ public class ApiSyncer {
     }
 
     /* package */ boolean syncActivities(Content content) throws IOException {
-        LocalCollection collection = LocalCollection.fromContentUri(content.uri, mResolver);
-        String future_href = null;
-        if (collection != null) {
-            future_href = collection.sync_state;
-        }
+        LocalCollection collection = LocalCollection.fromContentUri(content.uri, mResolver, true);
+        String future_href = TextUtils.isEmpty(collection.extra) ? null : collection.extra;
+
+        collection.setSyncState(LocalCollection.SyncState.SYNCING, mResolver);
         Log.d(ApiSyncService.LOG_TAG, "syncActivities(collection="+collection+")");
         Request request = future_href == null ? content.request() : Request.to(future_href);
         Activities activities = Activities.fetch(mApi, request, MINIMUM_LOCAL_ITEMS_STORED);
@@ -96,8 +95,8 @@ public class ApiSyncer {
         Log.d(ApiSyncService.LOG_TAG, "activities: inserted "+inserted + " objects");
 
         LocalCollection.insertLocalCollection(content.uri,
+                LocalCollection.SyncState.IDLE, System.currentTimeMillis(), activities.size(),
                 activities.future_href,
-                System.currentTimeMillis(), activities.size(),
                 mResolver);
 
         return !activities.isEmpty();
@@ -114,12 +113,13 @@ public class ApiSyncer {
         List<Long> remote = getCollectionIds(mApi, c.remoteUri);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
 
-        LocalCollection.insertLocalCollection(c.uri, null, System.currentTimeMillis(), remote.size(), mResolver);
-
         if (local.equals(remote) && !(c == Content.ME_FOLLOWERS || c == Content.ME_FOLLOWINGS)){
+            LocalCollection.insertLocalCollection(c.uri, LocalCollection.SyncState.IDLE, System.currentTimeMillis(), remote.size(), null, mResolver);
             Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
             return false;
         }
+
+        LocalCollection lc = LocalCollection.insertLocalCollection(c.uri, LocalCollection.SyncState.SYNCING, System.currentTimeMillis(), remote.size(), null, mResolver);
 
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);
@@ -161,14 +161,14 @@ public class ApiSyncer {
                 added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
                         mApi,
                         mResolver,
-                        remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED)),
+                        new ArrayList<Long>(remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED))),
                         c.resourceType.equals(Track.class) ? Content.TRACKS : Content.USERS,
                         false
                 ));
                 break;
         }
-        Log.d(ApiSyncService.LOG_TAG, "Added " + added + " new items for this endpoint");
 
+        Log.d(ApiSyncService.LOG_TAG, "Added " + added + " new items for this endpoint");
         ContentValues[] cv = new ContentValues[remote.size()];
         i = 0;
         for (Long id : remote) {
@@ -180,8 +180,7 @@ public class ApiSyncer {
         }
         mResolver.bulkInsert(c.uri, cv);
 
-
-
+        lc.setSyncState(LocalCollection.SyncState.IDLE,mResolver);
         return true;
     }
 

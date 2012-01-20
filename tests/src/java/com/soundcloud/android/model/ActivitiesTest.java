@@ -279,8 +279,7 @@ public class ActivitiesTest {
         assertContentUriCount(Content.ME_SOUND_STREAM, 50);
 
         LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
-                a.future_href,
-                System.currentTimeMillis(), a.size(),
+                0, System.currentTimeMillis(), a.size(),a.future_href,
                 Robolectric.application.getContentResolver());
 
         Activities.clear(null, Robolectric.application.getContentResolver());

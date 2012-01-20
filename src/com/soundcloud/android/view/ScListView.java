@@ -200,10 +200,9 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         if (getWrapper() != null) {
             getWrapper().onResume();
         }
-        if (mOnRefreshListener != null) {
-            if (!mOnRefreshListener.isRefreshing()) {
+
+        if (mOnRefreshListener != null && !mOnRefreshListener.isRefreshing()) {
                 checkHeaderVisibility();
-            }
         }
     }
 
