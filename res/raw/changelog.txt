@@ -1,8 +1,8 @@
 $ 33
   % v current
-  _ 2012-01-19
+  _ 2012-01-20
   ! Maintenance
-    * Stop player from starting after audio notifications
+    * Fixed issue with unexpected playback after audio notifications
     - machine tag for dedicated recordings
     - localisable follow/unfollow buttons
 
