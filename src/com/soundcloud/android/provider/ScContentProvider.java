@@ -545,6 +545,8 @@ public class ScContentProvider extends ContentProvider {
      * Suggest tracks and users based on partial user input.
      * @return a cursor with search suggestions. See {@link SearchManager} for documentation
      *         on schema etc.
+     * @see <a href="http://developer.android.com/guide/topics/search/adding-custom-suggestions.html#SuggestionTable">
+     *     Building a suggestion table</a>
      */
     private Cursor suggest(Uri uri, String[] columns, String selection, String[] selectionArgs) {
         Log.d(TAG, "suggest("+uri+","+ Arrays.toString(columns)+","+selection+","+Arrays.toString(selectionArgs)+")");
