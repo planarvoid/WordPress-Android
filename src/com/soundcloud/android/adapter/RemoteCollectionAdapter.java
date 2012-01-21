@@ -128,7 +128,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             handleResponseCode(responseCode);
         }
 
-        if (wasRefresh || isRefreshing()){
+        if (!isRefreshing()){
             doneRefreshing();
         }
 
@@ -247,7 +247,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     @Override
     public boolean isRefreshing() {
         if (mLocalCollection != null){
-            return mLocalCollection.sync_state == LocalCollection.SyncState.SYNCING;
+            return mLocalCollection.sync_state == LocalCollection.SyncState.SYNCING
+                    || mLocalCollection.sync_state == LocalCollection.SyncState.PENDING;
         } else {
             return super.isRefreshing();
         }

@@ -170,7 +170,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     public void setAdapter(LazyEndlessAdapter adapter, boolean refreshEnabled) {
         super.setAdapter(adapter);
         if (refreshEnabled) setOnRefreshListener(adapter);
-        setSelection(1);
+        checkHeaderVisibility();
     }
 
     @Override
@@ -200,10 +200,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
         if (getWrapper() != null) {
             getWrapper().onResume();
         }
-
-        if (mOnRefreshListener != null && !mOnRefreshListener.isRefreshing()) {
-                checkHeaderVisibility();
-        }
+        checkHeaderVisibility();
     }
 
     public void onConnected(boolean isForeground) {
@@ -576,7 +573,9 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     }
 
     public void checkHeaderVisibility() {
-        if (getWrapper() != null && getWrapper().isAllowingLoading() && getFirstVisiblePosition() == 0 && mRefreshState == TAP_TO_REFRESH && mSelectionRunnable == null) {
+        if ((mOnRefreshListener == null || !mOnRefreshListener.isRefreshing())
+                && getWrapper() != null && getWrapper().isAllowingLoading() && getFirstVisiblePosition() == 0
+                && mRefreshState == TAP_TO_REFRESH && mSelectionRunnable == null) {
             post(new Runnable() {
                 @Override
                 public void run() {

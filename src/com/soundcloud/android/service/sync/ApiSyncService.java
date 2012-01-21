@@ -72,7 +72,7 @@ public class ApiSyncService extends Service {
                 }
             }
             if (existingRequest == null && !mRunningRequestUris.contains(uri)) {
-                final UriSyncRequest uriSyncRequest = new UriSyncRequest((SoundCloudApplication) getApplication(), uri);
+                final UriSyncRequest uriSyncRequest = new UriSyncRequest((SoundCloudApplication) getApplication(), uri, true);
                 if (request.isUIResponse){
                     mPendingUriRequests.add(0, uriSyncRequest);
                 } else {
@@ -164,37 +164,41 @@ public class ApiSyncService extends Service {
     /* package */ static class UriSyncRequest {
         private final SoundCloudApplication app;
         private final Uri uri;
+        private LocalCollection localCollection;
         // results
 
         public UriSyncRequest(SoundCloudApplication application, Uri uri){
+              this(application,uri,false);
+        }
+
+        public UriSyncRequest(SoundCloudApplication application, Uri uri, boolean setIsPending){
             this.app = application;
             this.uri = uri;
+            localCollection = LocalCollection.fromContentUri(uri,app.getContentResolver(),true);
+            if (setIsPending){
+                localCollection.updateSyncState(LocalCollection.SyncState.PENDING, app.getContentResolver());
+            }
         }
 
         public ApiSyncer.Result execute() {
             ApiSyncer syncer = new ApiSyncer(app);
-            LocalCollection lc = LocalCollection.fromContentUri(uri,app.getContentResolver(),true);
-            lc.updateSyncState(LocalCollection.SyncState.SYNCING, app.getContentResolver());
+            localCollection.updateSyncState(LocalCollection.SyncState.SYNCING, app.getContentResolver());
             try {
                 ApiSyncer.Result result = syncer.syncContent(Content.byUri(uri));
-                lc.onSyncComplete(result, app.getContentResolver());
+                localCollection.onSyncComplete(result, app.getContentResolver());
                 result.success = true;
                 return result;
 
             } catch (CloudAPI.InvalidTokenException e) {
                 Log.e(LOG_TAG, "Problem while syncing", e);
-                lc.updateSyncState(LocalCollection.SyncState.IDLE, app.getContentResolver());
+                localCollection.updateSyncState(LocalCollection.SyncState.IDLE, app.getContentResolver());
                 return ApiSyncer.Result.fromAuthException(uri);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Problem while syncing", e);
-                lc.updateSyncState(LocalCollection.SyncState.IDLE, app.getContentResolver());
+                localCollection.updateSyncState(LocalCollection.SyncState.IDLE, app.getContentResolver());
                 return ApiSyncer.Result.fromIOException(uri);
             }
-
-
         }
-
-
 
         @Override
         public boolean equals(Object o) {
