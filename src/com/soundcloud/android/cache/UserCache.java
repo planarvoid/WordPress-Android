@@ -1,5 +1,6 @@
 package com.soundcloud.android.cache;
 
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserlistItem;
 import com.soundcloud.android.provider.DBHelper;

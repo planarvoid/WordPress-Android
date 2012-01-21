@@ -164,6 +164,7 @@ public class ScContentProvider extends ContentProvider {
                     // TODO prepared query
                     qb.appendWhere(DBHelper.ActivityView.CONTENT_ID + "=" + content.id);
                 }
+                _sortOrder = makeActivitiesSort(uri, sortOrder);
                 break;
             case COMMENTS:
                 qb.setTables(Table.COMMENTS.name);
@@ -521,6 +522,20 @@ public class ScContentProvider extends ContentProvider {
         String offset = uri.getQueryParameter("offset");
         if (!TextUtils.isEmpty(offset)) b.append(" OFFSET ").append(offset);
         return b.toString();
+    }
+
+    static String makeActivitiesSort(Uri uri, String sortCol) {
+        String limit = uri.getQueryParameter("limit");
+        String offset = uri.getQueryParameter("offset");
+        if (TextUtils.isEmpty("limit") && TextUtils.isEmpty("offset")) {
+            return null;
+        } else {
+            StringBuilder b = new StringBuilder();
+            b.append(sortCol == null ? DBHelper.ActivityView.CREATED_AT + " DESC": sortCol);
+            if (!TextUtils.isEmpty(limit)) b.append(" LIMIT ").append(limit);
+            if (!TextUtils.isEmpty(offset)) b.append(" OFFSET ").append(offset);
+            return b.toString();
+        }
     }
 
     static String makeCollectionJoin(Table table){

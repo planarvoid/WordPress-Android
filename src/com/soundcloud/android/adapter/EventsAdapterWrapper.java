@@ -3,7 +3,9 @@ package com.soundcloud.android.adapter;
 
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Activity;
@@ -12,6 +14,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.LoadActivitiesTask;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.api.Request;
+import org.apache.http.HttpStatus;
 
 import java.util.List;
 
@@ -56,7 +59,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         return !TextUtils.isEmpty(mNextHref) && !isRefresh ? new Request(mNextHref) : null;
     }
 
-    public boolean onNewEvents(List<Parcelable> newItems, String nextHref, String nextCursor, int responseCode, boolean keepGoing, boolean wasRefresh) {
+    public boolean onNewEvents(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
         if (wasRefresh) {
             doneRefreshing();
             if (mListView != null && mContentUri != null) setListLastUpdated();
@@ -83,13 +86,23 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             }
         }
 
-        if (responseCode == 0 || !TextUtils.isEmpty(nextCursor)) {
+        if (responseCode == 0) {
+            // local load, but for the sake of the super class :
             keepGoing = true;
-            Request nextRequest = new Request(mRequest);
-                if (!TextUtils.isEmpty(nextCursor)){
-                nextRequest.add("cursor",nextCursor);
+            responseCode = HttpStatus.SC_OK;
+            // TODO : Change this ^^ stop using status codes and figure out another way to handle errors
+
+            if (newItems.size() < Consts.COLLECTION_PAGE_SIZE) {
+                // end of local storage, construct a request for appending
+                Request nextRequest = new Request(mRequest);
+                final Activity lastItem = success ? ((Activity) newItems.get(newItems.size() - 1))
+                        : (Activity) (getData().isEmpty() ? null : getData().get(getData().size() - 1));
+
+                if (lastItem != null) {
+                    nextRequest.add("cursor", lastItem.toGUID());
+                }
+                nextHref = nextRequest.toUrl();
             }
-            nextHref = nextRequest.toUrl();
         }
 
         if (getData().isEmpty() && success) setLastSeen(((Activity) newItems.get(0)).created_at.getTime());

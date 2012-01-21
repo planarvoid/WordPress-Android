@@ -16,6 +16,7 @@ import org.codehaus.jackson.map.annotate.JsonView;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -316,6 +317,16 @@ public class Activities extends CollectionHolder<Activity> {
         return activities;
     }
 
+    public static Activities get(Uri pagedUri, ContentResolver resolver) {
+        Activities activities = new Activities();
+        Cursor c = resolver.query(pagedUri, null, null, null, null);
+        while (c != null && c.moveToNext()) {
+            activities.add(new Activity(c));
+        }
+        if (c != null) c.close();
+        return activities;
+    }
+
     public ContentValues[] buildContentValues(final int contentId) {
         ContentValues[] cv = new ContentValues[size()];
         for (int i=0; i<size(); i++) {
@@ -395,4 +406,6 @@ public class Activities extends CollectionHolder<Activity> {
     public String getLastCursor() {
         return isEmpty() ? null : collection.get(collection.size()-1).toGUID();
     }
+
+
 }

@@ -11,6 +11,7 @@ import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.utils.CloudUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
@@ -21,8 +22,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class LoadActivitiesTask extends RemoteCollectionTask {
 
-    private String mLastCursor;
-
     public LoadActivitiesTask(SoundCloudApplication app, LazyEndlessAdapter lazyEndlessAdapter) {
         super(app, lazyEndlessAdapter);
     }
@@ -31,7 +30,7 @@ public class LoadActivitiesTask extends RemoteCollectionTask {
     protected void respond(){
         EventsAdapterWrapper adapter = (EventsAdapterWrapper) mAdapterReference.get();
         if (adapter != null) {
-            adapter.onNewEvents(mNewItems, mNextHref, mLastCursor, mResponseCode, keepGoing, mParams.isRefresh);
+            adapter.onNewEvents(mNewItems, mNextHref, mResponseCode, keepGoing, mParams.isRefresh);
         }
     }
 
@@ -42,14 +41,14 @@ public class LoadActivitiesTask extends RemoteCollectionTask {
         if (mParams.request != null) {
             return doRemoteLoad();
         } else if (mParams.contentUri != null) {
+            mResponseCode = 0;
             mNewItems = new ArrayList<Parcelable>();
-            Activities activities = Activities.get(Content.match(mParams.contentUri), mApp.getContentResolver());
+            Activities activities = Activities.get(CloudUtils.getPagedUri(mParams.contentUri,mParams.pageIndex), mApp.getContentResolver());
                 for (Activity a : activities) {
                     a.resolve(mApp);
                     mNewItems.add(a);
                 }
 
-            mLastCursor = activities.getLastCursor();
             publishProgress(mNewItems);
             return true;
         } else {
