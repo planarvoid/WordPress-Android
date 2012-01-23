@@ -339,8 +339,6 @@ public class ScContentProvider extends ContentProvider {
         }
 
         count = db.delete(tableName, where, whereArgs);
-
-        System.out.println("NOTIFY delete " + uri);
         getContext().getContentResolver().notifyChange(uri, null, false);
         return count;
 

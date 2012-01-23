@@ -162,7 +162,7 @@ public class Recording extends ScModel implements PageTrackable {
     };
 
     public ContentValues buildContentValues(){
-        ContentValues cv = new ContentValues();
+        ContentValues cv = super.buildContentValues();
         cv.put(Recordings.USER_ID, user_id);
         cv.put(Recordings.TIMESTAMP, timestamp);
         cv.put(Recordings.LONGITUDE, longitude);

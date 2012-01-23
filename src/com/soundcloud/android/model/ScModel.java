@@ -194,7 +194,7 @@ public abstract class ScModel implements Parcelable {
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        cv.put(BaseColumns._ID, id);
+        if (id != -1) cv.put(BaseColumns._ID, id);
         return cv;
     }
 
