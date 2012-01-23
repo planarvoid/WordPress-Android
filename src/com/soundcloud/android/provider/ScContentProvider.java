@@ -306,7 +306,6 @@ public class ScContentProvider extends ContentProvider {
                 tableName = Table.SEARCHES.name;
                 break;
             case PLAYLIST_ITEMS:
-
                 where = TextUtils.isEmpty(where) ? DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment()
                         : where + " AND " + DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment();
                 tableName = Table.PLAYLIST_ITEMS.name;
