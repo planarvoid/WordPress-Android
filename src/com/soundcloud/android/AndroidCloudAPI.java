@@ -4,7 +4,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.json.ActivityDeserializer;
 import com.soundcloud.android.json.ActivitySerializer;
+import com.soundcloud.android.json.UserDeserializer;
 import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
@@ -49,6 +51,7 @@ import java.util.TimeZone;
 
 public interface AndroidCloudAPI extends CloudAPI {
     public static final ObjectMapper Mapper = Wrapper.Mapper;
+    public static final ObjectMapper DefaultMapper = Wrapper.DefaultMapper;
     URI REDIRECT_URI = URI.create("soundcloud://auth");
 
     String getUserAgent();
@@ -60,9 +63,11 @@ public interface AndroidCloudAPI extends CloudAPI {
         public static final ObjectMapper Mapper = createMapper();
         static {
             Mapper.registerModule(new SimpleModule("EventSupport", new Version(1, 0, 0, null))
-                .addDeserializer(Activity.class, new ActivityDeserializer())
-                .addSerializer(Activity.class, new ActivitySerializer()));
+                    .addDeserializer(User.class, new UserDeserializer())
+                    .addDeserializer(Activity.class, new ActivityDeserializer())
+                    .addSerializer(Activity.class, new ActivitySerializer()));
         }
+        public static final ObjectMapper DefaultMapper = createMapper();
 
         private Context mContext;
         private String userAgent;

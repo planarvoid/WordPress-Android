@@ -52,4 +52,15 @@ public class UserCache extends LruCache<Long, User> {
         }
         return user;
     }
+
+    public User assertCached(User user) {
+        // todo, update stale cache objects...
+        User stored = get(user.id);
+        if (stored == null) {
+            put(user);
+            return user;
+        } else {
+            return stored;
+        }
+    }
 }

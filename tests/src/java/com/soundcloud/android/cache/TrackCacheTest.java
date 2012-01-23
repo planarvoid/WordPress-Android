@@ -1,14 +1,13 @@
 package com.soundcloud.android.cache;
 
-import android.database.*;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
-import com.soundcloud.android.model.User;
 import org.junit.Test;
 
-import java.awt.*;
-import java.awt.Cursor;
+import java.io.IOException;
 
 import static com.soundcloud.android.Expect.expect;
 import static junit.framework.Assert.assertEquals;
@@ -29,5 +28,20 @@ public class TrackCacheTest {
 
         assertEquals(t.bpm,track.bpm);
         assertEquals(t.duration,track.duration);
+    }
+
+    @Test
+    public void testUniqueUserMultipleTracks() throws IOException {
+        ScModel.TracklistItemHolder holder = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("tracks.json"), ScModel.TracklistItemHolder.class);
+        expect(holder.size()).toBe(3);
+
+        TracklistItem t1 = holder.get(0);
+        TracklistItem t2 = holder.get(1);
+        TracklistItem t3 = holder.get(2);
+        t2.user.country = "North Korea";
+        t3.user.full_name = "Kim";
+
+        expect(t1.user.country).toBe("North Korea");
+        expect(t1.user.full_name).toBe("Kim");
     }
 }
