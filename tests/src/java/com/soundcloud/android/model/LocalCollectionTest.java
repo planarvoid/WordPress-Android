@@ -68,7 +68,8 @@ public class LocalCollectionTest {
 
     @Test
     public void shouldReturnNullIfCollectionNotFound() throws Exception {
-        expect(LocalCollection.fromContentUri(Uri.parse("blaz"), resolver, true)).toBeNull();
+        expect(LocalCollection.fromContentUri(Uri.parse("blaz"), resolver, false)).toBeNull();
+        expect(LocalCollection.fromContentUri(Uri.parse("blaz"), resolver, true)).not.toBeNull();
     }
 
     @Test

@@ -125,7 +125,7 @@ public class ApiSyncServiceTest {
         assertContentUriCount(Content.COLLECTION_ITEMS, 3);
         assertContentUriCount(Content.USERS, 1);
 
-        assertResolverNotificationCount(5);
+        assertResolverNotificationCount(7);
     }
 
     @Test
@@ -164,7 +164,7 @@ public class ApiSyncServiceTest {
         Activities incoming = Activities.get(Content.ME_SOUND_STREAM, resolver, -1);
 
         expect(incoming.size()).toEqual(100);
-        assertResolverNotificationCount(6);
+        assertResolverNotificationCount(7);
     }
 
     @Test
@@ -180,7 +180,7 @@ public class ApiSyncServiceTest {
 
         Activities own = Activities.get(Content.ME_ACTIVITIES, resolver, -1);
         expect(own.size()).toEqual(41);
-        assertResolverNotificationCount(7);
+        assertResolverNotificationCount(8);
         assertResolverNotified(Content.TRACKS.uri, Content.USERS.uri);
     }
 

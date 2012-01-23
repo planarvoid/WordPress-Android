@@ -82,9 +82,11 @@ public class LocalCollection {
             lc = new LocalCollection(c);
         }
         if (c != null) c.close();
-        if (lc == null){
+
+        if (lc == null && createIfNecessary){
             lc = insertLocalCollection(contentUri,resolver);
         }
+
         return lc;
     }
 

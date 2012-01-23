@@ -600,7 +600,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     "(from " + oldVersion + ")", e);
         }
         return false;
-    }
+     }
 
     private static String alterTableColumns(SQLiteDatabase db, Table tbl, String[] fromAppendCols,
                                             String[] toAppendCols) {
