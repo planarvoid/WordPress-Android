@@ -88,7 +88,10 @@ class ScContentProviderSpec extends DefaultSpec with OneInstancePerTest {
     insertTracks(Content.TRACKS.uri, favorites)
     val cursor = provider.query(Content.ANDROID_SEARCH_SUGGEST.uri, null, null, Array[String]("missing"), null)
     cursor.getCount should be(1)
-    // TODO: does not work currently - needs MatrixCursor shadow
+    cursor.moveToFirst should be(true)
+    cursor.getString(android.app.SearchManager.SUGGEST_COLUMN_TEXT_1) should be("Plaid - missing (taken from new album Scintilli)")
+    cursor.getString(android.app.SearchManager.SUGGEST_COLUMN_TEXT_2) should be("Warp Records")
+    cursor.getLong(BaseColumns._ID) should be(22365800L)
   }
 
   def insertTracks(uri: Uri, tracks: Iterable[Track]) = tracks.map { t =>

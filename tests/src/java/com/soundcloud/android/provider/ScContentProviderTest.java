@@ -3,21 +3,16 @@ package com.soundcloud.android.provider;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.FileMap;
-import com.soundcloud.android.service.sync.SyncAdapterService;
-import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.database.Cursor;
+import android.provider.BaseColumns;
 
 @RunWith(DefaultTestRunner.class)
 public class ScContentProviderTest {
@@ -29,7 +24,7 @@ public class ScContentProviderTest {
         provider.onCreate();
     }
 
-    @Test @Ignore
+    @Test
     public void shouldSearch() throws Exception {
         Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
@@ -43,7 +38,18 @@ public class ScContentProviderTest {
         Cursor cursor = provider.query(Content.ANDROID_SEARCH_SUGGEST.uri,
                 null, null, new String[] { "plaid"}, null);
 
-        // TODO: needs matrix cursor
         expect(cursor.getCount()).toEqual(1);
+        expect(cursor.moveToFirst()).toBeTrue();
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)))
+                .toEqual("Plaid - missing (taken from new album Scintilli)");
+
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_2)))
+                .toEqual("Warp Records");
+
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID)))
+                .toEqual(SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT);
+
+        expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)))
+                .toEqual(22365800L);
     }
 }
