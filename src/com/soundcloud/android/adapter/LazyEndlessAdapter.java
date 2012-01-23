@@ -2,16 +2,19 @@
 package com.soundcloud.android.adapter;
 
 
+import android.content.Context;
+import android.net.Uri;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
+import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
@@ -20,14 +23,6 @@ import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
-
-import android.content.Context;
-import android.net.Uri;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +43,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     protected Request mRequest;
     protected int mPageIndex;
 
-    private boolean mAutoAppend;
+    protected boolean mAutoAppend;
     private EmptyCollection mEmptyView;
     private EmptyCollection mDefaultEmptyView;
     private String mEmptyViewText = "";

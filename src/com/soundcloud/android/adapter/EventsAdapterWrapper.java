@@ -16,6 +16,7 @@ import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class EventsAdapterWrapper extends RemoteCollectionAdapter {
@@ -24,6 +25,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Content content) {
         super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
+        mAutoAppend = mLocalCollection.last_sync > 0;
     }
 
      @Override
@@ -131,6 +133,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     }
 
     protected void onContentChanged() {
+        allowInitialLoading();
         executeRefreshTask();
     }
 }

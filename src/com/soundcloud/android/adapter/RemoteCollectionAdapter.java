@@ -31,7 +31,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     private DetachableResultReceiver mDetachableReceiver;
     private Boolean mIsSyncable;
-    private LocalCollection mLocalCollection;
+    protected LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
 
     protected String mNextHref;
