@@ -160,6 +160,10 @@ public enum Content {
     public Uri.Builder buildUpon() {
         return uri.buildUpon();
     }
+    
+    public Uri forId(long id) {
+        return Uri.parse(uri.toString().replace("#", String.valueOf(id)));
+    }
 
     public Request request() {
         if (remoteUri != null) {

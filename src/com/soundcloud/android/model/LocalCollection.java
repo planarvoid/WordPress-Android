@@ -64,7 +64,7 @@ public class LocalCollection {
         extra = result.extra;
         sync_state = SyncState.IDLE;
 
-        return (resolver.update(CloudUtils.replaceWildcard(Content.COLLECTIONS_ITEM.uri,id), buildContentValues(), null,null) == 1);
+        return (resolver.update(Content.COLLECTIONS_ITEM.forId(id), buildContentValues(), null,null) == 1);
     }
 
     public static LocalCollection fromContent(Content content, ContentResolver resolver) {
@@ -173,7 +173,7 @@ public class LocalCollection {
     public boolean updateSyncState(int newSyncState, ContentResolver resolver) {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.SYNC_STATE, newSyncState);
-        return (resolver.update(CloudUtils.replaceWildcard(Content.COLLECTIONS_ITEM.uri,id), cv, null,null) == 1);
+        return (resolver.update(Content.COLLECTIONS_ITEM.forId(id), cv, null,null) == 1);
     }
 
     public static String getExtraFromUri(Uri contentUri, ContentResolver resolver) {

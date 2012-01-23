@@ -1,22 +1,20 @@
 package com.soundcloud.android.service.playback;
 
 
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.cache.TrackCache;
+import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
+
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.cache.TrackCache;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.Track;
-
-import android.content.Context;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.utils.CloudUtils;
 
 import java.util.List;
 
@@ -32,7 +30,7 @@ import java.util.List;
     private Context mContext;
     private TrackCache mCache;
     private static final int DEFAULT_PLAYLIST = 0;
-    private static final Uri DEFAULT_PLAYLIST_URI = CloudUtils.replaceWildcard(Content.PLAYLIST_ITEMS.uri, DEFAULT_PLAYLIST);
+    private static final Uri DEFAULT_PLAYLIST_URI = Content.PLAYLIST_ITEMS.forId(DEFAULT_PLAYLIST);
 
     public PlaylistManager(Context context,
                            SoundCloudApplication app, TrackCache cache) {

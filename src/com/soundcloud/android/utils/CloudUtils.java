@@ -904,16 +904,6 @@ public class CloudUtils {
                     ")+"
     );
 
-    public static Uri replaceWildcard(Uri uri, String value){
-        return Uri.parse(uri.toString().replace("*",value));
-    }
-    public static Uri replaceWildcard(Uri uri, int value){
-        return Uri.parse(uri.toString().replace("#",String.valueOf(value)));
-    }
-    public static Uri replaceWildcard(Uri uri, long value) {
-        return Uri.parse(uri.toString().replace("#",String.valueOf(value)));
-    }
-
     /**
      * Return new URI with wildcards replaced. This ignores the wildcard type
      * @param uri

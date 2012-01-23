@@ -29,4 +29,11 @@ public class ContentTest {
     public void shouldProvideToString() throws Exception {
         expect(Content.ME_ACTIVITIES.toString()).toEqual("Content.ME_ACTIVITIES");
     }
+
+    @Test
+    public void shouldGenerateUriForId() throws Exception {
+        expect(Content.COLLECTION_ITEMS_ITEM.forId(1234).toString()).toEqual(
+                "content://com.soundcloud.android.provider.ScContentProvider/collection_items/1234");
+    }
+
 }
