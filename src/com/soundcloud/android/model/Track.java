@@ -282,11 +282,9 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         mElapsedTime = CloudUtils.getTimeElapsed(application.getResources(),created_at.getTime());
     }
 
-    public Track updateFromDb(ContentResolver resolver, User user) {
-        return updateFromDb(resolver, user.id);
-    }
-
+    // CloudPlaybackService
     public Track updateFromDb(ContentResolver resolver, long currentUserId) {
+        // XXX
         Cursor cursor = resolver.query(Content.TRACKS.forId(id), null, null,null, null);
 
         if (cursor != null) {

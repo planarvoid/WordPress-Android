@@ -86,18 +86,12 @@ public class SoundCloudDB {
         return getTrackByUri(resolver, Content.TRACKS.forId(id));
     }
 
-    public static Track getTrackByUri(ContentResolver resolver, Uri uri) {
+    /* package */ static Track getTrackByUri(ContentResolver resolver, Uri uri) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
             Track track = new Track(cursor);
             cursor.close();
-
-            User user = getUserById(resolver, track.user_id);
-            if (user != null) {
-                track.user = user;
-                track.user_id = user.id;
-            }
             return track;
         }
 

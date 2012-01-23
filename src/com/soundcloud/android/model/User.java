@@ -102,6 +102,7 @@ public class User extends ScModel implements PageTrackable, Resource {
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
+        // XXX
         Cursor cursor = contentResolver.query(Content.USERS.forId(id), null, null, null, null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {

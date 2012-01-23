@@ -30,7 +30,7 @@ public class SoundcloudDBTest {
         t1.title = "testing";
         t1.user = new User();
         t1.user.id = 200L;
-        t1.user.full_name = "Testor";
+        t1.user.username = "Testor";
 
         Uri uri = SoundCloudDB.insertTrack(resolver, t1, 0);
 
@@ -38,6 +38,30 @@ public class SoundcloudDBTest {
         Track t2 = SoundCloudDB.getTrackByUri(resolver, uri);
 
         expect(t2).not.toBeNull();
+        expect(t2.user).not.toBeNull();
+        expect(t2.user.username).toEqual("Testor");
         expect(t1.title).toEqual(t2.title);
+    }
+
+    @Test
+    public void shouldUpsertTrack() throws Exception {
+        Track t1 = new Track();
+        t1.id = 100L;
+        t1.title = "testing";
+        t1.user = new User();
+        t1.user.id = 200L;
+        t1.user.username = "Testor";
+
+        Uri uri = SoundCloudDB.insertTrack(resolver, t1, 0);
+
+        expect(uri).not.toBeNull();
+        Track t2 = SoundCloudDB.getTrackByUri(resolver, uri);
+        expect(t2).not.toBeNull();
+        t2.title = "not interesting";
+
+        SoundCloudDB.upsertTrack(resolver, t2, 0);
+
+        Track t3 = SoundCloudDB.getTrackByUri(resolver, uri);
+        expect(t3.title).toEqual("not interesting");
     }
 }
