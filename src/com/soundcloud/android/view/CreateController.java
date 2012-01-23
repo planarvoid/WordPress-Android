@@ -6,7 +6,7 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
@@ -187,7 +187,9 @@ public class CreateController {
                     r.audio_profile = mAudioProfile;
                     r.user_id = mActivity.getCurrentUserId();
                     if (mPrivateUser != null){
-                        SoundCloudDB.writeUser(mActivity.getContentResolver(),mPrivateUser, SoundCloudDB.WriteState.all,mActivity.getCurrentUserId());
+                        SoundCloudDB.upsertUser(mActivity.getContentResolver(),
+                                mPrivateUser,
+                                mActivity.getCurrentUserId());
                         r.private_user_id = mPrivateUser.id;
                         r.is_private = true;
                     }

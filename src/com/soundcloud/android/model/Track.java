@@ -4,9 +4,8 @@ package com.soundcloud.android.model;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.activity.TracksByTag;
-import com.soundcloud.android.cache.UserCache;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -161,7 +160,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public Uri toUri() {
-        return appendIdToUri(Content.TRACKS.uri);
+        return Content.TRACKS.forId(id);
     }
 
     @Override @JsonIgnore
@@ -275,7 +274,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
 
     public void assertInDb(SoundCloudApplication app) {
         if (user != null) user.assertInDb(app);
-        SoundCloudDB.writeTrack(app.getContentResolver(), this, SoundCloudDB.WriteState.insert_only, app.getCurrentUserId());
+        SoundCloudDB.insertTrack(app.getContentResolver(), this, app.getCurrentUserId());
     }
 
     @Override
@@ -288,7 +287,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public Track updateFromDb(ContentResolver resolver, long currentUserId) {
-        Cursor cursor = resolver.query(appendIdToUri(Content.TRACKS.uri), null, null,null, null);
+        Cursor cursor = resolver.query(Content.TRACKS.forId(id), null, null,null, null);
 
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -325,7 +324,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public boolean updateUserPlayedFromDb(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(appendIdToUri(Content.TRACK_PLAYS.uri),
+        Cursor cursor = contentResolver.query(Content.TRACK_PLAYS.forId(id),
                 null, null, null, null);
 
         if (cursor != null) {
@@ -356,7 +355,11 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         if (title != null) cv.put(Tracks.TITLE, title);
         if (duration != 0) cv.put(Tracks.DURATION, duration);
         if (stream_url != null) cv.put(Tracks.STREAM_URL, stream_url);
-        if (user_id != 0) cv.put(Tracks.USER_ID, user_id);
+        if (user_id != 0) {
+            cv.put(Tracks.USER_ID, user_id);
+        }  else if (user != null && user.isSaved()) {
+            cv.put(Tracks.USER_ID, user.id);
+        }
         if (created_at != null) cv.put(Tracks.CREATED_AT, created_at.getTime());
         if (tag_list != null) cv.put(Tracks.TAG_LIST, tag_list);
         if (track_type != null) cv.put(Tracks.TRACK_TYPE, track_type);

@@ -2,7 +2,7 @@ package com.soundcloud.android.service.playback;
 
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
@@ -30,7 +30,7 @@ import java.util.List;
     private Context mContext;
     private TrackCache mCache;
     private static final int DEFAULT_PLAYLIST = 0;
-    private static final Uri DEFAULT_PLAYLIST_URI = Content.PLAYLIST_ITEMS.forId(DEFAULT_PLAYLIST);
+    private static final Uri DEFAULT_PLAYLIST_URI = Content.PLAYLIST.forId(DEFAULT_PLAYLIST);
 
     public PlaylistManager(Context context,
                            SoundCloudApplication app, TrackCache cache) {

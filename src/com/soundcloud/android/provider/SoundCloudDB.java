@@ -1,12 +1,11 @@
-package com.soundcloud.android;
+package com.soundcloud.android.provider;
 
 import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
+
 import com.soundcloud.android.model.*;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
 
 import android.content.ContentResolver;
@@ -17,32 +16,78 @@ import java.util.*;
 public class SoundCloudDB {
     private static final String TAG = "SoundCloudDB";
 
-    public enum WriteState {
-        insert_only, update_only, all
+    public static Uri insertTrack(ContentResolver resolver, Track track, long currentUserId) {
+        Uri uri = resolver.insert(Content.TRACKS.uri, track.buildContentValues());
+        if (uri != null && track.user != null) {
+            insertUser(resolver, track.user, currentUserId);
+        }
+        return uri;
     }
 
-    public static void writeTrack(ContentResolver contentResolver, Track track, WriteState writeState, long currentUserId) {
-        Cursor cursor = contentResolver.query(track.toUri(), null, null, null, null);
-
-        if (cursor != null) {
-            if (cursor.getCount() > 0) {
-                if (writeState == WriteState.update_only || writeState == WriteState.all)
-                    contentResolver.update(track.toUri(), track.buildContentValues(), null, null);
-            } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                contentResolver.insert(Content.TRACKS.uri, track.buildContentValues());
+    public static Uri upsertTrack(ContentResolver resolver, Track track, long currentUserId) {
+        if (!track.isSaved()) {
+            return insertTrack(resolver, track, currentUserId);
+        } else {
+            // XXX make more efficient
+            Cursor cursor = resolver.query(track.toUri(), null, null, null, null);
+            try {
+                if (cursor != null && cursor.getCount() > 0) {
+                    return updateTrack(resolver, track, currentUserId);
+                } else {
+                    return insertTrack(resolver, track, currentUserId);
+                }
+            } finally {
+                if (cursor != null) cursor.close();
             }
-
-            cursor.close();
-            writeUser(contentResolver, track.user, WriteState.insert_only, currentUserId);
-
         }
     }
 
-    // ---Make sure the database is up to date with this track info---
-    public static Track getTrackById(ContentResolver resolver, long trackId) {
-        Cursor cursor = resolver.query(Content.TRACKS.buildUpon()
-                .appendPath(String.valueOf(trackId)).build(), null, null, null, null);
+    private static Uri updateTrack(ContentResolver resolver, Track track, long currentUserId) {
+        Uri uri = track.toUri();
+        resolver.update(uri, track.buildContentValues(), null, null);
+        if (track.user != null) {
+            insertUser(resolver, track.user, currentUserId);
+        }
+        return uri;
+    }
 
+    public static Uri insertUser(ContentResolver resolver, User user, long currentUserId) {
+        return resolver.insert(Content.USERS.uri, user.buildContentValues(currentUserId == user.id));
+    }
+
+    public static Uri upsertUser(ContentResolver resolver, User user, long currentUserId) {
+        if (!user.isSaved()) {
+            return insertUser(resolver, user, currentUserId);
+        } else {
+            // XXX make more efficient
+            Cursor cursor = resolver.query(user.toUri(), null, null, null, null);
+            try {
+                if (cursor != null && cursor.getCount() > 0) {
+                    return updateUser(resolver, user, currentUserId);
+                } else {
+                    return insertUser(resolver, user, currentUserId);
+                }
+            } finally {
+                if (cursor != null) cursor.close();
+            }
+        }
+    }
+
+    private static Uri updateUser(ContentResolver resolver, User user, long currentUserId) {
+        Uri uri = user.toUri();
+        resolver.update(uri, user.buildContentValues(currentUserId == user.id), null, null);
+        return uri;
+    }
+
+
+    // ---Make sure the database is up to date with this track info---
+
+    public static Track getTrackById(ContentResolver resolver, long id) {
+        return getTrackByUri(resolver, Content.TRACKS.forId(id));
+    }
+
+    public static Track getTrackByUri(ContentResolver resolver, Uri uri) {
+        Cursor cursor = resolver.query(uri, null, null, null, null);
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
             Track track = new Track(cursor);
@@ -60,6 +105,7 @@ public class SoundCloudDB {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public static List<Track> getTracks(ContentResolver resolver, Uri uri) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         if (cursor != null) {
@@ -74,31 +120,9 @@ public class SoundCloudDB {
         }
     }
 
-    public static boolean isTrackInDb(ContentResolver contentResolver, long id) {
-        boolean ret = false;
-        Cursor cursor = contentResolver.query(Content.TRACKS.buildUpon().appendPath(Long.toString(id)).build(), null, null,null, null);
-        if (null != cursor && cursor.moveToNext()) {
-            ret = true;
-        }
-        if (cursor != null)
-            cursor.close();
-        return ret;
-    }
 
-    public static void writeUser(ContentResolver contentResolver,User user, WriteState writeState, Long currentUserId) {
-        Cursor cursor = contentResolver.query(user.toUri(), null, null, null, null);
-        if (cursor != null) {
-            if (cursor.getCount() > 0) {
-                if (writeState == WriteState.update_only || writeState == WriteState.all)
-                    contentResolver.update(user.toUri(), user.buildContentValues(currentUserId.compareTo(user.id) == 0), null, null);
-            } else if (writeState == WriteState.insert_only || writeState == WriteState.all) {
-                contentResolver.insert(Content.USERS.uri, user.buildContentValues(currentUserId.compareTo(user.id) == 0));
-            }
-        }
-    }
-
-    public static User getUserById(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(Content.USERS.buildUpon().appendPath(String.valueOf(userId)).build(), null, null,null, null);
+    public static User getUserById(ContentResolver resolver, long userId) {
+        Cursor cursor = resolver.query(Content.USERS.forId(userId), null, null, null, null);
         User user = null;
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -108,20 +132,9 @@ public class SoundCloudDB {
         return user;
     }
 
-    public static User getUserByUsername(ContentResolver contentResolver, String username) {
-        Cursor cursor = contentResolver.query(Content.USERS.uri, null, Users.USERNAME + "= ?",new String[]{username}, null);
-        User user = null;
-        if (cursor != null && cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            user = new User(cursor);
-        }
-        if (cursor != null) cursor.close();
-        return user;
-    }
-
-
-    public static String getUsernameById(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(Content.USER_ITEM.uri, new String[]{Users.USERNAME}, Users._ID + "= ?",new String[]{Long.toString(userId)}, null);
+    /** usage: {@link com.soundcloud.android.adapter.MyTracksAdapter#loadRecordings(Cursor cursor)} */
+    public static String getUsernameById(ContentResolver resolver, long userId) {
+        Cursor cursor = resolver.query(Content.USER.uri, new String[]{Users.USERNAME}, Users._ID + "= ?", new String[]{Long.toString(userId)}, null);
         String username = null;
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -131,26 +144,17 @@ public class SoundCloudDB {
         return username;
     }
 
-    public static boolean isUserInDb(ContentResolver contentResolver, long userId) {
-        boolean ret = false;
-        Cursor cursor = contentResolver.query(Content.USERS.buildUpon().appendPath(String.valueOf(userId)).build(), null, null,null, null);
-        if (null != cursor && cursor.moveToNext()) {
-            ret = true;
-        }
-        if (cursor != null) cursor.close();
-        return ret;
-    }
-
-    public static void setTrackIsFavorite(ContentResolver contentResolver, long trackId, boolean isFavorite, long currentUserId){
-        Track t = SoundCloudDB.getTrackById(contentResolver, trackId);
-        if (t != null){
+    /** usage: {@link com.soundcloud.android.service.playback.CloudPlaybackService#onFavoriteStatusSet(long, boolean)} */
+    public static void setTrackIsFavorite(ContentResolver resolver, long trackId, boolean isFavorite, long currentUserId) {
+        Track t = getTrackById(resolver, trackId);
+        if (t != null) {
             t.user_favorite = isFavorite;
-            SoundCloudDB.writeTrack(contentResolver,t, SoundCloudDB.WriteState.update_only,currentUserId);
+            updateTrack(resolver, t, currentUserId);
         }
     }
 
     public static int bulkInsertParcelables(ContentResolver resolver, List<Parcelable> items) {
-        return bulkInsertParcelables(resolver,items, null, -1, -1);
+        return bulkInsertParcelables(resolver, items, null, -1, -1);
     }
 
     public static int bulkInsertParcelables(ContentResolver resolver,
@@ -208,10 +212,10 @@ public class SoundCloudDB {
         int usersInserted = resolver.bulkInsert(Content.USERS.uri, usersCv);
         Log.d(TAG, usersInserted + " users bulk inserted");
 
-        if (bulkValues != null){
+        if (bulkValues != null) {
             int itemsInserted = resolver.bulkInsert(collectionUri, bulkValues);
             Log.d(TAG, itemsInserted + " collection items bulk inserted");
         }
-        return usersInserted+tracksInserted;
+        return usersInserted + tracksInserted;
     }
 }

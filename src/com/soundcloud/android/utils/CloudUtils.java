@@ -904,37 +904,6 @@ public class CloudUtils {
                     ")+"
     );
 
-    /**
-     * Return new URI with wildcards replaced. This ignores the wildcard type
-     * @param uri
-     * @param values
-     * @return
-     */
-    public static Uri replaceWildcards(Uri uri, String[] values){
-        final List<String> pathSegments = uri.getPathSegments();
-        final int li = pathSegments.size();
-
-        if ((li == 0 && uri.getAuthority() == null) || values== null  || values.length == 0) {
-            return uri;
-        }
-
-        Uri.Builder b = uri.buildUpon();
-        int valueIndex = 0;
-        for (int i = 0; i < li; i++) {
-            String u = pathSegments.get(i);
-            if (u.equals("#") || u.equals("*")) {
-                b.appendPath(values[valueIndex]);
-                if (valueIndex == values.length - 1) break;
-                valueIndex++;
-            } else {
-                b.appendPath(u);
-            }
-        }
-
-        return b.build();
-
-    }
-
     public static String[] longListToStringArr(List<Long> deletions) {
         int i = 0;
         String[] idList = new String[deletions.size()];

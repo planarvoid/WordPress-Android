@@ -3,8 +3,7 @@ package com.soundcloud.android.activity.auth;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.WriteState;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.task.LoadTask;
@@ -84,8 +83,7 @@ public abstract class LoginActivity extends Activity {
                                 app.trackEvent(Consts.Tracking.Categories.AUTH, "login");
                                 app.trackPage(Consts.Tracking.LOGIN);
                                 dismissDialog(progress);
-                                SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all, user.id);
-
+                                SoundCloudDB.upsertUser(getContentResolver(), user, user.id);
 
                                 setResult(RESULT_OK,
                                         new Intent().putExtra(SIGNED_UP_EXTRA, token.getSignup())

@@ -1,18 +1,16 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.sync.ApiSyncer;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.sync.ApiSyncer;
-import com.soundcloud.android.utils.CloudUtils;
 
 /**
  * Represents the state of a local collection sync, including last sync and size.
@@ -64,11 +62,7 @@ public class LocalCollection {
         extra = result.extra;
         sync_state = SyncState.IDLE;
 
-        return (resolver.update(Content.COLLECTIONS_ITEM.forId(id), buildContentValues(), null,null) == 1);
-    }
-
-    public static LocalCollection fromContent(Content content, ContentResolver resolver) {
-        return fromContent(content, resolver, false);
+        return (resolver.update(Content.COLLECTIONS.forId(id), buildContentValues(), null,null) == 1);
     }
 
     public static LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
@@ -142,8 +136,7 @@ public class LocalCollection {
     public boolean updateLastSyncTime(long time, ContentResolver resolver) {
         ContentValues cv = buildContentValues();
         cv.put(DBHelper.Collections.LAST_SYNC, time);
-        Uri inserted = resolver.insert(Content.COLLECTIONS.uri, cv);
-        return inserted != null;
+        return resolver.update(Content.COLLECTIONS.forId(id), cv, null, null) == 1;
     }
 
     private ContentValues buildContentValues() {
@@ -157,23 +150,11 @@ public class LocalCollection {
         return cv;
     }
 
-    public int getSyncStateByUri(Uri uri, ContentResolver resolver) {
-        Cursor c = resolver.query(Content.COLLECTIONS.uri,new String[]{DBHelper.Collections.SYNC_STATE},
-                DBHelper.Collections.URI + " = ?", new String[]{String.valueOf(uri)}, null);
-        if (c != null){
-            if (c.moveToFirst()){
-                return c.getInt(0);
-            }
-            c.close();
-        }
-        return -1;
-    }
-
 
     public boolean updateSyncState(int newSyncState, ContentResolver resolver) {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.SYNC_STATE, newSyncState);
-        return (resolver.update(Content.COLLECTIONS_ITEM.forId(id), cv, null,null) == 1);
+        return (resolver.update(Content.COLLECTIONS.forId(id), cv, null,null) == 1);
     }
 
     public static String getExtraFromUri(Uri contentUri, ContentResolver resolver) {
@@ -215,7 +196,6 @@ public class LocalCollection {
 
         @Override
         public void onChange(boolean selfChange) {
-            LocalCollection lc = null;
             Cursor c = mContentResolver.query(Content.COLLECTIONS.uri, null, "_id = ?", new String[]{String.valueOf(id)}, null);
             if (c != null && c.moveToFirst()) {
                 setFromCursor(c);

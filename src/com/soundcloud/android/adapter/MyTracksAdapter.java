@@ -1,8 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
-import android.util.Log;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
@@ -10,7 +9,6 @@ import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
 import com.soundcloud.android.view.TracklistRow;
-import com.soundcloud.api.Endpoints;
 
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -85,7 +83,8 @@ public class MyTracksAdapter extends TracklistAdapter {
             while (cursor.moveToNext()) {
                 Recording rec = new Recording(cursor);
                 if (rec.private_user_id > 0){
-                    rec.private_username = SoundCloudDB.getUsernameById(mContext.getContentResolver(),rec.private_user_id);
+                    // XXX use VIEW + JOIN
+                    rec.private_username = SoundCloudDB.getUsernameById(mContext.getContentResolver(), rec.private_user_id);
                 }
                 recordings.add(rec);
             }

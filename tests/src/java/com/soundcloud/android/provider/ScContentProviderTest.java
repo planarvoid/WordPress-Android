@@ -21,7 +21,6 @@ import java.io.File;
 @RunWith(DefaultTestRunner.class)
 public class ScContentProviderTest {
     static final long USER_ID = 100L;
-
     ContentResolver resolver;
 
     @Before

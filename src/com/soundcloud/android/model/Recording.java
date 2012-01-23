@@ -203,10 +203,7 @@ public class Recording extends ScModel implements PageTrackable {
 
 
     public Uri toUri() {
-        return Content.RECORDINGS
-                .buildUpon()
-                .appendEncodedPath(String.valueOf(id))
-                .build();
+        return Content.RECORDINGS.forId(id);
     }
 
     public String getStatus(Resources resources) {

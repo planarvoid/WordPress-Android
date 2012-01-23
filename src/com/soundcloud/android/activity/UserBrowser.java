@@ -6,8 +6,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.WriteState;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
@@ -348,8 +347,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         protected void onPostExecute(User user) {
             if (user != null) {
                 mInfoError = false;
-                SoundCloudDB.writeUser(getContentResolver(), user, WriteState.all,
-                        getApp().getCurrentUserId());
+                SoundCloudDB.upsertUser(getContentResolver(), user, getApp().getCurrentUserId());
                 setUser(user);
             } else {
                 mInfoError = true;

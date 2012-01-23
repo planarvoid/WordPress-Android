@@ -184,10 +184,10 @@ public abstract class ScActivity extends android.app.Activity {
         unregisterReceiver(mGeneralIntentListener);
 
         for (final ScListView l : mLists) {
-            if (l.getWrapper() != null && LazyEndlessAdapter.class.isAssignableFrom(l.getWrapper().getClass())) {
+            if (l.getWrapper() != null) {
                 l.getWrapper().onDestroy();
             }
-            if (LazyBaseAdapter.class.isAssignableFrom(l.getBaseAdapter().getClass())) {
+                if (l.getBaseAdapter() != null) {
                 l.getBaseAdapter().onDestroy();
             }
         }
