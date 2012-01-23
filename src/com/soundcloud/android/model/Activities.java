@@ -24,15 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Activities extends CollectionHolder<Activity> {
     /* use this URL to poll for updates */
@@ -164,6 +156,7 @@ public class Activities extends CollectionHolder<Activity> {
         return this;
     }
 
+    // TODO, get rid of future href and next href and generate them
     public Activities merge(Activities old) {
         Activities merged = new Activities(new ArrayList<Activity>(collection));
         merged.future_href = future_href;
@@ -223,9 +216,9 @@ public class Activities extends CollectionHolder<Activity> {
         return ids.size();
     }
 
-    public static Activities fetch(AndroidCloudAPI api,
-                                   final Request request,
-                                   int max) throws IOException {
+    public static Activities fetchRecent(AndroidCloudAPI api,
+                                         final Request request,
+                                         int max) throws IOException {
         boolean caughtUp = false;
         String future_href = null;
         String next_href;
@@ -269,6 +262,25 @@ public class Activities extends CollectionHolder<Activity> {
         return new Activities(activityList, future_href, next_href);
     }
 
+    public static Activities fetch(AndroidCloudAPI api,
+                                   final Request request) throws IOException {
+        HttpResponse response = api.get(request);
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+            return fromJSON(response.getEntity().getContent());
+        } else {
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+                Log.d(TAG, "Got no content response (204)");
+                return EMPTY;
+            } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+                throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
+                        response.getStatusLine().getReasonPhrase());
+            } else {
+                throw new IOException(response.getStatusLine().toString());
+            }
+        }
+    }
+
+
     public static int clear(Content content, ContentResolver resolver) {
         Content contentToDelete = Content.ME_ALL_ACTIVITIES;
         if (content != null) {
@@ -289,28 +301,71 @@ public class Activities extends CollectionHolder<Activity> {
         return resolver.delete(contentToDelete.uri, null, null);
     }
 
-    public static Activities get(Content content, ContentResolver contentResolver) {
-        return get(content,contentResolver,0);
+    public static Activity getLastActivity(Content content, ContentResolver resolver) {
+        Activity a = null;
+        Cursor c = resolver.query(content.uri,
+                    null,
+                    null,
+                    null,
+                    DBHelper.ActivityView.CREATED_AT + " ASC LIMIT 1");
+        if (c != null && c.moveToFirst()){
+            a = new Activity(c);
+        }
+        if (c != null) c.close();
+        return a;
     }
 
-    public static Activities get(Content content, ContentResolver resolver, long since)  {
-        Log.d(TAG, "Activities.get("+content+", since="+since+")");
+    public static Activities get(Content content, ContentResolver contentResolver) {
+        return getSince(content, contentResolver, 0);
+    }
+
+    public static Activities getSince(Content content, ContentResolver resolver, long before)  {
+        return getSince(content.uri, resolver, before);
+    }
+    public static Activities getSince(Uri contentUri, ContentResolver resolver, long since)  {
+        Log.d(TAG, "Activities.getSince("+contentUri+", since="+since+")");
         Activities activities = new Activities();
-        LocalCollection lc = LocalCollection.fromContentUri(content.uri, resolver, false);
+        LocalCollection lc = LocalCollection.fromContentUri(contentUri, resolver, false);
         if (lc != null) {
             activities.future_href = lc.extra;
         }
         Cursor c;
         if (since > 0) {
-            c = resolver.query(content.uri,
+            c = resolver.query(contentUri,
                     null,
                     DBHelper.ActivityView.CREATED_AT+"> ?",
                     new String[] { String.valueOf(since) },
                     null);
         } else {
-            c = resolver.query(content.uri, null, null, null, null);
+            c = resolver.query(contentUri, null, null, null, null);
         }
         while (c != null && c.moveToNext()) {
+            final long id = c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID));
+            activities.add(new Activity(c));
+        }
+        if (c != null) c.close();
+        return activities;
+    }
+
+    public static Activities getBefore(Content content, ContentResolver resolver, long before)  {
+        return getBefore(content.uri, resolver, before);
+    }
+    public static Activities getBefore(Uri contentUri, ContentResolver resolver, long before)  {
+        Log.d(TAG, "Activities.getBefore("+contentUri+", before="+before+")");
+        Activities activities = new Activities();
+        Cursor c;
+        if (before > 0) {
+            c = resolver.query(contentUri,
+                    null,
+                    DBHelper.ActivityView.CREATED_AT+"< ?",
+                    new String[] { String.valueOf(before) },
+                    null);
+        } else {
+            c = resolver.query(contentUri, null, null, null, null);
+        }
+
+        while (c != null && c.moveToNext()) {
+            final long id = c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID));
             activities.add(new Activity(c));
         }
         if (c != null) c.close();
@@ -392,15 +447,13 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public int insert(Content content, ContentResolver resolver) {
-        int created = 0;
-        created += resolver.bulkInsert(Content.TRACKS.uri, getTrackContentValues());
-        created += resolver.bulkInsert(Content.USERS.uri, getUserContentValues());
+        resolver.bulkInsert(Content.TRACKS.uri, getTrackContentValues());
+        resolver.bulkInsert(Content.USERS.uri, getUserContentValues());
 
         if (content == Content.ME_ACTIVITIES || content == Content.ME_ALL_ACTIVITIES) {
-            created += resolver.bulkInsert(Content.COMMENTS.uri, getCommentContentValues());
+            resolver.bulkInsert(Content.COMMENTS.uri, getCommentContentValues());
         }
-        created += resolver.bulkInsert(content.uri, buildContentValues(content.id));
-        return created;
+        return resolver.bulkInsert(content.uri, buildContentValues(content.id));
     }
 
     public String getLastCursor() {
@@ -408,4 +461,11 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
 
+    public long getLastTimestamp() {
+        return isEmpty() ? null : collection.get(collection.size()-1).created_at.getTime();
+    }
+
+    public long getFirstTimestamp() {
+        return isEmpty() ? null : collection.get(0).created_at.getTime();
+    }
 }

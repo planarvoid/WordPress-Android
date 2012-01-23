@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Activity extends ScModel implements Origin, Playable {
+public class Activity extends ScModel implements Origin, Playable, Comparable<Activity> {
     @JsonProperty public Date created_at;
     @JsonProperty public Type type;
     @JsonProperty public String tags;
@@ -189,6 +189,11 @@ public class Activity extends ScModel implements Origin, Playable {
         return result;
     }
 
+    @Override
+    public int compareTo(Activity activity) {
+        return activity.created_at.compareTo(created_at);
+    }
+
     public enum Type {
         TRACK("track", Track.class),
         TRACK_SHARING("track-sharing", TrackSharing.class),
@@ -241,4 +246,6 @@ public class Activity extends ScModel implements Origin, Playable {
             return new Activity[size];
         }
     };
+
+
 }

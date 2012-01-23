@@ -214,10 +214,10 @@ public class SyncAdapterService extends Service {
                                     app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
 
                             final Activities incoming = !isIncomingEnabled(app) ? Activities.EMPTY :
-                                    Activities.get(Content.ME_SOUND_STREAM, app.getContentResolver(), lastIncomingSeen);
+                                    Activities.getSince(Content.ME_SOUND_STREAM, app.getContentResolver(), lastIncomingSeen);
 
                             final Activities exclusive = !isExclusiveEnabled(app) ? Activities.EMPTY
-                                    : Activities.get(Content.ME_EXCLUSIVE_STREAM, app.getContentResolver(), lastIncomingSeen);
+                                    : Activities.getSince(Content.ME_EXCLUSIVE_STREAM, app.getContentResolver(), lastIncomingSeen);
 
                             maybeNotifyIncoming(app, incoming, exclusive);
                         } else if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -231,7 +231,7 @@ public class SyncAdapterService extends Service {
                             final long lastOwnSeen = clearMode == CLEAR_ALL ? -1 :
                                     app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN);
                             final Activities news = !isActivitySyncEnabled(app) ? Activities.EMPTY :
-                                    Activities.get(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
+                                    Activities.getSince(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
                             maybeNotifyOwn(app, news);
                         } else if (Log.isLoggable(TAG, Log.DEBUG))  {
                             Log.d(TAG, "skipping own notification, delta "+delta2+" < frequency="+frequency);

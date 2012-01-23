@@ -213,7 +213,7 @@ public class ActivitiesTest {
                 "incoming_1.json",
                 "incoming_2.json");
 
-        Activities a = Activities.fetch(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), -1);
+        Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), -1);
         expect(a.size()).toEqual(100);
         expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
     }
@@ -223,7 +223,7 @@ public class ActivitiesTest {
         TestHelper.addCannedResponses(SyncAdapterServiceTest.class,
                 "incoming_1.json");
 
-        Activities a = Activities.fetch(DefaultTestRunner.application,  Content.ME_SOUND_STREAM.request(), 20);
+        Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 20);
         expect(a.size()).toEqual(20);
         expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
     }
@@ -251,8 +251,8 @@ public class ActivitiesTest {
         assertContentUriCount(Content.ME_SOUND_STREAM, 50);
 
         expect(
-            Activities.get(Content.ME_SOUND_STREAM,
-            Robolectric.application.getContentResolver(), -1).size()
+            Activities.getSince(Content.ME_SOUND_STREAM,
+                    Robolectric.application.getContentResolver(), -1).size()
         ).toEqual(50);
     }
 
@@ -264,10 +264,23 @@ public class ActivitiesTest {
         assertContentUriCount(Content.ME_SOUND_STREAM, 50);
 
         expect(
-                Activities.get(Content.ME_SOUND_STREAM,
+                Activities.getSince(Content.ME_SOUND_STREAM,
                         Robolectric.application.getContentResolver(),
                         toTime("2011/07/12 09:13:36 +0000")).size()
         ).toEqual(2);
+    }
+
+    @Test
+    public void shouldGetLastActivity() throws Exception {
+        Activities a = Activities.fromJSON(
+                SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+        a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
+        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+
+        expect(
+                Activities.getLastActivity(Content.ME_SOUND_STREAM,
+                        Robolectric.application.getContentResolver()).created_at.getTime()
+        ).toEqual(toTime("2011/07/06 15:47:50 +0000"));
     }
 
     @Test
@@ -310,7 +323,7 @@ public class ActivitiesTest {
 
         assertContentUriCount(Content.ME_ALL_ACTIVITIES, 4);
 
-        Activities activities = Activities.get(Content.ME_ALL_ACTIVITIES, resolver, -1);
+        Activities activities = Activities.getSince(Content.ME_ALL_ACTIVITIES, resolver, -1);
         expect(activities.size()).toEqual(4);
 
         Activity track = activities.get(2);

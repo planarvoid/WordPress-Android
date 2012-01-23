@@ -51,7 +51,8 @@ public class ApiSyncer {
         mContext = app;
     }
 
-    public Result syncContent(Content c) throws IOException {
+    public Result syncContent(Uri uri, String action) throws IOException {
+        Content c = Content.match(uri);
         Result result = null;
         if (c.remoteUri != null) {
             switch (c) {
@@ -59,7 +60,7 @@ public class ApiSyncer {
                 case ME_ACTIVITIES:
                 case ME_EXCLUSIVE_STREAM:
                 case ME_SOUND_STREAM:
-                    result = syncActivities(c);
+                    result = syncActivities(uri, action);
                     break;
 
                 case ME_TRACKS:
@@ -88,19 +89,27 @@ public class ApiSyncer {
         return result;
     }
 
-    /* package */ Result syncActivities(Content content) throws IOException {
-        Result result = new Result(content.uri);
+    /* package */ Result syncActivities(Uri uri, String action) throws IOException {
+        Result result = new Result(uri);
+        Log.d(ApiSyncService.LOG_TAG, "syncActivities(" + uri + ")");
 
-        String future_href = LocalCollection.getExtraFromUri(content.uri, mResolver);
-
-        Log.d(ApiSyncService.LOG_TAG, "syncActivities("+content+")");
-        Request request = future_href == null ? content.request() : Request.to(future_href);
-        Activities activities = Activities.fetch(mApi, request, MINIMUM_LOCAL_ITEMS_STORED);
-        final int inserted = activities.insert(content, mResolver);
-        Log.d(ApiSyncService.LOG_TAG, "activities: inserted "+inserted + " objects");
-
-        result.setSyncData(System.currentTimeMillis(),activities.size(),activities.future_href);
-
+        final Content c = Content.match(uri);
+        final int inserted;
+        final Activities activities;
+        if (!TextUtils.isEmpty(action) && action.equals(ApiSyncService.ACTION_APPEND)) {
+            Request request = new Request(c.request()).add("cursor", Activities.getLastActivity(c, mResolver).toGUID())
+                    .add("limit",Consts.COLLECTION_PAGE_SIZE);
+            activities = Activities.fetch(mApi, request);
+            inserted = activities.insert(c, mResolver);
+        } else {
+            String future_href = LocalCollection.getExtraFromUri(uri, mResolver);
+            Request request = future_href == null ? c.request() : Request.to(future_href);
+            activities = Activities.fetchRecent(mApi, request, MINIMUM_LOCAL_ITEMS_STORED);
+            inserted = activities.insert(c, mResolver);
+            result.setSyncData(System.currentTimeMillis(), activities.size(), activities.future_href);
+        }
+        result.wasChanged = !activities.isEmpty();
+        Log.d(ApiSyncService.LOG_TAG, "activities: inserted " + inserted + " objects");
         return result;
     }
 
@@ -141,7 +150,7 @@ public class ApiSyncer {
         switch (c) {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
-                // load the first page of items to get proper last_seen ordering
+                // load the first page of items to getSince proper last_seen ordering
                 InputStream is = validateResponse(mApi.get(Request.to(c.remoteUri)
                         .add("linked_partitioning", "1").add("limit", Consts.COLLECTION_PAGE_SIZE)))
                         .getEntity().getContent();

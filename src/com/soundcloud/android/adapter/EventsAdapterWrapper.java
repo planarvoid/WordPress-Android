@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.adapter;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -8,14 +10,18 @@ import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.LoadActivitiesTask;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,6 +32,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Content content) {
         super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
         mAutoAppend = mLocalCollection.last_sync > 0;
+        Log.i("asdf","auto append? " + mAutoAppend);
     }
 
      @Override
@@ -54,61 +61,50 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         setListLastUpdated();
     }
 
-
-    @Override
-    protected Request getRequest(boolean isRefresh) {
-        if (mRequest == null) return null;
-        return !TextUtils.isEmpty(mNextHref) && !isRefresh ? new Request(mNextHref) : null;
+    public void executeRefreshTask() {
+        mRefreshTask = buildTask();
+        mRefreshTask.execute(getCollectionParams(true));
     }
 
-    public boolean onNewEvents(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
-        if (wasRefresh) {
+    public boolean onNewEvents(Activities newActivities, boolean wasRefresh) {
+        if (wasRefresh){
             doneRefreshing();
-            if (mListView != null && mContentUri != null) setListLastUpdated();
-        }
-        boolean success = (newItems != null && !newItems.isEmpty());
-        if (success && wasRefresh) {
-            if (!getData().isEmpty() && newItems.contains(getData().get(0))) {
-                // merge and notify
-                int i = 0;
-                for (Parcelable a : newItems) {
-                    if (getData().contains(a)) {
-                        break;
-                    } else {
-                        getData().add(i, newItems.get(i));
-                        i++;
-                    }
-                }
+            if (!newActivities.isEmpty()){
+                if (mListView != null && mContentUri != null) setListLastUpdated();
                 setLastSeen(((Activity) getData().get(0)).created_at.getTime());
-                notifyDataSetChanged();
-                return true; //done
+            }
+        } else {
+            if (newActivities.collection.size() < Consts.COLLECTION_PAGE_SIZE){
+                Intent intent = new Intent(mActivity, ApiSyncService.class)
+                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE, true)
+                        .setAction(ApiSyncService.ACTION_APPEND)
+                        .setData(mContent.uri);
+
+                mActivity.startService(intent);
+                mPageIndex = -1; // shows all
 
             } else {
-                reset();
+                increasePageIndex();
+                mState = IDLE;
+            }
+
+        }
+
+        for (Parcelable p : getData()) {
+            if (!newActivities.collection.contains(p)) {
+
+                newActivities.collection.add((Activity) p);
             }
         }
 
-        if (responseCode == 0) {
-            // local load, but for the sake of the super class :
-            keepGoing = true;
-            responseCode = HttpStatus.SC_OK;
-            // TODO : Change this ^^ stop using status codes and figure out another way to handle errors
-
-            if (newItems.size() < Consts.COLLECTION_PAGE_SIZE) {
-                // end of local storage, construct a request for appending
-                Request nextRequest = new Request(mRequest);
-                final Activity lastItem = success ? ((Activity) newItems.get(newItems.size() - 1))
-                        : (Activity) (getData().isEmpty() ? null : getData().get(getData().size() - 1));
-
-                if (lastItem != null) {
-                    nextRequest.add("cursor", lastItem.toGUID());
-                }
-                nextHref = nextRequest.toUrl();
-            }
-        }
-
-        if (getData().isEmpty() && success) setLastSeen(((Activity) newItems.get(0)).created_at.getTime());
-        return super.onPostTaskExecute(newItems, nextHref, responseCode, keepGoing, wasRefresh);
+        Collections.sort(newActivities.collection);
+        getWrappedAdapter().setData(new ArrayList<Parcelable>());
+        getWrappedAdapter().getData().addAll(newActivities.collection);
+        applyEmptyView();
+        mAppendTask = null;
+        notifyDataSetChanged();
+        return true;
     }
 
     private void setLastSeen(long time) {
@@ -129,11 +125,32 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
     @Override
     protected RemoteCollectionTask buildTask() {
+        Log.i("asdf","Build task");
         return new LoadActivitiesTask(mActivity.getApp(), this);
     }
 
     protected void onContentChanged() {
-        allowInitialLoading();
         executeRefreshTask();
+    }
+
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case ApiSyncService.STATUS_SYNC_FINISHED:
+            case ApiSyncService.STATUS_SYNC_ERROR: {
+                if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
+                    doneRefreshing(); // nothing changed
+                }
+                break;
+            }
+            case ApiSyncService.STATUS_APPEND_ERROR:
+            case ApiSyncService.STATUS_APPEND_FINISHED: {
+                if (!resultData.getBoolean(mContentUri.toString())){
+                    mKeepGoing = false;
+                }
+                mState = IDLE;
+                break;
+            }
+        }
     }
 }

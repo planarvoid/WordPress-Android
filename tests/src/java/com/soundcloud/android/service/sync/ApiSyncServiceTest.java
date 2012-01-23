@@ -78,9 +78,9 @@ public class ApiSyncServiceTest {
         urisToSync.add(Content.ME_FOLLOWERS.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
-        ApiSyncService.ApiSyncRequest request1 = new ApiSyncService.ApiSyncRequest(app, intent);
-        ApiSyncService.ApiSyncRequest request2 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
-        ApiSyncService.ApiSyncRequest request3 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
+        ApiSyncService.ApiRequest request1 = new ApiSyncService.ApiRequest(app, intent);
+        ApiSyncService.ApiRequest request2 = new ApiSyncService.ApiRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
+        ApiSyncService.ApiRequest request3 = new ApiSyncService.ApiRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
 
         svc.enqueueRequest(request1);
         expect(svc.mPendingUriRequests.size()).toBe(3);
@@ -93,7 +93,7 @@ public class ApiSyncServiceTest {
         expect(svc.mPendingUriRequests.size()).toBe(3);
 
         expect(svc.mPendingUriRequests.peek().getUri()).toBe(Content.ME_TRACKS.uri);
-        ApiSyncService.ApiSyncRequest request4 = new ApiSyncService.ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
+        ApiSyncService.ApiRequest request4 = new ApiSyncService.ApiRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
         svc.enqueueRequest(request4);
         expect(svc.mPendingUriRequests.peek().getUri()).toBe(Content.ME_FAVORITES.uri);
     }
@@ -102,14 +102,16 @@ public class ApiSyncServiceTest {
     public void shouldRemove() throws Exception {
         ApiSyncService svc = new ApiSyncService();
 
-        svc.mRunningRequestUris.add(Content.ME_FAVORITES.uri);
-        svc.mRunningRequestUris.add(Content.ME_FOLLOWINGS.uri);
+        SoundCloudApplication app = DefaultTestRunner.application;
+
+        svc.mRunningRequests.add(new ApiSyncService.UriRequest(app,Content.ME_FAVORITES.uri, null));
+        svc.mRunningRequests.add(new ApiSyncService.UriRequest(app,Content.ME_FOLLOWINGS.uri, null));
 
         ApiSyncer.Result result = new ApiSyncer.Result(Content.ME_FAVORITES.uri);
         result.success = true;
 
-        svc.onUriSyncResult(result);
-        expect(svc.mRunningRequestUris.size()).toBe(1);
+        svc.onUriSyncResult(new ApiSyncService.UriRequest(app,Content.ME_FAVORITES.uri, null));
+        expect(svc.mRunningRequests.size()).toBe(1);
     }
 
     @Test
@@ -125,7 +127,7 @@ public class ApiSyncServiceTest {
         assertContentUriCount(Content.COLLECTION_ITEMS, 3);
         assertContentUriCount(Content.USERS, 1);
 
-        assertResolverNotificationCount(5);
+        assertResolverNotificationCount(7);
     }
 
     @Test
@@ -161,10 +163,10 @@ public class ApiSyncServiceTest {
         assertContentUriCount(Content.TRACKS, 99);
         assertContentUriCount(Content.USERS, 52);
 
-        Activities incoming = Activities.get(Content.ME_SOUND_STREAM, resolver, -1);
+        Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
         expect(incoming.size()).toEqual(100);
-        assertResolverNotificationCount(6);
+        assertResolverNotificationCount(7);
     }
 
     @Test
@@ -178,9 +180,9 @@ public class ApiSyncServiceTest {
         assertContentUriCount(Content.ME_ACTIVITIES, 41);
         assertContentUriCount(Content.COMMENTS, 15);
 
-        Activities own = Activities.get(Content.ME_ACTIVITIES, resolver, -1);
+        Activities own = Activities.getSince(Content.ME_ACTIVITIES, resolver, -1);
         expect(own.size()).toEqual(41);
-        assertResolverNotificationCount(7);
+        assertResolverNotificationCount(8);
         assertResolverNotified(Content.TRACKS.uri, Content.USERS.uri);
     }
 
