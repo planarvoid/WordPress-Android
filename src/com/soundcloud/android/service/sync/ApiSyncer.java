@@ -126,12 +126,12 @@ public class ApiSyncer {
 
         List<Long> remote = getCollectionIds(mApi, c.remoteUri);
         Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
+        result.setSyncData(System.currentTimeMillis(),remote.size(),null);
 
         if (local.equals(remote) && !(c == Content.ME_FOLLOWERS || c == Content.ME_FOLLOWINGS)){
             Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
             return result;
         }
-        result.setSyncData(System.currentTimeMillis(),remote.size(),null);
 
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);
