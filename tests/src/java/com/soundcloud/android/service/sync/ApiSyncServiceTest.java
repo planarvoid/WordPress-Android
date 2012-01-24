@@ -8,7 +8,10 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.FileMap;
 import com.soundcloud.android.robolectric.TestHelper;
@@ -171,6 +174,48 @@ public class ApiSyncServiceTest {
 
         expect(incoming.size()).toEqual(100);
         assertResolverNotificationCount(7);
+    }
+
+    @Test
+    public void shouldNotOverwriteDataFromPreviousSyncRuns() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
+        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+
+        svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri), 1);
+        assertContentUriCount(Content.TRACKS, 3);
+
+        // sync activities concerning these tracks
+        sync(svc, Content.ME_ACTIVITIES, "tracks_activities.json");
+
+        Track t = SoundCloudDB.getTrackById(resolver, 10853436L);
+        expect(t).not.toBeNull();
+        expect(t.duration).toEqual(782);
+        // title should get changed from the activity json
+        expect(t.title).toEqual("recording on sunday night (edit)");
+
+        User u = SoundCloudDB.getUserById(resolver, 3135930L);
+        expect(u).not.toBeNull();
+        expect(u.username).toEqual("I'm your father");
+        // permalink was set in first sync run, not present in second
+        expect(u.permalink).toEqual("soundcloud-android-mwc");
+    }
+
+    @Test
+    public void shouldNotOverwriteDataFromPreviousSyncRuns2() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+        sync(svc, Content.ME_ACTIVITIES, "tracks_activities.json");
+
+        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
+        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+
+        svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri), 1);
+
+        assertContentUriCount(Content.TRACKS, 3);
+
+        Track t = SoundCloudDB.getTrackById(resolver, 10853436L);
+        expect(t).not.toBeNull();
+        expect(t.duration).toEqual(782);
     }
 
     @Test

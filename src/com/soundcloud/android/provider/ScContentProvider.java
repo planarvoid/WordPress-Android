@@ -463,51 +463,56 @@ public class ScContentProvider extends ContentProvider {
         if (values == null || values.length == 0) return 0;
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.beginTransaction();
-
         String[] extraCV = null;
+
+        final Content content = Content.match(uri);
+        final Table table;
+        switch (content) {
+            case TRACKS:
+            case USERS:
+                content.table.upsert(db, values);
+                if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
+                return values.length;
+
+            case COMMENTS:
+            case PLAYLISTS:
+            case ME_SOUND_STREAM:
+            case ME_EXCLUSIVE_STREAM:
+            case ME_ACTIVITIES:
+                table = content.table;
+                break;
+
+            case ME_TRACKS:
+            case USER_TRACKS:
+            case ME_FAVORITES:
+            case USER_FAVORITES:
+            case ME_FOLLOWERS:
+            case USER_FOLLOWERS:
+            case ME_FOLLOWINGS:
+            case USER_FOLLOWINGS:
+            case ME_FRIENDS:
+            case SUGGESTED_USERS:
+            case SEARCHES_USER:
+            case SEARCHES_TRACK:
+                table = Table.COLLECTION_ITEMS;
+                extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
+                break;
+
+            case PLAYLIST:
+                table = content.table;
+                extraCV = new String[]{DBHelper.PlaylistItems.PLAYLIST_ID, String.valueOf(uri.getLastPathSegment())};
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+
         try {
-            final Content content = Content.match(uri);
-            final Table table;
-            switch (content) {
-                case TRACKS:
-                case USERS:
-                case COMMENTS:
-                case PLAYLISTS:
-                case ME_SOUND_STREAM:
-                case ME_EXCLUSIVE_STREAM:
-                case ME_ACTIVITIES:
-                    table = content.table;
-                    break;
-
-                case ME_TRACKS:
-                case USER_TRACKS:
-                case ME_FAVORITES:
-                case USER_FAVORITES:
-                case ME_FOLLOWERS:
-                case USER_FOLLOWERS:
-                case ME_FOLLOWINGS:
-                case USER_FOLLOWINGS:
-                case ME_FRIENDS:
-                case SUGGESTED_USERS:
-                case SEARCHES_USER:
-                case SEARCHES_TRACK:
-                    table = Table.COLLECTION_ITEMS;
-                    extraCV = new String[]{ DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
-                    break;
-
-                case PLAYLIST:
-                    table = content.table;
-                    extraCV = new String[]{DBHelper.PlaylistItems.PLAYLIST_ID, String.valueOf(uri.getLastPathSegment())};
-                    break;
-
-                default:
-                    throw new IllegalArgumentException("Unknown URI " + uri);
-            }
+            db.beginTransaction();
             boolean failed = false;
             for (ContentValues v : values) {
-                if (extraCV != null) v.put(extraCV[0],extraCV[1]);
-                Log.d(TAG, "bulkInsert: "+v);
+                if (extraCV != null) v.put(extraCV[0], extraCV[1]);
+                Log.d(TAG, "bulkInsert: " + v);
 
                 if (db.replace(table.name, null, v) < 0) {
                     Log.w(TAG, "replace returned failure");

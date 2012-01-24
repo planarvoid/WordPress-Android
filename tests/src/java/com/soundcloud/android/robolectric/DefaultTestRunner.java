@@ -6,6 +6,7 @@ import com.soundcloud.android.provider.DelegatingContentResolver;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
 import org.junit.runners.model.InitializationError;
 
@@ -66,6 +67,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
             return 0;
         }
 
+        @Implementation
         public static int e(String tag, String msg, Throwable e) {
             System.out.println("[" + tag + "] " + msg);
             e.printStackTrace();

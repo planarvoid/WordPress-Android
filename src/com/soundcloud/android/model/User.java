@@ -139,10 +139,11 @@ public class User extends ScModel implements PageTrackable, Resource, Origin {
 
     public ContentValues buildContentValues(boolean isCurrentUser){
         ContentValues cv = super.buildContentValues();
-        cv.put(Users.USERNAME, username);
-        cv.put(Users.PERMALINK, permalink);
-        cv.put(Users.AVATAR_URL, avatar_url);
         // account for partial objects, don't overwrite local full objects
+        if (username != null) cv.put(Users.USERNAME, username);
+        if (permalink != null) cv.put(Users.PERMALINK, permalink);
+        if (avatar_url != null) cv.put(Users.AVATAR_URL, avatar_url);
+        if (permalink_url != null) cv.put(Users.PERMALINK_URL, permalink_url);
         if (track_count != -1) cv.put(Users.LAST_UPDATED, System.currentTimeMillis());
         if (city != null) cv.put(Users.CITY, city);
         if (country != null) cv.put(Users.COUNTRY, country);
