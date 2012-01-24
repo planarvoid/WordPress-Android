@@ -195,11 +195,11 @@ public class SoundCloudDB {
             }
 
             if (bulkValues != null) {
-                ContentValues itemCv = new ContentValues();
-                itemCv.put(DBHelper.CollectionItems.USER_ID, ownerId);
-                itemCv.put(DBHelper.CollectionItems.POSITION, i);
-                itemCv.put(DBHelper.CollectionItems.ITEM_ID, id);
-                bulkValues[i] = itemCv;
+                ContentValues cv = new ContentValues();
+                cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
+                cv.put(DBHelper.CollectionItems.POSITION, i);
+                cv.put(DBHelper.CollectionItems.ITEM_ID, id);
+                bulkValues[i] = cv;
             }
         }
 

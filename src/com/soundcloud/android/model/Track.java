@@ -144,8 +144,10 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @JsonIgnore public int last_playback_error = -1;
     @JsonIgnore public long last_updated;
 
+
     protected File mCacheFile;
     private CharSequence mElapsedTime;
+    public int local_user_playback_count;
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -252,9 +254,13 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
 
         user = SoundCloudApplication.USER_CACHE.fromTrackView(cursor);
         // gets joined in
-        final int favIndex = cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE);
-        if (favIndex != -1) {
-            user_favorite = cursor.getInt(favIndex) == 1;
+        final int favIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_FAVORITE);
+        if (favIdx != -1) {
+            user_favorite = cursor.getInt(favIdx) == 1;
+        }
+        final int localPlayCountIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_PLAY_COUNT);
+        if (localPlayCountIdx != -1) {
+            local_user_playback_count = cursor.getInt(localPlayCountIdx);
         }
         return this;
     }

@@ -23,7 +23,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends ScModel implements PageTrackable, Resource {
+public class User extends ScModel implements PageTrackable, Resource, Origin {
     @JsonView(Views.Mini.class) public String username;
     public int track_count;
     public String discogs_name;
@@ -242,6 +242,7 @@ public class User extends ScModel implements PageTrackable, Resource {
         return u;
     }
 
+
     public static interface DataKeys {
         String USERNAME = "currentUsername";
         String USER_ID = "currentUserId";
@@ -323,6 +324,16 @@ public class User extends ScModel implements PageTrackable, Resource {
         if (user.discogs_name != null) this.discogs_name = user.discogs_name;
         if (user.myspace_name != null) this.myspace_name = user.myspace_name;
         if (user.description != null) this.description = user.description;
+        return this;
+    }
+
+    @Override
+    public Track getTrack() {
+        return null;
+    }
+
+    @Override
+    public User getUser() {
         return this;
     }
 }

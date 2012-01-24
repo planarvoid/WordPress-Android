@@ -265,10 +265,14 @@ public class DBHelper extends SQLiteOpenHelper {
             "Users." + Users._ID + " as " + TrackView.USER_ID + "," +
             "Users." + Users.USERNAME + " as " + TrackView.USERNAME + "," +
             "Users." + Users.PERMALINK + " as " + TrackView.USER_PERMALINK + "," +
-            "Users." + Users.AVATAR_URL + " as " + TrackView.USER_AVATAR_URL +
+            "Users." + Users.AVATAR_URL + " as " + TrackView.USER_AVATAR_URL + "," +
+            "COALESCE(TrackPlays." + TrackPlays.PLAY_COUNT + ", 0) as " + TrackView.USER_PLAY_COUNT +
             " FROM Tracks" +
             " JOIN Users ON(" +
-            "   Tracks." + Tracks.USER_ID + " = " + "Users." + Users._ID + ")";
+            "   Tracks." + Tracks.USER_ID + " = " + "Users." + Users._ID + ")" +
+            " LEFT OUTER JOIN TrackPlays ON(" +
+            "   TrackPlays." + TrackPlays.TRACK_ID + " = " + "Tracks." + TrackView._ID + ")" +
+            "";
 
     /** A view which combines activity data + tracks/users/comments */
     static final String DATABASE_CREATE_ACTIVITY_VIEW = "CREATE VIEW ActivityView AS SELECT " +
@@ -350,7 +354,7 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     public static final class CollectionItems {
         public static final String ITEM_ID = "item_id";
-        public static final String USER_ID = "user_id";
+        public static final String USER_ID = "user_id";     // "owner" of the item
         public static final String COLLECTION_TYPE = "collection_type";
         public static final String POSITION = "position";
 
@@ -496,7 +500,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         public static final String USER_AVATAR_URL = "track_user_avatar_url";
         public static final String USER_FAVORITE   = "track_user_favorite";
-        public static final String USER_PLAYED     = "track_user_played";
+        public static final String USER_PLAY_COUNT = "track_user_play_count";
     }
 
     public final static class ActivityView extends Activities {

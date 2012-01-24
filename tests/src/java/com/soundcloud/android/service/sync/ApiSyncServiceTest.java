@@ -10,9 +10,11 @@ import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.FileMap;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,9 +36,11 @@ import java.util.LinkedHashMap;
 //@DatabaseConfig.UsingDatabaseMap(FileMap.class)
 public class ApiSyncServiceTest {
     ContentResolver resolver;
+    static final long USER_ID = 100L;
 
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
+        DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
 
     @After public void after() {
@@ -139,10 +143,10 @@ public class ApiSyncServiceTest {
 
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri), 1);
         // make sure tracks+users got written
+        assertContentUriCount(Content.USERS, 3);
         assertContentUriCount(Content.ME_FOLLOWERS, 3);
         assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
     }
-
 
     @Test
     public void shouldSyncActivitiesIncoming() throws Exception {
