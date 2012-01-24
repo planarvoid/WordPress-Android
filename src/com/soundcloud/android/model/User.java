@@ -280,16 +280,18 @@ public class User extends ScModel implements PageTrackable, Resource {
         return 86400000;//24*60*60*1000 = 24hr
     }
 
-
+    // TODO, this is kind of dumb.
     public User updateFrom(ScModel updatedItem) {
          if (updatedItem instanceof UserlistItem){
              updateFromUserlistItem((UserlistItem) updatedItem);
+         } else if (updatedItem instanceof User){
+             updateFromUser((User) updatedItem);
          }
         return this;
     }
 
     public User updateFromUserlistItem(UserlistItem userlistItem) {
-       this.id = userlistItem.id;
+        this.id = userlistItem.id;
         this.username = userlistItem.username;
         this.track_count = userlistItem.track_count;
         this.city = userlistItem.city;
@@ -301,6 +303,26 @@ public class User extends ScModel implements PageTrackable, Resource {
         this.followings_count = userlistItem.followings_count;
         this.public_favorites_count = userlistItem.public_favorites_count;
         this.private_tracks_count = userlistItem.private_tracks_count;
+        return this;
+    }
+
+    public User updateFromUser(User user) {
+        this.id = user.id;
+        this.username = user.username;
+        this.track_count = user.track_count;
+        this.city = user.city;
+        this.country = user.country;
+        this.avatar_url = user.avatar_url;
+        this.permalink = user.permalink;
+        this.full_name = user.full_name;
+        this.followers_count = user.followers_count;
+        this.followings_count = user.followings_count;
+        this.public_favorites_count = user.public_favorites_count;
+        this.private_tracks_count = user.private_tracks_count;
+
+        this.discogs_name = user.discogs_name;
+        this.myspace_name = user.myspace_name;
+        this.description = user.description;
         return this;
     }
 }

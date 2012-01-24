@@ -60,6 +60,7 @@ public class UserCache extends LruCache<Long, User> {
             put(user);
             return user;
         } else {
+            stored.updateFrom(user);
             return stored;
         }
     }
