@@ -71,7 +71,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     public static final String EXTRA_FROM_NOTIFICATION  = "com.soundcloud.android.musicserviceextra.fromNotification";
 
-
     public static final String ADD_FAVORITE       = "com.soundcloud.android.favorite.add";
     public static final String REMOVE_FAVORITE    = "com.soundcloud.android.favorite.remove";
 
@@ -511,12 +510,15 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         state = newState;
         mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
         scheduleServiceShutdownCheck();
-        stopForeground(false);
-
-        if (Build.VERSION.SDK_INT >= 11 && status != null){
-            ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
+        if (useRichNotifications()){
+            stopForeground(false);
+            if (status != null){
+                ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
             NotificationManager mManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mManager.notify(PLAYBACKSERVICE_STATUS_ID, status);
+            }
+        } else {
+            stopForeground(true);
         }
     }
 
@@ -536,7 +538,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private void setPlayingNotification(final Track track) {
         if (track == null) return;
 
-        if (Build.VERSION.SDK_INT < 11) {
+        if (!useRichNotifications()) {
             if (mNotificationView == null) {
                 mNotificationView = new RemoteViews(getPackageName(), R.layout.playback_service_status_play);
                 mNotificationView.setImageViewResource(R.id.icon, R.drawable.statusbar);
@@ -579,6 +581,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         startForeground(PLAYBACKSERVICE_STATUS_ID, status);
 
 
+    }
+
+    private boolean useRichNotifications() {
+        return false;
+        //return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
 
     private Bitmap getDefaultArtwork() {
