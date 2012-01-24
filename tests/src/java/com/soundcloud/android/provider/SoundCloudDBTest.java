@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.model.SearchHistoryItem;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -12,6 +13,8 @@ import org.junit.runner.RunWith;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
+
+import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class SoundCloudDBTest {
@@ -143,5 +146,29 @@ public class SoundCloudDBTest {
         expect(c.getLong(c.getColumnIndex(DBHelper.TrackPlays.TRACK_ID))).toEqual(100L);
         expect(c.getLong(c.getColumnIndex(DBHelper.TrackPlays.USER_ID))).toEqual(USER_ID);
         expect(c.getInt(c.getColumnIndex(DBHelper.TrackPlays.PLAY_COUNT))).toEqual(PLAYS);
+    }
+
+
+    @Test
+    public void shouldAddSearches() throws Exception {
+        Uri uri = SoundCloudDB.addSearch(resolver, 0, "A Query");
+        expect(uri.toString()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/searches/1");
+
+        List<SearchHistoryItem> searches = SoundCloudDB.getSearches(resolver);
+        expect(searches.size()).toEqual(1);
+
+        SearchHistoryItem item = searches.get(0);
+        expect(item.search_type).toEqual(0);
+        expect(item.query).toEqual("A Query");
+        expect(item.created_at).not.toEqual(0L);
+    }
+
+    @Test
+    public void shouldNotAddDuplicateSearches() throws Exception {
+        for (int i=0; i<5; i++) {
+            SoundCloudDB.addSearch(resolver, 0, "A Query");
+        }
+        SoundCloudDB.addSearch(resolver, 0, "A different query");
+        expect(SoundCloudDB.getSearches(resolver).size()).toEqual(2);
     }
 }

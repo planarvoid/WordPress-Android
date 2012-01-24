@@ -189,7 +189,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "created_at INTEGER," +
             "user_id INTEGER," +
             "query VARCHAR(255)," +
-            "search_type INTEGER"+
+            "search_type INTEGER," +
+            "UNIQUE (user_id, search_type, query) ON CONFLICT REPLACE"+
             ");";
 
     static final String DATABASE_CREATE_PLAYLIST = "CREATE TABLE Playlists (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +

@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.SearchHistoryItem;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
@@ -106,6 +107,29 @@ public class SoundCloudDB {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBHelper.TrackPlays.TRACK_ID, track.id);
         return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
+    }
+
+    public static Uri addSearch(ContentResolver resolver, int searchType, String query) {
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Searches.CREATED_AT, System.currentTimeMillis());
+        cv.put(DBHelper.Searches.QUERY, query);
+        cv.put(DBHelper.Searches.SEARCH_TYPE, searchType);
+        return resolver.insert(Content.SEARCHES.uri, cv);
+    }
+
+    public static List<SearchHistoryItem> getSearches(ContentResolver resolver) {
+        Cursor cursor = resolver.query(Content.SEARCHES.uri,
+                null,
+                null,
+                null,
+                DBHelper.Searches.CREATED_AT + " DESC");
+
+        List<SearchHistoryItem> list = new ArrayList<SearchHistoryItem>();
+        while (cursor != null && cursor.moveToNext()) {
+            list.add(new SearchHistoryItem(cursor));
+        }
+        if (cursor != null) cursor.close();
+        return list;
     }
 
     @SuppressWarnings("unchecked")

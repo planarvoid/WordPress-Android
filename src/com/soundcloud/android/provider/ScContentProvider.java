@@ -138,7 +138,7 @@ public class ScContentProvider extends ContentProvider {
 
             case SEARCHES:
                 qb.setTables(content.table.name);
-                qb.appendWhere(Table.SEARCHES.id + " = "+ userId);
+                qb.appendWhere(DBHelper.Searches.USER_ID + " = "+ userId);
                 break;
 
             case SEARCHES_USER:
@@ -276,11 +276,13 @@ public class ScContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
             case SEARCHES:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
+                if (!values.containsKey(DBHelper.Searches.USER_ID)) {
+                    values.put(DBHelper.Searches.USER_ID, userId);
+                }
+                id = db.insert(content.table.name, null, values);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
-
             case USERS:
                 id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
