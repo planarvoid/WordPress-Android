@@ -1,6 +1,8 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -8,7 +10,9 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
+import android.content.ContentResolver;
 import android.net.Uri;
+import android.os.Parcelable;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -93,5 +97,29 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
         } else {
             return null;
         }
+    }
+
+    public static ScModel resolveLocally(ContentResolver resolver, Uri uri) {
+        if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
+            final String specific = uri.getSchemeSpecificPart();
+            final String[] components = specific.split(":", 2);
+            if (components != null && components.length == 2) {
+                final String type = components[0];
+                final String id = components[1];
+
+                if (type != null && id != null) {
+                    try {
+                        long _id = Long.parseLong(id);
+                        if ("tracks".equalsIgnoreCase(type)) {
+                            return SoundCloudDB.getTrackById(resolver, _id);
+                        } else if ("users".equalsIgnoreCase(type)) {
+                            return SoundCloudDB.getUserById(resolver, _id);
+                        }
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

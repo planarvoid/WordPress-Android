@@ -5,7 +5,7 @@ import android.net.Uri;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;

@@ -2,7 +2,7 @@
 package com.soundcloud.android.model;
 
 import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.CloudUtils;

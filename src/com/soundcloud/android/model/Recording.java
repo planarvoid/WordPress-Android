@@ -4,6 +4,7 @@ package com.soundcloud.android.model;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
@@ -15,11 +16,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -87,42 +85,33 @@ public class Recording extends ScModel implements PageTrackable {
         readFromParcel(in);
     }
 
-    public Recording(Cursor cursor) {
-        String[] keys = cursor.getColumnNames();
-        for (String key : keys) {
-            if (key.contentEquals("_id")) {
-                id = cursor.getLong(cursor.getColumnIndex(key));
-            } else {
-                try {
-                    Field f = this.getClass().getDeclaredField(key);
-                    if (f != null) {
-                        if (f.getType() == String.class) {
-                            f.set(this, cursor.getString(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Long.TYPE || f.getType() == Long.class) {
-                            f.set(this, cursor.getLong(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Integer.TYPE || f.getType() == Integer.class) {
-                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)));
-                        } else if (f.getType() == Boolean.TYPE) {
-                            f.set(this, cursor.getInt(cursor.getColumnIndex(key)) != 0);
-                        } else if (f.getType() == Double.TYPE) {
-                            f.set(this, cursor.getDouble(cursor.getColumnIndex(key)));
-                        }  else if (f.getType() == File.class) {
-                            if (!TextUtils.isEmpty(cursor.getString(cursor.getColumnIndex(key)))){
-                                f.set(this, new File(cursor.getString(cursor.getColumnIndex(key))));
-                            }
-                        }
-                    }
-                } catch (IllegalArgumentException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
-                } catch (IllegalAccessException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
-                } catch (SecurityException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
-                } catch (NoSuchFieldException e) {
-                    Log.e(getClass().getSimpleName(), "error", e);
-                }
-            }
+    public Recording(Cursor c) {
+        this.user_id = c.getLong(c.getColumnIndex(Recordings.USER_ID));
+        this.timestamp = c.getLong(c.getColumnIndex(Recordings.TIMESTAMP));
+        this.longitude = c.getDouble(c.getColumnIndex(Recordings.LONGITUDE));
+        this.latitude = c.getDouble(c.getColumnIndex(Recordings.LATITUDE));
+        this.what_text = c.getString(c.getColumnIndex(Recordings.WHAT_TEXT));
+        this.where_text = c.getString(c.getColumnIndex(Recordings.WHERE_TEXT));
+        this.audio_path = new File(c.getString(c.getColumnIndex(Recordings.AUDIO_PATH)));
+        final String artwork = c.getString(c.getColumnIndex(Recordings.ARTWORK_PATH));
+        this.artwork_path = artwork == null ? null : new File(artwork);
+        final String audio = c.getString(c.getColumnIndex(Recordings.AUDIO_PATH));
+        this.audio_path = audio == null ? null : new File(audio);
+        this.duration = c.getLong(c.getColumnIndex(Recordings.DURATION));
+        this.four_square_venue_id = c.getString(c.getColumnIndex(Recordings.FOUR_SQUARE_VENUE_ID));
+        this.shared_emails = c.getString(c.getColumnIndex(Recordings.SHARED_EMAILS));
+        this.shared_ids = c.getString(c.getColumnIndex(Recordings.SHARED_IDS));
+        this.private_user_id = c.getLong(c.getColumnIndex(Recordings.PRIVATE_USER_ID));
+        int usernameIdx = c.getColumnIndex(DBHelper.Users.USERNAME);
+        if (usernameIdx != -1) { // gets joined in
+            this.private_username = c.getString(usernameIdx);
         }
+        this.service_ids = c.getString(c.getColumnIndex(Recordings.SERVICE_IDS));
+        this.is_private = c.getInt(c.getColumnIndex(Recordings.IS_PRIVATE)) == 1;
+        this.external_upload = c.getInt(c.getColumnIndex(Recordings.EXTERNAL_UPLOAD)) == 1;
+        this.audio_profile = c.getInt(c.getColumnIndex(Recordings.AUDIO_PROFILE));
+        this.upload_status = c.getInt(c.getColumnIndex(Recordings.AUDIO_PROFILE));
+        this.upload_error = c.getInt(c.getColumnIndex(Recordings.AUDIO_PROFILE)) == 1;
 
         // enforce proper construction
         if (audio_path == null) {
@@ -142,7 +131,7 @@ public class Recording extends ScModel implements PageTrackable {
     public static Recording pendingFromPrivateUserId(long id, ContentResolver resolver) {
         Cursor cursor = resolver.query(Content.RECORDINGS.uri, null,
                 Recordings.PRIVATE_USER_ID + " = ? AND " + Recordings.UPLOAD_STATUS + " = ?",
-                new String[]{Long.toString(id), String.valueOf(Upload.UploadStatus.NOT_YET_UPLOADED)}, null);
+                new String[]{ Long.toString(id), String.valueOf(Upload.UploadStatus.NOT_YET_UPLOADED)}, null);
 
         try {
             return cursor != null && cursor.moveToFirst() ? new Recording(cursor) : null;
@@ -162,7 +151,7 @@ public class Recording extends ScModel implements PageTrackable {
     };
 
     public ContentValues buildContentValues(){
-        ContentValues cv = new ContentValues();
+        ContentValues cv = super.buildContentValues();
         cv.put(Recordings.USER_ID, user_id);
         cv.put(Recordings.TIMESTAMP, timestamp);
         cv.put(Recordings.LONGITUDE, longitude);
@@ -203,10 +192,7 @@ public class Recording extends ScModel implements PageTrackable {
 
 
     public Uri toUri() {
-        return Content.RECORDINGS
-                .buildUpon()
-                .appendEncodedPath(String.valueOf(id))
-                .build();
+        return Content.RECORDINGS.forId(id);
     }
 
     public String getStatus(Resources resources) {

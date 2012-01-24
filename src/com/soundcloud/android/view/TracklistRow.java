@@ -5,12 +5,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.ITracklistAdapter;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Transformation;
 import android.widget.ImageView;

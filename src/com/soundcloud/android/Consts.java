@@ -1,5 +1,8 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.utils.CloudUtils;
+
+import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
@@ -94,11 +97,24 @@ public final class Consts {
             this.width = width;
             this.height = height;
         }
-        static GraphicSize fromString(String s) {
-            for (GraphicSize gs : EnumSet.allOf(GraphicSize.class)) {
+
+        public static GraphicSize fromString(String s) {
+            for (GraphicSize gs : values()) {
                 if (gs.key.equalsIgnoreCase(s)) return gs;
             }
             return Unknown;
+        }
+
+        public static Consts.GraphicSize getListItemGraphicSize(Context c) {
+            if (CloudUtils.isScreenXL(c)) {
+                return Consts.GraphicSize.LARGE;
+            } else {
+                if (c.getResources().getDisplayMetrics().density > 1) {
+                    return Consts.GraphicSize.LARGE;
+                } else {
+                    return Consts.GraphicSize.BADGE;
+                }
+            }
         }
     }
 

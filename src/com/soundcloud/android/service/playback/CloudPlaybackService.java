@@ -11,7 +11,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.streaming.StreamProxy;
@@ -374,7 +374,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             @Override
             public void run() {
                 mCurrentTrack.markAsPlayed(getContentResolver(), getApp().getCurrentUserId());
-                mCache.put(mCurrentTrack.updateFromDb(getContentResolver(), getApp().getLoggedInUser()));
+                mCache.put(mCurrentTrack.updateFromDb(getContentResolver(), getApp().getCurrentUserId()));
                 mPlayerHandler.sendEmptyMessage(NOTIFY_META_CHANGED);
             }
         }.start();
@@ -775,7 +775,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
-        SoundCloudDB.setTrackIsFavorite(getContentResolver(), trackId, isFavorite, getApp().getCurrentUserId());
+        Track track = SoundCloudDB.getTrackById(getContentResolver(), trackId);
+        if (track != null) {
+            track.user_favorite = isFavorite;
+            SoundCloudDB.upsertTrack(getContentResolver(), track);
+
+        }
 
         if (mCache.containsKey(trackId)) {
             mCache.get(trackId).user_favorite = isFavorite;

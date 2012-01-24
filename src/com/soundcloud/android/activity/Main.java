@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.auth.AuthenticatorService;
@@ -16,6 +17,7 @@ import com.soundcloud.android.task.ResolveTask;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 
 import android.accounts.AccountManagerCallback;
@@ -245,12 +247,24 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         }
     }
 
-
-    private boolean handleViewUrl(Intent intent) {
+    protected boolean handleViewUrl(Intent intent) {
         Uri data = intent.getData();
-        // TODO resolve locally first
-        // XXX broken for soundcloud:tracks:XXX
-        if (data != null && !data.getPathSegments().isEmpty()) {
+        if (data == null) return false;
+        ScModel model = ResolveTask.resolveLocally(getContentResolver(), data);
+        if (model instanceof Track) {
+            onTrackInfoLoaded((Track) model, null);
+            return true;
+        } else if (model == null) {
+            Uri uri = ResolveTask.resolveSoundCloudURI(data, Env.LIVE);
+            if (uri != null) {
+                onUrlResolved(uri, null);
+                return true;
+            }
+        }
+
+        // not a client url (e.g. soundcloud:tracks:123456)
+        if (!data.getPathSegments().isEmpty()) {
+            // TODO put this code under test
             // only handle the first 2 path segments (resource only for now, actions to be implemented later)
             int cutoff = 0;
             if (data.getPathSegments().size() > 1 && (data.getPathSegments().get(1).contentEquals("follow")
@@ -267,7 +281,6 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             mResolveTask.setListener(this);
             mResolveTask.execute(data);
             return true;
-
         } else {
             return false;
         }

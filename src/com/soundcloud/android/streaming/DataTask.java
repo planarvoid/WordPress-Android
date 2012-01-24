@@ -145,6 +145,7 @@ abstract class DataTask extends StreamItemTask {
             connection.setDoInput(true);
             connection.setDoOutput(false);
             connection.setRequestProperty("User-Agent", api.getUserAgent());
+            connection.setUseCaches(false);
             InputStream is = null;
             try {
                 connection.connect();

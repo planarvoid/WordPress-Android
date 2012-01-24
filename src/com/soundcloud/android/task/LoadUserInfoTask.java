@@ -1,9 +1,7 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.WriteState;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.model.User;
 
 import java.lang.ref.WeakReference;
@@ -33,8 +31,7 @@ public class LoadUserInfoTask extends LoadTask<User> {
         if (result != null) {
 
             if (mWriteToDB){
-                SoundCloudDB.writeUser(mApp.getContentResolver(), result,
-                        WriteState.all, mApp.getCurrentUserId());
+                SoundCloudDB.upsertUser(mApp.getContentResolver(), result);
             }
 
             if (listener != null){

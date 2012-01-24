@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.UserBrowser;
@@ -57,7 +58,7 @@ public class QuickTrackMenu extends QuickAction {
         if (track == null) return;
 
         mPlayActionItem.setVisibility(track.isStreamable() ? View.VISIBLE : View.GONE);
-        mPlayActionItem.setIcon((track.id == ((ITracklistAdapter) mAdapter).getPlayingId() && ((ITracklistAdapter) mAdapter).isPlaying())
+        mPlayActionItem.setIcon((track.id == mAdapter.getPlayingId() && mAdapter.isPlaying())
                 ? getPauseDrawable() : getPlayDrawable());
 
         mShareActionItem.setVisibility(track.isPublic() ? View.VISIBLE : View.GONE);
@@ -65,7 +66,7 @@ public class QuickTrackMenu extends QuickAction {
 
         if (!track.hasAvatar() ||
                 ImageUtils.loadImageSubstitute(mActivity, mProfileActionItem.getIconView(), track.user.avatar_url,
-                        ImageUtils.getListItemGraphicSize(mActivity), null, null) != ImageLoader.BindResult.OK) {
+                        Consts.GraphicSize.getListItemGraphicSize(mActivity), null, null) != ImageLoader.BindResult.OK) {
             mProfileActionItem.getIconView().setImageDrawable(mActivity.getResources().getDrawable(R.drawable.avatar_badge));
         }
 

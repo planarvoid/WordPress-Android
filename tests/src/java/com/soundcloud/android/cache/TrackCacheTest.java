@@ -1,7 +1,8 @@
 package com.soundcloud.android.cache;
 
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
@@ -9,29 +10,28 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.soundcloud.android.Expect.expect;
-import static junit.framework.Assert.assertEquals;
-
-@SuppressWarnings({"UnnecessaryBoxing"})
 public class TrackCacheTest {
+    TrackCache cache = new TrackCache();
+
     @Test
     public void testShareTrack() {
         Track track = new Track();
         track.id = 1234;
         track.bpm = 120f;
-        SoundCloudApplication.TRACK_CACHE.put(track);
+        cache.put(track);
 
         TracklistItem listItem = new TracklistItem();
         listItem.id = 1234;
         listItem.duration = 9876;
-        Track t = (Track) SoundCloudApplication.TRACK_CACHE.fromListItem(listItem);
+        Track t = (Track) cache.fromListItem(listItem);
 
-        assertEquals(t.bpm,track.bpm);
-        assertEquals(t.duration,track.duration);
+        expect(t.bpm).toEqual(track.bpm);
+        expect(t.duration).toEqual(track.duration);
     }
 
     @Test
     public void testUniqueUserMultipleTracks() throws IOException {
+        // XXX what does this test do?
         ScModel.TracklistItemHolder holder = AndroidCloudAPI.Mapper.readValue(getClass().getResourceAsStream("tracks.json"), ScModel.TracklistItemHolder.class);
         expect(holder.size()).toBe(3);
 

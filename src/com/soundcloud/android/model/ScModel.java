@@ -65,7 +65,7 @@ public abstract class ScModel implements Parcelable {
         return holder;
     }
 
-    @Deprecated // this is slow (reflection)
+    @Deprecated // XXX this is slow (reflection)
     protected void readFromParcel(Parcel in) {
         Bundle data = in.readBundle(getClass().getClassLoader());
         for (String key : data.keySet()) {
@@ -82,7 +82,7 @@ public abstract class ScModel implements Parcelable {
         this.id = data.getLong("id");
     }
 
-    @Override // AVOID THIS: slow (reflection)
+    @Override // XXX AVOID THIS: slow (reflection)
     public void writeToParcel(Parcel out, int flags) {
         Bundle data = new Bundle();
         for (Field f : getClass().getDeclaredFields()) {
@@ -103,6 +103,7 @@ public abstract class ScModel implements Parcelable {
         return 0;
     }
 
+    @Deprecated
     protected static void setBundleFromField(Bundle bundle, String fieldName, Class fieldType, Object fieldValue) {
         if (fieldType == String.class && !TextUtils.isEmpty(String.valueOf(fieldValue)))
             bundle.putString(fieldName, (String) fieldValue);
@@ -121,6 +122,7 @@ public abstract class ScModel implements Parcelable {
         }
     }
 
+    @Deprecated
     protected static void setFieldFromBundle(Parcelable p, Field field, Bundle bundle, String key) {
         try {
             if (field != null) {
@@ -149,6 +151,7 @@ public abstract class ScModel implements Parcelable {
         }
     }
 
+    @Deprecated
     protected static void setFieldFromCursor(Parcelable p, Field field, Cursor cursor, String key) {
         try {
             if (field != null) {
@@ -188,18 +191,17 @@ public abstract class ScModel implements Parcelable {
         return (int) (id ^ (id >>> 32));
     }
 
-    public Uri appendIdToUri(Uri baseUri){
-        return baseUri.buildUpon().appendPath(Long.toString(id)).build();
-    }
-
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        cv.put(BaseColumns._ID, id);
+        if (id != -1) cv.put(BaseColumns._ID, id);
         return cv;
     }
 
-    public long getLastUpdated(){
-        return 0l;
+    /**
+     * @return whether this object has been saved to the database.
+     */
+    public boolean isSaved() {
+        return id >= 0;
     }
 
     public void assertInDb(SoundCloudApplication app) { }

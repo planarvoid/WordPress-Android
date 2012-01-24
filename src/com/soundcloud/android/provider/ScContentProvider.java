@@ -2,8 +2,11 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.accounts.Account;
 import android.app.SearchManager;
@@ -17,11 +20,23 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 
 
 public class ScContentProvider extends ContentProvider {
@@ -47,17 +62,17 @@ public class ScContentProvider extends ContentProvider {
         String[] _columns = columns;
         String _sortOrder = sortOrder;
         final Content content = Content.match(uri);
-
+        String query = null;
         switch (content) {
             case COLLECTION_ITEMS:
-                qb.setTables(Table.COLLECTION_ITEMS.name);
+                qb.setTables(content.table.name);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
             case COLLECTIONS:
-                qb.setTables(Table.COLLECTIONS.name);
+                qb.setTables(content.table.name);
                 break;
             case COLLECTION_PAGES:
-                qb.setTables(Table.COLLECTION_PAGES.name);
+                qb.setTables(content.table.name);
                 break;
 
             case ME_TRACKS:
@@ -78,6 +93,11 @@ public class ScContentProvider extends ContentProvider {
                 _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
+            case ME_USERID:
+                MatrixCursor c = new MatrixCursor(new String[] { BaseColumns._ID}, 1);
+                c.addRow(new Object[] { SoundCloudApplication.fromContext(getContext()).getCurrentUserId() });
+                return c;
+
             case USER_TRACKS:
             case USER_FAVORITES:
                 qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
@@ -99,36 +119,36 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(Table.TRACK_VIEW.name);
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
                 break;
-            case TRACK_ITEM:
+            case TRACK:
                 qb.setTables(Table.TRACK_VIEW.name);
                 qb.appendWhere(Table.TRACK_VIEW.id + " = " + uri.getLastPathSegment());
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
                 break;
 
             case USERS:
-                qb.setTables(Table.USERS.name);
+                qb.setTables(content.table.name);
                 if (_columns == null) _columns = formatWithUser(fullUserColumns,userId);
                 break;
 
-            case USER_ITEM:
-                qb.setTables(Table.USERS.name);
+            case USER:
+                qb.setTables(content.table.name);
                 qb.appendWhere(Table.USERS.id + " = " + uri.getLastPathSegment());
                 if (_columns == null) _columns = formatWithUser(fullUserColumns,userId);
                 break;
 
             case SEARCHES:
-                qb.setTables(Table.SEARCHES.name);
+                qb.setTables(content.table.name);
                 qb.appendWhere(Table.SEARCHES.id + " = "+ userId);
                 break;
 
-            case SEARCHES_USERS_ITEM:
+            case SEARCHES_USER:
                 if (_columns == null) _columns = formatWithUser(fullUserColumns,userId);
                 qb.setTables(makeCollectionJoin(Table.USERS));
                 makeCollectionSelection(qb, String.valueOf(userId), SEARCH);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
 
-            case SEARCHES_TRACKS_ITEM:
+            case SEARCHES_TRACK:
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
                 qb.setTables(makeCollectionJoin(Table.TRACK_VIEW));
                 makeCollectionSelection(qb, String.valueOf(userId), SEARCH);
@@ -136,22 +156,33 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case TRACK_PLAYS:
-                qb.setTables(Table.TRACK_PLAYS.name);
+                qb.setTables(content.table.name);
                 qb.appendWhere(DBHelper.TrackPlays.USER_ID + " = "+ userId);
                 break;
 
             case TRACK_PLAYS_ITEM:
-                qb.setTables(Table.TRACK_PLAYS.name);
+                qb.setTables(content.table.name);
                 qb.appendWhere(Table.TRACK_PLAYS.id + " = " + uri.getLastPathSegment());
                 break;
 
             case RECORDINGS:
-                qb.setTables(Table.RECORDINGS.name);
-                qb.appendWhere(DBHelper.Recordings.USER_ID + " = "+ userId);
+                qb.setTables(content.table.name +
+                        " LEFT OUTER JOIN "+Table.USERS+
+                        " ON "+content.table.field(DBHelper.Recordings.PRIVATE_USER_ID)+
+                        "="+Table.USERS.field(DBHelper.Users._ID));
+                String _selection = DBHelper.Recordings.USER_ID+"="+userId;
+                if (selection != null) {
+                    _selection += (" AND " +selection);
+                }
+                query = qb.buildQuery(
+                        new String[] { content.table.allFields(), DBHelper.Users.USERNAME },
+                        _selection,
+                        null,
+                        null,
+                        _sortOrder, null);
                 break;
-
-            case RECORDING_ITEM:
-                qb.setTables(Table.RECORDINGS.name);
+            case RECORDING:
+                qb.setTables(content.table.name);
                 qb.appendWhere(Table.RECORDINGS.id + " = "+ uri.getLastPathSegment());
                 break;
 
@@ -167,14 +198,14 @@ public class ScContentProvider extends ContentProvider {
                 _sortOrder = makeActivitiesSort(uri, sortOrder);
                 break;
             case COMMENTS:
-                qb.setTables(Table.COMMENTS.name);
+                qb.setTables(content.table.name);
                 break;
             case PLAYLISTS:
-                qb.setTables(Table.PLAYLIST.name);
+                qb.setTables(content.table.name);
                 qb.appendWhere("_id = "+ userId);
                 break;
 
-            case PLAYLIST_ITEMS:
+            case PLAYLIST:
                 qb.setTables(Table.TRACK_VIEW + " INNER JOIN " + Table.PLAYLIST_ITEMS.name +
                         " ON (" + Table.TRACK_VIEW + "._id" + " = " + DBHelper.PlaylistItems.ITEM_ID + ")");
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
@@ -195,11 +226,12 @@ public class ScContentProvider extends ContentProvider {
                 throw new IllegalArgumentException("No query available for: " + uri);
         }
 
-        final String q = qb.buildQuery(_columns, selection, selectionArgs /* ignored, see below */,
-                null, null, _sortOrder, null);
-        Log.d(TAG, "query: "+q);
+        if (query == null) {
+            query = qb.buildQuery(_columns, selection, null, null, _sortOrder, null);
+        }
+        Log.d(TAG, "query: "+query);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c = db.rawQuery(q, selectionArgs);
+        Cursor c = db.rawQuery(query, selectionArgs);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
@@ -211,57 +243,58 @@ public class ScContentProvider extends ContentProvider {
         long id;
         Uri result;
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        switch (Content.match(uri)) {
+        final Content content = Content.match(uri);
+        switch (content) {
             case COLLECTIONS:
-                id = db.insertWithOnConflict(Table.COLLECTIONS.name, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case COLLECTION_PAGES:
-                id = db.insertWithOnConflict(Table.COLLECTION_PAGES.name, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case TRACKS:
-                id = db.insertWithOnConflict(Table.TRACKS.name, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case TRACK_PLAYS:
-                id = db.insertWithOnConflict(Table.TRACK_PLAYS.name, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case SEARCHES:
-                id = db.insertWithOnConflict(Table.SEARCHES.name, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case USERS:
-                id = db.insertWithOnConflict(Table.USERS.name, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case RECORDINGS:
-                id = db.insert(Table.RECORDINGS.name, null, values);
+                id = db.insert(content.table.name, null, values);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
 
             case ME_FAVORITES:
-                id = db.insertWithOnConflict(Table.TRACKS.name, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
                     cv.put(DBHelper.CollectionItems.ITEM_ID, (Long) values.get(DBHelper.Tracks._ID));
                     cv.put(DBHelper.CollectionItems.COLLECTION_TYPE, FAVORITE);
-                    id = db.insertWithOnConflict(Table.COLLECTION_ITEMS.name, null, cv, SQLiteDatabase.CONFLICT_ABORT);
+                    id = dbInsertWithOnConflict(db, Table.COLLECTION_ITEMS, cv, SQLiteDatabase.CONFLICT_ABORT);
                     result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                     getContext().getContentResolver().notifyChange(result, null, false);
                     return result;
@@ -272,7 +305,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_SOUND_STREAM:
             case ME_ACTIVITIES:
             case ME_EXCLUSIVE_STREAM:
-                id = db.insertWithOnConflict(Table.ACTIVITIES.name(),  null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_IGNORE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 return result;
 
@@ -285,37 +318,27 @@ public class ScContentProvider extends ContentProvider {
     public int delete(Uri uri, String where, String[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
-        String tableName;
         final Content content = Content.match(uri);
         switch (content) {
             case COLLECTIONS:
-                tableName = Table.COLLECTIONS.name;
-                break;
             case COLLECTION_PAGES:
-                tableName = Table.COLLECTION_PAGES.name;
-                break;
-            case TRACK_ITEM:
-                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                tableName = Table.TRACKS.name;
-                break;
-            case USER_ITEM:
-                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                tableName = Table.USERS.name;
-                break;
             case SEARCHES:
-                tableName = Table.SEARCHES.name;
-                break;
-            case PLAYLIST_ITEMS:
-                where = TextUtils.isEmpty(where) ? DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment()
-                        : where + " AND " + DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment();
-                tableName = Table.PLAYLIST_ITEMS.name;
                 break;
 
+            case TRACK:
+                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                break;
+            case USER:
+                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                break;
+            case PLAYLIST:
+                where = TextUtils.isEmpty(where) ? DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment()
+                        : where + " AND " + DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment();
+                break;
             case ME_ALL_ACTIVITIES:
             case ME_ACTIVITIES:
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
-                tableName = Table.ACTIVITIES.name;
                 if (content != Content.ME_ALL_ACTIVITIES) {
                     where = DBHelper.Activities.CONTENT_ID+"= ?";
                     whereArgs = new String[] {String.valueOf(content.id) };
@@ -329,8 +352,6 @@ public class ScContentProvider extends ContentProvider {
             case USER_FAVORITES:
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
-                tableName = Table.COLLECTION_ITEMS.name;
-                //TODO
                 //makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
                 break;
 
@@ -338,9 +359,7 @@ public class ScContentProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
-        count = db.delete(tableName, where, whereArgs);
-
-        System.out.println("NOTIFY delete " + uri);
+        count = db.delete(content.table.name , where, whereArgs);
         getContext().getContentResolver().notifyChange(uri, null, false);
         return count;
 
@@ -351,34 +370,35 @@ public class ScContentProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
-        switch (Content.match(uri)) {
-            case COLLECTIONS_ITEM:
+        final Content content = Content.match(uri);
+        switch (content) {
+            case COLLECTION:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(Table.COLLECTIONS.name, values, where, whereArgs);
+                count = db.update(content.table.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
-            case TRACK_ITEM:
+            case TRACK:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(Table.TRACKS.name, values, where, whereArgs);
+                count = db.update(content.table.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
-            case USER_ITEM:
+            case USER:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(Table.USERS.name, values, where, whereArgs);
+                count = db.update(content.table.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
-            case SEARCHES_ITEM:
+            case SEARCH:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(Table.SEARCHES.name, values, where, whereArgs);
+                count = db.update(content.table.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
             case RECORDINGS:
-                count = db.update(Table.RECORDINGS.name, values, where, whereArgs);
+                count = db.update(content.table.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
-            case RECORDING_ITEM:
+            case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
-                count = db.update(Table.RECORDINGS.name, values, where, whereArgs);
+                count = db.update(content.table.name, values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
 
@@ -434,11 +454,20 @@ public class ScContentProvider extends ContentProvider {
         db.beginTransaction();
 
         String[] extraCV = null;
-
         try {
-            String tblName;
             final Content content = Content.match(uri);
+            final Table table;
             switch (content) {
+                case TRACKS:
+                case USERS:
+                case COMMENTS:
+                case PLAYLISTS:
+                case ME_SOUND_STREAM:
+                case ME_EXCLUSIVE_STREAM:
+                case ME_ACTIVITIES:
+                    table = content.table;
+                    break;
+
                 case ME_TRACKS:
                 case USER_TRACKS:
                 case ME_FAVORITES:
@@ -447,47 +476,16 @@ public class ScContentProvider extends ContentProvider {
                 case USER_FOLLOWERS:
                 case ME_FOLLOWINGS:
                 case USER_FOLLOWINGS:
-                    tblName = Table.COLLECTION_ITEMS.name;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
-                    break;
-
-                case TRACKS:
-                    tblName = Table.TRACKS.name;
-                    break;
-                case USERS:
-                    tblName = Table.USERS.name;
-                    break;
                 case ME_FRIENDS:
-                    tblName = Table.COLLECTION_ITEMS.name;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(FRIEND)};
-                    break;
                 case SUGGESTED_USERS:
-                    tblName = Table.COLLECTION_ITEMS.name;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(SUGGESTED_USER)};
-                    break;
-                case SEARCHES_USERS_ITEM:
-                    tblName = Table.COLLECTION_ITEMS.name;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(SEARCH)};
+                case SEARCHES_USER:
+                case SEARCHES_TRACK:
+                    table = Table.COLLECTION_ITEMS;
+                    extraCV = new String[]{ DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(content.collectionType)};
                     break;
 
-                case SEARCHES_TRACKS_ITEM:
-                    tblName = Table.COLLECTION_ITEMS.name;
-                    extraCV = new String[]{DBHelper.CollectionItems.COLLECTION_TYPE, String.valueOf(SEARCH)};
-                    break;
-                case ME_SOUND_STREAM:
-                case ME_ACTIVITIES:
-                case ME_EXCLUSIVE_STREAM:
-                    tblName = Table.ACTIVITIES.name;
-                    break;
-
-                case COMMENTS:
-                    tblName = Table.COMMENTS.name;
-                    break;
-                case PLAYLISTS:
-                    tblName = Table.PLAYLIST.name;
-                    break;
-                case PLAYLIST_ITEMS:
-                    tblName = Table.PLAYLIST_ITEMS.name;
+                case PLAYLIST:
+                    table = content.table;
                     extraCV = new String[]{DBHelper.PlaylistItems.PLAYLIST_ID, String.valueOf(uri.getLastPathSegment())};
                     break;
 
@@ -499,7 +497,7 @@ public class ScContentProvider extends ContentProvider {
                 if (extraCV != null) v.put(extraCV[0],extraCV[1]);
                 Log.d(TAG, "bulkInsert: "+v);
 
-                if (db.replace(tblName, null, v) < 0) {
+                if (db.replace(table.name, null, v) < 0) {
                     Log.w(TAG, "replace returned failure");
                     failed = true;
                     break;
@@ -511,6 +509,57 @@ public class ScContentProvider extends ContentProvider {
         }
         if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
         return values.length;
+    }
+
+
+    @Override
+    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+        switch (Content.match(uri)) {
+            case TRACK_ARTWORK:
+                String size = uri.getQueryParameter("size");
+                List<String> segments = uri.getPathSegments();
+                long trackId = Long.parseLong(segments.get(segments.size()-2));
+                Cursor c = query(Content.TRACK.forId(trackId), null, null, null, null);
+                if (c != null && c.moveToFirst()) {
+                    Track track = new Track(c);
+                    Consts.GraphicSize gs = (size == null || "list".equals(size)) ?
+                            Consts.GraphicSize.getListItemGraphicSize(getContext()) :
+                            Consts.GraphicSize.fromString(size);
+
+                    final String artworkUri = ImageUtils.formatGraphicsUri(track.getArtwork(), gs);
+                    final File artworkFile = new File(getContext().getCacheDir(), CloudUtils.md5(artworkUri));
+                    if (!artworkFile.exists()) {
+                        OutputStream os = null;
+                        try {
+                            HttpURLConnection conn = (HttpURLConnection) new URL(artworkUri).openConnection();
+                            conn.setUseCaches(true);
+                            InputStream is = conn.getInputStream();
+                            os = new BufferedOutputStream(new FileOutputStream(artworkFile));
+                            final byte[] buffer = new byte[8192];
+                            int n;
+                            while ((n = is.read(buffer, 0, buffer.length)) != -1) {
+                                os.write(buffer, 0, n);
+                            }
+                            os.close();
+                        } catch (MalformedURLException e) {
+                            throw new FileNotFoundException();
+                        } catch (IOException e) {
+                            throw new FileNotFoundException();
+                        } finally {
+                            c.close();
+                            if (os != null) try {
+                                os.close();
+                            } catch (IOException ignored) {
+                            }
+                        }
+                    }
+                    return ParcelFileDescriptor.open(artworkFile, ParcelFileDescriptor.MODE_READ_ONLY);
+                }
+                throw new FileNotFoundException();
+
+            default:
+                return super.openFile(uri, mode);
+        }
     }
 
     static String makeCollectionSort(Uri uri, String sortCol) {
@@ -590,6 +639,7 @@ public class ScContentProvider extends ContentProvider {
                                   SearchManager.SUGGEST_COLUMN_TEXT_1,
                                   SearchManager.SUGGEST_COLUMN_TEXT_2,
                                   SearchManager.SUGGEST_COLUMN_INTENT_DATA,
+                                  SearchManager.SUGGEST_COLUMN_ICON_1,
                                   SearchManager.SUGGEST_COLUMN_SHORTCUT_ID},
                     cursor.getCount());
 
@@ -597,11 +647,13 @@ public class ScContentProvider extends ContentProvider {
                 long trackId = cursor.getLong(0);
                 String title = cursor.getString(1);
                 String username = cursor.getString(2);
+                String icon = Content.TRACK_ARTWORK.forId(trackId).toString();
                 suggest.addRow(new Object[] {
                         trackId,
                         title,
                         username,
-                        Track.getClientUri(trackId),
+                        Track.getClientUri(trackId).toString(),
+                        icon,
                         SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT});
             }
             cursor.close();
@@ -667,6 +719,17 @@ public class ScContentProvider extends ContentProvider {
                     + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.Users.USER_FOLLOWER
     };
 
+
+    private static long dbInsertWithOnConflict(SQLiteDatabase db, Table table,
+                                              ContentValues values,
+                                              int conflictAlgorithm) {
+        if (Build.VERSION.SDK_INT > 7) {
+            return db.insertWithOnConflict(table.name, null, values, conflictAlgorithm);
+        }  else {
+            // TODO: do something sensible here
+            return db.insert(table.name, null, values);
+        }
+    }
 
     public interface CollectionItemTypes {
         int TRACK          = 0;

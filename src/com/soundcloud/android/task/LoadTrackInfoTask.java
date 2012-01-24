@@ -2,8 +2,7 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
-import com.soundcloud.android.SoundCloudDB.WriteState;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.model.Track;
 
 import java.lang.ref.WeakReference;
@@ -43,8 +42,7 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
             }
 
             if (mWriteToDB){
-                SoundCloudDB.writeTrack(mApp.getContentResolver(), result,
-                    WriteState.all, mApp.getCurrentUserId());
+                SoundCloudDB.upsertTrack(mApp.getContentResolver(), result);
             }
             result.info_loaded = true;
             if (mCacheResult){

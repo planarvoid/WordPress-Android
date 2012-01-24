@@ -10,7 +10,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.SoundCloudDB;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -18,8 +18,6 @@ import com.soundcloud.android.provider.DBHelper.Users;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
-
-import java.util.Date;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
@@ -81,6 +79,7 @@ public class User extends ScModel implements PageTrackable, Resource {
         user_follower = cursor.getInt(cursor.getColumnIndex(Users.USER_FOLLOWER)) == 1;
         user_following = cursor.getInt(cursor.getColumnIndex(Users.USER_FOLLOWING)) == 1;
         last_updated = cursor.getLong(cursor.getColumnIndex(Users.LAST_UPDATED));
+        description = cursor.getString(cursor.getColumnIndex(Users.DESCRIPTION));
         final String tempDesc = cursor.getString(cursor.getColumnIndex(Users.DESCRIPTION));
         if (TextUtils.isEmpty(tempDesc)) description = tempDesc;
         return this;
@@ -100,11 +99,12 @@ public class User extends ScModel implements PageTrackable, Resource {
     }
 
     public void assertInDb(SoundCloudApplication app) {
-        SoundCloudDB.writeUser(app.getContentResolver(), this, SoundCloudDB.WriteState.insert_only, app.getCurrentUserId());
+        SoundCloudDB.insertUser(app.getContentResolver(), this);
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
-        Cursor cursor = contentResolver.query(appendIdToUri(Content.USERS.uri), null, null, null, null);
+        // XXX
+        Cursor cursor = contentResolver.query(Content.USERS.forId(id), null, null, null, null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
@@ -143,8 +143,7 @@ public class User extends ScModel implements PageTrackable, Resource {
     }
 
     public ContentValues buildContentValues(boolean isCurrentUser){
-        ContentValues cv = new ContentValues();
-        cv.put(Users._ID, id);
+        ContentValues cv = super.buildContentValues();
         cv.put(Users.USERNAME, username);
         cv.put(Users.PERMALINK, permalink);
         cv.put(Users.AVATAR_URL, avatar_url);
