@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.SearchHistoryItem;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -13,7 +14,9 @@ import org.junit.runner.RunWith;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -170,5 +173,54 @@ public class SoundCloudDBTest {
         }
         SoundCloudDB.addSearch(resolver, 0, "A different query");
         expect(SoundCloudDB.getSearches(resolver).size()).toEqual(2);
+    }
+
+    @Test
+    public void shouldBulkInsert() throws Exception {
+        List<Parcelable> items = createParcelables();
+        expect(SoundCloudDB.bulkInsertParcelables(resolver, items)).toEqual(3);
+    }
+
+    @Test
+    public void shouldBulkInsertWithCollections() throws Exception {
+        List<Parcelable> items = createParcelables();
+        expect(SoundCloudDB.bulkInsertParcelables(resolver, items, Content.ME_FAVORITES.uri, USER_ID)).toEqual(3);
+
+        Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotBulkInsertWithoutOwnerId() throws Exception {
+        SoundCloudDB.bulkInsertParcelables(resolver, createParcelables(), Content.ME_FAVORITES.uri, -1);
+    }
+
+    private List<Parcelable> createParcelables() {
+        List<Parcelable> items = new ArrayList<Parcelable>();
+
+        User u1 = new User();
+        u1.permalink = "u1";
+        u1.id = 100L;
+
+        Track t = new Track();
+        t.id = 200L;
+        t.user = u1;
+
+        User u2 = new User();
+        u2.permalink = "u2";
+        u2.id = 300L;
+
+        User u2_ = new User();
+        u2_.permalink = "u2";
+        u2_.id = 300L;
+
+        Friend f = new Friend();
+        f.user = u2;
+
+        items.add(u1);
+        items.add(f);
+        items.add(t);
+        items.add(u2_);
+        return items;
     }
 }

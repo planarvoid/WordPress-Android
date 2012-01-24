@@ -1,6 +1,6 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.SearchHistoryItem;
 import com.soundcloud.android.model.Track;
@@ -164,56 +164,55 @@ public class SoundCloudDB {
     }
 
     public static int bulkInsertParcelables(ContentResolver resolver, List<Parcelable> items) {
-        return bulkInsertParcelables(resolver, items, null, -1, -1);
+        return bulkInsertParcelables(resolver, items, null, -1);
     }
 
     public static int bulkInsertParcelables(ContentResolver resolver,
                                             List<Parcelable> items,
                                             Uri collectionUri,
-                                            long owner,
-                                            int startIndex) {
-        int i = 0;
-        Set<User> usersToInsert = new HashSet<User>();
-        Set<Track> tracksToInsert = new HashSet<Track>();
-        ContentValues[] bulkValues = null;
-        if (collectionUri != null) {
-            bulkValues = new ContentValues[items.size()];
+                                            long ownerId) {
+        if (collectionUri != null && ownerId < 0) {
+            throw new IllegalArgumentException("need valid ownerId for collection");
         }
 
-        // XXX lookup should be in model (Origin)
-        for (Parcelable p : items) {
+        Set<User> usersToInsert = new HashSet<User>();
+        Set<Track> tracksToInsert = new HashSet<Track>();
+        ContentValues[] bulkValues = collectionUri == null ? null : new ContentValues[items.size()];
+
+        for (int i=0; i <items.size(); i++) {
+            Parcelable p = items.get(i);
             long id = ((ScModel) p).id;
-            if (p instanceof User) {
-                usersToInsert.add((User) p);
-            } else if (p instanceof Track) {
-                usersToInsert.add(((Track) p).user);
-                tracksToInsert.add((Track) p);
-            } else if (p instanceof Friend) {
-                id = ((Friend) p).user.id;
-                usersToInsert.add(((Friend) p).user);
+            if (p instanceof Origin) {
+                Origin origin = (Origin) p;
+                Track track = origin.getTrack();
+                if (track != null) {
+                    tracksToInsert.add(track);
+                }
+                User user = origin.getUser();
+                if (user != null) {
+                    usersToInsert.add(user);
+                }
             }
 
             if (bulkValues != null) {
                 ContentValues itemCv = new ContentValues();
-                itemCv.put(DBHelper.CollectionItems.USER_ID, owner);
-                itemCv.put(DBHelper.CollectionItems.POSITION, startIndex + i);
+                itemCv.put(DBHelper.CollectionItems.USER_ID, ownerId);
+                itemCv.put(DBHelper.CollectionItems.POSITION, i);
                 itemCv.put(DBHelper.CollectionItems.ITEM_ID, id);
                 bulkValues[i] = itemCv;
-                i++;
             }
         }
 
         ContentValues[] tracksCv = new ContentValues[tracksToInsert.size()];
-        i = 0;
-        for (Track t : tracksToInsert) {
-            tracksCv[i] = t.buildContentValues();
-            i++;
-        }
         ContentValues[] usersCv = new ContentValues[usersToInsert.size()];
-        i = 0;
-        for (User u : usersToInsert) {
-            usersCv[i] = u.buildContentValues();
-            i++;
+        Track[] _tracksToInsert = tracksToInsert.toArray(new Track[tracksToInsert.size()]);
+        User[] _usersToInsert = usersToInsert.toArray(new User[usersToInsert.size()]);
+
+        for (int i=0; i< _tracksToInsert.length; i++) {
+            tracksCv[i] = _tracksToInsert[i].buildContentValues();
+        }
+        for (int i=0; i< _usersToInsert.length; i++) {
+            usersCv[i] = _usersToInsert[i].buildContentValues();
         }
 
         int tracksInserted = resolver.bulkInsert(Content.TRACKS.uri, tracksCv);

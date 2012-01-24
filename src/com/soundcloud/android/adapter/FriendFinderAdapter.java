@@ -1,13 +1,11 @@
 package com.soundcloud.android.adapter;
 
-import android.os.Parcelable;
-import android.util.Log;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.view.LazyRow;
-import com.soundcloud.android.view.UserlistSectionedRow;
+
+import android.os.Parcelable;
 
 public class FriendFinderAdapter extends SectionedUserlistAdapter {
     public FriendFinderAdapter(ScActivity activity) {

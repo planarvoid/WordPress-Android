@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+// TODO replace with db lookups
+@Deprecated
 public class FollowStatus implements Parcelable {
     private static final Request ENDPOINT = Request.to(Endpoints.MY_FOLLOWINGS + "/ids");
     private static final int MAX_AGE = 5 * 60 * 1000;

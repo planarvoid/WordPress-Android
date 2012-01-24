@@ -92,7 +92,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    static final String DATABASE_CREATE_TRACKS = "CREATE TABLE Tracks (_id INTEGER PRIMARY KEY, " +
+    static final String DATABASE_CREATE_TRACKS = "CREATE TABLE Tracks (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "last_updated INTEGER," +
             "permalink VARCHAR(255)," +
             "duration INTEGER," +
@@ -119,14 +119,14 @@ public class DBHelper extends SQLiteOpenHelper {
             "filelength INTEGER"+
             ");";
 
-    static final String DATABASE_CREATE_TRACK_PLAYS = "CREATE TABLE TrackPlays (_id INTEGER PRIMARY KEY," +
+    static final String DATABASE_CREATE_TRACK_PLAYS = "CREATE TABLE TrackPlays (_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "track_id INTEGER, " +
             "user_id INTEGER, "+
             "play_count INTEGER DEFAULT 0, "+
             "UNIQUE (track_id, user_id) ON CONFLICT IGNORE"+
             ");";
 
-    static final String DATABASE_CREATE_USERS = "CREATE TABLE Users (_id INTEGER PRIMARY KEY, " +
+    static final String DATABASE_CREATE_USERS = "CREATE TABLE Users (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "last_updated INTEGER," +
             "username VARCHAR(255)," +
             "avatar_url VARCHAR(255)," +
