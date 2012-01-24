@@ -13,7 +13,7 @@ import android.content.ContentResolver;
 import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
-public class SoundCloudDBFooTest {
+public class SoundCloudDBTest {
     ContentResolver resolver;
     final static long USER_ID = 1L;
 
