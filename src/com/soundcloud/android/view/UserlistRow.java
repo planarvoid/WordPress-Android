@@ -10,7 +10,7 @@ import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.IUserlistAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.*;
 
 import android.os.Handler;
 import android.os.Message;
@@ -106,7 +106,7 @@ public class UserlistRow extends LazyRow {
 
     @Override
     public String getIconRemoteUri() {
-        if (mUser == null || mUser.avatar_url == null) return "";
+        if (mUser == null || !CloudUtils.checkIconShouldLoad(mUser.avatar_url)) return "";
         return ImageUtils.formatGraphicsUriForList(getContext(), mUser.avatar_url);
     }
 
