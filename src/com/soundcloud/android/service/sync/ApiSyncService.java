@@ -110,8 +110,6 @@ public class ApiSyncService extends Service {
         }
     }
 
-
-
     private static List<Uri> getUrisToSync(Intent intent) {
         ArrayList<Uri> contents = intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS);
         if (contents == null) {
@@ -237,6 +235,14 @@ public class ApiSyncService extends Service {
 
         public Uri getUri(){
             return uri;
+        }
+
+        @Override
+        public String toString() {
+            return "UriRequest{" +
+                    "uri=" + uri +
+                    ", action='" + action + '\'' +
+                    '}';
         }
     }
 

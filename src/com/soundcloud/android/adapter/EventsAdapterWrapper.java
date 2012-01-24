@@ -68,9 +68,11 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
     public boolean onNewEvents(Activities newActivities, boolean wasRefresh) {
         if (!isRefreshing()) doneRefreshing();
-        if (wasRefresh && !newActivities.isEmpty()) {
-            if (mListView != null && mContentUri != null) setListLastUpdated();
-            setLastSeen(newActivities.get(0).created_at.getTime());
+        if (wasRefresh) {
+            if (!newActivities.isEmpty()) {
+                if (mListView != null && mContentUri != null) setListLastUpdated();
+                setLastSeen(newActivities.get(0).created_at.getTime());
+            }
         } else {
             if (newActivities.collection.size() < Consts.COLLECTION_PAGE_SIZE){
                 Intent intent = new Intent(mActivity, ApiSyncService.class)
