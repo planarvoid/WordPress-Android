@@ -1,9 +1,5 @@
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.sync.ApiSyncer;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.ContentObserver;
@@ -11,6 +7,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.service.sync.ApiSyncer;
 
 /**
  * Represents the state of a local collection sync, including last sync and size.
@@ -57,7 +56,7 @@ public class LocalCollection {
     }
 
     public boolean onSyncComplete(ApiSyncer.Result result, ContentResolver resolver) {
-        last_sync = result.synced_at;
+        if (result.synced_at > 0) last_sync = result.synced_at;
         size = result.new_size;
         extra = result.extra;
         sync_state = SyncState.IDLE;

@@ -42,7 +42,6 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         if (contentUri != null){
             mLocalCollection = LocalCollection.fromContentUri(contentUri,activity.getContentResolver(), true);
             mLocalCollection.startObservingSelf(activity.getContentResolver());
-
             mChangeObserver = new ChangeObserver();
             activity.getContentResolver().registerContentObserver(contentUri, true, mChangeObserver);
         }

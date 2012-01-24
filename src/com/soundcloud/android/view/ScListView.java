@@ -616,7 +616,7 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
             mRefreshState = TAP_TO_REFRESH;
 
             resetHeaderPadding();
-            mRefreshViewText.setText(R.string.pull_to_refresh_refreshing_label);
+            mRefreshViewText.setText(R.string.pull_to_refresh_pull_label);
             mRefreshViewImage.setImageDrawable(mPullToRefreshArrow);
             mRefreshViewImage.clearAnimation();
             mRefreshViewImage.setVisibility(View.INVISIBLE);

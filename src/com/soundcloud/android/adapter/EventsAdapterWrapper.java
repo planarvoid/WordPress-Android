@@ -17,6 +17,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.LoadActivitiesTask;
 import com.soundcloud.android.task.RemoteCollectionTask;
+import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
@@ -66,12 +67,10 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     }
 
     public boolean onNewEvents(Activities newActivities, boolean wasRefresh) {
-        if (wasRefresh){
-            doneRefreshing();
-            if (!newActivities.isEmpty()){
-                if (mListView != null && mContentUri != null) setListLastUpdated();
-                setLastSeen(newActivities.get(0).created_at.getTime());
-            }
+        if (!isRefreshing()) doneRefreshing();
+        if (wasRefresh && !newActivities.isEmpty()) {
+            if (mListView != null && mContentUri != null) setListLastUpdated();
+            setLastSeen(newActivities.get(0).created_at.getTime());
         } else {
             if (newActivities.collection.size() < Consts.COLLECTION_PAGE_SIZE){
                 Intent intent = new Intent(mActivity, ApiSyncService.class)
@@ -136,8 +135,10 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                allowInitialLoading();
-                if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
+                if (!mAutoAppend) { // result of initial sync, appending is ok now
+                    allowInitialLoading();
+                    notifyDataSetChanged();
+                } else if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
                     doneRefreshing(); // nothing changed
                 }
                 break;
