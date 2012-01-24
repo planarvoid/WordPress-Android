@@ -1,17 +1,22 @@
 package com.soundcloud.android.provider;
 
+import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+
+import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.soundcloud.android.model.*;
-import com.soundcloud.android.provider.DBHelper.Users;
-
-import android.content.ContentResolver;
-import android.database.Cursor;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class SoundCloudDB {
     private static final String TAG = "SoundCloudDB";
@@ -80,8 +85,6 @@ public class SoundCloudDB {
     }
 
 
-    // ---Make sure the database is up to date with this track info---
-
     public static Track getTrackById(ContentResolver resolver, long id) {
         return getTrackByUri(resolver, Content.TRACKS.forId(id));
     }
@@ -128,28 +131,6 @@ public class SoundCloudDB {
         }
         if (cursor != null) cursor.close();
         return user;
-    }
-
-
-    /** usage: {@link com.soundcloud.android.adapter.MyTracksAdapter#loadRecordings(Cursor cursor)} */
-    public static String getUsernameById(ContentResolver resolver, long userId) {
-        Cursor cursor = resolver.query(Content.USER.uri, new String[]{Users.USERNAME}, Users._ID + "= ?", new String[]{Long.toString(userId)}, null);
-        String username = null;
-        if (cursor != null && cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            username = cursor.getString(0);
-        }
-        if (cursor != null) cursor.close();
-        return username;
-    }
-
-    /** usage: {@link com.soundcloud.android.service.playback.CloudPlaybackService#onFavoriteStatusSet(long, boolean)} */
-    public static void setTrackIsFavorite(ContentResolver resolver, long trackId, boolean isFavorite) {
-        Track t = getTrackById(resolver, trackId);
-        if (t != null) {
-            t.user_favorite = isFavorite;
-            updateTrack(resolver, t);
-        }
     }
 
     public static int bulkInsertParcelables(ContentResolver resolver, List<Parcelable> items) {

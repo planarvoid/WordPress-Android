@@ -1,7 +1,6 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
@@ -62,7 +61,9 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     private void refreshCursor() {
         mCursor = mContext.getContentResolver().query(Content.RECORDINGS.uri, null,
-                Recordings.UPLOAD_STATUS + " < 2", null, Recordings.TIMESTAMP + " DESC");
+                Recordings.UPLOAD_STATUS + " < 2",
+                null,
+                Recordings.TIMESTAMP + " DESC");
 
         if (mCursor != null) {
             mDataValid = true;
@@ -79,15 +80,8 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     private List<Recording> loadRecordings(Cursor cursor) {
         List<Recording> recordings = new ArrayList<Recording>();
-        if (cursor != null && !cursor.isClosed()) {
-            while (cursor.moveToNext()) {
-                Recording rec = new Recording(cursor);
-                if (rec.private_user_id > 0){
-                    // XXX use VIEW + JOIN
-                    rec.private_username = SoundCloudDB.getUsernameById(mContext.getContentResolver(), rec.private_user_id);
-                }
-                recordings.add(rec);
-            }
+        while (cursor != null && cursor.moveToNext()) {
+            recordings.add(new Recording(cursor));
         }
         return recordings;
     }

@@ -62,7 +62,7 @@ public class ScContentProvider extends ContentProvider {
         String[] _columns = columns;
         String _sortOrder = sortOrder;
         final Content content = Content.match(uri);
-
+        String query = null;
         switch (content) {
             case COLLECTION_ITEMS:
                 qb.setTables(content.table.name);
@@ -166,10 +166,21 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case RECORDINGS:
-                qb.setTables(content.table.name);
-                qb.appendWhere(DBHelper.Recordings.USER_ID + " = "+ userId);
+                qb.setTables(content.table.name +
+                        " LEFT OUTER JOIN "+Table.USERS+
+                        " ON "+content.table.name+"."+
+                        DBHelper.Recordings.PRIVATE_USER_ID+"="+Table.USERS.field(DBHelper.Users._ID));
+                String _selection = DBHelper.Recordings.USER_ID+"="+userId;
+                if (selection != null) {
+                    _selection += (" AND " +selection);
+                }
+                query = qb.buildQuery(
+                        new String[] { content.table.allFields(), DBHelper.Users.USERNAME },
+                        _selection,
+                        null,
+                        null,
+                        _sortOrder, null);
                 break;
-
             case RECORDING:
                 qb.setTables(content.table.name);
                 qb.appendWhere(Table.RECORDINGS.id + " = "+ uri.getLastPathSegment());
@@ -215,11 +226,12 @@ public class ScContentProvider extends ContentProvider {
                 throw new IllegalArgumentException("No query available for: " + uri);
         }
 
-        final String q = qb.buildQuery(_columns, selection, selectionArgs /* ignored, see below */,
-                null, null, _sortOrder, null);
-        Log.d(TAG, "query: "+q);
+        if (query == null) {
+            query = qb.buildQuery(_columns, selection, null, null, _sortOrder, null);
+        }
+        Log.d(TAG, "query: "+query);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c = db.rawQuery(q, selectionArgs);
+        Cursor c = db.rawQuery(query, selectionArgs);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }

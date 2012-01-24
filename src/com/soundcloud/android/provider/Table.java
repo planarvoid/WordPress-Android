@@ -37,6 +37,14 @@ public enum Table {
         id = this.name +"."+BaseColumns._ID;
     }
 
+    public String allFields() {
+        return this.name+".*";
+    }
+
+    public String field(String field) {
+        return this.name+"."+field;
+    }
+
     public static Table get(String name) {
         EnumSet<Table> tables = EnumSet.allOf(Table.class);
         for (Table table : tables) {

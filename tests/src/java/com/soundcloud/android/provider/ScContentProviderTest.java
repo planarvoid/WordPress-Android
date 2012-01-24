@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,28 @@ public class ScContentProviderTest {
 
         Cursor c = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
+    }
+
+    @Test
+    public void shouldIncludeUsernameForPrivateRecordings() throws Exception {
+        Recording r = new Recording(new File("/tmp/test"));
+        r.user_id = USER_ID;
+        r.private_user_id = USER_ID;
+
+        User user = new User();
+        user.id = USER_ID;
+        user.username = "current user";
+
+        expect(resolver.insert(Content.USERS.uri, user.buildContentValues())).not.toBeNull();
+        Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
+
+        expect(uri).not.toBeNull();
+
+        Cursor c = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(1);
+        expect(c.moveToFirst()).toBeTrue();
+
+        expect(c.getString(c.getColumnIndex("username"))).toEqual("current user");
     }
 
     @Test

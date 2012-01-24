@@ -775,7 +775,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     private void onFavoriteStatusSet(long trackId, boolean isFavorite) {
-        SoundCloudDB.setTrackIsFavorite(getContentResolver(), trackId, isFavorite);
+        Track track = SoundCloudDB.getTrackById(getContentResolver(), trackId);
+        if (track != null) {
+            track.user_favorite = isFavorite;
+            SoundCloudDB.upsertTrack(getContentResolver(), track);
+
+        }
 
         if (mCache.containsKey(trackId)) {
             mCache.get(trackId).user_favorite = isFavorite;
