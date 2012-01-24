@@ -652,7 +652,7 @@ public class ScContentProvider extends ContentProvider {
                         trackId,
                         title,
                         username,
-                        Track.getClientUri(trackId),
+                        Track.getClientUri(trackId).toString(),
                         icon,
                         SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT});
             }

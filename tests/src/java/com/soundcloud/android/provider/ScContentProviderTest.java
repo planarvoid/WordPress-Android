@@ -89,6 +89,9 @@ public class ScContentProviderTest {
         expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID)))
                 .toEqual(SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT);
 
+        expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA)))
+                .toEqual("soundcloud:tracks:22365800");
+
         expect(cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1)))
                 .toEqual(Content.TRACK_ARTWORK.forId(22365800L).toString());
 

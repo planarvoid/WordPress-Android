@@ -6,6 +6,7 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DelegatingContentResolver;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 
 import android.database.Cursor;
 import android.net.Uri;
@@ -26,6 +27,15 @@ public class TestHelper {
 
     public static void addCannedResponse(Class klazz, String url, String resource) throws IOException {
         Robolectric.addHttpResponseRule(url, resource(klazz, resource));
+    }
+
+    public static void addPendingIOException(String path) {
+        FakeHttpLayer.RequestMatcherBuilder builder = new FakeHttpLayer.RequestMatcherBuilder();
+        if (path != null) {
+            builder.path(path);
+        }
+        Robolectric.getFakeHttpLayer().addHttpResponseRule(
+                new FakeHttpLayer.RequestMatcherResponseRule(builder, new IOException("boom")));
     }
 
     public static String resource(Class klazz, String res) throws IOException {
