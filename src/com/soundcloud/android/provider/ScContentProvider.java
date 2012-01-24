@@ -288,7 +288,7 @@ public class ScContentProvider extends ContentProvider {
                 return result;
 
             case ME_FAVORITES:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_IGNORE);
+                id = dbInsertWithOnConflict(db, Table.TRACKS, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id >= 0) {
                     ContentValues cv = new ContentValues();
                     cv.put(DBHelper.CollectionItems.USER_ID, userId);
@@ -319,6 +319,7 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int count;
         final Content content = Content.match(uri);
+
         switch (content) {
             case COLLECTIONS:
             case COLLECTION_PAGES:
@@ -352,13 +353,16 @@ public class ScContentProvider extends ContentProvider {
             case USER_FAVORITES:
             case USER_FOLLOWINGS:
             case USER_FOLLOWERS:
-                //makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
+                final String whereAppend = Table.COLLECTION_ITEMS.name + "." + DBHelper.CollectionItems.USER_ID + " = " + SoundCloudApplication.getUserIdFromContext(getContext())
+                        + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + content.collectionType;
+                where = TextUtils.isEmpty(where) ? whereAppend
+                        : where + " AND " + whereAppend;
+
                 break;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-
         count = db.delete(content.table.name , where, whereArgs);
         getContext().getContentResolver().notifyChange(uri, null, false);
         return count;

@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.utils.CloudUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +41,27 @@ public class ScContentProviderTest {
 
         Cursor c = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
+    }
+
+    @Test
+    public void shouldInsertQueryAndDeleteFavorites() throws Exception {
+        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+                getClass().getResourceAsStream("user_favorites.json"),
+                Track.TrackHolder.class);
+        Uri uri;
+        for (Track t : tracks) {
+            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+        }
+
+        Cursor c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(15);
+
+        resolver.delete(Content.ME_FAVORITES.uri, DBHelper.CollectionItems.ITEM_ID + " = ?",
+                new String[]{String.valueOf(tracks.get(0).id)});
+
+        c = resolver.query(Content.ME_FAVORITES.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(14);
     }
 
     @Test

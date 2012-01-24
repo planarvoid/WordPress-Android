@@ -27,13 +27,13 @@ import java.util.Map;
 
 public enum Content {
     ME("me", null, 100, User.class, -1, null),
-    ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, null),
+    ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.COLLECTION_ITEMS),
     ME_COMMENTS("me/comments", null, 102, Comment.class, -1, Table.COMMENTS),
-    ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, User.class, FOLLOWING, null),
+    ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, User.class, FOLLOWING, Table.COLLECTION_ITEMS),
     ME_FOLLOWING("/me/followings/#", null, 104, User.class, -1, null),
-    ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, null),
+    ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
-    ME_FAVORITES("me/favorites", Endpoints.MY_FAVORITES, 107, Track.class, FAVORITE, Table.TRACKS),
+    ME_FAVORITES("me/favorites", Endpoints.MY_FAVORITES, 107, Track.class, FAVORITE, Table.COLLECTION_ITEMS),
     ME_FAVORITE("me/favorites/#", null, 108, Track.class, FAVORITE, null),
     ME_GROUPS("me/groups", null, 109, null, -1, null),
     ME_PLAYLISTS("me/playlists", null, 110, null, -1, null),
