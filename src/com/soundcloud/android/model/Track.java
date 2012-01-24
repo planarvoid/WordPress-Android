@@ -4,7 +4,6 @@ package com.soundcloud.android.model;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.activity.TracksByTag;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
@@ -263,11 +262,6 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
             local_user_playback_count = cursor.getInt(localPlayCountIdx);
         }
         return this;
-    }
-
-    public void assertInDb(SoundCloudApplication app) {
-        if (user != null) user.assertInDb(app);
-        SoundCloudDB.insertTrack(app.getContentResolver(), this);
     }
 
     @Override

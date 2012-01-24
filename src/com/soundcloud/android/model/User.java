@@ -1,16 +1,8 @@
 
 package com.soundcloud.android.model;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.Log;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.SoundCloudDB;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -19,7 +11,14 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.Log;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -96,10 +95,6 @@ public class User extends ScModel implements PageTrackable, Resource, Origin {
 
     public User(UserlistItem userlistItem) {
         updateFromUserlistItem(userlistItem);
-    }
-
-    public void assertInDb(SoundCloudApplication app) {
-        SoundCloudDB.insertUser(app.getContentResolver(), this);
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
