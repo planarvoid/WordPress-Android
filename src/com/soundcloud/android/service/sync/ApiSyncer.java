@@ -94,7 +94,7 @@ public class ApiSyncer {
         final Content c = Content.match(uri);
         final int inserted;
         final Activities activities;
-        if (!TextUtils.isEmpty(action) && action.equals(ApiSyncService.ACTION_APPEND)) {
+        if (ApiSyncService.ACTION_APPEND.equals(action)) {
             final Activity lastActivity = Activities.getLastActivity(c, mResolver);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
