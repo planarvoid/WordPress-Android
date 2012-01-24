@@ -92,7 +92,6 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
         for (Parcelable p : getData()) {
             if (!newActivities.collection.contains(p)) {
-
                 newActivities.collection.add((Activity) p);
             }
         }
@@ -100,6 +99,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         Collections.sort(newActivities.collection);
         getWrappedAdapter().setData(new ArrayList<Parcelable>());
         getWrappedAdapter().getData().addAll(newActivities.collection);
+
         applyEmptyView();
         mAppendTask = null;
         notifyDataSetChanged();
