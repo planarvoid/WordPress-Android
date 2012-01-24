@@ -69,4 +69,12 @@ public class ScContentProviderTest {
         expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)))
                 .toEqual(22365800L);
     }
+
+    @Test
+    public void shouldGetCurrentUserId() throws Exception {
+        Cursor c = resolver.query(Content.ME_USERID.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(1);
+        expect(c.moveToFirst()).toBeTrue();
+        expect(c.getLong(0)).toEqual(USER_ID);
+    }
 }

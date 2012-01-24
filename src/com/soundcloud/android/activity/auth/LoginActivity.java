@@ -83,7 +83,7 @@ public abstract class LoginActivity extends Activity {
                                 app.trackEvent(Consts.Tracking.Categories.AUTH, "login");
                                 app.trackPage(Consts.Tracking.LOGIN);
                                 dismissDialog(progress);
-                                SoundCloudDB.upsertUser(getContentResolver(), user, user.id);
+                                SoundCloudDB.upsertUser(getContentResolver(), user);
 
                                 setResult(RESULT_OK,
                                         new Intent().putExtra(SIGNED_UP_EXTRA, token.getSignup())

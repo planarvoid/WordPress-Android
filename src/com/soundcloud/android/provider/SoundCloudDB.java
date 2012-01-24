@@ -16,25 +16,25 @@ import java.util.*;
 public class SoundCloudDB {
     private static final String TAG = "SoundCloudDB";
 
-    public static Uri insertTrack(ContentResolver resolver, Track track, long currentUserId) {
+    public static Uri insertTrack(ContentResolver resolver, Track track) {
         Uri uri = resolver.insert(Content.TRACKS.uri, track.buildContentValues());
         if (uri != null && track.user != null) {
-            insertUser(resolver, track.user, currentUserId);
+            insertUser(resolver, track.user);
         }
         return uri;
     }
 
-    public static Uri upsertTrack(ContentResolver resolver, Track track, long currentUserId) {
+    public static Uri upsertTrack(ContentResolver resolver, Track track) {
         if (!track.isSaved()) {
-            return insertTrack(resolver, track, currentUserId);
+            return insertTrack(resolver, track);
         } else {
             // XXX make more efficient
             Cursor cursor = resolver.query(track.toUri(), null, null, null, null);
             try {
                 if (cursor != null && cursor.getCount() > 0) {
-                    return updateTrack(resolver, track, currentUserId);
+                    return updateTrack(resolver, track);
                 } else {
-                    return insertTrack(resolver, track, currentUserId);
+                    return insertTrack(resolver, track);
                 }
             } finally {
                 if (cursor != null) cursor.close();
@@ -42,30 +42,30 @@ public class SoundCloudDB {
         }
     }
 
-    private static Uri updateTrack(ContentResolver resolver, Track track, long currentUserId) {
+    private static Uri updateTrack(ContentResolver resolver, Track track) {
         Uri uri = track.toUri();
         resolver.update(uri, track.buildContentValues(), null, null);
         if (track.user != null) {
-            insertUser(resolver, track.user, currentUserId);
+            insertUser(resolver, track.user);
         }
         return uri;
     }
 
-    public static Uri insertUser(ContentResolver resolver, User user, long currentUserId) {
-        return resolver.insert(Content.USERS.uri, user.buildContentValues(currentUserId == user.id));
+    public static Uri insertUser(ContentResolver resolver, User user) {
+        return resolver.insert(Content.USERS.uri, user.buildContentValues(getUserId(resolver) == user.id));
     }
 
-    public static Uri upsertUser(ContentResolver resolver, User user, long currentUserId) {
+    public static Uri upsertUser(ContentResolver resolver, User user) {
         if (!user.isSaved()) {
-            return insertUser(resolver, user, currentUserId);
+            return insertUser(resolver, user);
         } else {
             // XXX make more efficient
             Cursor cursor = resolver.query(user.toUri(), null, null, null, null);
             try {
                 if (cursor != null && cursor.getCount() > 0) {
-                    return updateUser(resolver, user, currentUserId);
+                    return updateUser(resolver, user);
                 } else {
-                    return insertUser(resolver, user, currentUserId);
+                    return insertUser(resolver, user);
                 }
             } finally {
                 if (cursor != null) cursor.close();
@@ -73,9 +73,9 @@ public class SoundCloudDB {
         }
     }
 
-    private static Uri updateUser(ContentResolver resolver, User user, long currentUserId) {
+    private static Uri updateUser(ContentResolver resolver, User user) {
         Uri uri = user.toUri();
-        resolver.update(uri, user.buildContentValues(currentUserId == user.id), null, null);
+        resolver.update(uri, user.buildContentValues(getUserId(resolver) == user.id), null, null);
         return uri;
     }
 
@@ -116,7 +116,11 @@ public class SoundCloudDB {
 
 
     public static User getUserById(ContentResolver resolver, long userId) {
-        Cursor cursor = resolver.query(Content.USERS.forId(userId), null, null, null, null);
+        return getUserByUri(resolver, Content.USERS.forId(userId));
+    }
+
+    public static User getUserByUri(ContentResolver resolver, Uri uri) {
+        Cursor cursor = resolver.query(uri, null, null, null, null);
         User user = null;
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -125,6 +129,7 @@ public class SoundCloudDB {
         if (cursor != null) cursor.close();
         return user;
     }
+
 
     /** usage: {@link com.soundcloud.android.adapter.MyTracksAdapter#loadRecordings(Cursor cursor)} */
     public static String getUsernameById(ContentResolver resolver, long userId) {
@@ -139,11 +144,11 @@ public class SoundCloudDB {
     }
 
     /** usage: {@link com.soundcloud.android.service.playback.CloudPlaybackService#onFavoriteStatusSet(long, boolean)} */
-    public static void setTrackIsFavorite(ContentResolver resolver, long trackId, boolean isFavorite, long currentUserId) {
+    public static void setTrackIsFavorite(ContentResolver resolver, long trackId, boolean isFavorite) {
         Track t = getTrackById(resolver, trackId);
         if (t != null) {
             t.user_favorite = isFavorite;
-            updateTrack(resolver, t, currentUserId);
+            updateTrack(resolver, t);
         }
     }
 
@@ -211,5 +216,18 @@ public class SoundCloudDB {
             Log.d(TAG, itemsInserted + " collection items bulk inserted");
         }
         return usersInserted + tracksInserted;
+    }
+
+    private static long getUserId(ContentResolver resolver) {
+        Cursor c = resolver.query(Content.ME_USERID.uri, null, null, null, null);
+        try {
+            if (c != null && c.moveToFirst()) {
+                return c.getLong(0);
+            } else {
+                return -1;
+            }
+        } finally {
+            if (c != null) c.close();
+        }
     }
 }

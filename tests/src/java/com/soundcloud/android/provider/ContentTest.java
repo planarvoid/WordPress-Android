@@ -34,6 +34,11 @@ public class ContentTest {
     public void shouldGenerateUriForId() throws Exception {
         expect(Content.COLLECTION_ITEMS.forId(1234).toString()).toEqual(
                 "content://com.soundcloud.android.provider.ScContentProvider/collection_items/1234");
+
+        expect(Content.TRACK_ARTWORK.forId(1234).toString()).toEqual(
+                "content://com.soundcloud.android.provider.ScContentProvider/tracks/1234/artwork");
+
+
     }
 
 }

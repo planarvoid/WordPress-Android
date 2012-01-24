@@ -188,8 +188,8 @@ public class CreateController {
                     r.user_id = mActivity.getCurrentUserId();
                     if (mPrivateUser != null){
                         SoundCloudDB.upsertUser(mActivity.getContentResolver(),
-                                mPrivateUser,
-                                mActivity.getCurrentUserId());
+                                mPrivateUser
+                        );
                         r.private_user_id = mPrivateUser.id;
                         r.is_private = true;
                     }

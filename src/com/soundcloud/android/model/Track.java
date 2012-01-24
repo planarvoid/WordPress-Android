@@ -274,7 +274,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
 
     public void assertInDb(SoundCloudApplication app) {
         if (user != null) user.assertInDb(app);
-        SoundCloudDB.insertTrack(app.getContentResolver(), this, app.getCurrentUserId());
+        SoundCloudDB.insertTrack(app.getContentResolver(), this);
     }
 
     @Override

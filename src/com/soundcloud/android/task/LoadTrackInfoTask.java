@@ -42,7 +42,7 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
             }
 
             if (mWriteToDB){
-                SoundCloudDB.upsertTrack(mApp.getContentResolver(), result, mApp.getCurrentUserId());
+                SoundCloudDB.upsertTrack(mApp.getContentResolver(), result);
             }
             result.info_loaded = true;
             if (mCacheResult){

@@ -284,26 +284,13 @@ public class ImageUtils {
     }
 
     public static String formatGraphicsUriForList(Context c, String url){
-        return formatGraphicsUri(url, getListItemGraphicSize(c));
+        return formatGraphicsUri(url, Consts.GraphicSize.getListItemGraphicSize(c));
     }
 
     public static String formatGraphicsUri(String url, Consts.GraphicSize targetSize) {
         return url == null ? null : targetSize.equals(Consts.GraphicSize.LARGE) ? url : url.replace(Consts.GraphicSize.LARGE.key, targetSize.key);
     }
 
-    public static Consts.GraphicSize getListItemGraphicSize(Context c) {
-
-        if (CloudUtils.isScreenXL(c)) {
-            return Consts.GraphicSize.LARGE;
-        } else {
-            if (c.getResources().getDisplayMetrics().density > 1) {
-                return Consts.GraphicSize.LARGE;
-            } else {
-                return Consts.GraphicSize.BADGE;
-            }
-        }
-
-    }
 
     public static ImageLoader.BindResult loadImageSubstitute(Context c, ImageView imageView, String uri, Consts.GraphicSize targetSize, ImageLoader.Callback callback, ImageLoader.Options options){
         final String targetUri = formatGraphicsUri(uri, targetSize);

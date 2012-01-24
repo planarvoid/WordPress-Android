@@ -31,7 +31,7 @@ public class LoadUserInfoTask extends LoadTask<User> {
         if (result != null) {
 
             if (mWriteToDB){
-                SoundCloudDB.upsertUser(mApp.getContentResolver(), result, mApp.getCurrentUserId());
+                SoundCloudDB.upsertUser(mApp.getContentResolver(), result);
             }
 
             if (listener != null){

@@ -37,6 +37,7 @@ public enum Content {
     ME_FAVORITE("me/favorites/#", null, 108, Track.class, FAVORITE, null),
     ME_GROUPS("me/groups", null, 109, null, -1, null),
     ME_PLAYLISTS("me/playlists", null, 110, null, -1, null),
+    ME_USERID("me/userid", null, 111, null, -1, null),
 
     // the ids of the following entries should not be changed, they are referenced in th db
     ME_SOUND_STREAM("me/activities/tracks", Endpoints.MY_ACTIVITIES, 140, Activity.class, -1, Table.ACTIVITIES),
@@ -49,9 +50,10 @@ public enum Content {
 
     TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),
     TRACK("tracks/#", null, 202, Track.class, -1, Table.TRACKS),
-    TRACK_COMMENTS("tracks/#/comments", null, 203, Comment.class, -1, Table.COMMENTS),
-    TRACK_PERMISSIONS("tracks/#/permissions", null, 204, null, -1, null),
-    TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 205, null, -1, null),
+    TRACK_ARTWORK("tracks/#/artwork", null, 203, null, -1, Table.TRACKS),
+    TRACK_COMMENTS("tracks/#/comments", null, 204, Comment.class, -1, Table.COMMENTS),
+    TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
+    TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", null, 302, User.class, -1, Table.USERS),
@@ -167,7 +169,11 @@ public enum Content {
     }
 
     public Uri forId(long id) {
-        return buildUpon().appendEncodedPath(String.valueOf(id)).build();
+        if (uri.toString().contains("#")) {
+            return Uri.parse(uri.toString().replace("#", String.valueOf(id)));
+        } else {
+            return buildUpon().appendEncodedPath(String.valueOf(id)).build();
+        }
     }
 
     public Request request() {

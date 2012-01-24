@@ -2,8 +2,11 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.accounts.Account;
 import android.app.SearchManager;
@@ -17,11 +20,23 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 
 
 public class ScContentProvider extends ContentProvider {
@@ -77,6 +92,11 @@ public class ScContentProvider extends ContentProvider {
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
+
+            case ME_USERID:
+                MatrixCursor c = new MatrixCursor(new String[] { BaseColumns._ID}, 1);
+                c.addRow(new Object[] { SoundCloudApplication.fromContext(getContext()).getCurrentUserId() });
+                return c;
 
             case USER_TRACKS:
             case USER_FAVORITES:
@@ -479,6 +499,57 @@ public class ScContentProvider extends ContentProvider {
         return values.length;
     }
 
+
+    @Override
+    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+        switch (Content.match(uri)) {
+            case TRACK_ARTWORK:
+                String size = uri.getQueryParameter("size");
+                List<String> segments = uri.getPathSegments();
+                long trackId = Long.parseLong(segments.get(segments.size()-2));
+                Cursor c = query(Content.TRACK.forId(trackId), null, null, null, null);
+                if (c != null && c.moveToFirst()) {
+                    Track track = new Track(c);
+                    Consts.GraphicSize gs = (size == null || "list".equals(size)) ?
+                            Consts.GraphicSize.getListItemGraphicSize(getContext()) :
+                            Consts.GraphicSize.fromString(size);
+
+                    final String artworkUri = ImageUtils.formatGraphicsUri(track.getArtwork(), gs);
+                    final File artworkFile = new File(getContext().getCacheDir(), CloudUtils.md5(artworkUri));
+                    if (!artworkFile.exists()) {
+                        OutputStream os = null;
+                        try {
+                            HttpURLConnection conn = (HttpURLConnection) new URL(artworkUri).openConnection();
+                            conn.setUseCaches(true);
+                            InputStream is = conn.getInputStream();
+                            os = new BufferedOutputStream(new FileOutputStream(artworkFile));
+                            final byte[] buffer = new byte[8192];
+                            int n;
+                            while ((n = is.read(buffer, 0, buffer.length)) != -1) {
+                                os.write(buffer, 0, n);
+                            }
+                            os.close();
+                        } catch (MalformedURLException e) {
+                            throw new FileNotFoundException();
+                        } catch (IOException e) {
+                            throw new FileNotFoundException();
+                        } finally {
+                            c.close();
+                            if (os != null) try {
+                                os.close();
+                            } catch (IOException ignored) {
+                            }
+                        }
+                    }
+                    return ParcelFileDescriptor.open(artworkFile, ParcelFileDescriptor.MODE_READ_ONLY);
+                }
+                throw new FileNotFoundException();
+
+            default:
+                return super.openFile(uri, mode);
+        }
+    }
+
     static String makeCollectionSort(Uri uri, String sortCol) {
         StringBuilder b = new StringBuilder();
         b.append(sortCol == null ? DBHelper.CollectionItems.POSITION : sortCol);
@@ -556,6 +627,7 @@ public class ScContentProvider extends ContentProvider {
                                   SearchManager.SUGGEST_COLUMN_TEXT_1,
                                   SearchManager.SUGGEST_COLUMN_TEXT_2,
                                   SearchManager.SUGGEST_COLUMN_INTENT_DATA,
+                                  SearchManager.SUGGEST_COLUMN_ICON_1,
                                   SearchManager.SUGGEST_COLUMN_SHORTCUT_ID},
                     cursor.getCount());
 
@@ -563,11 +635,13 @@ public class ScContentProvider extends ContentProvider {
                 long trackId = cursor.getLong(0);
                 String title = cursor.getString(1);
                 String username = cursor.getString(2);
+                String icon = Content.TRACK_ARTWORK.forId(trackId).toString();
                 suggest.addRow(new Object[] {
                         trackId,
                         title,
                         username,
                         Track.getClientUri(trackId),
+                        icon,
                         SearchManager.SUGGEST_NEVER_MAKE_SHORTCUT});
             }
             cursor.close();

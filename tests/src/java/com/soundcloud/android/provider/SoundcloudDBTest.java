@@ -13,7 +13,7 @@ import android.content.ContentResolver;
 import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
-public class SoundcloudDBTest {
+public class SoundCloudDBTest {
     ContentResolver resolver;
     final static long USER_ID = 1L;
 
@@ -32,7 +32,7 @@ public class SoundcloudDBTest {
         t1.user.id = 200L;
         t1.user.username = "Testor";
 
-        Uri uri = SoundCloudDB.insertTrack(resolver, t1, 0);
+        Uri uri = SoundCloudDB.insertTrack(resolver, t1);
 
         expect(uri).not.toBeNull();
         Track t2 = SoundCloudDB.getTrackByUri(resolver, uri);
@@ -52,16 +52,72 @@ public class SoundcloudDBTest {
         t1.user.id = 200L;
         t1.user.username = "Testor";
 
-        Uri uri = SoundCloudDB.insertTrack(resolver, t1, 0);
+        Uri uri = SoundCloudDB.insertTrack(resolver, t1);
 
         expect(uri).not.toBeNull();
         Track t2 = SoundCloudDB.getTrackByUri(resolver, uri);
         expect(t2).not.toBeNull();
         t2.title = "not interesting";
 
-        SoundCloudDB.upsertTrack(resolver, t2, 0);
+        SoundCloudDB.upsertTrack(resolver, t2);
 
         Track t3 = SoundCloudDB.getTrackByUri(resolver, uri);
         expect(t3.title).toEqual("not interesting");
+    }
+
+    @Test
+    public void shouldInsertUser() throws Exception {
+        User u = new User();
+        u.id = 100L;
+        u.permalink = "foo";
+        u.description = "baz";
+
+        Uri uri = SoundCloudDB.insertUser(resolver, u);
+
+        expect(uri).not.toBeNull();
+
+        User u2 = SoundCloudDB.getUserByUri(resolver, uri);
+        expect(u2).not.toBeNull();
+        expect(u2.permalink).toEqual(u.permalink);
+        expect(u2.description).toBeNull();
+    }
+
+    @Test
+    public void shouldInsertUserWithDescriptionIfCurrentUser() throws Exception {
+        User u = new User();
+        u.id = USER_ID;
+        u.permalink = "foo";
+        u.description = "i make beatz";
+
+        Uri uri = SoundCloudDB.insertUser(resolver, u);
+        expect(uri).not.toBeNull();
+
+        User u2 = SoundCloudDB.getUserByUri(resolver, uri);
+        expect(u2).not.toBeNull();
+        expect(u2.description).toEqual("i make beatz");
+    }
+
+    @Test
+    public void shouldUpsertUser() throws Exception {
+        User u = new User();
+        u.id = 100L;
+        u.permalink = "foo";
+        u.description = "baz";
+
+        Uri uri = SoundCloudDB.insertUser(resolver, u);
+
+        expect(uri).not.toBeNull();
+
+        User u2 = SoundCloudDB.getUserByUri(resolver, uri);
+
+        u2.permalink = "nomnom";
+
+        SoundCloudDB.upsertUser(resolver, u2);
+
+        User u3 = SoundCloudDB.getUserByUri(resolver, uri);
+
+        expect(u3).not.toBeNull();
+        expect(u3.permalink).toEqual("nomnom");
+        expect(u3.id).toEqual(100L);
     }
 }

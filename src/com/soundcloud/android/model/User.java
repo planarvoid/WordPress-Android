@@ -79,6 +79,7 @@ public class User extends ScModel implements PageTrackable, Resource {
         user_follower = cursor.getInt(cursor.getColumnIndex(Users.USER_FOLLOWER)) == 1;
         user_following = cursor.getInt(cursor.getColumnIndex(Users.USER_FOLLOWING)) == 1;
         last_updated = cursor.getLong(cursor.getColumnIndex(Users.LAST_UPDATED));
+        description = cursor.getString(cursor.getColumnIndex(Users.DESCRIPTION));
         final String tempDesc = cursor.getString(cursor.getColumnIndex(Users.DESCRIPTION));
         if (TextUtils.isEmpty(tempDesc)) description = tempDesc;
         return this;
@@ -98,7 +99,7 @@ public class User extends ScModel implements PageTrackable, Resource {
     }
 
     public void assertInDb(SoundCloudApplication app) {
-        SoundCloudDB.insertUser(app.getContentResolver(), this, app.getCurrentUserId());
+        SoundCloudDB.insertUser(app.getContentResolver(), this);
     }
 
     public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {

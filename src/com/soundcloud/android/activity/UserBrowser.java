@@ -347,7 +347,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         protected void onPostExecute(User user) {
             if (user != null) {
                 mInfoError = false;
-                SoundCloudDB.upsertUser(getContentResolver(), user, getApp().getCurrentUserId());
+                SoundCloudDB.upsertUser(getContentResolver(), user);
                 setUser(user);
             } else {
                 mInfoError = true;
