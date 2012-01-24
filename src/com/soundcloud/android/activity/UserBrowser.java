@@ -10,6 +10,7 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.*;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;

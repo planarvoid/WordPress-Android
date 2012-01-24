@@ -182,7 +182,8 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public String getArtwork() {
-        if (artwork_url == null && (user == null || user.avatar_url == null)){
+        if (!CloudUtils.checkIconShouldLoad(artwork_url) &&
+                (user == null || !CloudUtils.checkIconShouldLoad(user.avatar_url))){
            return "";
         }
         return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;

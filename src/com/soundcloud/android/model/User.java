@@ -309,20 +309,20 @@ public class User extends ScModel implements PageTrackable, Resource {
     public User updateFromUser(User user) {
         this.id = user.id;
         this.username = user.username;
-        this.track_count = user.track_count;
-        this.city = user.city;
-        this.country = user.country;
         this.avatar_url = user.avatar_url;
         this.permalink = user.permalink;
-        this.full_name = user.full_name;
-        this.followers_count = user.followers_count;
-        this.followings_count = user.followings_count;
-        this.public_favorites_count = user.public_favorites_count;
-        this.private_tracks_count = user.private_tracks_count;
 
-        this.discogs_name = user.discogs_name;
-        this.myspace_name = user.myspace_name;
-        this.description = user.description;
+        if (user.full_name != null) this.full_name = user.full_name;
+        if (user.city != null) this.city = user.city;
+        if (user.country != null)this.country = user.country;
+        if (user.track_count != -1) this.track_count = user.track_count;
+        if (user.followers_count != -1) this.followers_count = user.followers_count;
+        if (user.followings_count != -1)this.followings_count = user.followings_count;
+        if (user.public_favorites_count != -1) this.public_favorites_count = user.public_favorites_count;
+        if (user.private_tracks_count != -1) this.private_tracks_count = user.private_tracks_count;
+        if (user.discogs_name != null) this.discogs_name = user.discogs_name;
+        if (user.myspace_name != null) this.myspace_name = user.myspace_name;
+        if (user.description != null) this.description = user.description;
         return this;
     }
 }

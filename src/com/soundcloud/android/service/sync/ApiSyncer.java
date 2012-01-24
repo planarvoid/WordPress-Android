@@ -98,7 +98,7 @@ public class ApiSyncer {
         final Activities activities;
         if (!TextUtils.isEmpty(action) && action.equals(ApiSyncService.ACTION_APPEND)) {
             final Activity lastActivity = Activities.getLastActivity(c, mResolver);
-            Request request = new Request(c.request()).add("limit",Consts.COLLECTION_PAGE_SIZE);
+            Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
             activities = Activities.fetch(mApi, request);
             inserted = activities.insert(c, mResolver);
@@ -120,8 +120,8 @@ public class ApiSyncer {
         List<Long> local = idCursorToList(mResolver.query(
                 Content.COLLECTION_ITEMS.uri,
                 new String[] { DBHelper.CollectionItems.ITEM_ID },
-                DBHelper.CollectionItems.COLLECTION_TYPE + " = ?",
-                new String[] { String.valueOf(c.collectionType) },
+                DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
+                new String[] { String.valueOf(c.collectionType), String.valueOf(userId)},
                 DBHelper.CollectionItems.SORT_ORDER));
 
         List<Long> remote = getCollectionIds(mApi, c.remoteUri);

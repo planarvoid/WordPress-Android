@@ -17,6 +17,7 @@ import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.*;
+import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -498,6 +499,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         getContentResolver().delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FAVORITES.toString()});
         getContentResolver().delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWINGS.toString()});
         getContentResolver().delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWERS.toString()});
+        Activities.clear(null, getContentResolver());
     }
 
     public void onFirstRun(int oldVersionCode, int newVersionCode) {
