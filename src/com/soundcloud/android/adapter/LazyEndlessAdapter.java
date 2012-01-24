@@ -379,7 +379,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     @Override
     public void onRefresh(boolean manual) {
-        if (!isRefreshing()) refresh(manual);
+        refresh(manual);
     }
 
     public boolean isRefreshing() {
@@ -421,6 +421,10 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     public boolean isAllowingLoading() {
         return mState != INITIALIZED;
+    }
+
+    public boolean needsRefresh(){
+        return false;
     }
 
     public void refresh(final boolean userRefresh){

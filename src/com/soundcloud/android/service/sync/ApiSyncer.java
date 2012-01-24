@@ -97,8 +97,9 @@ public class ApiSyncer {
         final int inserted;
         final Activities activities;
         if (!TextUtils.isEmpty(action) && action.equals(ApiSyncService.ACTION_APPEND)) {
-            Request request = new Request(c.request()).add("cursor", Activities.getLastActivity(c, mResolver).toGUID())
-                    .add("limit",Consts.COLLECTION_PAGE_SIZE);
+            final Activity lastActivity = Activities.getLastActivity(c, mResolver);
+            Request request = new Request(c.request()).add("limit",Consts.COLLECTION_PAGE_SIZE);
+            if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
             activities = Activities.fetch(mApi, request);
             inserted = activities.insert(c, mResolver);
         } else {

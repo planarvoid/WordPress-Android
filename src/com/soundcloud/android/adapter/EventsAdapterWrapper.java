@@ -32,7 +32,6 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Content content) {
         super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
         mAutoAppend = mLocalCollection.last_sync > 0;
-        Log.i("asdf","auto append? " + mAutoAppend);
     }
 
      @Override
@@ -71,7 +70,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             doneRefreshing();
             if (!newActivities.isEmpty()){
                 if (mListView != null && mContentUri != null) setListLastUpdated();
-                setLastSeen(((Activity) getData().get(0)).created_at.getTime());
+                setLastSeen(newActivities.get(0).created_at.getTime());
             }
         } else {
             if (newActivities.collection.size() < Consts.COLLECTION_PAGE_SIZE){
@@ -125,7 +124,6 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
     @Override
     protected RemoteCollectionTask buildTask() {
-        Log.i("asdf","Build task");
         return new LoadActivitiesTask(mActivity.getApp(), this);
     }
 
@@ -138,6 +136,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
+                allowInitialLoading();
                 if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
                     doneRefreshing(); // nothing changed
                 }

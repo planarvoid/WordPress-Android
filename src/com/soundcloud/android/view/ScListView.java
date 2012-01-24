@@ -199,7 +199,11 @@ public class ScListView extends ListView implements AbsListView.OnScrollListener
     public void onResume() {
         if (getWrapper() != null) {
             getWrapper().onResume();
+            if (getWrapper().needsRefresh()){
+                onRefresh(false);
+            }
         }
+
         checkHeaderVisibility();
     }
 

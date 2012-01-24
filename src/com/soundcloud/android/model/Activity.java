@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.model;
 
+import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;

@@ -53,10 +53,11 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         super.onResume();
         if (isSyncable()) {
             setListLastUpdated();
-            if (isStale(false)) {
-                refresh(false);
-            }
         }
+    }
+
+    public boolean needsRefresh(){
+        return isSyncable() ? isStale(false) : false;
     }
 
     @Override
