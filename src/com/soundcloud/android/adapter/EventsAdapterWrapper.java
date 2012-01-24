@@ -29,6 +29,7 @@ import java.util.List;
 public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     private boolean mVisible;
     private long mSetLastSeenTo;
+    private Activities mActivities = Activities.EMPTY;
 
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Content content) {
         super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
@@ -61,12 +62,22 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         setListLastUpdated();
     }
 
+    public void executeAppendTask() {
+        if (mPageIndex == -1){
+            mState = APPENDING;
+            requestAppend();
+        } else {
+            super.executeAppendTask();
+        }
+    }
+
     public void executeRefreshTask() {
         mRefreshTask = buildTask();
         mRefreshTask.execute(getCollectionParams(true));
     }
 
     public boolean onNewEvents(Activities newActivities, boolean wasRefresh) {
+
         if (!isRefreshing()) doneRefreshing();
         if (wasRefresh) {
             if (!newActivities.isEmpty()) {
@@ -75,36 +86,34 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             }
         } else {
             if (newActivities.collection.size() < Consts.COLLECTION_PAGE_SIZE){
-                Intent intent = new Intent(mActivity, ApiSyncService.class)
-                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
-                        .putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE, true)
-                        .setAction(ApiSyncService.ACTION_APPEND)
-                        .setData(mContent.uri);
-
-                mActivity.startService(intent);
                 mPageIndex = -1; // shows all
-
+                requestAppend();
             } else {
                 increasePageIndex();
                 mState = IDLE;
             }
-
         }
 
-        for (Parcelable p : getData()) {
-            if (!newActivities.collection.contains(p)) {
-                newActivities.collection.add((Activity) p);
-            }
+        if (!newActivities.isEmpty()){
+            mActivities = newActivities;
+            getWrappedAdapter().setData(new ArrayList<Parcelable>());
+            getWrappedAdapter().getData().addAll(mActivities.collection);
         }
-
-        Collections.sort(newActivities.collection);
-        getWrappedAdapter().setData(new ArrayList<Parcelable>());
-        getWrappedAdapter().getData().addAll(newActivities.collection);
 
         applyEmptyView();
         mAppendTask = null;
         notifyDataSetChanged();
         return true;
+    }
+
+    private void requestAppend() {
+        Intent intent = new Intent(mActivity, ApiSyncService.class)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+                .putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE, true)
+                .setAction(ApiSyncService.ACTION_APPEND)
+                .setData(mContent.uri);
+
+        mActivity.startService(intent);
     }
 
     private void setLastSeen(long time) {
@@ -154,5 +163,10 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
                 break;
             }
         }
+    }
+
+    public Activities getActivities() {
+        return mActivities;
+
     }
 }

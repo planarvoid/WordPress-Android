@@ -1,8 +1,6 @@
 package com.soundcloud.android.task;
 
-import android.net.Uri;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -10,24 +8,16 @@ import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.*;
 import com.soundcloud.android.utils.CloudUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class LoadActivitiesTask extends RemoteCollectionTask {
-
-    private long firstActivityTimestamp;
-    private long lastActivityTimestamp;
+    private Activities mCurrentActivities;
     private Activities mNewActivities;
 
     public LoadActivitiesTask(SoundCloudApplication app, LazyEndlessAdapter lazyEndlessAdapter) {
@@ -37,10 +27,7 @@ public class LoadActivitiesTask extends RemoteCollectionTask {
     @Override
     public void setAdapter(LazyEndlessAdapter eventsAdapterWrapper) {
         mAdapterReference = new WeakReference<LazyEndlessAdapter>(eventsAdapterWrapper);
-        if (!eventsAdapterWrapper.getData().isEmpty()){
-            firstActivityTimestamp = ((Activity) eventsAdapterWrapper.getData().get(0)).created_at.getTime();
-            lastActivityTimestamp = ((Activity) eventsAdapterWrapper.getData().get(eventsAdapterWrapper.getData().size()-1)).created_at.getTime();
-        }
+        mCurrentActivities = ((EventsAdapterWrapper) eventsAdapterWrapper).getActivities();
     }
 
     @Override
@@ -59,14 +46,19 @@ public class LoadActivitiesTask extends RemoteCollectionTask {
 
         mResponseCode = 0;
         mNewItems = new ArrayList<Parcelable>();
-
-        if (mParams.isRefresh && firstActivityTimestamp > 0) {
-            mNewActivities = Activities.getSince(mParams.contentUri, mApp.getContentResolver(), firstActivityTimestamp);
+        long lastActivityTimestamp = mCurrentActivities.isEmpty() ? -1 : (mCurrentActivities.get(mCurrentActivities.size() - 1)).created_at.getTime();
+        if (mParams.isRefresh) {
+                mNewActivities = Activities.refresh(
+                        mApp.getContentResolver(),
+                        mParams.contentUri,
+                        mCurrentActivities,
+                        mParams.pageIndex == -1 ? 0 : lastActivityTimestamp
+                );
         } else if (mParams.pageIndex != -1) {
             mNewActivities = Activities.getBefore(mParams.contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build(),
                     mApp.getContentResolver(), lastActivityTimestamp);
         } else {
-            mNewActivities = Activities.getBefore(mParams.contentUri, mApp.getContentResolver(), lastActivityTimestamp);
+            mNewActivities = Activities.EMPTY;
         }
 
         for (Activity a : mNewActivities) {

@@ -1,11 +1,10 @@
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.utils.*;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -25,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.*;
+
+import static com.soundcloud.android.SoundCloudApplication.*;
 
 public class Activities extends CollectionHolder<Activity> {
     /* use this URL to poll for updates */
@@ -340,7 +341,6 @@ public class Activities extends CollectionHolder<Activity> {
             c = resolver.query(contentUri, null, null, null, null);
         }
         while (c != null && c.moveToNext()) {
-            final long id = c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID));
             activities.add(new Activity(c));
         }
         if (c != null) c.close();
@@ -372,14 +372,46 @@ public class Activities extends CollectionHolder<Activity> {
         return activities;
     }
 
-    public static Activities get(Uri pagedUri, ContentResolver resolver) {
+    public static Activities get(ContentResolver resolver, Uri uri) {
+        return get(resolver,uri,null,null,null,null);
+    }
+
+    public static Activities get(ContentResolver resolver, Uri uri, String[] projection, String where, String[] whereArgs, String sort) {
         Activities activities = new Activities();
-        Cursor c = resolver.query(pagedUri, null, null, null, null);
+        Cursor c = resolver.query(uri, projection, where, whereArgs, sort);
         while (c != null && c.moveToNext()) {
             activities.add(new Activity(c));
         }
         if (c != null) c.close();
         return activities;
+    }
+
+    public static List<Long> getLocalIdsSince(ContentResolver resolver, Uri contentUri, long since)  {
+        return getLocalIds(resolver, contentUri, DBHelper.ActivityView.CREATED_AT + "> ?", new String[]{String.valueOf(since)}, null);
+    }
+
+    public static List<Long> getLocalIds(ContentResolver resolver, Uri uri) {
+        return getLocalIds(resolver,uri,null,null,null);
+    }
+
+    public static List<Long> getLocalIds(ContentResolver resolver, Uri uri, String where, String[] whereArgs, String sort) {
+        List<Long> ids = new ArrayList<Long>();
+        Cursor c = resolver.query(uri, new String[]{DBHelper.ActivityView._ID}, where, whereArgs, sort);
+        while (c != null && c.moveToNext()) {
+            ids.add(c.getLong(0));
+        }
+        if (c != null) c.close();
+        return ids;
+    }
+
+    public static List<Long> getActivities(Uri uri, ContentResolver resolver) {
+        List<Long> ids = new ArrayList<Long>();
+        Cursor c = resolver.query(uri, new String[]{DBHelper.ActivityView._ID}, null, null, null);
+        while (c != null && c.moveToNext()) {
+            ids.add(c.getLong(0));
+        }
+        if (c != null) c.close();
+        return ids;
     }
 
     public ContentValues[] buildContentValues(final int contentId) {
@@ -467,5 +499,33 @@ public class Activities extends CollectionHolder<Activity> {
 
     public long getFirstTimestamp() {
         return isEmpty() ? null : collection.get(0).created_at.getTime();
+    }
+
+    public Map<Long, Activity> getCollectionMap() {
+        Map<Long,Activity> map = new HashMap<Long,Activity>();
+        for (Activity a : collection){
+            map.put(a.id,a);
+        }
+        return map;
+    }
+
+    public static Activities refresh(ContentResolver resolver, Uri contentUri, Activities old, long since) {
+        Map<Long, Activity> oldActivityMap = old.getCollectionMap();
+        final List<Long> ids;
+        if (since > 0) {
+            ids = Activities.getLocalIdsSince(resolver, contentUri, since);
+        } else {
+            ids = Activities.getLocalIds(resolver, contentUri);
+        }
+        Set<Long> toRemove = new HashSet<Long>(oldActivityMap.keySet());
+        toRemove.removeAll(ids); // this will leave only what needs to be removed
+        oldActivityMap.keySet().removeAll(toRemove); // keep these
+        ids.removeAll(oldActivityMap.keySet()); // this will leave what is new
+
+        Activities newActivities = Activities.get(resolver, contentUri, null,
+                CloudUtils.getWhereIds(DBHelper.Activities._ID, ids), CloudUtils.longListToStringArr(ids), null);
+        newActivities.collection.addAll(oldActivityMap.values());
+        Collections.sort(newActivities.collection);
+        return newActivities;
     }
 }

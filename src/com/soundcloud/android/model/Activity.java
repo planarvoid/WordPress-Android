@@ -48,6 +48,7 @@ public class Activity extends ScModel implements Origin, Playable, Comparable<Ac
     }
 
     public Activity(Cursor c) {
+        id = c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID));
         type =  Type.fromString(c.getString(c.getColumnIndex(DBHelper.ActivityView.TYPE)));
         tags = c.getString(c.getColumnIndex(DBHelper.ActivityView.TAGS));
         created_at = new Date(c.getLong(c.getColumnIndex(DBHelper.ActivityView.CREATED_AT)));
