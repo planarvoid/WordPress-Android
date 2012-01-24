@@ -168,8 +168,8 @@ public class ScContentProvider extends ContentProvider {
             case RECORDINGS:
                 qb.setTables(content.table.name +
                         " LEFT OUTER JOIN "+Table.USERS+
-                        " ON "+content.table.name+"."+
-                        DBHelper.Recordings.PRIVATE_USER_ID+"="+Table.USERS.field(DBHelper.Users._ID));
+                        " ON "+content.table.field(DBHelper.Recordings.PRIVATE_USER_ID)+
+                        "="+Table.USERS.field(DBHelper.Users._ID));
                 String _selection = DBHelper.Recordings.USER_ID+"="+userId;
                 if (selection != null) {
                     _selection += (" AND " +selection);
