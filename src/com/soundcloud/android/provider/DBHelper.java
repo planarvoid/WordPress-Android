@@ -3,19 +3,14 @@ package com.soundcloud.android.provider;
 import com.soundcloud.android.SoundCloudApplication;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
-import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DBHelper extends SQLiteOpenHelper {
-    private static final String TAG = "ScContentProvider";
+    static final String TAG = "ScContentProvider";
     private static final String DATABASE_NAME = "SoundCloud";
     private static final int DATABASE_VERSION = 9;
 
@@ -27,8 +22,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         try {
             for (Table t : Table.values()) {
-                Log.d(TAG, "creating " + t);
-                db.execSQL(t.createString);
+                t.create(db);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -92,7 +86,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    static final String DATABASE_CREATE_TRACKS = "CREATE TABLE Tracks (_id INTEGER PRIMARY KEY, " +
+    static final String DATABASE_CREATE_TRACKS = "CREATE TABLE Tracks (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "last_updated INTEGER," +
             "permalink VARCHAR(255)," +
             "duration INTEGER," +
@@ -119,14 +113,14 @@ public class DBHelper extends SQLiteOpenHelper {
             "filelength INTEGER"+
             ");";
 
-    static final String DATABASE_CREATE_TRACK_PLAYS = "CREATE TABLE TrackPlays (_id INTEGER PRIMARY KEY," +
+    static final String DATABASE_CREATE_TRACK_PLAYS = "CREATE TABLE TrackPlays (_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "track_id INTEGER, " +
             "user_id INTEGER, "+
             "play_count INTEGER DEFAULT 0, "+
             "UNIQUE (track_id, user_id) ON CONFLICT IGNORE"+
             ");";
 
-    static final String DATABASE_CREATE_USERS = "CREATE TABLE Users (_id INTEGER PRIMARY KEY, " +
+    static final String DATABASE_CREATE_USERS = "CREATE TABLE Users (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "last_updated INTEGER," +
             "username VARCHAR(255)," +
             "avatar_url VARCHAR(255)," +
@@ -189,7 +183,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "created_at INTEGER," +
             "user_id INTEGER," +
             "query VARCHAR(255)," +
-            "search_type INTEGER"+
+            "search_type INTEGER," +
+            "UNIQUE (user_id, search_type, query) ON CONFLICT REPLACE"+
             ");";
 
     static final String DATABASE_CREATE_PLAYLIST = "CREATE TABLE Playlists (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -270,10 +265,14 @@ public class DBHelper extends SQLiteOpenHelper {
             "Users." + Users._ID + " as " + TrackView.USER_ID + "," +
             "Users." + Users.USERNAME + " as " + TrackView.USERNAME + "," +
             "Users." + Users.PERMALINK + " as " + TrackView.USER_PERMALINK + "," +
-            "Users." + Users.AVATAR_URL + " as " + TrackView.USER_AVATAR_URL +
+            "Users." + Users.AVATAR_URL + " as " + TrackView.USER_AVATAR_URL + "," +
+            "COALESCE(TrackPlays." + TrackPlays.PLAY_COUNT + ", 0) as " + TrackView.USER_PLAY_COUNT +
             " FROM Tracks" +
             " JOIN Users ON(" +
-            "   Tracks." + Tracks.USER_ID + " = " + "Users." + Users._ID + ")";
+            "   Tracks." + Tracks.USER_ID + " = " + "Users." + Users._ID + ")" +
+            " LEFT OUTER JOIN TrackPlays ON(" +
+            "   TrackPlays." + TrackPlays.TRACK_ID + " = " + "Tracks." + TrackView._ID + ")" +
+            "";
 
     /** A view which combines activity data + tracks/users/comments */
     static final String DATABASE_CREATE_ACTIVITY_VIEW = "CREATE VIEW ActivityView AS SELECT " +
@@ -355,7 +354,7 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     public static final class CollectionItems {
         public static final String ITEM_ID = "item_id";
-        public static final String USER_ID = "user_id";
+        public static final String USER_ID = "user_id";     // "owner" of the item
         public static final String COLLECTION_TYPE = "collection_type";
         public static final String POSITION = "position";
 
@@ -438,7 +437,6 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String QUERY = "query";
     }
 
-
     /**
      * {@link DBHelper.DATABASE_CREATE_COLLECTIONS}
      */
@@ -502,7 +500,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         public static final String USER_AVATAR_URL = "track_user_avatar_url";
         public static final String USER_FAVORITE   = "track_user_favorite";
-        public static final String USER_PLAYED     = "track_user_played";
+        public static final String USER_PLAY_COUNT = "track_user_play_count";
     }
 
     public final static class ActivityView extends Activities {
@@ -521,8 +519,8 @@ public class DBHelper extends SQLiteOpenHelper {
     */
     private static boolean upgradeTo4(SQLiteDatabase db, int oldVersion) {
         try {
-            alterTableColumns(db, Table.TRACKS, new String[] {"id"}, new String[] {"_id"});
-            alterTableColumns(db, Table.USERS, new String[] {"id"}, new String[] {"_id"});
+            Table.TRACKS.alterColumns(db, new String[]{"id"}, new String[]{"_id"});
+            Table.USERS.alterColumns(db, new String[]{"id"}, new String[]{"_id"});
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade4 " +
@@ -536,7 +534,7 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo5(SQLiteDatabase db, int oldVersion) {
         try {
-            alterTableColumns(db, Table.TRACKS, null, null);
+            Table.TRACKS.alterColumns(db, null, null);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade5 " +
@@ -550,10 +548,10 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo6(SQLiteDatabase db, int oldVersion) {
         try {
-            db.execSQL(DATABASE_CREATE_RECORDINGS);
-            db.execSQL(DATABASE_CREATE_TRACK_PLAYS);
-            alterTableColumns(db, Table.TRACKS, null, null);
-            alterTableColumns(db, Table.USERS, null, null);
+            Table.RECORDINGS.create(db);
+            Table.TRACK_PLAYS.create(db);
+            Table.TRACKS.alterColumns(db, null, null);
+            Table.USERS.alterColumns(db, null, null);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade6 " +
@@ -565,7 +563,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static boolean upgradeTo7(SQLiteDatabase db, int oldVersion) {
         try {
-            alterTableColumns(db, Table.RECORDINGS, null, null);
+            Table.RECORDINGS.alterColumns(db, null, null);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade7 " +
@@ -576,7 +574,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static boolean upgradeTo8(SQLiteDatabase db, int oldVersion) {
         try {
-            db.execSQL(DATABASE_CREATE_SEARCHES);
+            Table.SEARCHES.create(db);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade8 " +
@@ -587,64 +585,26 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static boolean upgradeTo9(SQLiteDatabase db, int oldVersion) {
         try {
-            alterTableColumns(db, Table.TRACKS, null, null);
-            alterTableColumns(db, Table.USERS, null, null);
-            db.execSQL(DATABASE_CREATE_TRACK_VIEW);
-            db.execSQL(DATABASE_CREATE_COMMENTS);
-            db.execSQL(DATABASE_CREATE_ACTIVITIES);
-            db.execSQL(DATABASE_CREATE_ACTIVITY_VIEW);
-            db.execSQL(DATABASE_CREATE_COLLECTIONS);
-            db.execSQL(DATABASE_CREATE_COLLECTION_PAGES);
-            db.execSQL(DATABASE_CREATE_COLLECTION_ITEMS);
-            db.execSQL(DATABASE_CREATE_PLAYLIST);
-            db.execSQL(DATABASE_CREATE_PLAYLIST_ITEMS);
+            Table.TRACK_PLAYS.recreate(db);
+
+            Table.TRACKS.alterColumns(db, null, null);
+            Table.USERS.alterColumns(db, null, null);
+
+            Table.TRACK_VIEW.create(db);
+            Table.COMMENTS.create(db);
+            Table.ACTIVITIES.create(db);
+            Table.ACTIVITY_VIEW.create(db);
+            Table.COLLECTIONS.create(db);
+            Table.COLLECTION_PAGES.create(db);
+            Table.COLLECTION_ITEMS.create(db);
+            Table.PLAYLIST.create(db);
+            Table.PLAYLIST_ITEMS.create(db);
             return true;
 
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade8 " +
+            SoundCloudApplication.handleSilentException("error during upgrade9 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
      }
-
-    private static String alterTableColumns(SQLiteDatabase db, Table tbl, String[] fromAppendCols,
-                                            String[] toAppendCols) {
-
-        db.execSQL("DROP TABLE IF EXISTS bck_" + tbl.name);
-        db.execSQL(tbl.createString.replace("CREATE TABLE " + tbl.name, "CREATE TABLE bck_" + tbl.name));
-        List<String> columns = getColumnNames(db, "bck_" + tbl.name);
-        columns.retainAll(getColumnNames(db, tbl.name));
-        String cols = TextUtils.join(",", columns);
-
-        String toCols = toAppendCols != null && toAppendCols.length > 0 ? cols + ","
-                + TextUtils.join(",", toAppendCols) : cols;
-
-        String fromCols = fromAppendCols != null && fromAppendCols.length > 0 ? cols + ","
-                + TextUtils.join(",", fromAppendCols) : cols;
-
-        db.execSQL(String.format("INSERT INTO bck_%s (%s) SELECT %s from %s",
-                tbl.name, toCols, fromCols, tbl.name));
-
-        db.execSQL("DROP table  '" + tbl.name + "'");
-        db.execSQL(tbl.createString);
-        db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from bck_%s",
-                tbl.name, cols, cols, tbl.name));
-
-        db.execSQL("DROP table bck_" + tbl.name);
-        return cols;
-    }
-
-    private static List<String> getColumnNames(SQLiteDatabase db, String tableName) {
-        Cursor ti = db.rawQuery("pragma table_info (" + tableName + ")", null);
-        if (ti != null && ti.moveToFirst()) {
-            List<String> cols = new ArrayList<String>();
-            do {
-                cols.add(ti.getString(1));
-            } while (ti.moveToNext());
-
-            ti.close();
-            return cols;
-        }
-        return null;
-    }
 }

@@ -161,7 +161,7 @@ import java.util.List;
             @Override
             public void run() {
                 mApp.getContentResolver().delete(DEFAULT_PLAYLIST_URI,null,null);
-                SoundCloudDB.bulkInsertParcelables(mApp.getContentResolver(), playlist, DEFAULT_PLAYLIST_URI, mApp.getCurrentUserId(), 0);
+                SoundCloudDB.bulkInsertParcelables(mApp.getContentResolver(), playlist, DEFAULT_PLAYLIST_URI, mApp.getCurrentUserId());
             }
         }.start();
 

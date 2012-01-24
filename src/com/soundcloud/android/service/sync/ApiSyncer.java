@@ -1,14 +1,18 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.SyncResult;
-import android.net.Uri;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.model.*;
+import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -17,7 +21,9 @@ import org.apache.http.HttpStatus;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SyncResult;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -26,9 +32,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ApiSyncer {
     public static final int MINIMUM_LOCAL_ITEMS_STORED = 100;
@@ -36,14 +40,8 @@ public class ApiSyncer {
     private final ContentResolver mResolver;
     private final Context mContext;
 
-    private Map<Content, ContentValues[]> collectionValues = new HashMap<Content, ContentValues[]>();
-    private List<Long> trackAdditions = new ArrayList<Long>();
-    private List<Long> userAdditions = new ArrayList<Long>();
-
     private static final int API_LOOKUP_BATCH_SIZE = 200;
     private static final int RESOLVER_BATCH_SIZE = 100;
-
-
 
     public ApiSyncer(SoundCloudApplication app) {
         mApi = app;
@@ -96,7 +94,7 @@ public class ApiSyncer {
         final Content c = Content.match(uri);
         final int inserted;
         final Activities activities;
-        if (!TextUtils.isEmpty(action) && action.equals(ApiSyncService.ACTION_APPEND)) {
+        if (ApiSyncService.ACTION_APPEND.equals(action)) {
             final Activity lastActivity = Activities.getLastActivity(c, mResolver);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
@@ -159,7 +157,7 @@ public class ApiSyncer {
                 // parse and add first items
                 List<Parcelable> firstUsers = new ArrayList<Parcelable>();
                 ScModel.getCollectionFromStream(is, mApi.getMapper(), User.class, firstUsers);
-                added = SoundCloudDB.bulkInsertParcelables(mResolver, firstUsers, c.uri, userId, 1);
+                added = SoundCloudDB.bulkInsertParcelables(mResolver, firstUsers, c.uri, userId);
 
                 // remove items from master remote list and adjust start index
                 for (Parcelable u : firstUsers) {

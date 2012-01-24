@@ -7,12 +7,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Friend extends ScModel implements Resource {
-    @SuppressWarnings({"UnusedDeclaration"})
+// TODO not used, merge with user later
+public class Friend extends ScModel implements Resource, Origin {
     public long[] connection_ids;
     public User user;
 
-    @SuppressWarnings({"UnusedDeclaration"})
     public Friend() {
     }
 
@@ -43,5 +42,15 @@ public class Friend extends ScModel implements Resource {
     @Override
     public long getResourceId() {
         return user.id;
+    }
+
+    @Override
+    public Track getTrack() {
+        return null;
+    }
+
+    @Override
+    public User getUser() {
+        return user;
     }
 }
