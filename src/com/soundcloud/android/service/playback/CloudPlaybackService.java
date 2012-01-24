@@ -372,9 +372,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         new Thread() {
             @Override
             public void run() {
-                mCurrentTrack.markAsPlayed(getContentResolver(), getApp().getCurrentUserId());
-                mCache.put(mCurrentTrack.updateFromDb(getContentResolver(), getApp().getCurrentUserId()));
-                mPlayerHandler.sendEmptyMessage(NOTIFY_META_CHANGED);
+                if (SoundCloudDB.markTrackAsPlayed(getContentResolver(), mCurrentTrack)) {
+                    mPlayerHandler.sendEmptyMessage(NOTIFY_META_CHANGED);
+                }
             }
         }.start();
 

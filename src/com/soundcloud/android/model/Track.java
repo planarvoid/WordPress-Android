@@ -9,7 +9,6 @@ import com.soundcloud.android.activity.TracksByTag;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.DBHelper.TrackPlays;
 import com.soundcloud.android.provider.DBHelper.Tracks;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
@@ -187,19 +186,6 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
            return "";
         }
         return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
-    }
-
-    public void markAsPlayed(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(Content.TRACK_PLAYS.uri, null,
-                TrackPlays.TRACK_ID + " = ?", new String[] { String.valueOf(id)}, null);
-
-        if (cursor == null || cursor.getCount() == 0) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(TrackPlays.TRACK_ID, id);
-            contentValues.put(TrackPlays.USER_ID, userId);
-            contentResolver.insert(Content.TRACK_PLAYS.uri, contentValues);
-        }
-        if (cursor != null) cursor.close();
     }
 
     public static class CreatedWith {

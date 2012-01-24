@@ -102,6 +102,12 @@ public class SoundCloudDB {
         return null;
     }
 
+    public static boolean markTrackAsPlayed(ContentResolver resolver, Track track) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBHelper.TrackPlays.TRACK_ID, track.id);
+        return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
+    }
+
     @SuppressWarnings("unchecked")
     public static List<Track> getTracks(ContentResolver resolver, Uri uri) {
         Cursor cursor = resolver.query(uri, null, null, null, null);

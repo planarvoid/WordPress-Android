@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
+import android.database.Cursor;
 import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
@@ -119,5 +120,28 @@ public class SoundCloudDBTest {
         expect(u3).not.toBeNull();
         expect(u3.permalink).toEqual("nomnom");
         expect(u3.id).toEqual(100L);
+    }
+
+    @Test
+    public void shouldMarkTrackAsPlayed() throws Exception {
+        Track track = new Track();
+        track.id = 100L;
+        track.title = "testing";
+        track.user = new User();
+        track.user.id = 200L;
+        Uri uri = SoundCloudDB.insertTrack(resolver, track);
+        expect(uri).not.toBeNull();
+
+        final int PLAYS = 3;
+        for (int i=0; i<PLAYS; i++)
+            expect(SoundCloudDB.markTrackAsPlayed(resolver, track)).toBeTrue();
+
+        Cursor c = resolver.query(Content.TRACK_PLAYS.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(1);
+        expect(c.moveToFirst()).toBeTrue();
+
+        expect(c.getLong(c.getColumnIndex(DBHelper.TrackPlays.TRACK_ID))).toEqual(100L);
+        expect(c.getLong(c.getColumnIndex(DBHelper.TrackPlays.USER_ID))).toEqual(USER_ID);
+        expect(c.getInt(c.getColumnIndex(DBHelper.TrackPlays.PLAY_COUNT))).toEqual(PLAYS);
     }
 }

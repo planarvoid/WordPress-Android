@@ -264,11 +264,17 @@ public class ScContentProvider extends ContentProvider {
                 return result;
 
             case TRACK_PLAYS:
-                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_IGNORE);
+                if (!values.containsKey(DBHelper.TrackPlays.USER_ID)) {
+                    values.put(DBHelper.TrackPlays.USER_ID, userId);
+                }
+                id = db.insert(content.table.name, null, values);
+                String counter = DBHelper.TrackPlays.PLAY_COUNT;
+                db.execSQL("UPDATE "+content.table.name+
+                        " SET "+counter+"="+counter+" + 1 WHERE "+content.table.id +"= ?",
+                        new String[] {String.valueOf(id)});
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
-
             case SEARCHES:
                 id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
@@ -554,9 +560,9 @@ public class ScContentProvider extends ContentProvider {
                         }
                     }
                     return ParcelFileDescriptor.open(artworkFile, ParcelFileDescriptor.MODE_READ_ONLY);
+                } else {
+                    throw new FileNotFoundException();
                 }
-                throw new FileNotFoundException();
-
             default:
                 return super.openFile(uri, mode);
         }
