@@ -493,13 +493,14 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     }
                 }
 
-                setPauseButtonImage();
                 if (mPlaybackService != null) {
                     try {
                         mPlayingTrack = mPlaybackService.getTrack();
                     } catch (RemoteException ignored) {
                     }
                 }
+                setPauseButtonImage();
+                setFavoriteStatus();
 
             } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
                 setPauseButtonImage();
@@ -596,8 +597,15 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             setFavoriteStatus();
 
-            int workspaceIndex = 0;
             final int queueLength = mPlaybackService.getQueueLength();
+            if (queueLength < mTrackWorkspace.getScreenCount()){
+                while (queueLength < mTrackWorkspace.getScreenCount()){
+                    mTrackWorkspace.removeViewFromFront();
+                }
+                mTrackWorkspace.requestLayout();
+            }
+
+            int workspaceIndex = 0;
             for (int pos = mCurrentQueuePosition -1; pos < mCurrentQueuePosition + 2; pos++){
                 if (pos >= 0 && pos < queueLength){
                     PlayerTrackView ptv;
@@ -611,10 +619,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
                     workspaceIndex++;
                 }
-            }
-
-            for (int i = 0; i < mTrackWorkspace.getScreenCount() - workspaceIndex; i++){
-                mTrackWorkspace.removeViewFromBack();
             }
 
             if (first){
@@ -632,9 +636,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     }
 
     private void setFavoriteStatus() {
-        if (mPlayingTrack == null || mFavoriteButton == null) {
-            return;
-        }
+        if (mPlayingTrack == null || mFavoriteButton == null) return;
 
         if (mPlayingTrack.user_favorite) {
             if (mFavoritedDrawable == null) mFavoritedDrawable = getResources().getDrawable(R.drawable.ic_liked_states);
