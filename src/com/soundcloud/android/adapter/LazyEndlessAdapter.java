@@ -160,7 +160,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     public Object saveState(){
         return new Object[] {
-                getData(),
+                getDataState(),
                 getAppendTask(),
                 getRefreshTask(),
                 getUpdateTask(),
@@ -174,7 +174,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
     @SuppressWarnings("unchecked")
     public void restoreState(final Object[] state){
-        if (state[0] != null) getData().addAll((Collection<? extends Parcelable>) state[0]);
+        if (state[0] != null) setData(state[0]);
         if (state[1] != null) restoreAppendTask((RemoteCollectionTask) state[1]);
         if (state[2] != null) restoreRefreshTask((RemoteCollectionTask) state[2]);
         if (state[3] != null) restoreUpdateTask((UpdateCollectionTask) state[3]);
@@ -182,6 +182,14 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         if (state[5] != null) restoreExtraData((Object[]) state[5]);
         if (state[6] != null) mListView.setLastUpdated(Long.valueOf(state[6].toString()));
         if (state[7] != null) mListView.postSelect(Math.max(isRefreshing() ? 0 : 1, Integer.valueOf(state[7].toString())),Integer.valueOf(state[8].toString()), true);
+    }
+
+    protected Object getDataState(){
+        return getData();
+    }
+
+    protected void setData(Object data){
+        getData().addAll((Collection<? extends Parcelable>) data);
     }
     /**
      * Restore a possibly still running task that could have been passed in on

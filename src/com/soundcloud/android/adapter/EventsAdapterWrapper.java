@@ -21,10 +21,7 @@ import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     private boolean mVisible;
@@ -49,6 +46,24 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             setLastSeen(mSetLastSeenTo);
             mSetLastSeenTo = -1;
         }
+    }
+
+    @Override
+    public void resetData(){
+        super.resetData();
+        mActivities = Activities.EMPTY;
+    }
+
+    @Override
+    protected Object getDataState(){
+        return mActivities;
+    }
+
+    @Override
+    protected void setData(Object data){
+        mActivities = (Activities) data;
+        getWrappedAdapter().setData(new ArrayList<Parcelable>());
+        getWrappedAdapter().getData().addAll(mActivities.collection);
     }
 
     @Override
@@ -99,9 +114,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         }
 
         if (!newActivities.isEmpty()){
-            mActivities = newActivities;
-            getWrappedAdapter().setData(new ArrayList<Parcelable>());
-            getWrappedAdapter().getData().addAll(mActivities.collection);
+            setData(newActivities);
         }
 
         if (!isRefreshing()) doneRefreshing();
