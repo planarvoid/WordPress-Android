@@ -13,8 +13,8 @@ import android.net.Uri;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TestHelper {
     private TestHelper() {}
@@ -60,16 +60,10 @@ public class TestHelper {
         expect(c.getLong(c.getColumnIndex("_id"))).toEqual(id);
     }
 
-    public static void assertResolverNotificationCount(int n) {
-        DelegatingContentResolver res  =
-                Robolectric.shadowOf_(Robolectric.application.getContentResolver());
-        expect(res.getNotifiedUris().size()).toEqual(n);
-    }
-
     public static void assertResolverNotified(Uri... uris) {
         DelegatingContentResolver res  =
                 Robolectric.shadowOf_(Robolectric.application.getContentResolver());
-        List<Uri> _uris = new ArrayList<Uri>();
+        Set<Uri> _uris = new HashSet<Uri>();
         for (DelegatingContentResolver.NotifiedUri u : res.getNotifiedUris()) {
             _uris.add(u.uri);
         }
