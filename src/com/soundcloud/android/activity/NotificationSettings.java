@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity;
 
 import android.preference.*;
-import android.util.Log;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -58,7 +57,7 @@ public class NotificationSettings extends PreferenceActivity {
         if (account != null) {
             final boolean autoSyncing = ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY);
             if (sync && !autoSyncing) {
-                ScContentProvider.enableSyncing(account, SyncAdapterService.DEFAULT_POLL_FREQUENCY);
+                ScContentProvider.enableSyncing(account, SyncAdapterService.DEFAULT_SYNC_DELAY);
             } else if (!sync && autoSyncing){
                 ScContentProvider.disableSyncing(account);
             }

@@ -112,7 +112,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             Connections.initialize(this, "connections-"+getCurrentUserId());
 
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
-                enableSyncing(account, SyncAdapterService.DEFAULT_POLL_FREQUENCY);
+                enableSyncing(account, SyncAdapterService.DEFAULT_SYNC_DELAY);
             }
             C2DMReceiver.register(this, getLoggedInUser());
         }
@@ -252,7 +252,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 
-        enableSyncing(account, SyncAdapterService.DEFAULT_POLL_FREQUENCY);
+        enableSyncing(account, SyncAdapterService.DEFAULT_SYNC_DELAY);
         return created;
     }
 
@@ -508,7 +508,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             switch (nextVersion) {
                 case 31:
                     if (getAccount() != null){ // enable syncing
-                        enableSyncing(getAccount(), SyncAdapterService.DEFAULT_POLL_FREQUENCY);
+                        enableSyncing(getAccount(), SyncAdapterService.DEFAULT_SYNC_DELAY);
                     }
                     break;
                 default:

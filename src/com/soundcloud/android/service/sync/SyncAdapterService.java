@@ -48,22 +48,23 @@ public class SyncAdapterService extends Service {
     private static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
 
     private static final long DEFAULT_NOTIFICATIONS_FREQUENCY = 60*60*1000*4L; // 4h
-    public static final long DEFAULT_POLL_FREQUENCY = 3600L;
+    public static final long DEFAULT_SYNC_DELAY = 3600L;
 
-    private static final long DEFAULT_DELAY    = 60*60*1000;         // 1 hr in ms
-    private static final long TRACK_SYNC_DELAY = DEFAULT_DELAY;
-    private static final long USER_SYNC_DELAY  = DEFAULT_DELAY * 4;  // users aren't as crucial
-    private static final long CLEANUP_DELAY    = DEFAULT_DELAY * 24; // every 24 hours
+    public static final long DEFAULT_STALE_TIME = 60*60*1000;         // 1 hr in ms
+    public static final long ACTIVITY_STALE_TIME = DEFAULT_STALE_TIME;
+    public static final long TRACK_STALE_TIME = DEFAULT_STALE_TIME;
+    public static final long USER_STALE_TIME = DEFAULT_STALE_TIME * 12;  // users aren't as crucial
+    public static final long CLEANUP_DELAY    = DEFAULT_STALE_TIME * 24; // every 24 hours
 
     public static final String EXTRA_CLEAR_MODE = "clearMode";
     public static final int CLEAR_ALL       = 1;
     public static final int REWIND_LAST_DAY = 2;
 
     enum SyncContent {
-        MySounds(Content.ME_TRACKS, TRACK_SYNC_DELAY),
-        MyFavorites(Content.ME_FAVORITES, TRACK_SYNC_DELAY),
-        MyFollowings(Content.ME_FOLLOWINGS, USER_SYNC_DELAY),
-        MyFollowers(Content.ME_FOLLOWERS, USER_SYNC_DELAY);
+        MySounds(Content.ME_TRACKS, TRACK_STALE_TIME),
+        MyFavorites(Content.ME_FAVORITES, TRACK_STALE_TIME),
+        MyFollowings(Content.ME_FOLLOWINGS, USER_STALE_TIME),
+        MyFollowers(Content.ME_FOLLOWERS, USER_STALE_TIME);
 
         SyncContent(Content content, long syncDelay) {
             this.content = content;

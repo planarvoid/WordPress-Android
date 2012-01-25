@@ -1,29 +1,32 @@
 package com.soundcloud.android.provider;
 
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
-
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.sync.ApiSyncer;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
-import org.codehaus.jackson.map.type.CollectionType;
-
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.UriMatcher;
 import android.net.Uri;
 import android.os.Parcelable;
+import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.service.sync.ApiSyncer;
+import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FAVORITE;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FRIEND;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.SUGGESTED_USER;
 
 public enum Content {
     ME("me", null, 100, User.class, -1, null),
@@ -215,5 +218,14 @@ public enum Content {
                         new String[]{String.valueOf(collectionType)},
                         DBHelper.CollectionItems.SORT_ORDER));
 
+    }
+
+    public boolean isStale(long lastSync) {
+        final long staleTime = (resourceType == Track.class) ? SyncAdapterService.TRACK_STALE_TIME :
+                               (resourceType == Activity.class) ? SyncAdapterService.ACTIVITY_STALE_TIME :
+                               (resourceType == User.class) ? SyncAdapterService.USER_STALE_TIME :
+                               SyncAdapterService.DEFAULT_STALE_TIME;
+
+        return System.currentTimeMillis() - lastSync > staleTime;
     }
 }

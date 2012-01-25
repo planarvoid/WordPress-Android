@@ -209,7 +209,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     protected boolean isStale(boolean refresh){
-        return (getPageIndex(refresh) == 0 && System.currentTimeMillis() - mLocalCollection.last_sync > Consts.DEFAULT_REFRESH_MINIMUM);
+        return (getPageIndex(refresh) == 0 && mContent != null && mContent.isStale(mLocalCollection.last_sync));
     }
 
     protected boolean isSyncable(){
