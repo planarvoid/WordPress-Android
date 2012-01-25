@@ -186,10 +186,11 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere(Table.RECORDINGS.id + " = "+ uri.getLastPathSegment());
                 break;
 
-            case ME_ALL_ACTIVITIES:
             case ME_SOUND_STREAM:
-            case ME_ACTIVITIES:
             case ME_EXCLUSIVE_STREAM:
+                if (_columns == null) _columns = formatWithUser(fullActivityColumns, userId);
+            case ME_ALL_ACTIVITIES:
+            case ME_ACTIVITIES:
                 qb.setTables(Table.ACTIVITY_VIEW.name);
                 if (content != Content.ME_ALL_ACTIVITIES) {
                     // TODO prepared query
@@ -723,6 +724,14 @@ public class ScContentProvider extends ContentProvider {
             Table.TRACK_VIEW + ".*",
             "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
                     + " WHERE " + Table.TRACK_VIEW.id + " = " + DBHelper.CollectionItems.ITEM_ID
+                    + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FAVORITE
+                    + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_FAVORITE,
+    };
+
+    public static String[] fullActivityColumns = new String[]{
+            Table.ACTIVITY_VIEW + ".*",
+            "EXISTS (SELECT 1 FROM " + Table.COLLECTION_ITEMS
+                    + " WHERE " + DBHelper.ActivityView.TRACK_ID + " = " + DBHelper.CollectionItems.ITEM_ID
                     + " AND " + DBHelper.CollectionItems.COLLECTION_TYPE + " = " + FAVORITE
                     + " AND " + DBHelper.CollectionItems.USER_ID + " = $$$) AS " + DBHelper.TrackView.USER_FAVORITE,
     };
