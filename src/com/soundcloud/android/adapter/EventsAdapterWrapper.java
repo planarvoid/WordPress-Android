@@ -51,6 +51,11 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         }
     }
 
+    @Override
+    public int getPageIndex(boolean isRefresh) {
+        return mPageIndex;
+    }
+
     public void onPause() {
         mVisible = false;
     }
@@ -78,14 +83,13 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
     public boolean onNewEvents(Activities newActivities, boolean wasRefresh) {
 
-        if (!isRefreshing()) doneRefreshing();
         if (wasRefresh) {
             if (!newActivities.isEmpty()) {
                 if (mListView != null && mContentUri != null) setListLastUpdated();
                 setLastSeen(newActivities.get(0).created_at.getTime());
             }
         } else {
-            if (newActivities.collection.size() < Consts.COLLECTION_PAGE_SIZE){
+            if (newActivities.size() - mActivities.size() < Consts.COLLECTION_PAGE_SIZE){
                 mPageIndex = -1; // shows all
                 requestAppend();
             } else {
@@ -100,6 +104,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             getWrappedAdapter().getData().addAll(mActivities.collection);
         }
 
+        if (!isRefreshing()) doneRefreshing();
         applyEmptyView();
         mAppendTask = null;
         notifyDataSetChanged();
@@ -138,7 +143,12 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     }
 
     protected void onContentChanged() {
-        executeRefreshTask();
+        if (!mAutoAppend) { // result of initial sync, appending is ok now
+            allowInitialLoading();
+            notifyDataSetChanged();
+        } else {
+            executeRefreshTask();
+        }
     }
 
     @Override
@@ -146,10 +156,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                if (!mAutoAppend) { // result of initial sync, appending is ok now
-                    allowInitialLoading();
-                    notifyDataSetChanged();
-                } else if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
+                if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
                     doneRefreshing(); // nothing changed
                 }
                 break;

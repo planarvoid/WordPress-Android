@@ -488,19 +488,6 @@ public class Activities extends CollectionHolder<Activity> {
         return resolver.bulkInsert(content.uri, buildContentValues(content.id));
     }
 
-    public String getLastCursor() {
-        return isEmpty() ? null : collection.get(collection.size()-1).toGUID();
-    }
-
-
-    public long getLastTimestamp() {
-        return isEmpty() ? null : collection.get(collection.size()-1).created_at.getTime();
-    }
-
-    public long getFirstTimestamp() {
-        return isEmpty() ? null : collection.get(0).created_at.getTime();
-    }
-
     public Map<Long, Activity> getCollectionMap() {
         Map<Long,Activity> map = new HashMap<Long,Activity>();
         for (Activity a : collection){
@@ -525,6 +512,13 @@ public class Activities extends CollectionHolder<Activity> {
         Activities newActivities = Activities.get(resolver, contentUri, null,
                 CloudUtils.getWhereIds(DBHelper.Activities._ID, ids), CloudUtils.longListToStringArr(ids), null);
         newActivities.collection.addAll(oldActivityMap.values());
+        Collections.sort(newActivities.collection);
+        return newActivities;
+    }
+
+    public static Activities mergeWithUriBefore(ContentResolver resolver, Uri contentUri, List<Activity> old, long before){
+        Activities newActivities = getBefore(contentUri,resolver,before);
+        newActivities.collection.addAll(old);
         Collections.sort(newActivities.collection);
         return newActivities;
     }

@@ -55,8 +55,11 @@ public class LoadActivitiesTask extends RemoteCollectionTask {
                         mParams.pageIndex == -1 ? 0 : lastActivityTimestamp
                 );
         } else if (mParams.pageIndex != -1) {
-            mNewActivities = Activities.getBefore(mParams.contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build(),
-                    mApp.getContentResolver(), lastActivityTimestamp);
+            mNewActivities = Activities.mergeWithUriBefore(
+                    mApp.getContentResolver(),
+                    mParams.contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build(),
+                    mCurrentActivities.collection,
+                    lastActivityTimestamp);
         } else {
             mNewActivities = Activities.EMPTY;
         }
