@@ -284,6 +284,25 @@ public class ActivitiesTest {
     }
 
     @Test
+    public void shouldMergeWithUriBefore() throws Exception {
+        Activities a = Activities.fromJSON(
+                SyncAdapterServiceTest.class.getResourceAsStream("incoming_2.json"));
+        a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
+        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+
+        Activities old = Activities.fromJSON(
+                        SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
+        expect(a.size()).toBe(50);
+
+        Activities merged = Activities.mergeWithUriBefore(Robolectric.application.getContentResolver(),Content.ME_SOUND_STREAM.uri,old.collection,toTime("2011/07/06 15:47:50 +0000"));
+        expect(merged.size()).toBe(100);
+
+        merged = Activities.mergeWithUriBefore(Robolectric.application.getContentResolver(),Content.ME_SOUND_STREAM.uri,old.collection,toTime("2011/07/04 07:14:53 +0000"));
+        expect(merged.size()).toBe(77);
+
+    }
+
+    @Test
     public void shouldClearAllActivities() throws Exception {
         Activities a = Activities.fromJSON(
                 SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));

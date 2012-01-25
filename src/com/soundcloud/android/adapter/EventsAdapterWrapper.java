@@ -156,17 +156,14 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
-                    doneRefreshing(); // nothing changed
-                }
+                if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) doneRefreshing(); // nothing changed
                 break;
             }
             case ApiSyncService.STATUS_APPEND_ERROR:
             case ApiSyncService.STATUS_APPEND_FINISHED: {
-                if (!resultData.getBoolean(mContentUri.toString())){
-                    mKeepGoing = false;
-                }
+                if (!resultData.getBoolean(mContentUri.toString())) mKeepGoing = false;
                 mState = IDLE;
+                notifyDataSetChanged();
                 break;
             }
         }
