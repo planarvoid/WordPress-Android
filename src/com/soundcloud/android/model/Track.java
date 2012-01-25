@@ -276,7 +276,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
 
     public ContentValues buildContentValues(){
         ContentValues cv = super.buildContentValues();
-        cv.put(Tracks.LAST_UPDATED, System.currentTimeMillis());
+
         cv.put(Tracks.PERMALINK, permalink);
         // account for partial objects, don't overwrite local full objects
         if (title != null) cv.put(Tracks.TITLE, title);
@@ -287,6 +287,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         }  else if (user != null && user.isSaved()) {
             cv.put(Tracks.USER_ID, user.id);
         }
+
         if (created_at != null) cv.put(Tracks.CREATED_AT, created_at.getTime());
         if (tag_list != null) cv.put(Tracks.TAG_LIST, tag_list);
         if (track_type != null) cv.put(Tracks.TRACK_TYPE, track_type);
@@ -310,7 +311,15 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         // might overwrite valid db values
         if (filelength > 0) cv.put(Tracks.FILELENGTH, filelength);
 
+        if (isCompleteTrack()){
+            cv.put(Tracks.LAST_UPDATED, System.currentTimeMillis());
+        }
+
         return cv;
+    }
+
+    private boolean isCompleteTrack(){
+        return created_at != null && duration > 0;
     }
 
     public void fillTags(FlowLayout ll, final Context context){

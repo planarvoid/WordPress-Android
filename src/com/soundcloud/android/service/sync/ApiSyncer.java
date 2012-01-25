@@ -165,7 +165,15 @@ public class ApiSyncer {
                 }
                 startPosition = firstUsers.size();
                 break;
-
+            case ME_TRACKS:
+                // ensure the first couple of pages of items for quick loading
+                added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
+                        mApi,
+                        mResolver,
+                        remote,
+                        Content.TRACKS,
+                        false
+                ));
             default:
                 // ensure the first couple of pages of items for quick loading
                 added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
@@ -208,7 +216,8 @@ public class ApiSyncer {
             while (i < additions.size()) {
                 List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
                 storedIds.addAll(idCursorToList(resolver.query(content.uri, new String[]{DBHelper.Tracks._ID},
-                        CloudUtils.getWhereIds(DBHelper.Tracks._ID, batch), CloudUtils.longListToStringArr(batch), null)));
+                        CloudUtils.getWhereIds(DBHelper.Tracks._ID, batch) + " AND " + DBHelper.Tracks.LAST_UPDATED + " > 0"
+                        , CloudUtils.longListToStringArr(batch), null)));
                 i += RESOLVER_BATCH_SIZE;
             }
             additions.removeAll(storedIds);

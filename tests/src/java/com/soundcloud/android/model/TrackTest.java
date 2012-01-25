@@ -11,6 +11,8 @@ import org.junit.runner.RunWith;
 import android.content.ContentValues;
 import android.content.Intent;
 
+import java.util.*;
+
 @RunWith(DefaultTestRunner.class)
 public class TrackTest {
     @Test
@@ -89,6 +91,20 @@ public class TrackTest {
         ContentValues v = t.buildContentValues();
         expect(v).not.toBeNull();
         expect(v.getAsLong(DBHelper.Tracks._ID)).toEqual(1000L);
+    }
+
+    @Test
+    public void shouldBuildContentValuesWithNoLastUpdated() throws Exception{
+        Track t = new Track();
+        t.id = 1000;
+        ContentValues v = t.buildContentValues();
+        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        t.created_at = new Date(System.currentTimeMillis());
+        v = t.buildContentValues();
+        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        t.duration = 1000;
+        v = t.buildContentValues();
+        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).not.toBeNull();
     }
 
     @Test
