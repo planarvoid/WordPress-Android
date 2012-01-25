@@ -139,8 +139,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @JsonIgnore public boolean comments_loaded;
     @JsonIgnore public int last_playback_error = -1;
     @JsonIgnore public long last_updated;
-
-    private CharSequence _elapsedTime;
+    @JsonIgnore private CharSequence _elapsedTime;
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -160,6 +159,14 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @Override @JsonIgnore
     public Track getTrack() {
         return this;
+    }
+
+    @Override
+    public CharSequence getTimeSinceCreated(Context context) {
+        if (_elapsedTime == null){
+            _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
+        }
+        return _elapsedTime;
     }
 
 
@@ -439,13 +446,6 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
             return new Track[size];
         }
     };
-
-    public CharSequence getElapsedTime(Context c) {
-        if (_elapsedTime == null){
-            _elapsedTime = CloudUtils.getTimeElapsed(c.getResources(),created_at.getTime());
-        }
-        return _elapsedTime;
-    }
 
     @Override
     public String toString() {

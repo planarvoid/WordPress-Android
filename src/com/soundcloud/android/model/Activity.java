@@ -76,6 +76,14 @@ public class Activity extends ScModel implements Origin, Playable, Comparable<Ac
         return origin == null ? null : origin.getTrack();
     }
 
+    @Override
+    public CharSequence getTimeSinceCreated(Context context) {
+        if (_elapsedTime == null){
+            _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
+        }
+        return _elapsedTime;
+    }
+
     public Comment getComment() {
         return origin instanceof Comment ? (Comment) origin : null;
     }
@@ -90,6 +98,7 @@ public class Activity extends ScModel implements Origin, Playable, Comparable<Ac
 
     @Override
     public void resolve(SoundCloudApplication application) {
+        _elapsedTime = CloudUtils.getTimeElapsed(application.getResources(),created_at.getTime());
         if (origin instanceof Comment) {
             Comment c = (Comment)origin;
             if (c.track.user == null) {
@@ -102,14 +111,6 @@ public class Activity extends ScModel implements Origin, Playable, Comparable<Ac
         }
     }
 
-
-    public CharSequence getElapsedTime(Context c) {
-        if (_elapsedTime == null) {
-            _elapsedTime = CloudUtils.getTimeElapsed(c.getResources(),created_at.getTime());
-        }
-        return _elapsedTime;
-    }
-    
     public String getDateString() {
         return created_at == null ? null :
                 AndroidCloudAPI.CloudDateFormat.format(created_at.getTime());

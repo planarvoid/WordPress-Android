@@ -4,7 +4,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.ITracklistAdapter;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.*;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -66,7 +66,7 @@ public class TracklistRow extends LazyRow {
         } else {
             setStaticTransformationsEnabled(true);
         }
-        mTrackInfoBar.display(p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false, mCurrentUserId);
+        mTrackInfoBar.display((Playable) p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false, mCurrentUserId);
     }
 
     protected Track getTrackFromParcelable(Parcelable p) {

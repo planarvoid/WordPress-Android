@@ -2,8 +2,7 @@ package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.*;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -37,6 +36,8 @@ public class TrackInfoBar extends RelativeLayout {
     private View mPlayCountSeparator;
     private View mCommentCountSeparator;
 
+    private boolean mCurrentlyFavorited;
+
     private Drawable mFavoritesDrawable;
     private Drawable mFavoritedDrawable;
     private Drawable mPrivateBgDrawable;
@@ -66,6 +67,9 @@ public class TrackInfoBar extends RelativeLayout {
 
         mPlayCountSeparator = findViewById(R.id.vr_play_count);
         mCommentCountSeparator = findViewById(R.id.vr_comment_count);
+
+        // default to not favorited
+        mFavoriteCount.setCompoundDrawables(getFavoritesDrawable(),null, null, null);
     }
 
     public void addTextShadows(){
@@ -117,44 +121,33 @@ public class TrackInfoBar extends RelativeLayout {
         return mVeryPrivateBgDrawable;
     }
 
-    protected void setTrackTime(Parcelable p) {
-        if (p instanceof Activity) {
-            if (((Activity) p).created_at != null){
-                mCreatedAt.setText(((Activity) p).getElapsedTime(getContext()));
-            }
-        } else {
-            if (mTrack.created_at != null){
-                mCreatedAt.setText(mTrack.getElapsedTime(getContext()));
-            }
-        }
-    }
-
     /** update the views with the data corresponding to selection index */
-    public void display(Parcelable p, boolean shouldLoadIcon, long playingId, boolean keepHeight, long currentUserId) {
+    public void display(Playable p, boolean shouldLoadIcon, long playingId, boolean keepHeight, long currentUserId) {
         mShouldLoadIcon = shouldLoadIcon;
-        mTrack = p instanceof Activity ? ((Activity) p).getTrack() :
-                 p instanceof Track ? (Track) p : null;
+        mTrack = p.getTrack();
         if (mTrack == null) return;
 
-        setTrackTime(p);
+        final Context context = getContext();
+
         mUser.setText(mTrack.user != null ? mTrack.user.username : "");
+        mCreatedAt.setText(p.getTimeSinceCreated(context));
 
         if (mTrack.sharing == null || mTrack.sharing.contentEquals("public")) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
             if (mTrack.shared_to_count == 0){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_count_unavailable));
+                mPrivateIndicator.setText(context.getString(R.string.tracklist_item_shared_count_unavailable));
             } else if (mTrack.shared_to_count == 1){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(getContext().getString(mTrack.user_id == currentUserId ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you));
+                mPrivateIndicator.setText(context.getString(mTrack.user_id == currentUserId ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you));
             } else {
                 if (mTrack.shared_to_count < 8){
                     mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
                 } else {
                     mPrivateIndicator.setBackgroundDrawable(getPrivateBgDrawable());
                 }
-                mPrivateIndicator.setText(getContext().getString(R.string.tracklist_item_shared_with_x_people, mTrack.shared_to_count));
+                mPrivateIndicator.setText(context.getString(R.string.tracklist_item_shared_with_x_people, mTrack.shared_to_count));
             }
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
@@ -163,10 +156,12 @@ public class TrackInfoBar extends RelativeLayout {
         CloudUtils.setStats(mTrack.playback_count, mPlayCount, mPlayCountSeparator, mTrack.comment_count,
                 mCommentCount, mCommentCountSeparator, mTrack.favoritings_count, mFavoriteCount, keepHeight);
 
-        if (mTrack.user_favorite) {
+        if (mTrack.user_favorite && !mCurrentlyFavorited) {
             mFavoriteCount.setCompoundDrawablesWithIntrinsicBounds(getFavoritedDrawable(),null, null, null);
-        } else {
+            mCurrentlyFavorited = true;
+        } else if (mCurrentlyFavorited) {
             mFavoriteCount.setCompoundDrawables(getFavoritesDrawable(),null, null, null);
+            mCurrentlyFavorited = false;
         }
 
 
