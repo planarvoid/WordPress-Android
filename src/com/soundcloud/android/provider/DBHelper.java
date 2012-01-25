@@ -125,6 +125,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "username VARCHAR(255)," +
             "avatar_url VARCHAR(255)," +
             "permalink VARCHAR(255)," +
+            "permalink_url VARCHAR(255)," +
             "city VARCHAR(255)," +
             "country VARCHAR(255)," +
             "discogs_name VARCHAR(255)," +
@@ -338,6 +339,14 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String SHARING_NOTE_TEXT = "sharing_note_text";
         public static final String USER_ID = "user_id";
         public static final String FILELENGTH = "filelength";
+
+        public static final String[] ALL_FIELDS = {
+                _ID, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
+                WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL,
+                STREAMABLE, COMMENTABLE, SHARING, PLAYBACK_COUNT, DOWNLOAD_COUNT,
+                COMMENT_COUNT, FAVORITINGS_COUNT, SHARED_TO_COUNT, SHARING_NOTE_TEXT,
+                USER_ID, FILELENGTH, CREATED_AT, PERMALINK, LAST_UPDATED
+        };
     }
 
     /**
@@ -380,6 +389,14 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String DESCRIPTION = "description";
         public static final String USER_FOLLOWING = "user_following";
         public static final String USER_FOLLOWER = "user_follower";
+        public static final String PERMALINK_URL = "permalink_url";
+
+        public static final String[] ALL_FIELDS = {
+                _ID, USERNAME, AVATAR_URL, CITY, COUNTRY, DISCOGS_NAME,
+                FOLLOWERS_COUNT, FOLLOWINGS_COUNT, FULL_NAME, MYSPACE_NAME,
+                TRACK_COUNT, WEBSITE, WEBSITE_TITLE, DESCRIPTION, PERMALINK,
+                LAST_UPDATED, PERMALINK_URL
+        };
     }
 
     public static final class Comments extends ResourceTable {

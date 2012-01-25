@@ -4,7 +4,6 @@ package com.soundcloud.android.model;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.activity.TracksByTag;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
@@ -20,7 +19,6 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonView;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +27,6 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -135,19 +132,15 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     // Fields used by app
     @JsonIgnore public List<Comment> comments;
     @JsonIgnore public long filelength;
-    @JsonIgnore public boolean user_played;
+    @JsonIgnore public int local_user_playback_count;
     @JsonIgnore public LoadTrackInfoTask load_info_task;
     @JsonIgnore public LoadCommentsTask load_comments_task;
     @JsonIgnore public boolean info_loaded;
     @JsonIgnore public boolean comments_loaded;
-
     @JsonIgnore public int last_playback_error = -1;
     @JsonIgnore public long last_updated;
 
-
-    protected File mCacheFile;
-    private CharSequence mElapsedTime;
-    public int local_user_playback_count;
+    private CharSequence _elapsedTime;
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -265,71 +258,14 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         return this;
     }
 
-    public void assertInDb(SoundCloudApplication app) {
-        if (user != null) user.assertInDb(app);
-        SoundCloudDB.insertTrack(app.getContentResolver(), this);
-    }
-
     @Override
     public void resolve(SoundCloudApplication application) {
-        mElapsedTime = CloudUtils.getTimeElapsed(application.getResources(),created_at.getTime());
-    }
-
-    // CloudPlaybackService
-    public Track updateFromDb(ContentResolver resolver, long currentUserId) {
-        // XXX
-        Cursor cursor = resolver.query(Content.TRACKS.forId(id), null, null,null, null);
-
-        if (cursor != null) {
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                String[] keys = cursor.getColumnNames();
-                for (String key : keys) {
-                    if (key.contentEquals("_id")) {
-                        id = cursor.getLong(cursor.getColumnIndex(key));
-                    } else {
-                        try {
-                            setFieldFromCursor(this, Track.class.getDeclaredField(key), cursor,
-                                    key);
-                        } catch (SecurityException e) {
-                            Log.e(TAG, "error", e);
-                        } catch (NoSuchFieldException e) {
-                            Log.e(TAG, "error", e);
-                        }
-                    }
-                }
-                if (!user_played) {
-                    this.updateUserPlayedFromDb(resolver, currentUserId);
-                }
-            }
-            cursor.close();
-        }
-        if (user != null) {
-            user.updateFromDb(resolver, currentUserId);
-        }
-        return this;
-    }
-
-    public boolean updateUserPlayedFromDb(ContentResolver resolver, User user) {
-        return updateUserPlayedFromDb(resolver, user.id);
-    }
-
-    public boolean updateUserPlayedFromDb(ContentResolver contentResolver, long userId) {
-        Cursor cursor = contentResolver.query(Content.TRACK_PLAYS.forId(id),
-                null, null, null, null);
-
-        if (cursor != null) {
-            user_played = cursor.getCount() > 0;
-            cursor.close();
-        }
-        return user_played;
+        _elapsedTime = CloudUtils.getTimeElapsed(application.getResources(),created_at.getTime());
     }
 
     public void setAppFields(Track t) {
         comments = t.comments;
-        mCacheFile = t.mCacheFile;
         filelength = t.filelength;
-        user_played = t.user_played;
         info_loaded = t.info_loaded;
         comments_loaded = t.comments_loaded;
     }
@@ -496,11 +432,10 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     };
 
     public CharSequence getElapsedTime(Context c) {
-        if (mElapsedTime == null){
-            mElapsedTime = CloudUtils.getTimeElapsed(c.getResources(),created_at.getTime());
+        if (_elapsedTime == null){
+            _elapsedTime = CloudUtils.getTimeElapsed(c.getResources(),created_at.getTime());
         }
-
-        return mElapsedTime;
+        return _elapsedTime;
     }
 
     @Override

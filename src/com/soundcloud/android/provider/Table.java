@@ -1,5 +1,6 @@
 package com.soundcloud.android.provider;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
@@ -11,9 +12,9 @@ import java.util.EnumSet;
 import java.util.List;
 
 public enum Table {
-    TRACKS("Tracks", DBHelper.DATABASE_CREATE_TRACKS),
+    TRACKS("Tracks", DBHelper.DATABASE_CREATE_TRACKS, DBHelper.Tracks.ALL_FIELDS),
     TRACK_PLAYS("TrackPlays", DBHelper.DATABASE_CREATE_TRACK_PLAYS),
-    USERS("Users", DBHelper.DATABASE_CREATE_USERS),
+    USERS("Users", DBHelper.DATABASE_CREATE_USERS, DBHelper.Users.ALL_FIELDS),
     COMMENTS("Comments", DBHelper.DATABASE_CREATE_COMMENTS),
     ACTIVITIES("Activities", DBHelper.DATABASE_CREATE_ACTIVITIES),
     RECORDINGS("Recordings", DBHelper.DATABASE_CREATE_RECORDINGS),
@@ -35,12 +36,14 @@ public enum Table {
     public final String name;
     public final String createString;
     public final String id;
+    public final String[] fields;
 
-    Table(String name, String create) {
+    Table(String name, String create, String... fields) {
         if (name == null || create == null) throw new NullPointerException();
         this.name = name;
         createString = create;
         id = this.name +"."+BaseColumns._ID;
+        this.fields = fields;
     }
 
     public String allFields() {
@@ -109,6 +112,45 @@ public enum Table {
         db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from %s", name, cols, cols, tmpTable));
         db.execSQL("DROP table "+tmpTable);
         return cols;
+    }
+
+    /**
+     * @see <a href="http://stackoverflow.com/questions/418898/sqlite-upsert-not-insert-or-replace/">
+     *  SQLite - UPSERT *not* INSERT or REPLACE
+     * </a>
+     */
+
+    public int upsert(SQLiteDatabase db, ContentValues[] values) {
+        if (fields == null) {
+            throw new IllegalStateException("no fields defined");
+        }
+        db.beginTransaction();
+        for (ContentValues v : values)  {
+            long id = v.getAsLong(BaseColumns._ID);
+            List<Object> bindArgs = new ArrayList<Object>();
+            StringBuilder sb = new StringBuilder();
+            sb.append("INSERT OR REPLACE INTO ").append(name).append("(")
+                    .append(TextUtils.join(",", fields))
+                    .append(") VALUES (");
+            for (int i = 0; i < fields.length; i++) {
+                String f = fields[i];
+                if (v.containsKey(f)) {
+                    sb.append("?");
+                    bindArgs.add(v.get(f));
+                } else {
+                    sb.append("(SELECT ").append(f).append(" FROM ").append(name).append(" WHERE _id=?)");
+                    bindArgs.add(id);
+                }
+                if (i < fields.length - 1) {
+                    sb.append(",");
+                }
+            }
+            sb.append(");");
+            db.execSQL(sb.toString(), bindArgs.toArray());
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        return values.length;
     }
 
     @Override

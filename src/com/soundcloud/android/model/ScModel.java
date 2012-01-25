@@ -204,7 +204,6 @@ public abstract class ScModel implements Parcelable {
         return id >= 0;
     }
 
-    public void assertInDb(SoundCloudApplication app) { }
 
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
     public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
