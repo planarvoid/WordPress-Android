@@ -46,7 +46,6 @@ class ScContentProviderSpec extends DefaultSpec with OneInstancePerTest {
     trackUri.toString should equal("content://com.soundcloud.android.provider.ScContentProvider/tracks/27583938")
 
     val readTrack = query(trackUri, 1)(_.map(new Track(_))).head
-
     readTrack.id should equal(track.id)
     readTrack.title should equal(track.title)
     readTrack.created_at should equal(track.created_at)

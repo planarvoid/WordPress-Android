@@ -133,8 +133,7 @@ public class ApiSyncServiceTest {
         assertContentUriCount(Content.TRACKS, 3);
         assertContentUriCount(Content.COLLECTION_ITEMS, 3);
         assertContentUriCount(Content.USERS, 1);
-
-        assertResolverNotificationCount(7);
+        assertResolverNotified(Content.ME_TRACKS.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
 
     @Test
@@ -173,7 +172,7 @@ public class ApiSyncServiceTest {
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
         expect(incoming.size()).toEqual(100);
-        assertResolverNotificationCount(7);
+        assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
 
     @Test
@@ -231,8 +230,10 @@ public class ApiSyncServiceTest {
 
         Activities own = Activities.getSince(Content.ME_ACTIVITIES, resolver, -1);
         expect(own.size()).toEqual(41);
-        assertResolverNotificationCount(8);
-        assertResolverNotified(Content.TRACKS.uri, Content.USERS.uri);
+        assertResolverNotified(Content.TRACKS.uri,
+                Content.USERS.uri,
+                Content.COMMENTS.uri,
+                Content.ME_ACTIVITIES.uri);
     }
 
     @Test
