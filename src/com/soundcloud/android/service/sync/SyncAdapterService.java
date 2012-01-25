@@ -388,6 +388,7 @@ public class SyncAdapterService extends Service {
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, 1);
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, 1);
                 app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, 1);
+                clearActivities(app.getContentResolver());
                 break;
             case REWIND_LAST_DAY:
                 final long rewindTime = 24 * 3600000L; // 1d
@@ -397,18 +398,22 @@ public class SyncAdapterService extends Service {
                 rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, null,  rewindTime);
                 rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_AT, null, rewindTime);
                 rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_AT, null, rewindTime);
+                clearActivities(app.getContentResolver());
                 break;
             default:
-                throw new IllegalArgumentException("unknown clear mode "+clearMode);
         }
-        // drop all activities before re-sync
-        int deleted = Activities.clear(null, app.getContentResolver());
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "deleted "+deleted+ " activities");
-        }
+
         final Bundle extras = new Bundle();
         extras.putInt(EXTRA_CLEAR_MODE, clearMode);
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
+    }
+
+    private static void clearActivities(ContentResolver resolver){
+        // drop all activities before re-sync
+        int deleted = Activities.clear(null, resolver);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "deleted "+deleted+ " activities");
+        }
     }
 
     private static void rewind(SoundCloudApplication app, String key1, String key2, long amount) {

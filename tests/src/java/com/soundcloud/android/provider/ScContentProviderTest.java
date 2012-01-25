@@ -65,6 +65,40 @@ public class ScContentProviderTest {
     }
 
     @Test
+    public void shouldCleanup() throws Exception {
+        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+                getClass().getResourceAsStream("user_favorites.json"),
+                Track.TrackHolder.class);
+
+        for (Track t : tracks) {
+            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+        }
+
+        expect(resolver.query(Content.TRACKS.uri, null, null, null, null).getCount()).toEqual(15);
+        expect(resolver.query(Content.USERS.uri, null, null, null, null).getCount()).toEqual(14);
+
+        tracks  = AndroidCloudAPI.Mapper.readValue(
+                getClass().getResourceAsStream("tracks.json"),
+                Track.TrackHolder.class);
+
+        for (Track t : tracks) {
+            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.TRACKS.uri, t.buildContentValues())).not.toBeNull();
+        }
+
+        expect(resolver.query(Content.TRACKS.uri, null, null, null, null).getCount()).toEqual(18);
+        expect(resolver.query(Content.USERS.uri, null, null, null, null).getCount()).toEqual(15);
+
+        resolver.update(Content.TRACK_CLEANUP.uri, null, null, null);
+        expect(resolver.query(Content.TRACKS.uri, null, null, null, null).getCount()).toEqual(15);
+
+        resolver.update(Content.USERS_CLEANUP.uri, null, null, null);
+        expect(resolver.query(Content.USERS.uri, null, null, null, null).getCount()).toEqual(14);
+    }
+
+
+    @Test
     public void shouldIncludeUsernameForPrivateRecordings() throws Exception {
         Recording r = new Recording(new File("/tmp/test"));
         r.user_id = USER_ID;
