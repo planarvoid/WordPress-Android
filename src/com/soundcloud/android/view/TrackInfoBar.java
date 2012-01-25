@@ -36,8 +36,6 @@ public class TrackInfoBar extends RelativeLayout {
     private View mPlayCountSeparator;
     private View mCommentCountSeparator;
 
-    private boolean mCurrentlyFavorited;
-
     private Drawable mFavoritesDrawable;
     private Drawable mFavoritedDrawable;
     private Drawable mPrivateBgDrawable;
@@ -67,9 +65,6 @@ public class TrackInfoBar extends RelativeLayout {
 
         mPlayCountSeparator = findViewById(R.id.vr_play_count);
         mCommentCountSeparator = findViewById(R.id.vr_comment_count);
-
-        // default to not favorited
-        mFavoriteCount.setCompoundDrawables(getFavoritesDrawable(),null, null, null);
     }
 
     public void addTextShadows(){
@@ -156,12 +151,10 @@ public class TrackInfoBar extends RelativeLayout {
         CloudUtils.setStats(mTrack.playback_count, mPlayCount, mPlayCountSeparator, mTrack.comment_count,
                 mCommentCount, mCommentCountSeparator, mTrack.favoritings_count, mFavoriteCount, keepHeight);
 
-        if (mTrack.user_favorite && !mCurrentlyFavorited) {
+        if (mTrack.user_favorite) {
             mFavoriteCount.setCompoundDrawablesWithIntrinsicBounds(getFavoritedDrawable(),null, null, null);
-            mCurrentlyFavorited = true;
-        } else if (mCurrentlyFavorited) {
+        } else {
             mFavoriteCount.setCompoundDrawables(getFavoritesDrawable(),null, null, null);
-            mCurrentlyFavorited = false;
         }
 
 
