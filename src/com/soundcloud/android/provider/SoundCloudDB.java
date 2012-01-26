@@ -14,7 +14,6 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -132,22 +131,6 @@ public class SoundCloudDB {
         return list;
     }
 
-    @SuppressWarnings("unchecked")
-    public static List<Track> getTracks(ContentResolver resolver, Uri uri) {
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        if (cursor != null) {
-            List<Track> tracks = new ArrayList<Track>(cursor.getCount());
-            while (cursor.moveToNext()) {
-                tracks.add(new Track(cursor));
-            }
-            cursor.close();
-            return tracks;
-        } else {
-            return Collections.EMPTY_LIST;
-        }
-    }
-
-
     public static User getUserById(ContentResolver resolver, long userId) {
         return getUserByUri(resolver, Content.USERS.forId(userId));
     }
@@ -168,7 +151,7 @@ public class SoundCloudDB {
     }
 
     public static int bulkInsertParcelables(ContentResolver resolver,
-                                            List<Parcelable> items,
+                                            List<? extends Parcelable> items,
                                             Uri collectionUri,
                                             long ownerId) {
         if (collectionUri != null && ownerId < 0) {

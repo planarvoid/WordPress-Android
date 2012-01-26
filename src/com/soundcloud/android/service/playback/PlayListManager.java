@@ -1,27 +1,27 @@
 package com.soundcloud.android.service.playback;
 
 
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.SoundCloudDB;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import java.util.List;
 
-/* package */ class PlaylistManager {
+/* package */
+class PlaylistManager {
     private static final String TAG = "PlaylistManager";
 
-    private SoundCloudApplication mApp;
     private Track[] mPlaylist = new Track[0];
     private Cursor mTrackCursor;
     private Uri mPlaylistUri;
@@ -30,13 +30,13 @@ import java.util.List;
     private Context mContext;
     private TrackCache mCache;
     private static final int DEFAULT_PLAYLIST = 0;
-    private static final Uri DEFAULT_PLAYLIST_URI = Content.PLAYLIST.forId(DEFAULT_PLAYLIST);
+    static final Uri DEFAULT_PLAYLIST_URI = Content.PLAYLIST.forId(DEFAULT_PLAYLIST);
+    private long mUserId;
 
-    public PlaylistManager(Context context,
-                           SoundCloudApplication app, TrackCache cache) {
-        mContext = context;
-        mApp = app;
+    public PlaylistManager(Context context, TrackCache cache, long userId) {
         mCache = cache;
+        mContext = context;
+        mUserId = userId;
     }
 
     public int length() {
@@ -122,19 +122,18 @@ import java.util.List;
 
     public void setUri(Uri uri, int position) {
         mPlaylistUri = uri;
-        List<Track> tracks = SoundCloudDB.getTracks(mContext.getContentResolver(), uri);
         if (mTrackCursor != null){
             if (!mTrackCursor.isClosed()) mTrackCursor.close();
         }
         mTrackCursor = mContext.getContentResolver().query(uri, null, null, null, null);
         mPlaylist = new Track[mTrackCursor.getCount()];
-        if (position >=0 && position < mTrackCursor.getCount()){
+        if (position >= 0 && position < mTrackCursor.getCount()){
             mPlayPos = position;
             mTrackCursor.moveToPosition(position);
         }
     }
 
-    public void setPlaylist(final List<Parcelable> playlist, int playPos) {
+    public void setPlaylist(final List<? extends Parcelable> playlist, int playPos) {
         // cache a new tracklist
         mPlaylist = new Track[playlist.size()];
 
@@ -157,14 +156,15 @@ import java.util.List;
         mPlayPos = Math.max(0,playPos);
 
         // TODO, only do this on exit???
-        new Thread() {
+        //noinspection unchecked
+        new AsyncTask<Void, Void, Void>() {
             @Override
-            public void run() {
-                mApp.getContentResolver().delete(DEFAULT_PLAYLIST_URI,null,null);
-                SoundCloudDB.bulkInsertParcelables(mApp.getContentResolver(), playlist, DEFAULT_PLAYLIST_URI, mApp.getCurrentUserId());
+            protected Void doInBackground(Void... params) {
+                mContext.getContentResolver().delete(DEFAULT_PLAYLIST_URI,null,null);
+                SoundCloudDB.bulkInsertParcelables(mContext.getContentResolver(), playlist, DEFAULT_PLAYLIST_URI, mUserId);
+                return null;
             }
-        }.start();
-
+        }.execute();
     }
 
     public void clear() {

@@ -44,8 +44,8 @@ import java.util.List;
 
 public class CloudPlaybackService extends Service implements FocusHelper.MusicFocusable {
     public static final String TAG = "CloudPlaybackService";
+    public static List<Parcelable> playlistXfer;
 
-    public static List<Parcelable> PLAYLIST_XFER;
     public static final String PLAY_EXTRA_PLAY_POSITION  = "playPos";
     public static final String PLAY_EXTRA_PLAY_FROM_XFER_CACHE  = "playFromXferCache";
 
@@ -144,7 +144,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public void onCreate() {
         super.onCreate();
         mCache = SoundCloudApplication.TRACK_CACHE;
-        mPlaylistManager = new PlaylistManager(this, getApp(), mCache);
+        mPlaylistManager = new PlaylistManager(this, mCache, getApp().getCurrentUserId());
 
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
@@ -895,8 +895,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             mPlaylistManager.setUri(intent.getData(), intent.getIntExtra(PLAY_EXTRA_PLAY_POSITION, 0));
             openCurrent();
         } else if (intent.getBooleanExtra(PLAY_EXTRA_PLAY_FROM_XFER_CACHE, false)) {
-            mPlaylistManager.setPlaylist(PLAYLIST_XFER,intent.getIntExtra(PLAY_EXTRA_PLAY_POSITION, 0));
-            PLAYLIST_XFER = null;
+            mPlaylistManager.setPlaylist(playlistXfer,intent.getIntExtra(PLAY_EXTRA_PLAY_POSITION, 0));
+            playlistXfer = null;
             openCurrent();
         } else {
             Log.w(TAG, "invalid play action");
