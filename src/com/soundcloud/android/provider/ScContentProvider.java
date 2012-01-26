@@ -208,7 +208,7 @@ public class ScContentProvider extends ContentProvider {
 
             case PLAYLIST:
                 qb.setTables(Table.TRACK_VIEW + " INNER JOIN " + Table.PLAYLIST_ITEMS.name +
-                        " ON (" + Table.TRACK_VIEW + "._id" + " = " + DBHelper.PlaylistItems.TRACK_ID + ")");
+                        " ON (" + Table.TRACK_VIEW.id + " = " + DBHelper.PlaylistItems.TRACK_ID + ")");
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
                 qb.appendWhere(Table.PLAYLIST_ITEMS.name+"."+ DBHelper.PlaylistItems.USER_ID + " = " + userId);
                 qb.appendWhere(" AND "+DBHelper.PlaylistItems.PLAYLIST_ID + " = " + uri.getLastPathSegment());
@@ -609,7 +609,7 @@ public class ScContentProvider extends ContentProvider {
 
     static String makeCollectionJoin(Table table){
         return table.name + " INNER JOIN " + Table.COLLECTION_ITEMS.name +
-            " ON (" + table.name+"._id"+" = " + DBHelper.CollectionItems.ITEM_ID+ ")";
+            " ON (" + table.id +" = " + DBHelper.CollectionItems.ITEM_ID+ ")";
     }
 
     static SCQueryBuilder makeCollectionSelection(SCQueryBuilder qb,
