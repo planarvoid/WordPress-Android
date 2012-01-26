@@ -11,7 +11,8 @@ import android.util.Log;
 
 
 public class DBHelper extends SQLiteOpenHelper {
-    static final String TAG = "ScContentProvider";
+    static final String TAG = "DBHelper";
+
     private static final String DATABASE_NAME = "SoundCloud";
     private static final int DATABASE_VERSION = 9;
 
@@ -197,10 +198,10 @@ public class DBHelper extends SQLiteOpenHelper {
             ");";
 
     static final String DATABASE_CREATE_PLAYLIST_ITEMS = "CREATE TABLE PlaylistItems (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            "playlist_id INTEGER null, " +
-            "item_id INTEGER null," +
-            "position INTEGER null," +
-            "user_id INTEGER null"+
+            "playlist_id INTEGER," +
+            "item_id INTEGER," +
+            "position INTEGER," +
+            "user_id INTEGER "+
             ");";
 
     /**
@@ -234,7 +235,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "user_id INTEGER, " +
             "item_id INTEGER," +
             "collection_type INTEGER, " +
-            "position INTEGER null, " +
+            "position INTEGER, " +
             "PRIMARY KEY(user_id, item_id, collection_type) ON CONFLICT REPLACE"+
             ");";
 
