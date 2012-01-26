@@ -208,7 +208,7 @@ public class ScContentProvider extends ContentProvider {
 
             case PLAYLIST:
                 qb.setTables(Table.TRACK_VIEW + " INNER JOIN " + Table.PLAYLIST_ITEMS.name +
-                        " ON (" + Table.TRACK_VIEW + "._id" + " = " + DBHelper.PlaylistItems.ITEM_ID + ")");
+                        " ON (" + Table.TRACK_VIEW + "._id" + " = " + DBHelper.PlaylistItems.TRACK_ID + ")");
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
                 qb.appendWhere(Table.PLAYLIST_ITEMS.name+"."+ DBHelper.PlaylistItems.USER_ID + " = " + userId);
                 qb.appendWhere(" AND "+DBHelper.PlaylistItems.PLAYLIST_ID + " = " + uri.getLastPathSegment());
@@ -425,7 +425,7 @@ public class ScContentProvider extends ContentProvider {
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Tracks._ID
                                     + " UNION SELECT DISTINCT " + DBHelper.ActivityView.TRACK_ID + " FROM "+ Table.ACTIVITY_VIEW.name
-                                    + " UNION SELECT DISTINCT " + DBHelper.PlaylistItems.ITEM_ID + " FROM "+ Table.PLAYLIST_ITEMS.name
+                                    + " UNION SELECT DISTINCT " + DBHelper.PlaylistItems.TRACK_ID + " FROM "+ Table.PLAYLIST_ITEMS.name
                                     + ")"
                                 + ")";
 

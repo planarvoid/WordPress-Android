@@ -13,11 +13,9 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.FileMap;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
-import com.xtremelabs.robolectric.util.DatabaseConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +34,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 @RunWith(DefaultTestRunner.class)
-//@DatabaseConfig.UsingDatabaseMap(FileMap.class)
 public class ApiSyncServiceTest {
     ContentResolver resolver;
     static final long USER_ID = 100L;

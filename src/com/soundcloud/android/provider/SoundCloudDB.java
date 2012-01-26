@@ -152,15 +152,15 @@ public class SoundCloudDB {
 
     public static int bulkInsertParcelables(ContentResolver resolver,
                                             List<? extends Parcelable> items,
-                                            Uri collectionUri,
+                                            Uri uri,
                                             long ownerId) {
-        if (collectionUri != null && ownerId < 0) {
+        if (uri != null && ownerId < 0) {
             throw new IllegalArgumentException("need valid ownerId for collection");
         }
 
         Set<User> usersToInsert = new HashSet<User>();
         Set<Track> tracksToInsert = new HashSet<Track>();
-        ContentValues[] bulkValues = collectionUri == null ? null : new ContentValues[items.size()];
+        ContentValues[] bulkValues = uri == null ? null : new ContentValues[items.size()];
 
         for (int i=0; i <items.size(); i++) {
             Parcelable p = items.get(i);
@@ -177,11 +177,21 @@ public class SoundCloudDB {
                 }
             }
 
-            if (bulkValues != null) {
+            if (uri != null) {
                 ContentValues cv = new ContentValues();
-                cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
-                cv.put(DBHelper.CollectionItems.POSITION, i);
-                cv.put(DBHelper.CollectionItems.ITEM_ID, id);
+                switch (Content.match(uri)) {
+                    case PLAYLIST:
+                        cv.put(DBHelper.PlaylistItems.USER_ID, ownerId);
+                        cv.put(DBHelper.PlaylistItems.POSITION, i);
+                        cv.put(DBHelper.PlaylistItems.TRACK_ID, id);
+                        break;
+
+                    default:
+                        cv.put(DBHelper.CollectionItems.USER_ID, ownerId);
+                        cv.put(DBHelper.CollectionItems.POSITION, i);
+                        cv.put(DBHelper.CollectionItems.ITEM_ID, id);
+                        break;
+                }
                 bulkValues[i] = cv;
             }
         }
@@ -205,7 +215,7 @@ public class SoundCloudDB {
         Log.d(TAG, usersInserted + " users bulk inserted");
 
         if (bulkValues != null) {
-            int itemsInserted = resolver.bulkInsert(collectionUri, bulkValues);
+            int itemsInserted = resolver.bulkInsert(uri, bulkValues);
             Log.d(TAG, itemsInserted + " collection items bulk inserted");
         }
         return usersInserted + tracksInserted;

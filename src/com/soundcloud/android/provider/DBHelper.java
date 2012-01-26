@@ -199,9 +199,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_CREATE_PLAYLIST_ITEMS = "CREATE TABLE PlaylistItems (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "playlist_id INTEGER," +
-            "item_id INTEGER," +
+            "track_id INTEGER," +
             "position INTEGER," +
-            "user_id INTEGER "+
+            "user_id INTEGER, "+
+            "UNIQUE (track_id, position, user_id) ON CONFLICT IGNORE" +
             ");";
 
     /**
@@ -483,7 +484,7 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     public final static class PlaylistItems implements BaseColumns{
         public static final String PLAYLIST_ID = "playlist_id";
-        public static final String ITEM_ID = "item_id";
+        public static final String TRACK_ID = "track_id";
         public static final String POSITION = "position";
         public static final String USER_ID = "user_id";
     }
