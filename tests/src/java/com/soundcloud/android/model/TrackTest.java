@@ -137,7 +137,7 @@ public class TrackTest {
         t.permalink = "permalink";
         Intent i = new Intent();
         i.putExtra("track", t);
-        expect(Track.fromIntent(i)).toEqual(t);
+        expect(Track.fromIntent(i, null)).toEqual(t);
     }
 
     @Test
@@ -148,16 +148,16 @@ public class TrackTest {
         Intent i = new Intent();
         i.putExtra("track_id", t.id);
         SoundCloudApplication.TRACK_CACHE.put(t);
-        expect(Track.fromIntent(i)).toEqual(t);
+        expect(Track.fromIntent(i, null)).toEqual(t);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionIfNoIntentPassed() throws Exception {
-        Track.fromIntent(null);
+        Track.fromIntent(null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionIfEmptyIntentPassed() throws Exception {
-        Track.fromIntent(new Intent());
+        Track.fromIntent(new Intent(), null);
     }
 }

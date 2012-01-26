@@ -25,7 +25,7 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
         super.onCreate(bundle);
         setContentView(R.layout.track_info_collection);
 
-        mTrack = Track.fromIntent(getIntent());
+        mTrack = Track.fromIntent(getIntent(), getContentResolver());
         mTrackInfoBar = ((TrackInfoBar) findViewById(R.id.track_info_bar));
         mTrackInfoBar.display(mTrack, true, -1, true, getCurrentUserId());
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {

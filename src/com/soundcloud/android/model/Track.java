@@ -529,7 +529,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
             long id = intent.getLongExtra("track_id", 0);
             // TODO: should be one operation
             t = SoundCloudApplication.TRACK_CACHE.get(id);
-            if (t == null) {
+            if (t == null && resolver != null) {
               t = SoundCloudDB.getTrackById(resolver, id);
             }
             if (t != null) {
