@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "ScContentProvider";
     private static final String DATABASE_NAME = "SoundCloud";
@@ -81,7 +82,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private void recreateDb(SQLiteDatabase db) {
         for (Table t : Table.values()) {
-            db.execSQL("DROP TABLE IF EXISTS " + t.name);
+            t.drop(db);
         }
         onCreate(db);
     }
@@ -536,8 +537,8 @@ public class DBHelper extends SQLiteOpenHelper {
     */
     private static boolean upgradeTo4(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.TRACKS.alterColumns(db, new String[]{"id"}, new String[]{"_id"});
-            Table.USERS.alterColumns(db, new String[]{"id"}, new String[]{"_id"});
+            Table.TRACKS.alterColumns(db, new String[] { "id" }, new String[] { "_id" });
+            Table.USERS.alterColumns(db, new String[] { "id" }, new String[] { "_id" });
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade4 " +
@@ -567,8 +568,8 @@ public class DBHelper extends SQLiteOpenHelper {
         try {
             Table.RECORDINGS.create(db);
             Table.TRACK_PLAYS.create(db);
-            Table.TRACKS.alterColumns(db, null, null);
-            Table.USERS.alterColumns(db, null, null);
+            Table.TRACKS.alterColumns(db);
+            Table.USERS.alterColumns(db);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade6 " +
@@ -580,7 +581,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static boolean upgradeTo7(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.RECORDINGS.alterColumns(db, null, null);
+            Table.RECORDINGS.alterColumns(db);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade7 " +
@@ -604,8 +605,8 @@ public class DBHelper extends SQLiteOpenHelper {
         try {
             Table.TRACK_PLAYS.recreate(db);
 
-            Table.TRACKS.alterColumns(db, null, null);
-            Table.USERS.alterColumns(db, null, null);
+            Table.TRACKS.alterColumns(db);
+            Table.USERS.alterColumns(db);
 
             Table.TRACK_VIEW.create(db);
             Table.COMMENTS.create(db);
