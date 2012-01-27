@@ -24,5 +24,5 @@
     <string name="btn_following">Following</string>
 
     <string name="pull_to_refresh_refreshing_label">Refreshing...</string>
-    <string name="search_settings_description">Search users and tracks</string>
+    <string name="search_settings_description">Search sounds</string>
 </resources>
