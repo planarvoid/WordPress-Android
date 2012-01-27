@@ -20,8 +20,6 @@ import java.util.List;
 
 /* package */
 class PlaylistManager {
-    private static final String TAG = "PlaylistManager";
-
     private Track[] mPlaylist = new Track[0];
     private Cursor mTrackCursor;
     private Uri mPlaylistUri;

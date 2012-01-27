@@ -1,6 +1,6 @@
 $ 34
   % v 2.2.0-BETA1
-  _ 2012-01-20
+  _ 2012-01-27
   ! Local caching
     * Local caching of tracks, users & activities
     * Added global search provider
