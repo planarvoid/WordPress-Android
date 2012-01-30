@@ -8,6 +8,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Request;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -61,7 +62,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
 
     }
 
-    public SectionedAdapter(ScActivity context) {
+    public SectionedAdapter(Context context) {
         super(context, new ArrayList<Parcelable>(), Track.class);
     }
 

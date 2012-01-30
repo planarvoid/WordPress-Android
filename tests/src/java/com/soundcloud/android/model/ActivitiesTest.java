@@ -1,11 +1,8 @@
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.*;
+import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
+import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.toTime;
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.assertContentUriCount;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.provider.Content;
@@ -15,7 +12,6 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.codehaus.jackson.JsonNode;
-import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,94 +31,94 @@ public class ActivitiesTest {
     @Test
     public void testIsEmpty() throws Exception {
         Activities activities = new Activities();
-        assertThat(activities.isEmpty(), is(true));
-        assertThat(activities.size(), is(0));
+        expect(activities.isEmpty()).toBeTrue();
+        expect(activities.size()).toEqual(0);
     }
 
     @Test
     public void testFull() throws Exception {
         Activities activities = new Activities(new Activity(), new Activity());
-        assertThat(activities.isEmpty(), is(false));
-        assertThat(activities.size(), is(2));
+        expect(activities.isEmpty()).toEqual(false);
+        expect(activities.size()).toEqual(2);
     }
 
     @Test
     public void testGetUniqueUsers() throws Exception {
         Activities activities = new Activities();
-        assertThat(activities.getUniqueUsers().size(), is(0));
+        expect(activities.getUniqueUsers().size()).toEqual(0);
         Activity e1 = new Activity() { public User getUser() { return new User() { { id = 1; } }; } };
         Activity e2 = new Activity() { public User getUser() { return new User() { { id = 1; } }; } };
         Activity e3 = new Activity() { public User getUser() { return new User() { { id = 3; } }; } };
         activities = new Activities(e1, e2, e3);
-        assertThat(activities.getUniqueUsers().size(), is(2));
+        expect(activities.getUniqueUsers().size()).toEqual(2);
     }
 
     @Test
     public void testGetUniqueTracks() throws Exception {
         Activities activities = new Activities();
-        assertThat(activities.getUniqueTracks().size(), is(0));
+        expect(activities.getUniqueTracks().size()).toEqual(0);
         Activity e1 = new Activity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
         Activity e2 = new Activity() { public Track getTrack() { return new Track() { { id = 1; } }; } };
         Activity e3 = new Activity() { public Track getTrack() { return new Track() { { id = 3; } }; } };
         activities = new Activities(e1, e2, e3);
-        assertThat(activities.getUniqueTracks().size(), is(2));
+        expect(activities.getUniqueTracks().size()).toEqual(2);
     }
 
     @Test
     public void testFromJSON() throws Exception {
         Activities a = getActivities();
-        assertThat(a.size(), is(41));
-        assertThat(a.getUniqueTracks().size(), is(19));
-        assertThat(a.getUniqueUsers().size(), is(29));
+        expect(a.size()).toEqual(41);
+        expect(a.getUniqueTracks().size()).toEqual(19);
+        expect(a.getUniqueUsers().size()).toEqual(29);
     }
 
     @Test
     public void testFavoritings() throws Exception {
         Activities favoritings = getActivities().favoritings();
-        assertThat(favoritings.size(), is(26));
+        expect(favoritings.size()).toEqual(26);
     }
 
     @Test
     public void testTracks() throws Exception {
         Activities tracks = getActivities().tracks();
-        assertThat(tracks.size(), is(0));
+        expect(tracks.size()).toEqual(0);
     }
 
     @Test
     public void testSharings() throws Exception {
         Activities sharings = getActivities().sharings();
-        assertThat(sharings.size(), is(0));
+        expect(sharings.size()).toEqual(0);
     }
 
     @Test
     public void testComments() throws Exception {
         Activities comments = getActivities().comments();
-        assertThat(comments.size(), is(15));
+        expect(comments.size()).toEqual(15);
     }
 
     @Test
     public void testGroupedByTrack() throws Exception {
         Map<Track,Activities> grouped = getActivities().groupedByTrack();
-        assertThat(grouped.size(), is(19));
+        expect(grouped.size()).toEqual(19);
         for (Map.Entry<Track,Activities> entry : grouped.entrySet()) {
-            assertThat(entry.getKey(), notNullValue());
-            assertThat(entry.getValue().isEmpty(), is(false));
+            expect(entry.getKey()).not.toBeNull();
+            expect(entry.getValue().isEmpty()).toEqual(false);
         }
     }
 
     @Test
     public void testOriginIsSetOnAllActivities() throws Exception {
         for (Activity e : getActivities()) {
-            assertThat(e.origin, not(CoreMatchers.<Object>nullValue()));
+            expect(e.origin).not.toBeNull();
         }
     }
 
     @Test
     public void testGetCursor() throws Exception {
         Activities activities = new Activities();
-        assertThat(activities.getCursor(), is(nullValue()));
+        expect(activities.getCursor()).toBeNull();
         activities.next_href = "http://foo.com?cursor=dada";
-        assertThat(activities.getCursor(), equalTo("dada"));
+        expect(activities.getCursor()).toEqual("dada");
     }
 
     private Activities getActivities() throws IOException {
@@ -132,24 +128,24 @@ public class ActivitiesTest {
     @Test
     public void testSubTypes() throws Exception {
         for (Activity a : getActivities()) {
-            assertTrue(a.origin.getClass().equals(a.type.typeClass));
+            expect(a.origin.getClass().equals(a.type.typeClass)).toBeTrue();
         }
     }
 
     @Test
     public void testToJson() throws Exception {
         Activities initial = getActivities();
-        assertThat(initial.future_href, not(nullValue()));
-        assertThat(initial.next_href, not(CoreMatchers.<Object>nullValue()));
+        expect(initial.future_href).not.toBeNull();
+        expect(initial.next_href).not.toBeNull();
 
         String json = initial.toJSON();
         Activities other = Activities.fromJSON(json);
         for (int i=0; i<initial.size(); i++) {
-            assertThat(initial.get(i), equalTo(other.get(i)));
+            expect(initial.get(i)).toEqual(other.get(i));
         }
-        assertThat(initial.size(), equalTo(other.size()));
-        assertThat(initial.future_href, equalTo(other.future_href));
-        assertThat(initial.next_href, equalTo(other.next_href));
+        expect(initial.size()).toEqual(other.size());
+        expect(initial.future_href).toEqual(other.future_href);
+        expect(initial.next_href).toEqual(other.next_href);
     }
 
     @Test @Ignore
@@ -159,7 +155,7 @@ public class ActivitiesTest {
         JsonNode original = AndroidCloudAPI.Mapper.readTree(getClass().getResourceAsStream("activities_all.json"));
         String json = Activities.fromJSON(getClass().getResourceAsStream("activities_all.json")).toJSON();
         JsonNode copy = AndroidCloudAPI.Mapper.readTree(json);
-        assertThat(original, equalTo(copy));
+        expect(original).toEqual(copy);
     }
 
     @Test
@@ -172,7 +168,7 @@ public class ActivitiesTest {
         fos.close();
 
         JsonNode copy = AndroidCloudAPI.Mapper.readTree(json);
-        assertThat(original, equalTo(copy));
+        expect(original).toEqual(copy);
     }
 
 
@@ -183,11 +179,11 @@ public class ActivitiesTest {
         Activities all = Activities.fromJSON(getClass().getResourceAsStream("activities_all.json"));
 
         Activities merged = a2.merge(a1);
-        assertThat(merged.size(), is(all.size()));
+        expect(merged.size()).toEqual(all.size());
 
-        assertThat(merged.future_href, equalTo("https://api.soundcloud.com/me/activities/tracks?uuid[to]=new_href"));
-        assertThat(merged.next_href, equalTo("https://api.soundcloud.com/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738"));
-        assertTrue(merged.get(0).created_at.after(merged.get(merged.size()-1).created_at));
+        expect(merged.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=new_href");
+        expect(merged.next_href).toEqual("https://api.soundcloud.com/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
+        expect(merged.get(0).created_at.after(merged.get(merged.size()-1).created_at)).toBeTrue();
     }
 
     @Test
@@ -196,15 +192,15 @@ public class ActivitiesTest {
         Date start = fromString("2011/07/29 15:36:44 +0000");
 
         Activities filtered = a2.filter(start);
-        assertThat(filtered.size(), is(1));
-        assertTrue(filtered.get(0).created_at.after(start));
+        expect(filtered.size()).toEqual(1);
+        expect(filtered.get(0).created_at.after(start)).toBeTrue();
     }
 
     @Test
     public void testGetNextRequest() throws Exception {
         Activities a1 = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
-        assertTrue(a1.hasMore());
-        assertThat(a1.getNextRequest().toUrl(), equalTo("/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738"));
+        expect(a1.hasMore()).toBeTrue();
+        expect(a1.getNextRequest().toUrl()).toEqual("/me/activities/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
     }
 
     @Test
@@ -240,7 +236,7 @@ public class ActivitiesTest {
         Activities a = Activities.fromJSON(
                 SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
         a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
-        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
     }
 
     @Test
@@ -248,7 +244,7 @@ public class ActivitiesTest {
         Activities a = Activities.fromJSON(
                 SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
         a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
-        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
 
         expect(
             Activities.getSince(Content.ME_SOUND_STREAM,
@@ -261,7 +257,7 @@ public class ActivitiesTest {
         Activities a = Activities.fromJSON(
                 SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
         a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
-        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
 
         expect(
                 Activities.getSince(Content.ME_SOUND_STREAM,
@@ -275,7 +271,7 @@ public class ActivitiesTest {
         Activities a = Activities.fromJSON(
                 SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
         a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
-        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
 
         expect(
                 Activities.getLastActivity(Content.ME_SOUND_STREAM,
@@ -288,7 +284,7 @@ public class ActivitiesTest {
         Activities a = Activities.fromJSON(
                 SyncAdapterServiceTest.class.getResourceAsStream("incoming_2.json"));
         a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
-        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
 
         Activities old = Activities.fromJSON(
                         SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
@@ -308,7 +304,7 @@ public class ActivitiesTest {
                 SyncAdapterServiceTest.class.getResourceAsStream("incoming_1.json"));
 
         a.insert(Content.ME_SOUND_STREAM, Robolectric.application.getContentResolver());
-        assertContentUriCount(Content.ME_SOUND_STREAM, 50);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(50);
 
         LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
                 0, System.currentTimeMillis(), a.size(),a.future_href,
@@ -316,8 +312,8 @@ public class ActivitiesTest {
 
         Activities.clear(null, Robolectric.application.getContentResolver());
 
-        assertContentUriCount(Content.ME_SOUND_STREAM, 0);
-        assertContentUriCount(Content.COLLECTIONS, 0);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(0);
+        expect(Content.COLLECTIONS).toHaveCount(0);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -340,7 +336,7 @@ public class ActivitiesTest {
 
         a.insert(Content.ME_ACTIVITIES, resolver);
 
-        assertContentUriCount(Content.ME_ALL_ACTIVITIES, 4);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(4);
 
         Activities activities = Activities.getSince(Content.ME_ALL_ACTIVITIES, resolver, -1);
         expect(activities.size()).toEqual(4);

@@ -8,6 +8,11 @@ import com.pivotallabs.greatexpectations.matchers.DateMatcher;
 import com.pivotallabs.greatexpectations.matchers.IterableMatcher;
 import com.pivotallabs.greatexpectations.matchers.ObjectMatcher;
 import com.pivotallabs.greatexpectations.matchers.StringMatcher;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.robolectric.ContentMatcher;
+import com.soundcloud.android.robolectric.UriMatcher;
+
+import android.net.Uri;
 
 /** @noinspection unchecked*/
 public class Expect {
@@ -33,5 +38,11 @@ public class Expect {
     }
     public static <T extends String, M extends StringMatcher<T, M>> StringMatcher<T, ?> expect(T actual) {
         return wrapped(StringMatcher.class, actual);
+    }
+    public static <T extends Content, M extends ContentMatcher<T, M>> ContentMatcher<T, ?> expect(T actual) {
+        return wrapped(ContentMatcher.class, actual);
+    }
+    public static <T extends Uri, M extends UriMatcher<T, M>> UriMatcher<T, ?> expect(T actual) {
+        return wrapped(UriMatcher.class, actual);
     }
 }

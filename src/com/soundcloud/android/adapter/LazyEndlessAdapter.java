@@ -118,6 +118,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         final Class loadModel = getLoadModel(true);
         final boolean error = mState == ERROR;
         if (Track.class.equals(loadModel)) {
+            // XXX
+            // mActivity.getResources().getString(error ? bla : blub)
             return !error ? mActivity.getResources().getString(
                     R.string.tracklist_empty) : mActivity.getResources().getString(
                     R.string.tracklist_error);

@@ -7,6 +7,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DelegatingContentResolver;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
+import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 
 import android.database.Cursor;
 import android.net.Uri;
@@ -29,6 +30,10 @@ public class TestHelper {
         Robolectric.addHttpResponseRule(url, resource(klazz, resource));
     }
 
+    public static void addResponseRule(String uri, int status) {
+        Robolectric.addHttpResponseRule(uri, new TestHttpResponse(status, ""));
+    }
+
     public static void addPendingIOException(String path) {
         FakeHttpLayer.RequestMatcherBuilder builder = new FakeHttpLayer.RequestMatcherBuilder();
         if (path != null) {
@@ -45,16 +50,6 @@ public class TestHelper {
         InputStream is = klazz.getResourceAsStream(res);
         while ((n = is.read(buffer)) != -1) sb.append(new String(buffer, 0, n));
         return sb.toString();
-    }
-
-    public static void assertContentUriCount(Content content, int count) {
-        assertContentUriCount(content.uri, count);
-    }
-
-    public static void assertContentUriCount(Uri uri, int count) {
-        Cursor c = Robolectric.application.getContentResolver().query(uri, null, null, null, null);
-        expect(c).not.toBeNull();
-        expect(c.getCount()).toEqual(count);
     }
 
     public static void assertFirstIdToBe(Content content, long id) {
