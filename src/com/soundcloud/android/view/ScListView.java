@@ -24,6 +24,10 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
+/*
+pull to refresh from : https://github.com/chrisbanes/Android-PullToRefresh/tree/7e918327cad2d217e909147d82882f50c2e3f59a
+ */
+
 public class ScListView extends PullToRefreshListView implements AbsListView.OnScrollListener {
 
     @SuppressWarnings({"UnusedDeclaration"})
