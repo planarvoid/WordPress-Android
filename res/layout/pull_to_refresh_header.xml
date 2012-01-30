@@ -1,77 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2011 Johan Nilsson <http://markupartist.com>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dip">
 
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
+    <TextView
+            android:id="@+id/pull_to_refresh_text"
+            android:text="@string/pull_to_refresh_pull_label"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"/>
 
-          http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
--->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:paddingTop="10dip"
-    android:gravity="center_vertical|center_horizontal"
-    android:background="@drawable/pull_to_refresh_header_background"
-    >
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="@dimen/pull_to_refresh_img_min_height"
-        android:layout_marginBottom="10dip"
-        android:gravity="bottom|center_horizontal"
-        >
-        <ProgressBar
+    <ProgressBar
             android:id="@+id/pull_to_refresh_progress"
             android:indeterminate="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dip"
             android:layout_marginRight="20dip"
-            android:layout_alignTop="@+id/pull_to_refresh_text"
-            android:layout_marginTop="10dip"
             android:visibility="gone"
             android:layout_centerVertical="true"
-            style="?android:attr/progressBarStyleSmall"
-            />
-        <ImageView
+            style="?android:attr/progressBarStyleSmall"/>
+
+    <ImageView
             android:id="@+id/pull_to_refresh_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dip"
             android:layout_marginRight="20dip"
-            android:minHeight="@dimen/pull_to_refresh_img_min_height"
-            android:visibility="gone"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:src="@drawable/ic_pulltorefresh_arrow"
-            />
-        <TextView
-            android:id="@+id/pull_to_refresh_text"
-            android:text="@string/pull_to_refresh_refreshing_label"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/pull_to_refresh_updated_at"
-            android:layout_alignParentTop="true"
-            android:layout_alignWithParentIfMissing="true"
-            android:gravity="center"
-            style="@style/txt_list_pull"
-            />
-        <TextView
+            android:layout_centerVertical="true"/>
+    <TextView
             android:id="@+id/pull_to_refresh_updated_at"
-            android:layout_alignParentBottom="true"
-            android:visibility="gone"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/pull_to_refresh_image"
             android:gravity="center"
             style="@style/txt_list_pull_sub"
             />
-    </RelativeLayout>
-</LinearLayout>
+</RelativeLayout>

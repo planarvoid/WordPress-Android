@@ -4,12 +4,15 @@ package com.soundcloud.android.adapter;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.commonsware.cwac.adapter.AdapterWrapper;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -28,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScListView.OnRefreshListener, DetachableResultReceiver.Receiver {
+public abstract class LazyEndlessAdapter extends AdapterWrapper implements DetachableResultReceiver.Receiver, PullToRefreshBase.OnRefreshListener {
     protected RemoteCollectionTask mAppendTask;
     protected RemoteCollectionTask mRefreshTask;
     protected UpdateCollectionTask mUpdateCollectionTask;
@@ -99,14 +102,14 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         final boolean error = mState == ERROR;
         if (mListView != null) {
             if (mEmptyView != null && !error){
-                mListView.setEmptyView(mEmptyView);
+                mListView.setCustomEmptyView(mEmptyView);
             } else {
                 if (mDefaultEmptyView == null){
                     mDefaultEmptyView = new EmptyCollection(mActivity);
                 }
                 mDefaultEmptyView.setImage(error ? R.drawable.empty_connection : R.drawable.empty_collection);
                 mDefaultEmptyView.setMessageText((!error && !TextUtils.isEmpty(mEmptyViewText)) ? mEmptyViewText : getEmptyText());
-                mListView.setEmptyView(mDefaultEmptyView);
+                mListView.setCustomEmptyView(mDefaultEmptyView);
             }
         }
     }
@@ -159,6 +162,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
 
 
     public Object saveState(){
+        final View firstChild = mListView.getChildAt(0 + mListView.getRefreshableView().getHeaderViewsCount());
         return new Object[] {
                 getDataState(),
                 getAppendTask(),
@@ -167,8 +171,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
                 savePagingData(),
                 saveExtraData(),
                 mListView == null ? null : mListView.getLastUpdated(),
-                mListView == null ? null : mListView.getFirstVisiblePosition(),
-                mListView == null ? null : mListView.getFirstVisiblePosition() == 0 && isRefreshing() ? 1 : mListView.getFirstVisiblePosition(),
+                mListView == null ? null : mListView.getRefreshableView().getFirstVisiblePosition(),
+                mListView == null ? null : firstChild == null ? 0 : firstChild.getTop()
         };
     }
 
@@ -181,7 +185,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         if (state[4] != null) restorePagingData((int[]) state[4]);
         if (state[5] != null) restoreExtraData((Object[]) state[5]);
         if (state[6] != null) mListView.setLastUpdated(Long.valueOf(state[6].toString()));
-        if (state[7] != null) mListView.postSelect(Math.max(isRefreshing() ? 0 : 1, Integer.valueOf(state[7].toString())),Integer.valueOf(state[8].toString()), true);
+        if (state[7] != null) mListView.getRefreshableView().setSelectionFromTop(Math.max(isRefreshing() ? 0 : 1, Integer.valueOf(state[7].toString())),Integer.valueOf(state[8].toString()));
     }
 
     protected Object getDataState(){
@@ -272,7 +276,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (position == super.getCount() && canShowEmptyView()){
-            return mListView.getEmptyView();
+            return mListView.getCustomEmptyView();
         }
 
         if (position >= Math.max(0,super.getCount() - Consts.ROW_APPEND_BUFFER) && canAppend()) {
@@ -385,11 +389,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
         mPendingView = null;
     }
 
-    @Override
-    public void onRefresh(boolean manual) {
-        refresh(manual);
-    }
-
     public boolean isRefreshing() {
         return mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask);
     }
@@ -427,14 +426,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
                 '}';
     }
 
-    public boolean isAllowingLoading() {
-        return mState != INITIALIZED;
-    }
-
-    public boolean needsRefresh(){
-        return false;
-    }
-
     public void refresh(final boolean userRefresh){
         if (userRefresh) {
             if (getWrappedAdapter() instanceof FollowStatus.Listener) {
@@ -462,4 +453,13 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements ScLis
     protected abstract RemoteCollectionTask.CollectionParams getCollectionParams(boolean refresh);
 
     public void onDestroy() {}
+
+    @Override
+    public void onRefresh() {
+        refresh(true);
+    }
+
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+    }
 }

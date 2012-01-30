@@ -54,7 +54,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
 
         LayoutInflater inflater = getLayoutInflater();
         ViewGroup header = (ViewGroup) inflater.inflate(R.layout.suggested_users_header, mListView, false);
-        mListView.addHeaderView(header, null, false);
+        mListView.getRefreshableView().addHeaderView(header, null, false);
 
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 

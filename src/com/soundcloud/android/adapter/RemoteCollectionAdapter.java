@@ -52,11 +52,14 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         super.onResume();
         if (isSyncable()) {
             setListLastUpdated();
+            if (isStale(false)){
+                refresh(false);
+            }
         }
     }
 
-    public boolean needsRefresh(){
-        return isSyncable() ? isStale(false) : false;
+    public boolean showRefreshing(){
+        return isRefreshing() && getWrappedAdapter().getCount() == 0;
     }
 
     @Override
@@ -256,7 +259,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     protected void doneRefreshing(){
         if (isSyncable()) setListLastUpdated();
-        if  (mListView != null) mListView.onRefreshComplete(false);
+        if  (mListView != null) mListView.onRefreshComplete();
     }
 
     @Override

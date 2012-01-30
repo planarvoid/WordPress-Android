@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.view;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import com.soundcloud.android.activity.ScActivity;
@@ -24,13 +25,6 @@ public class ScTabView extends FrameLayout {
         mListView = lv;
     }
 
-     public void onRefresh(boolean userRefresh) {
-        if (mListView != null) {
-            mListView.setSelection(0);
-            mListView.onRefresh(false);
-        }
-    }
-
     public ScListView setLazyListView(ScListView lv, LazyEndlessAdapter adpWrap, int listId, boolean refreshEnabled) {
         mListView = lv;
         addView(lv);
@@ -44,7 +38,7 @@ public class ScTabView extends FrameLayout {
         if (mListView != null){
             mListView.setVisibility(View.VISIBLE);
             mListView.getWrapper().allowInitialLoading();
-            mListView.onResume();
+            mListView.getWrapper().onResume();
         }
     }
 }

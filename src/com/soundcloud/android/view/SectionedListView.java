@@ -56,19 +56,19 @@ public class SectionedListView extends ScListView {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         mSectionHeaderView.layout(0, 0, mSectionHeaderViewWidth, mSectionHeaderViewHeight);
-        configureHeaderView(getFirstVisiblePosition());
+        configureHeaderView(getRefreshableView().getFirstVisiblePosition());
     }
 
 
     public void configureHeaderView(int position) {
         int state;
-        if (this.getHeaderViewsCount() > position || position - getHeaderViewsCount() == getBaseAdapter().getCount() - 1){
+        if (this.getRefreshableView().getHeaderViewsCount() > position || position - getRefreshableView().getHeaderViewsCount() == getBaseAdapter().getCount() - 1){
             state = SectionedAdapter.PINNED_HEADER_GONE;
         } else {
-            state = adapter.getWrappedAdapter().getPinnedHeaderState(position - getHeaderViewsCount());
+            state = adapter.getWrappedAdapter().getPinnedHeaderState(position - getRefreshableView().getHeaderViewsCount());
         }
 
-        final int adjPosition = position - getHeaderViewsCount();
+        final int adjPosition = position - getRefreshableView().getHeaderViewsCount();
         switch (state) {
             case SectionedAdapter.PINNED_HEADER_GONE: {
                 mSectionHeaderViewVisible = false;
@@ -129,12 +129,12 @@ public class SectionedListView extends ScListView {
         this.adapter = (SectionedEndlessAdapter) adapter;
         super.setAdapter(adapter, refreshEnabled);
     }
-
+    /*
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         super.onScroll(view,firstVisibleItem,visibleItemCount,totalItemCount);
         if (view instanceof SectionedListView && adapter != null) {
             adapter.getWrappedAdapter().onScroll(this, firstVisibleItem);
         }
-    }
+    }    */
 }
