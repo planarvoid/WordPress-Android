@@ -259,8 +259,8 @@ public abstract class ScActivity extends android.app.Activity {
             finish();
         } else {
             if (mLists != null) {
-                for (final ScListView l : mLists) {
-                    l.onResume();
+                for (final ScListView lv : mLists) {
+                    if (lv.getWrapper() != null) lv.getWrapper().onResume();
                 }
             }
         }
@@ -387,14 +387,13 @@ public abstract class ScActivity extends android.app.Activity {
     }
 
     public ScListView configureList(ScListView lv, boolean longClickable, int addAtPosition) {
-        lv.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-        lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.setLazyListListener(mLazyListListener);
-        lv.setFastScrollEnabled(false);
-        lv.setDivider(getResources().getDrawable(R.drawable.list_separator));
-        lv.setDividerHeight(1);
-        lv.setCacheColorHint(Color.TRANSPARENT);
-        lv.setLongClickable(longClickable);
+        lv.getRefreshableView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+        lv.getRefreshableView().setFastScrollEnabled(false);
+        lv.getRefreshableView().setDivider(getResources().getDrawable(R.drawable.list_separator));
+        lv.getRefreshableView().setDividerHeight(1);
+        lv.getRefreshableView().setCacheColorHint(Color.TRANSPARENT);
+        lv.getRefreshableView().setLongClickable(longClickable);
         mLists.add(addAtPosition < 0 || addAtPosition > mLists.size() ? mLists.size() : addAtPosition,lv);
         return lv;
     }
@@ -469,7 +468,9 @@ public abstract class ScActivity extends android.app.Activity {
             // clear image loading errors
             ImageLoader.get(ScActivity.this).clearErrors();
             if (getApp().getAccount() != null){
-                for (ScListView lv : mLists) { lv.onConnected(mIsForeground); }
+                for (ScListView lv : mLists) {
+                    if (lv.getWrapper() != null) lv.getWrapper().onConnected();
+                }
             }
         }
     }

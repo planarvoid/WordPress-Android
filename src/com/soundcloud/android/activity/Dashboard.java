@@ -147,10 +147,7 @@ public class Dashboard extends ScActivity {
     @Override
     public void onResume() {
         super.onResume();
-
-
         trackPage(mTrackingPath);
-
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
                 .cancel(mIsActivityTab ?
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID :
@@ -171,7 +168,7 @@ public class Dashboard extends ScActivity {
 
         final ScTabView view = new ScTabView(this);
         mListView = view.setLazyListView(buildList(!isNews), adpWrap, listId, true);
-        mListView.setFastScrollEnabled(true);
+        mListView.getRefreshableView().setFastScrollEnabled(true);
         adpWrap.setEmptyView(emptyView);
         return view;
     }
@@ -198,10 +195,8 @@ public class Dashboard extends ScActivity {
     }
 
     public void refreshIncoming() {
-        mListView.onRefresh(false);
-        if (Build.VERSION.SDK_INT >= 8) {
-            mListView.smoothScrollToPosition(0);
-        }
+        mListView.setRefreshing(true);
+        ((EventsAdapterWrapper) mListView.getRefreshableView().getAdapter()).onRefresh();
     }
 
     @Override
@@ -229,10 +224,10 @@ public class Dashboard extends ScActivity {
                                         ((EventsAdapterWrapper) mListView.getWrapper()).setContent(which == 1 ?
                                                 Content.ME_EXCLUSIVE_STREAM : Content.ME_SOUND_STREAM);
                                         mListView.getWrapper().reset();
-                                        mListView.invalidateViews();
+                                        mListView.getRefreshableView().invalidateViews();
                                         mListView.post(new Runnable() {
                                             @Override public void run() {
-                                                mListView.onRefresh(false);
+                                                mListView.getWrapper().onRefresh();
                                             }
                                         });
 

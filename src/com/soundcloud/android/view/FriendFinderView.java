@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
@@ -28,7 +29,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FriendFinderView extends ScTabView implements SectionedEndlessAdapter.SectionListener, ScListView.OnRefreshListener {
+public class FriendFinderView extends ScTabView implements SectionedEndlessAdapter.SectionListener, PullToRefreshBase.OnRefreshListener {
     private final RelativeLayout mHeaderLayout;
     private SectionedEndlessAdapter mAdapter;
     public ScListView mFriendList;
@@ -41,6 +42,11 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     private List<Connection> mConnections;
     private boolean mSeen;
     private boolean mPendingTrendsetterMessage;
+
+    @Override
+    public void onRefresh() {
+        ((UserBrowser) mActivity).refreshConnections();
+    }
 
     public interface States {
         int LOADING = 1;
@@ -125,15 +131,13 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 mFriendList.getWrapper().setEmptyViewText(" ");
                 mFriendList.getWrapper().applyEmptyView();
                 if (refresh){
-                    mFriendList.prepareForRefresh();
-                    mFriendList.setSelection(0);
+                    mFriendList.setRefreshing();
                 }
                 return;
 
             case States.CONNECTION_ERROR:
                 if (mFriendList != null && !mFriendList.getWrapper().isEmpty()) {
-                    mFriendList.onRefreshComplete(false);
-                    mFriendList.postSelect(1, 0, true);
+                    mFriendList.onRefreshComplete();
                 } else if (mFriendList == null || mFbConnected) {
                     mFbConnected = false;
                     createList();
@@ -171,7 +175,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
 
         if (refresh) {
             mFriendList.getWrapper().refresh(false);
-            mFriendList.prepareForRefresh();
+            mFriendList.setRefreshing();
         }
     }
 
@@ -179,9 +183,9 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         if (!mSeen) {
             mSeen = true;
             if (mCurrentState == States.LOADING) {
-                onRefresh(false);
+                mFriendList.setRefreshing();
             } else {
-                mFriendList.onResume();
+                //mFriendList.onResume();
                 mFriendList.getWrapper().allowInitialLoading();
             }
         }
@@ -208,7 +212,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         mAdapter = new SectionedEndlessAdapter(mActivity, new FriendFinderAdapter(mActivity), false);
         mAdapter.addListener(this);
 
-        if (!mFbConnected) mFriendList.addHeaderView(mHeaderLayout);
+        if (!mFbConnected) mFriendList.getRefreshableView().addHeaderView(mHeaderLayout);
 
         setLazyListView(mFriendList, mAdapter, Consts.ListId.LIST_USER_SUGGESTED, false);
 
@@ -241,24 +245,6 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     private void showTrendsetterMessage() {
         mActivity.showToast(R.string.suggested_users_no_friends_msg);
         mActivity.getApp().setAccountData(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN, true);
-    }
-
-    @Override
-    public void onRefresh(boolean manual) {
-        ((UserBrowser) mActivity).refreshConnections();
-    }
-
-    @Override
-    public void onConnected() {
-    }
-
-    public boolean needsRefresh() {
-        return (mCurrentState == States.CONNECTION_ERROR);
-    }
-
-    @Override
-    public boolean isRefreshing() {
-        return (mCurrentState == States.LOADING);
     }
 
 }

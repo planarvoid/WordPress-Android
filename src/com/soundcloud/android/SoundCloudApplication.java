@@ -49,7 +49,7 @@ import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
 
 @ReportsCrashes(
-        formUri = "https://bugsense.appspot.com/api/acra?api_key=e937d649",
+        formUri = "https://bugsense.appspot.com/api/acra?api_key=c2486881",
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
