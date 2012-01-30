@@ -16,7 +16,6 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 
 	private LoadingLayout headerLoadingView;
 	private LoadingLayout footerLoadingView;
-    private long mLastUpdated;
 
     class InternalListView extends ListView implements EmptyViewMethodAccessor {
 
@@ -86,20 +85,6 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 			footerLoadingView.setRefreshingLabel(refreshingLabel);
 		}
 	}
-
-    public void setLastUpdated(long lastUpdated){
-        mLastUpdated = lastUpdated;
-        if (null != this.getHeaderLayout()) {
-            this.getHeaderLayout().setLastUpdated(lastUpdated);
-		}
-		if (null != this.getFooterLayout()) {
-            this.getFooterLayout().setLastUpdated(lastUpdated);
-		}
-    }
-
-    public long getLastUpdated(){
-        return mLastUpdated;
-    }
 
 	@Override
 	protected final ListView createRefreshableView(Context context, AttributeSet attrs) {
@@ -208,7 +193,6 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 
 		// Set our Original View to Visible
 		originalLoadingLayout.setVisibility(View.VISIBLE);
-        originalLoadingLayout.setLastUpdated(mLastUpdated);
 
 		// Scroll so our View is at the same Y as the ListView header/footer,
 		// but only scroll if the ListView is at the top/bottom

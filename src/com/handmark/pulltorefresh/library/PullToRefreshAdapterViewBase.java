@@ -36,19 +36,19 @@ public abstract class PullToRefreshAdapterViewBase<T extends AbsListView> extend
     public PullToRefreshAdapterViewBase(Context context) {
 		super(context);
 		refreshableView.setOnScrollListener(this);
-        //refreshableView.setOnTouchListener(this);
+        refreshableView.setOnTouchListener(this);
 	}
 
 	public PullToRefreshAdapterViewBase(Context context, int mode) {
 		super(context, mode);
 		refreshableView.setOnScrollListener(this);
-       // refreshableView.setOnTouchListener(this);
+        refreshableView.setOnTouchListener(this);
 	}
 
 	public PullToRefreshAdapterViewBase(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		refreshableView.setOnScrollListener(this);
-        //refreshableView.setOnTouchListener(this);
+        refreshableView.setOnTouchListener(this);
 	}
 
 	abstract public ContextMenuInfo getContextMenuInfo();

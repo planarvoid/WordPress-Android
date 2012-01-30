@@ -19,7 +19,9 @@ import com.soundcloud.android.R;
 
 public abstract class PullToRefreshBase<T extends View> extends LinearLayout {
 
-	final class SmoothScrollRunnable implements Runnable {
+    private long mLastUpdated;
+
+    final class SmoothScrollRunnable implements Runnable {
 
 		static final int ANIMATION_DURATION_MS = 190;
 		static final int ANIMATION_FPS = 1000 / 60;
@@ -283,6 +285,21 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout {
 		this.setRefreshing(true);
 	}
 
+
+    public void setLastUpdated(long lastUpdated){
+        mLastUpdated = lastUpdated;
+        if (null != this.getHeaderLayout()) {
+            this.getHeaderLayout().setLastUpdated(lastUpdated);
+		}
+		if (null != this.getFooterLayout()) {
+            this.getFooterLayout().setLastUpdated(lastUpdated);
+		}
+    }
+
+    public long getLastUpdated(){
+        return mLastUpdated;
+    }
+
 	/**
 	 * Sets the Widget to be in the refresh state. The UI will be updated to
 	 * show the 'Refreshing' view.
@@ -333,6 +350,8 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout {
 			case MotionEvent.ACTION_DOWN: {
 				if (isReadyForPull()) {
 					lastMotionY = initialMotionY = event.getY();
+                    if (headerLayout != null) headerLayout.configureLastUpdated();
+                    if (footerLayout != null) footerLayout.configureLastUpdated();
 					return true;
 				}
 				break;
@@ -360,7 +379,6 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout {
 
 	@Override
 	public final boolean onInterceptTouchEvent(MotionEvent event) {
-
 		if (!isPullToRefreshEnabled) {
 			return false;
 		}
@@ -413,6 +431,8 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout {
 				if (isReadyForPull()) {
 					lastMotionY = initialMotionY = event.getY();
 					lastMotionX = event.getX();
+                    if (headerLayout != null) headerLayout.configureLastUpdated();
+                    if (footerLayout != null) footerLayout.configureLastUpdated();
 					isBeingDragged = false;
 				}
 				break;

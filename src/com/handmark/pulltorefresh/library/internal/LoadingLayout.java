@@ -113,7 +113,7 @@ public class LoadingLayout extends FrameLayout {
 		headerText.setTextColor(color);
 	}
 
-    private void configureLastUpdated(){
+    public void configureLastUpdated(){
         final CharSequence lastUpdatedLabel = CloudUtils.getElapsedTimeString(getResources(), lastUpdated, true);
         if (!TextUtils.isEmpty(lastUpdatedLabel)){
             lastUpdatedText.setText(lastUpdatedLabel);
