@@ -284,7 +284,7 @@ public abstract class ScActivity extends android.app.Activity {
                         .setData(wrapper.getContentUri())
                         .setAction(CloudPlaybackService.PLAY));
             } else {
-                CloudPlaybackService.PLAYLIST_XFER = wrapper.getData();
+                CloudPlaybackService.playlistXfer = wrapper.getData();
                 startService(new Intent(this, CloudPlaybackService.class)
                     .putExtra("playPos", position)
                     .putExtra("playFromXferCache", true)

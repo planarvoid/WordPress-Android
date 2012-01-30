@@ -9,8 +9,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+
 public class DBHelper extends SQLiteOpenHelper {
-    static final String TAG = "ScContentProvider";
+    static final String TAG = "DBHelper";
+
     private static final String DATABASE_NAME = "SoundCloud";
     private static final int DATABASE_VERSION = 9;
 
@@ -81,7 +83,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private void recreateDb(SQLiteDatabase db) {
         for (Table t : Table.values()) {
-            db.execSQL("DROP TABLE IF EXISTS " + t.name);
+            t.drop(db);
         }
         onCreate(db);
     }
@@ -196,10 +198,11 @@ public class DBHelper extends SQLiteOpenHelper {
             ");";
 
     static final String DATABASE_CREATE_PLAYLIST_ITEMS = "CREATE TABLE PlaylistItems (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            "playlist_id INTEGER null, " +
-            "item_id INTEGER null," +
-            "position INTEGER null," +
-            "user_id INTEGER null"+
+            "playlist_id INTEGER," +
+            "track_id INTEGER," +
+            "position INTEGER," +
+            "user_id INTEGER, "+
+            "UNIQUE (track_id, position, user_id) ON CONFLICT IGNORE" +
             ");";
 
     /**
@@ -233,7 +236,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "user_id INTEGER, " +
             "item_id INTEGER," +
             "collection_type INTEGER, " +
-            "position INTEGER null, " +
+            "position INTEGER, " +
             "PRIMARY KEY(user_id, item_id, collection_type) ON CONFLICT REPLACE"+
             ");";
 
@@ -481,7 +484,7 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     public final static class PlaylistItems implements BaseColumns{
         public static final String PLAYLIST_ID = "playlist_id";
-        public static final String ITEM_ID = "item_id";
+        public static final String TRACK_ID = "track_id";
         public static final String POSITION = "position";
         public static final String USER_ID = "user_id";
     }
@@ -536,8 +539,8 @@ public class DBHelper extends SQLiteOpenHelper {
     */
     private static boolean upgradeTo4(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.TRACKS.alterColumns(db, new String[]{"id"}, new String[]{"_id"});
-            Table.USERS.alterColumns(db, new String[]{"id"}, new String[]{"_id"});
+            Table.TRACKS.alterColumns(db, new String[] { "id" }, new String[] { "_id" });
+            Table.USERS.alterColumns(db, new String[] { "id" }, new String[] { "_id" });
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade4 " +
@@ -567,8 +570,8 @@ public class DBHelper extends SQLiteOpenHelper {
         try {
             Table.RECORDINGS.create(db);
             Table.TRACK_PLAYS.create(db);
-            Table.TRACKS.alterColumns(db, null, null);
-            Table.USERS.alterColumns(db, null, null);
+            Table.TRACKS.alterColumns(db);
+            Table.USERS.alterColumns(db);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade6 " +
@@ -580,7 +583,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static boolean upgradeTo7(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.RECORDINGS.alterColumns(db, null, null);
+            Table.RECORDINGS.alterColumns(db);
             return true;
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade7 " +
@@ -604,8 +607,8 @@ public class DBHelper extends SQLiteOpenHelper {
         try {
             Table.TRACK_PLAYS.recreate(db);
 
-            Table.TRACKS.alterColumns(db, null, null);
-            Table.USERS.alterColumns(db, null, null);
+            Table.TRACKS.alterColumns(db);
+            Table.USERS.alterColumns(db);
 
             Table.TRACK_VIEW.create(db);
             Table.COMMENTS.create(db);

@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -37,6 +38,7 @@ public enum Table {
     public final String createString;
     public final String id;
     public final String[] fields;
+    public static final String TAG = DBHelper.TAG;
 
     Table(String name, String create, String... fields) {
         if (name == null || create == null) throw new NullPointerException();
@@ -63,12 +65,12 @@ public enum Table {
     }
 
     public void drop(SQLiteDatabase db) {
-        Log.d(DBHelper.TAG, "dropping " + name);
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "dropping " + name);
         db.execSQL("DROP TABLE IF EXISTS "+name);
     }
 
     public void create(SQLiteDatabase db) {
-        Log.d(DBHelper.TAG, "creating " + name);
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "creating " + name);
         db.execSQL(createString);
     }
 
@@ -77,9 +79,12 @@ public enum Table {
         create(db);
     }
 
-    public List<String> getColumnNames(SQLiteDatabase db, String table) {
-        String _table = table == null ? name : table;
-        Cursor cursor = db.rawQuery("pragma table_info (" + _table + ")", null);
+    public List<String> getColumnNames(SQLiteDatabase db) {
+        return getColumnNames(db, name);
+    }
+
+    public static List<String> getColumnNames(SQLiteDatabase db, String table) {
+        Cursor cursor = db.rawQuery("pragma table_info (" + table + ")", null);
         List<String> cols = new ArrayList<String>();
         while (cursor != null && cursor.moveToNext()) {
             cols.add(cursor.getString(1));
@@ -88,30 +93,58 @@ public enum Table {
         return cols;
     }
 
-    public String alterColumns(SQLiteDatabase db,
-                               String[] fromAppendCols,
-                               String[] toAppendCols) {
-        String tmpTable = "bck_"+name;
+    public List<String> alterColumns(SQLiteDatabase db) {
+        return alterColumns(db, new String[0], new String[0]);
+    }
+
+    public List<String> alterColumns(SQLiteDatabase db, String[] fromAppendCols, String[] toAppendCols) {
+        return alterColumns(db, name, createString, fromAppendCols, toAppendCols);
+    }
+
+    public static List<String> alterColumns(SQLiteDatabase db,
+                                            final String table,
+                                            final String createString,
+                                            final String[] fromAppend,
+                                            final String[] toAppend) {
+        List<String> toAppendCols = new ArrayList<String>();
+        List<String> fromAppendCols = new ArrayList<String>();
+        Collections.addAll(fromAppendCols, fromAppend);
+        Collections.addAll(toAppendCols, toAppend);
+
+        final String tmpTable = "bck_"+table;
         db.execSQL("DROP TABLE IF EXISTS "+tmpTable);
-        db.execSQL(createString.replace("CREATE TABLE "+name, "CREATE TABLE "+tmpTable));
+        // create tmp table with current schema
+        db.execSQL(createString.replace("CREATE TABLE "+table, "CREATE TABLE "+tmpTable));
 
+        // get list of columns defined in new schema
         List<String> columns = getColumnNames(db, tmpTable);
-        columns.retainAll(getColumnNames(db, null));
-        String cols = TextUtils.join(",", columns);
 
-        String toCols = toAppendCols != null && toAppendCols.length > 0 ? cols + ","
-                + TextUtils.join(",", toAppendCols) : cols;
+        // only keep columns which are in current schema
+        columns.retainAll(getColumnNames(db, table));
 
-        String fromCols = fromAppendCols != null && fromAppendCols.length > 0 ? cols + ","
-                + TextUtils.join(",", fromAppendCols) : cols;
+        toAppendCols.addAll(columns);
+        fromAppendCols.addAll(columns);
 
-        db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from %s", tmpTable, toCols, fromCols, name));
+        final String toCols   = TextUtils.join(",", toAppendCols);
+        final String fromCols = TextUtils.join(",", fromAppendCols);
 
-        recreate(db);
+        // copy current data to tmp table
+        final String sql = String.format("INSERT INTO %s (%s) SELECT %s from %s", tmpTable, toCols, fromCols, table);
 
-        db.execSQL(String.format("INSERT INTO %s (%s) SELECT %s from %s", name, cols, cols, tmpTable));
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "executing "+sql);
+        db.execSQL(sql);
+
+        // recreate current table with new schema
+        db.execSQL("DROP TABLE IF EXISTS "+table);
+        db.execSQL(createString);
+
+        // and copy old data from tmp
+        final String copy = String.format("INSERT INTO %s (%s) SELECT %s from %s", table, toCols, toCols, tmpTable);
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "executing "+copy);
+        db.execSQL(copy);
         db.execSQL("DROP table "+tmpTable);
-        return cols;
+
+        return toAppendCols;
     }
 
     /**

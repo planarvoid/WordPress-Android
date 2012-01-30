@@ -48,7 +48,11 @@ public class TestHelper {
     }
 
     public static void assertContentUriCount(Content content, int count) {
-        Cursor c = Robolectric.application.getContentResolver().query(content.uri, null, null, null, null);
+        assertContentUriCount(content.uri, count);
+    }
+
+    public static void assertContentUriCount(Uri uri, int count) {
+        Cursor c = Robolectric.application.getContentResolver().query(uri, null, null, null, null);
         expect(c).not.toBeNull();
         expect(c.getCount()).toEqual(count);
     }

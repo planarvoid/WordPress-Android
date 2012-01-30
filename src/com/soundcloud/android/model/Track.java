@@ -9,6 +9,7 @@ import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Tracks;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -19,6 +20,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonView;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +33,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -521,18 +522,23 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         return TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(context, iconUrl);
     }
 
-    public static Track fromIntent(Intent intent) {
+    public static Track fromIntent(Intent intent, ContentResolver resolver) {
         if (intent == null) throw new IllegalArgumentException("intent is null");
         Track t = intent.getParcelableExtra("track");
         if (t == null) {
             long id = intent.getLongExtra("track_id", 0);
+            // TODO: should be one operation
             t = SoundCloudApplication.TRACK_CACHE.get(id);
+            if (t == null && resolver != null) {
+              t = SoundCloudDB.getTrackById(resolver, id);
+            }
+            if (t != null) {
+                SoundCloudApplication.TRACK_CACHE.put(t);
+            } else {
+                throw new IllegalArgumentException("Could not obtain track from intent "+intent);
+            }
         }
-        if (t == null) {
-            throw new IllegalArgumentException("Could not obtain track from intent "+intent);
-        } else {
-            return t;
-        }
+        return t;
     }
 
     public static Uri getClientUri(long id) {
