@@ -6,6 +6,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.auth.AuthenticatorService;
@@ -226,7 +227,8 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
                 getTabHost().setCurrentTabByTag(Dashboard.Tabs.SEARCH);
                 if (getCurrentActivity() instanceof ScSearch) {
-                    ((ScSearch) getCurrentActivity()).doSearch(intent.getStringExtra(SearchManager.QUERY));
+                    ((ScSearch) getCurrentActivity()).perform(
+                            Search.forSounds(intent.getStringExtra(SearchManager.QUERY)));
                 }
             } else if (Actions.USER_BROWSER.equals(intent.getAction()) && intent.hasExtra("userBrowserTag")) {
                 getTabHost().setCurrentTabByTag(Dashboard.Tabs.PROFILE);

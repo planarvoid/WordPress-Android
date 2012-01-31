@@ -9,23 +9,26 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.SearchHistoryItem;
+import com.soundcloud.android.model.Search;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SearchHistoryAdapter extends BaseAdapter {
-
-
     final Context context;
-    int layoutResourceId;
-    final ArrayList<SearchHistoryItem> data = new ArrayList<SearchHistoryItem>();
+    private List<Search> data = new ArrayList<Search>();
 
     public SearchHistoryAdapter(Context context) {
         this.context = context;
     }
 
-    public ArrayList<SearchHistoryItem> getData() {
+    public List<Search> getData() {
         return data;
+    }
+
+    public void setData(List<Search> data) {
+        this.data = data;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -34,7 +37,7 @@ public class SearchHistoryAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public Search getItem(int position) {
         return data.get(position);
     }
 
@@ -46,38 +49,36 @@ public class SearchHistoryAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        WeatherHolder holder;
+        SearchHolder holder;
 
         if (row == null) {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
             row = inflater.inflate(R.layout.search_history_row, parent, false);
 
-            holder = new WeatherHolder();
+            holder = new SearchHolder();
             holder.iv_search_type = (ImageView) row.findViewById(R.id.iv_search_type);
             holder.tv_query = (TextView) row.findViewById(R.id.tv_query);
 
             row.setTag(holder);
         } else {
-            holder = (WeatherHolder) row.getTag();
+            holder = (SearchHolder)row.getTag();
         }
 
-        SearchHistoryItem history = data.get(position);
+        Search history = data.get(position);
         holder.tv_query.setText(history.query);
         switch (history.search_type) {
-            case 0:
+            case Search.SOUNDS:
                 holder.iv_search_type.setImageResource(R.drawable.ic_search_sound);
                 break;
-            case 1:
+            case Search.USERS:
                 holder.iv_search_type.setImageResource(R.drawable.ic_search_people);
                 break;
         }
-
         return row;
     }
 
-    static class WeatherHolder {
+    static class SearchHolder {
         ImageView iv_search_type;
         TextView tv_query;
-        //TextView tv_created_at;
     }
 }

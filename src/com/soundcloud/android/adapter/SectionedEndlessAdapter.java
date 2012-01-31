@@ -4,7 +4,6 @@ import android.util.Log;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpStatus;
 
 import android.net.Uri;
 import android.os.Parcelable;
@@ -14,7 +13,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
+public class SectionedEndlessAdapter extends RemoteCollectionAdapter {
     private List<WeakReference<SectionListener>> mListeners;
     private int mSectionIndex = 0;
 
@@ -65,7 +64,7 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter{
     @Override
     public int getPageIndex(boolean refresh) {
         if (mSectionIndex > getWrappedAdapter().sections.size()) return 0;
-        return refresh ? 0 : getWrappedAdapter().sections.get(refresh ? 0 : mSectionIndex).pageIndex;
+        return refresh ? 0 : getWrappedAdapter().sections.get(mSectionIndex).pageIndex;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity;
 
 import static android.widget.FrameLayout.LayoutParams.FILL_PARENT;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -9,29 +10,26 @@ import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.adapter.SectionedTracklistAdapter;
 import com.soundcloud.android.adapter.SectionedUserlistAdapter;
-import com.soundcloud.android.model.SearchHistoryItem;
+import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.android.view.WorkspaceView;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.text.TextUtils;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
@@ -45,15 +43,12 @@ import java.util.List;
 public class ScSearch extends ScActivity {
     private EditText txtQuery;
 
-    private RadioGroup rdoType;
-    private RadioButton rdoUser;
-    private RadioButton rdoTrack;
+    private RadioGroup rdoSearchType;
+    private RadioButton rdoUser, rdoTrack;
 
     private FrameLayout mListHolder;
-
     private ScListView mList;
-    private SectionedEndlessAdapter mTrackAdpWrapper;
-    private SectionedEndlessAdapter mUserAdpWrapper;
+    SectionedEndlessAdapter mTrackAdpWrapper, mUserAdpWrapper;
 
     private WorkspaceView mWorkspaceView;
     private SearchHistoryAdapter mHistoryAdapter;
@@ -63,11 +58,10 @@ public class ScSearch extends ScActivity {
         super.onCreate(state);
         setContentView(R.layout.workspace_view);
 
-        mWorkspaceView = (WorkspaceView) findViewById(android.R.id.content).findViewById(R.id.workspace_view);
+        mWorkspaceView = (WorkspaceView) findViewById(R.id.workspace_view);
         mWorkspaceView.addView(getLayoutInflater().inflate(R.layout.sc_search_controls, null));
 
-
-        rdoType = (RadioGroup) findViewById(R.id.rdo_search_type);
+        rdoSearchType = (RadioGroup) findViewById(R.id.rdo_search_type);
         rdoUser = (RadioButton) findViewById(R.id.rdo_users);
         rdoTrack = (RadioButton) findViewById(R.id.rdo_tracks);
 
@@ -76,10 +70,9 @@ public class ScSearch extends ScActivity {
 
         txtQuery = (EditText) findViewById(R.id.query);
 
-        Button btnSearch = (Button) findViewById(R.id.search);
-        btnSearch.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.search).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                doSearch();
+                perform(getSearch());
             }
         });
 
@@ -87,7 +80,8 @@ public class ScSearch extends ScActivity {
         configureList(mList);
 
         mListHolder = new FrameLayout(this);
-        mListHolder.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+        mListHolder.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                ViewGroup.LayoutParams.FILL_PARENT));
         mListHolder.addView(mList);
         mList.setVisibility(View.GONE);
 
@@ -96,92 +90,58 @@ public class ScSearch extends ScActivity {
 
         mList.setId(android.R.id.list);
 
-        btnSearch.setNextFocusDownId(android.R.id.list);
-
         final View root = findViewById(R.id.search_root);
         root.setOnFocusChangeListener(keyboardHideFocusListener);
         root.setOnClickListener(keyboardHideClickListener);
         root.setOnTouchListener(keyboardHideTouchListener);
 
-        txtQuery.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (!isFinishing() &&
-                        keyCode == KeyEvent.KEYCODE_ENTER) {
-                    doSearch();
-                    return true;
-                }
-                return false;
-            }
-        });
+        ListView recentSearches = new ListView(this);
+        recentSearches.setSelector(R.drawable.list_selector_background);
+        ((ViewGroup) findViewById(R.id.fl_searches)).addView(recentSearches,
+                new FrameLayout.LayoutParams(FILL_PARENT,
+                        FrameLayout.LayoutParams.FILL_PARENT));
 
-        ListView listView = new ListView(this);
-        listView.setSelector(R.drawable.list_selector_background);
-        ((ViewGroup) findViewById(R.id.fl_searches)).addView(listView,
-                new FrameLayout.LayoutParams(FILL_PARENT, FrameLayout.LayoutParams.FILL_PARENT));
-
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        recentSearches.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                SearchHistoryItem item = ((SearchHistoryItem) parent.getItemAtPosition(position));
-                doSearch(item.query, item.search_type);
+                Search search = ((Search) parent.getItemAtPosition(position));
+                if (search != null) {
+                    perform(search);
+                }
             }
         });
 
         mHistoryAdapter = new SearchHistoryAdapter(this);
-        listView.setAdapter(mHistoryAdapter);
+        recentSearches.setAdapter(mHistoryAdapter);
 
-        refreshHistory();
+        refreshHistory(getContentResolver(), mHistoryAdapter);
 
-        mPreviousState = (Object[]) getLastNonConfigurationInstance();
-        if (mPreviousState != null) {
-            setListType(mPreviousState[0] != null && mPreviousState[0].equals(User.class));
-            mTrackAdpWrapper.restoreState((Object[]) mPreviousState[2]);
-            mUserAdpWrapper.restoreState((Object[]) mPreviousState[3]);
-
-            if ((Integer) mPreviousState[1] == View.VISIBLE){
-                mWorkspaceView.addView(mListHolder);
-                mList.setVisibility(View.VISIBLE);
-            }
-
-            if ((Integer) mPreviousState[4] == 1){
-                mWorkspaceView.initWorkspace(1);
-            } else {
-                mWorkspaceView.initWorkspace(0);
-            }
+        Object[] previousState = (Object[]) getLastNonConfigurationInstance();
+        if (previousState != null) {
+            restorePreviousState(previousState);
         } else {
             mWorkspaceView.initWorkspace(0);
-            setListType(false);
+            setListType(Search.SOUNDS);
         }
     }
 
-    private void refreshHistory() {
-        List<SearchHistoryItem> history = mHistoryAdapter.getData();
-        history.clear();
-        history.addAll(SoundCloudDB.getSearches(getContentResolver()));
-        for (SearchHistoryItem searchDefault : SEARCH_DEFAULTS){
-            if (!history.contains(searchDefault)) history.add(searchDefault);
+    private void restorePreviousState(Object[] previous) {
+        setListType(User.class.equals(previous[0]) ? Search.USERS : Search.SOUNDS);
+        mTrackAdpWrapper.restoreState((Object[]) previous[2]);
+        mUserAdpWrapper.restoreState((Object[]) previous[3]);
+
+        if ((Integer) previous[1] == View.VISIBLE) {
+            mWorkspaceView.addView(mListHolder);
+            mList.setVisibility(View.VISIBLE);
         }
-        mHistoryAdapter.notifyDataSetChanged();
+
+        if ((Integer) previous[4] == 1) {
+            mWorkspaceView.initWorkspace(1);
+        } else {
+            mWorkspaceView.initWorkspace(0);
+        }
     }
 
-    @Override
-    public Object onRetainNonConfigurationInstance() {
-        return new Object[]{
-                mList.getWrapper().getLoadModel(true),
-                mList.getVisibility(),
-                mTrackAdpWrapper.saveState(),
-                mUserAdpWrapper.saveState(),
-                mWorkspaceView.getCurrentScreen()
-        };
-    }
-
-    private void setListType(boolean isUser) {
-        mList.setAdapter(isUser ? mUserAdpWrapper : mTrackAdpWrapper, true);
-        mList.setLongClickable(!isUser);
-        mUserAdpWrapper.configureViews(isUser ? mList : null);
-        mTrackAdpWrapper.configureViews(isUser ? null : mList);
-    }
 
     @Override
     protected void onResume() {
@@ -189,24 +149,54 @@ public class ScSearch extends ScActivity {
         trackPage(Consts.Tracking.SEARCH);
     }
 
-    private void doSearch() {
-        doSearch(txtQuery.getText().toString(),
-                (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks) ? 0 : 1);
+    private Search getSearch() {
+        return new Search(txtQuery.getText().toString(),
+                (rdoSearchType.getCheckedRadioButtonId() == R.id.rdo_tracks) ?
+                Search.SOUNDS : Search.USERS);
     }
 
-    public void doSearch(String query) {
-        doSearch(query, 0);
-    }
-
-    void doSearch(final String query, int type) {
-        if (TextUtils.isEmpty(query)) return;
-
+    boolean perform(Search search) {
+        if (search.isEmpty()) return false;
         // when called from Main or History
-        txtQuery.setText(query);
-        if (type == 0 && (rdoType.getCheckedRadioButtonId() != R.id.rdo_tracks)){
-            rdoTrack.setChecked(true);
-        } else if (type == 1 && (rdoType.getCheckedRadioButtonId() == R.id.rdo_tracks)){
-            rdoUser.setChecked(true);
+        txtQuery.setText(search.query);
+
+        switch (search.search_type) {
+            case Search.SOUNDS:
+                rdoTrack.setChecked(true);
+
+                mTrackAdpWrapper.clearSections();
+                mTrackAdpWrapper.addSection(new SectionedAdapter.Section(
+                        getString(R.string.list_header_track_results_for, search.query),
+                        Track.class,
+                        new ArrayList<Parcelable>(),
+                        null,  /* uri */
+                        search.request()
+
+                ));
+                setListType(search.search_type);
+                mUserAdpWrapper.reset();
+                trackPage(Consts.Tracking.SEARCH_TRACKS + search.query);
+                break;
+
+            case Search.USERS:
+                rdoUser.setChecked(true);
+
+                mUserAdpWrapper.clearSections();
+                mUserAdpWrapper.addSection(new SectionedAdapter.Section(
+                        getString(R.string.list_header_user_results_for, search.query),
+                        User.class,
+                        new ArrayList<Parcelable>(),
+                        null,  /* uri */
+                        search.request()
+                ));
+                setListType(search.search_type);
+                mTrackAdpWrapper.reset();
+                trackPage(Consts.Tracking.SEARCH_USERS + search.query);
+                break;
+
+            default:
+                Log.w(TAG, "unknown search type " + search.search_type);
+                return false;
         }
 
         InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -214,43 +204,14 @@ public class ScSearch extends ScActivity {
             mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
 
-        int searchType;
-        if (type == 0) {
-            mTrackAdpWrapper.clearSections();
-            mTrackAdpWrapper.addSection(new SectionedAdapter.Section(getString(R.string.list_header_track_results_for,
-                    query), Track.class, new ArrayList<Parcelable>(),
-                    null,
-                    Request.to(Endpoints.TRACKS).with("q", query)
-            ));
-
-            setListType(false);
-            mUserAdpWrapper.reset();
-            searchType = 0;
-            trackPage(Consts.Tracking.SEARCH_TRACKS + query);
-        } else {
-            mUserAdpWrapper.clearSections();
-            mUserAdpWrapper.addSection(new SectionedAdapter.Section(getString(R.string.list_header_user_results_for,
-                    query), User.class, new ArrayList<Parcelable>(),
-                    null,
-                    Request.to(Endpoints.USERS).with("q", query)
-            ));
-
-            setListType(true);
-            mTrackAdpWrapper.reset();
-            searchType = 1;
-            trackPage(Consts.Tracking.SEARCH_USERS + query);
-        }
-
-        SoundCloudDB.addSearch(getContentResolver(), searchType, query);
-        refreshHistory();
+        refreshHistory(getContentResolver(), mHistoryAdapter, search);
 
         mList.setLastUpdated(0);
         mList.setVisibility(View.VISIBLE);
 
-        if (mWorkspaceView.getChildCount() < 2){
+        if (mWorkspaceView.getChildCount() < 2) {
             mWorkspaceView.addView(mListHolder);
         }
-
 
         Handler myHandler = new Handler();
         myHandler.postDelayed(new Runnable() {
@@ -261,17 +222,7 @@ public class ScSearch extends ScActivity {
                 }
             }
         }, 100);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (mWorkspaceView != null && keyCode == KeyEvent.KEYCODE_BACK &&
-                mWorkspaceView.getCurrentScreen() != 0) {
-            mWorkspaceView.scrollLeft();
-            return true;
-        } else {
-            return super.onKeyDown(keyCode, event);
-        }
+        return true;
     }
 
     private final View.OnFocusChangeListener keyboardHideFocusListener = new View.OnFocusChangeListener() {
@@ -303,16 +254,56 @@ public class ScSearch extends ScActivity {
         }
     }
 
-    private static final SearchHistoryItem[] SEARCH_DEFAULTS = new SearchHistoryItem[] {
-            new SearchHistoryItem("Interviews",0),
-            new SearchHistoryItem("Bluegrass",0),
-            new SearchHistoryItem("Sounds from Monday Morning",0),
-            new SearchHistoryItem("Freestyle acapella",0),
-            new SearchHistoryItem("Sound Effects",0),
-            new SearchHistoryItem("Learn Spanish",0),
-            new SearchHistoryItem("Field Recording",0),
-            new SearchHistoryItem("Audio Book",0),
-            new SearchHistoryItem("Guitar riff",0),
-            new SearchHistoryItem("Laughing",0)
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        return new Object[]{
+                mList.getWrapper().getLoadModel(true),
+                mList.getVisibility(),
+                mTrackAdpWrapper.saveState(),
+                mUserAdpWrapper.saveState(),
+                mWorkspaceView.getCurrentScreen()
+        };
+    }
+
+    private void setListType(int type) {
+        final boolean isUser = type == Search.USERS;
+        mList.setAdapter(isUser ? mUserAdpWrapper : mTrackAdpWrapper, true);
+        mList.setLongClickable(!isUser);
+        mUserAdpWrapper.configureViews(isUser ? mList : null);
+        mTrackAdpWrapper.configureViews(isUser ? null : mList);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static AsyncTask refreshHistory(final ContentResolver resolver,
+                                            final SearchHistoryAdapter adapter,
+                                            final Search... toInsert) {
+        return new AsyncTask<Void, Void, List<Search>>() {
+            @Override protected List<Search> doInBackground(Void... params) {
+                if (toInsert != null) for (Search s : toInsert) s.insert(resolver);
+                return Search.getHistory(resolver);
+            }
+
+            @Override protected void onPostExecute(List<Search> searches) {
+                if (searches != null) {
+                    for (Search searchDefault : SEARCH_DEFAULTS) {
+                        if (!searches.contains(searchDefault)) searches.add(searchDefault);
+                    }
+                    adapter.setData(searches);
+                }
+            }
+        }.execute();
+    }
+
+    private static final Search[] SEARCH_DEFAULTS = new Search[] {
+            new Search("Interviews", Search.SOUNDS),
+            new Search("Bluegrass", Search.SOUNDS),
+            new Search("Sounds from Monday Morning", Search.SOUNDS),
+            new Search("Freestyle acapella", Search.SOUNDS),
+            new Search("Sound Effects", Search.SOUNDS),
+            new Search("Learn Spanish", Search.SOUNDS),
+            new Search("Field Recording", Search.SOUNDS),
+            new Search("Audio Book", Search.SOUNDS),
+            new Search("Guitar riff", Search.SOUNDS),
+            new Search("Laughing", Search.SOUNDS)
     };
 }

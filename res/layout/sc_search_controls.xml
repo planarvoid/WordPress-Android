@@ -28,7 +28,8 @@
                 android:layout_height="40dip"
                 android:layout_alignParentRight="true"
                 android:layout_alignBottom="@+id/query"
-                android:layout_alignTop="@+id/query"/>
+                android:layout_alignTop="@+id/query"
+                android:nextFocusDown="@android:id/list"/>
     </RelativeLayout>
 
     <RadioGroup android:id="@+id/rdo_search_type"

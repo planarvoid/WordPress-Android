@@ -2,7 +2,6 @@ package com.soundcloud.android.provider;
 
 import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.SearchHistoryItem;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
@@ -13,7 +12,6 @@ import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -108,28 +106,7 @@ public class SoundCloudDB {
         return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
-    public static Uri addSearch(ContentResolver resolver, int searchType, String query) {
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Searches.CREATED_AT, System.currentTimeMillis());
-        cv.put(DBHelper.Searches.QUERY, query);
-        cv.put(DBHelper.Searches.SEARCH_TYPE, searchType);
-        return resolver.insert(Content.SEARCHES.uri, cv);
-    }
 
-    public static List<SearchHistoryItem> getSearches(ContentResolver resolver) {
-        Cursor cursor = resolver.query(Content.SEARCHES.uri,
-                null,
-                null,
-                null,
-                DBHelper.Searches.CREATED_AT + " DESC");
-
-        List<SearchHistoryItem> list = new ArrayList<SearchHistoryItem>();
-        while (cursor != null && cursor.moveToNext()) {
-            list.add(new SearchHistoryItem(cursor));
-        }
-        if (cursor != null) cursor.close();
-        return list;
-    }
 
     public static User getUserById(ContentResolver resolver, long userId) {
         return getUserByUri(resolver, Content.USERS.forId(userId));

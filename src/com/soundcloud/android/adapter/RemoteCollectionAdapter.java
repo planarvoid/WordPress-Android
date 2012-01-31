@@ -39,7 +39,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     public RemoteCollectionAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(activity, wrapped, contentUri, request, autoAppend);
 
-        if (contentUri != null){
+        if (contentUri != null) {
             mLocalCollection = LocalCollection.fromContentUri(contentUri,activity.getContentResolver(), true);
             mLocalCollection.startObservingSelf(activity.getContentResolver());
             mChangeObserver = new ChangeObserver();
@@ -193,6 +193,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
             case HttpStatus.SC_UNAUTHORIZED:
                 mActivity.safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
+                //noinspection fallthrough
             default:
                 Log.w(TAG, "unexpected responseCode "+responseCode);
                 mState = ERROR;

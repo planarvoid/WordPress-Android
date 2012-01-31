@@ -5,67 +5,9 @@ require 'pp'
 require 'csv'
 require 'yaml'
 
-namespace :doc do
-  desc "Render markdown as if it were shown on github, expects FILE=path/to/doc.md"
-  task :preview do
-    infile = File.expand_path(ENV['FILE'].to_s)
-    outfile = "/tmp/#{File.basename(infile)}.html"
-    revision = `git rev-parse HEAD`.strip
-    markdown = `which markdown`.strip
-
-    unless $?.success?
-      puts "Make sure you have 'markdown' in your path, usage: brew install markdown"
-      exit 1
-    end
-
-    unless File.exists?(infile)
-      puts "Cannot find FILE=#{ENV['FILE'].inspect}, usage: rake soundcloud:doc:preview FILE=doc/hello.md"
-      exit 2
-    end
-
-    File.open(outfile, "w") do |out|
-      body = `#{markdown} #{infile}`
-      template = <<-END
-        <html>
-          <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-          <meta http-equiv="X-UA-Compatible" content="chrome=1">
-          <head>
-            <link href="https://assets0.github.com/stylesheets/bundle_common.css?#{revision}" media="screen" rel="stylesheet" type="text/css" />
-            <link href="https://assets3.github.com/stylesheets/bundle_github.css?#{revision}" media="screen" rel="stylesheet" type="text/css" />
-          </head>
-          <body>
-            <div id="readme" class="blob">
-              <div class="wikistyle">
-                #{body}
-              </div>
-            </div>
-          </body>
-        </html>
-      END
-      out.write(template)
-    end
-
-    puts "Launching: open #{outfile}"
-    system("open #{outfile}")
-  end
-
-  desc "spellchecks the file (FILE=doc/file.md)"
-  task :spellcheck do
-    aspell = `which aspell`.strip
-    infile = File.expand_path(ENV['FILE'].to_s)
-
-    unless $?.success?
-      puts "Make sure you have 'apsell' in your path, usage: brew install aspell --lang=en"
-      exit 1
-    end
-
-    unless File.exists?(infile)
-      puts "Cannot find FILE=#{ENV['FILE'].inspect}, usage: rake doc:spellcheck FILE=doc/hello.md"
-      exit 2
-    end
-    sh aspell, "--mode", "html", "--dont-backup", "check", infile
-  end
-
+build_xml = "build.xml"
+file build_xml do
+  sh "android update project -p #{Rake.original_dir} -n soundcloud"
 end
 
 [:device, :emu].each do |t|
@@ -168,13 +110,9 @@ namespace :beta do
   DEST="s3://#{BUCKET}/#{package}-#{versionCode}.apk"
   CURRENT="s3://#{BUCKET}/#{package}-current.apk"
   APK = "bin/soundcloud-release.apk"
-  REG_IDS  = 'reg_ids.yaml'
-  ACRA_CSV = '1.3.4-BETA3.csv'
-  file ACRA_CSV
-  file REG_IDS
 
   desc "build beta"
-  task :build do
+  task :build => build_xml do
     sh "ant clean release -Dkey.alias=beta-key"
   end
 
@@ -193,8 +131,7 @@ namespace :beta do
     end
   end
 
-  task :push => :upload
-  task :release => :upload
+  [ :push, :release, :publish ].each { |a| task a => :upload }
 
   desc "upload beta to s3"
   task :upload => :verify do
@@ -237,28 +174,6 @@ namespace :beta do
       sh "git tag -a #{versionName} -m #{versionName} && git push --tags"
     else
       raise "#{versionName}: not a beta version"
-    end
-  end
-
-  task :parse => ACRA_CSV do
-    reg_ids = []
-    CSV.foreach(ACRA_CSV, :col_sep=>',') do |row|
-      custom =  row[13]
-      if custom =~ /\Amessage = registration_id=(.+)\Z/
-        reg_ids << $1
-      end
-    end
-    File.open(REG_IDS, 'w') do |f|
-      f << reg_ids.to_yaml
-    end
-  end
-
-  desc "announce new beta via C2DM"
-  task :notify => REG_IDS do
-    YAML.load_file(REG_IDS).each do |reg_id|
-      if resp = post(reg_id, 'beta-version' => [versionCode, versionName].join(':'))
-        puts resp
-      end
     end
   end
 end
@@ -371,7 +286,7 @@ namespace :lol do
   end
 end
 
-
+# use for the facebook integration
 namespace :keyhash do
   {
     :debug => { :alias => 'androiddebugkey', :keystore => '~/.android/debug.keystore' },
@@ -384,3 +299,68 @@ namespace :keyhash do
     end
   end
 end
+
+namespace :doc do
+  desc "Render markdown as if it were shown on github, expects FILE=path/to/doc.md"
+  task :preview do
+    infile = File.expand_path(ENV['FILE'].to_s)
+    outfile = "/tmp/#{File.basename(infile)}.html"
+    revision = `git rev-parse HEAD`.strip
+    markdown = `which markdown`.strip
+
+    unless $?.success?
+      puts "Make sure you have 'markdown' in your path, usage: brew install markdown"
+      exit 1
+    end
+
+    unless File.exists?(infile)
+      puts "Cannot find FILE=#{ENV['FILE'].inspect}, usage: rake soundcloud:doc:preview FILE=doc/hello.md"
+      exit 2
+    end
+
+    File.open(outfile, "w") do |out|
+      body = `#{markdown} #{infile}`
+      template = <<-END
+        <html>
+          <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+          <meta http-equiv="X-UA-Compatible" content="chrome=1">
+          <head>
+            <link href="https://assets0.github.com/stylesheets/bundle_common.css?#{revision}" media="screen" rel="stylesheet" type="text/css" />
+            <link href="https://assets3.github.com/stylesheets/bundle_github.css?#{revision}" media="screen" rel="stylesheet" type="text/css" />
+          </head>
+          <body>
+            <div id="readme" class="blob">
+              <div class="wikistyle">
+                #{body}
+              </div>
+            </div>
+          </body>
+        </html>
+      END
+      out.write(template)
+    end
+
+    puts "Launching: open #{outfile}"
+    system("open #{outfile}")
+  end
+
+  desc "spellchecks the file (FILE=doc/file.md)"
+  task :spellcheck do
+    aspell = `which aspell`.strip
+    infile = File.expand_path(ENV['FILE'].to_s)
+
+    unless $?.success?
+      puts "Make sure you have 'apsell' in your path, usage: brew install aspell --lang=en"
+      exit 1
+    end
+
+    unless File.exists?(infile)
+      puts "Cannot find FILE=#{ENV['FILE'].inspect}, usage: rake doc:spellcheck FILE=doc/hello.md"
+      exit 2
+    end
+    sh aspell, "--mode", "html", "--dont-backup", "check", infile
+  end
+
+end
+
+

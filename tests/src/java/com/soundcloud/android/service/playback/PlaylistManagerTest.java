@@ -1,7 +1,6 @@
 package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.assertContentUriCount;
 
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
@@ -9,7 +8,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -155,11 +153,11 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldSaveCurrentTracksToDB() throws Exception {
-        assertContentUriCount(Content.PLAYLISTS, 0);
-        assertContentUriCount(PlaylistManager.DEFAULT_PLAYLIST_URI, 0);
+        expect(Content.PLAYLIST).toBeEmpty();
+        expect(PlaylistManager.DEFAULT_PLAYLIST_URI).toBeEmpty();
         pm.setPlaylist(createTracks(10), 0);
-        assertContentUriCount(Content.PLAYLISTS, 1);
-        assertContentUriCount(PlaylistManager.DEFAULT_PLAYLIST_URI, 10);
+        expect(Content.PLAYLIST).toHaveCount(1);
+        expect(PlaylistManager.DEFAULT_PLAYLIST_URI).toHaveCount(10);
     }
 
     private List<Track> createTracks(int n) {

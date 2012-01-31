@@ -1,7 +1,6 @@
 package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.assertContentUriCount;
 
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -63,7 +62,7 @@ public class LocalCollectionTest {
         expect(c.last_sync).toEqual(c2.last_sync);
         expect(c.size).toEqual(c2.size);
 
-        assertContentUriCount(Content.COLLECTIONS, 1);
+        expect(Content.COLLECTIONS).toHaveCount(1);
     }
 
     @Test
@@ -96,7 +95,7 @@ public class LocalCollectionTest {
         expect(LocalCollection.insertLocalCollection(uri, resolver)).not.toBeNull();
         expect(LocalCollection.deleteUri(uri, resolver)).toBeTrue();
         expect(LocalCollection.deleteUri(uri, resolver)).toBeFalse();
-        assertContentUriCount(Content.COLLECTIONS, 0);
+        expect(Content.COLLECTIONS).toHaveCount(0);
     }
 
 }

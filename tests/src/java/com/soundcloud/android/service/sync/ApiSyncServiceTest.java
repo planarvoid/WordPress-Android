@@ -127,9 +127,9 @@ public class ApiSyncServiceTest {
 
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri), 1);
         // make sure tracks+users got written
-        assertContentUriCount(Content.TRACKS, 3);
-        assertContentUriCount(Content.COLLECTION_ITEMS, 3);
-        assertContentUriCount(Content.USERS, 1);
+        expect(Content.TRACKS).toHaveCount(3);
+        expect(Content.COLLECTION_ITEMS).toHaveCount(3);
+        expect(Content.USERS).toHaveCount(1);
         assertResolverNotified(Content.ME_TRACKS.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
 
@@ -142,8 +142,8 @@ public class ApiSyncServiceTest {
 
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri), 1);
         // make sure tracks+users got written
-        assertContentUriCount(Content.USERS, 3);
-        assertContentUriCount(Content.ME_FOLLOWERS, 3);
+        expect(Content.USERS).toHaveCount(3);
+        expect(Content.ME_FOLLOWERS).toHaveCount(3);
         assertFirstIdToBe(Content.ME_FOLLOWERS, 308291);
     }
 
@@ -154,17 +154,17 @@ public class ApiSyncServiceTest {
                 "incoming_1.json",
                 "incoming_2.json");
 
-        assertContentUriCount(Content.COLLECTIONS, 1);
+        expect(Content.COLLECTIONS).toHaveCount(1);
         LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
 
         expect(collection).not.toBeNull();
         expect(collection.last_sync).toBeGreaterThan(0L);
         expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
 
-        assertContentUriCount(Content.ME_SOUND_STREAM, 100);
-        assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 0);
-        assertContentUriCount(Content.TRACKS, 99);
-        assertContentUriCount(Content.USERS, 52);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(100);
+        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
+        expect(Content.TRACKS).toHaveCount(99);
+        expect(Content.USERS).toHaveCount(52);
 
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
@@ -179,7 +179,7 @@ public class ApiSyncServiceTest {
         addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
 
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri), 1);
-        assertContentUriCount(Content.TRACKS, 3);
+        expect(Content.TRACKS).toHaveCount(3);
 
         // sync activities concerning these tracks
         sync(svc, Content.ME_ACTIVITIES, "tracks_activities.json");
@@ -207,7 +207,7 @@ public class ApiSyncServiceTest {
 
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri), 1);
 
-        assertContentUriCount(Content.TRACKS, 3);
+        expect(Content.TRACKS).toHaveCount(3);
 
         Track t = SoundCloudDB.getTrackById(resolver, 10853436L);
         expect(t).not.toBeNull();
@@ -222,8 +222,8 @@ public class ApiSyncServiceTest {
                 "own_1.json",
                 "own_2.json");
 
-        assertContentUriCount(Content.ME_ACTIVITIES, 41);
-        assertContentUriCount(Content.COMMENTS, 15);
+        expect(Content.ME_ACTIVITIES).toHaveCount(41);
+        expect(Content.COMMENTS).toHaveCount(15);
 
         Activities own = Activities.getSince(Content.ME_ACTIVITIES, resolver, -1);
         expect(own.size()).toEqual(41);
@@ -244,10 +244,10 @@ public class ApiSyncServiceTest {
                 "incoming_1.json",
                 "incoming_2.json");
 
-        assertContentUriCount(Content.ME_SOUND_STREAM, 100);
-        assertContentUriCount(Content.ME_ACTIVITIES, 41);
-        assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 0);
-        assertContentUriCount(Content.ME_ALL_ACTIVITIES, 141);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(100);
+        expect(Content.ME_ACTIVITIES).toHaveCount(41);
+        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(141);
     }
 
     @Test
@@ -259,9 +259,9 @@ public class ApiSyncServiceTest {
         sync(svc, Content.ME_EXCLUSIVE_STREAM,
                 "exclusives_1.json");
 
-        assertContentUriCount(Content.ME_SOUND_STREAM, 4);
-        assertContentUriCount(Content.ME_EXCLUSIVE_STREAM, 4);
-        assertContentUriCount(Content.ME_ALL_ACTIVITIES, 8);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(4);
+        expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(4);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(8);
     }
 
     @Test
@@ -272,7 +272,7 @@ public class ApiSyncServiceTest {
                 "incoming_1.json",
                 "incoming_2.json");
 
-        assertContentUriCount(Content.COLLECTIONS, 1);
+        expect(Content.COLLECTIONS).toHaveCount(1);
         LocalCollection collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
 
         expect(collection).not.toBeNull();
@@ -286,7 +286,7 @@ public class ApiSyncServiceTest {
         // next sync request should go this url
         sync(svc, Content.ME_SOUND_STREAM);
 
-        assertContentUriCount(Content.COLLECTIONS, 1);
+        expect(Content.COLLECTIONS).toHaveCount(1);
         collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
         expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
     }
