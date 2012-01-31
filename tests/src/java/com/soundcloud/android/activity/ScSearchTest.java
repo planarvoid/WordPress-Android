@@ -59,6 +59,13 @@ public class ScSearchTest {
         expect(Content.SEARCHES).toBeEmpty();
     }
 
+    @Test
+    public void shouldNotCrashOnOrientationChange() throws Exception {
+        expect(search.perform(new Search("Testing", 666))).toBeFalse();
+        Object[] o = search.onRetainNonConfigurationInstance();
+        search.restorePreviousState(o);
+    }
+
     private void fakeApiReplies(String... resources) throws IOException {
         TestHelper.addCannedResponses(getClass(), resources);
     }
