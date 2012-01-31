@@ -31,8 +31,6 @@ public class ScSearchTest {
     public void shouldSearchTracks() throws Exception {
         fakeApiReplies("track_search.json");
         expect(search.perform(Search.forSounds("Testing"))).toBeTrue();
-        search.mSoundAdpWrapper.executeAppendTask();
-
         expect(search.mSoundAdpWrapper.getData().size()).toEqual(3);
         expect(Content.SEARCHES).toHaveCount(1);
     }
@@ -41,8 +39,6 @@ public class ScSearchTest {
     public void shouldSearchUsers() throws Exception {
         fakeApiReplies("user_search.json");
         expect(search.perform(Search.forUsers("Testing"))).toBeTrue();
-        search.mUserAdpWrapper.executeAppendTask();
-
         expect(search.mUserAdpWrapper.getData().size()).toEqual(3);
         expect(Content.SEARCHES).toHaveCount(1);
     }
