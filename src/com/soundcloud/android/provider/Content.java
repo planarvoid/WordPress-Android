@@ -221,9 +221,10 @@ public enum Content {
     }
 
     public boolean isStale(long lastSync) {
+        // do not auto refresh users when the list opens, because users are always changing
+        if (resourceType == User.class) return false;
         final long staleTime = (resourceType == Track.class) ? SyncAdapterService.TRACK_STALE_TIME :
                                (resourceType == Activity.class) ? SyncAdapterService.ACTIVITY_STALE_TIME :
-                               (resourceType == User.class) ? SyncAdapterService.USER_STALE_TIME :
                                SyncAdapterService.DEFAULT_STALE_TIME;
 
         return System.currentTimeMillis() - lastSync > staleTime;
