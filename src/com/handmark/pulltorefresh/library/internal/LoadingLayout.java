@@ -119,7 +119,7 @@ public class LoadingLayout extends FrameLayout {
                     CloudUtils.getElapsedTimeString(getResources(), lastUpdated, true)));
             lastUpdatedText.setVisibility(View.VISIBLE);
         } else {
-            lastUpdatedText.setVisibility(View.GONE);
+            lastUpdatedText.setVisibility(View.INVISIBLE);
         }
     }
 

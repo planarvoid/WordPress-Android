@@ -38,6 +38,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/pull_to_refresh_image"
+            android:visibility="invisible"
             android:gravity="center"
             style="@style/txt_list_pull_sub"
             />
