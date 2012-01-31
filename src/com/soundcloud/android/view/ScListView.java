@@ -89,11 +89,11 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
      */
     public LazyBaseAdapter getBaseAdapter() {
         if (getRefreshableView().getAdapter() == null) return null;
-        if (HeaderViewListAdapter.class.isAssignableFrom(getRefreshableView().getAdapter().getClass()) &&
-                LazyEndlessAdapter.class.isAssignableFrom(((HeaderViewListAdapter) getRefreshableView().getAdapter()).getWrappedAdapter().getClass())) {
+        if (getRefreshableView().getAdapter() instanceof HeaderViewListAdapter &&
+                ((HeaderViewListAdapter) getRefreshableView().getAdapter()).getWrappedAdapter() instanceof LazyEndlessAdapter) {
             return ((LazyEndlessAdapter) ((HeaderViewListAdapter) getRefreshableView().getAdapter()).getWrappedAdapter()).getWrappedAdapter();
 
-        } else if (LazyEndlessAdapter.class.isAssignableFrom(getRefreshableView().getAdapter().getClass())) {
+        } else if (getRefreshableView().getAdapter() instanceof LazyEndlessAdapter) {
             return ((LazyEndlessAdapter) getRefreshableView().getAdapter()).getWrappedAdapter();
 
         } else

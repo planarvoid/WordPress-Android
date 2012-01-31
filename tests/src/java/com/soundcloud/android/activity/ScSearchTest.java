@@ -31,9 +31,9 @@ public class ScSearchTest {
     public void shouldSearchTracks() throws Exception {
         fakeApiReplies("track_search.json");
         expect(search.perform(Search.forSounds("Testing"))).toBeTrue();
-        search.mTrackAdpWrapper.executeAppendTask();
+        search.mSoundAdpWrapper.executeAppendTask();
 
-        expect(search.mTrackAdpWrapper.getData().size()).toEqual(3);
+        expect(search.mSoundAdpWrapper.getData().size()).toEqual(3);
         expect(Content.SEARCHES).toHaveCount(1);
     }
 

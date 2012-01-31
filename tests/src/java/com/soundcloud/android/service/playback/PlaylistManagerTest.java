@@ -227,7 +227,6 @@ public class PlaylistManagerTest {
 
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(3);
-
     }
 
     private List<Track> createTracks(int n) {

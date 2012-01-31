@@ -163,6 +163,10 @@ public enum Content {
         return id < SYNCABLE_CEILING;
     }
 
+    public boolean isCollectionItem() {
+        return table == Table.COLLECTION_ITEMS;
+    }
+
     public boolean isMine() {
         return id < MINE_CEILING;
     }

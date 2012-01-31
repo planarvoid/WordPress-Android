@@ -447,7 +447,7 @@ public abstract class ScActivity extends android.app.Activity {
             return;
 
         for (ScListView list : mLists) {
-            if (TracklistAdapter.class.isAssignableFrom(list.getBaseAdapter().getClass())) {
+            if (list.getBaseAdapter() instanceof TracklistAdapter) {
                 ((TracklistAdapter) list.getBaseAdapter()).setPlayingId(id, isPlaying);
                 list.getBaseAdapter().notifyDataSetChanged();
             }

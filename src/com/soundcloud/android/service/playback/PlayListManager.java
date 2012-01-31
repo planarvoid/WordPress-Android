@@ -5,8 +5,10 @@ import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -20,6 +22,7 @@ import java.util.List;
 
 /* package */
 class PlaylistManager {
+    // TODO: collapse into one preference, uri with parameters
     public static final String PREF_PLAYLIST_URI = "sc_playlist_uri";
     public static final String PREF_PLAYLIST_LAST_POS = "sc_playlist_last_pos";
     public static final String PREF_PLAYLIST_LAST_ID = "sc_playlist_last_id";
@@ -189,17 +192,17 @@ class PlaylistManager {
         if (!TextUtils.isEmpty(lastUriString)){
 
             final int playlistPos = preferences.getInt(PREF_PLAYLIST_LAST_POS, 0);
-            final long playlistTrackId = preferences.getLong(PREF_PLAYLIST_LAST_ID, 0);
+            final long trackId = preferences.getLong(PREF_PLAYLIST_LAST_ID, 0);
             final Uri playlistUri = Uri.parse(lastUriString);
 
             long playlistLastTime = preferences.getLong(PREF_PLAYLIST_LAST_TIME, 0);
             setUri(playlistUri, playlistPos);
 
-            if (playlistTrackId != 0 && getTrack().id != playlistTrackId){
-                final int newPos = SoundCloudDB.getCollectionPositionFromItemId(
+            if (trackId != 0 && getTrack().id != trackId && Content.match(playlistUri).isCollectionItem()) {
+                final int newPos = getPlaylistPositionFromUri(
                         mContext.getContentResolver(),
                         playlistUri,
-                        playlistTrackId);
+                        trackId);
 
                 if (newPos == -1) playlistLastTime = 0;
                 setPosition(Math.max(newPos, 0));
@@ -207,5 +210,21 @@ class PlaylistManager {
             return playlistLastTime;
         }
         return 0; // seekpos
+    }
+
+    public static int getPlaylistPositionFromUri(ContentResolver resolver, Uri collectionUri, long itemId) {
+        Cursor cursor = resolver.query(collectionUri,
+                new String[]{ DBHelper.CollectionItems.POSITION },
+                DBHelper.CollectionItems.ITEM_ID + " = ?",
+                new String[] {String.valueOf(itemId)},
+                null);
+
+        int position = -1;
+        if (cursor != null && cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            position = cursor.getInt(0);
+        }
+        if (cursor != null) cursor.close();
+        return position;
     }
 }

@@ -6,13 +6,10 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SearchHistoryAdapter;
-import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.adapter.SectionedTracklistAdapter;
 import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.model.Search;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
@@ -22,11 +19,12 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -34,8 +32,8 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 // XXX decouple from ScActivity
@@ -47,10 +45,11 @@ public class ScSearch extends ScActivity {
 
     private FrameLayout mListHolder;
     private ScListView mList;
-    SectionedEndlessAdapter mTrackAdpWrapper, mUserAdpWrapper;
+    SectionedEndlessAdapter mSoundAdpWrapper, mUserAdpWrapper;
 
     private WorkspaceView mWorkspaceView;
     private SearchHistoryAdapter mHistoryAdapter;
+    private Search mCurrentSearch;
 
     @Override
     public void onCreate(Bundle state) {
@@ -58,7 +57,7 @@ public class ScSearch extends ScActivity {
         setContentView(R.layout.workspace_view);
 
         mWorkspaceView = (WorkspaceView) findViewById(R.id.workspace_view);
-        mWorkspaceView.setIgnoreChildFocusRequests(true);
+        mWorkspaceView.setIgnoreChildFocusRequests(true); // we handle scrolling manually
         mWorkspaceView.addView(getLayoutInflater().inflate(R.layout.sc_search_controls, null));
 
         rdoSearchType = (RadioGroup) findViewById(R.id.rdo_search_type);
@@ -85,13 +84,19 @@ public class ScSearch extends ScActivity {
         mListHolder.addView(mList);
         mList.setVisibility(View.GONE);
 
-        mTrackAdpWrapper = new SectionedEndlessAdapter(this, new SectionedTracklistAdapter(this), true);
+        mSoundAdpWrapper = new SectionedEndlessAdapter(this, new SectionedTracklistAdapter(this), true);
         mUserAdpWrapper = new SectionedEndlessAdapter(this, new SectionedUserlistAdapter(this), true);
 
         final View root = findViewById(R.id.search_root);
         root.setOnFocusChangeListener(keyboardHideFocusListener);
         root.setOnClickListener(keyboardHideClickListener);
         root.setOnTouchListener(keyboardHideTouchListener);
+
+        txtQuery.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                return !isFinishing() && actionId == EditorInfo.IME_ACTION_SEARCH && perform(getSearch());
+            }
+        });
 
         ListView recentSearches = new ListView(this);
         recentSearches.setSelector(R.drawable.list_selector_background);
@@ -119,7 +124,6 @@ public class ScSearch extends ScActivity {
             restorePreviousState(previousState);
         } else {
             mWorkspaceView.initWorkspace(0);
-            setListType(Search.SOUNDS);
         }
     }
 
@@ -136,7 +140,7 @@ public class ScSearch extends ScActivity {
                 Search.SOUNDS : Search.USERS);
     }
 
-    boolean perform(Search search) {
+    boolean perform(final Search search) {
         if (search.isEmpty()) return false;
         // when called from Main or History
         txtQuery.setText(search.query);
@@ -144,37 +148,15 @@ public class ScSearch extends ScActivity {
         switch (search.search_type) {
             case Search.SOUNDS:
                 rdoTrack.setChecked(true);
-
-                mTrackAdpWrapper.clearSections();
-                mTrackAdpWrapper.addSection(new SectionedAdapter.Section(
-                        getString(R.string.list_header_track_results_for, search.query),
-                        Track.class,
-                        new ArrayList<Parcelable>(),
-                        null,  /* uri */
-                        search.request()
-
-                ));
-                setListType(search.search_type);
-                mUserAdpWrapper.reset();
+                configureAdapter(mSoundAdpWrapper, search);
                 trackPage(Consts.Tracking.SEARCH_TRACKS + search.query);
                 break;
 
             case Search.USERS:
                 rdoUser.setChecked(true);
-
-                mUserAdpWrapper.clearSections();
-                mUserAdpWrapper.addSection(new SectionedAdapter.Section(
-                        getString(R.string.list_header_user_results_for, search.query),
-                        User.class,
-                        new ArrayList<Parcelable>(),
-                        null,  /* uri */
-                        search.request()
-                ));
-                setListType(search.search_type);
-                mTrackAdpWrapper.reset();
+                configureAdapter(mUserAdpWrapper, search);
                 trackPage(Consts.Tracking.SEARCH_USERS + search.query);
                 break;
-
             default:
                 Log.w(TAG, "unknown search type " + search.search_type);
                 return false;
@@ -189,7 +171,7 @@ public class ScSearch extends ScActivity {
         mList.setVisibility(View.VISIBLE);
 
         if (mWorkspaceView.getChildCount() < 2) {
-            // only add list after search (otherwise it is scrollable on load)
+            // only add list after 1st search (otherwise it is scrollable on load)
             mWorkspaceView.addView(mListHolder);
         }
 
@@ -197,7 +179,21 @@ public class ScSearch extends ScActivity {
             mWorkspaceView.scrollRight();
         }
         refreshHistory(getContentResolver(), mHistoryAdapter, search);
+        mCurrentSearch = search;
         return true;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // handle back button to go back to previous screen
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && mWorkspaceView != null
+                && mWorkspaceView.getCurrentScreen() != 0) {
+            mWorkspaceView.scrollLeft();
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 
     private final View.OnFocusChangeListener keyboardHideFocusListener = new View.OnFocusChangeListener() {
@@ -229,35 +225,41 @@ public class ScSearch extends ScActivity {
         }
     }
 
+    private SectionedEndlessAdapter configureAdapter(SectionedEndlessAdapter adapter, Search search) {
+        adapter.reset();
+        adapter.clearSections();
+        adapter.addSection(search.getSection(this));
+        adapter.configureViews(mList);
+        mList.setAdapter(adapter, true);
+        mList.setLongClickable(search.search_type == Search.SOUNDS);
+        return adapter;
+    }
+
     @Override
     public Object[] onRetainNonConfigurationInstance() {
-        return new Object[]{
-                mList.getWrapper().getLoadModel(true),
+        return new Object[] {
+                mCurrentSearch,
                 mList.getVisibility(),
-                mTrackAdpWrapper.saveState(),
+                mSoundAdpWrapper.saveState(),
                 mUserAdpWrapper.saveState(),
                 mWorkspaceView.getCurrentScreen()
         };
     }
 
     void restorePreviousState(Object[] previous) {
-        setListType(User.class.equals(previous[0]) ? Search.USERS : Search.SOUNDS);
-        mTrackAdpWrapper.restoreState((Object[]) previous[2]);
-        mUserAdpWrapper.restoreState((Object[]) previous[3]);
-
+        mCurrentSearch = (Search) previous[0];
         if ((Integer) previous[1] == View.VISIBLE) {
             mWorkspaceView.addView(mListHolder);
             mList.setVisibility(View.VISIBLE);
         }
+        mSoundAdpWrapper.restoreState((Object[]) previous[2]);
+        mUserAdpWrapper.restoreState((Object[]) previous[3]);
         mWorkspaceView.initWorkspace((Integer) previous[4]);
-    }
-
-    private void setListType(int type) {
-        final boolean isUser = type == Search.USERS;
-        mList.setAdapter(isUser ? mUserAdpWrapper : mTrackAdpWrapper, true);
-        mList.setLongClickable(!isUser);
-        mUserAdpWrapper.configureViews(isUser ? mList : null);
-        mTrackAdpWrapper.configureViews(isUser ? null : mList);
+        if (mCurrentSearch != null) {
+            txtQuery.setText(mCurrentSearch.query);
+            configureAdapter(mCurrentSearch.search_type == Search.SOUNDS ?
+                    mSoundAdpWrapper : mUserAdpWrapper, mCurrentSearch);
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -25,7 +25,7 @@ public class TracklistAdapter extends LazyBaseAdapter implements ITracklistAdapt
 
     public TracklistAdapter(Context c, ArrayList<Parcelable> data, Class<?> model) {
         super(c, data, model);
-        if (ScActivity.class.isAssignableFrom(c.getClass())){
+        if (c instanceof ScActivity){
             mQuickTrackMenu = new QuickTrackMenu((ScActivity) c, this);
         }
     }
