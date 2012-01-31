@@ -25,4 +25,7 @@
 
     <string name="pull_to_refresh_refreshing_label">Refreshing...</string>
     <string name="search_settings_description">Search sounds</string>
+
+    <string name="pref_help">Help</string>
+    <string name="pref_help_desc">Access the SoundCloud support site</string>
 </resources>

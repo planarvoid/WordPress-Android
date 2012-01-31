@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.net.Uri;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -71,6 +72,15 @@ public class Settings extends PreferenceActivity {
                             // don't let the monkey log out
                             safeShowDialog(DIALOG_USER_LOGOUT_CONFIRM);
                         }
+                        return true;
+                    }
+                });
+
+        findPreference("help").setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://help.soundcloud.com/"));
+                        startActivity(browserIntent);
                         return true;
                     }
                 });
