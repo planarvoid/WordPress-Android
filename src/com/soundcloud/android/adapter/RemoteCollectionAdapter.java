@@ -124,7 +124,6 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
         mKeepGoing = keepGoing;
         boolean success = (newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK;
-        Log.i("asdf","ON POST EXECUTE" + success + " " + wasRefresh);
         if (success) {
             if (wasRefresh){
                 reset();
@@ -298,7 +297,6 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     protected void onContentChanged(){
-        Log.i("asdf","ON CONTENT CHANGEDDD " + mContentUri);
         mContentInvalid = true;
         executeRefreshTask();
     }
