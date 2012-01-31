@@ -86,6 +86,7 @@ public class Recording extends ScModel implements PageTrackable {
     }
 
     public Recording(Cursor c) {
+        this.id = c.getLong(c.getColumnIndex(Recordings._ID));
         this.user_id = c.getLong(c.getColumnIndex(Recordings.USER_ID));
         this.timestamp = c.getLong(c.getColumnIndex(Recordings.TIMESTAMP));
         this.longitude = c.getDouble(c.getColumnIndex(Recordings.LONGITUDE));
