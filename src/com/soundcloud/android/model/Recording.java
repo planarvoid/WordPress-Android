@@ -111,8 +111,8 @@ public class Recording extends ScModel implements PageTrackable {
         this.is_private = c.getInt(c.getColumnIndex(Recordings.IS_PRIVATE)) == 1;
         this.external_upload = c.getInt(c.getColumnIndex(Recordings.EXTERNAL_UPLOAD)) == 1;
         this.audio_profile = c.getInt(c.getColumnIndex(Recordings.AUDIO_PROFILE));
-        this.upload_status = c.getInt(c.getColumnIndex(Recordings.AUDIO_PROFILE));
-        this.upload_error = c.getInt(c.getColumnIndex(Recordings.AUDIO_PROFILE)) == 1;
+        this.upload_status = c.getInt(c.getColumnIndex(Recordings.UPLOAD_STATUS));
+        this.upload_error = c.getInt(c.getColumnIndex(Recordings.UPLOAD_ERROR)) == 1;
 
         // enforce proper construction
         if (audio_path == null) {
