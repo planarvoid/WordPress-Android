@@ -299,7 +299,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
 
         sendBroadcast(i);
-        mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
+
+        if (what.equals(PLAYSTATE_CHANGED) || what.equals(META_CHANGED) || what.equals(PLAYBACK_ERROR) || what.equals(PLAYBACK_COMPLETE)) {
+            mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
+        }
+
 
         // Share this notification directly with our widgets
         mAppWidgetProvider.notifyChange(this, i.putExtra("trackParcel", getTrack()));

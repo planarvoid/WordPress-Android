@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.C2DMReceiver;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import org.json.JSONException;
 
@@ -692,7 +693,7 @@ public class CloudUtils {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
                                 a.sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
-                                app.clearUserDbData();
+                                User.clearLoggedInUserFromStorage(app);
                                 app.trackPage(Consts.Tracking.LOGGED_OUT);
                                 app.trackEvent(Consts.Tracking.Categories.AUTH, "logout");
 

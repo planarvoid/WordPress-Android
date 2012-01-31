@@ -2,6 +2,7 @@ package com.soundcloud.android.service.playback;
 
 
 import android.util.Log;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
@@ -21,11 +22,12 @@ import android.text.TextUtils;
 import java.util.List;
 
 /* package */
-class PlaylistManager {
+public class PlaylistManager {
     public static final String PREF_PLAYLIST_URI = "sc_playlist_uri";
     public static final String PREF_PLAYLIST_LAST_POS = "sc_playlist_last_pos";
     public static final String PREF_PLAYLIST_LAST_ID = "sc_playlist_last_id";
     public static final String PREF_PLAYLIST_LAST_TIME = "sc_playlist_time";
+
     private Track[] mPlaylist = new Track[0];
     private Cursor mTrackCursor;
     private Uri mPlaylistUri;
@@ -176,13 +178,15 @@ class PlaylistManager {
     }
 
     public void saveQueue(long seekPos) {
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-        final Track currentTrack = getTrackAt(mPlayPos);
-        editor.putString(PREF_PLAYLIST_URI, mPlaylistUri == null ? "" : mPlaylistUri.toString());
-        editor.putInt(PREF_PLAYLIST_LAST_POS,mPlayPos);
-        editor.putLong(PREF_PLAYLIST_LAST_ID, currentTrack == null ? 0 : currentTrack.id);
-        editor.putLong(PREF_PLAYLIST_LAST_TIME, seekPos);
-        editor.commit();
+        if (SoundCloudApplication.isLoggedInFromContext(mContext)) {
+            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
+            final Track currentTrack = getTrackAt(mPlayPos);
+            editor.putString(PREF_PLAYLIST_URI, mPlaylistUri == null ? "" : mPlaylistUri.toString());
+            editor.putInt(PREF_PLAYLIST_LAST_POS, mPlayPos);
+            editor.putLong(PREF_PLAYLIST_LAST_ID, currentTrack == null ? 0 : currentTrack.id);
+            editor.putLong(PREF_PLAYLIST_LAST_TIME, seekPos);
+            editor.commit();
+        }
     }
 
     public long reloadQueue() {
