@@ -114,9 +114,9 @@ public class LoadingLayout extends FrameLayout {
 	}
 
     public void configureLastUpdated(){
-        final CharSequence lastUpdatedLabel = CloudUtils.getElapsedTimeString(getResources(), lastUpdated, true);
-        if (!TextUtils.isEmpty(lastUpdatedLabel)){
-            lastUpdatedText.setText(lastUpdatedLabel);
+        if (lastUpdated > 0){
+            lastUpdatedText.setText(getResources().getString(R.string.pull_to_refresh_last_updated,
+                    CloudUtils.getElapsedTimeString(getResources(), lastUpdated, true)));
             lastUpdatedText.setVisibility(View.VISIBLE);
         } else {
             lastUpdatedText.setVisibility(View.GONE);
