@@ -22,8 +22,8 @@
             android:paddingBottom="0dp"
             android:singleLine="true"
             android:layout_alignParentRight="true"
-            android:text="@string/tour_btn_next"
-            android:id="@+id/btn_next"
+            android:text="@string/tour_btn_done"
+            android:id="@+id/btn_done_dark"
             android:layout_height="wrap_content"/>
     <Button android:layout_width="wrap_content"
             style="@style/btn_round_blue"

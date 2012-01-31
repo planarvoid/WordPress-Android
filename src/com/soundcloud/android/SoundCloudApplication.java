@@ -493,15 +493,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.getUserAgent();
     }
 
-    public void clearUserDbData() {
-        getContentResolver().delete(Content.SEARCHES.uri, DBHelper.Searches.USER_ID + " = ?",new String[]{String.valueOf(getCurrentUserId())});
-        getContentResolver().delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_TRACKS.toString()});
-        getContentResolver().delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FAVORITES.toString()});
-        getContentResolver().delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWINGS.toString()});
-        getContentResolver().delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWERS.toString()});
-        Activities.clear(null, getContentResolver());
-    }
-
     public void onFirstRun(int oldVersionCode, int newVersionCode) {
         for (int i = oldVersionCode; i < newVersionCode; ++i) {
             int nextVersion = i + 1;
@@ -607,6 +598,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static long getUserIdFromContext(Context c){
         SoundCloudApplication app = fromContext(c);
         return app == null ? -1 : app.getCurrentUserId();
+    }
+
+    public static boolean isLoggedInFromContext(Context c){
+        SoundCloudApplication app = fromContext(c);
+        return app == null ? false : app.getAccount() != null;
     }
 
     private static void setupStrictMode() {

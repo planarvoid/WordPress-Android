@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.UriMatcher;
 import android.net.Uri;
 import android.os.Parcelable;
+import android.util.Log;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Friend;
@@ -226,7 +227,7 @@ public enum Content {
 
     public boolean isStale(long lastSync) {
         // do not auto refresh users when the list opens, because users are always changing
-        if (resourceType == User.class) return false;
+        if (resourceType == User.class) return lastSync > 0 ? false : true;
         final long staleTime = (resourceType == Track.class) ? SyncAdapterService.TRACK_STALE_TIME :
                                (resourceType == Activity.class) ? SyncAdapterService.ACTIVITY_STALE_TIME :
                                SyncAdapterService.DEFAULT_STALE_TIME;

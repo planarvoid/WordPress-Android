@@ -3,10 +3,14 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.content.Context;
+import android.preference.PreferenceManager;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
+import com.soundcloud.android.service.playback.PlaylistManager;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
@@ -331,5 +335,23 @@ public class User extends ScModel implements PageTrackable, Resource, Origin {
     @Override
     public User getUser() {
         return this;
+    }
+
+    public static void clearLoggedInUserFromStorage(SoundCloudApplication app){
+        final ContentResolver resolver = app.getContentResolver();
+        resolver.delete(Content.SEARCHES.uri, DBHelper.Searches.USER_ID + " = ?", new String[]{String.valueOf(app.getCurrentUserId())});
+        resolver.delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_TRACKS.toString()});
+        resolver.delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FAVORITES.toString()});
+        resolver.delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWINGS.toString()});
+        resolver.delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWERS.toString()});
+        resolver.delete(Content.PLAYLISTS.uri, null, null);
+        Activities.clear(null, resolver);
+
+        PreferenceManager.getDefaultSharedPreferences(app).edit()
+                .remove(PlaylistManager.PREF_PLAYLIST_LAST_POS)
+                .remove(PlaylistManager.PREF_PLAYLIST_LAST_ID)
+                .remove(PlaylistManager.PREF_PLAYLIST_LAST_TIME)
+                .remove(PlaylistManager.PREF_PLAYLIST_URI)
+                .commit();
     }
 }

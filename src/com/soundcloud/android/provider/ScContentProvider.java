@@ -341,6 +341,8 @@ public class ScContentProvider extends ContentProvider {
             case USER:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
+            case PLAYLISTS:
+                break;
             case PLAYLIST:
                 where = TextUtils.isEmpty(where) ? DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment()
                         : where + " AND " + DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment();
