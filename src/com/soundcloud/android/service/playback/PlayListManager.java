@@ -1,12 +1,10 @@
 package com.soundcloud.android.service.playback;
 
 
-import android.util.Log;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 
 import android.content.Context;
@@ -179,27 +177,32 @@ class PlaylistManager {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
         final Track currentTrack = getTrackAt(mPlayPos);
         editor.putString(PREF_PLAYLIST_URI, mPlaylistUri == null ? "" : mPlaylistUri.toString());
-        editor.putInt(PREF_PLAYLIST_LAST_POS,mPlayPos);
+        editor.putInt(PREF_PLAYLIST_LAST_POS, mPlayPos);
         editor.putLong(PREF_PLAYLIST_LAST_ID, currentTrack == null ? 0 : currentTrack.id);
         editor.putLong(PREF_PLAYLIST_LAST_TIME, seekPos);
         editor.commit();
     }
 
     public long reloadQueue() {
-        final String lastUriString = PreferenceManager.getDefaultSharedPreferences(mContext).getString(PREF_PLAYLIST_URI,"");
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        final String lastUriString = preferences.getString(PREF_PLAYLIST_URI, "");
         if (!TextUtils.isEmpty(lastUriString)){
 
-            final int playlistPos = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(PREF_PLAYLIST_LAST_POS, 0);
-            final long playlistTrackId = PreferenceManager.getDefaultSharedPreferences(mContext).getLong(PREF_PLAYLIST_LAST_ID, 0);
+            final int playlistPos = preferences.getInt(PREF_PLAYLIST_LAST_POS, 0);
+            final long playlistTrackId = preferences.getLong(PREF_PLAYLIST_LAST_ID, 0);
             final Uri playlistUri = Uri.parse(lastUriString);
 
-            long playlistLastTime = PreferenceManager.getDefaultSharedPreferences(mContext).getLong(PREF_PLAYLIST_LAST_TIME, 0);
+            long playlistLastTime = preferences.getLong(PREF_PLAYLIST_LAST_TIME, 0);
             setUri(playlistUri, playlistPos);
 
             if (playlistTrackId != 0 && getTrack().id != playlistTrackId){
-                final int newPos = SoundCloudDB.getCollectionPositionFromItemId(mContext.getContentResolver(),playlistUri,playlistTrackId);
+                final int newPos = SoundCloudDB.getCollectionPositionFromItemId(
+                        mContext.getContentResolver(),
+                        playlistUri,
+                        playlistTrackId);
+
                 if (newPos == -1) playlistLastTime = 0;
-                setPosition(Math.max(newPos,0));
+                setPosition(Math.max(newPos, 0));
             }
             return playlistLastTime;
         }
