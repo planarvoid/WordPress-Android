@@ -129,18 +129,7 @@ public class RecordingTest {
 
     @Test
     public void shouldPersistAndLoadCorrectly() throws Exception {
-        Recording r = new Recording(new File("/tmp"));
-        r.latitude = 32.3;
-        r.longitude = 23.1;
-        r.what_text = "somewhat";
-        r.where_text = "somehere";
-        r.four_square_venue_id = "foursquare";
-        r.duration = 100L;
-        r.external_upload = true;
-        r.timestamp = 200L;
-        r.user_id = USER_ID;
-        r.private_user_id = 300L;
-
+        Recording r = createRecording();
         ContentResolver resolver = Robolectric.application.getContentResolver();
 
         Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
@@ -154,7 +143,8 @@ public class RecordingTest {
 
         Recording r2 = new Recording(cursor);
 
-        expect(r2.id).toEqual(r.id);
+        expect(r2.id).not.toEqual(r.id);
+        expect(r2.id).toEqual(1L);
         expect(r2.latitude).toEqual(r.latitude);
         expect(r2.longitude).toEqual(r.longitude);
         expect(r2.what_text).toEqual(r.what_text);
@@ -164,6 +154,8 @@ public class RecordingTest {
         expect(r2.timestamp).toEqual(r.timestamp);
         expect(r2.user_id).toEqual(r.user_id);
         expect(r2.private_user_id).toEqual(r.private_user_id);
+        expect(r2.upload_error).toEqual(r.upload_error);
+        expect(r2.upload_status).toEqual(r.upload_status);
 
         // just this recording
         cursor = resolver.query(uri, null, null, null, null);
@@ -173,7 +165,7 @@ public class RecordingTest {
         expect(cursor.moveToFirst()).toBeTrue();
 
         Recording r3 = new Recording(cursor);
-        expect(r3.id).toEqual(r.id);
+        expect(r3.id).not.toEqual(r.id);
         expect(r3.latitude).toEqual(r.latitude);
         expect(r3.longitude).toEqual(r.longitude);
         expect(r3.what_text).toEqual(r.what_text);
@@ -183,5 +175,43 @@ public class RecordingTest {
         expect(r3.timestamp).toEqual(r.timestamp);
         expect(r3.user_id).toEqual(r.user_id);
         expect(r3.private_user_id).toEqual(r.private_user_id);
+    }
+
+    @Test
+    public void shouldUpdateARecording() throws Exception {
+        Recording r = createRecording();
+        ContentResolver resolver = Robolectric.application.getContentResolver();
+        Uri u = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
+
+        expect(u).not.toBeNull();
+
+        final Cursor c = resolver.query(u, null, null, null, null);
+        expect(c.moveToNext()).toBeTrue();
+        Recording r2 = new Recording(c);
+        r2.where_text = "changed";
+        expect(resolver.update(u, r2.buildContentValues(), null, null)).toEqual(1);
+
+        final Cursor c2 = resolver.query(u, null, null, null, null);
+        expect(c2.moveToNext()).toBeTrue();
+        Recording r3 = new Recording(c2);
+        expect(r3.where_text).toEqual("changed");
+    }
+
+    private Recording createRecording() {
+        Recording r = new Recording(new File("/tmp"));
+        r.latitude = 32.3;
+        r.longitude = 23.1;
+        r.what_text = "somewhat";
+        r.where_text = "somehere";
+        r.four_square_venue_id = "foursquare";
+        r.duration = 100L;
+        r.external_upload = true;
+        r.timestamp = 200L;
+        r.user_id = USER_ID;
+        r.private_user_id = 300L;
+        r.upload_error = true;
+        r.upload_status = 10;
+
+        return r;
     }
 }

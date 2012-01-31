@@ -88,8 +88,6 @@ public class ScSearch extends ScActivity {
         mTrackAdpWrapper = new SectionedEndlessAdapter(this, new SectionedTracklistAdapter(this), true);
         mUserAdpWrapper = new SectionedEndlessAdapter(this, new SectionedUserlistAdapter(this), true);
 
-        mList.setId(android.R.id.list);
-
         final View root = findViewById(R.id.search_root);
         root.setOnFocusChangeListener(keyboardHideFocusListener);
         root.setOnClickListener(keyboardHideClickListener);
@@ -122,23 +120,6 @@ public class ScSearch extends ScActivity {
         } else {
             mWorkspaceView.initWorkspace(0);
             setListType(Search.SOUNDS);
-        }
-    }
-
-    private void restorePreviousState(Object[] previous) {
-        setListType(User.class.equals(previous[0]) ? Search.USERS : Search.SOUNDS);
-        mTrackAdpWrapper.restoreState((Object[]) previous[2]);
-        mUserAdpWrapper.restoreState((Object[]) previous[3]);
-
-        if ((Integer) previous[1] == View.VISIBLE) {
-            mWorkspaceView.addView(mListHolder);
-            mList.setVisibility(View.VISIBLE);
-        }
-
-        if ((Integer) previous[4] == 1) {
-            mWorkspaceView.initWorkspace(1);
-        } else {
-            mWorkspaceView.initWorkspace(0);
         }
     }
 
@@ -255,7 +236,7 @@ public class ScSearch extends ScActivity {
     }
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object[] onRetainNonConfigurationInstance() {
         return new Object[]{
                 mList.getWrapper().getLoadModel(true),
                 mList.getVisibility(),
@@ -263,6 +244,18 @@ public class ScSearch extends ScActivity {
                 mUserAdpWrapper.saveState(),
                 mWorkspaceView.getCurrentScreen()
         };
+    }
+
+    void restorePreviousState(Object[] previous) {
+        setListType(User.class.equals(previous[0]) ? Search.USERS : Search.SOUNDS);
+        mTrackAdpWrapper.restoreState((Object[]) previous[2]);
+        mUserAdpWrapper.restoreState((Object[]) previous[3]);
+
+        if ((Integer) previous[1] == View.VISIBLE) {
+            mWorkspaceView.addView(mListHolder);
+            mList.setVisibility(View.VISIBLE);
+        }
+        mWorkspaceView.initWorkspace((Integer) previous[4]);
     }
 
     private void setListType(int type) {
