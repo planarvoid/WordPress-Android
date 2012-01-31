@@ -123,6 +123,18 @@ public class SoundCloudDB {
         return user;
     }
 
+    public static int getCollectionPositionFromItemId(ContentResolver resolver, Uri uri, long itemId){
+        Cursor cursor = resolver.query(uri, new String[]{DBHelper.CollectionItems.POSITION},
+                DBHelper.CollectionItems.ITEM_ID + " = ?", new String[]{String.valueOf(itemId)}, null);
+        int position = -1;
+        if (cursor != null && cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            position = cursor.getInt(0);
+        }
+        if (cursor != null) cursor.close();
+        return position;
+    }
+
     public static int bulkInsertParcelables(ContentResolver resolver, List<Parcelable> items) {
         return bulkInsertParcelables(resolver, items, null, -1);
     }
