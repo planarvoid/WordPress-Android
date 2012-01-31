@@ -317,6 +317,10 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
 
     abstract protected Request getRequest(boolean isRefresh);
 
+    public Uri getPlayableUri() {
+        return getContentUri(false);
+    }
+
     public Uri getContentUri() {
         return getContentUri(false);
     }

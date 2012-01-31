@@ -278,8 +278,8 @@ public abstract class ScActivity extends android.app.Activity {
         }
         final Track t = ((Playable) wrapper.getItem(position)).getTrack();
         if (!handleTrackAlreadyPlaying(t, goToPlayer, commentMode)) {
-            final Uri contentUri = wrapper.getContentUri();
-            if (contentUri != null) {
+            final Uri playableUri = wrapper.getPlayableUri();
+            if (playableUri != null) {
                 if (wrapper.getWrappedAdapter() instanceof MyTracksAdapter) {
                     position -= ((MyTracksAdapter)wrapper.getWrappedAdapter()).getPendingRecordingsCount();
                 }

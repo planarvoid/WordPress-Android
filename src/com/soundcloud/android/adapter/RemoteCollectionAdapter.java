@@ -33,6 +33,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     private Boolean mIsSyncable;
     protected LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
+    private boolean mContentInvalid;
 
     protected String mNextHref;
 
@@ -66,6 +67,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     public Object[] saveExtraData() {
         return new Object[]{
                 mNextHref,
+                mContentInvalid ? 1 : 0,
                 saveResultReceiver()
         };
     }
@@ -73,8 +75,9 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     @Override
     public void restoreExtraData(Object[] state) {
         mNextHref = (String) state[0];
-        if (state[1] != null) {
-            restoreResultReceiver((DetachableResultReceiver) state[1]);
+        mContentInvalid = Integer.parseInt(String.valueOf(state[1])) == 1;
+        if (state[2] != null) {
+            restoreResultReceiver((DetachableResultReceiver) state[2]);
         }
     }
 
@@ -99,6 +102,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     @Override
     public void reset() {
         super.reset();
+        mContentInvalid = false;
         mNextHref = "";
     }
 
@@ -240,6 +244,10 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         return mDetachableReceiver;
     }
 
+    public Uri getPlayableUri() {
+        return mContentInvalid ? null : super.getPlayableUri();
+    }
+
     protected void requestSync() {
         Intent intent = new Intent(mActivity, ApiSyncService.class)
             .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
@@ -286,7 +294,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     protected void onContentChanged(){
-        reset();
+        mContentInvalid = true;
+        executeRefreshTask();
     }
 
     private class ChangeObserver extends ContentObserver {
