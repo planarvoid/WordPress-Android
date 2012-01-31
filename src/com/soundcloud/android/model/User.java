@@ -24,7 +24,7 @@ import android.util.Log;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends ScModel implements PageTrackable, Resource, Origin {
     @JsonView(Views.Mini.class) public String username;
-    public int track_count;
+    public int track_count = -1;
     public String discogs_name;
     public String city;
     @JsonView(Views.Mini.class) public String uri;
