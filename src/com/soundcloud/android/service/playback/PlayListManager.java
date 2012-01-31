@@ -174,13 +174,13 @@ class PlaylistManager {
     }
 
     public void saveQueue(long seekPos) {
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
         final Track currentTrack = getTrackAt(mPlayPos);
-        editor.putString(PREF_PLAYLIST_URI, mPlaylistUri == null ? "" : mPlaylistUri.toString());
-        editor.putInt(PREF_PLAYLIST_LAST_POS, mPlayPos);
-        editor.putLong(PREF_PLAYLIST_LAST_ID, currentTrack == null ? 0 : currentTrack.id);
-        editor.putLong(PREF_PLAYLIST_LAST_TIME, seekPos);
-        editor.commit();
+        PreferenceManager.getDefaultSharedPreferences(mContext).edit()
+              .putString(PREF_PLAYLIST_URI, mPlaylistUri == null ? "" : mPlaylistUri.toString())
+              .putInt(PREF_PLAYLIST_LAST_POS, mPlayPos)
+              .putLong(PREF_PLAYLIST_LAST_ID, currentTrack == null ? 0 : currentTrack.id)
+              .putLong(PREF_PLAYLIST_LAST_TIME, seekPos)
+              .commit();
     }
 
     public long reloadQueue() {
