@@ -362,7 +362,7 @@ public class WorkspaceView extends ViewGroup {
             Log.w(TAG, "Ignoring child focus request: request " + mCurrentScreen + " -> " + screen);
             return false;
         }
-        if (screen != mCurrentScreen || !mScroller.isFinished()) {
+        if (mScroller != null && (screen != mCurrentScreen || !mScroller.isFinished())) {
             snapToScreen(screen);
             return true;
         }
