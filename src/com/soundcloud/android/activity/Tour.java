@@ -37,7 +37,7 @@ public class Tour extends Activity {
         mWorkspaceView.initWorkspace(0);
 
         final Button btnDone = (Button) findViewById(R.id.btn_done);
-        final Button btnNext = (Button) findViewById(R.id.btn_next);
+        final Button btnDoneDark = (Button) findViewById(R.id.btn_done_dark);
 
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,10 +46,10 @@ public class Tour extends Activity {
             }
         });
 
-        btnNext.setOnClickListener(new View.OnClickListener() {
+        btnDoneDark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mWorkspaceView.scrollRight();
+                finish();
             }
         });
 
@@ -59,10 +59,10 @@ public class Tour extends Activity {
                 ((RadioButton) ((RadioGroup) findViewById(R.id.rdo_tour_step)).getChildAt(newScreenIndex)).setChecked(true);
                 if (newScreenIndex < mWorkspaceView.getScreenCount()-1){
                     btnDone.setVisibility(View.GONE);
-                    btnNext.setVisibility(View.VISIBLE);
+                    btnDoneDark.setVisibility(View.VISIBLE);
                 } else {
                     btnDone.setVisibility(View.VISIBLE);
-                    btnNext.setVisibility(View.GONE);
+                    btnDoneDark.setVisibility(View.GONE);
                 }
 
             }
