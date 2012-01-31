@@ -145,7 +145,7 @@ public class WorkspaceView extends ViewGroup {
         mLastLow = mLastHigh = mCurrentScreen = initialScreen;
 
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
-        mTouchSlop = configuration.getScaledTouchSlop();
+        mTouchSlop = configuration.getScaledTouchSlop() * 2;
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
 
         mPagingTouchSlop = ReflectionUtils.callWithDefault(configuration,
@@ -501,6 +501,8 @@ public class WorkspaceView extends ViewGroup {
                 boolean xPaged = xDiff > mPagingTouchSlop;
                 boolean xMoved = xDiff > mTouchSlop;
                 boolean yMoved = yDiff > mTouchSlop;
+
+                Log.i("asdf","Touch sloppp " + xMoved + " of " + mTouchSlop);
 
                 if (xMoved || yMoved) {
                     if (xPaged) {
