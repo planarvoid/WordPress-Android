@@ -295,15 +295,15 @@ public class ScSearch extends ScActivity {
     }
 
     private static final Search[] SEARCH_DEFAULTS = new Search[] {
-            new Search("Interviews", Search.SOUNDS),
-            new Search("Bluegrass", Search.SOUNDS),
-            new Search("Sounds from Monday Morning", Search.SOUNDS),
-            new Search("Freestyle acapella", Search.SOUNDS),
-            new Search("Sound Effects", Search.SOUNDS),
-            new Search("Learn Spanish", Search.SOUNDS),
-            new Search("Field Recording", Search.SOUNDS),
-            new Search("Audio Book", Search.SOUNDS),
-            new Search("Guitar riff", Search.SOUNDS),
-            new Search("Laughing", Search.SOUNDS)
+            new Search("Comedy show", Search.SOUNDS),
+            new Search("Bird calls", Search.SOUNDS),
+            new Search("Ambient", Search.SOUNDS),
+            new Search("Rap", Search.SOUNDS),
+            new Search("Garage rock", Search.SOUNDS),
+            new Search("Thunder storm", Search.SOUNDS),
+            new Search("Snoring", Search.SOUNDS),
+            new Search("Goa", Search.SOUNDS),
+            new Search("Nature sounds", Search.SOUNDS),
+            new Search("dubstep", Search.SOUNDS),
     };
 }
