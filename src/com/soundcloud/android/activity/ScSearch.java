@@ -22,7 +22,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -59,6 +58,7 @@ public class ScSearch extends ScActivity {
         setContentView(R.layout.workspace_view);
 
         mWorkspaceView = (WorkspaceView) findViewById(R.id.workspace_view);
+        mWorkspaceView.setIgnoreChildFocusRequests(true);
         mWorkspaceView.addView(getLayoutInflater().inflate(R.layout.sc_search_controls, null));
 
         rdoSearchType = (RadioGroup) findViewById(R.id.rdo_search_type);
@@ -185,24 +185,18 @@ public class ScSearch extends ScActivity {
             mgr.hideSoftInputFromWindow(txtQuery.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
 
-        refreshHistory(getContentResolver(), mHistoryAdapter, search);
-
         mList.setLastUpdated(0);
         mList.setVisibility(View.VISIBLE);
 
         if (mWorkspaceView.getChildCount() < 2) {
+            // only add list after search (otherwise it is scrollable on load)
             mWorkspaceView.addView(mListHolder);
         }
 
-        Handler myHandler = new Handler();
-        myHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mWorkspaceView.getCurrentScreen() != 1) {
-                    mWorkspaceView.scrollRight();
-                }
-            }
-        }, 100);
+        if (mWorkspaceView.getCurrentScreen() != 1) {
+            mWorkspaceView.scrollRight();
+        }
+        refreshHistory(getContentResolver(), mHistoryAdapter, search);
         return true;
     }
 
