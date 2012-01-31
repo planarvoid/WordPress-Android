@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import android.net.Uri;
+import android.os.Parcelable;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -266,10 +267,10 @@ public abstract class ScActivity extends android.app.Activity {
         }
     }
 
-    public void playTrack(final int position, final LazyEndlessAdapter wrapper, boolean goToPlayer, boolean commentMode) {
+    public void playTrack(int position, final LazyEndlessAdapter wrapper, boolean goToPlayer, boolean commentMode) {
         // XXX this looks scary
         SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position)).getTrack());
-        if (position > 0 && wrapper.getItem(position) instanceof Playable){
+        if (position > 0 && wrapper.getItem(position - 1) instanceof Playable){
             SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position - 1)).getTrack());
         }
         if (position < wrapper.getWrappedAdapter().getCount() -1 && wrapper.getItem(position + 1) instanceof Playable){
@@ -279,6 +280,9 @@ public abstract class ScActivity extends android.app.Activity {
         if (!handleTrackAlreadyPlaying(t, goToPlayer, commentMode)) {
             final Uri contentUri = wrapper.getContentUri();
             if (contentUri != null) {
+                if (wrapper.getWrappedAdapter() instanceof MyTracksAdapter) {
+                    position -= ((MyTracksAdapter)wrapper.getWrappedAdapter()).getPendingRecordingsCount();
+                }
                 startService(new Intent(this, CloudPlaybackService.class)
                         .putExtra("playPos", position)
                         .setData(wrapper.getContentUri())
