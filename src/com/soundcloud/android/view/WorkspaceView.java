@@ -502,8 +502,6 @@ public class WorkspaceView extends ViewGroup {
                 boolean xMoved = xDiff > mTouchSlop;
                 boolean yMoved = yDiff > mTouchSlop;
 
-                Log.i("asdf","Touch sloppp " + xMoved + " of " + mTouchSlop);
-
                 if (xMoved || yMoved) {
                     if (xPaged) {
                         // Scroll if the user moved far enough along the X axis
