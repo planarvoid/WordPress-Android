@@ -261,7 +261,12 @@ public abstract class ScActivity extends android.app.Activity {
         } else {
             if (mLists != null) {
                 for (final ScListView lv : mLists) {
-                    if (lv.getWrapper() != null) lv.getWrapper().onResume();
+                    if (lv.getWrapper() != null) {
+                        lv.getWrapper().onResume();
+                    }
+                    if (lv.getWrapper().showRefreshing()){
+                        lv.setRefreshing();
+                    }
                 }
             }
         }

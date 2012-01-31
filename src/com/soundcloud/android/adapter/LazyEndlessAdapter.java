@@ -304,7 +304,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     }
 
     protected boolean canShowEmptyView(){
-       return (mState >= IDLE && !mKeepGoing) && super.getCount() == 0;
+       return mState >= IDLE && !mKeepGoing && super.getCount() == 0 && !isRefreshing() ;
     }
 
     protected void onEmptyRefresh(){
@@ -467,5 +467,9 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
+    }
+
+    public boolean showRefreshing() {
+        return false;
     }
 }

@@ -59,8 +59,9 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         }
     }
 
+    @Override
     public boolean showRefreshing(){
-        return isRefreshing() && getWrappedAdapter().getCount() == 0;
+        return isRefreshing() && getWrappedAdapter().needsItems();
     }
 
     @Override
@@ -120,8 +121,10 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     public boolean onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
+
         mKeepGoing = keepGoing;
         boolean success = (newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK;
+        Log.i("asdf","ON POST EXECUTE" + success + " " + wasRefresh);
         if (success) {
             if (wasRefresh){
                 reset();
@@ -260,7 +263,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     public boolean isRefreshing() {
         if (mLocalCollection != null){
             return mLocalCollection.sync_state == LocalCollection.SyncState.SYNCING
-                    || mLocalCollection.sync_state == LocalCollection.SyncState.PENDING;
+                    || mLocalCollection.sync_state == LocalCollection.SyncState.PENDING
+                    || super.isRefreshing();
         } else {
             return super.isRefreshing();
         }
@@ -294,6 +298,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     protected void onContentChanged(){
+        Log.i("asdf","ON CONTENT CHANGEDDD " + mContentUri);
         mContentInvalid = true;
         executeRefreshTask();
     }
