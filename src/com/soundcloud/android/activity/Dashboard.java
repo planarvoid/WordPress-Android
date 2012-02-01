@@ -29,22 +29,24 @@ import java.util.ArrayList;
 public class Dashboard extends ScActivity {
     protected ScListView mListView;
     private String mTrackingPath;
-    private boolean mIsActivityTab;
-    private final String EXCLUSIVE_ONLY_KEY = "incoming_exclusive_only";
+    private Tab mCurrentTab;
+
+    private static final String EXCLUSIVE_ONLY_KEY = "incoming_exclusive_only";
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        if (redirectToMain()) return;
+        final Intent intent = getIntent();
+        if (redirectToMain(intent)) return;
 
         CloudUtils.checkState(this);
 
-        if (getIntent().hasExtra("tab")) {
-            String tab = getIntent().getStringExtra("tab");
-            ScTabView trackListView;
-            EmptyCollection ec = new EmptyCollection(this);
+        ScTabView trackListView;
+        EmptyCollection ec = new EmptyCollection(this);
 
-            if (Tabs.STREAM.equalsIgnoreCase(tab)) {
+        mCurrentTab = Tab.fromIntent(intent);
+        switch(mCurrentTab) {
+            case STREAM:
                 ec.setMessageText(R.string.list_empty_stream_message)
                         .setImage(R.drawable.empty_follow)
                         .setActionText(R.string.list_empty_stream_action)
@@ -66,24 +68,22 @@ public class Dashboard extends ScActivity {
                         ec,
                         Consts.ListId.LIST_STREAM, false);
                 mTrackingPath = Consts.Tracking.STREAM;
-            } else if (Tabs.ACTIVITY.equalsIgnoreCase(tab)) {
-                mIsActivityTab = true;
+                break;
 
-                if (getApp().getLoggedInUser() == null || getApp().getLoggedInUser().track_count > 0){
+            case ACTIVITY:
+                if (getApp().getLoggedInUser() == null || getApp().getLoggedInUser().track_count > 0) {
                     ec.setMessageText(R.string.list_empty_activity_message)
                             .setImage(R.drawable.empty_share)
                             .setActionText(R.string.list_empty_activity_action)
                             .setSecondaryText(R.string.list_empty_activity_secondary)
                             .setActionListener(new EmptyCollection.ActionListener() {
-                                @Override
-                                public void onAction() {
+                                @Override public void onAction() {
                                     startActivity(new Intent(Actions.USER_BROWSER)
                                             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                                             .putExtra("userBrowserTag", UserBrowser.TabTags.tracks));
                                 }
 
-                                @Override
-                                public void onSecondaryAction() {
+                                @Override public void onSecondaryAction() {
                                     goTo101s();
                                 }
                             });
@@ -105,20 +105,17 @@ public class Dashboard extends ScActivity {
                                 }
                             });
                 }
-
-
                 trackListView = createList(Content.ME_ACTIVITIES,
                         Activity.class,
                         ec,
                         Consts.ListId.LIST_ACTIVITY, true);
                 mTrackingPath = Consts.Tracking.ACTIVITY;
-            } else {
+                break;
+            default:
                 throw new IllegalArgumentException("no valid tab extra");
-            }
-            setContentView(trackListView);
-        } else {
-            throw new IllegalArgumentException("no tab extra");
         }
+
+        setContentView(trackListView);
 
         mPreviousState = (Object[]) getLastNonConfigurationInstance();
         if (mPreviousState != null) {
@@ -148,7 +145,7 @@ public class Dashboard extends ScActivity {
         super.onResume();
         trackPage(mTrackingPath);
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
-                .cancel(mIsActivityTab ?
+                .cancel(mCurrentTab == Tab.ACTIVITY ?
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID :
                         Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
     }
@@ -182,10 +179,9 @@ public class Dashboard extends ScActivity {
     }
 
     // legacy action, redirect to Main
-    private boolean redirectToMain() {
-        if (Intent.ACTION_MAIN.equals(getIntent().getAction())) {
-            Intent intent = new Intent(this, Main.class);
-            startActivity(intent);
+    private boolean redirectToMain(Intent intent) {
+        if (intent != null && Intent.ACTION_MAIN.equals(intent.getAction())) {
+            startActivity(new Intent(this, Main.class));
             finish();
             return true;
         } else {
@@ -195,7 +191,7 @@ public class Dashboard extends ScActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-         if (!mIsActivityTab) {
+         if (mCurrentTab != Tab.ACTIVITY) {
             menu.add(menu.size(), Consts.OptionsMenu.FILTER, 0, R.string.menu_stream_setting).setIcon(
                 R.drawable.ic_menu_incoming);
         }
@@ -236,29 +232,70 @@ public class Dashboard extends ScActivity {
         }
     }
 
-    public static final class Tabs {
-        public static final String STREAM = "stream";
-        public static final String ACTIVITY = "activity";
-        public static final String RECORD = "record";
-        public static final String PROFILE = "profile";
-        public static final String SEARCH = "search";
+    public enum Tab {
+        STREAM("stream", Dashboard.class, R.string.tab_stream, R.drawable.ic_tab_incoming),
+        ACTIVITY("activity",Dashboard.class, R.string.tab_activity, R.drawable.ic_tab_news),
+        RECORD("record", ScCreate.class, R.string.tab_record, R.drawable.ic_tab_record),
+        PROFILE("profile", UserBrowser.class, R.string.tab_you, R.drawable.ic_tab_you),
+        SEARCH("search", ScSearch.class, R.string.tab_search, R.drawable.ic_tab_search),
+        UNKNOWN("unknown", null, -1, -1);
 
-        public static String fromAction(String action, String defaultTab) {
-            String tab = defaultTab;
-            if (action != null) {
-                if (Actions.ACTIVITY.equals(action)) {
-                    tab = ACTIVITY;
-                } else if (Actions.RECORD.equals(action)) {
-                    tab = RECORD;
-                } else if (Actions.SEARCH.equals(action)) {
-                    tab = SEARCH;
-                } else if (Actions.STREAM.equals(action)) {
-                    tab = STREAM;
-                } else if (Actions.PROFILE.equals(action)) {
-                    tab = PROFILE;
-                }
+        final String tag;
+        final int labelId, drawableId;
+        final Class<? extends android.app.Activity> activityClass;
+
+        static Tab DEFAULT = UNKNOWN;
+
+        Tab(String tag, Class<? extends android.app.Activity> activityClass, int labelId, int drawableId) {
+            this.tag = tag;
+            this.labelId = labelId;
+            this.drawableId = drawableId;
+            this.activityClass = activityClass;
+        }
+
+        public static Tab fromIntent(Intent intent) {
+            if (intent == null) {
+                return DEFAULT;
+            } else if (intent.hasExtra("tab")) {
+                return fromString(intent.getStringExtra("tab"));
+            } else if (intent.getAction() != null) {
+                return fromAction(intent.getAction());
+            } else {
+                return DEFAULT;
+            }
+        }
+
+        public static Tab fromString(String s) {
+            for (Tab t : values()) {
+                if (t.tag.equalsIgnoreCase(s)) return t;
+            }
+            return UNKNOWN;
+        }
+
+        private static Tab fromAction(String action) {
+            Tab tab;
+            if (Actions.ACTIVITY.equals(action)) {
+                tab = ACTIVITY;
+            } else if (Actions.RECORD.equals(action)) {
+                tab = RECORD;
+            } else if (Actions.SEARCH.equals(action)) {
+                tab = SEARCH;
+            } else if (Actions.STREAM.equals(action)) {
+                tab = STREAM;
+            } else if (Actions.PROFILE.equals(action)) {
+                tab = PROFILE;
+            } else {
+                tab = DEFAULT;
             }
             return tab;
+        }
+
+        public Intent getIntent(Context context) {
+            Intent intent = new Intent(context, activityClass);
+            if (Dashboard.class.equals(activityClass)) {
+                intent.putExtra("tab", tag);
+            }
+            return intent;
         }
     }
 }

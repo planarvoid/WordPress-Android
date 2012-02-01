@@ -203,7 +203,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
     private void handleIntent(Intent intent) {
         if (intent != null) {
-            final String tab = Dashboard.Tabs.fromAction(intent.getAction(), null);
+            final Dashboard.Tab tab = Dashboard.Tab.fromIntent(intent);
 
             if (Intent.ACTION_VIEW.equals(intent.getAction()) && handleViewUrl(intent)) {
                 // already handled
@@ -211,24 +211,24 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
                 final long recipient = intent.getLongExtra("recipient", -1);
                 if (recipient != -1) {
                     startActivity(new Intent(this, UserBrowser.class)
-                        .putExtra("userId",recipient)
-                        .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
+                            .putExtra("userId", recipient)
+                            .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
                 }
-            } else if (tab != null) {
-                getTabHost().setCurrentTabByTag(tab);
+            } else if (tab.tag != null) {
+                getTabHost().setCurrentTabByTag(tab.tag);
             } else if (Actions.PLAYER.equals(intent.getAction())) {
                 // start another activity to control history (back from player moves back to main)
                 startActivity(
                     new Intent(this, ScPlayer.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 );
             } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-                getTabHost().setCurrentTabByTag(Dashboard.Tabs.SEARCH);
+                getTabHost().setCurrentTabByTag(Dashboard.Tab.SEARCH.tag);
                 if (getCurrentActivity() instanceof ScSearch) {
                     ((ScSearch) getCurrentActivity()).perform(
                             Search.forSounds(intent.getStringExtra(SearchManager.QUERY)));
                 }
             } else if (Actions.USER_BROWSER.equals(intent.getAction()) && intent.hasExtra("userBrowserTag")) {
-                getTabHost().setCurrentTabByTag(Dashboard.Tabs.PROFILE);
+                getTabHost().setCurrentTabByTag(Dashboard.Tab.PROFILE.tag);
                 if (getCurrentActivity() instanceof UserBrowser) {
                     ((UserBrowser) getCurrentActivity()).setTab(intent.getStringExtra("userBrowserTag"));
                 }
@@ -238,7 +238,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
                 );
             } else if (justAuthenticated(intent)) {
                 Log.d(TAG, "activity start after successful authentication");
-                getTabHost().setCurrentTabByTag(Dashboard.Tabs.RECORD);
+                getTabHost().setCurrentTabByTag(Dashboard.Tab.RECORD.tag);
             }
             intent.setAction("");
             intent.setData(null);
@@ -286,37 +286,14 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
     }
 
     private void buildTabHost(final SoundCloudApplication app, final TabHost host) {
-        TabHost.TabSpec spec;
-
-        spec = host.newTabSpec(Dashboard.Tabs.STREAM).setIndicator(
-                getString(R.string.tab_stream),
-                getResources().getDrawable(R.drawable.ic_tab_incoming));
-        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", Dashboard.Tabs.STREAM));
-        host.addTab(spec);
-
-        spec = host.newTabSpec(Dashboard.Tabs.ACTIVITY).setIndicator(
-                getString(R.string.tab_activity),
-                getResources().getDrawable(R.drawable.ic_tab_news));
-        spec.setContent(new Intent(this, Dashboard.class).putExtra("tab", Dashboard.Tabs.ACTIVITY));
-        host.addTab(spec);
-
-        spec = host.newTabSpec(Dashboard.Tabs.RECORD).setIndicator(
-                getString(R.string.tab_record),
-                getResources().getDrawable(R.drawable.ic_tab_record));
-        spec.setContent(new Intent(this, ScCreate.class));
-        host.addTab(spec);
-
-        spec = host.newTabSpec(Dashboard.Tabs.PROFILE).setIndicator(
-                getString(R.string.tab_you),
-                getResources().getDrawable(R.drawable.ic_tab_you));
-        spec.setContent(new Intent(this, UserBrowser.class));
-        host.addTab(spec);
-
-        spec = host.newTabSpec(Dashboard.Tabs.SEARCH).setIndicator(
-                getString(R.string.tab_search),
-                getResources().getDrawable(R.drawable.ic_tab_search));
-        spec.setContent(new Intent(this, ScSearch.class));
-        host.addTab(spec);
+        for (Dashboard.Tab tab : Dashboard.Tab.values()) {
+            if (tab.tag == null) continue;
+            TabHost.TabSpec spec = host.newTabSpec(tab.tag).setIndicator(
+                    getString(tab.labelId),
+                    getResources().getDrawable(tab.drawableId));
+            spec.setContent(tab.getIntent(this));
+            host.addTab(spec);
+        }
 
         host.setCurrentTabByTag(app.getAccountData(User.DataKeys.DASHBOARD_IDX));
         if (CloudUtils.isScreenXL(this)){
@@ -341,7 +318,6 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
                 relativeLayout.getChildAt(j).setVisibility(View.GONE);
             }
         }
-
         host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(final String tabId) {
