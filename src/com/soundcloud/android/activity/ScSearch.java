@@ -117,8 +117,6 @@ public class ScSearch extends ScActivity {
         mHistoryAdapter = new SearchHistoryAdapter(this);
         recentSearches.setAdapter(mHistoryAdapter);
 
-        refreshHistory(getContentResolver(), mHistoryAdapter);
-
         Object[] previousState = getLastNonConfigurationInstance();
         if (previousState != null) {
             restorePreviousState(previousState);
@@ -135,6 +133,7 @@ public class ScSearch extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        refreshHistory(getContentResolver(), mHistoryAdapter);
         trackPage(Consts.Tracking.SEARCH);
     }
 
