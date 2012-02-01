@@ -22,12 +22,12 @@ import android.text.TextUtils;
 import java.util.List;
 
 public class PlaylistManager {
-    public static final String PREF_PLAYLIST_URI = "sc_playlist_uri";
+    private static final String PREF_PLAYLIST_URI = "sc_playlist_uri";
 
     // these will be stored as uri parameters
-    public static final String PARAM_PLAYLIST_POS = "playlistPos";
-    public static final String PARAM_SEEK_POS = "seekPos";
-    public static final String PARAM_TRACK_ID = "trackId";
+    private static final String PARAM_PLAYLIST_POS = "playlistPos";
+    private static final String PARAM_SEEK_POS = "seekPos";
+    private static final String PARAM_TRACK_ID = "trackId";
 
     private Track[] mPlaylist = new Track[0];
     private Cursor mTrackCursor;
@@ -250,5 +250,13 @@ public class PlaylistManager {
         } else {
             return defaultValue;
         }
+    }
+
+    public static void clearState(Context context) {
+        context.getContentResolver().delete(Content.PLAYLISTS.uri, null, null);
+        context.getContentResolver().delete(DEFAULT_PLAYLIST_URI, null, null);
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .remove(PlaylistManager.PREF_PLAYLIST_URI)
+                .commit();
     }
 }

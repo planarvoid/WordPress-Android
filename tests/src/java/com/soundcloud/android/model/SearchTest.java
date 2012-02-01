@@ -50,4 +50,15 @@ public class SearchTest {
         Search.forSounds("blaz-different").insert(resolver);
         expect(Content.SEARCH).toHaveCount(2);
     }
+
+    @Test
+    public void shouldClearHistory() throws Exception {
+        for (int i=0; i<5; i++) {
+            Search.forSounds("sound"+i).insert(resolver);
+        }
+
+        expect(Content.SEARCH).toHaveCount(5);
+        Search.clearState(resolver, USER_ID);
+        expect(Content.SEARCH).toBeEmpty();
+    }
 }

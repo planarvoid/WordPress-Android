@@ -1,5 +1,12 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.adapter.SectionedAdapter;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,13 +14,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.text.TextUtils;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.SectionedAdapter;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +97,12 @@ public class Search {
         }
         if (cursor != null) cursor.close();
         return list;
+    }
+
+    public static void clearState(ContentResolver resolver, long userId) {
+        resolver.delete(Content.SEARCHES.uri,
+                DBHelper.Searches.USER_ID + " = ?",
+                new String[]{String.valueOf(userId)});
     }
 
     @SuppressWarnings("RedundantIfStatement")

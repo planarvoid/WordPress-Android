@@ -221,6 +221,20 @@ public class PlaylistManagerTest {
         );
     }
 
+    @Test
+    public void shouldClearPlaylistState() throws Exception {
+        pm.setPlaylist(createTracks(10), 5);
+        pm.saveQueue(1235);
+
+        PlaylistManager.clearState(Robolectric.application);
+        expect(pm.reloadQueue()).toEqual(0L);
+
+        PlaylistManager pm2 = new PlaylistManager(Robolectric.application, new TrackCache(), USER_ID);
+        expect(pm2.reloadQueue()).toEqual(0L);
+        expect(pm2.getPosition()).toEqual(0);
+        expect(pm2.length()).toEqual(0);
+    }
+
     private void insertTracksAsUri(Uri uri) throws IOException {
         List<Parcelable> items = new ArrayList<Parcelable>();
         ScModel.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"), AndroidCloudAPI.Mapper, Track.class, items);
