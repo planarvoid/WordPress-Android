@@ -11,7 +11,6 @@ import android.graphics.Canvas;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.FrameLayout;
 
 /**
@@ -129,12 +128,4 @@ public class SectionedListView extends ScListView {
         this.adapter = (SectionedEndlessAdapter) adapter;
         super.setAdapter(adapter, refreshEnabled);
     }
-    /*
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        super.onScroll(view,firstVisibleItem,visibleItemCount,totalItemCount);
-        if (view instanceof SectionedListView && adapter != null) {
-            adapter.getWrappedAdapter().onScroll(this, firstVisibleItem);
-        }
-    }    */
 }

@@ -79,7 +79,8 @@ public class ScSearch extends ScActivity {
         configureList(mList);
 
         mListHolder = new FrameLayout(this);
-        mListHolder.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+        mListHolder.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.FILL_PARENT,
                 ViewGroup.LayoutParams.FILL_PARENT));
         mListHolder.addView(mList);
         mList.setVisibility(View.GONE);
@@ -98,11 +99,10 @@ public class ScSearch extends ScActivity {
             }
         });
 
-        ListView recentSearches = new ListView(this);
+        final ListView recentSearches = new ListView(this);
         recentSearches.setSelector(R.drawable.list_selector_background);
         ((ViewGroup) findViewById(R.id.fl_searches)).addView(recentSearches,
-                new FrameLayout.LayoutParams(FILL_PARENT,
-                        FrameLayout.LayoutParams.FILL_PARENT));
+                new FrameLayout.LayoutParams(FILL_PARENT, FILL_PARENT));
 
         recentSearches.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -119,7 +119,7 @@ public class ScSearch extends ScActivity {
 
         refreshHistory(getContentResolver(), mHistoryAdapter);
 
-        Object[] previousState = (Object[]) getLastNonConfigurationInstance();
+        Object[] previousState = getLastNonConfigurationInstance();
         if (previousState != null) {
             restorePreviousState(previousState);
         } else {
@@ -127,6 +127,10 @@ public class ScSearch extends ScActivity {
         }
     }
 
+    @Override
+    public Object[] getLastNonConfigurationInstance() {
+        return (Object[]) super.getLastNonConfigurationInstance();
+    }
 
     @Override
     protected void onResume() {

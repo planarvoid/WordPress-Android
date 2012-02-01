@@ -350,7 +350,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         clearUpdateTask();
         mKeepGoing = mAutoAppend;
         mState = mAutoAppend ? IDLE : INITIALIZED;
-         notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     public void cleanup() {
