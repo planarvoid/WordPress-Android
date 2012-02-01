@@ -3,8 +3,6 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.content.Context;
-import android.preference.PreferenceManager;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
@@ -23,6 +21,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
+
+import java.util.EnumSet;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -337,21 +337,19 @@ public class User extends ScModel implements PageTrackable, Resource, Origin {
         return this;
     }
 
-    public static void clearLoggedInUserFromStorage(SoundCloudApplication app){
+    public static void clearLoggedInUserFromStorage(SoundCloudApplication app) {
         final ContentResolver resolver = app.getContentResolver();
-        resolver.delete(Content.SEARCHES.uri, DBHelper.Searches.USER_ID + " = ?", new String[]{String.valueOf(app.getCurrentUserId())});
-        resolver.delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_TRACKS.toString()});
-        resolver.delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FAVORITES.toString()});
-        resolver.delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWINGS.toString()});
-        resolver.delete(Content.COLLECTIONS.uri, DBHelper.Collections.URI + " = ?", new String[]{Content.ME_FOLLOWERS.toString()});
-        resolver.delete(Content.PLAYLISTS.uri, null, null);
+        // TODO move to model
+        for (Content c : EnumSet.of(
+                Content.ME_TRACKS,
+                Content.ME_FAVORITES,
+                Content.ME_FOLLOWINGS,
+                Content.ME_FOLLOWERS)) {
+            resolver.delete(Content.COLLECTIONS.uri,
+                DBHelper.Collections.URI + " = ?", new String[]{ c.uri.toString() });
+        }
         Activities.clear(null, resolver);
-
-        PreferenceManager.getDefaultSharedPreferences(app).edit()
-                .remove(PlaylistManager.PREF_PLAYLIST_LAST_POS)
-                .remove(PlaylistManager.PREF_PLAYLIST_LAST_ID)
-                .remove(PlaylistManager.PREF_PLAYLIST_LAST_TIME)
-                .remove(PlaylistManager.PREF_PLAYLIST_URI)
-                .commit();
+        PlaylistManager.clearState(app);
+        Search.clearState(resolver, app.getCurrentUserId());
     }
 }
