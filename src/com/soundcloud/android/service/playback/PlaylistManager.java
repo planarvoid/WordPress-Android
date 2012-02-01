@@ -177,7 +177,7 @@ public class PlaylistManager {
     }
 
     public void saveQueue(long seekPos) {
-        if (SoundCloudApplication.isLoggedInFromContext(mContext)) {
+        if (SoundCloudApplication.getUserIdFromContext(mContext) >= 0) {
             final Track currentTrack = getTrackAt(mPlayPos);
             PreferenceManager.getDefaultSharedPreferences(mContext).edit()
                     .putString(PREF_PLAYLIST_URI, mPlaylistUri == null ? "" : mPlaylistUri.toString())

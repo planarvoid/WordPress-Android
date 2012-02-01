@@ -292,11 +292,9 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
                                     .inflate(R.layout.list_loading_item,null,false);
             }
             return mPendingView;
-
-        } else if (convertView == mPendingView) {
-            return (super.getView(position, null, parent));
+        } else {
+            return super.getView(position, convertView == mPendingView ? null : convertView, parent);
         }
-        return super.getView(position, convertView, parent);
     }
 
     protected boolean canAppend() {

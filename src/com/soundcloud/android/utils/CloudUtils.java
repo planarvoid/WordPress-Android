@@ -697,7 +697,6 @@ public class CloudUtils {
                                 app.trackPage(Consts.Tracking.LOGGED_OUT);
                                 app.trackEvent(Consts.Tracking.Categories.AUTH, "logout");
 
-
                                 C2DMReceiver.unregister(a);
 
                                 app.clearSoundCloudAccount(

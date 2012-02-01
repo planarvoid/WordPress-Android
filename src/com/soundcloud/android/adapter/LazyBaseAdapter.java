@@ -1,16 +1,14 @@
 
 package com.soundcloud.android.adapter;
 
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.LazyRow;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,10 +99,6 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
 
     public Class<?> getLoadModel() {
         return mLoadModel;
-    }
-
-    public void onPostQueryExecute() {
-        if (mWrapper != null) mWrapper.onPostQueryExecute();
     }
 
     public void onDestroy(){}

@@ -1,6 +1,42 @@
 package com.soundcloud.android;
 
-import android.accounts.*;
+import static android.content.pm.PackageManager.*;
+import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
+import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
+
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+import com.google.android.imageloader.BitmapContentHandler;
+import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.c2dm.C2DMReceiver;
+import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.cache.TrackCache;
+import com.soundcloud.android.cache.UserCache;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.beta.BetaService;
+import com.soundcloud.android.service.beta.WifiMonitor;
+import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Env;
+import com.soundcloud.api.Request;
+import com.soundcloud.api.Stream;
+import com.soundcloud.api.Token;
+import org.acra.ACRA;
+import org.acra.annotation.ReportsCrashes;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
@@ -12,27 +48,6 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-import com.google.android.imageloader.BitmapContentHandler;
-import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.c2dm.C2DMReceiver;
-import com.soundcloud.android.cache.*;
-import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.service.beta.BetaService;
-import com.soundcloud.android.service.beta.WifiMonitor;
-import com.soundcloud.android.service.sync.SyncAdapterService;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.*;
-import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,10 +57,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import static android.content.pm.PackageManager.*;
-import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
-import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
 
 @ReportsCrashes(
@@ -357,12 +368,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         trackEvent(category, action, null, 0);
     }
 
-    public void setCustomVar(int slot, String name, String value, int scope) {
-        if (mTracker != null) {
-            mTracker.setCustomVar(slot, name, value, scope);
-        }
-    }
-
     public void trackEvent(String category, String action, String label) {
         trackEvent(category, action, label, 0);
     }
@@ -598,11 +603,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static long getUserIdFromContext(Context c){
         SoundCloudApplication app = fromContext(c);
         return app == null ? -1 : app.getCurrentUserId();
-    }
-
-    public static boolean isLoggedInFromContext(Context c){
-        SoundCloudApplication app = fromContext(c);
-        return app == null ? false : app.getAccount() != null;
     }
 
     private static void setupStrictMode() {

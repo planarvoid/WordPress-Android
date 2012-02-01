@@ -33,6 +33,10 @@ public class ScSearchTest {
         expect(search.perform(Search.forSounds("Testing"))).toBeTrue();
         expect(search.mSoundAdpWrapper.getData().size()).toEqual(3);
         expect(Content.SEARCHES).toHaveCount(1);
+
+        fakeApiReplies("sound_search.json");
+        expect(search.perform(Search.forSounds("Foo"))).toBeTrue();
+        expect(Content.SEARCHES).toHaveCount(2);
     }
 
     @Test
@@ -40,6 +44,13 @@ public class ScSearchTest {
         fakeApiReplies("user_search.json");
         expect(search.perform(Search.forUsers("Testing"))).toBeTrue();
         expect(search.mUserAdpWrapper.getData().size()).toEqual(3);
+        expect(Content.SEARCHES).toHaveCount(1);
+    }
+
+    @Test
+    public void shouldHandleServerErrors() throws Exception {
+        Robolectric.addPendingHttpResponse(500, "Error");
+        expect(search.perform(Search.forSounds("Testing"))).toBeTrue();
         expect(Content.SEARCHES).toHaveCount(1);
     }
 
