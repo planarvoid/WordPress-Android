@@ -216,9 +216,6 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
                 }
             } else if (tab != null) {
                 getTabHost().setCurrentTabByTag(tab);
-                if (getCurrentActivity() instanceof Dashboard) {
-                     ((Dashboard) getCurrentActivity()).refreshIncoming();
-                }
             } else if (Actions.PLAYER.equals(intent.getAction())) {
                 // start another activity to control history (back from player moves back to main)
                 startActivity(

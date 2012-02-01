@@ -1,6 +1,5 @@
 package com.soundcloud.android.activity;
 
-import android.net.Uri;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -18,7 +17,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -192,11 +191,6 @@ public class Dashboard extends ScActivity {
         } else {
             return false;
         }
-    }
-
-    public void refreshIncoming() {
-        mListView.setRefreshing(true);
-        ((EventsAdapterWrapper) mListView.getRefreshableView().getAdapter()).onRefresh();
     }
 
     @Override

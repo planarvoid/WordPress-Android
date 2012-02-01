@@ -90,7 +90,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         super.onCreate();
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
-
         if (DALVIK) {
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
