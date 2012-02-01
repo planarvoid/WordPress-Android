@@ -348,9 +348,6 @@ public class User extends ScModel implements PageTrackable, Resource, Origin {
         Activities.clear(null, resolver);
 
         PreferenceManager.getDefaultSharedPreferences(app).edit()
-                .remove(PlaylistManager.PREF_PLAYLIST_LAST_POS)
-                .remove(PlaylistManager.PREF_PLAYLIST_LAST_ID)
-                .remove(PlaylistManager.PREF_PLAYLIST_LAST_TIME)
                 .remove(PlaylistManager.PREF_PLAYLIST_URI)
                 .commit();
     }

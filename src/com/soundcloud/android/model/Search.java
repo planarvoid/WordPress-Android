@@ -60,7 +60,7 @@ public class Search {
     }
 
     public SectionedAdapter.Section getSection(Context context) {
-        boolean isUser = search_type == USERS;
+        final boolean isUser = search_type == USERS;
         return new SectionedAdapter.Section(
                 context.getString(
                         isUser ? R.string.list_header_user_results_for :

@@ -23,9 +23,11 @@ import java.util.List;
 
 public class PlaylistManager {
     public static final String PREF_PLAYLIST_URI = "sc_playlist_uri";
-    public static final String PREF_PLAYLIST_LAST_POS = "sc_playlist_last_pos";
-    public static final String PREF_PLAYLIST_LAST_ID = "sc_playlist_last_id";
-    public static final String PREF_PLAYLIST_LAST_TIME = "sc_playlist_time";
+
+    // these will be stored as uri parameters
+    public static final String PARAM_PLAYLIST_POS = "playlistPos";
+    public static final String PARAM_SEEK_POS = "seekPos";
+    public static final String PARAM_TRACK_ID = "trackId";
 
     private Track[] mPlaylist = new Track[0];
     private Cursor mTrackCursor;
@@ -178,40 +180,47 @@ public class PlaylistManager {
 
     public void saveQueue(long seekPos) {
         if (SoundCloudApplication.getUserIdFromContext(mContext) >= 0) {
-            final Track currentTrack = getTrackAt(mPlayPos);
             PreferenceManager.getDefaultSharedPreferences(mContext).edit()
-                    .putString(PREF_PLAYLIST_URI, mPlaylistUri == null ? "" : mPlaylistUri.toString())
-                    .putInt(PREF_PLAYLIST_LAST_POS, mPlayPos)
-                    .putLong(PREF_PLAYLIST_LAST_ID, currentTrack == null ? 0 : currentTrack.id)
-                    .putLong(PREF_PLAYLIST_LAST_TIME, seekPos)
+                    .putString(PREF_PLAYLIST_URI, getPlaylistState(seekPos).toString())
                     .commit();
         }
     }
 
+    /* package */ Uri getPlaylistState(long seekPos) {
+        Uri playlistState = mPlaylistUri == null ?
+                DEFAULT_PLAYLIST_URI : mPlaylistUri;
+        Uri.Builder builder = playlistState.buildUpon();
+        final Track currentTrack = getTrack();
+        if (currentTrack != null) {
+            builder.appendQueryParameter(PARAM_TRACK_ID, String.valueOf(currentTrack.id));
+        }
+        builder.appendQueryParameter(PARAM_PLAYLIST_POS, String.valueOf(mPlayPos));
+        builder.appendQueryParameter(PARAM_SEEK_POS, String.valueOf(seekPos));
+        return builder.build();
+    }
+
     public long reloadQueue() {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-        final String lastUriString = preferences.getString(PREF_PLAYLIST_URI, "");
-        if (!TextUtils.isEmpty(lastUriString)){
+        final String lastUri = preferences.getString(PREF_PLAYLIST_URI, null);
+        if (!TextUtils.isEmpty(lastUri)){
+            final Uri uri = Uri.parse(lastUri);
+            setUri(uri, extractValue(uri, PARAM_PLAYLIST_POS, 0));
+            final long trackId = extractValue(uri, PARAM_TRACK_ID, 0);
+            long seekPos = extractValue(uri, PARAM_SEEK_POS, 0);
 
-            final int playlistPos = preferences.getInt(PREF_PLAYLIST_LAST_POS, 0);
-            final long trackId = preferences.getLong(PREF_PLAYLIST_LAST_ID, 0);
-            final Uri playlistUri = Uri.parse(lastUriString);
-
-            long playlistLastTime = preferences.getLong(PREF_PLAYLIST_LAST_TIME, 0);
-            setUri(playlistUri, playlistPos);
-
-            if (trackId != 0 && getTrack().id != trackId && Content.match(playlistUri).isCollectionItem()) {
+            if (trackId != 0 && getTrack().id != trackId && Content.match(uri).isCollectionItem()) {
                 final int newPos = getPlaylistPositionFromUri(
                         mContext.getContentResolver(),
-                        playlistUri,
+                        uri,
                         trackId);
 
-                if (newPos == -1) playlistLastTime = 0;
+                if (newPos == -1) seekPos = 0;
                 setPosition(Math.max(newPos, 0));
             }
-            return playlistLastTime;
+            return seekPos;
+        } else {
+            return 0; // seekpos
         }
-        return 0; // seekpos
     }
 
     public static int getPlaylistPositionFromUri(ContentResolver resolver, Uri collectionUri, long itemId) {
@@ -228,5 +237,18 @@ public class PlaylistManager {
         }
         if (cursor != null) cursor.close();
         return position;
+    }
+
+    private static int extractValue(Uri uri, String parameter, final int defaultValue) {
+        final String pos = uri.getQueryParameter(parameter);
+        if (!TextUtils.isEmpty(pos)) {
+            try {
+                return Integer.parseInt(pos);
+            } catch (NumberFormatException e) {
+                return defaultValue;
+            }
+        } else {
+            return defaultValue;
+        }
     }
 }
