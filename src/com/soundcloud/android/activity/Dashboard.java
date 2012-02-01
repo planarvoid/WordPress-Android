@@ -244,7 +244,7 @@ public class Dashboard extends ScActivity {
         final int labelId, drawableId;
         final Class<? extends android.app.Activity> activityClass;
 
-        static Tab DEFAULT = UNKNOWN;
+        static final Tab DEFAULT = UNKNOWN;
 
         Tab(String tag, Class<? extends android.app.Activity> activityClass, int labelId, int drawableId) {
             this.tag = tag;
