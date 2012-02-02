@@ -95,16 +95,8 @@ public abstract class ScActivity extends android.app.Activity {
     protected void onServiceBound() {
         if (getApp().getToken() == null) {
             pause();
-
         } else {
-            try {
-                final long trackId = mPlaybackService.getCurrentTrackId();
-                if (trackId != -1) {
-                    setPlayingTrack(trackId, mPlaybackService.isPlaying());
-                }
-            } catch (RemoteException e) {
-                Log.e(TAG, "error", e);
-            }
+            setPlayingTrackFromService();
         }
     }
 
@@ -221,14 +213,7 @@ public abstract class ScActivity extends android.app.Activity {
 
         CloudUtils.bindToService(this, CloudPlaybackService.class, osc);
         CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
-        try {
-            final long trackId = mPlaybackService != null ? mPlaybackService.getCurrentTrackId() : null;
-            if (trackId != -1) {
-                setPlayingTrack(trackId, mPlaybackService.isPlaying());
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "error", e);
-        }
+        setPlayingTrackFromService();
     }
 
     /**
@@ -655,6 +640,18 @@ public abstract class ScActivity extends android.app.Activity {
     }
 
     protected void handleRecordingClick(Recording recording) {
+    }
+
+    private void setPlayingTrackFromService(){
+        if (mPlaybackService == null) return;
+        try {
+            final long trackId = mPlaybackService != null ? mPlaybackService.getCurrentTrackId() : null;
+            if (trackId != -1) {
+                setPlayingTrack(trackId, mPlaybackService.isPlaying());
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     private ScListView.LazyListListener mLazyListListener = new ScListView.LazyListListener() {
