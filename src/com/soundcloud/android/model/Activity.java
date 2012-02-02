@@ -1,10 +1,8 @@
 
 package com.soundcloud.android.model;
 
-import android.util.Log;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.CloudUtils;
@@ -79,9 +77,14 @@ public class Activity extends ScModel implements Origin, Playable, Comparable<Ac
     @Override
     public CharSequence getTimeSinceCreated(Context context) {
         if (_elapsedTime == null){
-            _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
+            refreshTimeSinceCreated(context);
         }
         return _elapsedTime;
+    }
+
+    @Override
+    public void refreshTimeSinceCreated(Context context) {
+        _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
     }
 
     public Comment getComment() {
@@ -98,24 +101,14 @@ public class Activity extends ScModel implements Origin, Playable, Comparable<Ac
 
     @Override
     public void resolve(SoundCloudApplication application) {
-        _elapsedTime = CloudUtils.getTimeElapsed(application.getResources(),created_at.getTime());
-        if (origin instanceof Comment) {
-            Comment c = (Comment)origin;
-            if (c.track.user == null) {
-                 c.track.user = application.getLoggedInUser();
-            }
-        } else if (type == Type.FAVORITING) {
-            if (getTrack().user == null) {
-                getTrack().user = application.getLoggedInUser();
-            }
-        }
+        refreshTimeSinceCreated(application);
     }
 
     public String getDateString() {
         return created_at == null ? null :
-                AndroidCloudAPI.CloudDateFormat.format(created_at.getTime());
+                AndroidCloudAPI.CloudDateFormat.formatDate(created_at.getTime());
     }
-    
+
     public UUID toUUID() {
         if (created_at == null) {
             return null;

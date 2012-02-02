@@ -1,13 +1,6 @@
 
 package com.soundcloud.android.adapter;
 
-import android.content.Intent;
-import android.nfc.Tag;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.util.Log;
-
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
@@ -16,10 +9,16 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.LoadActivitiesTask;
-import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.api.Request;
 
-import java.util.*;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     private boolean mVisible;
@@ -82,6 +81,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
                 if (mListView != null && mContentUri != null) setListLastUpdated();
                 setLastSeen(newActivities.get(0).created_at.getTime());
             }
+            doneRefreshing();
         } else {
             if (newActivities.size() < Consts.COLLECTION_PAGE_SIZE){
                 requestAppend();
@@ -95,10 +95,8 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             setData(newActivities);
         }
 
-        if (!isRefreshing()) doneRefreshing();
-        applyEmptyView();
         mAppendTask = null;
-        notifyDataSetChanged();
+        afterNewItems();
         return true;
     }
 

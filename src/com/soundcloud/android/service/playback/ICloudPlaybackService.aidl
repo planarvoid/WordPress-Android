@@ -24,7 +24,8 @@ interface ICloudPlaybackService
     long getPosition();
 
     // metadata
-    Track getTrack();
+    long getCurrentTrackId();
+    Track getCurrentTrack();
 
     // favoriting
     void setFavoriteStatus(long trackId, boolean favoriteStatus);

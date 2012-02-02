@@ -4,18 +4,12 @@ import AndroidKeys._
 
 object General {
   val settings = Defaults.defaultSettings ++ Seq(
-    version := "2.0.1-SNAPSHOT",
-    organization := "com.soundcloud"
+    organization := "com.soundcloud",
+    platformName := "android-10"
   )
 
-  val androidSettings =
-    settings ++
-    Seq(
-      platformName := "android-10"
-    )
-
   val androidProjectSettings =
-    androidSettings ++
+    settings ++
     AndroidProject.androidSettings ++
     PlainJavaProject.settings ++
     AndroidMarketPublish.settings ++
@@ -33,16 +27,8 @@ object AndroidBuild extends Build {
     "com.google.android" % "filecache" % "r153",
     "com.google.android" % "libGoogleAnalytics" % "1.3",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
-    "org.xiph" % "libvorbis" % "1.0.0-beta"
-  )
-
-  val providedDependencies = Seq(
-    "com.google.android" % "android" % "2.3.3" % "provided",
-    "org.apache.httpcomponents" % "httpcore" % "4.0.1" % "provided",
-    "org.apache.httpcomponents" % "httpclient" % "4.0.3" % "provided",
-    "org.json" % "json" % "20090211" % "provided",
-    "commons-logging" % "commons-logging" % "1.1.1" % "provided",
-    "commons-codec" % "commons-codec" % "1.5" % "provided"
+    "org.xiph" % "libvorbis" % "1.0.0-beta",
+    "com.google.android" % "android" % "2.3.3" % "provided"
   )
 
   val testDependencies = Seq(
@@ -72,7 +58,7 @@ object AndroidBuild extends Build {
       githubRepo in Android := "soundcloud/SoundCloud-Android",
       cachePasswords in Android := true,
       unmanagedBase <<= baseDirectory / "lib-unmanaged",
-      libraryDependencies ++= coreDependencies ++ providedDependencies ++ testDependencies,
+      libraryDependencies ++= coreDependencies ++ testDependencies,
       resolvers ++= repos,
       compileOrder := CompileOrder.JavaThenScala,
       javaSource in Test <<= (baseDirectory) (_ / "tests" / "src" / "java"),

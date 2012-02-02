@@ -1,23 +1,21 @@
 package com.soundcloud.android.task;
 
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Parcelable;
-import android.util.Log;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.provider.*;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.Request;
+
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Parcelable;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
-import java.util.*;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoadActivitiesTask extends AsyncTask<Object, List<? super Parcelable>, Boolean>
         implements ILazyAdapterTask {
@@ -68,7 +66,7 @@ public class LoadActivitiesTask extends AsyncTask<Object, List<? super Parcelabl
     @Override
     protected Boolean doInBackground(Object... params) {
         mParams = (ActivitiesParams) params[0];
-        Log.i(TAG, getClass().getSimpleName() + "Loading activities with params: " + mParams);
+        Log.i(SoundCloudApplication.TAG, getClass().getSimpleName() + "Loading activities with params: " + mParams);
 
         mNewItems = new ArrayList<Parcelable>();
         if (mParams.isRefresh) {

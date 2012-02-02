@@ -40,6 +40,7 @@ import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.InterfaceAddress;
 import java.util.List;
 
 public class CloudPlaybackService extends Service implements FocusHelper.MusicFocusable {
@@ -140,6 +141,19 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
     private Notification status;
 
+    public interface BroadcastExtras{
+        String id = "id";
+        String title = "title";
+        String user_id = "user_id";
+        String username = "username";
+        String isPlaying = "isPlaying";
+        String isSupposedToBePlaying = "isSupposedToBePlaying";
+        String isBuffering = "isBuffering";
+        String position = "position";
+        String queuePosition = "queuePosition";
+        String isFavorite = "isFavorite";
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -174,7 +188,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         scheduleServiceShutdownCheck();
 
         mResumeTime = mPlaylistManager.reloadQueue();
-        mCurrentTrack = mPlaylistManager.getTrack();
+        mCurrentTrack = mPlaylistManager.getCurrentTrack();
         if (mCurrentTrack != null && mResumeTime > 0) {
             mResumeTrackId = mCurrentTrack.id;
         }
@@ -286,17 +300,16 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             Log.d(TAG, "notifyChange(" + what + ")");
         }
         Intent i = new Intent(what)
-            .putExtra("id", getTrackId())
-            .putExtra("track", getTrackName())
-            .putExtra("user", getUserName())
-            .putExtra("isPlaying", isPlaying())
-            .putExtra("isSupposedToBePlaying", state.isSupposedToBePlaying())
-            .putExtra("isBuffering", isBuffering())
-            .putExtra("position", getPosition())
-            .putExtra("queuePosition", mPlaylistManager.getPosition());
-        if (FAVORITE_SET.equals(what)) {
-            i.putExtra("isFavorite", mCurrentTrack.user_favorite);
-        }
+            .putExtra(BroadcastExtras.id, getTrackId())
+            .putExtra(BroadcastExtras.title, getTrackName())
+            .putExtra(BroadcastExtras.user_id, getUserId())
+            .putExtra(BroadcastExtras.username, getUserName())
+            .putExtra(BroadcastExtras.isPlaying, isPlaying())
+            .putExtra(BroadcastExtras.isSupposedToBePlaying, state.isSupposedToBePlaying())
+            .putExtra(BroadcastExtras.isBuffering, isBuffering())
+            .putExtra(BroadcastExtras.position, getPosition())
+            .putExtra(BroadcastExtras.queuePosition, mPlaylistManager.getPosition())
+            .putExtra(BroadcastExtras.isFavorite, getIsFavorite());
 
         sendBroadcast(i);
 
@@ -306,7 +319,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
 
         // Share this notification directly with our widgets
-        mAppWidgetProvider.notifyChange(this, i.putExtra("trackParcel", getTrack()));
+        mAppWidgetProvider.notifyChange(this, i);
     }
 
     /* package */ void openCurrent() {
@@ -314,18 +327,19 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             Log.d(TAG, "openCurrent(state="+state+")");
         }
 
-        final Track track = mPlaylistManager.getTrack();
+        final Track track = mPlaylistManager.getCurrentTrack();
         if (track != null) {
             if (mAutoPause) {
                 mAutoPause = false;
-                notifyChange(META_CHANGED);
             }
 
             mLoadPercent = 0;
             if (track.equals(mCurrentTrack) && track.isStreamable()) {
+                notifyChange(META_CHANGED);
                 startTrack(track);
             } else {
                 mCurrentTrack = track;
+                notifyChange(META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts
 
                 if (track.isStreamable()) {
@@ -556,8 +570,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             if (mNotificationView == null){
                 mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11);
             }
-            ((PlaybackRemoteViews) mNotificationView).setCurrentTrack(track);
-            ((PlaybackRemoteViews) mNotificationView).linkButtons(this,track, EXTRA_FROM_NOTIFICATION);
+            ((PlaybackRemoteViews) mNotificationView).setCurrentTrack(track.title,track.user.username);
+            ((PlaybackRemoteViews) mNotificationView).linkButtons(this,track.id,track.user_id,track.user_favorite, EXTRA_FROM_NOTIFICATION);
             ((PlaybackRemoteViews) mNotificationView).setPlaybackStatus(state.isSupposedToBePlaying());
 
             final String artworkUri = track.getListArtworkUrl(getApplicationContext());
@@ -625,8 +639,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
     }
 
-    /* package */ Track getTrack() {
-        return mCurrentTrack == null ? mPlaylistManager.getTrack() : mCurrentTrack;
+    /* package */ Track getCurrentTrack() {
+        return mCurrentTrack == null ? mPlaylistManager.getCurrentTrack() : mCurrentTrack;
+    }
+
+    /* package */ long getCurrentTrackId() {
+        return mCurrentTrack == null ? mPlaylistManager.getCurrentTrackId() : mCurrentTrack.id;
     }
 
     /* package */ int getDuration() {
@@ -723,12 +741,20 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         return mCurrentTrack != null && mCurrentTrack.user != null ? mCurrentTrack.user.username : null;
     }
 
+    private long getUserId() {
+        return mCurrentTrack != null ? mCurrentTrack.user_id : -1;
+    }
+
     private long getTrackId() {
         return mCurrentTrack == null ? -1 : mCurrentTrack.id;
     }
 
     private String getTrackName() {
         return mCurrentTrack == null ? null : mCurrentTrack.title;
+    }
+
+    private boolean getIsFavorite() {
+        return mCurrentTrack == null ? false : mCurrentTrack.user_favorite;
     }
 
     private boolean isPastBuffer(long pos) {

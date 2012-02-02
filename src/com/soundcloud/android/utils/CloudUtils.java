@@ -539,8 +539,10 @@ public class CloudUtils {
             ((Spannable)text).setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         } else {
             SpannableString s = SpannableString.valueOf(text);
-            s.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            view.setText(s);
+            if (s != null) {  // TODO: robolectric
+                s.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                view.setText(s);
+            }
         }
         MovementMethod m = view.getMovementMethod();
         if ((m == null) || !(m instanceof LinkMovementMethod)) {

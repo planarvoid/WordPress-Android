@@ -16,6 +16,7 @@ import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.*;
@@ -471,5 +472,23 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
 
     public boolean showRefreshing() {
         return false;
+    }
+
+    public void cachePlayableGroup(int position) {
+        if (position < 0 || position >= getData().size()) return;
+
+        cacheIfPlayable(getData().get(position));
+        if (position > 0){
+            cacheIfPlayable(getData().get(position-1));
+        }
+        if (position < getData().size() - 1){
+            cacheIfPlayable(getData().get(position+1));
+        }
+    }
+
+    private void cacheIfPlayable(Parcelable p){
+        if (p instanceof Playable){
+            SoundCloudApplication.TRACK_CACHE.put(((Playable)p).getTrack());
+        }
     }
 }

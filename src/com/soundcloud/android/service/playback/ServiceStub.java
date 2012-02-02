@@ -1,12 +1,10 @@
 package com.soundcloud.android.service.playback;
 
-import android.util.Log;
 import com.soundcloud.android.model.Track;
 
 import android.os.RemoteException;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /*
 * By making this a static class with a WeakReference to the Service, we
@@ -131,9 +129,15 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     }
 
     @Override
-    public Track getTrack() throws RemoteException {
+    public long getCurrentTrackId() throws RemoteException {
         CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.getTrack() : null;
+        return svc != null ? svc.getCurrentTrackId() : null;
+    }
+
+    @Override
+    public Track getCurrentTrack() throws RemoteException {
+        CloudPlaybackService svc = mService.get();
+        return svc != null ? svc.getCurrentTrack() : null;
     }
 
     @Override

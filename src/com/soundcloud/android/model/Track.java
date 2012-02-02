@@ -165,9 +165,14 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @Override
     public CharSequence getTimeSinceCreated(Context context) {
         if (_elapsedTime == null){
-            _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
+            refreshTimeSinceCreated(context);
         }
         return _elapsedTime;
+    }
+
+    @Override
+    public void refreshTimeSinceCreated(Context context) {
+        _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
     }
 
 
@@ -268,7 +273,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
 
     @Override
     public void resolve(SoundCloudApplication application) {
-        _elapsedTime = CloudUtils.getTimeElapsed(application.getResources(),created_at.getTime());
+        refreshTimeSinceCreated(application);
     }
 
     public void setAppFields(Track t) {
