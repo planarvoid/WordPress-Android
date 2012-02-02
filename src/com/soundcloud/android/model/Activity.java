@@ -77,9 +77,14 @@ public class Activity extends ScModel implements Origin, Playable, Comparable<Ac
     @Override
     public CharSequence getTimeSinceCreated(Context context) {
         if (_elapsedTime == null){
-            _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
+            refreshTimeSinceCreated(context);
         }
         return _elapsedTime;
+    }
+
+    @Override
+    public void refreshTimeSinceCreated(Context context) {
+        _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
     }
 
     public Comment getComment() {
@@ -96,17 +101,7 @@ public class Activity extends ScModel implements Origin, Playable, Comparable<Ac
 
     @Override
     public void resolve(SoundCloudApplication application) {
-        _elapsedTime = CloudUtils.getTimeElapsed(application.getResources(),created_at.getTime());
-        if (origin instanceof Comment) {
-            Comment c = (Comment)origin;
-            if (c.track.user == null) {
-                 c.track.user = application.getLoggedInUser();
-            }
-        } else if (type == Type.FAVORITING) {
-            if (getTrack().user == null) {
-                getTrack().user = application.getLoggedInUser();
-            }
-        }
+        refreshTimeSinceCreated(application);
     }
 
     public String getDateString() {

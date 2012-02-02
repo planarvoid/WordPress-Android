@@ -67,8 +67,13 @@ public class PlaylistManager {
         }
     }
 
-    public Track getTrack() {
+    public Track getCurrentTrack() {
         return getTrackAt(mPlayPos);
+    }
+
+    public long getCurrentTrackId() {
+        final Track currentTrack = getCurrentTrack();
+        return currentTrack == null ? -1 : currentTrack.id;
     }
 
     public Track getTrackAt(int pos) {
@@ -132,6 +137,8 @@ public class PlaylistManager {
         if (mTrackCursor != null){
             if (!mTrackCursor.isClosed()) mTrackCursor.close();
         }
+
+        // TODO : this should be asynchronous. freezes UI currently
         mTrackCursor = mContext.getContentResolver().query(uri, null, null, null, null);
         mPlaylist = new Track[mTrackCursor.getCount()];
         if (position >= 0 && position < mTrackCursor.getCount()){
@@ -179,6 +186,7 @@ public class PlaylistManager {
     }
 
     public void saveQueue(long seekPos) {
+        // TODO : this takes 30-50 ms to commit
         if (SoundCloudApplication.getUserIdFromContext(mContext) >= 0) {
             PreferenceManager.getDefaultSharedPreferences(mContext).edit()
                     .putString(PREF_PLAYLIST_URI, getPlaylistState(seekPos).toString())
@@ -190,7 +198,7 @@ public class PlaylistManager {
         Uri playlistState = mPlaylistUri == null ?
                 DEFAULT_PLAYLIST_URI : mPlaylistUri;
         Uri.Builder builder = playlistState.buildUpon();
-        final Track currentTrack = getTrack();
+        final Track currentTrack = getCurrentTrack();
         if (currentTrack != null) {
             builder.appendQueryParameter(PARAM_TRACK_ID, String.valueOf(currentTrack.id));
         }
@@ -208,7 +216,7 @@ public class PlaylistManager {
             final long trackId = extractValue(uri, PARAM_TRACK_ID, 0);
             long seekPos = extractValue(uri, PARAM_SEEK_POS, 0);
 
-            if (trackId != 0 && getTrack().id != trackId && Content.match(uri).isCollectionItem()) {
+            if (trackId != 0 && getCurrentTrack().id != trackId && Content.match(uri).isCollectionItem()) {
                 final int newPos = getPlaylistPositionFromUri(
                         mContext.getContentResolver(),
                         uri,
