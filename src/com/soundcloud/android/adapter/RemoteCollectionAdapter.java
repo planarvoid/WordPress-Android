@@ -169,7 +169,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     protected void refreshTimestamps(){
-        if (Playable.class.isAssignableFrom(mContent.resourceType)){
+        if (mContent != null && Playable.class.isAssignableFrom(mContent.resourceType)){
             for (Parcelable p : getData()){
                 ((Playable) p ).refreshTimeSinceCreated(mActivity);
             }
