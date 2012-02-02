@@ -287,7 +287,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
 
     private void buildTabHost(final SoundCloudApplication app, final TabHost host) {
         for (Dashboard.Tab tab : Dashboard.Tab.values()) {
-            if (tab.tag == null) continue;
+            if (tab == Dashboard.Tab.UNKNOWN) continue;
             TabHost.TabSpec spec = host.newTabSpec(tab.tag).setIndicator(
                     getString(tab.labelId),
                     getResources().getDrawable(tab.drawableId));
