@@ -4,6 +4,7 @@ package com.soundcloud.android.adapter;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -19,6 +20,8 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.task.ILazyAdapterTask;
+import com.soundcloud.android.task.LoadActivitiesTask;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -32,8 +35,8 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class LazyEndlessAdapter extends AdapterWrapper implements DetachableResultReceiver.Receiver, PullToRefreshBase.OnRefreshListener {
-    protected RemoteCollectionTask mAppendTask;
-    protected RemoteCollectionTask mRefreshTask;
+    protected AsyncTask mAppendTask;
+    protected AsyncTask mRefreshTask;
     protected UpdateCollectionTask mUpdateCollectionTask;
 
     protected ScListView mListView;
@@ -201,16 +204,16 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
      * Restore a possibly still running task that could have been passed in on
      * creation
      */
-    public void restoreAppendTask(RemoteCollectionTask ap) {
+    public void restoreAppendTask(AsyncTask ap) {
         if (ap != null) {
             mAppendTask = ap;
-            ap.setAdapter(this);
+            ((ILazyAdapterTask) ap).setAdapter(this);
         }
     }
-    public void restoreRefreshTask(RemoteCollectionTask rt) {
+    public void restoreRefreshTask(AsyncTask rt) {
         if (rt != null) {
             mRefreshTask = rt;
-            rt.setAdapter(this);
+            ((ILazyAdapterTask) rt).setAdapter(this);
         }
     }
 
@@ -221,10 +224,10 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         }
     }
 
-    public RemoteCollectionTask getAppendTask() {
+    public AsyncTask getAppendTask() {
         return mAppendTask;
     }
-    public RemoteCollectionTask getRefreshTask() {
+    public AsyncTask getRefreshTask() {
         return mRefreshTask;
     }
     public UpdateCollectionTask getUpdateTask() {
@@ -441,20 +444,19 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         }
     }
 
-    protected abstract RemoteCollectionTask buildTask();
-
     public void executeRefreshTask() {
         mRefreshTask = buildTask();
-        mRefreshTask.execute(getCollectionParams(true));
+        mRefreshTask.execute(getTaskParams(true));
     }
 
     public void executeAppendTask() {
         mState = APPENDING;
         mAppendTask = buildTask();
-        mAppendTask.execute(getCollectionParams(false));
+        mAppendTask.execute(getTaskParams(false));
     }
 
-    protected abstract RemoteCollectionTask.CollectionParams getCollectionParams(boolean refresh);
+    abstract protected AsyncTask<Object, List<? super Parcelable>, Boolean> buildTask();
+    abstract protected Object getTaskParams(final boolean refresh);
 
     public void onDestroy() {}
 

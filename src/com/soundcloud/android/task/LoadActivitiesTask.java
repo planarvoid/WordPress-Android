@@ -1,5 +1,7 @@
 package com.soundcloud.android.task;
 
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
 import com.soundcloud.android.Consts;
@@ -10,18 +12,42 @@ import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.provider.*;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.Request;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-public class LoadActivitiesTask extends RemoteCollectionTask {
+public class LoadActivitiesTask extends AsyncTask<Object, List<? super Parcelable>, Boolean>
+        implements ILazyAdapterTask {
+
+    protected SoundCloudApplication mApp;
+    protected WeakReference<LazyEndlessAdapter> mAdapterReference;
+
     private Activities mCurrentActivities;
     private Activities mNewActivities;
+    private ActivitiesParams mParams;
+
+    /* package */ List<Parcelable> mNewItems = new ArrayList<Parcelable>();
+
+    public static class ActivitiesParams {
+        public Uri contentUri;
+        public long timestamp;
+        public boolean isRefresh;
+        @Override
+        public String toString() {
+            return "ActivitiesParams{" +
+                    "contentUri=" + contentUri +
+                    ", timestamp=" + timestamp +
+                    ", isRefresh=" + isRefresh +
+                    '}';
+        }
+    }
 
     public LoadActivitiesTask(SoundCloudApplication app, LazyEndlessAdapter lazyEndlessAdapter) {
-        super(app, lazyEndlessAdapter);
+         mApp = app;
+        setAdapter(lazyEndlessAdapter);
     }
 
     @Override
@@ -30,7 +56,7 @@ public class LoadActivitiesTask extends RemoteCollectionTask {
         mCurrentActivities = ((EventsAdapterWrapper) eventsAdapterWrapper).getActivities();
     }
 
-    @Override
+     @Override
     protected void onPostExecute(Boolean success) {
         EventsAdapterWrapper adapter = (EventsAdapterWrapper) mAdapterReference.get();
         if (adapter != null) {
@@ -40,28 +66,19 @@ public class LoadActivitiesTask extends RemoteCollectionTask {
 
 
     @Override
-    protected Boolean doInBackground(CollectionParams... params) {
-        mParams = params[0];
+    protected Boolean doInBackground(Object... params) {
+        mParams = (ActivitiesParams) params[0];
         Log.i(TAG, getClass().getSimpleName() + "Loading activities with params: " + mParams);
 
-        mResponseCode = 0;
         mNewItems = new ArrayList<Parcelable>();
-        long lastActivityTimestamp = mCurrentActivities.isEmpty() ? -1 : (mCurrentActivities.get(mCurrentActivities.size() - 1)).created_at.getTime();
         if (mParams.isRefresh) {
-                mNewActivities = Activities.refresh(
-                        mApp.getContentResolver(),
-                        mParams.contentUri,
-                        mCurrentActivities,
-                        mParams.pageIndex == -1 ? 0 : lastActivityTimestamp
-                );
-        } else if (mParams.pageIndex != -1) {
-            mNewActivities = Activities.mergeWithUriBefore(
-                    mApp.getContentResolver(),
-                    mParams.contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build(),
-                    mCurrentActivities.collection,
-                    lastActivityTimestamp);
+            mNewActivities = Activities.getSince(mParams.contentUri,mApp.getContentResolver(),
+                    mParams.timestamp);
         } else {
-            mNewActivities = Activities.EMPTY;
+            mNewActivities = Activities.getBefore(
+                    mParams.contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build(),
+                    mApp.getContentResolver(),
+                    mParams.timestamp);
         }
 
         for (Activity a : mNewActivities) {

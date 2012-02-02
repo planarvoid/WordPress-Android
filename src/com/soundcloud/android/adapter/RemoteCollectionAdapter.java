@@ -4,6 +4,7 @@ package com.soundcloud.android.adapter;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -14,6 +15,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Resource;
 import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.task.LoadActivitiesTask;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -116,10 +118,6 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
        mNextHref = nextHref;
     }
 
-    protected RemoteCollectionTask buildTask() {
-        return new RemoteCollectionTask(mActivity.getApp(), this);
-    }
-
     public boolean onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
 
         mKeepGoing = keepGoing;
@@ -207,7 +205,13 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         }
     }
 
-    protected RemoteCollectionTask.CollectionParams getCollectionParams(final boolean refresh){
+    @Override
+    protected AsyncTask<Object, List<? super Parcelable>, Boolean> buildTask() {
+        return new RemoteCollectionTask(mActivity.getApp(), this);
+    }
+
+    @Override
+    protected Object getTaskParams(final boolean refresh){
         return new RemoteCollectionTask.CollectionParams() {{
                 loadModel = getLoadModel(refresh);
                 contentUri = getContentUri(refresh);

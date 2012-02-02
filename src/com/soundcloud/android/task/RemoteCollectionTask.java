@@ -32,7 +32,8 @@ import static com.soundcloud.android.SoundCloudApplication.*;
 import static com.soundcloud.android.model.LocalCollection.insertLocalCollection;
 import static com.soundcloud.android.service.sync.ApiSyncer.getAdditionsFromIds;
 
-public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.CollectionParams, List<? super Parcelable>, Boolean> {
+public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcelable>, Boolean>
+                                  implements ILazyAdapterTask {
 
     protected SoundCloudApplication mApp;
     protected CollectionParams mParams;
@@ -95,8 +96,8 @@ public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.Collect
     }
 
     @Override
-    protected Boolean doInBackground(CollectionParams... params) {
-        mParams = params[0];
+    protected Boolean doInBackground(Object... params) {
+        mParams = (CollectionParams) params[0];
         Log.i(TAG, getClass().getSimpleName() + "Loading collection with params: " + mParams);
 
         if (mParams.contentUri == null && mParams.request != null) {

@@ -2,24 +2,22 @@
 package com.soundcloud.android.adapter;
 
 import android.content.Intent;
+import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.LoadActivitiesTask;
 import com.soundcloud.android.task.RemoteCollectionTask;
-import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.api.Request;
-import org.apache.http.HttpStatus;
 
 import java.util.*;
 
@@ -66,11 +64,6 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         getWrappedAdapter().getData().addAll(mActivities.collection);
     }
 
-    @Override
-    public int getPageIndex(boolean isRefresh) {
-        return mPageIndex;
-    }
-
     public void onPause() {
         mVisible = false;
     }
@@ -82,38 +75,23 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         setListLastUpdated();
     }
 
-    public void executeAppendTask() {
-        if (mPageIndex == -1){
-            mState = APPENDING;
-            requestAppend();
-        } else {
-            super.executeAppendTask();
-        }
-    }
-
-    public void executeRefreshTask() {
-        mRefreshTask = buildTask();
-        mRefreshTask.execute(getCollectionParams(true));
-    }
-
     public boolean onNewEvents(Activities newActivities, boolean wasRefresh) {
-
+        Log.d(getClass().getSimpleName(),"Task delivered "+ newActivities.size() + " new activities");
         if (wasRefresh) {
             if (!newActivities.isEmpty()) {
                 if (mListView != null && mContentUri != null) setListLastUpdated();
                 setLastSeen(newActivities.get(0).created_at.getTime());
             }
         } else {
-            if (newActivities.size() - mActivities.size() < Consts.COLLECTION_PAGE_SIZE){
-                mPageIndex = -1; // shows all
+            if (newActivities.size() < Consts.COLLECTION_PAGE_SIZE){
                 requestAppend();
             } else {
-                increasePageIndex();
                 mState = IDLE;
             }
         }
 
         if (!newActivities.isEmpty()){
+            newActivities.mergeAndSort(mActivities);
             setData(newActivities);
         }
 
@@ -151,8 +129,17 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     }
 
     @Override
-    protected RemoteCollectionTask buildTask() {
+    protected AsyncTask<Object, List<? super Parcelable>, Boolean> buildTask() {
         return new LoadActivitiesTask(mActivity.getApp(), this);
+    }
+
+    @Override
+    protected Object getTaskParams(final boolean refresh){
+        return new LoadActivitiesTask.ActivitiesParams() {{
+            contentUri = getContentUri(refresh);
+            isRefresh = refresh;
+            timestamp = refresh ? mActivities.getTimestamp() : mActivities.getLastTimestamp();
+        }};
     }
 
     protected void onContentChanged() {

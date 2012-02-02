@@ -207,6 +207,14 @@ public class Activities extends CollectionHolder<Activity> {
         }
     }
 
+    public long getLastTimestamp() {
+        if (collection.isEmpty()) {
+            return 0;
+        } else {
+            return collection.get(collection.size()-1).created_at.getTime();
+        }
+    }
+
     public static int getUniqueTrackCount(Activities... activities) {
         Set<Long> ids = new HashSet<Long>(10);
         for (Activities a : activities) {
@@ -496,30 +504,8 @@ public class Activities extends CollectionHolder<Activity> {
         return map;
     }
 
-    public static Activities refresh(ContentResolver resolver, Uri contentUri, Activities old, long since) {
-        Map<Long, Activity> oldActivityMap = old.getCollectionMap();
-        final List<Long> ids;
-        if (since > 0) {
-            ids = Activities.getLocalIdsSince(resolver, contentUri, since);
-        } else {
-            ids = Activities.getLocalIds(resolver, contentUri);
-        }
-        Set<Long> toRemove = new HashSet<Long>(oldActivityMap.keySet());
-        toRemove.removeAll(ids); // this will leave only what needs to be removed
-        oldActivityMap.keySet().removeAll(toRemove); // keep these
-        ids.removeAll(oldActivityMap.keySet()); // this will leave what is new
-
-        Activities newActivities = Activities.get(resolver, contentUri, null,
-                CloudUtils.getWhereIds(DBHelper.Activities._ID, ids), CloudUtils.longListToStringArr(ids), null);
-        newActivities.collection.addAll(oldActivityMap.values());
-        Collections.sort(newActivities.collection);
-        return newActivities;
-    }
-
-    public static Activities mergeWithUriBefore(ContentResolver resolver, Uri contentUri, List<Activity> old, long before){
-        Activities newActivities = getBefore(contentUri,resolver,before);
-        newActivities.collection.addAll(old);
-        Collections.sort(newActivities.collection);
-        return newActivities;
+    public void mergeAndSort(Activities toMerge) {
+        if (!toMerge.isEmpty()) collection.addAll(toMerge.collection);
+        Collections.sort(collection);
     }
 }
