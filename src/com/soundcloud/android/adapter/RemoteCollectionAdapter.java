@@ -12,6 +12,7 @@ import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Resource;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.RemoteCollectionTask;
@@ -137,15 +138,20 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             handleResponseCode(responseCode);
         }
 
-        if (!isRefreshing()){
+        if (wasRefresh){
             doneRefreshing();
         }
 
-        applyEmptyView();
         mPendingView = null;
         mAppendTask = null;
-        notifyDataSetChanged();
+        afterNewItems();
         return success;
+    }
+
+    protected void afterNewItems(){
+        refreshTimestamps();
+        applyEmptyView();
+        notifyDataSetChanged();
     }
 
     protected void addNewItems(List<Parcelable> newItems){
@@ -159,6 +165,14 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     public void setListLastUpdated() {
         if (mListView != null) {
             if (mLocalCollection.last_sync > 0) mListView.setLastUpdated(mLocalCollection.last_sync);
+        }
+    }
+
+    protected void refreshTimestamps(){
+        if (Playable.class.isAssignableFrom(mContent.resourceType)){
+            for (Parcelable p : getData()){
+                ((Playable) p ).refreshTimeSinceCreated(mActivity);
+            }
         }
     }
 

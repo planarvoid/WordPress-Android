@@ -12,6 +12,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -103,6 +104,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
                 if (mListView != null && mContentUri != null) setListLastUpdated();
                 setLastSeen(newActivities.get(0).created_at.getTime());
             }
+            doneRefreshing();
         } else {
             if (newActivities.size() - mActivities.size() < Consts.COLLECTION_PAGE_SIZE){
                 mPageIndex = -1; // shows all
@@ -117,10 +119,8 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             setData(newActivities);
         }
 
-        if (!isRefreshing()) doneRefreshing();
-        applyEmptyView();
         mAppendTask = null;
-        notifyDataSetChanged();
+        afterNewItems();
         return true;
     }
 
