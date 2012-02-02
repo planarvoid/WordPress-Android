@@ -36,15 +36,6 @@ object AndroidBuild extends Build {
     "org.xiph" % "libvorbis" % "1.0.0-beta"
   )
 
-  val providedDependencies = Seq(
-    "com.google.android" % "android" % "2.3.3" % "provided",
-    "org.apache.httpcomponents" % "httpcore" % "4.0.1" % "provided",
-    "org.apache.httpcomponents" % "httpclient" % "4.0.3" % "provided",
-    "org.json" % "json" % "20090211" % "provided",
-    "commons-logging" % "commons-logging" % "1.1.1" % "provided",
-    "commons-codec" % "commons-codec" % "1.5" % "provided"
-  )
-
   val testDependencies = Seq(
     "com.pivotallabs" % "robolectric" % "1.1-SNAPSHOT" % "test",
     "junit" % "junit-dep" % "4.9" % "test",
@@ -72,7 +63,7 @@ object AndroidBuild extends Build {
       githubRepo in Android := "soundcloud/SoundCloud-Android",
       cachePasswords in Android := true,
       unmanagedBase <<= baseDirectory / "lib-unmanaged",
-      libraryDependencies ++= coreDependencies ++ providedDependencies ++ testDependencies,
+      libraryDependencies ++= coreDependencies ++ testDependencies,
       resolvers ++= repos,
       compileOrder := CompileOrder.JavaThenScala,
       javaSource in Test <<= (baseDirectory) (_ / "tests" / "src" / "java"),
