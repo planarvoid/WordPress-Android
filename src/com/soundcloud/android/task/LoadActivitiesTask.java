@@ -1,20 +1,19 @@
 package com.soundcloud.android.task;
 
-import android.os.Parcelable;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.provider.*;
-import com.soundcloud.android.utils.CloudUtils;
+
+import android.os.Parcelable;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
-import java.util.*;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
+import java.util.ArrayList;
 
 public class LoadActivitiesTask extends RemoteCollectionTask {
     private Activities mCurrentActivities;
