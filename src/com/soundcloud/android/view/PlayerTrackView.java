@@ -548,31 +548,34 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         String action = intent.getAction();
         if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
 
-            if (intent.getBooleanExtra("isSupposedToBePlaying", false)) {
+            if (intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, false)) {
                 hideUnplayable();
                 if (mTrack != null) mTrack.last_playback_error = -1;
             } else {
-                mWaveformController.setPlaybackStatus(false, intent.getLongExtra("position", 0));
+                mWaveformController.setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             }
         } else if (action.equals(CloudPlaybackService.FAVORITE_SET)) {
-            if (mTrack != null && mTrack.id == intent.getLongExtra("id", -1)) {
-                mTrack.user_favorite = intent.getBooleanExtra("isFavorite", false);
+            if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
+                mTrack.user_favorite = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isFavorite, false);
                 setFavoriteStatus();
             }
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {
             onBuffering();
         } else if (action.equals(CloudPlaybackService.BUFFERING_COMPLETE)) {
             mWaveformController.onBufferingStop();
-            mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
+            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
+                    intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
         } else if (action.equals(CloudPlaybackService.PLAYBACK_ERROR)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.PLAYBACK_ERROR;
             mWaveformController.onBufferingStop();
-            mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
+            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
+                    intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             showUnplayable();
         } else if (action.equals(CloudPlaybackService.STREAM_DIED)) {
             mTrack.last_playback_error = ScPlayer.PlayerError.STREAM_ERROR;
             mWaveformController.onBufferingStop();
-            mWaveformController.setPlaybackStatus(intent.getBooleanExtra("isPlaying", false), intent.getLongExtra("position", 0));
+            mWaveformController.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, false),
+                    intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             showUnplayable();
         } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
             mWaveformController.setComments(mTrack.comments, true);

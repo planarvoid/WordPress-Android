@@ -55,19 +55,19 @@ public class PlaylistManagerTest {
 
         expect(pm.length()).toEqual(tracks.size());
 
-        Track track = pm.getTrack();
+        Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #0");
 
         expect(pm.next()).toBeTrue();
-        track = pm.getTrack();
+        track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #1");
         expect(pm.getPrev().title).toEqual("track #0");
         expect(pm.getNext().title).toEqual("track #2");
 
         expect(pm.next()).toBeTrue();
-        track = pm.getTrack();
+        track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #2");
         expect(pm.getPrev().title).toEqual("track #1");
@@ -85,14 +85,14 @@ public class PlaylistManagerTest {
         expect(pm.length()).toEqual(tracks.size());
         expect(pm.isEmpty()).toBeFalse();
 
-        Track track = pm.getTrack();
+        Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #1");
         expect(pm.getPrev()).not.toBeNull();
         expect(pm.getPrev().title).toEqual("track #0");
 
         expect(pm.next()).toBeTrue();
-        track = pm.getTrack();
+        track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #2");
         expect(pm.getPrev()).not.toBeNull();
@@ -106,7 +106,7 @@ public class PlaylistManagerTest {
         pm.setUri(Content.TRACKS.uri, tracks.size() + 100); // out of range
 
         expect(pm.length()).toEqual(tracks.size());
-        Track track = pm.getTrack();
+        Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #0");
     }
@@ -117,7 +117,7 @@ public class PlaylistManagerTest {
         pm.setUri(Content.TRACKS.uri, -10); // out of range
 
         expect(pm.length()).toEqual(tracks.size());
-        Track track = pm.getTrack();
+        Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #0");
     }
@@ -127,19 +127,19 @@ public class PlaylistManagerTest {
         pm.setPlaylist(createTracks(3), 0);
         expect(pm.length()).toEqual(3);
 
-        Track track = pm.getTrack();
+        Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #0");
 
         expect(pm.next()).toBeTrue();
-        track = pm.getTrack();
+        track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #1");
         expect(pm.getPrev().title).toEqual("track #0");
         expect(pm.getNext().title).toEqual("track #2");
 
         expect(pm.next()).toBeTrue();
-        track = pm.getTrack();
+        track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
         expect(track.title).toEqual("track #2");
         expect(pm.getPrev().title).toEqual("track #1");
@@ -170,9 +170,9 @@ public class PlaylistManagerTest {
     public void shouldLoadFavoritesAsPlaylist() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
         pm.setUri(Content.ME_FAVORITES.uri,1);
-        expect(pm.getTrack().id).toEqual(10696200l);
+        expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
-        expect(pm.getTrack().id).toEqual(10602324l);
+        expect(pm.getCurrentTrack().id).toEqual(10602324l);
 
     }
 
@@ -180,10 +180,10 @@ public class PlaylistManagerTest {
     public void shouldSaveAndRestoreFavoritesAsPlaylist() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
         pm.setUri(Content.ME_FAVORITES.uri, 1);
-        expect(pm.getTrack().id).toEqual(10696200l);
+        expect(pm.getCurrentTrack().id).toEqual(10696200l);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getTrack().id).toEqual(10696200l);
+        expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.getPosition()).toEqual(1);
     }
 
@@ -191,13 +191,13 @@ public class PlaylistManagerTest {
     public void shouldSaveAndRestoreFavoritesAsPlaylistWithMovedTrack() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
         pm.setUri(Content.ME_FAVORITES.uri, 1);
-        expect(pm.getTrack().id).toEqual(10696200l);
+        expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
 
         pm.saveQueue(1000l);
 
         expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getTrack().id).toEqual(10602324l);
+        expect(pm.getCurrentTrack().id).toEqual(10602324l);
         expect(pm.getPosition()).toEqual(2);
     }
 
@@ -205,7 +205,7 @@ public class PlaylistManagerTest {
     public void shouldSavePlaylistStateInUri() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
         pm.setUri(Content.ME_FAVORITES.uri, 1);
-        expect(pm.getTrack().id).toEqual(10696200l);
+        expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
         expect(pm.getPlaylistState(123L)).toEqual(
           Content.ME_FAVORITES.uri + "?trackId=10602324&playlistPos=2&seekPos=123"
@@ -215,7 +215,7 @@ public class PlaylistManagerTest {
     @Test
     public void shouldSavePlaylistStateInUriWithSetPlaylist() throws Exception {
         pm.setPlaylist(createTracks(10), 5);
-        expect(pm.getTrack().id).toEqual(5L);
+        expect(pm.getCurrentTrack().id).toEqual(5L);
         expect(pm.getPlaylistState(123L)).toEqual(
             PlaylistManager.DEFAULT_PLAYLIST_URI + "?trackId=5&playlistPos=5&seekPos=123"
         );

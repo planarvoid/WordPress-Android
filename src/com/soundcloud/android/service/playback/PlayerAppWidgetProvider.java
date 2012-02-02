@@ -54,7 +54,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
         views.setViewVisibility(R.id.user_txt, View.GONE);
 
         // initialize controls
-        views.linkButtons(context, null);
+        views.linkButtons(context, -1, -1, false);
         pushUpdate(context, appWidgetIds, views);
     }
 
@@ -95,21 +95,25 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
         final PlaybackRemoteViews views = new PlaybackRemoteViews(context.getPackageName(), R.layout.appwidget_player);
 
 
-        views.setPlaybackStatus(intent.getBooleanExtra("isSupposedToBePlaying", false));
+        views.setPlaybackStatus(intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isSupposedToBePlaying, false));
 
-        Track current = intent.getParcelableExtra("trackParcel");
+        final long trackId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1);
+        if (trackId != -1){
+            views.setImageViewResource(R.id.btn_favorite, intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isFavorite, false)
+                    ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_favorite_states);
 
-        if (current != null) {
-            views.setImageViewResource(R.id.btn_favorite,
-                    current.user_favorite ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_favorite_states);
-            if (mCurrentTrackId != current.id) {
-                mCurrentTrackId = current.id;
-                views.setCurrentTrack(current);
+            if (mCurrentTrackId != trackId) {
+                mCurrentTrackId = trackId;
+                views.setCurrentTrack(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.title),
+                        intent.getStringExtra(CloudPlaybackService.BroadcastExtras.username));
             }
 
-            views.linkButtons(context, current);
+            views.linkButtons(context, trackId,intent.getLongExtra(CloudPlaybackService.BroadcastExtras.user_id,-1),
+                    intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isFavorite,false)) ;
+
             pushUpdate(context, appWidgetIds, views);
         }
+
     }
 
 
