@@ -287,12 +287,14 @@ public abstract class ScActivity extends android.app.Activity {
                     position -= ((MyTracksAdapter)wrapper.getWrappedAdapter()).getPendingRecordingsCount();
                 }
                 playIntent = new Intent(this, CloudPlaybackService.class)
+                        .putExtra("trackId", t.id)
                         .putExtra("playPos", position)
                         .setData(playableUri)
                         .setAction(CloudPlaybackService.PLAY);
             } else {
                 CloudPlaybackService.playlistXfer = wrapper.getData();
                 playIntent = new Intent(this, CloudPlaybackService.class)
+                    .putExtra("trackId", t.id)
                     .putExtra("playPos", position)
                     .putExtra("playFromXferCache", true)
                     .setAction(CloudPlaybackService.PLAY);
@@ -301,7 +303,6 @@ public abstract class ScActivity extends android.app.Activity {
             if (goToPlayer) {
                 Intent i = new Intent(this, ScPlayer.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                i.putExtra("showTrackId",t.id);
                 i.putExtra("playIntent",playIntent);
                 i.putExtra("commentMode",commentMode);
                 startActivity(i);

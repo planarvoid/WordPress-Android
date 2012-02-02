@@ -49,6 +49,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private WorkspaceView mTrackWorkspace;
     private int mCurrentQueuePosition = -1;
     private Drawable mFavoriteDrawable, mFavoritedDrawable;
+    private Intent mPlayIntent;
 
 
     public interface PlayerError {
@@ -98,8 +99,10 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         final Object[] saved = (Object[]) getLastNonConfigurationInstance();
         if (saved != null && saved[0] != null) mPlayingTrack = (Track) saved[0];
 
-        if (getIntent().hasExtra("showTrackId")){
-            setTrackDisplaySingleTrack(getIntent().getLongExtra("showTrackId", -1), true);
+        if (getIntent().hasExtra("playIntent")){
+            mPlayIntent = getIntent().getParcelableExtra("playIntent");
+            getIntent().getExtras().remove("playIntent");
+            setTrackDisplaySingleTrack(mPlayIntent.getLongExtra("trackId",-1), true);
         }
 
         // this is to make sure keyboard is hidden after commenting
@@ -305,9 +308,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     protected void onServiceBound() {
         super.onServiceBound();
 
-        if (getIntent().hasExtra("playIntent")) {
-            startService(getIntent().<Intent>getParcelableExtra("playIntent"));
-            getIntent().getExtras().clear();
+        if (mPlayIntent != null) {
+            startService(mPlayIntent);
+            mPlayIntent = null;
         } else {
             long trackId = -1;
             try {
@@ -407,7 +410,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     private void doPauseResume() {
         try {
-            if (mPlaybackService != null) {
+            if (mPlaybackService != null && mPlayIntent == null) {
                 mPlaybackService.toggle();
                 if (mWaveformLoaded) mPlaybackService.setClearToPlay(true);
                 long next = refreshNow();
@@ -422,7 +425,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private void setPauseButtonImage() {
         if (mPauseButton == null) return;
         try {
-            if (mPlaybackService != null && mPlaybackService.isSupposedToBePlaying()) {
+            if (mPlayIntent != null || (mPlaybackService != null && mPlaybackService.isSupposedToBePlaying())) {
                 mPauseButton.setImageDrawable(mPauseState);
             } else {
                 mPauseButton.setImageDrawable(mPlayState);
