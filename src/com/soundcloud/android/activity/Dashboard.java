@@ -29,7 +29,7 @@ import java.util.ArrayList;
 public class Dashboard extends ScActivity {
     protected ScListView mListView;
     private String mTrackingPath;
-    private Tab mCurrentTab;
+    private Main.Tab mCurrentTab;
 
     private static final String EXCLUSIVE_ONLY_KEY = "incoming_exclusive_only";
 
@@ -44,7 +44,7 @@ public class Dashboard extends ScActivity {
         ScTabView trackListView;
         EmptyCollection ec = new EmptyCollection(this);
 
-        mCurrentTab = Tab.fromIntent(intent);
+        mCurrentTab = Main.Tab.fromIntent(intent);
         switch(mCurrentTab) {
             case STREAM:
                 ec.setMessageText(R.string.list_empty_stream_message)
@@ -145,7 +145,7 @@ public class Dashboard extends ScActivity {
         super.onResume();
         trackPage(mTrackingPath);
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
-                .cancel(mCurrentTab == Tab.ACTIVITY ?
+                .cancel(mCurrentTab == Main.Tab.ACTIVITY ?
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID :
                         Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
     }
@@ -191,7 +191,7 @@ public class Dashboard extends ScActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-         if (mCurrentTab != Tab.ACTIVITY) {
+         if (mCurrentTab != Main.Tab.ACTIVITY) {
             menu.add(menu.size(), Consts.OptionsMenu.FILTER, 0, R.string.menu_stream_setting).setIcon(
                 R.drawable.ic_menu_incoming);
         }
@@ -232,70 +232,4 @@ public class Dashboard extends ScActivity {
         }
     }
 
-    public enum Tab {
-        STREAM("stream", Dashboard.class, R.string.tab_stream, R.drawable.ic_tab_incoming),
-        ACTIVITY("activity",Dashboard.class, R.string.tab_activity, R.drawable.ic_tab_news),
-        RECORD("record", ScCreate.class, R.string.tab_record, R.drawable.ic_tab_record),
-        PROFILE("profile", UserBrowser.class, R.string.tab_you, R.drawable.ic_tab_you),
-        SEARCH("search", ScSearch.class, R.string.tab_search, R.drawable.ic_tab_search),
-        UNKNOWN("unknown", null, -1, -1);
-
-        final String tag;
-        final int labelId, drawableId;
-        final Class<? extends android.app.Activity> activityClass;
-
-        static final Tab DEFAULT = UNKNOWN;
-
-        Tab(String tag, Class<? extends android.app.Activity> activityClass, int labelId, int drawableId) {
-            this.tag = tag;
-            this.labelId = labelId;
-            this.drawableId = drawableId;
-            this.activityClass = activityClass;
-        }
-
-        public static Tab fromIntent(Intent intent) {
-            if (intent == null) {
-                return DEFAULT;
-            } else if (intent.hasExtra("tab")) {
-                return fromString(intent.getStringExtra("tab"));
-            } else if (intent.getAction() != null) {
-                return fromAction(intent.getAction());
-            } else {
-                return DEFAULT;
-            }
-        }
-
-        public static Tab fromString(String s) {
-            for (Tab t : values()) {
-                if (t.tag.equalsIgnoreCase(s)) return t;
-            }
-            return UNKNOWN;
-        }
-
-        private static Tab fromAction(String action) {
-            Tab tab;
-            if (Actions.ACTIVITY.equals(action)) {
-                tab = ACTIVITY;
-            } else if (Actions.RECORD.equals(action)) {
-                tab = RECORD;
-            } else if (Actions.SEARCH.equals(action)) {
-                tab = SEARCH;
-            } else if (Actions.STREAM.equals(action)) {
-                tab = STREAM;
-            } else if (Actions.PROFILE.equals(action)) {
-                tab = PROFILE;
-            } else {
-                tab = DEFAULT;
-            }
-            return tab;
-        }
-
-        public Intent getIntent(Context context) {
-            Intent intent = new Intent(context, activityClass);
-            if (Dashboard.class.equals(activityClass)) {
-                intent.putExtra("tab", tag);
-            }
-            return intent;
-        }
-    }
 }

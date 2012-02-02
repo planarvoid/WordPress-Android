@@ -129,7 +129,7 @@ public interface AndroidCloudAPI extends CloudAPI {
             return new ObjectMapper() {
                 {
                     configure(SerializationConfig.Feature.DEFAULT_VIEW_INCLUSION, false);
-                    setDateFormat(CloudDateFormat.INSTANCE);
+                    setDateFormat(new CloudDateFormat());
                 }
             };
         }
@@ -174,17 +174,22 @@ public interface AndroidCloudAPI extends CloudAPI {
 
     public static class CloudDateFormat extends StdDateFormat {
         /** Used by the SoundCloud API */
-        public static final DateFormat CLOUDDATEFMT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
+        private final DateFormat dateFormat;
+        // SimpleDateFormat & co are not threadsafe - use thread local instance for static access
+        private static ThreadLocal<CloudDateFormat> threadLocal = new ThreadLocal<CloudDateFormat>();
 
-        static {
-            CLOUDDATEFMT.setTimeZone(TimeZone.getTimeZone("GMT"));
+        private static CloudDateFormat instance() {
+            CloudDateFormat fmt = threadLocal.get();
+            if (fmt == null) {
+                fmt = new CloudDateFormat();
+                threadLocal.set(fmt);
+            }
+            return fmt;
         }
-
-        public static final DateFormat INSTANCE = new CloudDateFormat();
 
         public static Date fromString(String s) {
             try {
-                return INSTANCE.parse(s);
+                return instance().parse(s);
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
@@ -193,28 +198,31 @@ public interface AndroidCloudAPI extends CloudAPI {
         public static long toTime(String s) {
             return fromString(s).getTime();
         }
-        
-        public static String format(long tstamp) {
-            return CLOUDDATEFMT.format(tstamp);
+
+        public static String formatDate(long tstamp) {
+            return instance().format(tstamp);
         }
 
-        private CloudDateFormat() {}
+        private CloudDateFormat() {
+            dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        }
 
         @SuppressWarnings({"CloneDoesntCallSuperClone"})
         @Override
-        public StdDateFormat clone() {
+        public CloudDateFormat clone() {
             return new CloudDateFormat();
         }
 
         @Override
         public Date parse(String dateStr, ParsePosition pos) {
-            final Date d = CLOUDDATEFMT.parse(dateStr, pos);
+            final Date d = dateFormat.parse(dateStr, pos);
             return (d == null) ? super.parse(dateStr, pos) : d;
         }
 
         @Override
         public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
-            return CLOUDDATEFMT.format(date, toAppendTo, fieldPosition);
+            return dateFormat.format(date, toAppendTo, fieldPosition);
         }
     }
 }

@@ -12,13 +12,13 @@ import android.content.Intent;
 public class DashboardTest {
     @Test
     public void shoulGoToStream() throws Exception {
-        Dashboard db = createDashboard(Dashboard.Tab.STREAM);
+        Dashboard db = createDashboard(Main.Tab.STREAM);
         expect(db.mListView).not.toBeNull();
     }
 
     @Test
     public void shoulGoToActivities() throws Exception {
-        Dashboard db = createDashboard(Dashboard.Tab.ACTIVITY);
+        Dashboard db = createDashboard(Main.Tab.ACTIVITY);
         expect(db.mListView).not.toBeNull();
     }
 
@@ -30,13 +30,13 @@ public class DashboardTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowIfInvalidTabSpecified() throws Exception {
         Dashboard dashboard = new Dashboard();
-        dashboard.setIntent(new Intent().putExtra("tab", "unknown"));
+        dashboard.setIntent(new Intent().putExtra(Main.TAB_TAG, "unknown"));
         dashboard.onCreate(null);
     }
 
-    private Dashboard createDashboard(Dashboard.Tab tab) {
+    private Dashboard createDashboard(Main.Tab tab) {
         Dashboard dashboard = new Dashboard();
-        dashboard.setIntent(new Intent().putExtra("tab", tab.tag));
+        dashboard.setIntent(new Intent().putExtra(Main.TAB_TAG, tab.tag));
         dashboard.onCreate(null);
         return dashboard;
     }

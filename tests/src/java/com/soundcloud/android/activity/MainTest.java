@@ -9,6 +9,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.service.auth.AuthenticatorService;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.message.BasicHeader;
@@ -133,5 +134,21 @@ public class MainTest {
         expect(track).not.toBeNull();
         expect(track.id).toEqual(12345L);
         expect(track.title).toEqual("recording on sunday night");
+    }
+
+    @Test
+    public void shouldGoToRecordAfterLoggingIn() throws Exception {
+        Main main = new Main();
+        main.setIntent(new Intent().putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, "sth"));
+        main.onCreate(null);
+        expect(main.getTabHost().getCurrentTabTag()).toEqual(Main.Tab.RECORD.tag);
+    }
+
+    @Test
+    public void shouldGoToSpecificTab() throws Exception {
+        Main main = new Main();
+        main.setIntent(new Intent().putExtra(Main.TAB_TAG, Main.Tab.ACTIVITY.tag));
+        main.onCreate(null);
+        expect(main.getTabHost().getCurrentTabTag()).toEqual(Main.Tab.ACTIVITY.tag);
     }
 }
