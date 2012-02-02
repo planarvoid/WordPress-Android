@@ -491,14 +491,14 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final int queuePos = intent.getIntExtra("queuePosition", -1);
+            final int queuePos = intent.getIntExtra(CloudPlaybackService.BroadcastExtras.queuePosition, -1);
             String action = intent.getAction();
             if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 if (mCurrentQueuePosition != queuePos) {
                     if (mCurrentQueuePosition != -1 && queuePos == mCurrentQueuePosition + 1 && !mTrackWorkspace.isScrolling()) { // auto advance
                         mTrackWorkspace.scrollRight();
                     } else {
-                        setTrackDisplayFromService(intent.getLongExtra("id", -1));
+                        setTrackDisplayFromService(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1));
                     }
                 }
                 for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++) {
@@ -514,7 +514,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
                 setPauseButtonImage();
-                if (getTrackView(queuePos) != null) getTrackView(queuePos).setPlaybackStatus(false, intent.getLongExtra("position", 0));
+                if (getTrackView(queuePos) != null) getTrackView(queuePos).setPlaybackStatus(false, intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, 0));
             } else if (action.equals(CloudPlaybackService.FAVORITE_SET) ||
                         action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
                         action.equals(Consts.IntentActions.COMMENT_ADDED)) {

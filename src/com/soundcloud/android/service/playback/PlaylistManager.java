@@ -72,7 +72,8 @@ public class PlaylistManager {
     }
 
     public long getCurrentTrackId() {
-        return getTrackAt(mPlayPos).id;
+        final Track currentTrack = getCurrentTrack();
+        return currentTrack == null ? -1 : currentTrack.id;
     }
 
     public Track getTrackAt(int pos) {

@@ -25,11 +25,11 @@ public class PlaybackRemoteViews extends RemoteViews{
         super(parcel);
     }
 
-    public void linkButtons(Context context, Track track) {
-        linkButtons(context,track,null);
+    public void linkButtons(Context context, long trackId, long userId, boolean userFavorite) {
+        linkButtons(context,trackId,userId,userFavorite,null);
     }
 
-    public void linkButtons(Context context, Track track, String extraFlag) {
+    public void linkButtons(Context context, long trackId, long userId, boolean userFavorite, String extraFlag) {
         // Connect up various buttons and touch events
         final ComponentName name = new ComponentName(context, CloudPlaybackService.class);
         final Intent previous = new Intent(CloudPlaybackService.PREVIOUS_ACTION).setComponent(name);
@@ -56,27 +56,27 @@ public class PlaybackRemoteViews extends RemoteViews{
         setOnClickPendingIntent(R.id.close, PendingIntent.getService(context,
                 0 /* requestCode */, close, 0 /* flags */));
 
-        if (track != null) {
-            final Intent browser = new Intent(context, UserBrowser.class).putExtra("userId", track.user.id);
+        if (trackId != -1) {
+            final Intent browser = new Intent(context, UserBrowser.class).putExtra("userId", userId);
             if (!TextUtils.isEmpty(extraFlag)) browser.putExtra(extraFlag,true);
             setOnClickPendingIntent(R.id.user_txt,
                     PendingIntent.getActivity(context, 0, browser, PendingIntent.FLAG_UPDATE_CURRENT));
 
             final Intent toggleLike = new Intent(
-                    track.user_favorite ?
+                    userFavorite ?
                             CloudPlaybackService.REMOVE_FAVORITE :
                             CloudPlaybackService.ADD_FAVORITE)
                     .setComponent(name)
-                    .putExtra("trackId", track.id);
+                    .putExtra("trackId", trackId);
             if (!TextUtils.isEmpty(extraFlag)) toggleLike.putExtra(extraFlag,true);
             setOnClickPendingIntent(R.id.btn_favorite, PendingIntent.getService(context,
                     0 /* requestCode */, toggleLike, PendingIntent.FLAG_UPDATE_CURRENT));
         }
     }
 
-    public void setCurrentTrack(Track current) {
-        setTextViewText(R.id.title_txt, current.title);
-        setTextViewText(R.id.user_txt, current.user.username);
+    public void setCurrentTrack(CharSequence title, CharSequence username) {
+        setTextViewText(R.id.title_txt, title);
+        setTextViewText(R.id.user_txt, username);
         setViewVisibility(R.id.by_txt, View.VISIBLE);
         setViewVisibility(R.id.user_txt, View.VISIBLE);
     }
