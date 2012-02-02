@@ -154,6 +154,10 @@ public class WorkspaceView extends ViewGroup {
         mMinLengthForAFling -= mTouchSlop;
     }
 
+    public boolean isInitialized(){
+        return mScroller != null;
+    }
+
     public boolean isScrolling() {
         return mTouchState == TOUCH_STATE_SCROLLING;
     }

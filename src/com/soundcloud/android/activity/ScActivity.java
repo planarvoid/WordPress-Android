@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import android.net.Uri;
+import android.os.Debug;
 import android.os.Parcelable;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
@@ -97,9 +98,9 @@ public abstract class ScActivity extends android.app.Activity {
 
         } else {
             try {
-                final Track track = mPlaybackService != null ? mPlaybackService.getTrack() : null;
-                if (track != null) {
-                    setPlayingTrack(track.id, mPlaybackService.isPlaying());
+                final long trackId = mPlaybackService.getCurrentTrackId();
+                if (trackId != -1) {
+                    setPlayingTrack(trackId, mPlaybackService.isPlaying());
                 }
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
@@ -221,9 +222,9 @@ public abstract class ScActivity extends android.app.Activity {
         CloudUtils.bindToService(this, CloudPlaybackService.class, osc);
         CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
         try {
-            final Track track = mPlaybackService != null ? mPlaybackService.getTrack() : null;
-            if (track != null) {
-                setPlayingTrack(track.id, mPlaybackService.isPlaying());
+            final long trackId = mPlaybackService != null ? mPlaybackService.getCurrentTrackId() : null;
+            if (trackId != -1) {
+                setPlayingTrack(trackId, mPlaybackService.isPlaying());
             }
         } catch (Exception e) {
             Log.e(TAG, "error", e);
@@ -273,37 +274,40 @@ public abstract class ScActivity extends android.app.Activity {
     }
 
     public void playTrack(int position, final LazyEndlessAdapter wrapper, boolean goToPlayer, boolean commentMode) {
-        // XXX this looks scary
-        SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position)).getTrack());
-        if (position > 0 && wrapper.getItem(position - 1) instanceof Playable){
-            SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position - 1)).getTrack());
-        }
-        if (position < wrapper.getWrappedAdapter().getCount() -1 && wrapper.getItem(position + 1) instanceof Playable){
-            SoundCloudApplication.TRACK_CACHE.put(((Playable) wrapper.getItem(position + 1)).getTrack());
-        }
+
+        wrapper.cachePlayableGroup(position);
+
         final Track t = ((Playable) wrapper.getItem(position)).getTrack();
         if (!handleTrackAlreadyPlaying(t, goToPlayer, commentMode)) {
+
+            Intent playIntent = null;
             final Uri playableUri = wrapper.getPlayableUri();
             if (playableUri != null) {
                 if (wrapper.getWrappedAdapter() instanceof MyTracksAdapter) {
                     position -= ((MyTracksAdapter)wrapper.getWrappedAdapter()).getPendingRecordingsCount();
                 }
-                startService(new Intent(this, CloudPlaybackService.class)
+                playIntent = new Intent(this, CloudPlaybackService.class)
                         .putExtra("playPos", position)
-                        .setData(wrapper.getContentUri())
-                        .setAction(CloudPlaybackService.PLAY));
+                        .setData(playableUri)
+                        .setAction(CloudPlaybackService.PLAY);
             } else {
                 CloudPlaybackService.playlistXfer = wrapper.getData();
-                startService(new Intent(this, CloudPlaybackService.class)
+                playIntent = new Intent(this, CloudPlaybackService.class)
                     .putExtra("playPos", position)
                     .putExtra("playFromXferCache", true)
-                    .setAction(CloudPlaybackService.PLAY));
+                    .setAction(CloudPlaybackService.PLAY);
             }
 
-
             if (goToPlayer) {
-                launchPlayer(commentMode);
+                Intent i = new Intent(this, ScPlayer.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                i.putExtra("showTrackId",t.id);
+                i.putExtra("playIntent",playIntent);
+                i.putExtra("commentMode",commentMode);
+                startActivity(i);
                 mIgnorePlaybackStatus = true;
+            } else {
+                startService(playIntent);
             }
         }
     }
@@ -325,11 +329,14 @@ public abstract class ScActivity extends android.app.Activity {
     private boolean handleTrackAlreadyPlaying(Track track, boolean goToPlayer, boolean commentMode) {
         // find out if this track is already playing. If it is, just go to the player
         try {
-            final Track playingTrack = mPlaybackService != null ? mPlaybackService.getTrack() : null;
-            if (playingTrack != null && playingTrack.id == track.id) {
+            final long playingTrackId = mPlaybackService != null ? mPlaybackService.getCurrentTrackId() : null;
+            if (playingTrackId == track.id) {
                 if (goToPlayer) {
                     // skip the enqueuing, its already playing
-                    launchPlayer(commentMode);
+                    Intent i = new Intent(this, ScPlayer.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    i.putExtra("commentMode",commentMode);
+                    startActivity(i);
                 } else {
                     mPlaybackService.play();
                 }
@@ -343,10 +350,7 @@ public abstract class ScActivity extends android.app.Activity {
     }
 
     public void launchPlayer(boolean commentMode) {
-        Intent i = new Intent(this, ScPlayer.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        i.putExtra("commentMode",commentMode);
-        startActivity(i);
+
     }
 
 
