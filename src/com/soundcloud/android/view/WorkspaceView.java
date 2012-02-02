@@ -800,6 +800,7 @@ public class WorkspaceView extends ViewGroup {
     }
 
     void snapToScreen(int whichScreen, boolean fast, boolean notify) {
+
         if (!mHasLaidOut) { // Can't handle scrolling until we are laid out.
             mDeferredScreenChange = whichScreen;
             mDeferredScreenChangeFast = fast;
@@ -812,13 +813,11 @@ public class WorkspaceView extends ViewGroup {
         }
 
         whichScreen = Math.max(0, Math.min(whichScreen, getScreenCount() - 1));
-
         final int screenDelta = Math.abs(whichScreen - mCurrentScreen);
 
         final boolean screenChanging =
                 (mNextScreen != INVALID_SCREEN && mNextScreen != whichScreen) ||
                         (mCurrentScreen != whichScreen);
-
         mNextScreen = whichScreen;
 
         View focusedChild = getFocusedChild();
@@ -1144,5 +1143,12 @@ public class WorkspaceView extends ViewGroup {
         if (mSeparatorDrawable != null && getChildCount() > 0){
             removeViewAt(getChildCount() - 1);
         }
+    }
+
+    public void reset(){
+        if (mScroller != null) mScroller.abortAnimation();
+        this.scrollTo(0,0);
+        this.removeAllViews();
+        mCurrentScreen = 0;
     }
 }

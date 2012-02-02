@@ -99,14 +99,25 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         final Object[] saved = (Object[]) getLastNonConfigurationInstance();
         if (saved != null && saved[0] != null) mPlayingTrack = (Track) saved[0];
 
-        if (getIntent().hasExtra("playIntent")){
-            mPlayIntent = getIntent().getParcelableExtra("playIntent");
-            getIntent().getExtras().remove("playIntent");
-            setTrackDisplaySingleTrack(mPlayIntent.getLongExtra("trackId",-1), true);
-        }
+        handleIntent();
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntent();
+    }
+
+    private void handleIntent(){
+        if (getIntent().hasExtra("playIntent")){
+            mPlayIntent = getIntent().getParcelableExtra("playIntent");
+            getIntent().removeExtra("playIntent");
+            setTrackDisplaySingleTrack(mPlayIntent.getLongExtra("trackId",-1), true);
+        }
     }
 
     public void toggleCommentMode(int playPos) {
@@ -608,6 +619,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             }
             mTrackWorkspace.requestLayout();
         }
+
         PlayerTrackView ptv;
         if (mTrackWorkspace.getScreenCount() == 0){
             ptv = new PlayerTrackView(this);

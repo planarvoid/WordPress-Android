@@ -149,7 +149,7 @@ public class PlaylistManager {
 
     public void setPlaylist(final List<? extends Parcelable> playlist, int playPos) {
         // cache a new tracklist
-        mPlaylist = new Track[playlist.size()];
+        mPlaylist = new Track[playlist == null ? 0 : playlist.size()];
 
         int i = 0;
         for (Parcelable p : playlist){
