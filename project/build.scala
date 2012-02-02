@@ -4,18 +4,13 @@ import AndroidKeys._
 
 object General {
   val settings = Defaults.defaultSettings ++ Seq(
-    version := "2.0.1-SNAPSHOT",
-    organization := "com.soundcloud"
+    version := "2.2.0-BETA2", // only used for makePom right now
+    organization := "com.soundcloud",
+    platformName := "android-10"
   )
 
-  val androidSettings =
-    settings ++
-    Seq(
-      platformName := "android-10"
-    )
-
   val androidProjectSettings =
-    androidSettings ++
+    settings ++
     AndroidProject.androidSettings ++
     PlainJavaProject.settings ++
     AndroidMarketPublish.settings ++

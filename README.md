@@ -21,8 +21,7 @@ If you don't want to use maven (who does?!) and have [sbt][] installed:
 ## Handling dependencies / pom.xml
 
 Dependencies should not be included in the repo, they are declared in the sbt
-build file `project/build.scala`, split in `coreDependencies`,
-`providedDependencies` and `testDependencies`.
+build file `project/build.scala`, split in `coreDependencies` and `testDependencies`.
 
 Based on `build.scala` you can generate the `pom.xml` using `sbt mavenize`. To
 actually download the dependencies to your working directory use `mvn
