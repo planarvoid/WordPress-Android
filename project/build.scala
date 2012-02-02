@@ -4,7 +4,6 @@ import AndroidKeys._
 
 object General {
   val settings = Defaults.defaultSettings ++ Seq(
-    version := "2.2.0-BETA2", // only used for makePom right now
     organization := "com.soundcloud",
     platformName := "android-10"
   )
@@ -28,7 +27,8 @@ object AndroidBuild extends Build {
     "com.google.android" % "filecache" % "r153",
     "com.google.android" % "libGoogleAnalytics" % "1.3",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
-    "org.xiph" % "libvorbis" % "1.0.0-beta"
+    "org.xiph" % "libvorbis" % "1.0.0-beta",
+    "com.google.android" % "android" % "2.3.3" % "provided"
   )
 
   val testDependencies = Seq(

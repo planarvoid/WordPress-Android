@@ -23,7 +23,7 @@ If you don't want to use maven (who does?!) and have [sbt][] installed:
 Dependencies should not be included in the repo, they are declared in the sbt
 build file `project/build.scala`, split in `coreDependencies` and `testDependencies`.
 
-Based on `build.scala` you can generate the `pom.xml` using `sbt mavenize`. To
+Based on `build.scala` you can regenerate the `pom.xml` using `sbt mavenize`. To
 actually download the dependencies to your working directory use `mvn
 process-resources -U`, this will populate `lib/` and `tests/lib`.
 
@@ -31,14 +31,14 @@ process-resources -U`, this will populate `lib/` and `tests/lib`.
 
   * Make sure build is green (cf [Builder][])
   * For major releases - install previous market version and test upgrade process
-  * Increase `versionCode` and set `versionName` in `AndroidManifest.xml`, set version in `pom.xml`
+  * Increase `versionCode` and set `versionName` in `AndroidManifest.xml`
   * Document changes in [changelog.txt][] and change the release date
   * Tag the current version (`rake release:tag`)
-  * Do a quick sanity check diff from the previous released version (`git diff 1.x.y..1.3.2`)
+  * Do a quick sanity check diff from the previous released version (e.g. `git diff 1.3.1..1.3.2`)
   * Make sure you've got the keystore in `PROJECT_ROOT/soundcloud_sign`
-  * Build and sign: `mvn clean install -Psign -DskipTests -Djarsigner.storepass=....` (prefix
-  command with space to skip history)
-  * Upload `target/soundcloud-android-1.x.y-market.apk` to the market
+  * Build and sign: `sbt android:prepare-market`
+  * Upload `target/soundcloud-android-x.y.z-market.apk` to the market
+  * Important: upload apk to github for archival: `sbt android:github-upload`
   * Release a beta with the same version code used in the release process
 
 ## Releasing betas
@@ -47,7 +47,6 @@ process-resources -U`, this will populate `lib/` and `tests/lib`.
   * Build the apk: `rake beta:build`
   * Tag the current beta version: `rake beta:tag`
   * Upload to S3: `rake beta:upload`
-  * Push notifications to beta clients: `rake beta:notify`
 
 ## Integration from other Android apps
 

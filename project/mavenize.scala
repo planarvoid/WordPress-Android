@@ -147,9 +147,9 @@ object Mavenizer {
 
     lazy val settings:Seq[Setting[_]] = Seq(
       pomExtra := pom,
-      pomPostProcess <<= (version) apply { (v) => { (node: scala.xml.Node) =>
-        doPomPostProcess(node, "soundcloud-android", v)
-      }},
+      pomPostProcess <<= (version) ( (v) => (node =>
+        doPomPostProcess(node, "soundcloud-android", versionName)
+      )),
       makePomConfiguration <<= (artifactPath in makePom, projectInfo, pomExtra,
                                 pomPostProcess, pomIncludeRepository,
                                 pomAllRepositories) {
@@ -165,10 +165,8 @@ object Mavenizer {
       }
     )
 
-    /*
-    lazy val versionName =
-        manifest.attribute("http://schemas.android.com/apk/res/android", "versionName")
-                .getOrElse(error("no versionName"))
-                .text
-    */
+    lazy val versionName = scala.xml.XML.loadFile("AndroidManifest.xml")
+                .attribute("http://schemas.android.com/apk/res/android", "versionName")
+                .map(_.text)
+                .getOrElse(sys.error("no versionName"))
 }
