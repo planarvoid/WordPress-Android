@@ -36,7 +36,7 @@ process-resources -U`, this will populate `lib/` and `tests/lib`.
   * Tag the current version (`rake release:tag`)
   * Do a quick sanity check diff from the previous released version (e.g. `git diff 1.3.1..1.3.2`)
   * Make sure you've got the keystore in `PROJECT_ROOT/soundcloud_sign`
-  * Build and sign: `sbt android:prepare-market`
+  * Build and sign: `sbt clean android:prepare-market`
   * Upload `target/soundcloud-android-x.y.z-market.apk` to the market
   * Important: upload apk to github for archival: `sbt android:github-upload`
   * Release a beta with the same version code used in the release process
