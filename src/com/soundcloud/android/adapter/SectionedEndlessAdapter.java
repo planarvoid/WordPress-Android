@@ -77,6 +77,10 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter {
         return getWrappedAdapter().getLoadModel(refresh ? 0 : mSectionIndex);
     }
 
+    public Class<?> getRefreshModel() {
+        return getLoadModel(false);
+    }
+
     @Override
     public void resetData(){
         mSectionIndex = 0;
