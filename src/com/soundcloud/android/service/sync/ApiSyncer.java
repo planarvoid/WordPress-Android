@@ -174,6 +174,7 @@ public class ApiSyncer {
                         Content.TRACKS,
                         false
                 ));
+                break;
             default:
                 // ensure the first couple of pages of items for quick loading
                 added = SoundCloudDB.bulkInsertParcelables(mResolver, getAdditionsFromIds(
