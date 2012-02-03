@@ -47,9 +47,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public static final String TAG = "CloudPlaybackService";
     public static List<Parcelable> playlistXfer;
 
-    public static final String PLAY_EXTRA_PLAY_POSITION  = "playPos";
-    public static final String PLAY_EXTRA_PLAY_FROM_XFER_CACHE  = "playFromXferCache";
-
     public static final String PLAYSTATE_CHANGED  = "com.soundcloud.android.playstatechanged";
     public static final String META_CHANGED       = "com.soundcloud.android.metachanged";
     public static final String PLAYBACK_COMPLETE  = "com.soundcloud.android.playbackcomplete";
@@ -140,6 +137,13 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private WeakReference<Bitmap> mDefaultArtwork;
     public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
     private Notification status;
+
+    public interface PlayExtras{
+        String trackId = "track_id";
+        String groupIds = "group_ids";
+        String playPosition = "play_position";
+        String playFromXferCache = "play_from_xfer_cache";
+    }
 
     public interface BroadcastExtras{
         String id = "id";
@@ -916,16 +920,15 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "handlePlayAction("+intent+")");
         }
-
         Track track = intent.getParcelableExtra("track");
         if (track != null) {
             mPlaylistManager.setTrack(track);
             openCurrent();
         } else if (intent.getData() != null) {
-            mPlaylistManager.setUri(intent.getData(), intent.getIntExtra(PLAY_EXTRA_PLAY_POSITION, 0));
+            mPlaylistManager.setUri(intent.getData(), intent.getIntExtra(PlayExtras.playPosition, 0), intent.getLongArrayExtra(PlayExtras.groupIds));
             openCurrent();
-        } else if (intent.getBooleanExtra(PLAY_EXTRA_PLAY_FROM_XFER_CACHE, false)) {
-            mPlaylistManager.setPlaylist(playlistXfer,intent.getIntExtra(PLAY_EXTRA_PLAY_POSITION, 0));
+        } else if (intent.getBooleanExtra(PlayExtras.playFromXferCache, false)) {
+            mPlaylistManager.setPlaylist(playlistXfer,intent.getIntExtra(PlayExtras.playPosition, 0));
             playlistXfer = null;
             openCurrent();
         } else {

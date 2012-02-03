@@ -465,26 +465,4 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     public void onRefresh() {
         refresh(true);
     }
-
-    @Override
-    public void onReceiveResult(int resultCode, Bundle resultData) {
-    }
-
-    public void cachePlayableGroup(int position) {
-        if (position < 0 || position >= getData().size()) return;
-
-        cacheIfPlayable(getData().get(position));
-        if (position > 0){
-            cacheIfPlayable(getData().get(position-1));
-        }
-        if (position < getData().size() - 1){
-            cacheIfPlayable(getData().get(position+1));
-        }
-    }
-
-    private void cacheIfPlayable(Parcelable p){
-        if (p instanceof Playable){
-            SoundCloudApplication.TRACK_CACHE.put(((Playable)p).getTrack());
-        }
-    }
 }

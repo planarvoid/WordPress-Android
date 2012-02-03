@@ -132,7 +132,7 @@ public class PlaylistManager {
         mPlayPos = 0;
     }
 
-    public void setUri(Uri uri, int position) {
+    public void setUri(Uri uri, int position, long[] tempPlaylist) {
         mPlaylistUri = uri;
         if (mTrackCursor != null){
             if (!mTrackCursor.isClosed()) mTrackCursor.close();
@@ -212,8 +212,8 @@ public class PlaylistManager {
         final String lastUri = preferences.getString(PREF_PLAYLIST_URI, null);
         if (!TextUtils.isEmpty(lastUri)){
             final Uri uri = Uri.parse(lastUri);
-            setUri(uri, extractValue(uri, PARAM_PLAYLIST_POS, 0));
             final long trackId = extractValue(uri, PARAM_TRACK_ID, 0);
+            setUri(uri, extractValue(uri, PARAM_PLAYLIST_POS, 0), new long[]{trackId});
             long seekPos = extractValue(uri, PARAM_SEEK_POS, 0);
 
             if (trackId != 0 && getCurrentTrack().id != trackId && Content.match(uri).isCollectionItem()) {

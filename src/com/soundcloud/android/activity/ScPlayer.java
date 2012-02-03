@@ -1,18 +1,6 @@
 
 package com.soundcloud.android.activity;
 
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.FocusHelper;
-import com.soundcloud.android.view.PlayerTrackView;
-import com.soundcloud.android.view.WaveformController;
-import com.soundcloud.android.view.WorkspaceView;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +18,17 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.FocusHelper;
+import com.soundcloud.android.view.PlayerTrackView;
+import com.soundcloud.android.view.WaveformController;
+import com.soundcloud.android.view.WorkspaceView;
 
 public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
     private static final String TAG = "ScPlayer";
@@ -49,7 +48,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private WorkspaceView mTrackWorkspace;
     private int mCurrentQueuePosition = -1;
     private Drawable mFavoriteDrawable, mFavoritedDrawable;
-    private Intent mPlayIntent;
 
 
     public interface PlayerError {
@@ -99,25 +97,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         final Object[] saved = (Object[]) getLastNonConfigurationInstance();
         if (saved != null && saved[0] != null) mPlayingTrack = (Track) saved[0];
 
-        handleIntent();
-
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        handleIntent();
-    }
-
-    private void handleIntent(){
-        if (getIntent().hasExtra("playIntent")){
-            mPlayIntent = getIntent().getParcelableExtra("playIntent");
-            getIntent().removeExtra("playIntent");
-            setTrackDisplaySingleTrack(mPlayIntent.getLongExtra("trackId",-1), true);
-        }
     }
 
     public void toggleCommentMode(int playPos) {
@@ -319,39 +300,34 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     protected void onServiceBound() {
         super.onServiceBound();
 
-        if (mPlayIntent != null) {
-            startService(mPlayIntent);
-            mPlayIntent = null;
+        long trackId = -1;
+        try {
+            trackId = mPlaybackService.getCurrentTrackId();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        if (trackId == -1) {
+            Intent intent = new Intent(this, Main.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
         } else {
-            long trackId = -1;
-            try {
-                trackId = mPlaybackService.getCurrentTrackId();
-            } catch (RemoteException e) {
-                e.printStackTrace();
+
+            setTrackDisplayFromService(trackId);
+            setPauseButtonImage();
+            long next = refreshNow();
+            queueNextRefresh(next);
+
+            if (getIntent().getBooleanExtra("commentMode", false)) {
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        toggleCommentMode(getCurrentTrackView().getPlayPosition());
+                    }
+                }, 200l);
+                getIntent().putExtra("commentMode", false);
             }
 
-            if (trackId == -1) {
-                Intent intent = new Intent(this, Main.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            } else {
-
-                setTrackDisplayFromService(trackId);
-                setPauseButtonImage();
-                long next = refreshNow();
-                queueNextRefresh(next);
-
-                if (getIntent().getBooleanExtra("commentMode", false)) {
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            toggleCommentMode(getCurrentTrackView().getPlayPosition());
-                        }
-                    }, 200l);
-                    getIntent().putExtra("commentMode", false);
-                }
-
-            }
         }
     }
 
@@ -421,7 +397,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     private void doPauseResume() {
         try {
-            if (mPlaybackService != null && mPlayIntent == null) {
+            if (mPlaybackService != null) {
                 mPlaybackService.toggle();
                 if (mWaveformLoaded) mPlaybackService.setClearToPlay(true);
                 long next = refreshNow();
@@ -436,7 +412,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private void setPauseButtonImage() {
         if (mPauseButton == null) return;
         try {
-            if (mPlayIntent != null || (mPlaybackService != null && mPlaybackService.isSupposedToBePlaying())) {
+            if (mPlaybackService != null && mPlaybackService.isSupposedToBePlaying()) {
                 mPauseButton.setImageDrawable(mPauseState);
             } else {
                 mPauseButton.setImageDrawable(mPlayState);
@@ -611,26 +587,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         return t;
     }
 
-    private void setTrackDisplaySingleTrack(long trackId, boolean showBuffering) {
-        final boolean first = mTrackWorkspace.getChildCount() == 0; // first layout, initialize workspace at end
-        if (mTrackWorkspace.getScreenCount() > 1) {
-            while (mTrackWorkspace.getScreenCount() > 1) {
-                mTrackWorkspace.removeViewFromFront();
-            }
-            mTrackWorkspace.requestLayout();
-        }
-
-        PlayerTrackView ptv;
-        if (mTrackWorkspace.getScreenCount() == 0){
-            ptv = new PlayerTrackView(this);
-            mTrackWorkspace.addView(ptv);
-        } else {
-            ptv = (PlayerTrackView) mTrackWorkspace.getScreenAt(0);
-        }
-        ptv.setTrack(getTrackById(trackId, -1), 0, false);
-        setTrackDisplayIndex(0,showBuffering);
-    }
-
     private void setTrackDisplayFromService(final long trackId) {
         if (mPlaybackService == null || trackId == -1)
             return;
@@ -665,22 +621,19 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 }
             }
 
-            setTrackDisplayIndex(mCurrentQueuePosition > 0 ? 1 : 0, mPlaybackService.isBuffering());
-        } catch (RemoteException ignored) {}
-    }
-
-    private void setTrackDisplayIndex(int position, boolean showBuffering){
-         if (!mTrackWorkspace.isInitialized()){
+            if (!mTrackWorkspace.isInitialized()){
                 mTrackWorkspace.setVisibility(View.VISIBLE);
-                mTrackWorkspace.initWorkspace(position);
+                mTrackWorkspace.initWorkspace(mCurrentQueuePosition > 0 ? 1 : 0);
                 mTrackWorkspace.setSeparator(R.drawable.track_view_seperator);
             } else {
                 mTrackWorkspace.setCurrentScreenNow(mCurrentQueuePosition > 0 ? 1 : 0, false);
             }
 
-            if (showBuffering && getCurrentTrackView() != null){
+            if (mPlaybackService.isBuffering() && getCurrentTrackView() != null){
                 getCurrentTrackView().onBuffering();
             }
+
+        } catch (RemoteException ignored) {}
     }
 
     private void setFavoriteStatus() {

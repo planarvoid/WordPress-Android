@@ -255,10 +255,17 @@ public abstract class ScActivity extends android.app.Activity {
 
     public void playTrack(int position, final LazyEndlessAdapter wrapper, boolean goToPlayer, boolean commentMode) {
 
-        wrapper.cachePlayableGroup(position);
-
         final Track t = ((Playable) wrapper.getItem(position)).getTrack();
         if (!handleTrackAlreadyPlaying(t, goToPlayer, commentMode)) {
+
+            // cache the clicked track and the surrounding track, also make a list for the initial playlist to send to the service
+            ArrayList<Long> playableGroup = new ArrayList<Long>();
+            for (Parcelable p : wrapper.getData().subList(Math.max(0, position - 1), Math.min(position + 1, wrapper.getData().size()))) {
+                if (p instanceof Playable) {
+                    SoundCloudApplication.TRACK_CACHE.put(((Playable) p).getTrack());
+                    playableGroup.add(((Playable) p).getTrack().id);
+                }
+            }
 
             Intent playIntent = null;
             final Uri playableUri = wrapper.getPlayableUri();
@@ -266,24 +273,24 @@ public abstract class ScActivity extends android.app.Activity {
                 if (wrapper.getWrappedAdapter() instanceof MyTracksAdapter) {
                     position -= ((MyTracksAdapter)wrapper.getWrappedAdapter()).getPendingRecordingsCount();
                 }
-                playIntent = new Intent(this, CloudPlaybackService.class)
-                        .putExtra("trackId", t.id)
-                        .putExtra("playPos", position)
+                startService(new Intent(this, CloudPlaybackService.class)
+                        .putExtra(CloudPlaybackService.PlayExtras.trackId, t.id)
+                        .putExtra(CloudPlaybackService.PlayExtras.groupIds, playableGroup.toArray(new Long[0]))
+                        .putExtra(CloudPlaybackService.PlayExtras.playPosition, position)
                         .setData(playableUri)
-                        .setAction(CloudPlaybackService.PLAY);
+                        .setAction(CloudPlaybackService.PLAY));
             } else {
                 CloudPlaybackService.playlistXfer = wrapper.getData();
-                playIntent = new Intent(this, CloudPlaybackService.class)
-                    .putExtra("trackId", t.id)
-                    .putExtra("playPos", position)
-                    .putExtra("playFromXferCache", true)
-                    .setAction(CloudPlaybackService.PLAY);
+                startService(new Intent(this, CloudPlaybackService.class)
+                        .putExtra(CloudPlaybackService.PlayExtras.trackId, t.id)
+                        .putExtra(CloudPlaybackService.PlayExtras.playPosition, position)
+                        .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true)
+                        .setAction(CloudPlaybackService.PLAY));
             }
 
             if (goToPlayer) {
                 Intent i = new Intent(this, ScPlayer.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                i.putExtra("playIntent",playIntent);
                 i.putExtra("commentMode",commentMode);
                 startActivity(i);
                 mIgnorePlaybackStatus = true;
