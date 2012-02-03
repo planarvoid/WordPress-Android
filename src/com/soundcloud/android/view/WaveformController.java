@@ -850,6 +850,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             mTouchThread.stopped = true;
             mTouchThread.interrupt();
         }
+
+        mPlayerAvatarBar.clearTrackData();
+        mCommentLines.clearTrackData();
     }
 
     protected long stampFromPosition(int x) {

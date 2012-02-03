@@ -48,6 +48,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public static final String TAG = "CloudPlaybackService";
     public static List<Playable> playlistXfer;
 
+    public static final String QUEUE_CHANGED      = "com.soundcloud.android.queuechanged";
     public static final String PLAYSTATE_CHANGED  = "com.soundcloud.android.playstatechanged";
     public static final String META_CHANGED       = "com.soundcloud.android.metachanged";
     public static final String PLAYBACK_COMPLETE  = "com.soundcloud.android.playbackcomplete";

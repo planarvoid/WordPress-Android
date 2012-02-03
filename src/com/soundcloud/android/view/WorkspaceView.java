@@ -187,6 +187,11 @@ public class WorkspaceView extends ViewGroup {
         return getChildAt(index * 2);
     }
 
+    public View getLastScreen() {
+        return getScreenAt(getScreenCount()-1);
+    }
+
+
     int getScrollWidth() {
         int w = getWidth();
         if (mSeparatorDrawable != null) {
@@ -1145,10 +1150,9 @@ public class WorkspaceView extends ViewGroup {
         }
     }
 
-    public void reset(){
+    public void resetScroll(){
         if (mScroller != null) mScroller.abortAnimation();
         this.scrollTo(0,0);
-        this.removeAllViews();
         mCurrentScreen = 0;
     }
 }

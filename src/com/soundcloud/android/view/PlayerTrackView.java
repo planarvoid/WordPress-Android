@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.graphics.drawable.BitmapDrawable;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -634,5 +635,14 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
     public long getTrackId() {
         return mTrack == null ? -1 : mTrack.id;
+    }
+
+    public void destroy() {
+        onStop(true);
+        if (mArtwork.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable)mArtwork.getDrawable()).getBitmap().recycle();
+        if (mAvatar.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable)mAvatar.getDrawable()).getBitmap().recycle();
+        mArtwork.setImageBitmap(null);
+        mAvatar.setImageBitmap(null);
+        mWaveformController.onDestroy();
     }
 }
