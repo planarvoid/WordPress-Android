@@ -11,6 +11,7 @@ import com.soundcloud.android.provider.SoundCloudDB;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -132,20 +133,45 @@ public class PlaylistManager {
     }
 
     public void setUri(Uri uri, int position, long[] tempPlaylist) {
-        mPlaylistUri = uri;
-        if (mTrackCursor != null){
-            if (!mTrackCursor.isClosed()) mTrackCursor.close();
+        // set up temp playlist
+        if (tempPlaylist != null && tempPlaylist.length > 0) {
+            mPlaylist = new Track[tempPlaylist.length];
+            for (int i = 0; i < tempPlaylist.length; i++) {
+                mPlaylist[i] = mCache.get(tempPlaylist[i]);
+            }
+            mPlayPos = tempPlaylist.length == 3 ? 1 : 0;
         }
 
-        // TODO : this should be asynchronous. freezes UI currently
-        mTrackCursor = mContext.getContentResolver().query(uri, null, null, null, null);
-        mPlaylist = new Track[mTrackCursor.getCount()];
-        if (position >= 0 && position < mTrackCursor.getCount()){
-            mPlayPos = position;
-            mTrackCursor.moveToPosition(position);
+        if (uri != null) {
+            loadCursor(uri, position);
         }
     }
 
+    private AsyncTask loadCursor(final Uri uri, final int position) {
+        return new AsyncTask<Uri,Void,Cursor>() {
+            @Override protected Cursor doInBackground(Uri... params) {
+                Cursor cursor = mContext.getContentResolver().query(params[0], null, null, null, null);
+                if (cursor != null) {
+                    if (position >= 0 && position < cursor.getCount()) {
+                        cursor.moveToPosition(position);
+                    }
+                }
+                return cursor;
+            }
+            @Override protected void onPostExecute(Cursor cursor) {
+                if (cursor != null) {
+                    mPlaylist = new Track[cursor.getCount()];
+                    if (mTrackCursor != null && !mTrackCursor.isClosed()) mTrackCursor.close();
+                    mTrackCursor = cursor;
+                    mPlayPos = position;
+
+                    Intent intent = new Intent(CloudPlaybackService.PLAYLIST_CHANGED);
+                    intent.putExtra(CloudPlaybackService.BroadcastExtras.queuePosition, position);
+                    mContext.sendBroadcast(intent);
+                }
+            }
+        }.execute(uri);
+    }
     public void setPlaylist(final List<? extends Playable> playlist, int playPos) {
         // cache a new tracklist
         mPlaylist = new Track[playlist == null ? 0 : playlist.size()];
@@ -205,7 +231,10 @@ public class PlaylistManager {
             setUri(uri, extractValue(uri, PARAM_PLAYLIST_POS, 0), new long[]{trackId});
             long seekPos = extractValue(uri, PARAM_SEEK_POS, 0);
 
-            if (trackId != 0 && getCurrentTrack().id != trackId && Content.match(uri).isCollectionItem()) {
+            if (trackId != 0
+                    && getCurrentTrack() != null
+                    && getCurrentTrack().id != trackId
+                    && Content.match(uri).isCollectionItem()) {
                 final int newPos = getPlaylistPositionFromUri(
                         mContext.getContentResolver(),
                         uri,

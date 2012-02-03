@@ -169,7 +169,7 @@ public class PlaylistManagerTest {
     @Test
     public void shouldLoadFavoritesAsPlaylist() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.setUri(Content.ME_FAVORITES.uri,1, null);
+        pm.setUri(Content.ME_FAVORITES.uri, 1, null);
         expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
         expect(pm.getCurrentTrack().id).toEqual(10602324l);

@@ -41,16 +41,15 @@ import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.InterfaceAddress;
 import java.util.List;
 
 public class CloudPlaybackService extends Service implements FocusHelper.MusicFocusable {
     public static final String TAG = "CloudPlaybackService";
     public static List<Playable> playlistXfer;
 
-    public static final String QUEUE_CHANGED      = "com.soundcloud.android.queuechanged";
     public static final String PLAYSTATE_CHANGED  = "com.soundcloud.android.playstatechanged";
     public static final String META_CHANGED       = "com.soundcloud.android.metachanged";
+    public static final String PLAYLIST_CHANGED   = "com.soundcloud.android.playlistchanged";
     public static final String PLAYBACK_COMPLETE  = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_ERROR     = "com.soundcloud.android.trackerror";
     public static final String STREAM_DIED        = "com.soundcloud.android.streamdied";
@@ -760,7 +759,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     private boolean getIsFavorite() {
-        return mCurrentTrack == null ? false : mCurrentTrack.user_favorite;
+        return mCurrentTrack != null && mCurrentTrack.user_favorite;
     }
 
     private boolean isPastBuffer(long pos) {
@@ -927,7 +926,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             mPlaylistManager.setTrack(track);
             openCurrent();
         } else if (intent.getData() != null) {
-            mPlaylistManager.setUri(intent.getData(), intent.getIntExtra(PlayExtras.playPosition, 0), intent.getLongArrayExtra(PlayExtras.groupIds));
+            mPlaylistManager.setUri(intent.getData(),
+                    intent.getIntExtra(PlayExtras.playPosition, 0), intent.getLongArrayExtra(PlayExtras.groupIds)
+            );
             openCurrent();
         } else if (intent.getBooleanExtra(PlayExtras.playFromXferCache, false)) {
             mPlaylistManager.setPlaylist(playlistXfer,intent.getIntExtra(PlayExtras.playPosition, 0));
