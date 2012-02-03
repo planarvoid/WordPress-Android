@@ -59,6 +59,11 @@ public class MyTracksAdapter extends TracklistAdapter {
         return mRecordingData == null ? 0 : mRecordingData.size();
     }
 
+    @Override
+    public int positionOffset() {
+        return getPendingRecordingsCount();
+    }
+
     private void refreshCursor() {
         mCursor = mContext.getContentResolver().query(Content.RECORDINGS.uri, null,
                 Recordings.UPLOAD_STATUS + " < 2",

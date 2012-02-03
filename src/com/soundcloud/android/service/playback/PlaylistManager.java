@@ -3,7 +3,7 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
-import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -15,7 +15,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
@@ -147,34 +146,24 @@ public class PlaylistManager {
         }
     }
 
-    public void setPlaylist(final List<? extends Parcelable> playlist, int playPos) {
+    public void setPlaylist(final List<? extends Playable> playlist, int playPos) {
         // cache a new tracklist
         mPlaylist = new Track[playlist == null ? 0 : playlist.size()];
-
-        int i = 0;
-        for (Parcelable p : playlist){
-            if (p instanceof Track) {
-                mPlaylist[i] = (Track) p;
-            } else if (p instanceof Activity) {
-                mPlaylist[i] = ((Activity) p).getTrack();
-            } else {
-                // not playable, must be a recording.
-                // ignore it and decrease play index to account for it
-                playPos--;
-                continue;
+        if (playlist != null) {
+            for (int i=0; i<playlist.size(); i++) {
+                mPlaylist[i] = playlist.get(i).getTrack();
             }
-            i++;
         }
 
         mPlaylistUri = DEFAULT_PLAYLIST_URI;
-        mPlayPos = Math.max(0,playPos);
+        mPlayPos = Math.max(0, playPos);
 
         // TODO, only do this on exit???
         //noinspection unchecked
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                mContext.getContentResolver().delete(DEFAULT_PLAYLIST_URI,null,null);
+                mContext.getContentResolver().delete(DEFAULT_PLAYLIST_URI, null, null);
                 SoundCloudDB.bulkInsertParcelables(mContext.getContentResolver(), playlist, DEFAULT_PLAYLIST_URI, mUserId);
                 return null;
             }

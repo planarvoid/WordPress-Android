@@ -31,7 +31,7 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playTrack(mTrack, true, false);
+                playTrack(PlayInfo.forTracks(mTrack), true, false);
             }
         });
 

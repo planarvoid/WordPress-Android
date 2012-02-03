@@ -51,8 +51,11 @@ public class TracklistAdapter extends LazyBaseAdapter implements ITracklistAdapt
     }
 
     public void setPlayingId(long currentTrackId, boolean isPlaying) {
-        this.mPlayingId = currentTrackId;
-        this.mIsPlaying = isPlaying;
+        if (mPlayingId != currentTrackId || mIsPlaying != isPlaying) {
+            mPlayingId = currentTrackId;
+            mIsPlaying = isPlaying;
+            notifyDataSetChanged();
+        }
     }
 
     public void addFavorite(Track track) {

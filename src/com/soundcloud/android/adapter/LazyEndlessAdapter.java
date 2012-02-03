@@ -2,27 +2,20 @@
 package com.soundcloud.android.adapter;
 
 
-import android.content.Context;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.*;
+import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ILazyAdapterTask;
-import com.soundcloud.android.task.LoadActivitiesTask;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -30,6 +23,15 @@ import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
+
+import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -268,6 +270,24 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
 
     public List<Parcelable> getData() {
         return getWrappedAdapter().getData();
+    }
+
+    public ScActivity.PlayInfo getPlayInfo(final int position) {
+        ScActivity.PlayInfo info = new ScActivity.PlayInfo();
+        info.uri = getPlayableUri();
+        info.position = position - getWrappedAdapter().positionOffset();
+
+        List<Playable> playables = new ArrayList<Playable>(getData().size());
+        for (int i=0; i< getData().size(); i++) {
+            Parcelable p = getData().get(i);
+            if (p instanceof Playable) {
+                playables.add((Playable) p);
+            } else {
+                throw new AssertionError("No playable");
+            }
+        }
+        info.playables = playables;
+        return info;
     }
 
     @Override

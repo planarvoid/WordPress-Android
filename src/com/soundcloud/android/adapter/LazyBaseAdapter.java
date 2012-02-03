@@ -69,6 +69,11 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
         return mData.get(location);
     }
 
+    // TODO: make MyTracksAdapter#getData() return ALL the data
+    public int positionOffset() {
+        return 0;
+    }
+
     public long getItemId(int position){
         if (position < getCount()){
             Object o = getItem(position);

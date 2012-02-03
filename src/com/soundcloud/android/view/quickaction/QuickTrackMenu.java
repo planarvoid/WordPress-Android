@@ -78,7 +78,7 @@ public class QuickTrackMenu extends QuickAction {
                         if (track.id == mAdapter.getPlayingId() && mAdapter.isPlaying()) {
                             mActivity.pause();
                         } else {
-                            mActivity.playTrack(pos,mAdapter.getWrapper(), false, false);
+                            mActivity.playTrack(mAdapter.getWrapper().getPlayInfo(pos), false, false);
                         }
                         break;
 
@@ -93,7 +93,7 @@ public class QuickTrackMenu extends QuickAction {
                         break;
 
                     case 2:
-                        mActivity.playTrack(pos, mAdapter.getWrapper(), true, true);
+                        mActivity.playTrack(mAdapter.getWrapper().getPlayInfo(pos), true, true);
                         break;
                     case 3:
                         Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);

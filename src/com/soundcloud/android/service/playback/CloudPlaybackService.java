@@ -11,6 +11,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Track;
@@ -45,7 +46,7 @@ import java.util.List;
 
 public class CloudPlaybackService extends Service implements FocusHelper.MusicFocusable {
     public static final String TAG = "CloudPlaybackService";
-    public static List<Parcelable> playlistXfer;
+    public static List<Playable> playlistXfer;
 
     public static final String PLAYSTATE_CHANGED  = "com.soundcloud.android.playstatechanged";
     public static final String META_CHANGED       = "com.soundcloud.android.metachanged";
@@ -1045,8 +1046,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 case MediaPlayer.MEDIA_INFO_BUFFERING_END:
                     state = PLAYING;
                     notifyChange(BUFFERING_COMPLETE);
-                default:
                     break;
+                default:
             }
             return true;
         }

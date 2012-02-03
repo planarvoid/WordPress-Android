@@ -2,16 +2,22 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.net.Uri;
-import android.os.Debug;
-import android.os.Parcelable;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.*;
-import com.soundcloud.android.model.*;
+import com.soundcloud.android.adapter.EventsAdapterWrapper;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.MyTracksAdapter;
+import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Upload;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.ICloudPlaybackService;
 import com.soundcloud.android.service.record.CloudCreateService;
@@ -34,6 +40,7 @@ import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -45,9 +52,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -253,65 +260,69 @@ public abstract class ScActivity extends android.app.Activity {
         }
     }
 
-    public void playTrack(int position, final LazyEndlessAdapter wrapper, boolean goToPlayer, boolean commentMode) {
 
-        final Track t = ((Playable) wrapper.getItem(position)).getTrack();
-        if (!handleTrackAlreadyPlaying(t, goToPlayer, commentMode)) {
+    public static class PlayInfo {
+        public List<Playable> playables;
+        public int position;
+        public Uri uri;
 
-            // cache the clicked track and the surrounding track, also make a list for the initial playlist to send to the service
+        Track getTrack() {
+            return playables.get(position).getTrack();
+        }
+
+        public Long[] trackWindow() {
             ArrayList<Long> playableGroup = new ArrayList<Long>();
-            for (Parcelable p : wrapper.getData().subList(Math.max(0, position - 1), Math.min(position + 1, wrapper.getData().size()))) {
-                if (p instanceof Playable) {
-                    SoundCloudApplication.TRACK_CACHE.put(((Playable) p).getTrack());
-                    playableGroup.add(((Playable) p).getTrack().id);
-                }
+            for (Playable p : playables.subList(Math.max(0, position - 1), Math.min(position + 2, playables.size()))) {
+                SoundCloudApplication.TRACK_CACHE.put(p.getTrack());
+                playableGroup.add(p.getTrack().id);
             }
+            return playableGroup.toArray(new Long[playableGroup.size()]);
+        }
 
-            Intent playIntent = null;
-            final Uri playableUri = wrapper.getPlayableUri();
-            if (playableUri != null) {
-                if (wrapper.getWrappedAdapter() instanceof MyTracksAdapter) {
-                    position -= ((MyTracksAdapter)wrapper.getWrappedAdapter()).getPendingRecordingsCount();
-                }
+        public static PlayInfo forTracks(Track... t) {
+            PlayInfo info = new PlayInfo();
+            info.playables = Arrays.<Playable>asList(t);
+            return info;
+        }
+    }
+
+    public void playTrack(PlayInfo info) {
+        playTrack(info, true, false);
+    }
+
+    public void playTrack(PlayInfo info, boolean goToPlayer, boolean commentMode) {
+        final Track t = info.getTrack();
+        if (!handleTrackAlreadyPlaying(t, goToPlayer, commentMode)) {
+            // cache the clicked track and the surrounding track, also make a list for the initial playlist to send to the service
+
+            if (info.uri != null) {
                 startService(new Intent(this, CloudPlaybackService.class)
                         .putExtra(CloudPlaybackService.PlayExtras.trackId, t.id)
-                        .putExtra(CloudPlaybackService.PlayExtras.groupIds, playableGroup.toArray(new Long[0]))
-                        .putExtra(CloudPlaybackService.PlayExtras.playPosition, position)
-                        .setData(playableUri)
+                        .putExtra(CloudPlaybackService.PlayExtras.groupIds,info.trackWindow())
+                        .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
+                        .setData(info.uri)
                         .setAction(CloudPlaybackService.PLAY));
             } else {
-                CloudPlaybackService.playlistXfer = wrapper.getData();
+                CloudPlaybackService.playlistXfer = info.playables;
                 startService(new Intent(this, CloudPlaybackService.class)
                         .putExtra(CloudPlaybackService.PlayExtras.trackId, t.id)
-                        .putExtra(CloudPlaybackService.PlayExtras.playPosition, position)
+                        .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                         .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true)
                         .setAction(CloudPlaybackService.PLAY));
             }
 
             if (goToPlayer) {
-                Intent i = new Intent(this, ScPlayer.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                i.putExtra("commentMode",commentMode);
-                startActivity(i);
-                mIgnorePlaybackStatus = true;
-            } else {
-                startService(playIntent);
+                launchPlayer(commentMode);
             }
         }
     }
 
-    public void playTrack(final Track track, boolean goToPlayer, boolean commentMode) {
-        // find out if this track is already playing. If it is, just go to the player
-        if (!handleTrackAlreadyPlaying(track, goToPlayer, commentMode)) {
-            startService(new Intent(this, CloudPlaybackService.class)
-                    .putExtra("track", track)
-                    .setAction(CloudPlaybackService.PLAY));
-
-            if (goToPlayer) {
-                launchPlayer(commentMode);
-                mIgnorePlaybackStatus = true;
-            }
-        }
+    private void launchPlayer(boolean commentMode) {
+        Intent i = new Intent(this, ScPlayer.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        i.putExtra("commentMode",commentMode);
+        startActivity(i);
+        mIgnorePlaybackStatus = true;
     }
 
     private boolean handleTrackAlreadyPlaying(Track track, boolean goToPlayer, boolean commentMode) {
@@ -336,11 +347,6 @@ public abstract class ScActivity extends android.app.Activity {
 
         return false;
     }
-
-    public void launchPlayer(boolean commentMode) {
-
-    }
-
 
     public void pause() {
         try {
@@ -446,7 +452,6 @@ public abstract class ScActivity extends android.app.Activity {
         for (ScListView list : mLists) {
             if (list.getBaseAdapter() instanceof TracklistAdapter) {
                 ((TracklistAdapter) list.getBaseAdapter()).setPlayingId(id, isPlaying);
-                list.getBaseAdapter().notifyDataSetChanged();
             }
         }
     }
@@ -665,13 +670,13 @@ public abstract class ScActivity extends android.app.Activity {
                 startActivity(new Intent(ScActivity.this, TrackFavoriters.class)
                     .putExtra("track_id", e.getTrack().id));
             } else {
-                playTrack(position, wrapper, true, false);
+                playTrack(wrapper.getPlayInfo(position));
             }
         }
 
         @Override
         public void onTrackClick(LazyEndlessAdapter wrapper, int position) {
-            playTrack(position, wrapper, true, false);
+            playTrack(wrapper.getPlayInfo(position));
         }
 
         @Override
