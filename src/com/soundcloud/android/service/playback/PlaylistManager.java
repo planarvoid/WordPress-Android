@@ -183,7 +183,7 @@ public class PlaylistManager {
         }
 
         mPlaylistUri = DEFAULT_PLAYLIST_URI;
-        mPlayPos = Math.max(0, playPos);
+        mPlayPos = Math.max(0, Math.min(mPlaylist.length, playPos));
 
         // TODO, only do this on exit???
         //noinspection unchecked
