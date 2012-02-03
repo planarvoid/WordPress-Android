@@ -78,7 +78,7 @@ public class PlaylistManager {
 
     public Track getTrackAt(int pos) {
         if (pos >= 0 && pos < mPlaylist.length) {
-            if (mPlaylist[pos] == null){
+            if (mPlaylist[pos] == null) {
                 if (mTrackCursor != null && !mTrackCursor.isClosed() && mTrackCursor.moveToPosition(pos)){
                     mPlaylist[pos] = new Track(mTrackCursor);
                 }
@@ -169,7 +169,8 @@ public class PlaylistManager {
                     mPlaylist = new Track[cursor.getCount()];
                     if (mTrackCursor != null && !mTrackCursor.isClosed()) mTrackCursor.close();
                     mTrackCursor = cursor;
-                    mPlayPos = position;
+                    mPlayPos = Math.max(0, Math.min(position, mPlaylist.length-1));
+                    mPlaylistUri = uri;
 
                     Intent intent = new Intent(CloudPlaybackService.PLAYLIST_CHANGED);
                     intent.putExtra(CloudPlaybackService.BroadcastExtras.queuePosition, position);
@@ -188,7 +189,7 @@ public class PlaylistManager {
         }
 
         mPlaylistUri = DEFAULT_PLAYLIST_URI;
-        mPlayPos = Math.max(0, playPos);
+        mPlayPos = Math.max(0, Math.min(mPlaylist.length, playPos));
 
         // TODO, only do this on exit???
         //noinspection unchecked
@@ -200,6 +201,10 @@ public class PlaylistManager {
                 return null;
             }
         }.execute();
+    }
+
+    public Uri getUri() {
+        return mPlaylistUri;
     }
 
     public void clear() {
