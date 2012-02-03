@@ -531,6 +531,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     private void gotoIdleState(State newState) {
         state = newState;
+        mPlayerHandler.removeMessages(FADE_OUT);
+        mPlayerHandler.removeMessages(FADE_IN);
         mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
         scheduleServiceShutdownCheck();
         if (useRichNotifications()){
