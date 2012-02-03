@@ -187,4 +187,10 @@ public final class Consts {
         String TRACKS_BY_TAG        = "/tracks_by_tag/";
         String TRACKS_BY_GENRE      = "/tracks_by_genre/";
     }
+
+    public interface ResourceStaleTimes {
+        long user = 86400000;//24*60*60*1000 = 24hr
+        long track = 3600000l;//60*60*1000 = 1hr
+        long activity = 600000l;//30*60*1000 = 10 mins
+    }
 }

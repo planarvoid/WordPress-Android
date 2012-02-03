@@ -76,10 +76,6 @@ public class LoadActivitiesTask extends AsyncTask<Object, List<? super Parcelabl
                     mApp.getContentResolver(),
                     mParams.timestamp);
         }
-
-        for (Activity a : mNewActivities) {
-            a.resolve(mApp);
-        }
         return true;
 
     }

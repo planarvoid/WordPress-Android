@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
@@ -26,7 +27,7 @@ import java.util.EnumSet;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends ScModel implements PageTrackable, Resource, Origin {
+public class User extends ScModel implements PageTrackable, Refreshable, Origin {
     @JsonView(Views.Mini.class) public String username;
     public int track_count = -1;
     public String discogs_name;
@@ -267,18 +268,18 @@ public class User extends ScModel implements PageTrackable, Resource, Origin {
     }
 
     @Override
-    public long getResourceId() {
+    public long getRefreshableId() {
         return id;
     }
 
     @Override
-    public long getLastUpdated(){
-        return last_updated;
+    public ScModel getRefreshableResource() {
+        return this;
     }
 
     @Override
-    public long getStaleTime() {
-        return 86400000;//24*60*60*1000 = 24hr
+    public boolean isStale(){
+        return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.user;
     }
 
     // TODO, this is kind of dumb.

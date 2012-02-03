@@ -14,9 +14,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Resource;
+import com.soundcloud.android.model.Refreshable;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.task.LoadActivitiesTask;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -83,6 +83,10 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         if (state[2] != null) {
             restoreResultReceiver((DetachableResultReceiver) state[2]);
         }
+    }
+
+    public Class<?> getRefreshModel() {
+        return getWrappedAdapter().getLoadModel();
     }
 
     @Override
@@ -174,24 +178,24 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         }
     }
 
-    protected void checkForStaleItems(List<Parcelable> newItems){
-        if (!(CloudUtils.isWifiConnected(mActivity)) || newItems == null || newItems.size() == 0 || !(newItems.get(0) instanceof Resource))
+    protected void checkForStaleItems(List<? extends Parcelable> newItems){
+        if (!(CloudUtils.isWifiConnected(mActivity)) || newItems == null || newItems.size() == 0 || !(newItems.get(0) instanceof Refreshable))
             return;
 
-        final long stale = System.currentTimeMillis() - ((Resource) newItems.get(0)).getStaleTime();
-
-        Map<Long, Resource> toUpdate = new HashMap<Long, Resource>();
+        Map<Long, ScModel> toUpdate = new HashMap<Long, ScModel>();
         for (Parcelable newItem : newItems) {
-            if (newItem instanceof Resource){
-                Resource resource = (Resource) newItem;
-                if (resource.getLastUpdated() < stale) {
-                    toUpdate.put(resource.getResourceId(), resource);
+            if (newItem instanceof Refreshable){
+                ScModel resource = ((Refreshable) newItem).getRefreshableResource();
+                if (resource!= null){
+                    if (((Refreshable) newItem).isStale()) {
+                        toUpdate.put(resource.id, resource);
+                    }
                 }
             }
         }
 
         if (toUpdate.size() > 0){
-            mUpdateCollectionTask =new UpdateCollectionTask(mActivity.getApp(),getLoadModel(false));
+            mUpdateCollectionTask =new UpdateCollectionTask(mActivity.getApp(),getRefreshModel());
             mUpdateCollectionTask.setAdapter(this);
             mUpdateCollectionTask.execute(toUpdate);
         }

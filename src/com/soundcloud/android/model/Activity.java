@@ -2,6 +2,7 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
@@ -19,7 +20,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Activity extends ScModel implements Origin, Playable, Comparable<Activity> {
+public class Activity extends ScModel implements Refreshable, Origin, Playable, Comparable<Activity> {
     @JsonProperty public Date created_at;
     @JsonProperty public Type type;
     @JsonProperty public String tags;
@@ -188,6 +189,21 @@ public class Activity extends ScModel implements Origin, Playable, Comparable<Ac
     @Override
     public int compareTo(Activity activity) {
         return activity.created_at.compareTo(created_at);
+    }
+
+    @Override
+    public long getRefreshableId() {
+        return id;
+    }
+
+    @Override
+    public ScModel getRefreshableResource() {
+        return getTrack();
+    }
+
+    @Override
+    public boolean isStale(){
+        return getTrack() == null ? false : System.currentTimeMillis() - getTrack().last_updated > Consts.ResourceStaleTimes.activity;
     }
 
     public enum Type {

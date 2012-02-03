@@ -8,7 +8,7 @@ import android.os.Parcelable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 // TODO not used, merge with user later
-public class Friend extends ScModel implements Resource, Origin {
+public class Friend extends ScModel implements Refreshable, Origin {
     public long[] connection_ids;
     public User user;
 
@@ -29,21 +29,6 @@ public class Friend extends ScModel implements Resource, Origin {
         }
     };
 
-     @Override
-    public long getLastUpdated(){
-        return user.last_updated;
-    }
-
-    @Override
-    public long getStaleTime() {
-        return user.getStaleTime();
-    }
-
-    @Override
-    public long getResourceId() {
-        return user.id;
-    }
-
     @Override
     public Track getTrack() {
         return null;
@@ -52,5 +37,20 @@ public class Friend extends ScModel implements Resource, Origin {
     @Override
     public User getUser() {
         return user;
+    }
+
+    @Override
+    public long getRefreshableId() {
+        return user.id;
+    }
+
+    @Override
+    public ScModel getRefreshableResource() {
+        return user;
+    }
+
+    @Override
+    public boolean isStale() {
+        return user.isStale();
     }
 }

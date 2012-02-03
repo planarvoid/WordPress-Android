@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.model;
 
+import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -39,7 +40,7 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ScModel implements PageTrackable, Origin, Playable, Resource {
+public class Track extends ScModel implements PageTrackable, Origin, Playable, Refreshable {
     private static final String TAG = "Track";
 
     public static class TrackHolder extends CollectionHolder<Track> {}
@@ -479,18 +480,18 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     @Override
-    public long getResourceId() {
+    public long getRefreshableId() {
         return id;
     }
 
     @Override
-    public long getLastUpdated(){
-        return last_updated;
+    public ScModel getRefreshableResource() {
+        return this;
     }
 
     @Override
-    public long getStaleTime() {
-        return 3600000l;//60*60*1000 = 1hr
+    public boolean isStale(){
+        return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
     }
 
     public Track updateFrom(ScModel updatedItem) {

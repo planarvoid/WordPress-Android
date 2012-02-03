@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -45,6 +46,11 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             setLastSeen(mSetLastSeenTo);
             mSetLastSeenTo = -1;
         }
+    }
+
+    @Override
+    public Class<?> getRefreshModel() {
+        return Track.class;
     }
 
     @Override
@@ -97,6 +103,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         }
 
         if (!newActivities.isEmpty()){
+            checkForStaleItems(newActivities.collection);
             newActivities.mergeAndSort(mActivities);
             setData(newActivities);
         }

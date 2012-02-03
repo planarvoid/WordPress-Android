@@ -1,27 +1,23 @@
 package com.soundcloud.android.task;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
+import android.os.AsyncTask;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.Resource;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.model.UserlistItem;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-
-import android.os.AsyncTask;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -29,7 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class UpdateCollectionTask extends AsyncTask<Map<Long, Resource>, String, Boolean> {
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+public class UpdateCollectionTask extends AsyncTask<Map<Long, ScModel>, String, Boolean> {
     protected SoundCloudApplication mApp;
     protected Class<?> mLoadModel;
     protected WeakReference<LazyEndlessAdapter> mAdapterReference;
@@ -61,8 +59,9 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, Resource>, String,
     }
 
     @Override
-    protected Boolean doInBackground(Map<Long, Resource>... params) {
-        Map<Long,Resource> itemsToUpdate = params[0];
+    protected Boolean doInBackground(Map<Long, ScModel>... params) {
+        Map<Long,ScModel> itemsToUpdate = params[0];
+        Log.i(TAG,"Updating " + itemsToUpdate.size() + " items");
         try {
             HttpResponse resp = mApp.get(Request.to(Track.class.equals(mLoadModel) ? Endpoints.TRACKS : Endpoints.USERS)
                     .add("linked_partitioning", "1").add("ids", TextUtils.join(",", itemsToUpdate.keySet())));
