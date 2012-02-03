@@ -69,7 +69,6 @@ public abstract class ScActivity extends android.app.Activity {
     protected List<ScListView> mLists;
 
     private MenuItem menuCurrentUploadingItem;
-    private boolean mIsForeground;
     private long mCurrentUserId;
     boolean mIgnorePlaybackStatus;
 
@@ -230,8 +229,6 @@ public abstract class ScActivity extends android.app.Activity {
     protected void onStop() {
         super.onStop();
 
-        mIsForeground = false;
-
         connectivityListener.stopListening();
 
         CloudUtils.unbindFromService(this, CloudPlaybackService.class);
@@ -245,8 +242,6 @@ public abstract class ScActivity extends android.app.Activity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        mIsForeground = true;
 
         Account account = getApp().getAccount();
         if (account == null) {
@@ -270,13 +265,15 @@ public abstract class ScActivity extends android.app.Activity {
             return playables.get(position).getTrack();
         }
 
-        public Long[] trackWindow() {
-            ArrayList<Long> playableGroup = new ArrayList<Long>();
-            for (Playable p : playables.subList(Math.max(0, position - 1), Math.min(position + 2, playables.size()))) {
-                SoundCloudApplication.TRACK_CACHE.put(p.getTrack());
-                playableGroup.add(p.getTrack().id);
+        public long[] trackWindow() {
+            List<Playable> window = playables.subList(Math.max(0, position - 1), Math.min(position + 2, playables.size()));
+            long[] ids = new long[window.size()];
+            for (int i=0; i<window.size(); i++) {
+                Track t = window.get(i).getTrack();
+                SoundCloudApplication.TRACK_CACHE.put(t);
+                ids[i] = t.id;
             }
-            return playableGroup.toArray(new Long[playableGroup.size()]);
+            return ids;
         }
 
         public static PlayInfo forTracks(Track... t) {
@@ -642,12 +639,11 @@ public abstract class ScActivity extends android.app.Activity {
     private void setPlayingTrackFromService(){
         if (mPlaybackService == null) return;
         try {
-            final long trackId = mPlaybackService != null ? mPlaybackService.getCurrentTrackId() : null;
+            final long trackId = getCurrentTrackId();
             if (trackId != -1) {
                 setPlayingTrack(trackId, mPlaybackService.isPlaying());
             }
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        } catch (RemoteException ignore) {
         }
     }
 

@@ -465,10 +465,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             final int queuePos = intent.getIntExtra(CloudPlaybackService.BroadcastExtras.queuePosition, -1);
             String action = intent.getAction();
 
-
-            if (action.equals(CloudPlaybackService.QUEUE_CHANGED)) {
+            if (action.equals(CloudPlaybackService.PLAYLIST_CHANGED)) {
                 setCurrentTrackDataFromService();
-
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 if (mCurrentQueuePosition != queuePos) {
                     if (mCurrentQueuePosition != -1 && queuePos == mCurrentQueuePosition + 1 && !mTrackWorkspace.isScrolling()) { // auto advance
@@ -517,7 +515,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         mActivityPaused = false;
 
         IntentFilter f = new IntentFilter();
-        f.addAction(CloudPlaybackService.QUEUE_CHANGED);
+        f.addAction(CloudPlaybackService.PLAYLIST_CHANGED);
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         f.addAction(CloudPlaybackService.META_CHANGED);
         f.addAction(CloudPlaybackService.PLAYBACK_ERROR);
