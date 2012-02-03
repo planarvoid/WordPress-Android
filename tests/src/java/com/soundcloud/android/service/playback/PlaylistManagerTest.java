@@ -53,6 +53,9 @@ public class PlaylistManagerTest {
         List<Track> tracks = createTracks(3);
         pm.setUri(Content.TRACKS.uri, 0, null);
 
+        expect(pm.getUri()).not.toBeNull();
+        expect(pm.getUri()).toEqual(Content.TRACKS.uri);
+
         expect(pm.length()).toEqual(tracks.size());
 
         Track track = pm.getCurrentTrack();
@@ -108,7 +111,7 @@ public class PlaylistManagerTest {
         expect(pm.length()).toEqual(tracks.size());
         Track track = pm.getCurrentTrack();
         expect(track).not.toBeNull();
-        expect(track.title).toEqual("track #0");
+        expect(track.title).toEqual("track #2");
     }
 
     @Test
@@ -183,7 +186,7 @@ public class PlaylistManagerTest {
         expect(pm.getCurrentTrack().id).toEqual(10696200l);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getCurrentTrack().id).toEqual(10696200l);
+        expect(pm.getCurrentTrackId()).toEqual(10696200l);
         expect(pm.getPosition()).toEqual(1);
     }
 
@@ -197,7 +200,7 @@ public class PlaylistManagerTest {
         pm.saveQueue(1000l);
 
         expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getCurrentTrack().id).toEqual(10602324l);
+        expect(pm.getCurrentTrackId()).toEqual(10602324l);
         expect(pm.getPosition()).toEqual(2);
     }
 
