@@ -58,13 +58,9 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             setListLastUpdated();
             if (isStale(false)){
                 refresh(false);
+                if (!mAutoAppend) mListView.setRefreshing(); // this is to show the user something at the initial load
             }
         }
-    }
-
-    @Override
-    public boolean showRefreshing(){
-        return isRefreshing() && getWrappedAdapter().needsItems();
     }
 
     @Override

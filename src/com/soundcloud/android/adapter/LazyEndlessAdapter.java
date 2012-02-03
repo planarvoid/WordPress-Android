@@ -470,10 +470,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     public void onReceiveResult(int resultCode, Bundle resultData) {
     }
 
-    public boolean showRefreshing() {
-        return false;
-    }
-
     public void cachePlayableGroup(int position) {
         if (position < 0 || position >= getData().size()) return;
 
