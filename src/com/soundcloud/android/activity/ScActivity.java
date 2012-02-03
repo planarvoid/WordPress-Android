@@ -284,6 +284,7 @@ public abstract class ScActivity extends android.app.Activity {
             info.playables = Arrays.<Playable>asList(t);
             return info;
         }
+
     }
 
     public void playTrack(PlayInfo info) {
@@ -292,29 +293,41 @@ public abstract class ScActivity extends android.app.Activity {
 
     public void playTrack(PlayInfo info, boolean goToPlayer, boolean commentMode) {
         final Track t = info.getTrack();
-        if (!handleTrackAlreadyPlaying(t, goToPlayer, commentMode)) {
-            // cache the clicked track and the surrounding track, also make a list for the initial playlist to send to the service
+        if (getCurrentTrackId() != t.id) {
+            Intent intent = new Intent(this, CloudPlaybackService.class)
+                    .putExtra(CloudPlaybackService.PlayExtras.trackId, t.id)
+                    .setAction(CloudPlaybackService.PLAY);
 
             if (info.uri != null) {
-                startService(new Intent(this, CloudPlaybackService.class)
-                        .putExtra(CloudPlaybackService.PlayExtras.trackId, t.id)
-                        .putExtra(CloudPlaybackService.PlayExtras.groupIds,info.trackWindow())
-                        .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                        .setData(info.uri)
-                        .setAction(CloudPlaybackService.PLAY));
+                intent.putExtra(CloudPlaybackService.PlayExtras.groupIds, info.trackWindow())
+                      .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
+                      .setData(info.uri);
             } else {
                 CloudPlaybackService.playlistXfer = info.playables;
-                startService(new Intent(this, CloudPlaybackService.class)
-                        .putExtra(CloudPlaybackService.PlayExtras.trackId, t.id)
-                        .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
-                        .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true)
-                        .setAction(CloudPlaybackService.PLAY));
+                    intent.putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
+                    .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
             }
-
-            if (goToPlayer) {
-                launchPlayer(commentMode);
+            startService(intent);
+        } else if (!goToPlayer) {
+            try {
+                mPlaybackService.play();
+            } catch (RemoteException ignored) {
             }
         }
+        if (goToPlayer) {
+            launchPlayer(commentMode);
+        }
+
+    }
+
+    private long getCurrentTrackId() {
+        if (mPlaybackService != null) {
+            try {
+                return mPlaybackService.getCurrentTrackId();
+            } catch (RemoteException ignore) {
+            }
+        }
+        return -1;
     }
 
     private void launchPlayer(boolean commentMode) {
@@ -323,29 +336,6 @@ public abstract class ScActivity extends android.app.Activity {
         i.putExtra("commentMode",commentMode);
         startActivity(i);
         mIgnorePlaybackStatus = true;
-    }
-
-    private boolean handleTrackAlreadyPlaying(Track track, boolean goToPlayer, boolean commentMode) {
-        // find out if this track is already playing. If it is, just go to the player
-        try {
-            final long playingTrackId = mPlaybackService != null ? mPlaybackService.getCurrentTrackId() : null;
-            if (playingTrackId == track.id) {
-                if (goToPlayer) {
-                    // skip the enqueuing, its already playing
-                    Intent i = new Intent(this, ScPlayer.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    i.putExtra("commentMode",commentMode);
-                    startActivity(i);
-                } else {
-                    mPlaybackService.play();
-                }
-                return true;
-            }
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-        }
-
-        return false;
     }
 
     public void pause() {
