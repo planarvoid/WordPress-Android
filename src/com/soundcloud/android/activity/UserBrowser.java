@@ -161,6 +161,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
 
             if (isMe()) {
+                mConnections = Connections.get().getObjectsOrNull();
+                mFriendFinderView.onConnections(mConnections, true);
                 Connections.get().requestUpdate(getApp(), false, this);
             }
         }
@@ -816,7 +818,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         if (isMe()) mConnections = c.connections;
         mUserlistBrowser.initWorkspace(c.workspaceIndex);
         restoreAdapterStates(c.adapterStates);
-        if (c.friendFinderState != -1) mFriendFinderView.setState(c.friendFinderState, false);
+        if (c.friendFinderState != -1) {
+            if (c.friendFinderState == FriendFinderView.States.LOADING){
+                refreshConnections();
+            } else {
+                mFriendFinderView.setState(c.friendFinderState, false);
+            }
+        }
     }
 
     private static class Configuration {
