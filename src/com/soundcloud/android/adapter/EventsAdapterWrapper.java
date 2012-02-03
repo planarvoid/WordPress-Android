@@ -9,6 +9,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.LoadActivitiesTask;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 
 import android.content.Intent;
@@ -27,7 +28,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Content content) {
         super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
-        mAutoAppend = mLocalCollection.last_sync > 0;
+        mAutoAppend = mLocalCollection.last_sync > 0; // never synced, wait on items to allow appending to prevent premature empty view
     }
 
      @Override
@@ -39,6 +40,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     public void onResume() {
         super.onResume();
         mVisible = true;
+        // update last seen for notifications
         if (mSetLastSeenTo != -1){
             setLastSeen(mSetLastSeenTo);
             mSetLastSeenTo = -1;
@@ -84,7 +86,11 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             doneRefreshing();
         } else {
             if (newActivities.size() < Consts.COLLECTION_PAGE_SIZE){
-                requestAppend();
+                mActivity.startService(new Intent(mActivity, ApiSyncService.class)
+                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE, true)
+                        .setAction(ApiSyncService.ACTION_APPEND)
+                        .setData(mContent.uri));
             } else {
                 mState = IDLE;
             }
@@ -98,16 +104,6 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         mAppendTask = null;
         afterNewItems();
         return true;
-    }
-
-    private void requestAppend() {
-        Intent intent = new Intent(mActivity, ApiSyncService.class)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
-                .putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE, true)
-                .setAction(ApiSyncService.ACTION_APPEND)
-                .setData(mContent.uri);
-
-        mActivity.startService(intent);
     }
 
     private void setLastSeen(long time) {
@@ -145,7 +141,10 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             allowInitialLoading();
             notifyDataSetChanged();
         } else {
-            executeRefreshTask();
+            if (!getData().isEmpty()){ // only refresh if we have items, otherwise appending will take care of the additions
+                executeRefreshTask();
+            }
+            mKeepGoing = true; // make sure we are free to append
         }
     }
 
@@ -154,21 +153,16 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) doneRefreshing(); // nothing changed
+                if (CloudUtils.isTaskFinished(mRefreshTask)) doneRefreshing(); // no refresh task so no need to show the refresh header
                 break;
             }
             case ApiSyncService.STATUS_APPEND_ERROR:
             case ApiSyncService.STATUS_APPEND_FINISHED: {
-                if (!resultData.getBoolean(mContentUri.toString())) mKeepGoing = false;
+                if (!resultData.getBoolean(mContentUri.toString())) mKeepGoing = false; // no items to append, so don't keep going
                 mState = IDLE;
                 notifyDataSetChanged();
                 break;
             }
         }
-    }
-
-    public Activities getActivities() {
-        return mActivities;
-
     }
 }

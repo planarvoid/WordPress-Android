@@ -23,7 +23,6 @@ public class LoadActivitiesTask extends AsyncTask<Object, List<? super Parcelabl
     protected SoundCloudApplication mApp;
     protected WeakReference<LazyEndlessAdapter> mAdapterReference;
 
-    private Activities mCurrentActivities;
     private Activities mNewActivities;
     private ActivitiesParams mParams;
 
@@ -51,7 +50,6 @@ public class LoadActivitiesTask extends AsyncTask<Object, List<? super Parcelabl
     @Override
     public void setAdapter(LazyEndlessAdapter eventsAdapterWrapper) {
         mAdapterReference = new WeakReference<LazyEndlessAdapter>(eventsAdapterWrapper);
-        mCurrentActivities = ((EventsAdapterWrapper) eventsAdapterWrapper).getActivities();
     }
 
      @Override
