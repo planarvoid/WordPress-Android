@@ -16,6 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.handmark.pulltorefresh.library.internal.EmptyViewMethodAccessor;
+import com.soundcloud.android.view.SectionedListView;
 
 public abstract class PullToRefreshAdapterViewBase<T extends AbsListView> extends PullToRefreshBase<T> implements
 		OnScrollListener, View.OnTouchListener {
@@ -53,7 +54,7 @@ public abstract class PullToRefreshAdapterViewBase<T extends AbsListView> extend
 
 	abstract public ContextMenuInfo getContextMenuInfo();
 
-	public final void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount,
+	public void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount,
 			final int totalItemCount) {
 
 		if (null != onLastItemVisibleListener) {
@@ -72,7 +73,7 @@ public abstract class PullToRefreshAdapterViewBase<T extends AbsListView> extend
 		}
 	}
 
-    public final void onScrollStateChanged(final AbsListView view, final int scrollState) {
+    public void onScrollStateChanged(final AbsListView view, final int scrollState) {
         if (null != onScrollListener) {
             onScrollListener.onScrollStateChanged(view, scrollState);
         }

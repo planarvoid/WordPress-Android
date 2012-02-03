@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.widget.AbsListView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -127,5 +128,14 @@ public class SectionedListView extends ScListView {
 
         this.adapter = (SectionedEndlessAdapter) adapter;
         super.setAdapter(adapter, refreshEnabled);
+    }
+
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        super.onScroll(view,firstVisibleItem,visibleItemCount,totalItemCount);
+        if (this instanceof SectionedListView && adapter != null) {
+            adapter.getWrappedAdapter().onScroll(this, firstVisibleItem);
+        }
     }
 }
