@@ -78,7 +78,7 @@ public class QuickTrackMenu extends QuickAction {
                         if (track.id == mAdapter.getPlayingId() && mAdapter.isPlaying()) {
                             mActivity.pause();
                         } else {
-                            mActivity.playTrack(mAdapter.getWrapper().getPlayInfo(pos), false, false);
+                            mActivity.playTrack(mAdapter.getWrapper().getPlayInfo(itemPosition), false, false);
                         }
                         break;
 
