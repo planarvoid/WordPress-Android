@@ -85,7 +85,7 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ScModel>, String, 
             } else if (Friend.class.equals(mLoadModel)) {
                 holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.UserlistItemHolder.class);
                 for (UserlistItem u : (ScModel.UserlistItemHolder) holder) {
-                    objectsToWrite.add(((Friend) itemsToUpdate.get(u.id)).user.updateFrom(u));
+                    objectsToWrite.add(((User) itemsToUpdate.get(u.id)).updateFrom(u));
                 }
             }
             publishProgress();
