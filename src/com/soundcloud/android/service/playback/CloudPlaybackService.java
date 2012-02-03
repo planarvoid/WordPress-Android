@@ -197,6 +197,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (mCurrentTrack != null && mResumeTime > 0) {
             mResumeTrackId = mCurrentTrack.id;
         }
+
+        try {
+            mProxy = new StreamProxy(getApp()).init().start();
+        } catch (IOException e) {
+            Log.i(TAG, "Unable to start service " + e.getMessage());
+        }
     }
 
     @Override
@@ -318,7 +324,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
         sendBroadcast(i);
 
-        if (what.equals(PLAYSTATE_CHANGED) || what.equals(META_CHANGED) || what.equals(PLAYBACK_ERROR) || what.equals(PLAYBACK_COMPLETE)) {
+        if (what.equals(META_CHANGED) || what.equals(PLAYBACK_ERROR) || what.equals(PLAYBACK_COMPLETE)) {
             mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
         }
 
@@ -405,7 +411,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 Consts.Tracking.Categories.TRACKS,
                 Consts.Tracking.Actions.TRACK_PLAY,
                 mCurrentTrack.getTrackEventLabel());
-
         startTrack(track);
     }
 
