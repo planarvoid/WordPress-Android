@@ -934,7 +934,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             openCurrent();
         } else if (intent.getData() != null) {
             mPlaylistManager.setUri(intent.getData(),
-                    intent.getIntExtra(PlayExtras.playPosition, 0), intent.getLongArrayExtra(PlayExtras.groupIds)
+                    intent.getIntExtra(PlayExtras.playPosition, 0),
+                    intent.getLongArrayExtra(PlayExtras.groupIds),
+                    intent.getLongExtra(PlayExtras.trackId, -1)
             );
             openCurrent();
         } else if (intent.getBooleanExtra(PlayExtras.playFromXferCache, false)) {

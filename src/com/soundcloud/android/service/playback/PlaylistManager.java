@@ -133,13 +133,19 @@ public class PlaylistManager {
     }
 
     public void setUri(Uri uri, int position, long[] tempPlaylist) {
+        setUri(uri,position,tempPlaylist,-1);
+    }
+    public void setUri(Uri uri, int position, long[] tempPlaylist, long trackId) {
         // set up temp playlist
         if (tempPlaylist != null && tempPlaylist.length > 0) {
             mPlaylist = new Track[tempPlaylist.length];
+            mPlayPos = 0;
             for (int i = 0; i < tempPlaylist.length; i++) {
                 mPlaylist[i] = mCache.get(tempPlaylist[i]);
+                if (mPlaylist[i] != null && mPlaylist[i].id == trackId){
+                    mPlayPos = i;
+                }
             }
-            mPlayPos = tempPlaylist.length == 3 ? 1 : 0;
         }
 
         if (uri != null) {
@@ -228,7 +234,7 @@ public class PlaylistManager {
         if (!TextUtils.isEmpty(lastUri)){
             final Uri uri = Uri.parse(lastUri);
             final long trackId = extractValue(uri, PARAM_TRACK_ID, 0);
-            setUri(uri, extractValue(uri, PARAM_PLAYLIST_POS, 0), new long[]{trackId});
+            setUri(uri, extractValue(uri, PARAM_PLAYLIST_POS, 0), new long[]{trackId}, trackId);
             long seekPos = extractValue(uri, PARAM_SEEK_POS, 0);
 
             if (trackId != 0
