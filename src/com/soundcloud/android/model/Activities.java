@@ -508,4 +508,18 @@ public class Activities extends CollectionHolder<Activity> {
         if (!toMerge.isEmpty()) collection.addAll(toMerge.collection);
         Collections.sort(collection);
     }
+
+    public Iterable<String> artworkUrls() {
+        Set<String> artworkUrls = new HashSet<String>();
+        for (Activity a : this) {
+            Track track = a.getTrack();
+            if (track != null) {
+                String artworkUrl = track.getArtwork();
+                if (!TextUtils.isEmpty(artworkUrl)) {
+                    artworkUrls.add(artworkUrl);
+                }
+            }
+        }
+        return artworkUrls;
+    }
 }
