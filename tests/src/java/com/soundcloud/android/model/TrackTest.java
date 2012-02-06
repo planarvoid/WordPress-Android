@@ -160,4 +160,19 @@ public class TrackTest {
     public void shouldThrowExceptionIfEmptyIntentPassed() throws Exception {
         Track.fromIntent(new Intent(), null);
     }
+
+    @Test
+    public void shouldGetArtworkUrl() throws Exception {
+        expect(new Track().getArtwork()).toBeNull();
+
+        Track t = new Track();
+        t.artwork_url = "http://foo.com/artwork.jpg";
+        expect(t.getArtwork()).toEqual("http://foo.com/artwork.jpg");
+
+
+        Track t2 = new Track();
+        t2.user = new User();
+        t2.user.avatar_url = "http://avatar.com";
+        expect(t2.getArtwork()).toEqual("http://avatar.com");
+    }
 }

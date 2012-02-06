@@ -6,7 +6,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -45,10 +44,12 @@ public class SyncAdapterService extends Service {
     private static final String TAG = SyncAdapterService.class.getSimpleName();
     public static final String PREF_NOTIFICATIONS_FREQUENCY = "notificationsFrequency";
     public static final String PREF_LAST_SYNC_CLEANUP = "lastSyncCleanup";
+    public static final String EXTRA_DONT_PREFETCH_ARTWORK = "dontPrefetchArtwork";
 
     private ScSyncAdapter mSyncAdapter;
 
     public static final int NOTIFICATION_MAX = 100;
+    public static final int MAX_ARTWORK_PREFETCH = 40; // only prefetch N amount of artwork links
     private static final String NOT_PLUS = (NOTIFICATION_MAX-1)+"+";
 
     private static final long DEFAULT_NOTIFICATIONS_FREQUENCY = 60*60*1000*4L; // 4h
@@ -189,13 +190,13 @@ public class SyncAdapterService extends Service {
     static class ServiceResultReceiver extends ResultReceiver {
         private SyncResult result;
         private SoundCloudApplication app;
-        private int clearMode;
+        private Bundle extras;
 
         public ServiceResultReceiver(SoundCloudApplication app, SyncResult result, Bundle extras) {
             super(new Handler());
             this.result = result;
             this.app = app;
-            this.clearMode = extras.getInt(EXTRA_CLEAR_MODE);
+            this.extras = extras;
         }
 
         @Override
@@ -214,10 +215,7 @@ public class SyncAdapterService extends Service {
                         final long delta = System.currentTimeMillis() -
                                 app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_AT);
                         if (delta > frequency) {
-                            // XXX tmp hack until last seen is fixed
-                            final long lastIncomingSeen = clearMode == CLEAR_ALL ? -1 :
-                                    app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
-
+                            final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
                             final Activities incoming = !isIncomingEnabled(app) ? Activities.EMPTY :
                                     Activities.getSince(Content.ME_SOUND_STREAM, app.getContentResolver(), lastIncomingSeen);
 
@@ -232,9 +230,7 @@ public class SyncAdapterService extends Service {
                         final long delta2 = System.currentTimeMillis() -
                                 app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_AT);
                         if (delta2 > frequency) {
-                            // XXX tmp hack until last seen is fixed
-                            final long lastOwnSeen = clearMode == CLEAR_ALL ? -1 :
-                                    app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN);
+                            final long lastOwnSeen = app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN);
                             final Activities news = !isActivitySyncEnabled(app) ? Activities.EMPTY :
                                     Activities.getSince(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
                             maybeNotifyOwn(app, news);
@@ -247,74 +243,92 @@ public class SyncAdapterService extends Service {
                 }
             }
         }
-    }
 
-    /* package */ private static Notification maybeNotifyIncoming(SoundCloudApplication app,
-                                                                  Activities incoming,
-                                                                  Activities exclusive) {
+        private Notification maybeNotifyIncoming(SoundCloudApplication app,
+                                                                      Activities incoming,
+                                                                      Activities exclusive) {
 
-        final int totalUnseen = Activities.getUniqueTrackCount(incoming, exclusive);
-        final boolean hasIncoming  = !incoming.isEmpty();
-        final boolean hasExclusive = !exclusive.isEmpty();
-        if (hasIncoming || hasExclusive) {
-            final CharSequence title, message, ticker;
+            final int totalUnseen = Activities.getUniqueTrackCount(incoming, exclusive);
+            final boolean hasIncoming  = !incoming.isEmpty();
+            final boolean hasExclusive = !exclusive.isEmpty();
+            if (hasIncoming || hasExclusive) {
+                final CharSequence title, message, ticker;
 
-            if (totalUnseen == 1) {
-                ticker = app.getString(R.string.dashboard_notifications_ticker_single);
-                title = app.getString(R.string.dashboard_notifications_title_single);
+                if (totalUnseen == 1) {
+                    ticker = app.getString(R.string.dashboard_notifications_ticker_single);
+                    title = app.getString(R.string.dashboard_notifications_title_single);
+                } else {
+                    ticker = String.format(app.getString(
+                            R.string.dashboard_notifications_ticker), totalUnseen >= NOTIFICATION_MAX ? NOT_PLUS : totalUnseen);
+
+                    title = String.format(app.getString(
+                            R.string.dashboard_notifications_title), totalUnseen >= NOTIFICATION_MAX ? NOT_PLUS : totalUnseen);
+                }
+
+                if (hasExclusive) {
+                    message = getExclusiveNotificationMessage(app, exclusive);
+                } else {
+                    message = getIncomingNotificationMessage(app, incoming);
+                }
+
+                if (incoming.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM)) ||
+                    exclusive.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM))) {
+
+                    prefetchArtwork(app, incoming, exclusive);
+
+                    Notification n = showDashboardNotification(app, ticker, title, message,
+                            Actions.STREAM,
+                            Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
+
+                    app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, System.currentTimeMillis());
+                    app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM,
+                            Math.max(incoming.getTimestamp(), exclusive.getTimestamp()));
+
+                    return n;
+                } else return null;
             } else {
-                ticker = String.format(app.getString(
-                        R.string.dashboard_notifications_ticker), totalUnseen >= NOTIFICATION_MAX ? NOT_PLUS : totalUnseen);
-
-                title = String.format(app.getString(
-                        R.string.dashboard_notifications_title), totalUnseen >= NOTIFICATION_MAX ? NOT_PLUS : totalUnseen);
+                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "no items, skip track notfication");
+                return null;
             }
-
-            if (hasExclusive) {
-                message = getExclusiveNotificationMessage(app, exclusive);
-            } else {
-                message = getIncomingNotificationMessage(app, incoming);
-            }
-
-            if (incoming.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM)) ||
-                exclusive.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM))) {
-                prefetchArtwork(app, incoming);
-                prefetchArtwork(app, exclusive);
-
-                Notification n = showDashboardNotification(app, ticker, title, message,
-                        Actions.STREAM,
-                        Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
-
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, System.currentTimeMillis());
-                app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM,
-                        Math.max(incoming.getTimestamp(), exclusive.getTimestamp()));
-
-                return n;
-            } else return null;
-        } else {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "no items, skip track notfication");
-            return null;
         }
-    }
 
-    /* package */ private static Notification maybeNotifyOwn(SoundCloudApplication app, Activities activities) {
-        if (!activities.isEmpty()) {
-            Activities favoritings = isFavoritingEnabled(app) ? activities.favoritings() : Activities.EMPTY;
-            Activities comments    = isCommentsEnabled(app) ? activities.comments() : Activities.EMPTY;
+        private Notification maybeNotifyOwn(SoundCloudApplication app, Activities activities) {
+            if (!activities.isEmpty()) {
+                Activities favoritings = isFavoritingEnabled(app) ? activities.favoritings() : Activities.EMPTY;
+                Activities comments    = isCommentsEnabled(app) ? activities.comments() : Activities.EMPTY;
 
-            Message msg = new Message(app.getResources(), activities, favoritings, comments);
+                Message msg = new Message(app.getResources(), activities, favoritings, comments);
 
-            if (activities.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
-                prefetchArtwork(app, activities);
+                if (activities.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
+                    prefetchArtwork(app, activities);
 
-                Notification n = showDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
-                        Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
+                    Notification n = showDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
+                            Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
 
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, System.currentTimeMillis());
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, activities.getTimestamp());
-                return n;
+                    app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, System.currentTimeMillis());
+                    app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, activities.getTimestamp());
+                    return n;
+                } else return null;
             } else return null;
-        } else return null;
+        }
+
+        private int prefetchArtwork(Context context, Activities... activities) {
+            if (CloudUtils.isWifiConnected(context)) {
+                Set<String> urls = new HashSet<String>();
+                for (Activities a : activities) {
+                    urls.addAll(a.artworkUrls());
+                }
+                int tofetch = MAX_ARTWORK_PREFETCH;
+                for (String url : urls) {
+                    ImageLoader.get(context).prefetch(url);
+                    if (tofetch-- <= 0) break;
+                }
+                return Math.min(urls.size(), MAX_ARTWORK_PREFETCH);
+            } else {
+                // prefetch artwork only when connected to wifi
+                return 0;
+            }
+        }
     }
 
     /* package */ static String getIncomingNotificationMessage(SoundCloudApplication app, Activities activites) {
@@ -417,12 +431,6 @@ public class SyncAdapterService extends Service {
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
     }
 
-    static void prefetchArtwork(Context context, Activities activities) {
-        for (String url : activities.artworkUrls()) {
-            Log.d(TAG, "prefetching "+url);
-            ImageLoader.get(context).prefetch(url);
-        }
-    }
 
     private static void clearActivities(ContentResolver resolver){
         // drop all activities before re-sync

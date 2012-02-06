@@ -685,7 +685,7 @@ public final class ImageLoader {
             // therefore this attempt is likely to fail as well.
             return;
         }
-        ImageRequest task = new ImageRequest(url, false, options);
+        ImageRequest task = new ImageRequest(url, true, options);
         enqueueRequest(task);
     }
 
@@ -747,8 +747,7 @@ public final class ImageLoader {
             // therefore this attempt is likely to fail as well.
             return;
         }
-        boolean loadBitmap = false;
-        ImageRequest request = new ImageRequest(url, loadBitmap, options);
+        ImageRequest request = new ImageRequest(url, false, options);
         enqueueRequest(request);
     }
 
