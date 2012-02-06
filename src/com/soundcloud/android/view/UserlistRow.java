@@ -102,12 +102,6 @@ public class UserlistRow extends LazyRow {
         }
     }
 
-    @Override
-    public String getIconRemoteUri() {
-        if (mUser == null || !CloudUtils.checkIconShouldLoad(mUser.avatar_url)) return "";
-        return ImageUtils.formatGraphicsUriForList(getContext(), mUser.avatar_url);
-    }
-
     protected void setTrackCount() {
         if (mUser.track_count == 0){
             mTracks.setVisibility(View.GONE);
@@ -139,5 +133,10 @@ public class UserlistRow extends LazyRow {
 
             setFollowingStatus(false);
         }
+    }
+
+    @Override
+    public String getIconRemoteUri() {
+        return mUser == null ? null : mUser.getListAvatarUri(getContext());
     }
 }

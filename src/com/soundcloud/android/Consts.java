@@ -37,15 +37,8 @@ public final class Consts {
 
 
     // adapter loading constants
-    public static final int ROW_APPEND_BUFFER = 3;
+    public static final int ROW_APPEND_BUFFER = 6;
     public static final int ITEM_TYPE_LOADING = -1;
-    public static final int PAGE_SIZE = 50;
-    public static final int DEFAULT_REFRESH_MINIMUM = 600 * 1000; // 10 mins
-    //static final Long WIFI_STALE_TIME = 600000l;//10*60*1000
-
-
-    //public static final Long SYNC_STALE_TIME = 5000l;//60*60*1000
-
 
     public interface IntentActions {
         public static final String CONNECTION_ERROR = "com.soundcloud.android.connectionerror";

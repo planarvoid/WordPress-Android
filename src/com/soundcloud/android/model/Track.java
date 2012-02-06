@@ -142,6 +142,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @JsonIgnore public int last_playback_error = -1;
     @JsonIgnore public long last_updated;
     @JsonIgnore private CharSequence _elapsedTime;
+    @JsonIgnore private String _list_artwork_uri;
 
     public List<String> humanTags() {
         List<String> tags = new ArrayList<String>();
@@ -165,15 +166,23 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
 
     @Override
     public CharSequence getTimeSinceCreated(Context context) {
-        if (_elapsedTime == null){
-            refreshTimeSinceCreated(context);
-        }
+        if (_elapsedTime == null) refreshTimeSinceCreated(context);
         return _elapsedTime;
     }
 
     @Override
     public void refreshTimeSinceCreated(Context context) {
         _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
+    }
+
+    public void refreshListArtworkUri(Context context) {
+        final String iconUrl = getArtwork();
+        _list_artwork_uri = TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(context, iconUrl);
+    }
+
+    public String getListArtworkUrl(Context context){
+        if (TextUtils.isEmpty(_list_artwork_uri)) refreshListArtworkUri(context);
+        return _list_artwork_uri;
     }
 
 
@@ -276,6 +285,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @Override
     public void resolve(SoundCloudApplication application) {
         refreshTimeSinceCreated(application);
+        refreshListArtworkUri(application);
     }
 
     public void setAppFields(Track t) {
@@ -495,10 +505,12 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
     }
 
-    public Track updateFrom(ScModel updatedItem) {
+    public Track updateFrom(Context c, ScModel updatedItem) {
          if (updatedItem instanceof TracklistItem){
              updateFromTracklistItem((TracklistItem) updatedItem);
          }
+        refreshListArtworkUri(c);
+        refreshTimeSinceCreated(c);
         return this;
     }
 
@@ -522,11 +534,6 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         user_favorite = tracklistItem.user_favorite;
         shared_to_count = tracklistItem.shared_to_count;
         return this;
-    }
-
-    public String getListArtworkUrl(Context context){
-        final String iconUrl = getArtwork();
-        return TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(context, iconUrl);
     }
 
     public static Track fromIntent(Intent intent, ContentResolver resolver) {

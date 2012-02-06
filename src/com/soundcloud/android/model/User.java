@@ -3,6 +3,7 @@ package com.soundcloud.android.model;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.content.Context;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
@@ -10,6 +11,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
 import com.soundcloud.android.service.playback.PlaylistManager;
+import com.soundcloud.android.utils.ImageUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
@@ -55,6 +57,7 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
 
     public boolean primary_email_confirmed;
     @JsonIgnore public long last_updated;
+    @JsonIgnore public String _list_avatar_uri;
 
     public User() {
     }
@@ -277,6 +280,16 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
         return this;
     }
 
+    public void refreshListAvatarUri(Context context) {
+        final String iconUrl = avatar_url;
+        _list_avatar_uri = TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(context, iconUrl);
+    }
+
+    public String getListAvatarUri(Context context){
+        if (TextUtils.isEmpty(_list_avatar_uri)) refreshListAvatarUri(context);
+        return _list_avatar_uri;
+    }
+
     @Override
     public boolean isStale(){
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.user;
@@ -336,6 +349,10 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
     @Override
     public User getUser() {
         return this;
+    }
+
+    public void resolve(SoundCloudApplication application) {
+        refreshListAvatarUri(application);
     }
 
     public static void clearLoggedInUserFromStorage(SoundCloudApplication app) {
