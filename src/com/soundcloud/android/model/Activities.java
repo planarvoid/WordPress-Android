@@ -496,20 +496,12 @@ public class Activities extends CollectionHolder<Activity> {
         return resolver.bulkInsert(content.uri, buildContentValues(content.id));
     }
 
-    public Map<Long, Activity> getCollectionMap() {
-        Map<Long,Activity> map = new HashMap<Long,Activity>();
-        for (Activity a : collection){
-            map.put(a.id,a);
-        }
-        return map;
-    }
-
     public void mergeAndSort(Activities toMerge) {
         if (!toMerge.isEmpty()) collection.addAll(toMerge.collection);
         Collections.sort(collection);
     }
 
-    public Iterable<String> artworkUrls() {
+    public Set<String> artworkUrls() {
         Set<String> artworkUrls = new HashSet<String>();
         for (Activity a : this) {
             Track track = a.getTrack();

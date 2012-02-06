@@ -191,11 +191,12 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public String getArtwork() {
-        if (!CloudUtils.checkIconShouldLoad(artwork_url) &&
-                (user == null || !CloudUtils.checkIconShouldLoad(user.avatar_url))){
-           return "";
+        if (CloudUtils.checkIconShouldLoad(artwork_url) ||
+            (user != null && CloudUtils.checkIconShouldLoad(user.avatar_url))) {
+            return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
+        } else {
+            return null;
         }
-        return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
     }
 
     public static class CreatedWith {

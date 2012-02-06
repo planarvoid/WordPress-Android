@@ -48,6 +48,8 @@ public class SyncAdapterServiceTest {
 
     @Before
     public void before() {
+        Robolectric.application.onCreate();
+
         // pretend we're connected via wifi
         ConnectivityManager cm = (ConnectivityManager)
                 Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -173,7 +175,6 @@ public class SyncAdapterServiceTest {
                 "2 new likes",
                 "on P. Watzlawick - Anleitung zum Ungl\u00fccklichsein");
     }
-
 
     @Test
     public void shouldNotifyAboutActivityFavoritingMultiple() throws Exception {

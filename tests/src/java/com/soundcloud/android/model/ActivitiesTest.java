@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
 public class ActivitiesTest {
@@ -372,4 +373,17 @@ public class ActivitiesTest {
         expect(favoriting.getTrack().user.username).toEqual("Foo Bar");
     }
 
+    @Test
+    public void shouldGetArtworkUrls() throws Exception {
+        Activities a = Activities.fromJSON(
+                getClass().getResourceAsStream("one_of_each_activity_type.json"));
+
+        Set<String> urls = a.artworkUrls();
+        expect(urls.size()).toEqual(3);
+        expect(urls).toContain(
+            "http://i1.sndcdn.com/artworks-000009086878-mwsj4x-large.jpg?a1786a9",
+            "http://i1.sndcdn.com/artworks-000009823303-xte9r2-large.jpg?8935bc4",
+            "http://i1.sndcdn.com/artworks-000009195725-njfi16-large.jpg?a1786a9"
+        );
+    }
 }
