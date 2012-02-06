@@ -408,7 +408,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         Request request = getRequest(isRefresh);
         if (request != null) {
             request.add("linked_partitioning", "1");
-            request.add("limit", Consts.PAGE_SIZE);
+            request.add("limit", mPageIndex == 0 ? Consts.COLLECTION_FIRST_PAGE_SIZE : Consts.COLLECTION_PAGE_SIZE);
         }
         return request;
     }

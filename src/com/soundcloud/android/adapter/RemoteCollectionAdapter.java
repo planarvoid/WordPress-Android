@@ -229,10 +229,11 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         return new RemoteCollectionTask.CollectionParams() {{
                 loadModel = getLoadModel(refresh);
                 contentUri = getContentUri(refresh);
-                pageIndex = getPageIndex(refresh);
                 request = buildRequest(refresh);
                 isRefresh = refresh;
                 refreshPageItems = !isSyncable();
+                startIndex = getData().size();
+                maxToLoad = mPageIndex == 0 ? Consts.COLLECTION_FIRST_PAGE_SIZE : Consts.COLLECTION_PAGE_SIZE;
             }};
     }
 

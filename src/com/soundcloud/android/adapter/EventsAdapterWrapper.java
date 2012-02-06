@@ -82,7 +82,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         setListLastUpdated();
     }
 
-    public boolean onNewEvents(Activities newActivities, boolean wasRefresh) {
+    public boolean onNewEvents(Activities newActivities, boolean wasRefresh, boolean noMoreLocalItems) {
         Log.d(getClass().getSimpleName(),"Task delivered "+ newActivities.size() + " new activities");
         if (wasRefresh) {
             if (!newActivities.isEmpty()) {
@@ -91,7 +91,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             }
             doneRefreshing();
         } else {
-            if (newActivities.size() < Consts.COLLECTION_PAGE_SIZE){
+            if (noMoreLocalItems){
                 mActivity.startService(new Intent(mActivity, ApiSyncService.class)
                         .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
                         .putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE, true)
@@ -140,6 +140,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             contentUri = getContentUri(refresh);
             isRefresh = refresh;
             timestamp = refresh ? mActivities.getTimestamp() : mActivities.getLastTimestamp();
+            maxToLoad = mActivities.isEmpty() ? Consts.COLLECTION_FIRST_PAGE_SIZE : Consts.COLLECTION_PAGE_SIZE;
         }};
     }
 

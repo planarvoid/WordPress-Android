@@ -215,9 +215,9 @@ public enum Content {
         return sUris.get(uri);
     }
 
-    public List<Long> getStoredIds(ContentResolver resolver, int pageIndex){
+    public List<Long> getStoredIds(ContentResolver resolver, Uri localUri){
         return ApiSyncer.idCursorToList(resolver.query(
-                        pageIndex == -1 ? Content.COLLECTION_ITEMS.uri : CloudUtils.getPagedUri(Content.COLLECTION_ITEMS.uri, pageIndex),
+                        localUri,
                         new String[]{DBHelper.CollectionItems.ITEM_ID},
                         DBHelper.CollectionItems.COLLECTION_TYPE + " = ?",
                         new String[]{String.valueOf(collectionType)},

@@ -32,6 +32,7 @@ public class LoadActivitiesTask extends AsyncTask<Object, List<? super Parcelabl
         public Uri contentUri;
         public long timestamp;
         public boolean isRefresh;
+        public int maxToLoad;
         @Override
         public String toString() {
             return "ActivitiesParams{" +
@@ -56,7 +57,7 @@ public class LoadActivitiesTask extends AsyncTask<Object, List<? super Parcelabl
     protected void onPostExecute(Boolean success) {
         EventsAdapterWrapper adapter = (EventsAdapterWrapper) mAdapterReference.get();
         if (adapter != null) {
-            adapter.onNewEvents(mNewActivities, mParams.isRefresh);
+            adapter.onNewEvents(mNewActivities, mParams.isRefresh, mNewActivities.size() < mParams.maxToLoad);
         }
     }
 
@@ -72,7 +73,7 @@ public class LoadActivitiesTask extends AsyncTask<Object, List<? super Parcelabl
                     mParams.timestamp);
         } else {
             mNewActivities = Activities.getBefore(
-                    mParams.contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(Consts.COLLECTION_PAGE_SIZE)).build(),
+                    mParams.contentUri.buildUpon().appendQueryParameter("limit", String.valueOf(mParams.maxToLoad)).build(),
                     mApp.getContentResolver(),
                     mParams.timestamp);
         }

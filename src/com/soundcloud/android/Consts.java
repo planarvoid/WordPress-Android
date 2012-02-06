@@ -32,6 +32,7 @@ public final class Consts {
     public static final File EXTERNAL_TRACK_CACHE_DIRECTORY = new File(FILES_PATH, ".s");
 
     public static final long MAX_IMAGE_CACHE = 5 * 1024  * 1024; // 5  MB
+    public static final int COLLECTION_FIRST_PAGE_SIZE = 20;
     public static final int COLLECTION_PAGE_SIZE = 50;
 
 
