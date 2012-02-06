@@ -118,7 +118,7 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter {
     public boolean onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
         boolean success = super.onPostTaskExecute(newItems,nextHref,responseCode,keepGoing,wasRefresh);
         if (success && !mKeepGoing){
-            nextAdapterSection();
+            nextAdapterSection(false);
         }
         return success;
     }
@@ -140,12 +140,14 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter {
         checkForStaleItems(newItems);
     }
 
-    private void nextAdapterSection() {
+    private void nextAdapterSection(boolean wasRefresh) {
         // end of this section
-        for (WeakReference<SectionListener> listenerRef : mListeners) {
-            SectionListener listener = listenerRef.get();
-            if (listener != null && mSectionIndex < getWrappedAdapter().sections.size()) {
-                listener.onSectionLoaded(getWrappedAdapter().sections.get(mSectionIndex));
+        if (!wasRefresh) {
+            for (WeakReference<SectionListener> listenerRef : mListeners) {
+                SectionListener listener = listenerRef.get();
+                if (listener != null && mSectionIndex < getWrappedAdapter().sections.size()) {
+                    listener.onSectionLoaded(getWrappedAdapter().sections.get(mSectionIndex));
+                }
             }
         }
 
@@ -169,7 +171,7 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter {
                mKeepGoing = false;
                mState = IDLE;
            } else {
-               nextAdapterSection();
+               nextAdapterSection(true);
            }
         }
     }

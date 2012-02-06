@@ -69,7 +69,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     public Track mTrack;
     private int mPlayPos;
     private long mDuration;
-    private boolean mLandscape;
+    private boolean mLandscape, mOnScreen;
 
     public PlayerTrackView(ScPlayer player) {
         super(player);
@@ -155,6 +155,11 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
         ((View) findViewById(R.id.track).getParent()).setOnTouchListener(this);
         mTouchSlop = ViewConfiguration.get(mPlayer).getScaledTouchSlop();
 
+    }
+
+    public void setOnScreen(){
+        mOnScreen = true;
+        mWaveformController.setOnScreen(true);
     }
 
     protected void toggleCommentMode() {
@@ -267,7 +272,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
                 @Override
                 public void onImageLoaded(ImageView view, String url) {
-                    onArtworkSet(true);
+                    onArtworkSet(mOnScreen);
                 }
             }, new ImageLoader.Options(true,true))) != ImageLoader.BindResult.OK) {
                 mArtwork.setVisibility(View.INVISIBLE);
@@ -638,11 +643,18 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     }
 
     public void destroy() {
+        if (mArtwork.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable) mArtwork.getDrawable()).getBitmap().recycle();
+        if (mAvatar.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable) mAvatar.getDrawable()).getBitmap().recycle();
+        clear();
+        mWaveformController.onDestroy();
+    }
+
+    public void clear() {
+        mOnScreen = false;
         onStop(true);
-        if (mArtwork.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable)mArtwork.getDrawable()).getBitmap().recycle();
-        if (mAvatar.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable)mAvatar.getDrawable()).getBitmap().recycle();
         mArtwork.setImageBitmap(null);
         mAvatar.setImageBitmap(null);
-        mWaveformController.onDestroy();
+        mWaveformController.reset(true);
+        mWaveformController.setOnScreen(false);
     }
 }

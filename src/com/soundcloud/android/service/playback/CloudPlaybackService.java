@@ -568,15 +568,16 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private void setPlayingNotification(final Track track) {
         if (track == null) return;
 
-        if (!useRichNotifications()) {
-            if (mNotificationView == null) {
-                mNotificationView = new RemoteViews(getPackageName(), R.layout.playback_service_status_play);
-                mNotificationView.setImageViewResource(R.id.icon, R.drawable.statusbar);
-            }
-            mNotificationView.setTextViewText(R.id.trackname, track.title);
-            mNotificationView.setTextViewText(R.id.username, track.getUserName());
-            mNotificationView.setTextViewText(R.id.progress, "");
+        status = new Notification();
+        status.flags |= Notification.FLAG_ONGOING_EVENT;
+        status.icon = R.drawable.statusbar;
 
+        Intent intent = new Intent(Actions.PLAYER);
+        intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
+        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
+
+        if (!useRichNotifications()) {
+            status.setLatestEventInfo(this, track.getUserName(),track.title, pi);
         } else {
 
             if (mNotificationView == null){
@@ -598,19 +599,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 });
 
             }
+            status.contentView = mNotificationView;
+            status.contentIntent = pi;
         }
 
-        Intent intent = new Intent(Actions.PLAYER);
-        intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-
-        status = new Notification();
-        status.contentView = mNotificationView;
-        status.flags |= Notification.FLAG_ONGOING_EVENT;
-        status.icon = R.drawable.statusbar;
-        status.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
         startForeground(PLAYBACKSERVICE_STATUS_ID, status);
-
-
     }
 
     private boolean useRichNotifications() {

@@ -187,8 +187,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     @SuppressWarnings("unchecked")
     public void restoreState(final Object[] state){
         if (state[0] != null) setData(state[0]);
-        if (state[1] != null) restoreAppendTask((RemoteCollectionTask) state[1]);
-        if (state[2] != null) restoreRefreshTask((RemoteCollectionTask) state[2]);
+        if (state[1] != null) restoreAppendTask((AsyncTask) state[1]);
+        if (state[2] != null) restoreRefreshTask((AsyncTask) state[2]);
         if (state[3] != null) restoreUpdateTask((UpdateCollectionTask) state[3]);
         if (state[4] != null) restorePagingData((int[]) state[4]);
         if (state[5] != null) restoreExtraData((Object[]) state[5]);
@@ -408,7 +408,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         Request request = getRequest(isRefresh);
         if (request != null) {
             request.add("linked_partitioning", "1");
-            request.add("limit", Consts.PAGE_SIZE);
+            request.add("limit", mPageIndex == 0 ? Consts.COLLECTION_FIRST_PAGE_SIZE : Consts.COLLECTION_PAGE_SIZE);
         }
         return request;
     }
