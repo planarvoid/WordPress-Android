@@ -1,6 +1,7 @@
 package com.handmark.pulltorefresh.library;
 
 import android.content.Context;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -77,6 +78,15 @@ public abstract class PullToRefreshAdapterViewBase<T extends AbsListView> extend
         if (null != onScrollListener) {
             onScrollListener.onScrollStateChanged(view, scrollState);
         }
+        /*
+        switch (scrollState){
+            case 1:
+                Debug.startMethodTracing("scroll");
+                break;
+            case 0:
+                Debug.stopMethodTracing();
+                break;
+        }*/
 
         if (mCurrentScrollState == SCROLL_STATE_FLING && scrollState != SCROLL_STATE_FLING) {
             final Message message = mFlingHandler.obtainMessage(MESSAGE_FLING_DONE, getContext());

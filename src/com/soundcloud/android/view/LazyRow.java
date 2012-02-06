@@ -6,7 +6,6 @@ import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
@@ -66,15 +65,20 @@ public abstract class LazyRow extends FrameLayout {
         final Long id = mAdapter.getItemId(mCurrentPosition);
         final String iconUri = getIconRemoteUri();
         if (CloudUtils.checkIconShouldLoad(iconUri)) {
-            final Bitmap bmp = mImageLoader.getBitmap(iconUri,null, ICON_OPTIONS);
-            if (bmp != null){
-                Drawable drawable = mAdapter.getDrawableFromId(id);
-                if (drawable == null){
-                    if (mAdapter.getIconLoading(id)){
-                        TransitionDrawable tDrawable = (TransitionDrawable) (drawable = new TransitionDrawable(new Drawable[]{mIcon.getBackground(),new BitmapDrawable(bmp)}));
+            Drawable drawable = mAdapter.getDrawableFromId(id);
+            if (drawable != null) {
+                // we have already made a drawable for this item
+                mIcon.setImageDrawable(drawable);
+            } else {
+                // no drawable yet, check for a bitmap
+                final Bitmap bmp = mImageLoader.getBitmap(iconUri, null, ICON_OPTIONS);
+                if (bmp != null) {
+                    // we have a bitmap, check to see if this was previously empty (should be animated in)
+                    if (mAdapter.getIconNotReady(id)) {
+                        TransitionDrawable tDrawable = (TransitionDrawable) (drawable = new TransitionDrawable(new Drawable[]{mIcon.getBackground(), new BitmapDrawable(bmp)}));
                         tDrawable.setCrossFadeEnabled(true);
-                        tDrawable.setCallback(new android.graphics.drawable.Drawable.Callback(){
-                            @Override public void invalidateDrawable(Drawable drawable) { mIcon.invalidate(); }
+                        tDrawable.setCallback(new android.graphics.drawable.Drawable.Callback() {
+                            @Override public void invalidateDrawable(Drawable drawable) { mIcon.invalidate();}
                             @Override public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) { }
                             @Override public void unscheduleDrawable(Drawable drawable, Runnable runnable) { }
                         });
@@ -82,12 +86,17 @@ public abstract class LazyRow extends FrameLayout {
                     } else {
                         drawable = new BitmapDrawable(bmp);
                     }
+                    mAdapter.assignDrawableToId(id, drawable);
+                    mIcon.setImageDrawable(drawable);
+
+                } else if (!mAdapter.getIconNotReady(id)) {
+                    // mark it as not ready and tell the imageloader to load it (it will notify the adapter when done)
+                    mAdapter.setIconNotReady(id);
+                    mImageLoader.bind((BaseAdapter) mAdapter, mIcon, iconUri, mIconOptions);
+                } else {
+                    // already loading, just make sure we aren't displaying an old one
+                    mIcon.setImageBitmap(null);
                 }
-                mAdapter.assignDrawableToId(id, drawable);
-                mIcon.setImageDrawable(drawable);
-            } else {
-                mAdapter.setIconLoading(id);
-                mImageLoader.bind((BaseAdapter) mAdapter, mIcon, iconUri, mIconOptions);
             }
         } else {
             mImageLoader.unbind(mIcon);

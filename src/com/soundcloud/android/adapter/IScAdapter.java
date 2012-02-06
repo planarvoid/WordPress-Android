@@ -10,11 +10,11 @@ public interface IScAdapter {
 
     Drawable getDrawableFromId(Long id);
 
-    Boolean getIconLoading(Long id);
+    Boolean getIconNotReady(Long id);
 
     void assignDrawableToId(Long id, Drawable drawable);
 
-    void setIconLoading(Long id);
+    void setIconNotReady(Long id);
 
     void onEndOfList();
 }

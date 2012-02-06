@@ -123,11 +123,11 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
         mIconAnimations.put(id, drawable);
     }
 
-    public Boolean getIconLoading(Long id){
+    public Boolean getIconNotReady(Long id){
         return mLoadingIcons.contains(id);
     }
 
-    public void setIconLoading(Long id){
+    public void setIconNotReady(Long id){
         mLoadingIcons.add(id);
     }
 

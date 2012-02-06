@@ -109,7 +109,8 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         }
 
         mAppendTask = null;
-        afterNewItems();
+        applyEmptyView();
+        notifyDataSetChanged();
         return true;
     }
 
