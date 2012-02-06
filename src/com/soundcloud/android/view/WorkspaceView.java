@@ -875,6 +875,7 @@ public class WorkspaceView extends ViewGroup {
         if (!mScroller.isFinished()) {
             mScroller.abortAnimation();
         }
+
         mScroller.startScroll(sX, 0, delta, 0, duration);
         if (screenChanging && notify) {
             notifyScreenChangeListener(mNextScreen, false);
@@ -1122,6 +1123,8 @@ public class WorkspaceView extends ViewGroup {
 
     public void addViewToFront(View v) {
         mCurrentScreen++;
+        mLastLow++;
+        mLastHigh++;
         if (mSeparatorDrawable != null && getChildCount() > 0) {
             addView(getNewSeparator(), 0);
         }
@@ -1130,6 +1133,8 @@ public class WorkspaceView extends ViewGroup {
 
     public void removeViewFromFront() {
         mCurrentScreen--;
+        mLastLow--;
+        mLastHigh--;
         removeViewAt(0);
         if (mSeparatorDrawable != null && getChildCount() > 0){
             removeViewAt(0);
@@ -1154,5 +1159,42 @@ public class WorkspaceView extends ViewGroup {
         if (mScroller != null) mScroller.abortAnimation();
         this.scrollTo(0,0);
         mCurrentScreen = 0;
+    }
+
+    public View cycleBackViewToFront(){
+        if (this.getScreenCount() <= 1) return this.getScreenAt(0); //do nothing
+        View v = getLastScreen();
+        if (mScroller != null) mScroller.abortAnimation();
+        final int screenWidth = getScrollWidth();
+
+        if (mActivePointerId != INVALID_POINTER){
+            mDownMotionX = mDownMotionX + screenWidth;
+            mDownScrollX = mDownScrollX + screenWidth;
+        }
+
+        setCurrentScreenNow(mCurrentScreen+1);
+        removeViewFromBack();
+        addViewToFront(v);
+
+        return v;
+    }
+
+    public View cycleFrontViewToBack(){
+        if (this.getScreenCount() <= 1) return this.getScreenAt(0); //do nothing
+
+        View v = getScreenAt(0);
+        if (mScroller != null) mScroller.abortAnimation();
+        final int screenWidth = getScrollWidth();
+
+        if (mActivePointerId != INVALID_POINTER){
+            mDownMotionX = mDownMotionX - screenWidth;
+            mDownScrollX = mDownScrollX - screenWidth;
+        }
+
+        setCurrentScreenNow(mCurrentScreen-1);
+        removeViewFromFront();
+        addViewToBack(v);
+
+        return v;
     }
 }

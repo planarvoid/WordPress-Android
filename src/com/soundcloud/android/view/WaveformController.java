@@ -57,7 +57,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     protected ScPlayer mPlayer;
     protected Track mPlayingTrack;
-    protected boolean mShowingComments, mSuspendTimeDisplay;
+    protected boolean mShowingComments, mSuspendTimeDisplay, mOnScreen;
     protected List<Comment> mCurrentComments;
     protected List<Comment> mCurrentTopComments;
     protected Comment mCurrentShowingComment;
@@ -164,6 +164,10 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     }
 
+    public void setOnScreen(boolean onScreen){
+        mOnScreen = onScreen;
+    }
+
     protected boolean isLandscape(){
         return false;
     }
@@ -217,8 +221,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void reset(boolean hide){
-        mWaitingForSeekComplete = false;
-        mIsBuffering = false;
+        mWaitingForSeekComplete = mIsBuffering = false;
         setProgressInternal(0);
         setSecondaryProgress(0);
         onStop(false);
@@ -439,7 +442,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
                         waveformResult = BindResult.OK;
-                        showWaveform(true);
+                        showWaveform(mOnScreen);
                     }
                 },new ImageLoader.Options(true,true));
 
@@ -596,7 +599,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         } else {
             mOverlay.setImageDrawable(mPlayer.getResources()
                     .getDrawable(R.drawable.player_wave_bg));
-            showWaveform(true);
+            showWaveform(mOnScreen);
         }
     }
 

@@ -133,7 +133,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     @Override public void onScreenChanging(View newScreen, int newScreenIndex) {}
 
-    @Override public void onNextScreenVisible(View newScreen, int newScreenIndex) {}
+    @Override public void onNextScreenVisible(View newScreen, int newScreenIndex) {
+        ((PlayerTrackView) newScreen).setOnScreen();
+    }
 
     @Override
     public void onScreenChanged(View newScreen, int newScreenIndex) {
@@ -159,30 +161,26 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 final Track prevTrack = getTrackById(prevTrackId);
                 if (prevTrack != null){
                     if (mTrackWorkspace.getScreenCount() > 2) {
-                        ptv = (PlayerTrackView) mTrackWorkspace.getScreenAt(2);
-                        ptv.getWaveformController().reset(true);
-                        mTrackWorkspace.removeViewFromBack();
+                        ptv = (PlayerTrackView) mTrackWorkspace.cycleBackViewToFront();
+                        ptv.clear();
                     } else {
                         ptv = new PlayerTrackView(this);
+                        mTrackWorkspace.addViewToFront(ptv);
                     }
-                    mTrackWorkspace.addViewToFront(ptv);
                     ptv.setTrack(prevTrack, newQueuePos - 1, false);
-                    mTrackWorkspace.setCurrentScreenNow(1, false);
                 }
 
             } else if (newScreenIndex == mTrackWorkspace.getScreenCount() - 1 && nextTrackId != -1) {
                 final Track nextTrack = getTrackById(nextTrackId);
                 if (nextTrack != null){
                     if (mTrackWorkspace.getScreenCount() > 2) {
-                        ptv = (PlayerTrackView) mTrackWorkspace.getScreenAt(0);
-                        ptv.getWaveformController().reset(true);
-                        mTrackWorkspace.removeViewFromFront();
+                        ptv = (PlayerTrackView) mTrackWorkspace.cycleFrontViewToBack();
+                        ptv.clear();
                     } else {
                         ptv = new PlayerTrackView(this);
+                        mTrackWorkspace.addViewToBack(ptv);
                     }
-                    mTrackWorkspace.addViewToBack(ptv);
                     ptv.setTrack(nextTrack, newQueuePos + 1, false);
-                    mTrackWorkspace.setCurrentScreenNow(1, false);
                 }
             }
 
