@@ -39,6 +39,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -98,10 +100,6 @@ public class CloudUtils {
         } else {
             return c.getCacheDir();
         }
-    }
-
-    public static String getCacheDirPath(Context c) {
-        return getCacheDir(c).getAbsolutePath();
     }
 
     public static File getCacheFile(Context c, String name) {
@@ -395,10 +393,6 @@ public class CloudUtils {
         return sFormatter.format(durationformat, timeArgs).toString();
     }
 
-    public static boolean checkThreadAlive(Thread t) {
-        return t != null && t.isAlive();
-    }
-
     // Show an event in the LogCat view, for debugging
     public static void dumpMotionEvent(MotionEvent event) {
         String names[] = {
@@ -663,6 +657,27 @@ public class CloudUtils {
         }
     }
 
+
+    /**
+     * @param context
+     * @return an id for this device (MD5 of IMEI) or null
+     */
+    public static String getDeviceID(Context context) {
+        TelephonyManager tmgr = (TelephonyManager)
+                context.getSystemService(Context.TELEPHONY_SERVICE);
+
+        if (tmgr != null) {
+            String deviceId = tmgr.getDeviceId();
+            if (!TextUtils.isEmpty(deviceId)) {
+                return md5(deviceId);
+            } else {
+                // tablets don't have deviceId
+                return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+            }
+        } else {
+            return null;
+        }
+    }
 
      public static void logScreenSize(Context context) {
         switch (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) {

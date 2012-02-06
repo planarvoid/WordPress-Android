@@ -17,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -126,6 +127,7 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     private static AsyncTask<String, Void, String> sendRegId(final Context context, String regId,
                                                              PowerManager.WakeLock lock) {
+
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sendRegId("+regId+")");
         return new SendRegIdTask((AndroidCloudAPI) context.getApplicationContext(), lock) {
             @Override
@@ -141,7 +143,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                     setRegistrationData(context, PREF_DEVICE_URL, null);
                 }
             }
-        }.execute(regId, CloudUtils.getPackagename(context));
+        }.execute(regId, CloudUtils.getPackagename(context), CloudUtils.getDeviceID(context));
     }
 
     /** callback when device is unregistered */

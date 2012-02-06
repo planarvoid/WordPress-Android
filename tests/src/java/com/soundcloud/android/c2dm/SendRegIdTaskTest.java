@@ -1,6 +1,5 @@
 package com.soundcloud.android.c2dm;
 
-import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import org.apache.http.HttpStatus;
 import org.apache.http.message.BasicHeader;
@@ -16,7 +15,12 @@ import static com.soundcloud.android.Expect.expect;
 import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
-public class SendRegIdTaskTest extends ApiTests {
+public class SendRegIdTaskTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldCheckNumberOfParameters() throws Exception {
+        new SendRegIdTask(DefaultTestRunner.application, null).doInBackground("reg_id", "com.soundcloud.android");
+    }
 
     @Test
     public void testExecuteSuccess() throws Exception {
@@ -25,13 +29,14 @@ public class SendRegIdTaskTest extends ApiTests {
         Robolectric.addPendingHttpResponse(HttpStatus.SC_CREATED, "",
                 new BasicHeader("Location", location));
 
-        expect(new SendRegIdTask(api, null).doInBackground("reg_id", "com.soundcloud.android")).toEqual(location);
+        expect(new SendRegIdTask(DefaultTestRunner.application, null)
+                .doInBackground("reg_id", "com.soundcloud.android", "some_id")).toEqual(location);
     }
 
     @Test
     public void testExecuteFailure() throws Exception {
         Robolectric.addPendingHttpResponse(HttpStatus.SC_FORBIDDEN, "");
-        expect(new SendRegIdTask(api, null).doInBackground("reg_id", "com.soundcloud.android")).toBeNull();
+        expect(new SendRegIdTask(DefaultTestRunner.application, null).doInBackground("reg_id", "com.soundcloud.android", "some_id")).toBeNull();
     }
 
     @Test
@@ -41,6 +46,7 @@ public class SendRegIdTaskTest extends ApiTests {
                         .method("POST")
                         .path("me/devices"), new IOException("boom")));
 
-        expect(new SendRegIdTask(api, null).doInBackground("reg_id", "com.soundcloud.android")).toBeNull();
+        expect(new SendRegIdTask(DefaultTestRunner.application, null)
+                .doInBackground("reg_id", "com.soundcloud.android", "some_id")).toBeNull();
     }
 }
