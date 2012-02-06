@@ -17,7 +17,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -159,6 +158,7 @@ public class C2DMReceiver extends BroadcastReceiver {
     }
 
 
+    @SuppressWarnings("UnusedParameters")
     private void onRegistrationError(Context context, Intent intent, String error) {
         Log.w(TAG, "error registering with C2DM: " + error);
 
