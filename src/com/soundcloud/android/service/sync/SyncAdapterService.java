@@ -1,10 +1,12 @@
 package com.soundcloud.android.service.sync;
 
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -35,7 +37,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SyncAdapterService extends Service {
     private static final String TAG = SyncAdapterService.class.getSimpleName();
@@ -274,6 +278,8 @@ public class SyncAdapterService extends Service {
 
             if (incoming.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM)) ||
                 exclusive.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM))) {
+                prefetchArtwork(app, incoming);
+                prefetchArtwork(app, exclusive);
 
                 Notification n = showDashboardNotification(app, ticker, title, message,
                         Actions.STREAM,
@@ -299,6 +305,8 @@ public class SyncAdapterService extends Service {
             Message msg = new Message(app.getResources(), activities, favoritings, comments);
 
             if (activities.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
+                prefetchArtwork(app, activities);
+
                 Notification n = showDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
 
@@ -407,6 +415,13 @@ public class SyncAdapterService extends Service {
         final Bundle extras = new Bundle();
         extras.putInt(EXTRA_CLEAR_MODE, clearMode);
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
+    }
+
+    static void prefetchArtwork(Context context, Activities activities) {
+        for (String url : activities.artworkUrls()) {
+            Log.d(TAG, "prefetching "+url);
+            ImageLoader.get(context).prefetch(url);
+        }
     }
 
     private static void clearActivities(ContentResolver resolver){

@@ -685,8 +685,7 @@ public final class ImageLoader {
             // therefore this attempt is likely to fail as well.
             return;
         }
-        boolean loadBitmap = true;
-        ImageRequest task = new ImageRequest(url, loadBitmap, options);
+        ImageRequest task = new ImageRequest(url, false, options);
         enqueueRequest(task);
     }
 
