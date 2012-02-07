@@ -99,7 +99,12 @@ public class ApiSyncer {
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
             activities = Activities.fetch(mApi, request);
-            inserted = activities.insert(c, mResolver);
+            if (activities.size() == 1 && activities.get(0).equals(lastActivity)) {
+                // this can happen at the end of the list
+                inserted = 0;
+            } else {
+                inserted = activities.insert(c, mResolver);
+            }
         } else {
             String future_href = LocalCollection.getExtraFromUri(uri, mResolver);
             Request request = future_href == null ? c.request() : Request.to(future_href);
@@ -107,7 +112,8 @@ public class ApiSyncer {
             inserted = activities.insert(c, mResolver);
             result.setSyncData(System.currentTimeMillis(), activities.size(), activities.future_href);
         }
-        result.wasChanged = !activities.isEmpty();
+
+        result.wasChanged = inserted > 0;
         Log.d(ApiSyncService.LOG_TAG, "activities: inserted " + inserted + " objects");
         return result;
     }

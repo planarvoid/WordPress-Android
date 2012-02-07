@@ -123,7 +123,6 @@ public class ApiSyncService extends Service {
     }
 
     /* package */ static class ApiRequest {
-        private final SoundCloudApplication app;
         private final ResultReceiver resultReceiver;
         private final String action;
         private final Set<UriRequest> requestsRemaining;
@@ -136,7 +135,6 @@ public class ApiSyncService extends Service {
         private final SyncResult requestResult = new SyncResult();
 
         public ApiRequest(SoundCloudApplication application, Intent intent) {
-            app = application;
             resultReceiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
             isUIResponse = intent.getBooleanExtra(EXTRA_IS_UI_RESPONSE, false);
             action = intent.getAction();
@@ -159,11 +157,11 @@ public class ApiSyncService extends Service {
             if (requestsRemaining.isEmpty()) {
                 if (resultReceiver != null) {
                     if (uriRequest.result.success) {
-                        resultReceiver.send(action != null && action.equals(ACTION_APPEND) ? STATUS_APPEND_FINISHED : STATUS_SYNC_FINISHED, resultData);
+                        resultReceiver.send(ACTION_APPEND.equals(action) ? STATUS_APPEND_FINISHED : STATUS_SYNC_FINISHED, resultData);
                     } else {
                         final Bundle bundle = new Bundle();
                         bundle.putParcelable(EXTRA_SYNC_RESULT, requestResult);
-                        resultReceiver.send(action != null && action.equals(ACTION_APPEND) ? STATUS_APPEND_ERROR : STATUS_SYNC_ERROR, bundle);
+                        resultReceiver.send(ACTION_APPEND.equals(action) ? STATUS_APPEND_ERROR : STATUS_SYNC_ERROR, bundle);
                     }
                 }
                 return true;
@@ -214,7 +212,7 @@ public class ApiSyncService extends Service {
             return this;
         }
 
-        @Override
+        @Override @SuppressWarnings("RedundantIfStatement")
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -223,7 +221,6 @@ public class ApiSyncService extends Service {
 
             if (action != null ? !action.equals(that.action) : that.action != null) return false;
             if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
-
             return true;
         }
 
@@ -306,6 +303,7 @@ public class ApiSyncService extends Service {
     public static void appendSyncStats(SyncResult from, SyncResult to) {
         to.stats.numAuthExceptions += from.stats.numAuthExceptions;
         to.stats.numIoExceptions += from.stats.numIoExceptions;
+        to.stats.numParseExceptions += from.stats.numParseExceptions;
         // TODO more stats?
     }
 }

@@ -24,6 +24,10 @@ public class ActivityTest {
 
         expect(a1).toEqual(a2);
 
+        a1.id = 20;  // Activity is not id based
+        expect(a1).toEqual(a2);
+        expect(a1.hashCode()).toEqual(a2.hashCode());
+
         Date d = new Date();
         a1.created_at = d;
         expect(a1).not.toEqual(a2);

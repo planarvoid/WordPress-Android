@@ -289,7 +289,6 @@ public class Activities extends CollectionHolder<Activity> {
         }
     }
 
-
     public static int clear(Content content, ContentResolver resolver) {
         Content contentToDelete = Content.ME_ALL_ACTIVITIES;
         if (content != null) {

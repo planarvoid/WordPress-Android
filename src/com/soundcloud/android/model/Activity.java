@@ -96,6 +96,7 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
         return origin instanceof Favoriting ? (Favoriting) origin : null;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public TrackSharing getTrackSharing() {
         return origin instanceof TrackSharing ? (TrackSharing) origin : null;
     }
@@ -161,14 +162,11 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
         return cv;
     }
 
-    @Override
+    @Override @SuppressWarnings("RedundantIfStatement")
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
         Activity activity = (Activity) o;
-
         if (created_at != null ? !created_at.equals(activity.created_at) : activity.created_at != null) return false;
         if (origin != null ? !origin.equals(activity.origin) : activity.origin != null) return false;
         if (tags != null ? !tags.equals(activity.tags) : activity.tags != null) return false;
@@ -178,7 +176,7 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = 13;
         result = 31 * result + (created_at != null ? created_at.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (tags != null ? tags.hashCode() : 0);
@@ -203,7 +201,8 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
 
     @Override
     public boolean isStale(){
-        return getTrack() == null ? false : System.currentTimeMillis() - getTrack().last_updated > Consts.ResourceStaleTimes.activity;
+        return getTrack() != null &&
+                System.currentTimeMillis() - getTrack().last_updated > Consts.ResourceStaleTimes.activity;
     }
 
     public enum Type {

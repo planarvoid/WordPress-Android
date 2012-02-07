@@ -108,13 +108,13 @@ public class ApiSyncServiceTest {
 
         SoundCloudApplication app = DefaultTestRunner.application;
 
-        svc.mRunningRequests.add(new ApiSyncService.UriRequest(app,Content.ME_FAVORITES.uri, null));
-        svc.mRunningRequests.add(new ApiSyncService.UriRequest(app,Content.ME_FOLLOWINGS.uri, null));
+        svc.mRunningRequests.add(new ApiSyncService.UriRequest(app, Content.ME_FAVORITES.uri, null));
+        svc.mRunningRequests.add(new ApiSyncService.UriRequest(app, Content.ME_FOLLOWINGS.uri, null));
 
         ApiSyncer.Result result = new ApiSyncer.Result(Content.ME_FAVORITES.uri);
         result.success = true;
 
-        svc.onUriSyncResult(new ApiSyncService.UriRequest(app,Content.ME_FAVORITES.uri, null));
+        svc.onUriSyncResult(new ApiSyncService.UriRequest(app, Content.ME_FAVORITES.uri, null));
         expect(svc.mRunningRequests.size()).toBe(1);
     }
 
@@ -234,6 +234,41 @@ public class ApiSyncServiceTest {
     }
 
     @Test
+    public void shouldSyncThenAppend() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+        sync(svc, Content.ME_ACTIVITIES,
+                "own_1.json",
+                "own_2.json");
+
+        expect(Content.ME_ACTIVITIES).toHaveCount(41);
+        expect(Content.COMMENTS).toHaveCount(15);
+
+        append(svc, Content.ME_ACTIVITIES,
+                "own_append.json");
+
+        expect(Content.ME_ACTIVITIES).toHaveCount(42);
+        expect(Content.COMMENTS).toHaveCount(16);
+    }
+
+    @Test
+    public void shouldStopSyncingIfAppendReturnsSameResult() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+        sync(svc, Content.ME_ACTIVITIES,
+                "own_1.json",
+                "own_2.json");
+
+        expect(Content.ME_ACTIVITIES).toHaveCount(41);
+
+        for (int i=0; i<3; i++)
+            append(svc, Content.ME_ACTIVITIES,
+                    "own_append.json");
+
+        expect(Content.ME_ACTIVITIES).toHaveCount(42);
+        expect(Content.COMMENTS).toHaveCount(16);
+    }
+
+
+    @Test
     public void shouldSyncDifferentEndoints() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         sync(svc, Content.ME_ACTIVITIES,
@@ -296,8 +331,16 @@ public class ApiSyncServiceTest {
     }
 
     private void sync(ApiSyncService svc, Content content, String... fixtures) throws IOException {
+        serviceAction(svc, Intent.ACTION_SYNC, content, fixtures);
+    }
+
+    private  void append(ApiSyncService svc, Content content, String... fixtures) throws IOException {
+        serviceAction(svc, ApiSyncService.ACTION_APPEND, content, fixtures);
+    }
+
+    private void serviceAction(ApiSyncService svc, String action, Content content, String... fixtures) throws IOException {
         TestHelper.addCannedResponses(SyncAdapterServiceTest.class, fixtures);
-        svc.onStart(new Intent(Intent.ACTION_SYNC, content.uri), 1);
+        svc.onStart(new Intent(action, content.uri), 1);
     }
 
     private void addIdResponse(String url, int... ids) {
