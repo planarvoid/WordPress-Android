@@ -53,7 +53,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         configureList(mListView);
 
         LayoutInflater inflater = getLayoutInflater();
-        ViewGroup header = (ViewGroup) inflater.inflate(R.layout.suggested_users_header, mListView, false);
+        ViewGroup header = (ViewGroup) inflater.inflate(R.layout.suggested_users_header, null, false);
         mListView.getRefreshableView().addHeaderView(header, null, false);
 
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
@@ -128,7 +128,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
     private void addSuggestedUsersSection() {
         ffAdp.sections.add(
                 new SectionedAdapter.Section(getString(R.string.list_header_suggested_users),
-                        User.class, new ArrayList<Parcelable>(), Content.SUGGESTED_USERS.uri, Request.to(Endpoints.SUGGESTED_USERS)));
+                        User.class, new ArrayList<Parcelable>(), null, Request.to(Endpoints.SUGGESTED_USERS)));
     }
 
     /* package */ void configureFacebook() {
