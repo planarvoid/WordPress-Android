@@ -141,7 +141,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             contentUri = getContentUri(refresh);
             isRefresh = refresh;
             timestamp = refresh ? mActivities.getTimestamp() : mActivities.getLastTimestamp();
-            maxToLoad = mActivities.isEmpty() ? Consts.COLLECTION_FIRST_PAGE_SIZE : Consts.COLLECTION_PAGE_SIZE;
+            maxToLoad = mActivities.isEmpty() || refresh ? Consts.COLLECTION_FIRST_PAGE_SIZE : Consts.COLLECTION_PAGE_SIZE;
         }};
     }
 

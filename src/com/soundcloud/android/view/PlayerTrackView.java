@@ -194,7 +194,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
 
             if (!mTrack.info_loaded) {
                 if (CloudUtils.isTaskFinished(mTrack.load_info_task)) {
-                    mTrack.load_info_task = new LoadTrackInfoTask(mPlayer.getApp(), mTrack.id, true, true);
+                    mTrack.load_info_task = new LoadTrackInfoTask(mPlayer.getApp(), mTrack.id);
                 }
 
                 mTrack.load_info_task.addListener(this);

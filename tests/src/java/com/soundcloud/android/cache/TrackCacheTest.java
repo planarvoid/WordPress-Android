@@ -29,6 +29,22 @@ public class TrackCacheTest {
         expect(t.duration).toEqual(track.duration);
     }
 
+     @Test
+    public void testPutWithLocalFields() {
+        Track track = new Track();
+        track.id = 1234;
+        track.filelength = 999l;
+        cache.put(track);
+
+        Track updated = new Track();
+        updated.id = 1234;
+        updated.duration = 9876;
+        cache.putWithLocalFields(updated);
+
+        expect(updated.filelength).toEqual(999l);
+        expect(updated.duration).toEqual(9876);
+    }
+
     @Test
     public void testUniqueUserMultipleTracks() throws IOException {
         // XXX what does this test do?

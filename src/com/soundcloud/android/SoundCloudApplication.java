@@ -132,6 +132,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             BetaService.scheduleCheck(this, false);
         }
 
+        setupStrictMode();
+
         // make sure the WifiMonitor is disabled when not in beta mode
         getPackageManager().setComponentEnabledSetting(
                 new ComponentName(this, WifiMonitor.class),
@@ -309,6 +311,17 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (account == null) {
             return false;
         } else {
+            /*
+            TODO: not sure : setUserData off the ui thread??
+                StrictMode policy violation; ~duration=161 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=279 violation=1
+
+                D/StrictMode(15333): 	at android.os.StrictMode.readAndHandleBinderCallViolations(StrictMode.java:1617)
+                D/StrictMode(15333): 	at android.os.Parcel.readExceptionCode(Parcel.java:1309)
+                D/StrictMode(15333): 	at android.os.Parcel.readException(Parcel.java:1278)
+                D/StrictMode(15333): 	at android.accounts.IAccountManager$Stub$Proxy.setUserData(IAccountManager.java:701)
+                D/StrictMode(15333): 	at android.accounts.AccountManager.setUserData(AccountManager.java:684)
+                D/StrictMode(15333): 	at com.soundcloud.android.SoundCloudApplication.setAccountData(SoundCloudApplication.java:314)
+             */
             getAccountManager().setUserData(account, key, value);
             return true;
         }
@@ -355,7 +368,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                         if (slot > 5) break; // max 5 slots
                     }
                 }
-                mTracker.trackPageView(path);
+                // TODO 02-07 StrictMode policy violation; ~duration=37 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=23 violation=1
+                //mTracker.trackPageView(path);
             } catch (IllegalStateException ignored) {
                 // logs indicate this gets thrown occasionally
                 Log.w(TAG, ignored);

@@ -75,7 +75,7 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ScModel>, String, 
             if (Track.class.equals(mLoadModel)) {
                 holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.TracklistItemHolder.class);
                 for (TracklistItem t : (ScModel.TracklistItemHolder) holder) {
-                    objectsToWrite.add(((Track) itemsToUpdate.get(t.id)).updateFrom(t));
+                    objectsToWrite.add(((Track) itemsToUpdate.get(t.id)).updateFrom(mApp, t));
                 }
             } else if (User.class.equals(mLoadModel)) {
                 holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.UserlistItemHolder.class);
@@ -88,6 +88,11 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ScModel>, String, 
                     objectsToWrite.add(((User) itemsToUpdate.get(u.id)).updateFrom(u));
                 }
             }
+
+            for (Parcelable p : objectsToWrite) {
+                ((ScModel) p).resolve(mApp);
+            }
+
             publishProgress();
             SoundCloudDB.bulkInsertParcelables(mApp.getContentResolver(), objectsToWrite);
 

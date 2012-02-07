@@ -132,7 +132,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
     }
 
     private void checkEmailConfirmed(final SoundCloudApplication app) {
-        (new LoadTask<User>((SoundCloudApplication) getApplication(), User.class) {
+        (new LoadUserInfoTask((SoundCloudApplication) getApplication(),-1) {
             @Override
             protected void onPostExecute(User user) {
                 if (user == null) {
@@ -388,12 +388,12 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         List<String> params = uri.getPathSegments();
         if (params.size() >= 2) {
             if (params.get(0).equalsIgnoreCase("tracks")) {
-                mLoadTrackTask = new LoadTrackInfoTask(getApp(), 0, true, true);
+                mLoadTrackTask = new LoadTrackInfoTask(getApp(), 0);
                 mLoadTrackTask.addListener(this);
                 mLoadTrackTask.action = action;
                 mLoadTrackTask.execute(Request.to(uri.getPath()));
             } else if (params.get(0).equalsIgnoreCase("users")) {
-                mLoadUserTask = new LoadUserInfoTask(getApp(), 0, true, true);
+                mLoadUserTask = new LoadUserInfoTask(getApp(), 0);
                 mLoadUserTask.setListener(this);
                 mLoadUserTask.execute(Request.to(uri.getPath()));
             }

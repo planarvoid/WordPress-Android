@@ -1,7 +1,9 @@
 
 package com.soundcloud.android.task;
 
+import android.content.ContentResolver;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.model.Track;
 
@@ -11,18 +13,14 @@ import java.util.ArrayList;
 public class LoadTrackInfoTask extends LoadTask<Track> {
     private SoundCloudApplication mApp;
     private long mTrackId;
-    private boolean mCacheResult;
-    private boolean mWriteToDB;
     private ArrayList<WeakReference<LoadTrackInfoListener>> mListenerWeakReferences;
 
     public String action;
 
-    public LoadTrackInfoTask(SoundCloudApplication app, long trackId, boolean cacheResult, boolean writeToDb) {
+    public LoadTrackInfoTask(SoundCloudApplication app, long trackId) {
         super(app, Track.class);
         mApp = app;
         mTrackId = trackId;
-        mCacheResult = cacheResult;
-        mWriteToDB = writeToDb;
     }
 
     public void addListener(LoadTrackInfoListener listener){
@@ -35,20 +33,8 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
     @Override
     protected void onPostExecute(Track result) {
         super.onPostExecute(result);
-
         if (result != null) {
-            if (SoundCloudApplication.TRACK_CACHE.containsKey(result.id)) {
-                result.setAppFields(SoundCloudApplication.TRACK_CACHE.get(result.id));
-            }
-
-            if (mWriteToDB){
-                SoundCloudDB.upsertTrack(mApp.getContentResolver(), result);
-            }
             result.info_loaded = true;
-            if (mCacheResult){
-                SoundCloudApplication.TRACK_CACHE.put(result);
-            }
-
             if (mListenerWeakReferences != null){
                 for (WeakReference<LoadTrackInfoListener> listenerRef : mListenerWeakReferences){
                     LoadTrackInfoListener listener = listenerRef.get();
@@ -67,6 +53,14 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
                 }
             }
         }
+    }
+
+    @Override
+    protected void updateLocally(ContentResolver resolver, Track track) {
+        track.info_loaded = true;
+        track.last_updated = System.currentTimeMillis();
+        SoundCloudApplication.TRACK_CACHE.putWithLocalFields(track);
+        SoundCloudDB.upsertTrack(resolver, track);
     }
 
     // Define our custom Listener interface

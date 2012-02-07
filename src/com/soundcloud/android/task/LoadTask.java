@@ -2,9 +2,15 @@ package com.soundcloud.android.task;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.app.Application;
+import android.content.ContentResolver;
+import android.content.Context;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -50,7 +56,11 @@ public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Reque
             if (isCancelled()) return null;
 
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                return mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
+                Model model = mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
+                if (mApi instanceof Context && model != null){
+                    updateLocally(((Context) mApi).getContentResolver(), model);
+                }
+                return model;
             } else {
                 Log.w(TAG, "unexpected response " + resp.getStatusLine());
                 return null;
@@ -61,9 +71,5 @@ public abstract class LoadTask<Model extends Parcelable> extends AsyncTask<Reque
         }
     }
 
-     public static class LoadUserTask extends LoadTask<User> {
-        public LoadUserTask(AndroidCloudAPI api) {
-            super(api, User.class);
-        }
-    }
+    abstract protected void updateLocally(ContentResolver resolver, Model model);
 }

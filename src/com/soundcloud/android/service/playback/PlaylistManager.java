@@ -234,6 +234,9 @@ public class PlaylistManager {
     }
 
     public long reloadQueue() {
+
+        // TODO : StrictMode policy violation; ~duration=139 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=23 violation=2
+
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         final String lastUri = preferences.getString(PREF_PLAYLIST_URI, null);
         if (!TextUtils.isEmpty(lastUri)){

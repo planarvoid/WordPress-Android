@@ -43,6 +43,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         super(activity, wrapped, contentUri, request, autoAppend);
 
         if (contentUri != null) {
+            // TODO :  Move off the UI thread.
             mLocalCollection = LocalCollection.fromContentUri(contentUri,activity.getContentResolver(), true);
             mLocalCollection.startObservingSelf(activity.getContentResolver());
             mChangeObserver = new ChangeObserver();
@@ -218,8 +219,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
                 request = buildRequest(refresh);
                 isRefresh = refresh;
                 refreshPageItems = !isSyncable();
-                startIndex = getData().size();
-                maxToLoad = mPageIndex == 0 ? Consts.COLLECTION_FIRST_PAGE_SIZE : Consts.COLLECTION_PAGE_SIZE;
+                startIndex = refresh ? 0 : getData().size();
+                maxToLoad = mPageIndex == 0 || refresh ? Consts.COLLECTION_FIRST_PAGE_SIZE : Consts.COLLECTION_PAGE_SIZE;
             }};
     }
 

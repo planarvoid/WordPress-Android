@@ -104,17 +104,7 @@ public abstract class LazyRow extends FrameLayout {
         }
     }
 
-    public String getDebugName(int position) {
-        return "name";
-    }
-
     public String getIconRemoteUri() {
         return "";
-    }
-
-    public void cleanup() {
-        if (mIcon != null) {
-            mImageLoader.unbind(mIcon);
-        }
     }
 }
