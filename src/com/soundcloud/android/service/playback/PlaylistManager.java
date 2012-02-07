@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.playback;
 
 
+import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
@@ -234,28 +235,23 @@ public class PlaylistManager {
     }
 
     public long reloadQueue() {
-
         // TODO : StrictMode policy violation; ~duration=139 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=23 violation=2
-
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         final String lastUri = preferences.getString(PREF_PLAYLIST_URI, null);
+
         if (!TextUtils.isEmpty(lastUri)){
             final Uri uri = Uri.parse(lastUri);
             final long trackId = extractValue(uri, PARAM_TRACK_ID, 0);
-            setUri(uri, extractValue(uri, PARAM_PLAYLIST_POS, 0), new long[]{trackId}, trackId);
             long seekPos = extractValue(uri, PARAM_SEEK_POS, 0);
-
-            if (trackId != 0
-                    && getCurrentTrack() != null
-                    && getCurrentTrack().id != trackId
-                    && Content.match(uri).isCollectionItem()) {
-                final int newPos = getPlaylistPositionFromUri(
-                        mContext.getContentResolver(),
-                        uri,
-                        trackId);
-
-                if (newPos == -1) seekPos = 0;
-                setPosition(Math.max(newPos, 0));
+            if (trackId > 0) {
+                mCache.put(SoundCloudDB.getTrackById(mContext.getContentResolver(), trackId));
+                setUri(uri, extractValue(uri, PARAM_PLAYLIST_POS, 0), new long[]{trackId}, trackId);
+                // adjust play position if it has changed
+                if (getCurrentTrack() != null && getCurrentTrack().id != trackId && Content.match(uri).isCollectionItem()) {
+                    final int newPos = getPlaylistPositionFromUri( mContext.getContentResolver(), uri, trackId);
+                    if (newPos == -1) seekPos = 0;
+                    setPosition(Math.max(newPos, 0));
+                }
             }
             return seekPos;
         } else {
