@@ -329,6 +329,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         protected void onPostExecute(User user) {
             if (user != null) {
                 mInfoError = false;
+
+                // TODO : StrictMode policy violation; ~duration=104 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=23 violation=1
+                // just update in the bg thread:
                 SoundCloudDB.upsertUser(getContentResolver(), user);
                 setUser(user);
             } else {

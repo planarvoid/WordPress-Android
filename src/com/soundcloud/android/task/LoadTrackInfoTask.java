@@ -42,6 +42,9 @@ public class LoadTrackInfoTask extends LoadTask<Track> {
             }
 
             if (mWriteToDB){
+                // TODO : NOT ON UI THREADDD
+                // StrictMode policy violation; ~duration=48 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=23 violation=1
+
                 SoundCloudDB.upsertTrack(mApp.getContentResolver(), result);
             }
             result.info_loaded = true;

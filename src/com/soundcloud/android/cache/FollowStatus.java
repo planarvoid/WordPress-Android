@@ -236,6 +236,9 @@ public class FollowStatus implements Parcelable {
                 if (success) {
                     synchronized (FollowStatus.class) {
                         try {
+                            // TODO : StrictMode policy violation; ~duration=39 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=23 violation=2
+                            // already ported to DB in another branch (cache-followstatus-rework)
+
                             FileOutputStream fos = context.openFileOutput(statusCache, 0);
                             status.toFilesStream(fos);
                             fos.close();

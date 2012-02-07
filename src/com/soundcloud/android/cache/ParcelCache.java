@@ -147,6 +147,7 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
     }
 
     public synchronized void toFilesStream(OutputStream os) {
+        // TODO StrictMode policy violation; ~duration=29 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=23 violation=1
         try {
             Parcel parcel = Parcel.obtain();
             writeToParcel(parcel, 0);

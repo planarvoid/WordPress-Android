@@ -559,6 +559,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     private Track getTrackById(long trackId) {
         Track t = SoundCloudApplication.TRACK_CACHE.get(trackId);
+        // TODO : StrictMode policy violation; ~duration=106 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=23 violation=2
+
         return t == null ? t : SoundCloudDB.getTrackById(getContentResolver(), trackId);
     }
 

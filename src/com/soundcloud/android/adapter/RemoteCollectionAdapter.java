@@ -43,6 +43,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         super(activity, wrapped, contentUri, request, autoAppend);
 
         if (contentUri != null) {
+            // TODO :  Move off the UI thread.
             mLocalCollection = LocalCollection.fromContentUri(contentUri,activity.getContentResolver(), true);
             mLocalCollection.startObservingSelf(activity.getContentResolver());
             mChangeObserver = new ChangeObserver();
