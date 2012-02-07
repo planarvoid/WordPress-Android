@@ -45,6 +45,11 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         Robolectric.bindShadowClass(DelegatingContentResolver.class);
     }
 
+    @Override
+    protected boolean globalI18nStrictEnabled() {
+        return true;
+    }
+
     @SuppressWarnings({"UseOfSystemOutOrSystemErr", "UnusedDeclaration", "CallToPrintStackTrace"})
     @Implements(Log.class)
     public static class ShadowLog {

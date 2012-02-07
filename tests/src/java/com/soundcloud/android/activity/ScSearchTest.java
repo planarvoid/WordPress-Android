@@ -7,6 +7,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class ScSearchTest {
         Robolectric.application.onCreate();
     }
 
-    @Test
+    @Test @DisableStrictI18n
     public void shouldSearchSounds() throws Exception {
         fakeApiReplies("sound_search.json");
         expect(search.perform(Search.forSounds("Testing"))).toBeTrue();
@@ -40,7 +41,7 @@ public class ScSearchTest {
         expect(Content.SEARCHES).toHaveCount(2);
     }
 
-    @Test
+    @Test @DisableStrictI18n
     public void shouldSearchUsers() throws Exception {
         fakeApiReplies("user_search.json");
         expect(search.perform(Search.forUsers("Testing"))).toBeTrue();

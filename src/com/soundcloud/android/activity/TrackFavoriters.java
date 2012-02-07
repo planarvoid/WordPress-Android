@@ -20,7 +20,7 @@ public class TrackFavoriters extends TrackInfoCollection {
 
     @Override
     protected SectionedAdapter.Section createSection() {
-        return new SectionedAdapter.Section(getString(R.string.list_header_track_favoriters),
+        return new SectionedAdapter.Section(R.string.list_header_track_favoriters,
                 User.class, new ArrayList<Parcelable>(), null, Request.to(Endpoints.TRACK_FAVORITERS, mTrack.id));
     }
 

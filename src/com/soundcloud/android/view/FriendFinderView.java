@@ -13,7 +13,6 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Connection.Service;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.NewConnectionTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -128,7 +127,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                     mFbConnected = true;
                     createList();
                 }
-                mFriendList.getWrapper().setEmptyViewText(" ");
+                mFriendList.getWrapper().setEmptyViewText(R.string.empty);
                 mFriendList.getWrapper().applyEmptyView();
                 if (refresh){
                     mFriendList.setRefreshing();
@@ -144,7 +143,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 }
 
                 mFriendList.getWrapper().configureViews(mFriendList);
-                mFriendList.getWrapper().setEmptyViewText(mActivity.getString(R.string.error_loading_connections));
+                mFriendList.getWrapper().setEmptyViewText(R.string.error_loading_connections);
                 mFriendList.getWrapper().applyEmptyView();
                 mFriendList.getWrapper().reset();
                 break;
@@ -231,14 +230,14 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     }
 
     private void addFriendsSection() {
-        mFriendsSection = new SectionedAdapter.Section(mActivity.getString(R.string.list_header_fb_friends),
+        mFriendsSection = new SectionedAdapter.Section(R.string.list_header_fb_friends,
                 Friend.class, new ArrayList<Parcelable>(), null, Request.to(Endpoints.MY_FRIENDS));
         mAdapter.addSection(mFriendsSection);
     }
 
     private void addSuggestedSection() {
         mAdapter.getWrappedAdapter().sections.add(
-                new SectionedAdapter.Section(mActivity.getString(R.string.list_header_suggested_users),
+                new SectionedAdapter.Section(R.string.list_header_suggested_users,
                         User.class, new ArrayList<Parcelable>(), null, Request.to(Endpoints.SUGGESTED_USERS)));
     }
 

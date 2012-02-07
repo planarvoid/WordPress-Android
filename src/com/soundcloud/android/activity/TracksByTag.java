@@ -35,20 +35,26 @@ public class TracksByTag extends ScActivity implements SectionedEndlessAdapter.S
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 
         adpWrap.configureViews(mListView);
-        adpWrap.setEmptyViewText(getResources().getString(R.string.empty_list));
+        adpWrap.setEmptyViewText(R.string.empty_list);
         mListView.setAdapter(adpWrap, true);
 
         Intent i = getIntent();
         if (i.hasExtra("tag")) {
-            adp.sections.add(new SectionedAdapter.Section(getString(R.string.list_header_tracks_by_tag,
-                    i.getStringExtra("tag")), Track.class, new ArrayList<Parcelable>(),
-                    null, Request.to(Endpoints.TRACKS).add("linked_partitioning", "1").add("tags", i.getStringExtra("tag"))));
+            adp.sections.add(new SectionedAdapter.Section(
+                    getString(R.string.list_header_tracks_by_tag, i.getStringExtra("tag")),
+                    Track.class,
+                    new ArrayList<Parcelable>(),
+                    null,
+                    Request.to(Endpoints.TRACKS).add("linked_partitioning", "1").add("tags", i.getStringExtra("tag"))));
 
             mTrackingPath = Consts.Tracking.TRACKS_BY_TAG + i.getStringExtra("tag");
         } else if (i.hasExtra("genre")) {
-            adp.sections.add(new SectionedAdapter.Section(getString(R.string.list_header_tracks_by_genre,
-                    i.getStringExtra("genre")), Track.class, new ArrayList<Parcelable>(),
-                    null, Request.to(Endpoints.TRACKS).add("linked_partitioning", "1").add("genres", i.getStringExtra("genre"))));
+            adp.sections.add(new SectionedAdapter.Section(
+                    getString(R.string.list_header_tracks_by_genre, i.getStringExtra("genre")),
+                    Track.class,
+                    new ArrayList<Parcelable>(),
+                    null,
+                    Request.to(Endpoints.TRACKS).add("linked_partitioning", "1").add("genres", i.getStringExtra("genre"))));
             mTrackingPath = Consts.Tracking.TRACKS_BY_GENRE + i.getStringExtra("genre");
         } else throw new IllegalArgumentException("No tag or genre supplied with intent");
 

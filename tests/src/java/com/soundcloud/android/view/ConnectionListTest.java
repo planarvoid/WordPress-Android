@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.ApiTests;
+import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -15,7 +16,7 @@ import java.io.IOException;
 @RunWith(DefaultTestRunner.class)
 public class ConnectionListTest extends ApiTests {
 
-    @Test
+    @Test @DisableStrictI18n
     public void shouldLoadConnectionsFromApi() throws Exception {
         expectGetRequestAndReturn(MY_CONNECTIONS, 200, "connections.json");
 
@@ -31,7 +32,7 @@ public class ConnectionListTest extends ApiTests {
         assertEquals(41335, id);
     }
 
-    @Test
+    @Test @DisableStrictI18n
     public void shouldOnlyReloadIfNeeded() throws Exception {
         expectGetRequestAndReturn(MY_CONNECTIONS, 200, "connections.json");
 

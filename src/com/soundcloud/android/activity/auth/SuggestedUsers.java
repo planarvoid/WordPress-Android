@@ -59,7 +59,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 
         ffAdpWrap.configureViews(mListView);
-        ffAdpWrap.setEmptyViewText(getResources().getString(R.string.empty_list));
+        ffAdpWrap.setEmptyViewText(R.string.empty_list);
         mListView.setAdapter(ffAdpWrap,true);
 
         facebookBtn = (Button) header.findViewById(R.id.facebook_btn);
@@ -120,14 +120,14 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
     }
 
     private void addFriendsSection() {
-        mFriendsSection = new SectionedAdapter.Section(getString(R.string.list_header_fb_friends),
+        mFriendsSection = new SectionedAdapter.Section(R.string.list_header_fb_friends,
                 Friend.class, new ArrayList<Parcelable>(), Content.ME_FRIENDS.uri, Request.to(Endpoints.MY_FRIENDS));
         ffAdp.sections.add(mFriendsSection);
     }
 
     private void addSuggestedUsersSection() {
         ffAdp.sections.add(
-                new SectionedAdapter.Section(getString(R.string.list_header_suggested_users),
+                new SectionedAdapter.Section(R.string.list_header_suggested_users,
                         User.class, new ArrayList<Parcelable>(), null, Request.to(Endpoints.SUGGESTED_USERS)));
     }
 

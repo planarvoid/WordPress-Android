@@ -10,5 +10,4 @@
           android:enabled="true"
           android:background="@color/listBgHeader"
           android:textColor="@color/listTxtHeader"
-          android:textSize="@dimen/list_txt_main_size">
-</TextView>
+          android:textSize="@dimen/list_txt_main_size"/>

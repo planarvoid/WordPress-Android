@@ -7,7 +7,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-// TODO not used, merge with user later
+//TODO not used, merge with user later
+@Deprecated
 public class Friend extends ScModel implements Refreshable, Origin {
     public long[] connection_ids;
     public User user;

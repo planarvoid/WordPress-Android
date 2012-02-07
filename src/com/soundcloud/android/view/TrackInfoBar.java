@@ -8,7 +8,6 @@ import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -132,10 +131,10 @@ public class TrackInfoBar extends RelativeLayout {
         } else {
             if (mTrack.shared_to_count == 0){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(context.getString(R.string.tracklist_item_shared_count_unavailable));
+                mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
             } else if (mTrack.shared_to_count == 1){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(context.getString(mTrack.user_id == currentUserId ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you));
+                mPrivateIndicator.setText(mTrack.user_id == currentUserId ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
             } else {
                 if (mTrack.shared_to_count < 8){
                     mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
@@ -148,8 +147,12 @@ public class TrackInfoBar extends RelativeLayout {
         }
 
 
-        CloudUtils.setStats(mTrack.playback_count, mPlayCount, mPlayCountSeparator, mTrack.comment_count,
-                mCommentCount, mCommentCountSeparator, mTrack.favoritings_count, mFavoriteCount, keepHeight);
+        setStats(mTrack.playback_count, mPlayCount,
+                mPlayCountSeparator,
+                mTrack.comment_count, mCommentCount,
+                mCommentCountSeparator,
+                mTrack.favoritings_count, mFavoriteCount,
+                keepHeight);
 
         if (mTrack.user_favorite) {
             mFavoriteCount.setCompoundDrawablesWithIntrinsicBounds(getFavoritedDrawable(),null, null, null);
@@ -200,5 +203,26 @@ public class TrackInfoBar extends RelativeLayout {
         }
 
     };
+
+
+    public static void setStats(int stat1, TextView statTextView1,
+                                View separator1,
+                                int stat2, TextView statTextView2,
+                                View separator2,
+                                int stat3, TextView statTextView3,
+                                boolean maintainSize) {
+
+        statTextView1.setText(String.valueOf(stat1));
+        statTextView2.setText(String.valueOf(stat2));
+        statTextView3.setText(String.valueOf(stat3));
+
+        statTextView1.setVisibility(stat1 == 0 ? View.GONE : View.VISIBLE);
+        separator1.setVisibility(stat1 == 0 || (stat2 == 0 && stat3 == 0) ? View.GONE : View.VISIBLE);
+
+        statTextView2.setVisibility(stat2 == 0 ? View.GONE : View.VISIBLE);
+        separator2.setVisibility(stat2 == 0 || stat3 == 0 ? View.GONE : View.VISIBLE);
+        statTextView3.setVisibility(stat3 == 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
+    }
+
 
 }

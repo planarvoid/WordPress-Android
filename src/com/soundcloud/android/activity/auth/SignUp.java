@@ -10,8 +10,6 @@ import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Token;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -25,10 +23,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 public class SignUp extends Activity {
     public static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
@@ -109,8 +103,8 @@ public class SignUp extends Activity {
             ProgressDialog progress;
             @Override
             protected void onPreExecute() {
-                progress = ProgressDialog.show(SignUp.this, "",
-                        SignUp.this.getString(R.string.authentication_signup_progress_message));
+                progress = CloudUtils.showProgress(SignUp.this,
+                        R.string.authentication_signup_progress_message);
             }
 
             @Override
