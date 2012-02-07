@@ -1,6 +1,5 @@
 package com.soundcloud.android.adapter;
 
-import android.util.Log;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.api.Request;

@@ -361,7 +361,7 @@ public abstract class ScActivity extends android.app.Activity {
     }
 
     public void showToast(int stringId) {
-        CloudUtils.showToast(this, getResources().getString(stringId));
+        CloudUtils.showToast(this, stringId);
     }
 
     public ScListView buildList() {

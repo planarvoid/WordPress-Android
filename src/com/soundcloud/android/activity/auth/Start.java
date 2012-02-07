@@ -121,7 +121,7 @@ public class Start extends AccountAuthenticatorActivity {
                             finish();
                         }
                     } else {
-                        CloudUtils.showToast(this, "Error creating account");
+                        CloudUtils.showToast(this, R.string.error_creating_account);
                     }
                 } else {
                     CloudUtils.showToast(this, error);

@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.api.Params;
+import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,7 +94,7 @@ public class ScUploadTest implements Params.Track {
         assertNull(upload.artworkPath);
     }
 
-    @Test
+    @Test @DisableStrictI18n
     public void shouldSetAllEnabledConnections() throws Exception {
         Connection c1 = new Connection();
         c1.service = "twitter";

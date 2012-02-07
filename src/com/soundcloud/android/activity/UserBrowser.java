@@ -10,7 +10,6 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.*;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -21,7 +20,6 @@ import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.*;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FollowStatus;
@@ -29,7 +27,6 @@ import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.task.LoadUserInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -355,10 +352,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     }));
         } else {
             if (mUser != null) {
-                adpWrap.setEmptyViewText(getResources().getString(
-                        R.string.empty_user_tracks_text,
+                adpWrap.setEmptyViewText(R.string.empty_user_tracks_text,
                         mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username));
+                                : mUser.username);
             }
         }
 
@@ -389,10 +385,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     }));
         } else {
             if (mUser != null) {
-                adpWrap.setEmptyViewText(getResources().getString(
-                        R.string.empty_user_favorites_text,
+                adpWrap.setEmptyViewText(R.string.empty_user_favorites_text,
                         mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username));
+                                : mUser.username);
             }
 
         }
@@ -423,10 +418,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     }));
         } else {
             if (mUser != null) {
-                adpWrap.setEmptyViewText(getResources().getString(
-                        R.string.empty_user_followings_text,
+                adpWrap.setEmptyViewText(R.string.empty_user_followings_text,
                         mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username));
+                                : mUser.username);
             }
         }
 
@@ -473,10 +467,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         } else {
             if (mUser != null) {
-                adpWrap.setEmptyViewText(getResources().getString(
-                        R.string.empty_user_followers_text,
+                adpWrap.setEmptyViewText(R.string.empty_user_followers_text,
                         mUser.username == null ? getResources().getString(R.string.this_user)
-                                : mUser.username));
+                                : mUser.username);
             }
         }
         final ScTabView followersView = new ScTabView(this);

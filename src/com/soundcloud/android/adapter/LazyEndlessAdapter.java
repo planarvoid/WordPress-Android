@@ -16,7 +16,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ILazyAdapterTask;
-import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
@@ -28,7 +27,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +53,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     protected boolean mAutoAppend;
     private EmptyCollection mEmptyView;
     private EmptyCollection mDefaultEmptyView;
-    private String mEmptyViewText = "";
+    private int mEmptyViewText;
+    private String[] mEmptyViewTextArgs;
 
     protected boolean mKeepGoing;
 
@@ -64,6 +63,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     int IDLE           = 1; // ready for initial executeAppendTask (considered a executeRefreshTask)
     int APPENDING = 3; // currently appending
     int ERROR           = 4; // idle with error, no more appends
+
 
     public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(wrapped);
@@ -92,8 +92,9 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         mListView = lv;
     }
 
-    public void setEmptyViewText(String str) {
-        mEmptyViewText = str;
+    public void setEmptyViewText(int id, String... args) {
+        mEmptyViewText = id;
+        mEmptyViewTextArgs = args;
     }
 
     public void setEmptyView(EmptyCollection emptyView) {
@@ -114,36 +115,31 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
                     mDefaultEmptyView = new EmptyCollection(mActivity);
                 }
                 mDefaultEmptyView.setImage(error ? R.drawable.empty_connection : R.drawable.empty_collection);
-                mDefaultEmptyView.setMessageText((!error && !TextUtils.isEmpty(mEmptyViewText)) ? mEmptyViewText : getEmptyText());
+
+                if (mEmptyViewTextArgs != null) {
+                    // not I18N safe
+                    mDefaultEmptyView.setMessageText(mActivity.getString(mEmptyViewText, mEmptyViewTextArgs));
+                } else {
+                    mDefaultEmptyView.setMessageText((!error && mEmptyViewText > 0) ? mEmptyViewText : getEmptyTextId());
+                }
                 mListView.setCustomEmptyView(mDefaultEmptyView);
             }
         }
     }
 
-    private String getEmptyText(){
+    private int getEmptyTextId() {
         final Class loadModel = getLoadModel(true);
         final boolean error = mState == ERROR;
         if (Track.class.equals(loadModel)) {
-            // XXX
-            // mActivity.getResources().getString(error ? bla : blub)
-            return !error ? mActivity.getResources().getString(
-                    R.string.tracklist_empty) : mActivity.getResources().getString(
-                    R.string.tracklist_error);
-        } else if (User.class.equals(loadModel)
-                || Friend.class.equals(loadModel)) {
-            return !error ? mActivity.getResources().getString(
-                    R.string.userlist_empty) : mActivity.getResources().getString(
-                    R.string.userlist_error);
+            return error ? R.string.tracklist_error : R.string.tracklist_empty;
+        } else if (User.class.equals(loadModel) || Friend.class.equals(loadModel)) {
+            return error ? R.string.userlist_error : R.string.userlist_empty;
         } else if (Comment.class.equals(loadModel)) {
-            return !error ? mActivity.getResources().getString(
-                    R.string.tracklist_empty) : mActivity.getResources().getString(
-                    R.string.commentslist_error);
+            return error ? R.string.commentslist_error : R.string.tracklist_empty;
         } else if (Activity.class.equals(loadModel)) {
-            return !error ? mActivity.getResources().getString(
-                    R.string.tracklist_empty) : mActivity.getResources().getString(
-                    R.string.tracklist_error);
+            return error ? R.string.tracklist_error : R.string.tracklist_empty;
         } else {
-            return "";
+            return -1;
         }
     }
 
@@ -170,7 +166,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
 
 
     public Object saveState(){
-        final View firstChild = mListView.getChildAt(0 + mListView.getRefreshableView().getHeaderViewsCount());
+        final View firstChild = mListView.getChildAt(mListView.getRefreshableView().getHeaderViewsCount());
         return new Object[] {
                 getDataState(),
                 getAppendTask(),
@@ -330,7 +326,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     }
 
     protected void onEmptyRefresh(){
-        //if (!mKeepGoing) mState = DONE;
     }
 
     public void setRequest(Request request) {
@@ -340,10 +335,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     abstract protected Request getRequest(boolean isRefresh);
 
     public Uri getPlayableUri() {
-        return getContentUri(false);
-    }
-
-    public Uri getContentUri() {
         return getContentUri(false);
     }
 
@@ -358,7 +349,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     protected void increasePageIndex() {
         mPageIndex++;
     }
-
 
     public void resetData(){
         getWrappedAdapter().reset();
@@ -411,10 +401,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
             request.add("limit", mPageIndex == 0 ? Consts.COLLECTION_FIRST_PAGE_SIZE : Consts.COLLECTION_PAGE_SIZE);
         }
         return request;
-    }
-
-    public void onPostQueryExecute() {
-        mPendingView = null;
     }
 
     public boolean isRefreshing() {

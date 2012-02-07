@@ -109,8 +109,8 @@ public class AddInfo extends Activity {
         new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
             ProgressDialog dialog;
             @Override protected void onPreExecute() {
-                dialog = ProgressDialog.show(AddInfo.this, null,
-                        getString(R.string.authentication_add_info_progress_message));
+                dialog = CloudUtils.showProgress(AddInfo.this,
+                        R.string.authentication_add_info_progress_message);
             }
 
             @Override protected void onPostExecute(User user) {

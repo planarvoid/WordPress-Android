@@ -76,9 +76,8 @@ public class Recover extends Activity {
             @Override
             protected void onPreExecute() {
                 if (!isFinishing()) {
-                    progressDialog = ProgressDialog.show(Recover.this,
-                            "",
-                            Recover.this.getString(R.string.authentication_recover_progress_message));
+                    progressDialog = CloudUtils.showProgress(Recover.this,
+                            R.string.authentication_recover_progress_message);
                 }
             }
 

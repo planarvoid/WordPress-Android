@@ -20,7 +20,7 @@ public class TrackComments extends TrackInfoCollection {
 
     @Override
     protected SectionedAdapter.Section createSection() {
-        return new SectionedAdapter.Section(getString(R.string.list_header_track_comments),
+        return new SectionedAdapter.Section(R.string.list_header_track_comments,
                 Comment.class, new ArrayList<Parcelable>(), null, Request.to(Endpoints.TRACK_COMMENTS, mTrack.id));
     }
 

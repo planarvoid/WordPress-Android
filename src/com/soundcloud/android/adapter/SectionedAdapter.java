@@ -1,10 +1,7 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Request;
 
@@ -28,16 +25,28 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
 
     public static class Section {
         public final String label;
+        public final int labelId;
         public final Class<?> model;
         public final List<Parcelable> data;
         public final Request request;
         public final Uri content;
         public String nextHref;
         public int pageIndex;
-        public String currentEtag;
 
         public Section(String label, Class<?> model, List<Parcelable> data, Uri content, Request request) {
             this.label = label;
+            this.labelId = 0; // not used
+            this.model = model;
+            this.data = data;
+            this.request = request;
+            this.content = content;
+            this.nextHref = null;
+
+        }
+
+        public Section(int labelId, Class<?> model, List<Parcelable> data, Uri content, Request request) {
+            this.labelId = labelId;
+            this.label = null;
             this.model = model;
             this.data = data;
             this.request = request;
@@ -50,16 +59,19 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
             return (refresh || TextUtils.isEmpty(nextHref)) ? new Request(request) : new Request(nextHref);
         }
 
-        public int getPageIndex(boolean refresh) {
-            return (refresh) ? 0 : pageIndex;
-        }
-
         public void clear() {
             data.clear();
             nextHref = null;
             pageIndex = 0;
         }
 
+        public void applyLabel(TextView tv) {
+            if (labelId > 0) {
+                tv.setText(labelId);
+            } else {
+                tv.setText(label);
+            }
+        }
     }
 
     public SectionedAdapter(Context context) {
@@ -148,12 +160,8 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
         return -1;
     }
 
-    public String[] getSections() {
-        String[] res = new String[sections.size()];
-        for (int i = 0; i < sections.size(); i++) {
-            res[i] = sections.get(i).label;
-        }
-        return res;
+    public Section[] getSections() {
+        return sections.toArray(new Section[sections.size()]);
     }
 
 
@@ -188,7 +196,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
         if (displaySectionHeader) {
             view.findViewById(R.id.listHeader).setVisibility(View.VISIBLE);
             TextView lSectionTitle = (TextView) view.findViewById(R.id.listHeader);
-            lSectionTitle.setText(getSections()[getSectionForPosition(position)]);
+            getSections()[getSectionForPosition(position)].applyLabel(lSectionTitle);
         } else {
             view.findViewById(R.id.listHeader).setVisibility(View.GONE);
         }
@@ -197,7 +205,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
     public void configurePinnedHeader(View header, int position) {
         TextView txtHeader = (TextView) header.findViewById(R.id.listHeader);
         if (getSectionForPosition(position) != -1 && getSectionForPosition(position) < getSections().length){
-            txtHeader.setText(getSections()[getSectionForPosition(position)]);
+            getSections()[getSectionForPosition(position)].applyLabel(txtHeader);
         }
     }
 }

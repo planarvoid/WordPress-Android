@@ -14,6 +14,7 @@ import org.json.JSONException;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -54,6 +55,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Transformation;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TabWidget;
 import android.widget.TextView;
@@ -146,8 +148,25 @@ public class CloudUtils {
         }
     }
 
+    public static ProgressDialog showProgress(Context context, int message) {
+        return showProgress(context, message, 0);
+    }
+
+    /** I18N safe impl of {@link android.app.ProgressDialog#show()} */
+    public static ProgressDialog showProgress(Context context, int message, int titleId) {
+        ProgressDialog dialog = new ProgressDialog(context);
+        if (titleId > 0) dialog.setTitle(titleId);
+        if (message > 0) dialog.setMessage(context.getString(message));
+        dialog.setIndeterminate(false);
+        dialog.setCancelable(false);
+        dialog.setOnCancelListener(null);
+        dialog.show();
+        return dialog;
+    }
+
+
     public static void showToast(Context c, int resId) {
-        Toast toast = Toast.makeText(c, c.getText(resId), Toast.LENGTH_LONG);
+        Toast toast = Toast.makeText(c, resId, Toast.LENGTH_LONG);
         toast.show();
     }
 
@@ -741,20 +760,6 @@ public class CloudUtils {
            .create();
     }
 
-    public static void setStats(int stat1, TextView statTextView1, View separator1, int stat2, TextView statTextView2,
-                                View separator2, int stat3, TextView statTextView3, boolean maintainSize) {
-        statTextView1.setText(Integer.toString(stat1));
-        statTextView2.setText(Integer.toString(stat2));
-        statTextView3.setText(Integer.toString(stat3));
-
-        statTextView1.setVisibility(stat1 == 0 ? View.GONE : View.VISIBLE);
-        separator1.setVisibility(stat1 == 0 || (stat2 == 0 && stat3 == 0) ? View.GONE : View.VISIBLE);
-
-        statTextView2.setVisibility(stat2 == 0 ? View.GONE : View.VISIBLE);
-        separator2.setVisibility(stat2 == 0 || stat3 == 0 ? View.GONE : View.VISIBLE);
-
-        statTextView3.setVisibility(stat3 == 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
-    }
 
     public static float getCurrentTransformY(View v){
         if (v.getAnimation() == null) return 0f;

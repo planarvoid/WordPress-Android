@@ -9,7 +9,7 @@ import static org.junit.Assert.assertThat;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
 import com.xtremelabs.robolectric.shadows.ShadowActivity;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Test;
@@ -36,6 +36,7 @@ public class AddInfoTest extends ApiTests {
     }
 
     @Test
+    @DisableStrictI18n
     public void testAddUserInfoFail() throws Exception {
         AddInfo info = new AddInfo();
 

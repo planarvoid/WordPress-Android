@@ -45,7 +45,7 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
         ((ViewGroup) findViewById(R.id.listHolder)).addView(mListView);
 
         adapterWrapper.configureViews(mListView);
-        adapterWrapper.setEmptyViewText(getResources().getString(R.string.empty_list));
+        adapterWrapper.setEmptyViewText(R.string.empty_list);
         mListView.setAdapter(adapterWrapper, true);
 
         adapter.sections.add(createSection());

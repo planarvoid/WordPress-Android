@@ -21,8 +21,9 @@
             android:layout_height="fill_parent"
             android:layout_marginLeft="@dimen/list_text_margin_left"
             android:layout_toLeftOf="@+id/toggleFollowingHolder">
-        <TextView android:layout_height="wrap_content"
-                  android:id="@+id/username"
+
+        <TextView android:id="@+id/username"
+                  android:layout_height="wrap_content"
                   style="@style/txt_list_main"
                   android:ellipsize="marquee"
                   android:text="@string/username"
@@ -35,15 +36,17 @@
                 android:layout_width="fill_parent"
                 android:paddingTop="3dip"
                 android:layout_height="wrap_content">
-            <TextView android:layout_width="wrap_content"
+
+            <TextView android:id="@+id/tracks"
+                  android:layout_width="wrap_content"
                   android:drawableLeft="@drawable/ic_stats_sounds_states"
                   android:drawablePadding="3dip"
                   android:layout_height="wrap_content"
-                  android:id="@+id/tracks"
                   android:text="@string/track_count"
                   android:layout_alignParentLeft="true"
                   android:singleLine="true"
                   style="@style/txt_list_sub_secondary"/>
+
             <View style="@style/stat_pipe"
                   android:layout_alignWithParentIfMissing="true"
                   android:layout_toRightOf="@+id/tracks"
@@ -52,12 +55,13 @@
                   android:layout_height="0dp"
                   android:layout_width="1dip"
                   android:id="@+id/vr_stats"/>
-            <TextView android:layout_width="wrap_content"
+
+            <TextView android:id="@+id/followers"
+                  android:layout_width="wrap_content"
                   android:layout_alignWithParentIfMissing="true"
                   android:drawableLeft="@drawable/ic_stats_followers_states"
                   android:drawablePadding="3dip"
                   android:layout_height="wrap_content"
-                  android:id="@+id/followers"
                   android:text="@string/follower_count"
                   android:layout_toRightOf="@id/vr_stats"
                   android:singleLine="true"

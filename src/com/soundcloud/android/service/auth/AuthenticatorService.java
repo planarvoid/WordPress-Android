@@ -52,7 +52,6 @@ public class AuthenticatorService extends Service {
             final Bundle reply = new Bundle();
             AccountManager mgr = AccountManager.get(mContext);
             Account[] accounts = mgr.getAccountsByType(accountType);
-            final String message = mContext.getString(R.string.account_one_active);
             if (accounts.length == 0) {
                 Intent intent = new Intent(mContext, Start.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -60,12 +59,12 @@ public class AuthenticatorService extends Service {
                 reply.putParcelable(AccountManager.KEY_INTENT, intent);
             } else {
                 reply.putInt(AccountManager.KEY_ERROR_CODE, 0);
-                reply.putString(AccountManager.KEY_ERROR_MESSAGE, message);
+                reply.putString(AccountManager.KEY_ERROR_MESSAGE, mContext.getString(R.string.account_one_active));
 
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        CloudUtils.showToast(mContext, message);
+                        CloudUtils.showToast(mContext, R.string.account_one_active);
                     }
                 });
             }
