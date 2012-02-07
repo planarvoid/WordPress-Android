@@ -573,7 +573,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         status.icon = R.drawable.statusbar;
 
         Intent intent = new Intent(Actions.PLAYER);
-        intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
+        intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
 
         if (!useRichNotifications()) {

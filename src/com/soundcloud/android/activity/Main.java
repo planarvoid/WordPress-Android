@@ -64,6 +64,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+
         setContentView(R.layout.main);
         mChangeLog = new ChangeLog(this);
 
@@ -203,7 +204,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
     }
 
     private void handleIntent(Intent intent) {
-        if (intent == null) return;
+        if (intent == null || (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return;
         final Tab tab = Tab.fromIntent(intent);
 
         if (Intent.ACTION_VIEW.equals(intent.getAction()) && handleViewUrl(intent)) {

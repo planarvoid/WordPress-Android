@@ -47,7 +47,7 @@ public class PlaybackRemoteViews extends RemoteViews{
         setOnClickPendingIntent(R.id.next, PendingIntent.getService(context,
                 0 /* requestCode */, next, 0 /* flags */));
 
-        final Intent player = new Intent(Actions.PLAYER).addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
+        final Intent player = new Intent(Actions.PLAYER).addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         if (!TextUtils.isEmpty(extraFlag)) player.putExtra(extraFlag,true);
         setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context, 0, player, 0));
 
