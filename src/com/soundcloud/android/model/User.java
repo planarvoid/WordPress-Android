@@ -355,6 +355,12 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
         refreshListAvatarUri(application);
     }
 
+    public void setAppFields(User u) {
+        user_follower = u.user_follower;
+        user_following = u.user_following;
+        primary_email_confirmed = u.primary_email_confirmed;
+    }
+
     public static void clearLoggedInUserFromStorage(SoundCloudApplication app) {
         final ContentResolver resolver = app.getContentResolver();
         // TODO move to model

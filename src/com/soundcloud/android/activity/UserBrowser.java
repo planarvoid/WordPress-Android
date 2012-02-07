@@ -30,6 +30,7 @@ import com.soundcloud.android.model.*;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.task.LoadUserInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.*;
@@ -40,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** @noinspection unchecked*/
-public class UserBrowser extends ScActivity implements ParcelCache.Listener<Connection>, FollowStatus.Listener {
+public class UserBrowser extends ScActivity implements ParcelCache.Listener<Connection>, FollowStatus.Listener, LoadUserInfoTask.LoadUserInfoListener {
     private User mUser;
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
     private ImageView mIcon;
@@ -55,7 +56,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private FriendFinderView mFriendFinderView;
     private Button mFollowBtn, mFollowingBtn;
     private UserlistLayout mUserlistBrowser;
-    private LoadUserTask mLoadUserTask;
+    private LoadUserInfoTask mLoadUserTask;
     private boolean mUpdateInfo;
 
     private PrivateMessager mMessager;
@@ -303,8 +304,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         if (!mUpdateInfo) return;
 
         if (mLoadUserTask == null) {
-            mLoadUserTask = new LoadUserTask(getApp());
+            mLoadUserTask = new LoadUserInfoTask(getApp(), mUser.id);
             mLoadUserTask.setActivity(this);
+            mLoadUserTask.setListener(this);
         }
 
         if (CloudUtils.isTaskPending(mLoadUserTask)) {
@@ -320,33 +322,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         trackPage(mUser.pageTrack(isMe(), mUserlistBrowser.getCurrentTag()));
     }
 
-    private class LoadUserTask extends LoadTask<User> {
-        public LoadUserTask(SoundCloudApplication api) {
-            super(api, User.class);
-        }
-
-        @Override
-        protected void onPostExecute(User user) {
-            if (user != null) {
-                mInfoError = false;
-
-                // TODO : StrictMode policy violation; ~duration=104 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=23 violation=1
-                // just update in the bg thread:
-                SoundCloudDB.upsertUser(getContentResolver(), user);
-                setUser(user);
-            } else {
-                mInfoError = true;
-                if (!mDisplayedInfo){
-
-                    configureEmptyView();
-                }
-            }
-        }
-    }
-
     private void build() {
-
-
 
         mUserlistBrowser = (UserlistLayout) findViewById(R.id.userlist_browser);
         final boolean isMe = isMe();
@@ -586,6 +562,20 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         } else {
             mFollowBtn.setVisibility(View.INVISIBLE);
             mFollowingBtn.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void onUserInfoLoaded(User user) {
+        mInfoError = false;
+        setUser(user);
+    }
+
+    @Override
+    public void onUserInfoError(long userId) {
+        mInfoError = true;
+        if (!mDisplayedInfo) {
+            configureEmptyView();
         }
     }
 
@@ -831,7 +821,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     private static class Configuration {
-        LoadUserTask loadUserTask;
+        LoadUserInfoTask loadUserTask;
         User user;
         List<Connection> connections;
         int workspaceIndex;

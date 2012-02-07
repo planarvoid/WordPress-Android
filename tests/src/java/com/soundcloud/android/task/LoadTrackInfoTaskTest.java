@@ -5,10 +5,13 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,10 +23,16 @@ public class LoadTrackInfoTaskTest {
 
     @Test
     public void testLoadTrackInfo() throws Exception {
-        LoadTrackInfoTask task = new LoadTrackInfoTask(DefaultTestRunner.application, 0, true, true);
+        LoadTrackInfoTask task = new LoadTrackInfoTask(DefaultTestRunner.application, 0);
 
         addHttpResponseRule("GET", "/tracks/12345",
                 new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("track.json"))));
+
+        Track t = new Track();
+        t.id = 12345;
+        t.title = "Old Title";
+        t.filelength = 9999;
+        ((SoundCloudApplication) Robolectric.application).TRACK_CACHE.put(t);
 
         final Track[] track = {null};
         listener = new LoadTrackInfoTask.LoadTrackInfoListener() {
@@ -40,5 +49,16 @@ public class LoadTrackInfoTaskTest {
         task.execute(Request.to(Endpoints.TRACK_DETAILS, 12345));
         assertThat(track[0], not(nullValue()));
         assertThat(track[0].title, equalTo("recording on sunday night"));
+
+        t = SoundCloudDB.getTrackById(Robolectric.application.getContentResolver(),12345);
+        assertThat(t, not(nullValue()));
+        assertThat(t.title, equalTo("recording on sunday night"));
+
+        t = ((SoundCloudApplication) Robolectric.application).TRACK_CACHE.get(12345l);
+        assertThat(t, not(nullValue()));
+        assertThat(t.title, equalTo("recording on sunday night"));
+        assertThat(t.filelength, equalTo(9999l));
+
+
     }
 }

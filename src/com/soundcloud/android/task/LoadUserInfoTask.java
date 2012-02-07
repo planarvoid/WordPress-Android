@@ -1,5 +1,7 @@
 package com.soundcloud.android.task;
 
+import android.content.ContentResolver;
+import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.model.User;
@@ -7,16 +9,12 @@ import com.soundcloud.android.model.User;
 import java.lang.ref.WeakReference;
 
 public class LoadUserInfoTask extends LoadTask<User> {
-    private SoundCloudApplication mApp;
-    private boolean mWriteToDB;
     private long mUserId;
     private WeakReference<LoadUserInfoListener> mListenerWeakReference;
 
-    public LoadUserInfoTask(SoundCloudApplication app, long userId, boolean cacheResult, boolean writeToDb) {
+    public LoadUserInfoTask(SoundCloudApplication app, long userId) {
         super(app, User.class);
-        mApp = app;
         mUserId = userId;
-        mWriteToDB = writeToDb;
     }
 
     public void setListener(LoadUserInfoListener listener){
@@ -29,23 +27,24 @@ public class LoadUserInfoTask extends LoadTask<User> {
 
         LoadUserInfoListener listener = mListenerWeakReference != null ? mListenerWeakReference.get() : null;
         if (result != null) {
-
-            if (mWriteToDB){
-                SoundCloudDB.upsertUser(mApp.getContentResolver(), result);
-            }
-
-            if (listener != null){
+            if (listener != null) {
                 listener.onUserInfoLoaded(result);
             }
-
-        } else if (listener != null){
+        } else if (listener != null) {
             listener.onUserInfoError(mUserId);
         }
+    }
+
+    @Override
+    protected void updateLocally(ContentResolver resolver, User user) {
+        user.last_updated = System.currentTimeMillis();
+        SoundCloudApplication.USER_CACHE.putWithLocalFields(user);
+        SoundCloudDB.upsertUser(resolver, user);
     }
 
     // Define our custom Listener interface
     public interface LoadUserInfoListener {
         void onUserInfoLoaded(User user);
-        void onUserInfoError(long trackId);
+        void onUserInfoError(long userId);
     }
 }

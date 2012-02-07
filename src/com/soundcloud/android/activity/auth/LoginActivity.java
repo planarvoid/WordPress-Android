@@ -7,6 +7,7 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.task.LoadTask;
+import com.soundcloud.android.task.LoadUserInfoTask;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -76,15 +77,13 @@ public abstract class LoginActivity extends Activity {
             @Override
             protected void onPostExecute(final Token token) {
                 if (token != null) {
-                    new LoadTask.LoadUserTask(app) {
+                    new LoadUserInfoTask(app, -1) {
                         @Override
                         protected void onPostExecute(User user) {
                             if (user != null) {
                                 app.trackEvent(Consts.Tracking.Categories.AUTH, "login");
                                 app.trackPage(Consts.Tracking.LOGIN);
                                 dismissDialog(progress);
-                                SoundCloudDB.upsertUser(getContentResolver(), user);
-
                                 setResult(RESULT_OK,
                                         new Intent().putExtra(SIGNED_UP_EXTRA, token.getSignup())
                                                 .putExtra("user", user)
