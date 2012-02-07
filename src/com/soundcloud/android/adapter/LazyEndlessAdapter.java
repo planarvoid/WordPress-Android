@@ -54,7 +54,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     private EmptyCollection mEmptyView;
     private EmptyCollection mDefaultEmptyView;
     private int mEmptyViewText;
-    private String[] mEmptyViewTextArgs;
+    private Object[] mEmptyViewTextArgs;
 
     protected boolean mKeepGoing;
 
@@ -92,7 +92,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         mListView = lv;
     }
 
-    public void setEmptyViewText(int id, String... args) {
+    public void setEmptyViewText(int id, Object... args) {
         mEmptyViewText = id;
         mEmptyViewTextArgs = args;
     }
