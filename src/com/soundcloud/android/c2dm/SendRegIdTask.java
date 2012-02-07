@@ -36,12 +36,13 @@ public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
 
     @Override
     protected String doInBackground(String... params) {
-        if (params.length < 2) throw new IllegalArgumentException("need reg_id and app_identifier");
+        if (params.length < 3) throw new IllegalArgumentException("need reg_id,app_identifier and device");
 
         try {
             HttpResponse resp = mApi.post(Request.to("/me/devices").with(
                     "device_token",   params[0],
-                    "app_identifier", params[1]));
+                    "app_identifier", params[1],
+                    "device",         params[2]));
 
            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
                final Header location = resp.getFirstHeader("Location");

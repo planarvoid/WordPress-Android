@@ -44,7 +44,6 @@ public class SyncAdapterService extends Service {
     private static final String TAG = SyncAdapterService.class.getSimpleName();
     public static final String PREF_NOTIFICATIONS_FREQUENCY = "notificationsFrequency";
     public static final String PREF_LAST_SYNC_CLEANUP = "lastSyncCleanup";
-    public static final String EXTRA_DONT_PREFETCH_ARTWORK = "dontPrefetchArtwork";
 
     private ScSyncAdapter mSyncAdapter;
 
