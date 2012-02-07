@@ -643,7 +643,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     }
 
     public void destroy() {
-        if (mArtwork.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable) mArtwork.getDrawable()).getBitmap().recycle();
+        if (mArtwork != null && mArtwork.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable) mArtwork.getDrawable()).getBitmap().recycle();
         if (mAvatar.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable) mAvatar.getDrawable()).getBitmap().recycle();
         clear();
         mWaveformController.onDestroy();
@@ -652,7 +652,7 @@ public class PlayerTrackView extends LinearLayout implements View.OnTouchListene
     public void clear() {
         mOnScreen = false;
         onStop(true);
-        mArtwork.setImageBitmap(null);
+        if (mArtwork != null) mArtwork.setImageBitmap(null);
         mAvatar.setImageBitmap(null);
         mWaveformController.reset(true);
         mWaveformController.setOnScreen(false);
