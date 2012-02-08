@@ -305,4 +305,8 @@ public class PlaylistManager {
                 .remove(PlaylistManager.PREF_PLAYLIST_URI)
                 .commit();
     }
+
+    public void onDestroy() {
+        if (mTrackCursor != null && !mTrackCursor.isClosed()) mTrackCursor.close();
+    }
 }

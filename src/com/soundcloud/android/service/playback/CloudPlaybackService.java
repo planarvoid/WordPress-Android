@@ -212,6 +212,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         // make sure there aren't any other messages coming
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mPlayerHandler.removeCallbacksAndMessages(null);
+        mPlaylistManager.onDestroy();
 
         unregisterReceiver(mIntentReceiver);
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
