@@ -4,6 +4,7 @@ import static com.soundcloud.android.utils.CloudUtils.mkdirs;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -194,7 +195,8 @@ public class StreamStorage {
             //Update the number of writes, cleanup if necessary
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
             final int currentCount = prefs.getInt(STREAMING_WRITES_SINCE_CLEANUP, 0) + 1;
-            prefs.edit().putInt(STREAMING_WRITES_SINCE_CLEANUP, currentCount).commit();
+
+            SharedPreferencesUtils.apply(prefs.edit().putInt(STREAMING_WRITES_SINCE_CLEANUP, currentCount));
 
             if (currentCount >= mCleanupInterval) {
                 calculateFileMetrics();
@@ -357,9 +359,9 @@ public class StreamStorage {
             return false;
         }
         // reset counter
-        PreferenceManager.getDefaultSharedPreferences(mContext)
+        SharedPreferencesUtils.apply(PreferenceManager.getDefaultSharedPreferences(mContext)
                 .edit()
-                .putInt(STREAMING_WRITES_SINCE_CLEANUP, 0).commit();
+                .putInt(STREAMING_WRITES_SINCE_CLEANUP, 0));
 
         final long spaceToClean = mUsedSpace - mUsableSpace;
         if (spaceToClean > 0) {

@@ -369,7 +369,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                     }
                 }
                 // TODO 02-07 StrictMode policy violation; ~duration=37 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=23 violation=1
-                //mTracker.trackPageView(path);
+                mTracker.trackPageView(path);
             } catch (IllegalStateException ignored) {
                 // logs indicate this gets thrown occasionally
                 Log.w(TAG, ignored);

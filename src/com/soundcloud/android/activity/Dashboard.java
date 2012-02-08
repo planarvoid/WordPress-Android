@@ -8,6 +8,7 @@ import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.ScTabView;
@@ -209,8 +210,8 @@ public class Dashboard extends ScActivity {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit()
-                                                .putBoolean(EXCLUSIVE_ONLY_KEY, which == 1).commit();
+                                        SharedPreferencesUtils.apply(PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit()
+                                                .putBoolean(EXCLUSIVE_ONLY_KEY, which == 1));
                                         ((EventsAdapterWrapper) mListView.getWrapper()).setContent(which == 1 ?
                                                 Content.ME_EXCLUSIVE_STREAM : Content.ME_SOUND_STREAM);
                                         mListView.getWrapper().reset();

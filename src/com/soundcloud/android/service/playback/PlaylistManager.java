@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -223,11 +224,9 @@ public class PlaylistManager {
     }
 
     public void saveQueue(long seekPos) {
-        // TODO : this takes 30-50 ms to commit
         if (SoundCloudApplication.getUserIdFromContext(mContext) >= 0) {
-            PreferenceManager.getDefaultSharedPreferences(mContext).edit()
-                    .putString(PREF_PLAYLIST_URI, getPlaylistState(seekPos).toString())
-                    .commit();
+            SharedPreferencesUtils.apply(PreferenceManager.getDefaultSharedPreferences(mContext).edit()
+                    .putString(PREF_PLAYLIST_URI, getPlaylistState(seekPos).toString()));
         }
     }
 
