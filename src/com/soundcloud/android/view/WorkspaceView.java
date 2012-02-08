@@ -649,8 +649,7 @@ public class WorkspaceView extends ViewGroup {
 
                 if (mTouchState == TOUCH_STATE_SCROLLING) {
                     // Scroll to follow the motion event
-                    final int pointerIndex = MotionEventUtils
-                            .findPointerIndex(ev, mActivePointerId);
+                    final int pointerIndex = MotionEventUtils.findPointerIndex(ev, mActivePointerId);
                     final float x = MotionEventUtils.getX(ev, pointerIndex);
 
                     final View lastChild = getChildAt(getChildCount() - 1);
