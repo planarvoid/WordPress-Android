@@ -167,11 +167,21 @@ public class PlaylistManager {
             }
             @Override protected void onPostExecute(Cursor cursor) {
                 if (cursor != null) {
+                    long playingId = getCurrentTrackId();
                     mPlaylist = new Track[cursor.getCount()];
                     if (mTrackCursor != null && !mTrackCursor.isClosed()) mTrackCursor.close();
                     mTrackCursor = cursor;
-                    mPlayPos = Math.max(0, Math.min(position, mPlaylist.length-1));
                     mPlaylistUri = uri;
+
+                    final Track t = getTrackAt(position);
+                    // adjust if the track has moved positions
+                    if (t != null && t.id != playingId && Content.match(uri).isCollectionItem()) {
+                        mPlayPos = getPlaylistPositionFromUri(mContext.getContentResolver(), uri, playingId);
+                    } else {
+                        mPlayPos = position;
+                    }
+                    // adjust to within bounds
+                    mPlayPos = Math.max(0, Math.min(mPlayPos, mPlaylist.length-1));
 
                     Intent intent = new Intent(CloudPlaybackService.PLAYLIST_CHANGED);
                     intent.putExtra(CloudPlaybackService.BroadcastExtras.queuePosition, position);
