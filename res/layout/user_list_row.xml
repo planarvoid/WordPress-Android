@@ -80,8 +80,7 @@
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:singleLine="true"
-                style="@style/btn_following"
-                />
+                style="@style/btn_following" />
 
         <Button android:id="@+id/toggleFollow"
                 android:layout_width="wrap_content"

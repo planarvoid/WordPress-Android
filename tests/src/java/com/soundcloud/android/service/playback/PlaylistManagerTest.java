@@ -172,7 +172,7 @@ public class PlaylistManagerTest {
     @Test
     public void shouldLoadFavoritesAsPlaylist() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.setUri(Content.ME_FAVORITES.uri, 1, new long[]{10853436,10696200l,10602324l}, 10696200l);
+        pm.setUri(Content.ME_FAVORITES.uri, 1, 10696200l);
         expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
         expect(pm.getCurrentTrack().id).toEqual(10602324l);
@@ -181,7 +181,7 @@ public class PlaylistManagerTest {
     @Test
     public void shouldSaveAndRestoreFavoritesAsPlaylist() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.setUri(Content.ME_FAVORITES.uri, 1, new long[]{10853436,10696200l,10602324l}, 10853436l);
+        pm.setUri(Content.ME_FAVORITES.uri, 1, 10853436l);
         expect(pm.getCurrentTrack().id).toEqual(10853436l);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
@@ -192,7 +192,7 @@ public class PlaylistManagerTest {
     @Test
     public void shouldSaveAndRestoreFavoritesAsPlaylistWithMovedTrack() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.setUri(Content.ME_FAVORITES.uri, 1, new long[]{10853436,10696200l,10602324l}, 10696200l);
+        pm.setUri(Content.ME_FAVORITES.uri, 1, 10696200l);
         expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
 
@@ -206,7 +206,7 @@ public class PlaylistManagerTest {
     @Test
     public void shouldSavePlaylistStateInUri() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.setUri(Content.ME_FAVORITES.uri, 1, new long[]{10853436,10696200l,10602324l}, 10696200l);
+        pm.setUri(Content.ME_FAVORITES.uri, 1, 10696200l);
         expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
         expect(pm.getPlaylistState(123L)).toEqual(
