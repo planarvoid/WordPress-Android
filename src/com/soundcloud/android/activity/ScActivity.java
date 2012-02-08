@@ -265,17 +265,6 @@ public abstract class ScActivity extends android.app.Activity {
             return playables.get(position).getTrack();
         }
 
-        public long[] trackWindow() {
-            List<Playable> window = playables.subList(Math.max(0, position - 1), Math.min(position + 2, playables.size()));
-            long[] ids = new long[window.size()];
-            for (int i=0; i<window.size(); i++) {
-                Track t = window.get(i).getTrack();
-                SoundCloudApplication.TRACK_CACHE.put(t);
-                ids[i] = t.id;
-            }
-            return ids;
-        }
-
         public static PlayInfo forTracks(Track... t) {
             PlayInfo info = new PlayInfo();
             info.playables = Arrays.<Playable>asList(t);
@@ -296,7 +285,8 @@ public abstract class ScActivity extends android.app.Activity {
                     .setAction(CloudPlaybackService.PLAY);
 
             if (info.uri != null) {
-                intent.putExtra(CloudPlaybackService.PlayExtras.groupIds, info.trackWindow())
+                SoundCloudApplication.TRACK_CACHE.put(info.getTrack());
+                intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
                       .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                       .setData(info.uri);
             } else {

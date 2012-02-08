@@ -1,24 +1,6 @@
 
 package com.soundcloud.android.activity;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Debug;
-import android.os.Handler;
-import android.os.Message;
-import android.os.RemoteException;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -28,8 +10,25 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.FocusHelper;
 import com.soundcloud.android.view.PlayerTrackView;
+import com.soundcloud.android.view.TransportBar;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.android.view.WorkspaceView;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.RelativeLayout;
 
 public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
     private static final String TAG = "ScPlayer";
@@ -42,13 +41,11 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     private long mSeekPos = -1;
     private boolean mWaveformLoaded, mActivityPaused, mIsCommenting, mIsPlaying, mChangeTrackFast, mShouldShowComments;
-    private Drawable mPlayState, mPauseState;
-    private ImageButton mPauseButton, mFavoriteButton, mCommentButton;
     private Track mPlayingTrack;
     private RelativeLayout mContainer;
     private WorkspaceView mTrackWorkspace;
     private int mCurrentQueuePosition = -1;
-    private Drawable mFavoriteDrawable, mFavoritedDrawable;
+    private TransportBar mTransportBar;
 
     public interface PlayerError {
         int PLAYBACK_ERROR = 0;
@@ -62,38 +59,19 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
         mContainer = (RelativeLayout) findViewById(R.id.container);
 
-        mPauseButton = (ImageButton) findViewById(R.id.pause);
-        mPauseButton.requestFocus();
-        mPauseButton.setOnClickListener(mPauseListener);
-        findViewById(R.id.prev).setOnClickListener(mPrevListener);
-        findViewById(R.id.next).setOnClickListener(mNextListener);
-
         mTrackWorkspace = (WorkspaceView) findViewById(R.id.track_view);
         mTrackWorkspace.setVisibility(View.GONE);
         mTrackWorkspace.setOnScreenChangeListener(this);
         mTrackWorkspace.setOnScrollListener(this, false);
 
-        mCommentButton = (ImageButton) findViewById(R.id.btn_comment);
-        if (mCommentButton != null) {
-
-            mCommentButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    toggleCommentMode(getCurrentTrackView().getPlayPosition());
-                }
-            });
-
-            mFavoriteButton = (ImageButton) findViewById(R.id.btn_favorite);
-            mFavoriteButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    toggleFavorite(mPlayingTrack);
-                }
-            });
-        }
+        mTransportBar = (TransportBar) findViewById(R.id.transport_bar);
+        mTransportBar.setOnPrevListener(mPrevListener);
+        mTransportBar.setOnNextListener(mNextListener);
+        mTransportBar.setOnPauseListener(mPauseListener);
+        mTransportBar.setOnCommentListener(mCommentListener);
+        mTransportBar.setOnFavoriteListener(mFavoriteListener);
 
         mShouldShowComments = getApp().getAccountDataBoolean("playerShowingComments");
-        mPauseState = getResources().getDrawable(R.drawable.ic_pause_states);
-        mPlayState = getResources().getDrawable(R.drawable.ic_play_states);
-
         final Object[] saved = (Object[]) getLastNonConfigurationInstance();
         if (saved != null && saved[0] != null) mPlayingTrack = (Track) saved[0];
 
@@ -111,9 +89,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             ptv.setCommentMode(mIsCommenting);
         }
 
-        if (mCommentButton != null) {
-            mCommentButton.setImageResource(mIsCommenting ? R.drawable.ic_commenting_states : R.drawable.ic_comment_states);
-        }
+        mTransportBar.setCommentMode(mIsCommenting);
 
         if (mPlaybackService != null) try {
             mPlaybackService.setAutoAdvance(!mIsCommenting);
@@ -364,6 +340,18 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         }
     };
 
+    private final View.OnClickListener mCommentListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            toggleCommentMode(getCurrentTrackView().getPlayPosition());
+        }
+    };
+
+    private final View.OnClickListener mFavoriteListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            toggleFavorite(mPlayingTrack);
+        }
+    };
+
     private final View.OnClickListener mPrevListener = new View.OnClickListener() {
         public void onClick(View v) {
             if (mPlaybackService == null) return;
@@ -477,7 +465,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             String action = intent.getAction();
 
             if (action.equals(CloudPlaybackService.PLAYLIST_CHANGED)) {
-                setCurrentTrackDataFromService();
+                setTrackDisplayFromService();
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 if (mCurrentQueuePosition != queuePos) {
                     if (mCurrentQueuePosition != -1 && queuePos == mCurrentQueuePosition + 1 && !mTrackWorkspace.isScrolling()) { // auto advance
@@ -631,7 +619,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 mTrackWorkspace.setVisibility(View.VISIBLE);
                 mTrackWorkspace.setSeparator(R.drawable.track_view_seperator);
                 mTrackWorkspace.initWorkspace(workspacePos);
-            } else {
+            } else if (workspacePos != mTrackWorkspace.getCurrentScreen()){
                 mTrackWorkspace.setCurrentScreenNow(mCurrentQueuePosition > 0 ? 1 : 0, false);
             }
 
@@ -640,20 +628,15 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             }
 
             if (mIsCommenting) toggleCommentMode(0);
+            mTransportBar.setNavEnabled(queueLength > 1);
 
         } catch (RemoteException ignored) {}
+
+
     }
 
     private void setFavoriteStatus() {
-        if (mPlayingTrack == null || mFavoriteButton == null) return;
-
-        if (mPlayingTrack.user_favorite) {
-            if (mFavoritedDrawable == null) mFavoritedDrawable = getResources().getDrawable(R.drawable.ic_liked_states);
-            mFavoriteButton.setImageDrawable(mFavoritedDrawable);
-        } else {
-            if (mFavoriteDrawable == null) mFavoriteDrawable = getResources().getDrawable(R.drawable.ic_like_states);
-            mFavoriteButton.setImageDrawable(mFavoriteDrawable);
-        }
+        if (mPlayingTrack != null) mTransportBar.setFavoriteStatus(mPlayingTrack.user_favorite);
     }
 
     private PlayerTrackView getCurrentTrackView(){
@@ -686,9 +669,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             queueNextRefresh(next);
         }
 
-        if (mPauseButton != null) {
-            mPauseButton.setImageDrawable(showPlayState ? mPauseState : mPlayState);
-        }
+         mTransportBar.setPlaybackState(showPlayState);
     }
 
     private boolean isSupposedToBePlaying() {

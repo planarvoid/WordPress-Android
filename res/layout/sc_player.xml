@@ -17,7 +17,9 @@
                   android:background="#FF555555"/>
         <FrameLayout android:layout_width="fill_parent"
                      android:layout_height="@dimen/player_transport_height">
-            <include android:id="@+id/transport_bar" layout="@layout/transport_bar"/>
+            <com.soundcloud.android.view.TransportBar android:id="@+id/transport_bar"
+                                                      android:layout_height="fill_parent"
+                                                      android:layout_width="fill_parent"/>
         </FrameLayout>
     </LinearLayout>
 </RelativeLayout>

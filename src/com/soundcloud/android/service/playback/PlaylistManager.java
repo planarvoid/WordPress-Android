@@ -132,23 +132,24 @@ public class PlaylistManager {
         mPlaylist = new Track[]{toBePlayed};
         mPlaylistUri = null;
         mPlayPos = 0;
+        broadcastPlaylistChanged();
     }
 
-    public void setUri(Uri uri, int position, long[] tempPlaylist) {
-        setUri(uri,position,tempPlaylist,-1);
-    }
-    public void setUri(Uri uri, int position, long[] tempPlaylist, long trackId) {
-        // set up temp playlist
-        if (tempPlaylist != null && tempPlaylist.length > 0) {
-            mPlaylist = new Track[tempPlaylist.length];
-            mPlayPos = 0;
-            for (int i = 0; i < tempPlaylist.length; i++) {
-                mPlaylist[i] = mCache.get(tempPlaylist[i]);
-                if (mPlaylist[i] != null && mPlaylist[i].id == trackId){
-                    mPlayPos = i;
-                }
-            }
+    public void setUri(Uri uri, int position, long trackId) {
+        Track t = mCache.get(trackId);
+        // ensure that we have an initial track to load, should be cached to avoid this db hit on the UI
+        if (t == null){
+            t = SoundCloudDB.getTrackById(mContext.getContentResolver(), trackId);
         }
+        setUri(uri,position,t);
+
+    }
+
+    public void setUri(Uri uri, int position, Track t) {
+        if (t != null && !mCache.containsKey(t.id)) mCache.put(t);
+        mPlaylist = new Track[]{t};
+        mPlayPos = 0;
+        broadcastPlaylistChanged();
 
         if (uri != null) {
             loadCursor(uri, position);
@@ -181,16 +182,21 @@ public class PlaylistManager {
                     } else {
                         mPlayPos = position;
                     }
+
                     // adjust to within bounds
                     mPlayPos = Math.max(0, Math.min(mPlayPos, mPlaylist.length-1));
-
-                    Intent intent = new Intent(CloudPlaybackService.PLAYLIST_CHANGED);
-                    intent.putExtra(CloudPlaybackService.BroadcastExtras.queuePosition, position);
-                    mContext.sendBroadcast(intent);
+                    broadcastPlaylistChanged();
                 }
             }
         }.execute(uri);
     }
+
+    private void broadcastPlaylistChanged() {
+        Intent intent = new Intent(CloudPlaybackService.PLAYLIST_CHANGED);
+        intent.putExtra(CloudPlaybackService.BroadcastExtras.queuePosition, mPlayPos);
+        mContext.sendBroadcast(intent);
+    }
+
     public void setPlaylist(final List<? extends Playable> playlist, int playPos) {
         // cache a new tracklist
         mPlaylist = new Track[playlist == null ? 0 : playlist.size()];
@@ -213,6 +219,8 @@ public class PlaylistManager {
                 return null;
             }
         }.execute();
+
+        broadcastPlaylistChanged();
     }
 
     public Uri getUri() {
@@ -253,8 +261,8 @@ public class PlaylistManager {
             final long trackId = extractValue(uri, PARAM_TRACK_ID, 0);
             long seekPos = extractValue(uri, PARAM_SEEK_POS, 0);
             if (trackId > 0) {
-                mCache.put(SoundCloudDB.getTrackById(mContext.getContentResolver(), trackId));
-                setUri(uri, extractValue(uri, PARAM_PLAYLIST_POS, 0), new long[]{trackId}, trackId);
+                Track t = SoundCloudDB.getTrackById(mContext.getContentResolver(), trackId);
+                setUri(uri, extractValue(uri, PARAM_PLAYLIST_POS, 0), t);
                 // adjust play position if it has changed
                 if (getCurrentTrack() != null && getCurrentTrack().id != trackId && Content.match(uri).isCollectionItem()) {
                     final int newPos = getPlaylistPositionFromUri( mContext.getContentResolver(), uri, trackId);

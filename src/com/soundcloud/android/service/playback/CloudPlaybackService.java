@@ -141,7 +141,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     public interface PlayExtras{
         String trackId = "track_id";
-        String groupIds = "group_ids";
         String playPosition = "play_position";
         String playFromXferCache = "play_from_xfer_cache";
     }
@@ -929,7 +928,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         } else if (intent.getData() != null) {
             mPlaylistManager.setUri(intent.getData(),
                     intent.getIntExtra(PlayExtras.playPosition, 0),
-                    intent.getLongArrayExtra(PlayExtras.groupIds),
                     intent.getLongExtra(PlayExtras.trackId, -1)
             );
             openCurrent();

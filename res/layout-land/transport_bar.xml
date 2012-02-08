@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
               android:id="@+id/transport_bar"
-              android:background="@drawable/black_transport_bar_gradient"
-              android:paddingTop="5dip"
-              android:paddingBottom="5dip"
-              android:orientation="horizontal"
-              android:gravity="center_vertical"
               android:layout_height="fill_parent"
               android:layout_width="fill_parent">
     <RelativeLayout android:layout_weight="1"
+                    android:id="@+id/prev_holder"
                     android:layout_width="0dp"
                     android:layout_height="fill_parent">
         <ImageButton android:layout_centerInParent="true"
@@ -25,6 +21,7 @@
                      android:src="@drawable/ic_play_states"/>
     </RelativeLayout>
     <RelativeLayout android:layout_weight="1"
+                    android:id="@+id/next_holder"
                     android:layout_width="0dp"
                     android:layout_height="fill_parent">
         <ImageButton android:layout_centerInParent="true"
@@ -55,4 +52,4 @@
                      style="@style/btn_sc_transparent"
                      android:src="@drawable/ic_comment_states"/>
     </RelativeLayout>
-</LinearLayout>
+</merge>
