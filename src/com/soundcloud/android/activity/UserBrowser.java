@@ -429,7 +429,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
 
         // Followers View
-        adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
+        adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class, isMe);
         adpWrap = new RemoteCollectionAdapter(this, adp,
                 isMe ?  Content.ME_FOLLOWERS.uri : null,//CloudUtils.replaceWildcard(Content.USER_FOLLOWERS.uri, mUser.id),
                 isMe ?  null : Request.to(Endpoints.USER_FOLLOWERS, mUser.id), false);

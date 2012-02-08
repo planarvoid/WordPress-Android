@@ -9,6 +9,7 @@ import android.os.Parcelable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -31,7 +32,7 @@ public class UserlistRow extends LazyRow {
     protected Button mFollowBtn;
     protected Button mFollowingBtn;
 
-    public UserlistRow(Context _activity, IScAdapter _adapter) {
+    public UserlistRow(Context _activity, IScAdapter _adapter, boolean useFollowBack) {
         super(_activity, _adapter);
 
         mUsername = (TextView) findViewById(R.id.username);
@@ -42,6 +43,20 @@ public class UserlistRow extends LazyRow {
         mFollowingBtn = (Button) findViewById(R.id.toggleFollowing);
         mFollowBtn = (Button) findViewById(R.id.toggleFollow);
         mVrStats = findViewById(R.id.vr_stats);
+
+        // set proper follow back text and algnment to wider button
+        if (useFollowBack){
+            mFollowBtn.setText(R.string.btn_follow_back);
+            ((RelativeLayout.LayoutParams) mFollowingBtn.getLayoutParams())
+                    .addRule(RelativeLayout.ALIGN_LEFT, R.id.toggleFollow);
+            ((RelativeLayout.LayoutParams) mFollowingBtn.getLayoutParams())
+                    .addRule(RelativeLayout.ALIGN_RIGHT, R.id.toggleFollow);
+        } else {
+            ((RelativeLayout.LayoutParams) mFollowBtn.getLayoutParams())
+                    .addRule(RelativeLayout.ALIGN_LEFT, R.id.toggleFollowing);
+            ((RelativeLayout.LayoutParams) mFollowBtn.getLayoutParams())
+                    .addRule(RelativeLayout.ALIGN_RIGHT, R.id.toggleFollowing);
+        }
 
         if (mFollowingBtn != null) {
             mFollowingBtn.setFocusable(false);

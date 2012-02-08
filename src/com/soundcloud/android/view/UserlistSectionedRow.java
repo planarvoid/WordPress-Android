@@ -11,7 +11,7 @@ public class UserlistSectionedRow extends UserlistRow {
     private static final String TAG = "UserlistSectionedRow";
 
     public UserlistSectionedRow(Context _activity, LazyBaseAdapter _adapter) {
-        super(_activity, _adapter);
+        super(_activity, _adapter, false);
 
     }
 
