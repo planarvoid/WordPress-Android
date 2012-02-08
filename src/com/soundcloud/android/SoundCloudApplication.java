@@ -193,7 +193,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     private ImageLoader createImageLoader() {
         final File cacheDir = CloudUtils.getCacheDir(this);
-        ResponseCache cache = FileCache.install(cacheDir, Consts.MAX_IMAGE_CACHE);
+        ResponseCache cache = FileCache.installFileCache(cacheDir, Consts.MAX_IMAGE_CACHE);
         ContentHandler bitmapHandler = new BitmapContentHandler();
         ContentHandler prefetchHandler = new PrefetchHandler();
         if (cache instanceof FileCache) {

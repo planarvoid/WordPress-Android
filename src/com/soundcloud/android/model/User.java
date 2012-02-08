@@ -11,7 +11,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
 import com.soundcloud.android.service.playback.PlaylistManager;
-import com.soundcloud.android.utils.ImageUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
@@ -282,7 +281,7 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
 
     public void refreshListAvatarUri(Context context) {
         final String iconUrl = avatar_url;
-        _list_avatar_uri = TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(context, iconUrl);
+        _list_avatar_uri = TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForList(context, iconUrl);
     }
 
     public String getListAvatarUri(Context context){

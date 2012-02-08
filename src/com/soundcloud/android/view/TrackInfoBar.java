@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.utils.CloudUtils;
@@ -181,7 +182,7 @@ public class TrackInfoBar extends RelativeLayout {
     }
 
     private void loadIcon() {
-        final String iconUrl = mTrack == null ? null : ImageUtils.formatGraphicsUriForList(getContext(),mTrack.getArtwork());
+        final String iconUrl = mTrack == null ? null : Consts.GraphicSize.formatUriForList(getContext(), mTrack.getArtwork());
         if (TextUtils.isEmpty(iconUrl)) {
             mCurrentIconBindResult = ImageLoader.BindResult.OK;
             ImageLoader.get(getContext()).unbind(mIcon); // no artwork

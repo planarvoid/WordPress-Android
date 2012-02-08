@@ -110,7 +110,7 @@ public class PlayerAvatarBar extends View {
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
                 if (!TextUtils.isEmpty(c.user.avatar_url)){
-                    mBitmapLoader.cancelRequest(ImageUtils.formatGraphicsUri(c.user.avatar_url, mTargetSize));
+                    mBitmapLoader.cancelRequest(mTargetSize.formatUri(c.user.avatar_url));
                 }
             }
         }
@@ -122,7 +122,7 @@ public class PlayerAvatarBar extends View {
 
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
-                mBitmapLoader.cancelRequest(ImageUtils.formatGraphicsUri(c.user.avatar_url, mTargetSize));
+                mBitmapLoader.cancelRequest(mTargetSize.formatUri(c.user.avatar_url));
                 c.avatar = null;
             }
         }

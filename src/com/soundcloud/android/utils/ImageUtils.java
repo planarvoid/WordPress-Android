@@ -283,37 +283,38 @@ public class ImageUtils {
         }
     }
 
-    public static String formatGraphicsUriForList(Context c, String url){
-        return formatGraphicsUri(url, Consts.GraphicSize.getListItemGraphicSize(c));
-    }
+    public static ImageLoader.BindResult loadImageSubstitute(Context c,
+                                                             ImageView imageView,
+                                                             String uri,
+                                                             Consts.GraphicSize targetSize,
+                                                             ImageLoader.Callback callback,
+                                                             ImageLoader.Options options) {
 
-    public static String formatGraphicsUri(String url, Consts.GraphicSize targetSize) {
-        return url == null ? null : targetSize.equals(Consts.GraphicSize.LARGE) ? url : url.replace(Consts.GraphicSize.LARGE.key, targetSize.key);
-    }
-
-
-    public static ImageLoader.BindResult loadImageSubstitute(Context c, ImageView imageView, String uri, Consts.GraphicSize targetSize, ImageLoader.Callback callback, ImageLoader.Options options){
-        final String targetUri = formatGraphicsUri(uri, targetSize);
+        final String targetUri = targetSize.formatUri(uri);
         final ImageLoader imageLoader = ImageLoader.get(c);
         if (options == null) options = new ImageLoader.Options();
-        Bitmap targetBitmap = imageLoader.getBitmap(targetUri,null,new ImageLoader.Options(false));
-        if (targetBitmap != null){
-            return imageLoader.bind(imageView,targetUri,callback,options);
+        Bitmap targetBitmap = imageLoader.getBitmap(targetUri, null, new ImageLoader.Options(false));
+        if (targetBitmap != null) {
+            return imageLoader.bind(imageView, targetUri, callback, options);
         } else {
-            for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
-                final Bitmap tempBitmap = imageLoader.getBitmap(formatGraphicsUri(uri,gs),null,new ImageLoader.Options(false));
+            for (Consts.GraphicSize gs : Consts.GraphicSize.values()) {
+                final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri),
+                        null,
+                        new ImageLoader.Options(false));
+
                 if (tempBitmap != null) {
                     options.temporaryBitmapRef = new WeakReference<Bitmap>(tempBitmap);
-                    imageLoader.bind(imageView,targetUri,callback,options);
+                    imageLoader.bind(imageView, targetUri, callback, options);
                     return ImageLoader.BindResult.OK;
                 }
             }
-            return imageLoader.bind(imageView,targetUri,callback,options);
+
+            return imageLoader.bind(imageView, targetUri, callback, options);
         }
     }
 
     public static Bitmap getBitmapSubstitute(Context c, String uri, Consts.GraphicSize targetSize, ImageLoader.BitmapCallback callback, ImageLoader.Options options){
-        final String targetUri = formatGraphicsUri(uri, targetSize);
+        final String targetUri = targetSize.formatUri(uri);
         final ImageLoader imageLoader = ImageLoader.get(c);
         if (options == null) options = new ImageLoader.Options();
 
@@ -322,7 +323,7 @@ public class ImageUtils {
             return imageLoader.getBitmap(uri,callback,options);
         } else {
             for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
-                final Bitmap tempBitmap = imageLoader.getBitmap(formatGraphicsUri(uri,gs),null,new ImageLoader.Options(false));
+                final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri),null,new ImageLoader.Options(false));
                 if (tempBitmap != null && !tempBitmap.isRecycled()) {
                     if (callback != null) {
                         callback.onImageLoaded(tempBitmap, uri);

@@ -13,13 +13,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
 
 public class CommentPanel extends RelativeLayout {
 
@@ -154,7 +154,6 @@ public class CommentPanel extends RelativeLayout {
 
     protected void showComment(Comment currentShowingComment) {
         mComment = currentShowingComment;
-
         if (mComment == null) return;
 
         mTxtUsername.setText(mComment.user.username);
@@ -168,12 +167,11 @@ public class CommentPanel extends RelativeLayout {
 
         if (mBtnClose != null) mBtnClose.setVisibility(View.VISIBLE);
         if (mTxtReadOn != null) {
-
-            if (currentShowingComment.nextComment != null)
+            if (currentShowingComment.nextComment != null) {
                 mTxtReadOn.setVisibility(View.VISIBLE);
-            else
+            } else {
                 mTxtReadOn.setVisibility(View.GONE);
-
+            }
         }
 
         if (currentShowingComment.user == null || !CloudUtils.checkIconShouldLoad(currentShowingComment.user.avatar_url)) {
@@ -182,7 +180,7 @@ public class CommentPanel extends RelativeLayout {
         }
 
         ImageLoader.get(getContext()).bind(mIcon,
-                ImageUtils.formatGraphicsUriForList(getContext(), currentShowingComment.user.avatar_url),
+                Consts.GraphicSize.formatUriForList(getContext(), currentShowingComment.user.avatar_url),
                 new ImageLoader.Callback() {
                     @Override
                     public void onImageLoaded(ImageView view, String url) {

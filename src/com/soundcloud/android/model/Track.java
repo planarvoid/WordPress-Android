@@ -177,7 +177,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
 
     public void refreshListArtworkUri(Context context) {
         final String iconUrl = getArtwork();
-        _list_artwork_uri = TextUtils.isEmpty(iconUrl) ? null : ImageUtils.formatGraphicsUriForList(context, iconUrl);
+        _list_artwork_uri = TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForList(context, iconUrl);
     }
 
     public String getListArtworkUrl(Context context){
@@ -488,6 +488,10 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
 
     public boolean hasAvatar() {
         return user != null && !TextUtils.isEmpty(user.avatar_url);
+    }
+
+    public String getAvatarUrl() {
+        return user == null ? null : user.avatar_url;
     }
 
     @Override

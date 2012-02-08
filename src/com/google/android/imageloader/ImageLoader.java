@@ -903,11 +903,6 @@ public final class ImageLoader {
                 if (mBitmap != null) {
                     // Keep a hard reference until the view has been notified.
                     return true;
-                } else if (new File(mUrl).exists()){
-                    BitmapFactory.Options sampleOptions = new BitmapFactory.Options();
-                    sampleOptions.inSampleSize = mOptions.decodeInSampleSize;
-                    mBitmap = processBitmap(BitmapFactory.decodeFile(mUrl, sampleOptions), mOptions);
-                    return true;
                 }
 
                 String protocol = getProtocol(mUrl);

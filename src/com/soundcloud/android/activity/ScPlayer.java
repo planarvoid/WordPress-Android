@@ -142,53 +142,54 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     @Override
     public void onScreenChanged(View newScreen, int newScreenIndex) {
         if (newScreen == null) return;
+        final int newQueuePos = ((PlayerTrackView) newScreen).getPlayPosition();
+
+        mCurrentQueuePosition = newQueuePos;
+        mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
+
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
+                mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
+        mChangeTrackFast = false;
+
+        final long prevTrackId;
+        final long nextTrackId;
+
         try {
-            final int newQueuePos = ((PlayerTrackView) newScreen).getPlayPosition();
-
-            mCurrentQueuePosition = newQueuePos;
-            mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-
-            mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
-                        mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
-            mChangeTrackFast = false;
-
-            final long prevTrackId = newQueuePos > 0
-                    ? mPlaybackService.getTrackIdAt(newQueuePos -1) : -1;
-            final long nextTrackId = newQueuePos < mPlaybackService.getQueueLength() - 1
+            prevTrackId = newQueuePos > 0
+                    ? mPlaybackService.getTrackIdAt(newQueuePos - 1) : -1;
+            nextTrackId = newQueuePos < mPlaybackService.getQueueLength() - 1
                     ? mPlaybackService.getTrackIdAt(newQueuePos + 1) : -1;
-
-            PlayerTrackView ptv;
-
-            if (newScreenIndex == 0 && prevTrackId != -1) {
-                final Track prevTrack = getTrackById(prevTrackId);
-                if (prevTrack != null){
-                    if (mTrackWorkspace.getScreenCount() > 2) {
-                        ptv = (PlayerTrackView) mTrackWorkspace.cycleBackViewToFront();
-                        ptv.clear();
-                    } else {
-                        ptv = new PlayerTrackView(this);
-                        mTrackWorkspace.addViewToFront(ptv);
-                    }
-                    ptv.setTrack(prevTrack, newQueuePos - 1, false);
-                }
-
-            } else if (newScreenIndex == mTrackWorkspace.getScreenCount() - 1 && nextTrackId != -1) {
-                final Track nextTrack = getTrackById(nextTrackId);
-                if (nextTrack != null){
-                    if (mTrackWorkspace.getScreenCount() > 2) {
-                        ptv = (PlayerTrackView) mTrackWorkspace.cycleFrontViewToBack();
-                        ptv.clear();
-                    } else {
-                        ptv = new PlayerTrackView(this);
-                        mTrackWorkspace.addViewToBack(ptv);
-                    }
-                    ptv.setTrack(nextTrack, newQueuePos + 1, false);
-                }
-            }
-
         } catch (RemoteException ignored) {
+            return;
         }
 
+        final PlayerTrackView ptv;
+        if (newScreenIndex == 0 && prevTrackId != -1) {
+            final Track prevTrack = getTrackById(prevTrackId);
+            if (prevTrack != null) {
+                if (mTrackWorkspace.getScreenCount() > 2) {
+                    ptv = (PlayerTrackView) mTrackWorkspace.cycleBackViewToFront();
+                    ptv.clear();
+                } else {
+                    ptv = new PlayerTrackView(this);
+                    mTrackWorkspace.addViewToFront(ptv);
+                }
+                ptv.setTrack(prevTrack, newQueuePos - 1, false, false);
+            }
+
+        } else if (newScreenIndex == mTrackWorkspace.getScreenCount() - 1 && nextTrackId != -1) {
+            final Track nextTrack = getTrackById(nextTrackId);
+            if (nextTrack != null) {
+                if (mTrackWorkspace.getScreenCount() > 2) {
+                    ptv = (PlayerTrackView) mTrackWorkspace.cycleFrontViewToBack();
+                    ptv.clear();
+                } else {
+                    ptv = new PlayerTrackView(this);
+                    mTrackWorkspace.addViewToBack(ptv);
+                }
+                ptv.setTrack(nextTrack, newQueuePos + 1, false, false);
+            }
+        }
     }
 
     public void toggleShowingComments() {
@@ -612,7 +613,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     ptv = new PlayerTrackView(this);
                     mTrackWorkspace.addViewAtScreenPosition(ptv, workspaceIndex);
                 }
-                ptv.setTrack(pos == mCurrentQueuePosition ? mPlayingTrack : getTrackById(mPlaybackService.getTrackIdAt(pos)),pos, false);
+                final Track track = pos == mCurrentQueuePosition ? mPlayingTrack : getTrackById(mPlaybackService.getTrackIdAt(pos));
+                ptv.setTrack(track, pos, false, pos == mCurrentQueuePosition);
                 workspaceIndex++;
             }
 

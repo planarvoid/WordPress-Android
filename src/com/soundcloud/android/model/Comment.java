@@ -2,11 +2,11 @@
 package com.soundcloud.android.model;
 
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonView;
 
@@ -73,9 +73,9 @@ public class Comment extends ScModel implements Origin {
         return user;
     }
 
-    public void prefetchAvatar(Context c){
+    public void prefetchAvatar(Context c) {
         if (user != null && CloudUtils.checkIconShouldLoad(user.avatar_url)) {
-            ImageLoader.get(c).prefetch(ImageUtils.formatGraphicsUriForList(c, user.avatar_url));
+            ImageLoader.get(c).prefetch(Consts.GraphicSize.formatUriForList(c, user.avatar_url));
         }
     }
 
@@ -102,16 +102,6 @@ public class Comment extends ScModel implements Origin {
                 return 1;
             else
                 return c2.created_at.compareTo(c1.created_at);
-        }
-    }
-
-    public static class CompareCreatedAt implements Comparator<Comment> {
-        public static final Comparator<Comment> INSTANCE = new CompareCreatedAt();
-        private CompareCreatedAt() {}
-
-        @Override
-        public int compare(Comment c1, Comment c2) {
-            return c2.created_at.compareTo(c1.created_at);
         }
     }
 

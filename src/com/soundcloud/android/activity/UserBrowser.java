@@ -109,7 +109,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 if (CloudUtils.checkIconShouldLoad(mIconURL)) {
                     new FullImageDialog(
                         UserBrowser.this,
-                        ImageUtils.formatGraphicsUri(mIconURL, Consts.GraphicSize.CROP)
+                        Consts.GraphicSize.CROP.formatUri(mIconURL)
                     ).show();
                 }
 

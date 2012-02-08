@@ -3,6 +3,8 @@ package com.soundcloud.android.view;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Parcelable;
+
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
@@ -111,7 +113,7 @@ public class ActivityRow extends LazyRow {
     @Override
     public String getIconRemoteUri() {
         if (mActivity == null || mActivity.getUser() == null || mActivity.getUser().avatar_url == null) return "";
-        return ImageUtils.formatGraphicsUriForList(getContext(), mActivity.getUser().avatar_url);
+        return Consts.GraphicSize.formatUriForList(getContext(), mActivity.getUser().avatar_url);
     }
 
     // end override
@@ -137,7 +139,7 @@ public class ActivityRow extends LazyRow {
         mSpanBuilder = createSpan();
 
         setImageSpan();
-        
+
         mUser.setText(getOriginUser().username);
         mCreatedAt.setText(CloudUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
 

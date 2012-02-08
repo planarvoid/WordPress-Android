@@ -1,24 +1,19 @@
 package com.soundcloud.android.view;
 
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
-
-import android.content.res.Configuration;
-import android.os.Build;
-import android.view.ViewConfiguration;
-import android.view.animation.*;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.InputObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -29,12 +24,17 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewConfiguration;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.Transformation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -394,7 +394,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-    public void updateTrack(Track track) {
+    public void updateTrack(Track track, boolean postAtFront) {
         if (mPlayingTrack != null &&
                 mPlayingTrack.id == track.id
                 && waveformResult != BindResult.ERROR) {
@@ -427,6 +427,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         } else {
             mWaveformErrorCount = 0;
         }
+
         waveformResult = ImageLoader.get(mPlayer).bind(mOverlay, track.waveform_url,
                 new ImageLoader.Callback() {
                     @Override
@@ -440,7 +441,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                         waveformResult = BindResult.OK;
                         showWaveform(mOnScreen);
                     }
-                },new ImageLoader.Options(true,true));
+                },new ImageLoader.Options(true, postAtFront));
 
 
         switch (waveformResult) {
@@ -591,7 +592,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     private void onWaveformError() {
         mWaveformErrorCount++;
         if (mWaveformErrorCount < MAX_WAVEFORM_RETRIES) {
-            updateTrack(mPlayingTrack);
+            updateTrack(mPlayingTrack, mOnScreen);
         } else {
             mOverlay.setImageDrawable(mPlayer.getResources()
                     .getDrawable(R.drawable.player_wave_bg));
@@ -642,18 +643,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public void setComments(List<Comment> comments, boolean animateIn) {
         setComments(comments,animateIn,false);
     }
-    public void setComments(List<Comment> comments, boolean animateIn, boolean forceRefresh) {
 
+    public void setComments(List<Comment> comments, boolean animateIn, boolean forceRefresh) {
         if (comments.equals(mCurrentComments) && !forceRefresh){
-            Log.i(getClass().getSimpleName(),"Same comments found, ignoring setComments");
             return;
         }
 
         mCurrentComments = comments;
-
-        if (mCurrentComments == null)
-            return;
-
         mCurrentTopComments = new ArrayList<Comment>();
 
         Collections.sort(comments, Comment.CompareTimestamp.INSTANCE);

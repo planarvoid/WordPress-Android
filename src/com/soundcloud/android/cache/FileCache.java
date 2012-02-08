@@ -73,7 +73,9 @@ public class FileCache extends FileResponseCache {
      * @param size     max cache size in bytes
      * @return         the installed response cache, or null if incompatible cache installed.
      */
-    public static ResponseCache install(File cacheDir, long size) {
+    public static ResponseCache autoInstall(File cacheDir, long size) {
+        // currently not used because it's very slow and adds 15,20 secs to some requests
+        // TODO: find out why
         try {
             ResponseCache cache = (ResponseCache) Class.forName("android.net.http.HttpResponseCache")
                     .getMethod("install", File.class, long.class)
@@ -81,20 +83,24 @@ public class FileCache extends FileResponseCache {
             Log.d(TAG, "Using ICS HttpResponseCache");
             return cache;
         } catch (Exception httpResponseCacheNotAvailable) {
-            // not on ICS: use plain FileCache
-            ResponseCache responseCache = ResponseCache.getDefault();
-            if (responseCache instanceof FileCache) {
-                Log.d(TAG, "Cache has already been installed.");
-                return responseCache;
-            } else if (responseCache == null) {
-                FileCache cache = new FileCache(cacheDir, size);
-                ResponseCache.setDefault(cache);
-                return cache;
-            } else {
-                Class<? extends ResponseCache> type = responseCache.getClass();
-                Log.e(TAG, "Another ResponseCache has already been installed: " + type);
-                return null;
-            }
+            return installFileCache(cacheDir, size);
+        }
+    }
+
+    public static ResponseCache installFileCache(File cacheDir, long size) {
+        // not on ICS: use plain FileCache
+        ResponseCache responseCache = ResponseCache.getDefault();
+        if (responseCache instanceof FileCache) {
+            Log.d(TAG, "Cache has already been installed.");
+            return responseCache;
+        } else if (responseCache == null) {
+            FileCache cache = new FileCache(cacheDir, size);
+            ResponseCache.setDefault(cache);
+            return cache;
+        } else {
+            Class<? extends ResponseCache> type = responseCache.getClass();
+            Log.e(TAG, "Another ResponseCache has already been installed: " + type);
+            return null;
         }
     }
 

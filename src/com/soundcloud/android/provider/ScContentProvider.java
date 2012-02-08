@@ -549,7 +549,7 @@ public class ScContentProvider extends ContentProvider {
                             Consts.GraphicSize.getListItemGraphicSize(getContext()) :
                             Consts.GraphicSize.fromString(size);
 
-                    final String artworkUri = ImageUtils.formatGraphicsUri(track.getArtwork(), gs);
+                    final String artworkUri = gs.formatUri(track.getArtwork());
                     final File artworkFile = new File(getContext().getCacheDir(), CloudUtils.md5(artworkUri));
                     if (!artworkFile.exists()) {
                         OutputStream os = null;

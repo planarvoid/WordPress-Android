@@ -23,6 +23,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ContentHandler;
+import java.net.HttpURLConnection;
 import java.net.URLConnection;
 
 /**
@@ -35,19 +36,33 @@ import java.net.URLConnection;
  * An {@link IOException} is thrown if there is a decoding exception.
  */
 public class BitmapContentHandler extends ContentHandler {
-    @Override
-    public Bitmap getContent(URLConnection connection) throws IOException {
-        connection.setReadTimeout(10000);
-        InputStream input = connection.getInputStream();
+
+    public static final int READ_TIMEOUT    = 10000;
+    public static final int CONNECT_TIMEOUT = 3000;
+
+    @Override public Bitmap getContent(URLConnection connection) throws IOException {
+        connection.setRequestProperty("Accept-Encoding", "identity");
+        connection.setRequestProperty("Connection", "Close");
+        connection.setReadTimeout(READ_TIMEOUT);
+        connection.setConnectTimeout(CONNECT_TIMEOUT);
+        connection.setUseCaches(true);
+
+        final long start = System.currentTimeMillis();
+        InputStream input;
         try {
-            input = new BlockingFilterInputStream(input);
+            input = new BlockingFilterInputStream(connection.getInputStream());
             Bitmap bitmap = BitmapFactory.decodeStream(input);
             if (bitmap == null) {
                 throw new IOException("Image could not be decoded");
             }
             return bitmap;
         } finally {
-            input.close();
+            Log.d(BitmapContentHandler.class.getSimpleName(), "image fetched in "
+                        +(System.currentTimeMillis() - start)+ " ms, url = " + connection.getURL());
+
+            if (connection instanceof HttpURLConnection) {
+                ((HttpURLConnection)connection).disconnect();
+            }
         }
     }
 }

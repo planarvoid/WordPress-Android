@@ -6,7 +6,6 @@ import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
-import java.util.EnumSet;
 
 public final class Consts {
     @Deprecated
@@ -99,6 +98,11 @@ public final class Consts {
             return Unknown;
         }
 
+
+        public static String formatUriForList(Context c, String url){
+            return getListItemGraphicSize(c).formatUri(url);
+        }
+
         public static Consts.GraphicSize getListItemGraphicSize(Context c) {
             if (CloudUtils.isScreenXL(c)) {
                 return Consts.GraphicSize.LARGE;
@@ -109,6 +113,12 @@ public final class Consts {
                     return Consts.GraphicSize.BADGE;
                 }
             }
+        }
+
+        public String formatUri(String uri) {
+            if (uri == null) return null;
+            else if (this == Consts.GraphicSize.LARGE) return uri;
+            else return uri.replace(Consts.GraphicSize.LARGE.key, key);
         }
     }
 
