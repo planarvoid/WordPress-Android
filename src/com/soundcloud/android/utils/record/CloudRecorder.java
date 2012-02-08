@@ -461,6 +461,13 @@ public class CloudRecorder {
         refreshHandler.sendMessageDelayed(msg, delay);
     }
 
+    public void onDestroy(){
+        if (mState == State.RECORDING) {
+            stop();
+        }
+        refreshHandler.removeMessages(REFRESH);
+    }
+
     // Converts a byte[2] to a short, in LITTLE_ENDIAN format
     private short getShort(byte argB1, byte argB2) {
         return (short) (argB1 | (argB2 << 8));

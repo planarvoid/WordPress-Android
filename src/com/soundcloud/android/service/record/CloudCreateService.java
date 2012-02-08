@@ -139,7 +139,15 @@ public class CloudCreateService extends Service {
             Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
-        _shutdownService();
+        // if we are getting shut down by the system, shut down recording/playback
+        if (mRecorder != null) mRecorder.onDestroy();
+        if (mPlayer != null && mPlayer.isPlaying()) stopPlayback();
+
+        // prevent any ongoing notifications that may get stuck
+        nm.cancel(RECORD_NOTIFY_ID);
+
+        gotoIdleState();
+        shutdownService();
 
         if (mWakeLock.isHeld())
             mWakeLock.release();
@@ -154,7 +162,7 @@ public class CloudCreateService extends Service {
         }
     }
 
-    private void _shutdownService() {
+    private void shutdownService() {
         Log.i(TAG, "upload Service stopped!!!");
 
         releaseWakeLock();
@@ -706,12 +714,9 @@ public class CloudCreateService extends Service {
         }
 
         mCurrentUpload = null;
-
-
         nm.cancel(RECORD_NOTIFY_ID);
         gotoIdleState();
         sendBroadcast(new Intent(UPLOAD_CANCELLED));
-
     }
 
     public long getPlaybackLocalId() {
