@@ -3,6 +3,7 @@ package com.soundcloud.android.service.playback;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
@@ -33,8 +34,7 @@ public class PlaylistManagerTest {
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
-        TrackCache cache = new TrackCache();
-        pm = new PlaylistManager(Robolectric.application, cache, USER_ID);
+        pm = new PlaylistManager(Robolectric.application, ((SoundCloudApplication) Robolectric.application).TRACK_CACHE, USER_ID);
 
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
@@ -172,28 +172,27 @@ public class PlaylistManagerTest {
     @Test
     public void shouldLoadFavoritesAsPlaylist() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.setUri(Content.ME_FAVORITES.uri, 1, null);
+        pm.setUri(Content.ME_FAVORITES.uri, 1, new long[]{10853436,10696200l,10602324l}, 10696200l);
         expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
         expect(pm.getCurrentTrack().id).toEqual(10602324l);
-
     }
 
     @Test
     public void shouldSaveAndRestoreFavoritesAsPlaylist() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.setUri(Content.ME_FAVORITES.uri, 1, null);
-        expect(pm.getCurrentTrack().id).toEqual(10696200l);
+        pm.setUri(Content.ME_FAVORITES.uri, 1, new long[]{10853436,10696200l,10602324l}, 10853436l);
+        expect(pm.getCurrentTrack().id).toEqual(10853436l);
         pm.saveQueue(1000l);
         expect(pm.reloadQueue()).toEqual(1000l);
-        expect(pm.getCurrentTrackId()).toEqual(10696200l);
-        expect(pm.getPosition()).toEqual(1);
+        expect(pm.getCurrentTrackId()).toEqual(10853436l);
+        expect(pm.getPosition()).toEqual(0);
     }
 
     @Test
     public void shouldSaveAndRestoreFavoritesAsPlaylistWithMovedTrack() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.setUri(Content.ME_FAVORITES.uri, 1, null);
+        pm.setUri(Content.ME_FAVORITES.uri, 1, new long[]{10853436,10696200l,10602324l}, 10696200l);
         expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
 
@@ -207,7 +206,7 @@ public class PlaylistManagerTest {
     @Test
     public void shouldSavePlaylistStateInUri() throws Exception {
         insertTracksAsUri(Content.ME_FAVORITE.uri);
-        pm.setUri(Content.ME_FAVORITES.uri, 1, null);
+        pm.setUri(Content.ME_FAVORITES.uri, 1, new long[]{10853436,10696200l,10602324l}, 10696200l);
         expect(pm.getCurrentTrack().id).toEqual(10696200l);
         expect(pm.next()).toBeTrue();
         expect(pm.getPlaylistState(123L)).toEqual(
@@ -241,6 +240,10 @@ public class PlaylistManagerTest {
     private void insertTracksAsUri(Uri uri) throws IOException {
         List<Parcelable> items = new ArrayList<Parcelable>();
         ScModel.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"), AndroidCloudAPI.Mapper, Track.class, items);
+        for (Parcelable p: items){
+            ((SoundCloudApplication) Robolectric.application).TRACK_CACHE.put((Track) p);
+        }
+
         expect(SoundCloudDB.bulkInsertParcelables(resolver, items, uri, USER_ID)).toEqual(4);
 
         Cursor c = resolver.query(uri, null, null, null, null);
