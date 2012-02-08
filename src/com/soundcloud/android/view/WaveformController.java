@@ -57,7 +57,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     protected ScPlayer mPlayer;
     protected Track mPlayingTrack;
-    protected boolean mShowingComments, mSuspendTimeDisplay, mOnScreen;
+    protected boolean mSuspendTimeDisplay, mOnScreen;
     protected List<Comment> mCurrentComments;
     protected List<Comment> mCurrentTopComments;
     protected Comment mCurrentShowingComment;
@@ -115,10 +115,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         setWillNotDraw(false);
 
         mPlayer = (ScPlayer) context;
-
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(mPlayer);
-
-        mShowingComments = mPreferences.getBoolean("playerShowingCOmments", true);
 
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -701,11 +697,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-
-    protected void toggleComments() {
-        mShowingComments = !mShowingComments;
-        mPreferences.edit().putBoolean("playerShowingCOmments", mShowingComments).commit();
-    }
 
     private void processInputObject(InputObject input) {
         switch (input.action) {

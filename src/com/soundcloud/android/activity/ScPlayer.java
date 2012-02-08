@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
@@ -40,7 +41,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private static final long TRACK_NAV_DELAY = 500;
 
     private long mSeekPos = -1;
-    private boolean mWaveformLoaded, mActivityPaused, mIsCommenting, mIsPlaying, mChangeTrackFast;
+    private boolean mWaveformLoaded, mActivityPaused, mIsCommenting, mIsPlaying, mChangeTrackFast, mShouldShowComments;
     private Drawable mPlayState, mPauseState;
     private ImageButton mPauseButton, mFavoriteButton, mCommentButton;
     private Track mPlayingTrack;
@@ -48,7 +49,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private WorkspaceView mTrackWorkspace;
     private int mCurrentQueuePosition = -1;
     private Drawable mFavoriteDrawable, mFavoritedDrawable;
-
 
     public interface PlayerError {
         int PLAYBACK_ERROR = 0;
@@ -90,7 +90,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             });
         }
 
-
+        mShouldShowComments = getApp().getAccountDataBoolean("playerShowingComments");
         mPauseState = getResources().getDrawable(R.drawable.ic_pause_states);
         mPlayState = getResources().getDrawable(R.drawable.ic_play_states);
 
@@ -99,6 +99,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+
     }
 
     public void toggleCommentMode(int playPos) {
@@ -188,6 +190,16 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         }
 
     }
+
+    public void toggleShowingComments() {
+        mShouldShowComments = !mShouldShowComments;
+        getApp().setAccountData("playerShowingComments", mShouldShowComments);
+    }
+
+    public boolean shouldShowComments() {
+        return mShouldShowComments;
+    }
+
 
     public long setSeekMarker(float seekPercent) {
         try {
@@ -535,7 +547,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
         FocusHelper.registerHeadphoneRemoteControl(this);
         setPlaybackState();
-
     }
 
     @Override

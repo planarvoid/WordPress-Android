@@ -44,7 +44,7 @@ public class WaveformControllerLand extends WaveformController {
                     break;
 
                 case UI_TOGGLE_COMMENTS:
-                    toggleComments();
+                    mPlayer.toggleShowingComments();
                     break;
             }
         }
@@ -151,8 +151,8 @@ public class WaveformControllerLand extends WaveformController {
 
    protected void showCurrentComment(boolean userTriggered) {
        if (mCurrentShowingComment != null) {
-           if (userTriggered && !mShowingComments) {
-               toggleComments();
+           if (userTriggered && !mPlayer.shouldShowComments()) {
+               mPlayer.toggleShowingComments();
            }
 
            cancelAutoCloseComment();
@@ -270,8 +270,8 @@ public class WaveformControllerLand extends WaveformController {
 
     @Override
     public void closeComment(boolean userTriggered) {
-        if (userTriggered && mCurrentShowingComment == mLastAutoComment && mShowingComments) {
-            toggleComments();
+        if (userTriggered && mCurrentShowingComment == mLastAutoComment && mPlayer.shouldShowComments()) {
+            mPlayer.toggleShowingComments();
         }
 
         mCurrentShowingComment = null;
@@ -315,18 +315,18 @@ public class WaveformControllerLand extends WaveformController {
 
     @Override
      protected void autoShowComment(Comment c) {
-        if (!mShowingComments) return;
+        if (mPlayer.shouldShowComments()) {
 
-        cancelAutoCloseComment();
+            cancelAutoCloseComment();
+            mCurrentShowingComment = c;
+            showCurrentComment(true);
 
-        mCurrentShowingComment = c;
-        showCurrentComment(true);
+            final Comment nextComment = nextCommentAfterTimestamp(mCurrentShowingComment.timestamp);
+            if (nextComment != null) nextComment.prefetchAvatar(getContext());
 
-        final Comment nextComment = nextCommentAfterTimestamp(mCurrentShowingComment.timestamp);
-        if (nextComment != null) nextComment.prefetchAvatar(getContext());
-
-        if (nextComment == null || nextComment.timestamp - c.timestamp > MAX_AUTO_COMMENT_DISPLAY_TIME){
-            mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
+            if (nextComment == null || nextComment.timestamp - c.timestamp > MAX_AUTO_COMMENT_DISPLAY_TIME) {
+                mHandler.postDelayed(mAutoCloseComment, CLOSE_COMMENT_DELAY);
+            }
         }
     }
 }
