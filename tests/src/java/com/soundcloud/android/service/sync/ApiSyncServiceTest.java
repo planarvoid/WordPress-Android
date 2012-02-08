@@ -7,6 +7,7 @@ import static com.soundcloud.android.robolectric.TestHelper.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -161,14 +162,14 @@ public class ApiSyncServiceTest {
         expect(collection.last_sync).toBeGreaterThan(0L);
         expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(100);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(99);
         expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
         expect(Content.TRACKS).toHaveCount(99);
         expect(Content.USERS).toHaveCount(52);
 
         Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
 
-        expect(incoming.size()).toEqual(100);
+        expect(incoming.size()).toEqual(99);
         assertResolverNotified(Content.ME_SOUND_STREAM.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
 
@@ -279,10 +280,10 @@ public class ApiSyncServiceTest {
                 "incoming_1.json",
                 "incoming_2.json");
 
-        expect(Content.ME_SOUND_STREAM).toHaveCount(100);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(99);
         expect(Content.ME_ACTIVITIES).toHaveCount(41);
         expect(Content.ME_EXCLUSIVE_STREAM).toHaveCount(0);
-        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(141);
+        expect(Content.ME_ALL_ACTIVITIES).toHaveCount(140);
     }
 
     @Test
@@ -325,6 +326,27 @@ public class ApiSyncServiceTest {
         collection = LocalCollection.fromContent(Content.ME_SOUND_STREAM, resolver, false);
         expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738");
     }
+
+    @Test
+    public void shouldFilterOutDuplicateTrackAndSharingsAndKeepSharings() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+        //  1 unrelated track + 2 track-sharing/track with same id
+        sync(svc, Content.ME_SOUND_STREAM,
+                "track_and_track_sharing.json");
+
+        expect(Content.ME_SOUND_STREAM).toHaveCount(2);
+        Activities incoming = Activities.getSince(Content.ME_SOUND_STREAM, resolver, -1);
+
+        expect(incoming.size()).toEqual(2);
+        Activity a1 = incoming.get(0);
+        Activity a2 = incoming.get(1);
+
+        expect(a1.type).toBe(Activity.Type.TRACK);
+        expect(a1.getTrack().permalink).toEqual("bastard-amo1-edit");
+        expect(a2.type).toBe(Activity.Type.TRACK_SHARING);
+        expect(a2.getTrack().permalink).toEqual("leotrax06-leo-zero-boom-bam");
+    }
+
 
     private void addResourceResponse(String url, String resource) throws IOException {
         TestHelper.addCannedResponse(getClass(), url, resource);

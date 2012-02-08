@@ -308,6 +308,9 @@ public class DBHelper extends SQLiteOpenHelper {
             "   Activities." + Activities.TRACK_ID + " = " + "TrackView." + TrackView._ID + ")" +
             " LEFT JOIN Comments ON(" +
             "   Activities." + Activities.COMMENT_ID + " = " + "Comments." + Comments._ID + ")" +
+            " LEFT JOIN Activities dup ON(" +
+            "   dup.track_id = Activities.track_id AND dup.type='track-sharing' AND Activities.type = 'track')" +
+            " WHERE dup._id IS NULL" +
             " ORDER BY " + ActivityView.CREATED_AT + " DESC"
             ;
 

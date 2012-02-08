@@ -13,7 +13,12 @@ public class ContentMatcher<T extends Content, M extends ContentMatcher<T, M>> e
     public boolean toHaveCount(int expected) {
         Cursor c = Robolectric.application.getContentResolver().query(actual.uri, null, null, null, null);
         expect(c).not.toBeNull();
-        return c.getCount() == expected;
+        if (c.getCount() != expected) {
+            failureMessage = actual + " to have count <" + expected + "> (is " +c.getCount()+")";
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public boolean toBeEmpty() {
