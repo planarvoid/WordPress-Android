@@ -6,13 +6,14 @@ import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 @RunWith(DefaultTestRunner.class)
 public class ScPlayerTest {
-    @Test
+    @Test @Ignore
     public void onResumeShouldTrackPlayer() throws Exception {
         assertThat(DefaultTestRunner.application.trackedPages, not(hasItem(Consts.Tracking.PLAYER)));
         new ScPlayer() { { onResume(); } };

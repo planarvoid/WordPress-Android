@@ -162,4 +162,16 @@ public class ScContentProviderTest {
         expect(c.moveToFirst()).toBeTrue();
         expect(c.getLong(0)).toEqual(USER_ID);
     }
+
+    @Test
+    public void shouldCreateAndDeleteARecording() throws Exception {
+        Recording r = new Recording(new File("/tmp"));
+        r.user_id = USER_ID;
+        Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
+        expect(uri).not.toBeNull();
+
+        expect(Content.RECORDINGS).toHaveCount(1);
+        expect(resolver.delete(uri, null, null)).toEqual(1);
+        expect(Content.RECORDINGS).toBeEmpty();
+    }
 }

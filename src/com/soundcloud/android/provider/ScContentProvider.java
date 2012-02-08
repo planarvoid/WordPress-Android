@@ -356,6 +356,9 @@ public class ScContentProvider extends ContentProvider {
                     whereArgs = new String[] {String.valueOf(content.id) };
                 }
                 break;
+            case RECORDING:
+                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
+                break;
             case ME_TRACKS:
             case ME_FAVORITES:
             case ME_FOLLOWINGS:
@@ -377,9 +380,7 @@ public class ScContentProvider extends ContentProvider {
         count = db.delete(content.table.name , where, whereArgs);
         getContext().getContentResolver().notifyChange(uri, null, false);
         return count;
-
     }
-
 
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
