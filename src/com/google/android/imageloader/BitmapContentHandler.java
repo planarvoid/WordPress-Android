@@ -36,6 +36,7 @@ import java.net.URLConnection;
  * An {@link IOException} is thrown if there is a decoding exception.
  */
 public class BitmapContentHandler extends ContentHandler {
+    public static final String TAG = BitmapContentHandler.class.getSimpleName();
 
     public static final int READ_TIMEOUT    = 10000;
     public static final int CONNECT_TIMEOUT = 3000;
@@ -57,9 +58,10 @@ public class BitmapContentHandler extends ContentHandler {
             }
             return bitmap;
         } finally {
-            Log.d(BitmapContentHandler.class.getSimpleName(), "image fetched in "
-                        +(System.currentTimeMillis() - start)+ " ms, url = " + connection.getURL());
-
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "image fetched in "
+                            +(System.currentTimeMillis() - start)+ " ms, url = " + connection.getURL());
+            }
             if (connection instanceof HttpURLConnection) {
                 ((HttpURLConnection)connection).disconnect();
             }
