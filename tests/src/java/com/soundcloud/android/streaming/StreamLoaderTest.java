@@ -7,7 +7,7 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Stream;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
@@ -43,14 +43,14 @@ public class StreamLoaderTest {
     StreamStorage storage = new MockStorage(baseDir, TEST_CHUNK_SIZE);
     StreamLoader loader = new StreamLoader(DefaultTestRunner.application, storage);
     File testFile = new File(getClass().getResource(TEST_MP3).getFile());
-    StreamItem item = new StreamItem(TEST_URL, testFile.length(), CloudUtils.md5(testFile));
+    StreamItem item = new StreamItem(TEST_URL, testFile.length(), IOUtils.md5(testFile));
 
     private Map<Integer, ByteBuffer> sampleBuffers = new LinkedHashMap<Integer, ByteBuffer>();
     private List<Integer> sampleChunkIndexes = new ArrayList<Integer>();
 
     @Before
     public void before() {
-        CloudUtils.deleteDir(baseDir);
+        IOUtils.deleteDir(baseDir);
         loader.setForceOnline(true);
     }
 
@@ -228,7 +228,7 @@ public class StreamLoaderTest {
         // second HEAD request (to S3/akamai)
         addPendingHttpResponse(200, "", headers(
                 "Content-Length", String.valueOf(f.length()),
-                "ETag", CloudUtils.md5(f),
+                "ETag", IOUtils.md5(f),
                 "Last-Modified", Stream.DATE_FORMAT.format(new Date(f.lastModified())),
                 "x-amz-meta-bitrate", "128",
                 "x-amz-meta-duration", "18998"

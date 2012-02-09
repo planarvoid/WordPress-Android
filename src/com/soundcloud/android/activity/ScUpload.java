@@ -5,7 +5,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
@@ -256,7 +256,7 @@ public class ScUpload extends ScActivity {
         switch (requestCode) {
             case ImageUtils.ImagePickListener.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
-                    mRecordingMetadata.setImage(CloudUtils.getFromMediaUri(getContentResolver(), result.getData()));
+                    mRecordingMetadata.setImage(IOUtils.getFromMediaUri(getContentResolver(), result.getData()));
                 }
                 break;
             case ImageUtils.ImagePickListener.GALLERY_IMAGE_TAKE:
@@ -305,7 +305,7 @@ public class ScUpload extends ScActivity {
                         intent.hasExtra(Intent.EXTRA_STREAM)) {
 
             Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            File file = CloudUtils.getFromMediaUri(getContentResolver(), stream);
+            File file = IOUtils.getFromMediaUri(getContentResolver(), stream);
             if (file != null && file.exists()) {
                 Recording r = new Recording(file);
                 r.external_upload = true;

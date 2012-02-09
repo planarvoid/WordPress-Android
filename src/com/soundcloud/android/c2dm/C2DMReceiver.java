@@ -142,7 +142,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                     setRegistrationData(context, PREF_DEVICE_URL, null);
                 }
             }
-        }.execute(regId, CloudUtils.getPackagename(context), CloudUtils.getDeviceID(context));
+        }.execute(regId, CloudUtils.getPackagename(context), CloudUtils.getUniqueDeviceID(context));
     }
 
     /** callback when device is unregistered */

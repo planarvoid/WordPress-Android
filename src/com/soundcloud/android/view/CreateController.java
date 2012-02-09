@@ -1,7 +1,7 @@
 package com.soundcloud.android.view;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -15,6 +15,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.android.utils.record.PowerGauge;
 import com.soundcloud.android.utils.record.RemainingTimeCalculator;
@@ -222,7 +223,7 @@ public class CreateController {
         ((FrameLayout) vg.findViewById(R.id.gauge_holder)).addView(mPowerGauge);
 
         mCurrentState = CreateState.IDLE_RECORD;
-        mRecordDir = CloudUtils.ensureUpdatedDirectory(
+        mRecordDir = IOUtils.ensureUpdatedDirectory(
                 new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
                 new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
         mkdirs(mRecordDir);
@@ -507,7 +508,7 @@ public class CreateController {
         mRemainingTimeCalculator.reset();
         mPowerGauge.clear();
 
-        if (!CloudUtils.isSDCardAvailable()) {
+        if (!IOUtils.isSDCardAvailable()) {
             mSampleInterrupted = true;
             mRecordErrorMessage = mActivity.getResources().getString(R.string.record_insert_sd_card);
         } else if (!mRemainingTimeCalculator.diskSpaceAvailable()) {
@@ -940,7 +941,7 @@ public class CreateController {
                         .setMessage(R.string.dialog_reset_recording_message).setPositiveButton(
                                 android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                CloudUtils.deleteFile(mRecordFile);
+                                IOUtils.deleteFile(mRecordFile);
                                 mActivity.removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
                                 if (mCreateListener != null) mCreateListener.onCancel();
                             }

@@ -21,6 +21,7 @@ import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.WifiMonitor;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -192,15 +193,16 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private ImageLoader createImageLoader() {
-        final File cacheDir = CloudUtils.getCacheDir(this);
-        ResponseCache cache = FileCache.installFileCache(cacheDir, Consts.MAX_IMAGE_CACHE);
+        final File cacheDir = IOUtils.getCacheDir(this);
+        ResponseCache cache = FileCache.installFileCache(cacheDir, FileCache.IMAGE_CACHE_AUTO);
         ContentHandler bitmapHandler = new BitmapContentHandler();
         ContentHandler prefetchHandler = new PrefetchHandler();
         if (cache instanceof FileCache) {
             // workaround various SDK bugs by wrapping the handler
             bitmapHandler = FileCache.capture(bitmapHandler, null);
             prefetchHandler = FileCache.capture(prefetchHandler, null);
-            FileCache.trim(cache); // ICS has auto trimming
+
+            ((FileCache)cache).trim(); // ICS has auto trimming
         }
         return new ImageLoader(ImageLoader.DEFAULT_TASK_LIMIT,
                 null, /* streamFactory */

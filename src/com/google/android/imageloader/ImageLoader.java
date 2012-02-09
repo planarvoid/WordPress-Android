@@ -18,7 +18,6 @@ package com.google.android.imageloader;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.DownloadManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -32,22 +31,18 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 
-import com.google.android.filecache.FileResponseCache;
+import com.google.android.filecache.ScFileCacheResponse;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.ImageUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -55,7 +50,6 @@ import java.lang.reflect.Method;
 import java.net.CacheResponse;
 import java.net.ContentHandler;
 import java.net.ResponseCache;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -861,7 +855,7 @@ public final class ImageLoader {
         private Bitmap loadImage(URL url, Options options) throws IOException {
             // check cache first if we have a standard FileCache installed
             // needed because cache doesn't work if connection drops on older devices
-            // TODO: staleness checks
+            // TODO: staleness checks ?
             ResponseCache cache = ResponseCache.getDefault();
             if (cache instanceof FileCache) {
                 CacheResponse response = ((FileCache) cache).getCacheResponse(url.toString());

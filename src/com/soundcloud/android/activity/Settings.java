@@ -3,16 +3,23 @@ package com.soundcloud.android.activity;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.net.Uri;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.beta.BetaPreferences;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -36,6 +43,7 @@ public class Settings extends PreferenceActivity {
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
     private ProgressDialog mDeleteDialog;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -108,7 +116,7 @@ public class Settings extends PreferenceActivity {
                                 removeDialog(DIALOG_CACHE_DELETING);
                                 updateClearCacheTitles();
                             }
-                        }.execute(CloudUtils.getCacheDir(Settings.this));
+                        }.execute(IOUtils.getCacheDir(Settings.this));
                         return true;
                     }
                 });
@@ -254,7 +262,7 @@ public class Settings extends PreferenceActivity {
     }
 
     private void updateClearCacheTitles() {
-        setClearCacheTitle("clearCache", R.string.pref_clear_cache, CloudUtils.getCacheDir(this));
+        setClearCacheTitle("clearCache", R.string.pref_clear_cache, IOUtils.getCacheDir(this));
         setClearCacheTitle("clearStreamCache", R.string.pref_clear_stream_cache, Consts.EXTERNAL_STREAM_DIRECTORY);
     }
 
@@ -274,7 +282,7 @@ public class Settings extends PreferenceActivity {
         new Thread() {
             @Override
             public void run() {
-                final String size = CloudUtils.inMbFormatted(CloudUtils.dirSize(dir) / 1048576d);
+                final String size = IOUtils.inMbFormatted(dir);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -302,8 +310,46 @@ public class Settings extends PreferenceActivity {
                 return mDeleteDialog;
 
             case DIALOG_USER_LOGOUT_CONFIRM:
-                return CloudUtils.createLogoutDialog(this);
+                return createLogoutDialog(this);
         }
         return super.onCreateDialog(id);
+    }
+
+    /* package */ static AlertDialog createLogoutDialog(final Activity a) {
+        return new AlertDialog.Builder(a).setTitle(R.string.menu_clear_user_title)
+                .setMessage(R.string.menu_clear_user_desc).setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
+                                a.sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
+                                User.clearLoggedInUserFromStorage(app);
+                                app.trackPage(Consts.Tracking.LOGGED_OUT);
+                                app.trackEvent(Consts.Tracking.Categories.AUTH, "logout");
+
+                                C2DMReceiver.unregister(a);
+
+                                app.clearSoundCloudAccount(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                a.finish();
+                                            }
+                                        },
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                new AlertDialog.Builder(a)
+                                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                                        .setMessage(R.string.settings_error_revoking_account_message)
+                                                        .setPositiveButton(android.R.string.ok, null)
+                                                        .create()
+                                                        .show();
+                                            }
+                                        }
+                                );
+                            }
+                        })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
     }
 }

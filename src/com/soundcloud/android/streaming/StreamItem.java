@@ -1,8 +1,8 @@
 package com.soundcloud.android.streaming;
 
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Stream;
 
 import android.os.Bundle;
@@ -88,7 +88,7 @@ public class StreamItem implements Parcelable {
 
     public String etag() {
         if (mEtag == null && mCachedFile != null && mCachedFile.exists()) {
-            mEtag = '"'+CloudUtils.md5(mCachedFile)+'"';
+            mEtag = '"'+ IOUtils.md5(mCachedFile)+'"';
         }
         return mEtag;
     }
@@ -137,7 +137,7 @@ public class StreamItem implements Parcelable {
     }
 
     public static String urlHash(String url) {
-        return CloudUtils.md5(url);
+        return IOUtils.md5(url);
     }
 
 

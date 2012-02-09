@@ -2,7 +2,7 @@ package com.soundcloud.android.streaming;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.BatteryListener;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
 import android.os.Handler;
@@ -158,7 +158,7 @@ public class StreamLoader {
         // preload data if we have wifi and battery
          if (mConnectivityListener.isWifiConnected() &&
                  mBatteryListener.isOK() &&
-                 CloudUtils.isSDCardAvailable()) {
+                 IOUtils.isSDCardAvailable()) {
             // cancel previous pending preload requests
             mResultHandler.removeCallbacksAndMessages(PRELOAD_TOKEN);
             mResultHandler.postAtTime(new Runnable() {

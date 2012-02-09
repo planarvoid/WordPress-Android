@@ -1,7 +1,7 @@
 package com.soundcloud.android.service.beta;
 
 import static com.soundcloud.android.service.beta.BetaService.TAG;
-import static com.soundcloud.android.utils.CloudUtils.deleteFile;
+import static com.soundcloud.android.utils.IOUtils.deleteFile;
 
 import android.os.AsyncTask;
 import android.util.Log;

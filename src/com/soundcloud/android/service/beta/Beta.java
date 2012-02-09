@@ -3,6 +3,7 @@ package com.soundcloud.android.service.beta;
 import static com.soundcloud.android.utils.CloudUtils.*;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.IOUtils;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -202,8 +203,8 @@ public class Beta implements Comparable<Beta>, Parcelable {
     }
 
     public void deleteFiles() {
-        deleteFile(getLocalFile());
-        deleteFile(getMetaDataFile());
+        IOUtils.deleteFile(getLocalFile());
+        IOUtils.deleteFile(getMetaDataFile());
     }
 
     // JSON bindings

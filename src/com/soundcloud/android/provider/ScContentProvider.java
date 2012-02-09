@@ -5,8 +5,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
 import android.app.SearchManager;
@@ -551,7 +550,7 @@ public class ScContentProvider extends ContentProvider {
                             Consts.GraphicSize.fromString(size);
 
                     final String artworkUri = gs.formatUri(track.getArtwork());
-                    final File artworkFile = new File(getContext().getCacheDir(), CloudUtils.md5(artworkUri));
+                    final File artworkFile = new File(getContext().getCacheDir(), IOUtils.md5(artworkUri));
                     if (!artworkFile.exists()) {
                         OutputStream os = null;
                         try {

@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Actions;
@@ -11,12 +12,12 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.auth.AuthenticatorService;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.task.LoadTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.task.LoadUserInfoTask;
 import com.soundcloud.android.task.ResolveTask;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -37,6 +38,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -49,7 +51,11 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.List;
 
-public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfoListener, LoadUserInfoTask.LoadUserInfoListener, ResolveTask.ResolveListener {
+public class Main extends TabActivity implements
+        LoadTrackInfoTask.LoadTrackInfoListener,
+        LoadUserInfoTask.LoadUserInfoListener,
+        ResolveTask.ResolveListener {
+
     private View mSplash;
 
     public static final String TAB_TAG = "tab";
@@ -60,6 +66,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
     private LoadTrackInfoTask mLoadTrackTask;
     private LoadUserInfoTask mLoadUserTask;
     private ChangeLog mChangeLog;
+
 
     @Override
     protected void onCreate(Bundle state) {
@@ -92,7 +99,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             }, SPLASH_DELAY);
         }
 
-        buildTabHost(getApp(), getTabHost());
+        buildTabHost(getApp(), getTabHost(), getTabWidget());
         handleIntent(getIntent());
 
         Object[] previousState = (Object[]) getLastNonConfigurationInstance();
@@ -286,7 +293,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         }
     }
 
-    private void buildTabHost(final SoundCloudApplication app, final TabHost host) {
+    private void buildTabHost(final SoundCloudApplication app, final TabHost host, final TabWidget widget) {
         for (Tab tab : Tab.values()) {
             if (tab == Tab.UNKNOWN) continue;
             TabHost.TabSpec spec = host.newTabSpec(tab.tag).setIndicator(
@@ -297,24 +304,23 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
         }
         host.setCurrentTabByTag(app.getAccountData(User.DataKeys.DASHBOARD_IDX));
 
-        if (CloudUtils.isScreenXL(this)){
-            CloudUtils.configureTabs(this, (TabWidget) findViewById(android.R.id.tabs),90, -1, false);
+        if (ImageUtils.isScreenXL(this)){
+            configureTabs(this, widget, 90, -1, false);
         }
-        CloudUtils.setTabTextStyle(this, (TabWidget) findViewById(android.R.id.tabs));
+        setTabTextStyle(this, widget, false);
 
-        TabWidget tw = ((TabWidget) findViewById(android.R.id.tabs));
 
         if (Build.VERSION.SDK_INT > 7) {
-            for (int i = 0; i < tw.getChildCount(); i++) {
-                tw.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
+            for (int i = 0; i < widget.getChildCount(); i++) {
+                widget.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.tab_indicator));
             }
-            tw.setLeftStripDrawable(R.drawable.tab_bottom_left);
-            tw.setRightStripDrawable(R.drawable.tab_bottom_right);
+            widget.setLeftStripDrawable(R.drawable.tab_bottom_left);
+            widget.setRightStripDrawable(R.drawable.tab_bottom_right);
         }
 
         // set record tab to just image
         final int recordTabIdx =  Tab.RECORD.ordinal();
-        View view = recordTabIdx < tw.getChildCount() ? tw.getChildAt(recordTabIdx) : null;
+        View view = recordTabIdx < widget.getChildCount() ? widget.getChildAt(recordTabIdx) : null;
         if (view instanceof RelativeLayout) {
             RelativeLayout relativeLayout = (RelativeLayout) view;
             for (int j = 0; j < relativeLayout.getChildCount(); j++) {
@@ -323,7 +329,7 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
                 }
             }
         }
-        
+
         host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(final String tabId) {
@@ -515,5 +521,53 @@ public class Main extends TabActivity implements LoadTrackInfoTask.LoadTrackInfo
             }
             return intent;
         }
+    }
+
+    private static void setTabTextStyle(Context context, TabWidget tabWidget, boolean textOnly) {
+        // a hacky way of setting the font of the indicator texts
+        for (int i = 0; i < tabWidget.getChildCount(); i++) {
+            if (tabWidget.getChildAt(i) instanceof RelativeLayout) {
+                RelativeLayout relativeLayout = (RelativeLayout) tabWidget.getChildAt(i);
+                for (int j = 0; j < relativeLayout.getChildCount(); j++) {
+                    if (relativeLayout.getChildAt(j) instanceof TextView) {
+                        ((TextView) relativeLayout.getChildAt(j)).setTextAppearance(context,
+                                R.style.TabWidgetTextAppearance);
+                        if (textOnly) {
+                            relativeLayout.getChildAt(j).getLayoutParams().width = FILL_PARENT;
+                            relativeLayout.getChildAt(j).getLayoutParams().height = FILL_PARENT;
+                            ((TextView) relativeLayout.getChildAt(j)).setGravity(Gravity.CENTER);
+                        }
+
+                    }
+                }
+                if (textOnly) {
+                    for (int j = 0; j < relativeLayout.getChildCount(); j++) {
+                        if (!(relativeLayout.getChildAt(j) instanceof TextView)) {
+                            relativeLayout.removeViewAt(j);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void configureTabs(Context context, TabWidget tabWidget, int height, int width,
+                                     boolean scrolltabs) {
+        // Convert the tabHeight depending on screen density
+        final float scale = context.getResources().getDisplayMetrics().density;
+        height = (int) (scale * height);
+
+        for (int i = 0; i < tabWidget.getChildCount(); i++) {
+            tabWidget.getChildAt(i).getLayoutParams().height = height;
+            if (width > -1)
+                tabWidget.getChildAt(i).getLayoutParams().width = width;
+
+            if (scrolltabs)
+                tabWidget.getChildAt(i).setPadding(Math.round(30 * scale),
+                        tabWidget.getChildAt(i).getPaddingTop(), Math.round(30 * scale),
+                        tabWidget.getChildAt(i).getPaddingBottom());
+        }
+
+        tabWidget.getLayoutParams().height = height;
     }
 }

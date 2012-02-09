@@ -1,6 +1,6 @@
 package com.soundcloud.android.task;
 
-import static com.soundcloud.android.utils.CloudUtils.readInputStream;
+import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;

@@ -7,8 +7,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Settings;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.Http;
+import com.soundcloud.android.utils.IOUtils;
 import org.apache.http.client.HttpClient;
 
 import android.app.AlarmManager;
@@ -81,7 +81,7 @@ public class BetaService extends Service {
                 Log.d(TAG, "already running");
             } else if (!shouldCheckForUpdates(this) && !manual) {
                 skip(null, "User disabled auto-update", intent);
-            } else if (!CloudUtils.isSDCardAvailable()) {
+            } else if (!IOUtils.isSDCardAvailable()) {
                 skip(null, "SD card not available", intent);
             } else if (!isBackgroundDataEnabled() && !manual) {
                 skip(null, "Background data disabled", intent);
@@ -412,7 +412,7 @@ public class BetaService extends Service {
     }
 
     static List<Beta> getBetas() {
-        if (CloudUtils.isSDCardAvailable()) {
+        if (IOUtils.isSDCardAvailable()) {
             File[] md = APK_PATH.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File file, String s) {

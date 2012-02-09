@@ -146,7 +146,7 @@ public class ApiSyncer {
         int i = 0;
         while (i < itemDeletions.size()) {
             List<Long> batch = itemDeletions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
-            mResolver.delete(c.uri, CloudUtils.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
+            mResolver.delete(c.uri, DBHelper.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
             i += RESOLVER_BATCH_SIZE;
         }
 
@@ -223,7 +223,7 @@ public class ApiSyncer {
             while (i < additions.size()) {
                 List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
                 storedIds.addAll(idCursorToList(resolver.query(content.uri, new String[]{DBHelper.Tracks._ID},
-                        CloudUtils.getWhereIds(DBHelper.Tracks._ID, batch) + " AND " + DBHelper.Tracks.LAST_UPDATED + " > 0"
+                        DBHelper.getWhereIds(DBHelper.Tracks._ID, batch) + " AND " + DBHelper.Tracks.LAST_UPDATED + " > 0"
                         , CloudUtils.longListToStringArr(batch), null)));
                 i += RESOLVER_BATCH_SIZE;
             }

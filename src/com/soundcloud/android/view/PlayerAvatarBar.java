@@ -14,7 +14,6 @@ import com.google.android.imageloader.ImageLoader.BitmapCallback;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import java.util.List;
@@ -82,7 +81,7 @@ public class PlayerAvatarBar extends View {
         mBgMatrix = new Matrix();
         mActiveMatrix = new Matrix();
 
-        if (CloudUtils.isScreenXL(mContext)) {
+        if (ImageUtils.isScreenXL(mContext)) {
             mTargetSize = Consts.GraphicSize.LARGE;
             mAvatarWidth = (int) (AVATAR_WIDTH_LARGE * mDensity);
         } else {
@@ -92,7 +91,7 @@ public class PlayerAvatarBar extends View {
     }
 
     public static Consts.GraphicSize getAvatarBarGraphicSize(Context c) {
-        if (CloudUtils.isScreenXL(c)) {
+        if (ImageUtils.isScreenXL(c)) {
             return Consts.GraphicSize.LARGE;
         } else {
             return c.getResources().getDisplayMetrics().density > 1 ?
@@ -155,7 +154,7 @@ public class PlayerAvatarBar extends View {
     }
 
     private void loadAvatar(final Comment c){
-        if (c == null || c.user == null || !CloudUtils.checkIconShouldLoad(c.user.avatar_url))
+        if (c == null || c.user == null || !ImageUtils.checkIconShouldLoad(c.user.avatar_url))
             return;
 
 
@@ -181,7 +180,7 @@ public class PlayerAvatarBar extends View {
     private void refreshDefaultAvatar() {
         if (mAvatarWidth > 0 && (mDefaultAvatar == null || mDefaultAvatar.isRecycled())) {
             mDefaultAvatar = BitmapFactory.decodeResource(mContext.getResources(),
-                    CloudUtils.isScreenXL(mContext) ? R.drawable.avatar_badge_large : R.drawable.avatar_badge);
+                    ImageUtils.isScreenXL(mContext) ? R.drawable.avatar_badge_large : R.drawable.avatar_badge);
             mDefaultAvatarScale = ((float) mAvatarWidth) / mDefaultAvatar.getHeight();
         }
     }
@@ -194,9 +193,9 @@ public class PlayerAvatarBar extends View {
 
             float mDensity = getContext().getResources().getDisplayMetrics().density;
             if (mDensity > 1) {
-                mAvatarWidth = CloudUtils.isScreenXL(mContext) ? (int) (AVATAR_WIDTH_LARGE* mDensity) : getHeight() ;
+                mAvatarWidth = ImageUtils.isScreenXL(mContext) ? (int) (AVATAR_WIDTH_LARGE* mDensity) : getHeight() ;
             } else {
-                mAvatarWidth = CloudUtils.isScreenXL(mContext)? AVATAR_WIDTH_LARGE : getHeight();
+                mAvatarWidth = ImageUtils.isScreenXL(mContext)? AVATAR_WIDTH_LARGE : getHeight();
             }
             refreshDefaultAvatar();
 
@@ -274,7 +273,7 @@ public class PlayerAvatarBar extends View {
 
     private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint, Paint imagePaint, Matrix matrix){
 
-            if (!CloudUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null || comment.avatar.isRecycled()) {
+            if (!ImageUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null || comment.avatar.isRecycled()) {
                 if (mLandscape) {
                     refreshDefaultAvatar();
                     matrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
@@ -324,7 +323,7 @@ public class PlayerAvatarBar extends View {
 
     public void getHitRect(Rect outRect) {
         if (getAnimation() != null){
-            final int offsetY = (int) CloudUtils.getCurrentTransformY(this);
+            final int offsetY = (int) ImageUtils.getCurrentTransformY(this);
             outRect.set(getLeft(), getTop() + offsetY, getRight(), getBottom() + offsetY);
         } else {
             super.getHitRect(outRect);

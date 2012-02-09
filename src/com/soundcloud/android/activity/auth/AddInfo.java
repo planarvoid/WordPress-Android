@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.AddUserInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.app.Activity;
@@ -153,7 +154,7 @@ public class AddInfo extends Activity {
 
     private File createTempAvatarFile()  {
         try {
-            return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp", CloudUtils.getCacheDir(this));
+            return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp", IOUtils.getCacheDir(this));
         } catch (IOException e) {
             Log.w(TAG, "error creating avatar temp file", e);
             return null;
@@ -171,7 +172,7 @@ public class AddInfo extends Activity {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case ImageUtils.ImagePickListener.GALLERY_IMAGE_PICK:
-                    setImage(CloudUtils.getFromMediaUri(getContentResolver(), result.getData()));
+                    setImage(IOUtils.getFromMediaUri(getContentResolver(), result.getData()));
                     break;
                 case ImageUtils.ImagePickListener.GALLERY_IMAGE_TAKE:
                     setImage(mAvatarFile);

@@ -20,6 +20,7 @@ import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 public class CommentPanel extends RelativeLayout {
 
@@ -174,7 +175,7 @@ public class CommentPanel extends RelativeLayout {
             }
         }
 
-        if (currentShowingComment.user == null || !CloudUtils.checkIconShouldLoad(currentShowingComment.user.avatar_url)) {
+        if (currentShowingComment.user == null || !ImageUtils.checkIconShouldLoad(currentShowingComment.user.avatar_url)) {
             ImageLoader.get(getContext()).unbind(mIcon);
             return;
         }
@@ -202,7 +203,7 @@ public class CommentPanel extends RelativeLayout {
     protected void dispatchDraw(Canvas canvas) {
         //if (mIsLandscape){
         if (true){ // might change this later
-            CloudUtils.drawSquareBubbleOnCanvas(canvas, mBgPaint, mLinePaint, getMeasuredWidth(), getMeasuredHeight() - mPlayheadArrowHeight,
+            ImageUtils.drawSquareBubbleOnCanvas(canvas, mBgPaint, mLinePaint, getMeasuredWidth(), getMeasuredHeight() - mPlayheadArrowHeight,
                     mPlayheadArrowWidth, mPlayheadArrowHeight, mPlayheadOffset);
         } else {
             canvas.drawRect(0,0,getMeasuredWidth(),getMeasuredHeight(),mBgPaint);

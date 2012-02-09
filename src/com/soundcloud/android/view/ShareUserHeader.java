@@ -7,6 +7,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -33,7 +34,7 @@ public class ShareUserHeader extends RelativeLayout {
         ((TextView) findViewById(R.id.share_header_username)).setText(user.username);
 
         final ImageView icon = (ImageView) findViewById(R.id.icon);
-        if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
+        if (ImageUtils.checkIconShouldLoad(user.avatar_url)) {
             if (ImageLoader.get(activity).bind(icon, user.avatar_url, null) != ImageLoader.BindResult.OK) {
                 icon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge));
             }

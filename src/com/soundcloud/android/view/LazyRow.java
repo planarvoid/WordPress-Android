@@ -1,12 +1,11 @@
 
 package com.soundcloud.android.view;
 
-import android.util.Log;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -64,7 +63,7 @@ public abstract class LazyRow extends FrameLayout {
         mCurrentPosition = position;
         final Long id = mAdapter.getItemId(mCurrentPosition);
         final String iconUri = getIconRemoteUri();
-        if (CloudUtils.checkIconShouldLoad(iconUri)) {
+        if (ImageUtils.checkIconShouldLoad(iconUri)) {
             Drawable drawable = mAdapter.getDrawableFromId(id);
             if (drawable != null) {
                 // we have already made a drawable for this item

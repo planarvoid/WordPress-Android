@@ -98,7 +98,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mDescription = (TextView) mInfoView.findViewById(R.id.description);
 
         mIcon.setScaleType(ScaleType.CENTER_INSIDE);
-        if (getResources().getDisplayMetrics().density > 1 || CloudUtils.isScreenXL(this)) {
+        if (getResources().getDisplayMetrics().density > 1 || ImageUtils.isScreenXL(this)) {
             mIcon.getLayoutParams().width = 100;
             mIcon.getLayoutParams().height = 100;
         }
@@ -106,7 +106,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (CloudUtils.checkIconShouldLoad(mIconURL)) {
+                if (ImageUtils.checkIconShouldLoad(mIconURL)) {
                     new FullImageDialog(
                         UserBrowser.this,
                         Consts.GraphicSize.CROP.formatUri(mIconURL)
@@ -586,7 +586,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mTrackCount.setText(Integer.toString(Math.max(0,user.track_count)));
 
         setFollowingButton();
-        if (CloudUtils.checkIconShouldLoad(user.avatar_url)) {
+        if (ImageUtils.checkIconShouldLoad(user.avatar_url)) {
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
                 || !user.avatar_url.substring(0, user.avatar_url.indexOf("?")).equals(mIconURL.substring(0, mIconURL.indexOf("?")))) {
@@ -599,7 +599,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             mDisplayedInfo = true;
             mWebsite.setText(
                     TextUtils.isEmpty(user.website_title) ?
-                    CloudUtils.stripProtocol(user.website) : user.website_title);
+                    user.website.replace("http://www.", "").replace("http://", "") : user.website_title);
             mWebsite.setVisibility(View.VISIBLE);
             mWebsite.setFocusable(true);
             mWebsite.setClickable(true);
@@ -706,7 +706,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     private void reloadAvatar() {
-        if (CloudUtils.checkIconShouldLoad(mIconURL)) {
+        if (ImageUtils.checkIconShouldLoad(mIconURL)) {
             if ((avatarResult = ImageUtils.loadImageSubstitute(this,mIcon,mIconURL, Consts.GraphicSize.LARGE,new ImageLoader.Callback() {
                 @Override
                 public void onImageLoaded(ImageView view, String url) {}

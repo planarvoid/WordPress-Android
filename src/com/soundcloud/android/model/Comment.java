@@ -6,7 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonView;
 
@@ -74,7 +74,7 @@ public class Comment extends ScModel implements Origin {
     }
 
     public void prefetchAvatar(Context c) {
-        if (user != null && CloudUtils.checkIconShouldLoad(user.avatar_url)) {
+        if (user != null && ImageUtils.checkIconShouldLoad(user.avatar_url)) {
             ImageLoader.get(c).prefetch(Consts.GraphicSize.formatUriForList(c, user.avatar_url));
         }
     }

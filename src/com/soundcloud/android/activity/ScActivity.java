@@ -504,7 +504,7 @@ public abstract class ScActivity extends android.app.Activity {
                                     }
                                 }).create();
             case Consts.Dialogs.DIALOG_LOGOUT:
-                return CloudUtils.createLogoutDialog(this);
+                return Settings.createLogoutDialog(this);
 
             case Consts.Dialogs.DIALOG_ADD_COMMENT:
                 final AddCommentDialog dialog = new AddCommentDialog(this);

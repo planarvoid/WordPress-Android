@@ -16,6 +16,7 @@ import com.soundcloud.android.task.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.UploadTask.Params;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
@@ -549,7 +550,7 @@ public class CloudCreateService extends Service {
         protected UploadTask.Params doInBackground(UploadTask.Params... params) {
             final UploadTask.Params param = params[0];
             try {
-                File outFile = CloudUtils.getCacheFile(CloudCreateService.this, "upload_tmp.png");
+                File outFile = IOUtils.getCacheFile(CloudCreateService.this, "upload_tmp.png");
                 if (ImageUtils.resizeImageFile(param.artworkFile, outFile, RECOMMENDED_SIZE, RECOMMENDED_SIZE)) {
                     param.resizedFile = outFile;
                 } else {

@@ -1,6 +1,6 @@
 package com.soundcloud.android;
 
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
 import android.os.Environment;
@@ -8,11 +8,7 @@ import android.os.Environment;
 import java.io.File;
 
 public final class Consts {
-    @Deprecated
-    public static final File DEPRECATED_EXTERNAL_STORAGE_DIRECTORY =
-            new File(Environment.getExternalStorageDirectory(), "Soundcloud");
-
-    // this directory will be preserved across reinstalls - e.g. used for recordings
+    // this directory will be preserved across re-installs - e.g. used for recordings
     public static final File EXTERNAL_STORAGE_DIRECTORY = new File(
             Environment.getExternalStorageDirectory(), "SoundCloud");
 
@@ -24,24 +20,26 @@ public final class Consts {
     public static final String VERSION_KEY = "changeLogVersionCode";
 
     // dot file to have it excluded from media scanning - also use .nomedia
-    public static final File EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH, ".cache");
+    public static final File EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH,  ".cache");
     public static final File EXTERNAL_STREAM_DIRECTORY = new File(FILES_PATH, "stream");
 
     @Deprecated
     public static final File EXTERNAL_TRACK_CACHE_DIRECTORY = new File(FILES_PATH, ".s");
 
-    public static final long MAX_IMAGE_CACHE = 5 * 1024  * 1024; // 5  MB
-    public static final int COLLECTION_FIRST_PAGE_SIZE = 20;
-    public static final int COLLECTION_PAGE_SIZE = 50;
+    @Deprecated
+    public static final File DEPRECATED_EXTERNAL_STORAGE_DIRECTORY =
+            new File(Environment.getExternalStorageDirectory(), "Soundcloud");
 
+    public static final int COLLECTION_FIRST_PAGE_SIZE = 20;
+    public static final int COLLECTION_PAGE_SIZE      = 50;
 
     // adapter loading constants
     public static final int ROW_APPEND_BUFFER = 6;
     public static final int ITEM_TYPE_LOADING = -1;
 
     public interface IntentActions {
-        public static final String CONNECTION_ERROR = "com.soundcloud.android.connectionerror";
-        public static final String COMMENT_ADDED = "com.soundcloud.android.commentadded";
+        String CONNECTION_ERROR = "com.soundcloud.android.connectionerror";
+        String COMMENT_ADDED    = "com.soundcloud.android.commentadded";
     }
 
     public interface Dialogs {
@@ -104,7 +102,7 @@ public final class Consts {
         }
 
         public static Consts.GraphicSize getListItemGraphicSize(Context c) {
-            if (CloudUtils.isScreenXL(c)) {
+            if (ImageUtils.isScreenXL(c)) {
                 return Consts.GraphicSize.LARGE;
             } else {
                 if (c.getResources().getDisplayMetrics().density > 1) {
@@ -146,14 +144,11 @@ public final class Consts {
         String LABEL_DOMAIN_PREFIX = "http://soundcloud.com/";
         interface Categories {
             String AUTH      = "auth";
-            String CONNECT   = "connect";
             String TRACKS    = "tracks";
             String RECORDING = "recording";
             String AUDIO_MESSAGE = "audio_message";
             String SHARE     = "share";
             String ERROR     = "error";
-            String PLAYBACK_ERROR = "playbackError";
-            String TOUR      = "tour";
         }
 
         interface Actions {
@@ -193,8 +188,8 @@ public final class Consts {
     }
 
     public interface ResourceStaleTimes {
-        long user = 86400000;//24*60*60*1000 = 24hr
-        long track = 3600000l;//60*60*1000 = 1hr
-        long activity = 600000l;//30*60*1000 = 10 mins
+        long user = 86400000;       //24*60*60*1000 = 24hr
+        long track = 3600000l;      //60*60*1000 = 1hr
+        long activity = 600000l;    //30*60*1000 = 10 mins
     }
 }

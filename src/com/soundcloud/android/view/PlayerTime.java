@@ -4,16 +4,15 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.*;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 public class PlayerTime extends RelativeLayout {
     protected TextView mCurrentTime;
@@ -160,7 +159,7 @@ public class PlayerTime extends RelativeLayout {
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-        CloudUtils.drawBubbleOnCanvas(canvas, mBgPaint, mCommenting ? mLinePaint : null, getMeasuredWidth(),
+        ImageUtils.drawBubbleOnCanvas(canvas, mBgPaint, mCommenting ? mLinePaint : null, getMeasuredWidth(),
                 mShowArrow ? getMeasuredHeight() - mPlayheadArrowHeight : getMeasuredHeight(),
                 mRoundTop ? mArc : 0, mShowArrow ? mPlayheadArrowWidth : 0, mPlayheadArrowHeight, mPlayheadOffset);
 

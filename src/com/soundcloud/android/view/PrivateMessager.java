@@ -5,21 +5,19 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.ViewFlipper;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.LocationPicker;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.activity.ScUpload;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 public class PrivateMessager extends ScTabView implements CreateController.CreateListener{
@@ -178,7 +176,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         switch (requestCode) {
             case ImageUtils.ImagePickListener.GALLERY_IMAGE_PICK:
                 if (resultCode == Activity.RESULT_OK) {
-                    mRecordingMetadata.setImage(CloudUtils.getFromMediaUri(mActivity.getContentResolver(), result.getData()));
+                    mRecordingMetadata.setImage(IOUtils.getFromMediaUri(mActivity.getContentResolver(), result.getData()));
                 }
                 break;
             case ImageUtils.ImagePickListener.GALLERY_IMAGE_TAKE:

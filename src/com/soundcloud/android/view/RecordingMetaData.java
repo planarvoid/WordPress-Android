@@ -18,7 +18,7 @@ import com.soundcloud.android.activity.LocationPicker;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.task.FoursquareVenueTask;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import java.io.File;
@@ -62,7 +62,7 @@ public class RecordingMetaData extends RelativeLayout{
         inflater.inflate(R.layout.metadata, this);
 
         mImageDir = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
-        CloudUtils.mkdirs(mImageDir);
+        IOUtils.mkdirs(mImageDir);
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
         mWhatText = (EditText) findViewById(R.id.what);

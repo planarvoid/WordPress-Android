@@ -1,8 +1,8 @@
 package com.soundcloud.android.cache;
 
-import com.google.android.filecache.CacheResponse;
+import com.google.android.filecache.ScFileCacheResponse;
 import com.google.android.filecache.FileResponseCache;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -27,6 +27,10 @@ import java.util.Map;
 public class FileCache extends FileResponseCache {
     public static final String TAG = FileCache.class.getSimpleName();
 
+    public static final long IMAGE_CACHE_AUTO = -1;
+    public static final double MAX_PCT_OF_FREE_SPACE = 0.03d;      // 3% of free space
+    public static final long MAX_IMAGE_CACHE  = 20 * 1024  * 1024; // 20  MB
+
     private final File dir;
     private final long size;
 
@@ -45,13 +49,13 @@ public class FileCache extends FileResponseCache {
     }
 
     @Override protected File getFile(URI uri, String requestMethod, Map<String, List<String>> requestHeaders, Object cookie) {
-        return new File(dir, CloudUtils.md5(uri.toString()));
+        return new File(dir, IOUtils.md5(uri.toString()));
     }
 
-    public CacheResponse getCacheResponse(String uri) {
+    public ScFileCacheResponse getCacheResponse(String uri) {
         File f = getFile(URI.create(uri), null, null, null);
         if (f.exists()) {
-            return new CacheResponse(f);
+            return new ScFileCacheResponse(f);
         } else {
             return null;
         }
@@ -74,12 +78,14 @@ public class FileCache extends FileResponseCache {
      * @return         the installed response cache, or null if incompatible cache installed.
      */
     public static ResponseCache autoInstall(File cacheDir, long size) {
-        // currently not used because it's very slow and adds 15,20 secs to some requests
+        // currently not used because it's very slow and adds 15,20 secs to some requests (ICS 4.0.2)
         // TODO: find out why
         try {
+            final long actualSize = determineSize(cacheDir, size);
+            Log.d(TAG, "using "+IOUtils.inMbFormatted(actualSize)+ " MB for image cache");
             ResponseCache cache = (ResponseCache) Class.forName("android.net.http.HttpResponseCache")
                     .getMethod("install", File.class, long.class)
-                    .invoke(null, cacheDir, size);
+                    .invoke(null, cacheDir, actualSize);
             Log.d(TAG, "Using ICS HttpResponseCache");
             return cache;
         } catch (Exception httpResponseCacheNotAvailable) {
@@ -94,7 +100,9 @@ public class FileCache extends FileResponseCache {
             Log.d(TAG, "Cache has already been installed.");
             return responseCache;
         } else if (responseCache == null) {
-            FileCache cache = new FileCache(cacheDir, size);
+            final long actualSize = determineSize(cacheDir, size);
+            Log.d(TAG, "using "+IOUtils.inMbFormatted(actualSize)+ " MB for image cache");
+            FileCache cache = new FileCache(cacheDir, actualSize);
             ResponseCache.setDefault(cache);
             return cache;
         } else {
@@ -104,12 +112,16 @@ public class FileCache extends FileResponseCache {
         }
     }
 
-    public static AsyncTask<FileCache, Integer, Boolean> trim(ResponseCache cache) {
-        if (cache instanceof FileCache) {
-            return new TrimCacheTask().execute((FileCache)cache);
+    private static long determineSize(File dir, long size) {
+        if (size == IMAGE_CACHE_AUTO) {
+            return IOUtils.getUsableSpace(dir, MAX_IMAGE_CACHE, MAX_PCT_OF_FREE_SPACE);
         } else {
-            return null;
+            return size;
         }
+    }
+
+    public AsyncTask<FileCache, Integer, Boolean> trim() {
+        return new TrimCacheTask().execute(this);
     }
 
     public static class DeleteCacheTask extends AsyncTask<File, Integer, Boolean> {
@@ -130,7 +142,7 @@ public class FileCache extends FileResponseCache {
         }
 
         private void deleteRecursively(File... dirs) {
-            for (File d : dirs) if (d.isDirectory()) CloudUtils.deleteDir(d);
+            for (File d : dirs) if (d.isDirectory()) IOUtils.deleteDir(d);
         }
 
         private void deletePlain(File... dirs) {
@@ -152,7 +164,7 @@ public class FileCache extends FileResponseCache {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "trimming cache "+cache);
             }
-            final long dirSize = CloudUtils.dirSize(cache.dir);
+            final long dirSize = IOUtils.getDirSize(cache.dir);
             final long maxCacheSize = cache.size;
             if (dirSize < maxCacheSize) return false;
 

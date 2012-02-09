@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import static junit.framework.Assert.fail;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class StreamStorageTest {
 
     @Before
     public void before() {
-        CloudUtils.deleteDir(baseDir);
+        IOUtils.deleteDir(baseDir);
         storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE, 0);
         item = new StreamItem("https://api.soundcloud.com/tracks/1234/stream", testFile);
 
@@ -180,8 +180,8 @@ public class StreamStorageTest {
 
         // make sure index file is gone
         expect(storage.incompleteFileForUrl(item.url.toString()).exists()).toBeFalse();
-        String original = CloudUtils.md5(getClass().getResourceAsStream("fred.mp3"));
-        expect(CloudUtils.md5(new FileInputStream(assembled))).toEqual(original);
+        String original = IOUtils.md5(getClass().getResourceAsStream("fred.mp3"));
+        expect(IOUtils.md5(new FileInputStream(assembled))).toEqual(original);
     }
 
     @Test

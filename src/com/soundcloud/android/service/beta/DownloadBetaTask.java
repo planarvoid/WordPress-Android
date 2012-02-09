@@ -2,7 +2,7 @@ package com.soundcloud.android.service.beta;
 
 import static com.soundcloud.android.service.beta.BetaService.TAG;
 import static com.soundcloud.android.utils.CloudUtils.hexString;
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;

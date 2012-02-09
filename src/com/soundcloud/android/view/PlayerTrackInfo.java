@@ -1,35 +1,25 @@
 package com.soundcloud.android.view;
 
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.TrackComments;
 import com.soundcloud.android.activity.TrackFavoriters;
-import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.utils.ClickSpan;
-import com.soundcloud.android.utils.CloudUtils;
 
 import android.content.Context;
 import android.content.Intent;
 import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
 import android.text.util.Linkify;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import java.util.Collections;
 
 public class PlayerTrackInfo extends RelativeLayout{
 
@@ -86,6 +76,7 @@ public class PlayerTrackInfo extends RelativeLayout{
 
 
     }
+
 
     public void setPlayingTrack(Track t){
         if (mPlayingTrack == null || mPlayingTrack.id != t.id){
@@ -159,8 +150,6 @@ public class PlayerTrackInfo extends RelativeLayout{
         }
     }
 
-
-
     public void onInfoLoadError() {
         if (findViewById(R.id.loading_layout) != null) {
             findViewById(R.id.loading_layout).setVisibility(View.GONE);
@@ -169,7 +158,7 @@ public class PlayerTrackInfo extends RelativeLayout{
         if (findViewById(android.R.id.empty) != null) {
             findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
         } else {
-            addView(CloudUtils.buildEmptyView(mPlayer,getResources().getString(R.string.info_error)), getChildCount() - 2);
+            addView(buildEmptyView(mPlayer, getResources().getString(R.string.info_error)), getChildCount() - 2);
         }
         if (findViewById(R.id.info_view) != null){
             findViewById(R.id.info_view).setVisibility(View.GONE);
@@ -191,5 +180,15 @@ public class PlayerTrackInfo extends RelativeLayout{
         if (infoView != null) {
             findViewById(R.id.info_view).setVisibility(View.VISIBLE);
         }
+    }
+
+    private static TextView buildEmptyView(Context context, CharSequence emptyText) {
+        TextView emptyView = new TextView(context);
+        emptyView.setLayoutParams(new ViewGroup.LayoutParams(FILL_PARENT, FILL_PARENT));
+        emptyView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        emptyView.setTextAppearance(context, R.style.txt_empty_view);
+        emptyView.setText(emptyText);
+        emptyView.setId(android.R.id.empty);
+        return emptyView;
     }
 }

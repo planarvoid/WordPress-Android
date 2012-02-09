@@ -2,7 +2,7 @@ package com.soundcloud.android.streaming;
 
 import static com.soundcloud.android.streaming.StreamStorage.LOG_TAG;
 
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -42,7 +42,7 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
             return false;
         }
         // make sure complete dir exists
-        else if (!completeFile.getParentFile().exists() && !CloudUtils.mkdirs(completeFile.getParentFile())) {
+        else if (!completeFile.getParentFile().exists() && !IOUtils.mkdirs(completeFile.getParentFile())) {
             Log.w(LOG_TAG, "could not create complete file dir");
             return false;
         }
@@ -61,7 +61,7 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
     private boolean checkEtag(File file, String etag) {
         if (etag == null || file.length() > MAX_MD5_CHECK_SIZE) return true;
 
-        final String calculatedEtag = '"'+CloudUtils.md5(file)+'"';
+        final String calculatedEtag = '"'+ IOUtils.md5(file)+'"';
         if (!calculatedEtag.equals(etag)) {
             Log.w(LOG_TAG, "etag " +etag+ " for complete file "+ file + " does not match "+calculatedEtag);
             return false;

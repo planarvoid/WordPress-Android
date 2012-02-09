@@ -10,7 +10,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import java.io.File;
 import java.util.*;
 
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)

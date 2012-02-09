@@ -7,7 +7,7 @@ import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
@@ -40,7 +40,7 @@ public class Dashboard extends ScActivity {
         final Intent intent = getIntent();
         if (redirectToMain(intent)) return;
 
-        CloudUtils.checkState(this);
+        IOUtils.checkState(this);
 
         ScTabView trackListView;
         EmptyCollection ec = new EmptyCollection(this);

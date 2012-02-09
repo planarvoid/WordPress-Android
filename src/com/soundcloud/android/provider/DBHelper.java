@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import java.util.List;
+
 
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
@@ -630,4 +632,13 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return false;
      }
+
+    public static String getWhereIds(String column, List<Long> idSet){
+        StringBuilder sb = new StringBuilder(column + " in (?");
+        for (int i = 1; i < idSet.size(); i++) {
+            sb.append(",?");
+        }
+        sb.append(")");
+        return sb.toString();
+    }
 }

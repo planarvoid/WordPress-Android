@@ -1,14 +1,13 @@
 package com.soundcloud.android.streaming;
 
-import static com.soundcloud.android.utils.CloudUtils.mkdirs;
+import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -36,7 +35,7 @@ public class StreamStorage {
 
     public static final int DEFAULT_CHUNK_SIZE = 128 * 1024;     // 128k
     public static final int STREAM_CACHE_SIZE  = 200* 1024 * 1024; // 200 MB
-    public static final double MAXIMUM_PERCENTAGE_OF_FREE_SPACE = 0.1d; // use 10% of sd card
+    public static final double MAX_PCT_OF_FREE_SPACE = 0.1d; // use 10% of sd card
 
     private static final int CLEANUP_INTERVAL = 20;
     public static final String STREAMING_WRITES_SINCE_CLEANUP = "streamingWritesSinceCleanup";
@@ -84,7 +83,7 @@ public class StreamStorage {
             item.toIndexFile(indexFile);
             return true;
         } catch (IOException e) {
-            if (CloudUtils.isSDCardAvailable()) {
+            if (IOUtils.isSDCardAvailable()) {
                 Log.e(LOG_TAG, "Error storing index data ", e);
             }
             return false;
@@ -150,7 +149,7 @@ public class StreamStorage {
                 Log.d(LOG_TAG, "complete file exists, not adding data");
             return false;
         }
-        else if (!CloudUtils.isSDCardAvailable()) {
+        else if (!IOUtils.isSDCardAvailable()) {
             Log.w(LOG_TAG, "storage not available, not adding data");
             return false;
         }
@@ -342,10 +341,7 @@ public class StreamStorage {
     /* package */ void calculateFileMetrics() {
         long spaceLeft = getSpaceLeft();
         mUsedSpace = getUsedSpace();
-        mUsableSpace = Math.min(
-                (long) (Math.floor((mUsedSpace + spaceLeft) * MAXIMUM_PERCENTAGE_OF_FREE_SPACE)),
-                STREAM_CACHE_SIZE);
-
+        mUsableSpace = IOUtils.getUsableSpace(mUsedSpace, spaceLeft, STREAM_CACHE_SIZE, MAX_PCT_OF_FREE_SPACE);
         if (Log.isLoggable(LOG_TAG, Log.DEBUG))
             Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable for caching",
                     mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
@@ -426,8 +422,7 @@ public class StreamStorage {
     }
 
     /* package */ long getSpaceLeft() {
-        StatFs fs = new StatFs(mBaseDir.getAbsolutePath());
-       return (long) fs.getBlockSize() * (long) fs.getAvailableBlocks();
+        return IOUtils.getSpaceLeft(mBaseDir);
     }
 
     /* package */ void verifyMetadata(StreamItem item) {
