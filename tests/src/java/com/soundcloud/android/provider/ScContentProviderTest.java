@@ -7,7 +7,6 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.utils.CloudUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +47,6 @@ public class ScContentProviderTest {
         Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
                 Track.TrackHolder.class);
-        Uri uri;
         for (Track t : tracks) {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
             expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
@@ -153,6 +151,33 @@ public class ScContentProviderTest {
 
         expect(cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)))
                 .toEqual(22365800L);
+    }
+
+    @Test
+    public void shouldSuggestSoundsSortedByCreatedAt() throws Exception {
+
+        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+                getClass().getResourceAsStream("user_favorites.json"),
+                Track.TrackHolder.class);
+
+        for (Track t : tracks) {
+            resolver.insert(Content.TRACKS.uri, t.buildContentValues());
+            resolver.insert(Content.USERS.uri, t.user.buildContentValues());
+        }
+
+        Cursor cursor = resolver.query(Content.ANDROID_SEARCH_SUGGEST.uri,
+                null, null, new String[] { "H" }, null);
+
+        expect(cursor.getCount()).toEqual(7);
+
+        expect(cursor.moveToFirst()).toBeTrue();
+        Track first = SoundCloudDB.getTrackById(resolver,
+                cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
+        expect(cursor.moveToLast()).toBeTrue();
+        Track last = SoundCloudDB.getTrackById(resolver,
+                cursor.getLong(cursor.getColumnIndex(BaseColumns._ID)));
+
+        expect(first.created_at.after(last.created_at)).toBeTrue();
     }
 
     @Test

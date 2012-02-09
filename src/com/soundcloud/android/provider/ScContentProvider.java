@@ -653,7 +653,7 @@ public class ScContentProvider extends ContentProvider {
         qb.appendWhere( DBHelper.TrackView.TITLE+" LIKE '%"+selectionArgs[0]+"%'");
         String query = qb.buildQuery(
                 new String[]{ DBHelper.TrackView._ID, DBHelper.TrackView.TITLE, DBHelper.TrackView.USERNAME },
-                null, null, null, null, null, limit);
+                null, null, null, null, DBHelper.TrackView.CREATED_AT+" DESC", limit);
         Log.d(TAG, "suggest: query="+query);
         Cursor cursor = db.rawQuery(query, null);
         if (cursor != null) {
