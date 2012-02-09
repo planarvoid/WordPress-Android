@@ -99,7 +99,7 @@ public class Main extends TabActivity implements
             }, SPLASH_DELAY);
         }
 
-        buildTabHost(getApp(), getTabHost(), getTabWidget());
+        buildTabHost(getApp(), getTabHost(), (TabWidget) findViewById(android.R.id.tabs));
         handleIntent(getIntent());
 
         Object[] previousState = (Object[]) getLastNonConfigurationInstance();
