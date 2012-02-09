@@ -16,7 +16,6 @@ import android.graphics.LightingColorFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -75,19 +74,21 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private float mSeekPercent;
 
-    private SharedPreferences mPreferences;
     protected final Handler mHandler = new Handler();
 
     private static final int MAX_WAVEFORM_RETRIES = 2;
     private static final int INPUT_QUEUE_SIZE = 20;
 
     private static final int UI_UPDATE_SEEK = 1;
-    private static final int UI_SEND_SEEK = 2;
+    private static final int UI_SEND_SEEK   = 2;
     private static final int UI_UPDATE_COMMENT_POSITION = 3;
-    private static final int UI_ADD_COMMENT = 4;
-    private static final int UI_TOGGLE_COMMENTS = 5;
-    protected static final int UI_UPDATE_COMMENT = 6;
-    protected static final int UI_CLEAR_SEEK = 7;
+    protected static final int UI_ADD_COMMENT = 4;
+    protected static final int UI_UPDATE_COMMENT = 5;
+    protected static final int UI_CLEAR_SEEK = 6;
+    // used by landscape
+    protected static final int UI_SHOW_CURRENT_COMMENT = 7;
+    protected static final int UI_TOGGLE_COMMENTS = 8;
+
 
     static final int TOUCH_MODE_NONE = 0;
     static final int TOUCH_MODE_SEEK_DRAG = 1;
@@ -641,7 +642,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
 
     public void setComments(List<Comment> comments, boolean animateIn) {
-        setComments(comments,animateIn,false);
+        setComments(comments, animateIn, false);
     }
 
     public void setComments(List<Comment> comments, boolean animateIn, boolean forceRefresh) {
