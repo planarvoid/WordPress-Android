@@ -23,10 +23,8 @@ public class GATracker {
     }
 
     // fields
-    private final EnumSet<Type> mEnabled = EnumSet.allOf(Type.class);
     private final GoogleAnalyticsTracker mTracker;
     private final ArrayList<Event> mQueue = new ArrayList<Event>();
-
     private boolean mQueueFlushing = false;
     private Event[] mEvents = null; // temporary working set, held globally to avoid pointless repeated allocations
 
@@ -37,12 +35,11 @@ public class GATracker {
     }
 
     public void trackPageView(String pagePath) {
-        if (!mEnabled.contains(Type.PAGE_VIEW)) return;
         enqueue(new Event(Type.PAGE_VIEW, null, pagePath, null, 0));
     }
 
     public void trackEvent(String category, String action, String label, int value) {
-        track(Type.EVENT, category, action, label, value);
+        enqueue(new Event(Type.EVENT, category, action, label, value));
     }
 
 
@@ -52,12 +49,6 @@ public class GATracker {
 
 
     // private utility methods
-
-    private void track(Type type, String category, String action, String label, int value) {
-        if (!mEnabled.contains(type)) return;
-        enqueue(new Event(type, category, action, label, value));
-    }
-
     private void enqueue(Event event) {
         synchronized (mQueue) {
             mQueue.add(event);
@@ -118,11 +109,11 @@ public class GATracker {
 
     private static class Event {
 
-        Type mType;
-        String mCategory;
-        String mAction;
-        String mLabel;
-        int mValue;
+        final Type mType;
+        final String mCategory;
+        final String mAction;
+        final String mLabel;
+        final int mValue;
 
         Event(Type type, String category, String action, String label, int value) {
             mType = type;
