@@ -22,6 +22,7 @@ import com.soundcloud.android.service.beta.WifiMonitor;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.analytics.GATracker;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -80,7 +81,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private RecordListener mRecListener;
     private ImageLoader mImageLoader;
 
-    private GoogleAnalyticsTracker mTracker;
+    private GATracker mTracker;
 
     private User mLoggedInUser;
     protected Wrapper mCloudApi; /* protected for testing */
@@ -95,11 +96,13 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (DALVIK) {
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
-
-                mTracker = GoogleAnalyticsTracker.getInstance();
-                mTracker.startNewSession(
+                GoogleAnalyticsTracker gat = GoogleAnalyticsTracker.getInstance();
+                gat.startNewSession(
                         getString(BETA_MODE || DEV_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
                         120 /* seconds */, this);
+
+                mTracker = new GATracker(gat);
+
             }
         }
 
@@ -370,7 +373,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                         if (slot > 5) break; // max 5 slots
                     }
                 }
-                // TODO 02-07 StrictMode policy violation; ~duration=37 ms: android.os.StrictMode$StrictModeDiskWriteViolation: policy=23 violation=1
                 mTracker.trackPageView(path);
             } catch (IllegalStateException ignored) {
                 // logs indicate this gets thrown occasionally
