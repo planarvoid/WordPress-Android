@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ContentHandler;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLConnection;
 
 /**
@@ -40,6 +41,7 @@ public class BitmapContentHandler extends ContentHandler {
 
     public static final int READ_TIMEOUT    = 10000;
     public static final int CONNECT_TIMEOUT = 3000;
+    private static final int LOADTIME_WARN  = 10 * 1000; // flag requests taking longer than 10 sec
 
     @Override public Bitmap getContent(URLConnection connection) throws IOException {
         connection.setRequestProperty("Accept-Encoding", "identity");
@@ -49,19 +51,23 @@ public class BitmapContentHandler extends ContentHandler {
         connection.setUseCaches(true);
 
         final long start = System.currentTimeMillis();
-        InputStream input;
+        final URL url = connection.getURL();
         try {
-            input = new BlockingFilterInputStream(connection.getInputStream());
+            InputStream input = new BlockingFilterInputStream(connection.getInputStream());
             Bitmap bitmap = BitmapFactory.decodeStream(input);
             if (bitmap == null) {
                 throw new IOException("Image could not be decoded");
+            } else {
+                return bitmap;
             }
-            return bitmap;
         } finally {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "image fetched in "
-                            +(System.currentTimeMillis() - start)+ " ms, url = " + connection.getURL());
+            final long loadTime = System.currentTimeMillis() - start;
+            if (loadTime > LOADTIME_WARN) {
+                Log.w(TAG, "slow image loading request " + loadTime + " ms, url = " + url);
+            } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "image fetched in " + loadTime + " ms, url = " + url);
             }
+            // should only be needed for Keep-Alive which we're not using
             if (connection instanceof HttpURLConnection) {
                 ((HttpURLConnection)connection).disconnect();
             }
