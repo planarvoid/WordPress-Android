@@ -114,16 +114,20 @@ public class StreamStorage {
             }
         }
         Range chunkRange = actualRange.chunkRange(chunkSize);
-        ByteBuffer data = ByteBuffer.allocate(chunkRange.length * chunkSize);
-
-        // read all the chunks we need
-        for (int index : chunkRange) {
-            data.put(getChunkData(url, index));
+        if (chunkRange.length == 1 && actualRange.length == chunkSize) {
+            // optimise for most common case
+            return getChunkData(url, chunkRange.start);
+        } else {
+            ByteBuffer data = ByteBuffer.allocate(chunkRange.length * chunkSize);
+            // read all the chunks we need
+            for (int index : chunkRange) {
+                data.put(getChunkData(url, index));
+            }
+            // and adjust offsets
+            data.position(actualRange.start % chunkSize);
+            data.limit(actualRange.start % chunkSize + actualRange.length);
+            return data.asReadOnlyBuffer();
         }
-        // and adjust offsets
-        data.position(actualRange.start % chunkSize);
-        data.limit(actualRange.start % chunkSize + actualRange.length);
-        return data.asReadOnlyBuffer();
     }
 
     public boolean storeData(final URL url, ByteBuffer data, final int chunkIndex) throws IOException {

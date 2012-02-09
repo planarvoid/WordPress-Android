@@ -311,9 +311,10 @@ public class StreamProxy implements Runnable {
             StreamFuture stream = loader.getDataForUrl(streamUrl, Range.from(offset, storage.chunkSize));
             try {
                 if (offset == startByte) {
+                    // first chunk
                     buffer = stream.get(INITIAL_TIMEOUT, TimeUnit.SECONDS);
 
-                    // first chunk, write header
+
                     final long length = stream.item.getContentLength();
                     headers.put("Content-Length", String.valueOf(length));
                     headers.put("ETag", stream.item.etag());
@@ -330,7 +331,21 @@ public class StreamProxy implements Runnable {
                     // since we already got some data for this track, ready to queue next one
                     queueNextUrl(nextUrl, 3000);
                 } else {
+                    // subsequent chunks
                     buffer = stream.get(TRANSFER_TIMEOUT, TimeUnit.SECONDS);
+                }
+
+                if (stream.item == null || stream.item.getContentLength() == 0) {
+                    // should not happen
+                    IOException e = new IOException("BUG: "+(stream.item == null ? "item is null" : "content-length is 0"));
+                    SoundCloudApplication.handleSilentException(null, e);
+                    throw e;
+                }
+
+                offset += channel.write(buffer);
+                if (offset >= stream.item.getContentLength()) {
+                    if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "reached end of stream");
+                    break;
                 }
             } catch (TimeoutException e) {
                 // timeout happened before header write, take the chance to return a proper error code
@@ -338,19 +353,6 @@ public class StreamProxy implements Runnable {
                     channel.write(getErrorHeader(503, "Data read timeout"));
                 }
                 throw e;
-            }
-
-            if (stream.item == null || stream.item.getContentLength() == 0) {
-                // should not happen
-                IOException e = new IOException("BUG: "+(stream.item == null ? "item is null" : "content-length is 0"));
-                SoundCloudApplication.handleSilentException(null, e);
-                throw e;
-            }
-
-            offset += channel.write(buffer);
-            if (offset >= stream.item.getContentLength()) {
-                if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "reached end of stream");
-                break;
             }
         }
     }
