@@ -112,7 +112,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     @Override public void onScreenChanging(View newScreen, int newScreenIndex) {}
 
     @Override public void onNextScreenVisible(View newScreen, int newScreenIndex) {
-        ((PlayerTrackView) newScreen).setOnScreen();
+        ((PlayerTrackView) newScreen).setOnScreen(true);
     }
 
     @Override
@@ -601,8 +601,12 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     ptv = new PlayerTrackView(this);
                     mTrackWorkspace.addViewAtScreenPosition(ptv, workspaceIndex);
                 }
-                final Track track = pos == mCurrentQueuePosition ? mPlayingTrack : getTrackById(mPlaybackService.getTrackIdAt(pos));
-                ptv.setTrack(track, pos, false, pos == mCurrentQueuePosition);
+
+                final boolean priority = pos == mCurrentQueuePosition;
+                ptv.setOnScreen(priority);
+
+                final Track track = priority ? mPlayingTrack : getTrackById(mPlaybackService.getTrackIdAt(pos));
+                ptv.setTrack(track, pos, false, priority);
                 workspaceIndex++;
             }
 

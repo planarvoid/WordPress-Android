@@ -161,9 +161,9 @@ public class PlayerTrackView extends LinearLayout implements
 
     }
 
-    public void setOnScreen(){
-        mOnScreen = true;
-        mWaveformController.setOnScreen(true);
+    public void setOnScreen(boolean onScreen){
+        mOnScreen = onScreen;
+        mWaveformController.setOnScreen(onScreen);
     }
 
     protected void toggleCommentMode() {
@@ -172,6 +172,7 @@ public class PlayerTrackView extends LinearLayout implements
 
     public void setTrack(Track track, int queuePosition, boolean forceUpdate, boolean priority) {
         mPlayPos = queuePosition;
+
         if (!forceUpdate && (mTrack != null && track != null && track.id == mTrack.id)) return;
         final boolean changed = mTrack == null ? track != null : !mTrack.equals(track);
         mTrack = track;
