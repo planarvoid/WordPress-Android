@@ -2,14 +2,10 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        android:layout_width="fill_parent"
        android:layout_height="fill_parent">
-    <FrameLayout android:id="@+id/info_bar_holder"
-                 android:background="@color/playerControlBackground"
-                 android:layout_width="fill_parent"
-                 android:layout_height="wrap_content">
-        <com.soundcloud.android.view.TrackInfoBar android:layout_width="fill_parent"
-                                                  android:layout_height="wrap_content"
-                                                  android:id="@+id/track_info_bar"/>
-    </FrameLayout>
+    <com.soundcloud.android.view.TrackInfoBar android:background="@color/playerControlBackground"
+                                              android:layout_width="fill_parent"
+                                              android:layout_height="wrap_content"
+                                              android:id="@+id/track_info_bar"/>
     <FrameLayout
             android:layout_weight="8"
             android:layout_width="fill_parent"

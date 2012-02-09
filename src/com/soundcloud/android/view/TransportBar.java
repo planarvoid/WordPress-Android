@@ -1,5 +1,7 @@
 package com.soundcloud.android.view;
 
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import com.soundcloud.android.R;
 import com.soundcloud.android.service.playback.ICloudPlaybackService;
 
@@ -20,6 +22,8 @@ public class TransportBar extends LinearLayout{
     protected ICloudPlaybackService mPlaybackService;
     private ImageButton mPauseButton, mFavoriteButton, mCommentButton, mPrevButton, mNextButton;
     private Drawable mFavoriteDrawable, mFavoritedDrawable, mPlayState, mPauseState;
+    private ViewParent mPrevHolder;
+    private ViewParent mNextHolder;
     private boolean mNavEnabled;
 
     public TransportBar(Context context, AttributeSet attrs) {
@@ -42,6 +46,9 @@ public class TransportBar extends LinearLayout{
 
         mPauseState = getResources().getDrawable(R.drawable.ic_pause_states);
         mPlayState = getResources().getDrawable(R.drawable.ic_play_states);
+
+        mPrevHolder = mPrevButton.getParent();
+        mNextHolder = mNextButton.getParent();
 
     }
 
@@ -76,7 +83,7 @@ public class TransportBar extends LinearLayout{
     @Override
     protected boolean getChildStaticTransformation(View child, Transformation t) {
         boolean ret = super.getChildStaticTransformation(child, t);
-        if (child.getId() == R.id.prev_holder || child.getId() == R.id.next_holder){
+        if (child == mPrevHolder || child == mNextHolder){
             t.setAlpha(0.5f);
             return true;
         }

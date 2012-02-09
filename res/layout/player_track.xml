@@ -16,8 +16,7 @@
               android:background="?android:attr/listDivider"
               android:layout_marginRight="10dip"/>
     </RelativeLayout>
-    <LinearLayout android:id="@+id/track_menu"
-                  android:stretchColumns="*"
+    <LinearLayout android:stretchColumns="*"
                   android:background="@color/playerControlBackground"
                   android:layout_height="wrap_content"
                   android:layout_width="fill_parent"
@@ -81,9 +80,11 @@
                     android:inflatedId="@+id/unplayable_layout"
                     android:layout="@layout/unplayable_layout"
                     android:layout_width="fill_parent"
-                    android:layout_height="40dip" android:layout_alignParentBottom="true"/>
+                    android:layout_height="40dip"
+                    android:layout_alignParentBottom="true"/>
             <View android:layout_width="fill_parent"
-                  android:layout_below="@id/track_menu" android:layout_height="5dip"
+                  android:layout_height="5dip"
+                  android:layout_alignParentTop="true"
                   android:background="@drawable/drop_shadow_down"/>
         </RelativeLayout>
     </com.soundcloud.android.view.SafeViewFlipper>

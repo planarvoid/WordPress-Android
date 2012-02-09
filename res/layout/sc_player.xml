@@ -4,7 +4,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
     <LinearLayout android:layout_width="fill_parent"
-                  android:id="@+id/main_holder"
                   android:orientation="vertical"
                   android:layout_height="fill_parent">
         <com.soundcloud.android.view.WorkspaceView
