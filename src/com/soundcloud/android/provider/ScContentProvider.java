@@ -24,16 +24,8 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -188,6 +180,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
                 if (_columns == null) _columns = formatWithUser(fullActivityColumns, userId);
+
             case ME_ALL_ACTIVITIES:
             case ME_ACTIVITIES:
                 qb.setTables(Table.ACTIVITY_VIEW.name);
@@ -543,42 +536,26 @@ public class ScContentProvider extends ContentProvider {
                 List<String> segments = uri.getPathSegments();
                 long trackId = Long.parseLong(segments.get(segments.size()-2));
                 Cursor c = query(Content.TRACK.forId(trackId), null, null, null, null);
-                if (c != null && c.moveToFirst()) {
-                    Track track = new Track(c);
-                    Consts.GraphicSize gs = (size == null || "list".equals(size)) ?
-                            Consts.GraphicSize.getListItemGraphicSize(getContext()) :
-                            Consts.GraphicSize.fromString(size);
+                try {
+                    if (c != null && c.moveToFirst()) {
+                        Track track = new Track(c);
+                        Consts.GraphicSize gs = (size == null || "list".equals(size)) ?
+                                Consts.GraphicSize.getListItemGraphicSize(getContext()) :
+                                Consts.GraphicSize.fromString(size);
 
-                    final String artworkUri = gs.formatUri(track.getArtwork());
-                    final File artworkFile = new File(getContext().getCacheDir(), IOUtils.md5(artworkUri));
-                    if (!artworkFile.exists()) {
-                        OutputStream os = null;
-                        try {
-                            HttpURLConnection conn = (HttpURLConnection) new URL(artworkUri).openConnection();
-                            conn.setUseCaches(true);
-                            InputStream is = conn.getInputStream();
-                            os = new BufferedOutputStream(new FileOutputStream(artworkFile));
-                            final byte[] buffer = new byte[8192];
-                            int n;
-                            while ((n = is.read(buffer, 0, buffer.length)) != -1) {
-                                os.write(buffer, 0, n);
+                        final String artworkUri = gs.formatUri(track.getArtwork());
+                        if (artworkUri != null) {
+                            final File artworkFile = IOUtils.getCacheFile(getContext(), IOUtils.md5(artworkUri));
+                            if (!artworkFile.exists()) {
+                                IOUtils.fetchUriToFile(artworkUri, artworkFile);
                             }
-                            os.close();
-                        } catch (MalformedURLException e) {
-                            throw new FileNotFoundException();
-                        } catch (IOException e) {
-                            throw new FileNotFoundException();
-                        } finally {
-                            c.close();
-                            if (os != null) try {
-                                os.close();
-                            } catch (IOException ignored) {
-                            }
-                        }
+                            return ParcelFileDescriptor.open(artworkFile, ParcelFileDescriptor.MODE_READ_ONLY);
+                        } else throw new FileNotFoundException();
+                    } else {
+                        throw new FileNotFoundException();
                     }
-                    return ParcelFileDescriptor.open(artworkFile, ParcelFileDescriptor.MODE_READ_ONLY);
-                } else {
-                    throw new FileNotFoundException();
+                } finally {
+                    if (c != null) c.close();
                 }
             default:
                 return super.openFile(uri, mode);

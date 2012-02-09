@@ -14,13 +14,19 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -266,6 +272,33 @@ public class IOUtils {
             return "";
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void fetchUriToFile(String url, File file) throws FileNotFoundException {
+        OutputStream os = null;
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setUseCaches(true);
+            InputStream is = conn.getInputStream();
+            os = new BufferedOutputStream(new FileOutputStream(file));
+            final byte[] buffer = new byte[8192];
+            int n;
+            while ((n = is.read(buffer, 0, buffer.length)) != -1) {
+                os.write(buffer, 0, n);
+            }
+        } catch (MalformedURLException e) {
+            throw new FileNotFoundException();
+        } catch (IOException e) {
+            deleteFile(file);
+            throw new FileNotFoundException();
+        } finally {
+            if (conn != null) conn.disconnect();
+            if (os != null) try {
+                os.close();
+            } catch (IOException ignored) {
+            }
         }
     }
 }
