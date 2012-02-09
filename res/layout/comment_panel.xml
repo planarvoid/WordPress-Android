@@ -33,20 +33,16 @@
                   android:text="at 2.11"
                   android:singleLine="true"
                   android:ellipsize="marquee"
-                  android:layout_alignBottom="@id/txt_username"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   style="@style/txt_comment_panel_timestamp" />
         <TextView android:id="@+id/txt_elapsed"
                   android:text="Just now"
-                  android:layout_alignBottom="@id/txt_username"
-                  android:layout_below="@id/btn_close"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   style="@style/txt_comment_panel_created_at"
                   android:layout_marginLeft="5dp"
                   android:layout_marginRight="@dimen/list_text_margin_right"
-                  android:layout_alignTop="@id/icon"
                   android:singleLine="true"
                   android:ellipsize="marquee"/>
         </TableRow>

@@ -7,7 +7,7 @@
 
     <application android:icon="@drawable/launcher"
         android:label="@string/app_name"
-        android:theme="@style/ScLight"
+        android:theme="@style/Theme.ScLight"
         android:configChanges="keyboard|keyboardHidden"
         android:name="SoundCloudApplication"
         android:debuggable="false">
@@ -97,11 +97,11 @@
                        android:resource="@xml/searchable" />
         </activity>
 
-        <activity android:name=".activity.auth.Start" android:label="@string/app_name" android:exported="true"/>
-        <activity android:name=".activity.auth.Login" android:label="@string/app_name" android:configChanges="orientation" />
-        <activity android:name=".activity.auth.SignUp" android:label="@string/app_name" android:configChanges="orientation" />
-        <activity android:name=".activity.auth.AddInfo" android:label="@string/app_name" android:configChanges="orientation" />
-        <activity android:name=".activity.auth.Recover" android:label="@string/app_name" android:configChanges="orientation" />
+        <activity android:name=".activity.auth.Start" android:label="@string/app_name" android:exported="true" android:theme="@style/Theme.ScNoBackground" />
+        <activity android:name=".activity.auth.Login" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScNoBackground"  />
+        <activity android:name=".activity.auth.SignUp" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScNoBackground"  />
+        <activity android:name=".activity.auth.AddInfo" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScNoBackground" />
+        <activity android:name=".activity.auth.Recover" android:label="@string/app_name" android:configChanges="orientation" android:theme="@style/Theme.ScNoBackground"  />
         <activity android:name=".activity.auth.Facebook"/>
         <activity android:name=".activity.auth.FacebookWebFlow" android:label="@string/app_name" android:configChanges="orientation"/>
         <activity android:name=".activity.auth.FacebookSSO"/>
@@ -126,6 +126,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.ScPlayer"
+                  android:label="SoundCloud Player"
+                  android:windowSoftInputMode="adjustPan"
+                  android:theme="@style/Theme.ScNoBackground" />
+
         <activity android:name=".activity.Tour" android:screenOrientation="portrait" />
         <activity android:name=".activity.TrackFavoriters" />
         <activity android:name=".activity.TrackComments" />
@@ -134,7 +139,6 @@
         <activity android:name=".activity.Settings" android:label="Settings" />
         <activity android:name=".activity.AccountPreferences" />
         <activity android:name=".activity.NotificationSettings" android:label="Notifications Settings" />
-        <activity android:name=".activity.ScPlayer" android:label="SoundCloud Player" android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".activity.UserBrowser" android:label="Profile"/>
         <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>
         <activity android:name=".activity.LocationPicker"/>

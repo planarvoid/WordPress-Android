@@ -20,8 +20,7 @@
                 android:inflatedId="@+id/unplayable_layout"
                 android:layout="@layout/unplayable_layout"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_alignParentBottom="true"/>
+                android:layout_height="fill_parent"/>
         <View android:layout_width="fill_parent"
               android:layout_height="5dip"
               android:background="@drawable/drop_shadow_down"/>

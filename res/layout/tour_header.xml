@@ -3,7 +3,6 @@
                 android:id="@+id/top_bar"
                 android:layout_width="fill_parent"
                 android:layout_height="@dimen/tour_top_bar_height"
-                android:layout_alignParentBottom="true"
                 android:background="@drawable/tour_bar_top_bg">
     <TextView android:id="@+id/txt_title"
               android:text="@string/tour_title"

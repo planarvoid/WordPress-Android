@@ -6,7 +6,7 @@
               android:orientation="vertical">
     <ScrollView android:id="@+id/ScrollView01"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_width="fill_parent"
                 android:paddingTop="5dip">
         <RelativeLayout
@@ -106,7 +106,6 @@
     </ScrollView>
     <RelativeLayout android:id="@+id/control_layout"
                     android:layout_width="fill_parent"
-                    android:layout_alignParentBottom="true"
                     android:background="@color/playerControlAlphaBackground"
                     android:layout_height="wrap_content">
 

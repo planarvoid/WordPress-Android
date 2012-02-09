@@ -43,6 +43,5 @@
               android:layout_below="@id/user"
               style="@style/txt_list_main"
               android:textStyle="normal"
-              android:text="@string/track"
-              android:layout_weight="1"/>
+              android:text="@string/track" />
 </RelativeLayout>

@@ -67,7 +67,6 @@
             <!-- sharing -->
             <com.soundcloud.android.view.SafeViewFlipper
                   android:id="@+id/vfSharing"
-                  android:layout_weight="1"
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent"
                   android:layout_below="@+id/share_options_separator">
@@ -121,7 +120,6 @@
 
     <RelativeLayout android:id="@+id/control_layout"
                     android:layout_width="fill_parent"
-                    android:layout_alignParentBottom="true"
                     android:background="@color/playerControlAlphaBackground"
                     android:layout_height="wrap_content">
 

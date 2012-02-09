@@ -527,12 +527,14 @@ public class PlayerTrackView extends LinearLayout implements
             mUnplayableLayout = (FrameLayout) ((ViewStub) findViewById(R.id.stub_unplayable_layout)).inflate();
         }
 
-        if (mTrack == null || mTrack.isStreamable()) {
-            ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
-                    .setText(mTrack.last_playback_error == 0 ? R.string.player_error : R.string.player_stream_error);
-        } else {
-            ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
-                    .setText(R.string.player_not_streamable);
+        if (mUnplayableLayout != null){
+            if (mTrack == null || mTrack.isStreamable()) {
+                ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
+                        .setText(mTrack.last_playback_error == 0 ? R.string.player_error : R.string.player_stream_error);
+            } else {
+                ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
+                        .setText(R.string.player_not_streamable);
+            }
         }
 
         mWaveformController.setVisibility(View.GONE);

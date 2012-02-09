@@ -23,7 +23,6 @@
         <Button android:id="@+id/btn_done"
                 android:text="@string/btn_done"
                 android:layout_marginTop="10dip"
-                android:layout_weight="1"
                 android:layout_width="fill_parent"
                 android:layout_marginLeft="15dip"
                 android:layout_marginRight="15dip"

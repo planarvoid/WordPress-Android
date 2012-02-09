@@ -11,7 +11,6 @@
               android:singleLine="true"
               style="@style/txt_player_time"/>
     <View android:background="?android:attr/listDivider"
-          android:layout_toRightOf="@id/txt_current"
           android:layout_height="fill_parent"
           android:layout_marginTop="3dip"
           android:layout_marginBottom="3dip"
@@ -20,7 +19,6 @@
           android:layout_width="1px"
           android:id="@+id/vr"/>
     <TextView android:id="@+id/txt_total"
-              android:layout_toRightOf="@id/vr"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:singleLine="true"

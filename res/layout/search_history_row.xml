@@ -12,7 +12,7 @@
             android:padding="5dp"/>
     <TextView
             android:id="@+id/tv_query"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             style="@style/txt_list_main"
@@ -27,6 +27,5 @@
               android:drawablePadding="15dip"
               android:layout_marginRight="20dp"
               android:singleLine="true"
-              android:ellipsize="marquee"
-              android:layout_alignParentRight="true"/>
+              android:ellipsize="marquee"/>
 </LinearLayout>

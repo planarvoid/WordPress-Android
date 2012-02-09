@@ -17,6 +17,7 @@
               android:layout_marginRight="10dip"/>
     </RelativeLayout>
     <LinearLayout android:stretchColumns="*"
+                  android:baselineAligned="false"
                   android:background="@color/playerControlBackground"
                   android:layout_height="wrap_content"
                   android:layout_width="fill_parent"
