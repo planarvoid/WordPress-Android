@@ -528,12 +528,12 @@ public class PlayerTrackView extends LinearLayout implements
         }
 
         if (mUnplayableLayout != null){
-            if (mTrack == null || mTrack.isStreamable()) {
-                ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
-                        .setText(mTrack.last_playback_error == 0 ? R.string.player_error : R.string.player_stream_error);
+            // sometimes inflation error results in text NPE
+            final TextView unplayableText = (TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt);
+            if (unplayableText != null && (mTrack == null || mTrack.isStreamable())) {
+                unplayableText.setText(mTrack.last_playback_error == 0 ? R.string.player_error : R.string.player_stream_error);
             } else {
-                ((TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt))
-                        .setText(R.string.player_not_streamable);
+                unplayableText.setText(R.string.player_not_streamable);
             }
         }
 
