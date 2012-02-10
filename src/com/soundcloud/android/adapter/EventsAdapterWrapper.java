@@ -24,7 +24,7 @@ import java.util.List;
 
 public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     private boolean mVisible;
-    private long mSetLastSeenTo;
+    private long mSetLastSeenTo = -1;
     private Activities mActivities = Activities.EMPTY;
 
     public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Content content) {
@@ -85,11 +85,9 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     public boolean onNewEvents(Activities newActivities, boolean wasRefresh, boolean noMoreLocalItems) {
         Log.d(getClass().getSimpleName(),"Task delivered "+ newActivities.size() + " new activities");
         if (wasRefresh) {
-            if (!newActivities.isEmpty()) {
-                if (mListView != null && mContentUri != null) setListLastUpdated();
-                setLastSeen(newActivities.get(0).created_at.getTime());
-            }
+            setListLastUpdated();
             doneRefreshing();
+
         } else {
             if (noMoreLocalItems){
                 mActivity.startService(new Intent(mActivity, ApiSyncService.class)
@@ -103,6 +101,9 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         }
 
         if (!newActivities.isEmpty()){
+            if (getData().isEmpty()){
+                setLastSeen(newActivities.get(0).created_at.getTime());
+            }
             checkForStaleItems(newActivities.collection);
             newActivities.mergeAndSort(mActivities);
             setData(newActivities);
@@ -120,7 +121,6 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
         SoundCloudApplication app = mActivity.getApp();
         final long lastSeen = app.getAccountDataLong(lastSeenKey);
-
         if (lastSeen < time) {
             if (mVisible) {
                 mActivity.getApp().setAccountData(lastSeenKey, time);
