@@ -187,8 +187,10 @@ public class RecordingMetaData extends RelativeLayout{
     }
 
     public void setImage(File file) {
-        mArtworkFile = file;
-        ImageUtils.setImage(file, mArtwork, (int) (getResources().getDisplayMetrics().density * 100f),(int) (getResources().getDisplayMetrics().density * 100f));
+        if (file != null){
+            mArtworkFile = file;
+            ImageUtils.setImage(file, mArtwork, (int) (getResources().getDisplayMetrics().density * 100f),(int) (getResources().getDisplayMetrics().density * 100f));
+        }
     }
 
 
