@@ -547,7 +547,7 @@ public class ScContentProvider extends ContentProvider {
                         if (artworkUri != null) {
                             final File artworkFile = IOUtils.getCacheFile(getContext(), IOUtils.md5(artworkUri));
                             if (!artworkFile.exists()) {
-                                IOUtils.fetchUriToFile(artworkUri, artworkFile);
+                                IOUtils.fetchUriToFile(artworkUri, artworkFile, false);
                             }
                             return ParcelFileDescriptor.open(artworkFile, ParcelFileDescriptor.MODE_READ_ONLY);
                         } else throw new FileNotFoundException();
