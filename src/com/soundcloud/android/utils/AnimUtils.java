@@ -17,8 +17,9 @@ import android.view.animation.*;
  * @version 1.0
  * @since Jun 24, 2008, 1:22:27 PM
  */
-public class AnimUtils {
+public final class AnimUtils {
 
+    private AnimUtils() {}
     /*
      * @see <ahref=
      * "http://code.google.com/android/samples/ApiDemos/src/com/google/android/samples/view/LayoutAnimation2.html"

@@ -24,13 +24,15 @@ import android.view.MotionEvent;
 /**
  * A utility class that emulates multitouch APIs available in Android 2.0+.
  */
-public class MotionEventUtils {
+public final class MotionEventUtils {
     public static final int ACTION_MASK = 0xff;
     public static final int ACTION_POINTER_UP = 0x6;
     public static final int ACTION_POINTER_INDEX_MASK = 0x0000ff00;
     public static final int ACTION_POINTER_INDEX_SHIFT = 8;
 
     public static boolean sMultiTouchApiAvailable;
+
+    private MotionEventUtils() {}
 
     static {
         try {

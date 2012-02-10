@@ -5,8 +5,10 @@ import android.content.SharedPreferences;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class SharedPreferencesUtils {
+public final class SharedPreferencesUtils {
     private static final Method sApplyMethod = findApplyMethod();
+    private SharedPreferencesUtils() {}
+
     private static Method findApplyMethod() {
         try {
             return SharedPreferences.Editor.class.getMethod("apply");

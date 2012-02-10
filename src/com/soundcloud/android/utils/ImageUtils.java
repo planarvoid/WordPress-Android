@@ -44,10 +44,10 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.EnumSet;
 
-public class ImageUtils {
-
+public final class ImageUtils {
     public static final int GRAPHIC_DIMENSIONS_BADGE = 47;
 
+    private ImageUtils() {}
 
 
     public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,

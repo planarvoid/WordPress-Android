@@ -18,7 +18,9 @@ package com.soundcloud.android.utils;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class ReflectionUtils {
+public final class ReflectionUtils {
+
+    private ReflectionUtils() {}
 
     public static Object tryInvoke(Object target, String methodName, Class<?>[] argTypes,
             Object... args) {
