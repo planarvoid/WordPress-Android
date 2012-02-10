@@ -48,7 +48,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-public class CloudUtils {
+public final class CloudUtils {
     private static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
     private static final String DURATION_FORMAT_LONG  = "%1$d.%3$02d.%5$02d";
     private static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.ENGLISH);

@@ -3,11 +3,16 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Consts;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.net.http.AndroidHttpClient;
+import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.provider.MediaStore;
@@ -31,7 +36,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 
-public class IOUtils {
+public final class IOUtils {
     private static final int BUFFER_SIZE = 4096;
 
     private IOUtils() {}
@@ -275,30 +280,53 @@ public class IOUtils {
         }
     }
 
-    public static void fetchUriToFile(String url, File file) throws FileNotFoundException {
+    public static void fetchUriToFile(String url, File file, boolean useCache) throws FileNotFoundException {
         OutputStream os = null;
         HttpURLConnection conn = null;
         try {
             conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setUseCaches(true);
-            InputStream is = conn.getInputStream();
-            os = new BufferedOutputStream(new FileOutputStream(file));
-            final byte[] buffer = new byte[8192];
-            int n;
-            while ((n = is.read(buffer, 0, buffer.length)) != -1) {
-                os.write(buffer, 0, n);
+            conn.setUseCaches(useCache);
+            conn.connect();
+            final int status = conn.getResponseCode();
+            if (status == HttpStatus.SC_OK) {
+                InputStream is = conn.getInputStream();
+                os = new BufferedOutputStream(new FileOutputStream(file));
+                final byte[] buffer = new byte[8192];
+                int n;
+                while ((n = is.read(buffer, 0, buffer.length)) != -1) {
+                    os.write(buffer, 0, n);
+                }
+            } else {
+                throw new FileNotFoundException("HttpStatus: "+status);
             }
         } catch (MalformedURLException e) {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException(e.getMessage());
         } catch (IOException e) {
             deleteFile(file);
-            throw new FileNotFoundException();
+            throw new FileNotFoundException(e.getMessage());
         } finally {
             if (conn != null) conn.disconnect();
             if (os != null) try {
                 os.close();
             } catch (IOException ignored) {
             }
+        }
+    }
+
+    public static HttpClient createHttpClient(String userAgent) {
+        if (Build.VERSION.SDK_INT >= 8) {
+            return AndroidHttpClient.newInstance(userAgent);
+        } else {
+            return new DefaultHttpClient();
+        }
+    }
+
+    public static void closeHttpClient(HttpClient client) {
+        if (client instanceof AndroidHttpClient) {
+            // avoid leak error logging
+            ((AndroidHttpClient) client).close();
+        } else if (client != null) {
+            client.getConnectionManager().shutdown();
         }
     }
 }

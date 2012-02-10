@@ -7,7 +7,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.Settings;
-import com.soundcloud.android.utils.Http;
 import com.soundcloud.android.utils.IOUtils;
 import org.apache.http.client.HttpClient;
 
@@ -89,7 +88,7 @@ public class BetaService extends Service {
                 skip(null, "Wifi is disabled", intent);
             } else {
                 sRunning = true;
-                mClient = Http.createHttpClient(USER_AGENT);
+                mClient = IOUtils.createHttpClient(USER_AGENT);
 
                 checkForUpdates(intent);
             }
@@ -107,7 +106,7 @@ public class BetaService extends Service {
         sRunning = false;
 
         releaseLocks();
-        Http.close(mClient);
+        IOUtils.closeHttpClient(mClient);
     }
 
     /* package */ void checkForUpdates(final Intent intent) {
