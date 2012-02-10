@@ -532,7 +532,7 @@ public class PlayerTrackView extends LinearLayout implements
             final TextView unplayableText = (TextView) mUnplayableLayout.findViewById(R.id.unplayable_txt);
             if (unplayableText != null && (mTrack == null || mTrack.isStreamable())) {
                 unplayableText.setText(mTrack.last_playback_error == 0 ? R.string.player_error : R.string.player_stream_error);
-            } else {
+            } else if (unplayableText != null) {
                 unplayableText.setText(R.string.player_not_streamable);
             }
         }
