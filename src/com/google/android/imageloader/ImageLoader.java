@@ -31,6 +31,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
+import android.util.Log;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
@@ -40,6 +42,7 @@ import com.google.android.filecache.ScFileCacheResponse;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.WorkspaceView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,6 +66,9 @@ import java.util.concurrent.Executor;
 public final class ImageLoader {
 
     private static final String TAG = "ImageLoader";
+
+    public interface LoadBlocker {}
+    private Set<WeakReference<LoadBlocker>> mLoadBlockers = new HashSet<WeakReference<LoadBlocker>>();
 
     /**
      * The default maximum number of active tasks.
@@ -91,7 +97,6 @@ public final class ImageLoader {
     public static final String IMAGE_LOADER_SERVICE = "com.google.android.imageloader";
 
      private ArrayList<ImageCallback> mPendingCallbacks = new ArrayList<ImageCallback>();
-    private boolean mPaused;
 
     /**
      * Gets the {@link ImageLoader} from a {@link Context}.
@@ -112,18 +117,29 @@ public final class ImageLoader {
         return loader;
     }
 
-    public void pause(){
-        mPaused = true;
+    public void block(LoadBlocker blocker){
+        mLoadBlockers.add(new WeakReference<LoadBlocker>(blocker));
     }
 
-    public void unpause(){
-        if (!mPaused) return;
-        mPaused = false;
-        flushRequests();
-        for (ImageCallback imageCallback : mPendingCallbacks){
-            imageCallback.send();
+    public void unblock(LoadBlocker blocker){
+        for (WeakReference<LoadBlocker> blockerRef : new HashSet<WeakReference<LoadBlocker>>(mLoadBlockers)){
+            final LoadBlocker lb = blockerRef.get();
+            if (lb != null && lb.equals(blocker)){
+                mLoadBlockers.remove(blockerRef);
+            }
         }
-        mPendingCallbacks.clear();
+
+        if (!isBlocked()) {
+            flushRequests();
+            for (ImageCallback imageCallback : mPendingCallbacks) {
+                imageCallback.send();
+            }
+            mPendingCallbacks.clear();
+        }
+    }
+
+    private boolean isBlocked(){
+        return !mLoadBlockers.isEmpty();
     }
 
     /**
@@ -402,7 +418,7 @@ public final class ImageLoader {
      * empty or {@link #mMaxTaskCount} is reached.
      */
     void flushRequests() {
-        if (!mPaused)
+        if (!isBlocked())
         while (mActiveTaskCount < mMaxTaskCount && !mRequests.isEmpty()) {
             new ImageTask().executeOnThreadPool(mRequests.poll());
         }
@@ -946,10 +962,10 @@ public final class ImageLoader {
             }
             if (mImageViewCallback != null) {
                 mImageViewCallback.setResult(mUrl, mBitmap, mError);
-                if (!mPaused) {
-                    mImageViewCallback.send();
-                } else {
+                if (isBlocked()) {
                     mPendingCallbacks.add(mImageViewCallback);
+                } else {
+                    mImageViewCallback.send();
                 }
             }
         }

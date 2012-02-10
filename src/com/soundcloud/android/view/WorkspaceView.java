@@ -27,7 +27,6 @@ import android.util.Log;
 import android.view.*;
 import android.widget.Scroller;
 import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.task.LoadSuggestedUsersTask;
 import com.soundcloud.android.utils.MotionEventUtils;
 import com.soundcloud.android.utils.ReflectionUtils;
 
@@ -38,7 +37,7 @@ import java.util.ArrayList;
  * horizontally to page between other child views. Based on <code>Workspace.java</code> in the
  * <code>Launcher.git</code> AOSP project.
  */
-public class WorkspaceView extends ViewGroup {
+public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker {
     private static final String TAG = "Workspace";
 
     private static final int INVALID_SCREEN = -1;
@@ -766,9 +765,9 @@ public class WorkspaceView extends ViewGroup {
 
     private void setImageLoaderState(){
         if (mTouchState != TOUCH_STATE_SCROLLING){
-            ImageLoader.get(getContext()).unpause();
+            ImageLoader.get(getContext()).unblock(this);
         } else {
-            ImageLoader.get(getContext()).pause();
+            ImageLoader.get(getContext()).block(this);
         }
 
     }

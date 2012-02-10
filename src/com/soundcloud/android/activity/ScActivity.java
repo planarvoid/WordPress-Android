@@ -669,15 +669,6 @@ public abstract class ScActivity extends android.app.Activity {
             startActivity(i);
         }
 
-        public void onFling() {
-            ImageLoader.get(ScActivity.this).pause();
-        }
-
-        @Override
-        public void onFlingDone() {
-            ImageLoader.get(ScActivity.this).unpause();
-        }
-
         @Override
         public void onRecordingClick(final Recording recording) {
             handleRecordingClick(recording);

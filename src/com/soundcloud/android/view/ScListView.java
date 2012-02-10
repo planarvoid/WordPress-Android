@@ -11,6 +11,9 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ListAdapter;
+
+import com.google.android.imageloader.ImageLoader;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -28,7 +31,7 @@ import com.soundcloud.android.model.User;
 pull to refresh from : https://github.com/chrisbanes/Android-PullToRefresh/tree/7e918327cad2d217e909147d82882f50c2e3f59a
  */
 
-public class ScListView extends PullToRefreshListView implements AbsListView.OnScrollListener {
+public class ScListView extends PullToRefreshListView implements AbsListView.OnScrollListener, PullToRefreshBase.OnFlingListener, ImageLoader.LoadBlocker {
 
     @SuppressWarnings({"UnusedDeclaration"})
     private static final String TAG = "ScListView";
@@ -59,6 +62,8 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
         getRefreshableView().setLongClickable(false);
         getRefreshableView().setScrollingCacheEnabled(false);
         getRefreshableView().setOnItemClickListener(mOnItemClickListener);
+
+        setOnFlingListener(this);
     }
 
     /*
@@ -75,7 +80,6 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
     }
     public void setLazyListListener(LazyListListener listener) {
         mListener = listener;
-        setOnFlingListener(mListener);
     }
     public void setAdapter(LazyEndlessAdapter adapter, boolean refreshEnabled) {
         getRefreshableView().setAdapter(adapter);
@@ -189,14 +193,22 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
         return mEmptyView;
     }
 
-    public interface LazyListListener extends OnFlingListener {
+    @Override
+    public void onFling() {
+        ImageLoader.get(getContext()).block(this);
+    }
+
+    @Override
+    public void onFlingDone() {
+        ImageLoader.get(getContext()).unblock(this);
+    }
+
+    public interface LazyListListener {
         void onEventClick(EventsAdapterWrapper wrapper, int position);
         void onTrackClick(LazyEndlessAdapter wrapper, int position);
         void onUserClick(User user);
         void onRecordingClick(Recording recording);
         void onCommentClick(Comment comment);
-        void onFling();
-        void onFlingDone();
     }
 
 
