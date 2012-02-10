@@ -21,6 +21,7 @@ import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
 import android.app.Notification;
@@ -588,17 +589,22 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             ((PlaybackRemoteViews) mNotificationView).setPlaybackStatus(state.isSupposedToBePlaying());
 
             final String artworkUri = track.getListArtworkUrl(getApplicationContext());
-            final Bitmap bmp = ImageLoader.get(getApplicationContext()).getBitmap(artworkUri,null, ICON_OPTIONS);
-            if (bmp != null){
-                ((PlaybackRemoteViews) mNotificationView).setIcon(bmp);
+            if (ImageUtils.checkIconShouldLoad(artworkUri)){
+                final Bitmap bmp = ImageLoader.get(getApplicationContext()).getBitmap(artworkUri,null, ICON_OPTIONS);
+                if (bmp != null){
+                    ((PlaybackRemoteViews) mNotificationView).setIcon(bmp);
+                } else {
+                    ((PlaybackRemoteViews) mNotificationView).setIcon(getDefaultArtwork());
+                    ImageLoader.get(getApplicationContext()).getBitmap(artworkUri,new ImageLoader.BitmapCallback(){
+                        public void onImageLoaded(Bitmap mBitmap, String uri) {if (track == mCurrentTrack) setPlayingNotification(mCurrentTrack);}
+                        public void onImageError(String uri, Throwable error) {}
+                    });
+
+                }
             } else {
                 ((PlaybackRemoteViews) mNotificationView).setIcon(getDefaultArtwork());
-                ImageLoader.get(getApplicationContext()).getBitmap(artworkUri,new ImageLoader.BitmapCallback(){
-                    public void onImageLoaded(Bitmap mBitmap, String uri) {if (track == mCurrentTrack) setPlayingNotification(mCurrentTrack);}
-                    public void onImageError(String uri, Throwable error) {}
-                });
-
             }
+
             status.contentView = mNotificationView;
             status.contentIntent = pi;
         }
