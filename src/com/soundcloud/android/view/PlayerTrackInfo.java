@@ -41,6 +41,8 @@ public class PlayerTrackInfo extends RelativeLayout{
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.track_info, this);
 
+        setBackgroundColor(0xFFFFFFFF);
+
         mPlayer = player;
 
         mTrackTags = (FlowLayout) findViewById(R.id.tags_holder);
