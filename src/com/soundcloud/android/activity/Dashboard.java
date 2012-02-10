@@ -40,8 +40,6 @@ public class Dashboard extends ScActivity {
         final Intent intent = getIntent();
         if (redirectToMain(intent)) return;
 
-        IOUtils.checkState(this);
-
         ScTabView trackListView;
         EmptyCollection ec = new EmptyCollection(this);
 

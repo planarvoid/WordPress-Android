@@ -105,6 +105,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
             }
         }
+        IOUtils.checkState(this);
 
         mImageLoader = createImageLoader();
         final Account account = getAccount();
