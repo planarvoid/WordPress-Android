@@ -95,11 +95,10 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
 
     protected abstract LazyRow createRow(int position);
 
-    public void reset() {
+    public void clearData() {
+        clearIcons();
         mData.clear();
         mPage = 1;
-        mIconAnimations.clear();
-        mLoadingIcons.clear();
     }
 
     public Class<?> getLoadModel() {
@@ -148,6 +147,11 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
         if (!mNotifyHandler.hasMessages(1)){
             mNotifyHandler.sendMessageDelayed(mNotifyHandler.obtainMessage(1), NOTIFY_DELAY);
         }
+    }
+
+    protected void clearIcons(){
+        mIconAnimations.clear();
+        mLoadingIcons.clear();
     }
 
     class NotifyHandler extends Handler {

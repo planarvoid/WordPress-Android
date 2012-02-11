@@ -122,6 +122,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
     }
 
     public void clearData(){
+        super.clearData();
         for (Section section : sections) {
             section.clear();
         }

@@ -109,8 +109,8 @@ public class MyTracksAdapter extends TracklistAdapter {
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    public void clearData() {
+        super.clearData();
         refreshCursor();
     }
 

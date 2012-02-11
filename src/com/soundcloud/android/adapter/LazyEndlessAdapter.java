@@ -351,7 +351,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     }
 
     public void resetData(){
-        getWrappedAdapter().reset();
+        getWrappedAdapter().clearData();
     }
 
     public void reset() {
