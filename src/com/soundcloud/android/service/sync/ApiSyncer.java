@@ -136,7 +136,6 @@ public class ApiSyncer {
             Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
             return result;
         }
-
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);
         itemDeletions.removeAll(remote);
@@ -149,7 +148,6 @@ public class ApiSyncer {
             mResolver.delete(c.uri, DBHelper.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
             i += RESOLVER_BATCH_SIZE;
         }
-
         int startPosition = 1;
         int added;
         switch (c) {
@@ -215,6 +213,9 @@ public class ApiSyncer {
                                                        boolean ignoreStored) throws IOException {
 
         if (additions == null || additions.size() == 0) return new ArrayList<Parcelable>();
+
+        // copy so we don't modify the original
+        additions = new ArrayList<Long>(additions);
 
         if (!ignoreStored) {
             // remove anything that is already in the DB
