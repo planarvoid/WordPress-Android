@@ -347,6 +347,17 @@ public class ApiSyncServiceTest {
         expect(a2.getTrack().permalink).toEqual("leotrax06-leo-zero-boom-bam");
     }
 
+    @Test
+    public void shouldClearSyncStatuses() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+
+        SoundCloudApplication app = DefaultTestRunner.application;
+
+        expect(LocalCollection.fromContentUri(Content.ME_TRACKS.uri,app.getContentResolver(), true).sync_state).toBe(LocalCollection.SyncState.PENDING);
+        svc.onDestroy();
+        expect(LocalCollection.fromContentUri(Content.ME_TRACKS.uri,app.getContentResolver(), true).sync_state).toBe(LocalCollection.SyncState.IDLE);
+    }
+
 
     private void addResourceResponse(String url, String resource) throws IOException {
         TestHelper.addCannedResponse(getClass(), url, resource);

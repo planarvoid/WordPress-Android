@@ -1,7 +1,10 @@
 package com.soundcloud.android.service.sync;
 
+import android.content.ContentValues;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.api.CloudAPI;
 
 import android.app.Service;
@@ -48,6 +51,13 @@ public class ApiSyncService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Collections.SYNC_STATE,LocalCollection.SyncState.IDLE);
+        getContentResolver().update(Content.COLLECTIONS.uri,cv,null,null);
     }
 
     public void onStart(Intent intent, int startId) {

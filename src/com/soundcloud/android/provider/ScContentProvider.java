@@ -380,6 +380,10 @@ public class ScContentProvider extends ContentProvider {
         int count;
         final Content content = Content.match(uri);
         switch (content) {
+            case COLLECTIONS:
+                count = db.update(content.table.name, values, where, whereArgs);
+                getContext().getContentResolver().notifyChange(uri, null, false);
+                return count;
             case COLLECTION:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.update(content.table.name, values, where, whereArgs);
