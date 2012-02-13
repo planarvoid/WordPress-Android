@@ -13,13 +13,14 @@ import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.CloudUtils;
 
-public class LoadingLayout extends FrameLayout {
+public class LoadingLayout extends RelativeLayout {
 
 	static final int DEFAULT_ROTATION_ANIMATION_DURATION = 150;
 
@@ -42,6 +43,9 @@ public class LoadingLayout extends FrameLayout {
 		headerImage = (ImageView) header.findViewById(R.id.pull_to_refresh_image);
 		headerProgress = (ProgressBar) header.findViewById(R.id.pull_to_refresh_progress);
         lastUpdatedText = (TextView) header.findViewById(R.id.pull_to_refresh_updated_at);
+
+        final int padding = (int) (context.getResources().getDisplayMetrics().density*10);
+        setPadding(0,padding,0,padding);
 
 		final Interpolator interpolator = new LinearInterpolator();
 		rotateAnimation = new RotateAnimation(0, -180, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,

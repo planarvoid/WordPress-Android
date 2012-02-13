@@ -3,10 +3,10 @@
               android:layout_width="fill_parent"
               android:layout_height="fill_parent">
     <com.soundcloud.android.view.TrackInfoBar
+            android:id="@+id/track_info_bar"
             android:background="@color/playerControlBackground"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/track_info_bar"/>
+            android:layout_height="wrap_content" />
     <RelativeLayout android:layout_width="fill_parent"
                     android:layout_height="1dip"
                     android:background="@color/playerControlBackground">

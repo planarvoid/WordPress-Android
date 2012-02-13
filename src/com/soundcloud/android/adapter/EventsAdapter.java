@@ -6,8 +6,8 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.ActivityRow;
-import com.soundcloud.android.view.IncomingRow;
 import com.soundcloud.android.view.LazyRow;
+import com.soundcloud.android.view.TrackInfoBar;
 
 import java.util.ArrayList;
 
@@ -28,7 +28,7 @@ public class EventsAdapter extends TracklistAdapter {
 
     @Override
     protected LazyRow createRow(int position) {
-        return isActivityFeed() ? new ActivityRow(mContext, this) : new IncomingRow(mContext, this);
+        return isActivityFeed() ? new ActivityRow(mContext, this) : new TrackInfoBar(mContext, this);
     }
 
     @Override

@@ -8,7 +8,7 @@ import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.view.LazyRow;
-import com.soundcloud.android.view.TracklistRow;
+import com.soundcloud.android.view.TrackInfoBar;
 
 import android.content.Context;
 import android.os.Parcelable;
@@ -32,7 +32,7 @@ public class TracklistAdapter extends LazyBaseAdapter implements ITracklistAdapt
 
    @Override
     protected LazyRow createRow(int position) {
-        return new TracklistRow(mContext, this);
+        return new TrackInfoBar(mContext, this);
     }
 
     @Override

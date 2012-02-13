@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dip">
+                android:layout_height="fill_parent">
 
     <TextView
             android:id="@+id/pull_to_refresh_text"
@@ -42,4 +40,4 @@
             android:gravity="center"
             style="@style/txt_list_pull_sub"
             />
-</RelativeLayout>
+</merge>

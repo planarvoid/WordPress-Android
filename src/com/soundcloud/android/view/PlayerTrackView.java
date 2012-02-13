@@ -158,7 +158,6 @@ public class PlayerTrackView extends LinearLayout implements
 
         ((View) findViewById(R.id.track).getParent()).setOnTouchListener(this);
         mTouchSlop = ViewConfiguration.get(mPlayer).getScaledTouchSlop();
-
     }
 
     public void setOnScreen(boolean onScreen){

@@ -1,8 +1,14 @@
 package com.soundcloud.android.view;
 
+import android.database.Cursor;
+import android.drm.DrmStore;
+import android.os.Parcelable;
+import android.view.animation.Transformation;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.adapter.ITracklistAdapter;
 import com.soundcloud.android.model.*;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -20,7 +26,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class TrackInfoBar extends RelativeLayout {
+public class TrackInfoBar extends LazyRow {
     public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(true, true);
     private Track mTrack;
 
@@ -44,15 +50,20 @@ public class TrackInfoBar extends RelativeLayout {
 
     private boolean mShouldLoadIcon;
 
-    private ImageView mIcon;
+    protected ImageView mIcon;
     private ImageLoader.BindResult mCurrentIconBindResult;
 
+    public TrackInfoBar(Context context, IScAdapter adapter) {
+        super(context,adapter);
+        init();
+    }
+
     public TrackInfoBar(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        super(context, null);
+        init();
+    }
 
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.track_info_bar, this);
-
+    private void init(){
         mIcon = (ImageView) findViewById(R.id.icon);
         mTitle = (TextView) findViewById(R.id.track);
         mUser = (TextView) findViewById(R.id.user);
@@ -65,6 +76,22 @@ public class TrackInfoBar extends RelativeLayout {
 
         mPlayCountSeparator = findViewById(R.id.vr_play_count);
         mCommentCountSeparator = findViewById(R.id.vr_comment_count);
+
+        if (mAdapter == null) {
+            // player view, these need to be set
+            setId(R.id.track_info_bar);
+            setBackgroundResource(R.color.playerControlBackground);
+        } else {
+            if (mIcon != null && ((ITracklistAdapter) mAdapter).getQuickTrackMenu() != null) {
+                mIcon.setFocusable(false);
+                mIcon.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ((ITracklistAdapter) mAdapter).getQuickTrackMenu().show(mIcon, mTrack, mCurrentPosition);
+                    }
+                });
+            }
+        }
     }
 
     public void addTextShadows(){
@@ -225,5 +252,45 @@ public class TrackInfoBar extends RelativeLayout {
         statTextView3.setVisibility(stat3 == 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
     }
 
+    /** List specific functions **/
 
+
+    @Override
+    protected int getRowResourceId() {
+        return R.layout.track_info_bar;
+    }
+
+    @Override
+    public String getIconRemoteUri() {
+        return mTrack == null ? null : mTrack.getListArtworkUrl(getContext());
+    }
+
+
+     /** update the views with the data corresponding to selection index */
+    @Override
+    public void display(Cursor cursor) {
+        display(cursor.getPosition(), new Track(cursor));
+    }
+    @Override
+    public void display(int position, Parcelable p) {
+        if (!(p instanceof Playable)) throw new IllegalArgumentException("Not a valid track");
+
+        super.display(position);
+
+        if (((Playable) p).getTrack().isStreamable()) {
+            setStaticTransformationsEnabled(false);
+        } else {
+            setStaticTransformationsEnabled(true);
+        }
+
+        display((Playable) p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false, mCurrentUserId);
+    }
+
+    @Override
+    protected boolean getChildStaticTransformation(View child, Transformation t) {
+         super.getChildStaticTransformation(child, t);
+         t.setAlpha((float) 0.4);
+         return true;
+
+     }
 }

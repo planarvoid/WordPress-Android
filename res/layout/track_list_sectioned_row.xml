@@ -9,6 +9,6 @@
     <FrameLayout android:layout_width="fill_parent"
                  android:layout_height="wrap_content"
                  android:id="@+id/row_holder">
-        <include layout="@layout/track_list_row"/>
+        <include layout="@layout/track_info_bar"/>
     </FrameLayout>
 </LinearLayout>

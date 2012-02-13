@@ -1,25 +1,14 @@
 package com.soundcloud.android.adapter;
 
-import android.view.View;
-
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.view.LazyRow;
-import com.soundcloud.android.view.TracklistRow;
 import com.soundcloud.android.view.TracklistSectionedRow;
-import com.soundcloud.android.view.UserlistSectionedRow;
-
-import android.os.Parcelable;
 import com.soundcloud.android.view.quickaction.QuickTrackMenu;
-
-import java.util.ArrayList;
 
 public class SectionedTracklistAdapter extends SectionedAdapter implements ITracklistAdapter {
 

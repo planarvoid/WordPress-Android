@@ -40,6 +40,7 @@ public abstract class LazyRow extends FrameLayout {
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(getRowResourceId(), this);
+
         mIcon = (ImageView) findViewById(R.id.icon);
         mCurrentUserId = SoundCloudApplication.getUserIdFromContext(getContext());
     }

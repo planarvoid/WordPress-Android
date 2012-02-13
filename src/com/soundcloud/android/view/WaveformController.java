@@ -326,7 +326,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         if (mDuration == 0)
             return;
 
-        mProgressBar.setProgress((int) (pos * 1000 / mDuration));
+       mProgressBar.setProgress((int) (pos * 1000 / mDuration));
         if (mode != TOUCH_MODE_SEEK_DRAG) {
             setCurrentTime(pos);
         }

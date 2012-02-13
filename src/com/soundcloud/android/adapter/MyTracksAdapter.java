@@ -7,12 +7,12 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
-import com.soundcloud.android.view.TracklistRow;
 
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.Parcelable;
+import com.soundcloud.android.view.TrackInfoBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class MyTracksAdapter extends TracklistAdapter {
 
     @Override
     protected LazyRow createRow(int position) {
-        return getItemViewType(position) == TYPE_PENDING_RECORDING ? new MyTracklistRow(mContext, this) : new TracklistRow(mContext,this);
+        return getItemViewType(position) == TYPE_PENDING_RECORDING ? new MyTracklistRow(mContext, this) : new TrackInfoBar(mContext,this);
     }
 
     public boolean needsItems() {

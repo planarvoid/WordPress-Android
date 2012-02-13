@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -23,18 +24,20 @@ import android.widget.TextView;
 
 import java.io.IOException;
 
-public class MyTracklistRow extends TracklistRow {
+public class MyTracklistRow extends TrackInfoBar {
     private TextView mTitle;
     private TextView mCreatedAt;
     private TextView mPrivateIndicator;
     private Drawable mPrivateBgDrawable;
     private Drawable mVeryPrivateBgDrawable;
+    private ImageView mCloseIcon;
 
     public MyTracklistRow(Context activity, LazyBaseAdapter adapter) {
         super(activity, adapter);
         mTitle = (TextView) findViewById(R.id.track);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);
         mPrivateIndicator = (TextView) findViewById(R.id.private_indicator);
+        mCloseIcon = (ImageView) findViewById(R.id.close_icon);
     }
 
     @Override

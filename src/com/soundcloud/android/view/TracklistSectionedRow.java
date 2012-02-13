@@ -6,7 +6,7 @@ import com.soundcloud.android.adapter.LazyBaseAdapter;
 
 import android.content.Context;
 
-public class TracklistSectionedRow extends TracklistRow {
+public class TracklistSectionedRow extends TrackInfoBar {
     public TracklistSectionedRow(Context activity, LazyBaseAdapter adapter) {
         super(activity, adapter);
     }
