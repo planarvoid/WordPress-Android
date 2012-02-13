@@ -91,6 +91,9 @@ public class C2DMReceiver extends BroadcastReceiver {
             // make sure there is a server-side device registered
             if (devUrl == null) {
                 sendRegId(context, regId, null);
+            } else {
+                // would be good to have a way to make sure the devUrl is still valid -
+                // however me/devices/id only supports POST/DELETE at the moment.
             }
         }
         // delete old device ids
