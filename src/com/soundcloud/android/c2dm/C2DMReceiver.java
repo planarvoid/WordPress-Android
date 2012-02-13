@@ -39,6 +39,11 @@ public class C2DMReceiver extends BroadcastReceiver {
     public static final String ACTION_REGISTRATION = "com.google.android.c2dm.intent.REGISTRATION";
     public static final String ACTION_RECEIVE      = "com.google.android.c2dm.intent.RECEIVE";
 
+
+    public static final String C2DM_EXTRA_UNREGISTERED = "unregistered";
+    public static final String C2DM_EXTRA_ERROR        = "error";
+    public static final String C2DM_EXTRA_REG_ID       = "registration_id";
+
     private PowerManager.WakeLock mWakeLock;
 
     @Override
@@ -46,17 +51,16 @@ public class C2DMReceiver extends BroadcastReceiver {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceive(" + intent + ")");
 
         if (mWakeLock == null) {
-            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, C2DMReceiver.class.getSimpleName());
+            mWakeLock = makeLock(context);
         }
 
         mWakeLock.acquire();
         try {
             if (intent.getAction().equals(ACTION_REGISTRATION)) {
-                final String error = intent.getStringExtra("error");
+                final String error = intent.getStringExtra(C2DM_EXTRA_ERROR);
                 if (error != null) {
                     onRegistrationError(context, intent, error);
-                } else if (intent.hasExtra("unregistered")) {
+                } else if (intent.hasExtra(C2DM_EXTRA_UNREGISTERED)) {
                     onUnregister(context, intent);
                 } else {
                     onRegister(context, intent);
@@ -72,6 +76,7 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     public static synchronized void register(Context context, User user) {
         if (!isEnabled()) return;
+        final PowerManager.WakeLock lock = makeLock(context);
         final String regId = getRegistrationData(context, PREF_REG_ID);
 
         if (regId == null) {
@@ -90,14 +95,14 @@ public class C2DMReceiver extends BroadcastReceiver {
             final String devUrl = getRegistrationData(context, PREF_DEVICE_URL);
             // make sure there is a server-side device registered
             if (devUrl == null) {
-                sendRegId(context, regId, null);
+                sendRegId(context, regId, lock);
             } else {
                 // would be good to have a way to make sure the devUrl is still valid -
                 // however me/devices/id only supports POST/DELETE at the moment.
             }
         }
         // delete old device ids
-        processDeletionQueue(context, null);
+        processDeletionQueue(context, lock);
     }
 
     public static synchronized void unregister(Context context) {
@@ -113,14 +118,12 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     /** callback when device successfully registered */
     private void onRegister(final Context context, Intent intent) {
-        final String regId = intent.getStringExtra("registration_id");
+        final String regId = intent.getStringExtra(C2DM_EXTRA_REG_ID);
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onRegister(id=" + regId+")");
 
         if (regId != null) {
             // save the reg_id
             setRegistrationData(context, PREF_REG_ID, regId);
-            queueForDeletion(context, getRegistrationData(context, PREF_DEVICE_URL));
-            processDeletionQueue(context, mWakeLock);
             sendRegId(context, regId, mWakeLock);
         } else {
             Log.w(TAG, "received registration intent without id");
@@ -289,5 +292,11 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     private static boolean isEnabled() {
         return Build.VERSION.SDK_INT >= 8;
+    }
+
+
+    private static PowerManager.WakeLock makeLock(Context context) {
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        return pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, C2DMReceiver.class.getSimpleName());
     }
 }

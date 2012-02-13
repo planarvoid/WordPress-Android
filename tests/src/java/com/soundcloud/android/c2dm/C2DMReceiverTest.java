@@ -1,10 +1,12 @@
 package com.soundcloud.android.c2dm;
 
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
-import com.xtremelabs.robolectric.shadows.ShadowContext;
-import com.xtremelabs.robolectric.shadows.ShadowContextThemeWrapper;
-import com.xtremelabs.robolectric.shadows.ShadowPreferenceManager;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.message.BasicHeader;
 import org.junit.After;
@@ -12,21 +14,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-
-import static com.soundcloud.android.Expect.expect;
-import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
-
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
-import android.preference.Preference;
 
 @RunWith(DefaultTestRunner.class)
 public class C2DMReceiverTest {
