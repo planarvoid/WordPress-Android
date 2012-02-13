@@ -56,8 +56,14 @@ public final class IOUtils {
     }
 
     public static long getSpaceLeft(File dir) {
-        StatFs fs = new StatFs(dir.getAbsolutePath());
-        return (long) fs.getBlockSize() * (long) fs.getAvailableBlocks();
+        try {
+            StatFs fs = new StatFs(dir.getAbsolutePath());
+            return (long) fs.getBlockSize() * (long) fs.getAvailableBlocks();
+        } catch (IllegalArgumentException e) {
+            // gets thrown when call to statfs fails
+            Log.e(TAG, "getSpaceLeft("+dir+")", e);
+            return 0;
+        }
     }
 
     public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
