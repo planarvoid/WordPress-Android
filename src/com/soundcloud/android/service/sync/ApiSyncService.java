@@ -62,7 +62,7 @@ public class ApiSyncService extends Service {
 
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
-        Log.d(LOG_TAG, "onStart("+intent+")");
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "onStart("+intent+")");
         if (intent != null){
             enqueueRequest(new ApiRequest((SoundCloudApplication) getApplication(), intent));
         }

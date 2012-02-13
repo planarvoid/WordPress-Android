@@ -9,7 +9,6 @@ import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;

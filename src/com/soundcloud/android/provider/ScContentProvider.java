@@ -222,7 +222,7 @@ public class ScContentProvider extends ContentProvider {
         if (query == null) {
             query = qb.buildQuery(_columns, selection, null, null, _sortOrder, null);
         }
-        Log.d(TAG, "query: "+query);
+        log("query: "+query);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor c = db.rawQuery(query, selectionArgs);
         c.setNotificationUri(getContext().getContentResolver(), uri);
@@ -430,7 +430,7 @@ public class ScContentProvider extends ContentProvider {
 
                     final long start = System.currentTimeMillis();
                     count = db.delete(Table.TRACKS.name,where,null);
-                    Log.d(TAG,"Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
+                    log("Track cleanup done: deleted " + count + " tracks in " + (System.currentTimeMillis() - start) + " ms");
                     getContext().getContentResolver().notifyChange(Content.TRACKS.uri, null, false);
                     return count;
                 }
@@ -450,7 +450,7 @@ public class ScContentProvider extends ContentProvider {
                                 + ") AND _id <> " + userId;
                     final long start = System.currentTimeMillis();
                     count = db.delete(Table.USERS.name, where, null);
-                    Log.d(TAG,"User cleanup done: deleted " + count + " users in " + (System.currentTimeMillis() - start) + " ms");
+                    log("User cleanup done: deleted " + count + " users in " + (System.currentTimeMillis() - start) + " ms");
                     getContext().getContentResolver().notifyChange(Content.USERS.uri, null, false);
                     return count;
                 }
@@ -515,7 +515,7 @@ public class ScContentProvider extends ContentProvider {
             boolean failed = false;
             for (ContentValues v : values) {
                 if (extraCV != null) v.put(extraCV[0], extraCV[1]);
-                Log.d(TAG, "bulkInsert: " + v);
+                log("bulkInsert: " + v);
 
                 if (db.replace(table.name, null, v) < 0) {
                     Log.w(TAG, "replace returned failure");
@@ -622,7 +622,7 @@ public class ScContentProvider extends ContentProvider {
      *     Building a suggestion table</a>
      */
     private Cursor suggest(Uri uri, String[] columns, String selection, String[] selectionArgs) {
-        Log.d(TAG, "suggest("+uri+","+ Arrays.toString(columns)+","+selection+","+Arrays.toString(selectionArgs)+")");
+        log("suggest("+uri+","+ Arrays.toString(columns)+","+selection+","+Arrays.toString(selectionArgs)+")");
         if (selectionArgs == null) {
             throw new IllegalArgumentException("selectionArgs must be provided for the Uri: " + uri);
         }
@@ -635,7 +635,7 @@ public class ScContentProvider extends ContentProvider {
         String query = qb.buildQuery(
                 new String[]{ DBHelper.TrackView._ID, DBHelper.TrackView.TITLE, DBHelper.TrackView.USERNAME },
                 null, null, null, null, DBHelper.TrackView.CREATED_AT+" DESC", limit);
-        Log.d(TAG, "suggest: query="+query);
+        log("suggest: query="+query);
         Cursor cursor = db.rawQuery(query, null);
         if (cursor != null) {
             MatrixCursor suggest = new MatrixCursor(
@@ -663,7 +663,7 @@ public class ScContentProvider extends ContentProvider {
             cursor.close();
             return suggest;
         } else {
-            Log.d(TAG, "suggest: cursor is null");
+            Log.w(TAG, "suggest: cursor is null");
             // no results
             return new MatrixCursor(
                    new String[] {BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1}, 0);
@@ -751,5 +751,11 @@ public class ScContentProvider extends ContentProvider {
         int FRIEND         = 4;
         int SUGGESTED_USER = 5;
         int SEARCH         = 6;
+    }
+
+    private static void log(String message) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, message);
+        }
     }
 }

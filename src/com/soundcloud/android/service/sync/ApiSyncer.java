@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ApiSyncer {
+    public static final String TAG = ApiSyncService.LOG_TAG;
+
     public static final int MINIMUM_LOCAL_ITEMS_STORED = 100;
     private final AndroidCloudAPI mApi;
     private final ContentResolver mResolver;
@@ -80,7 +82,7 @@ public class ApiSyncer {
                             .commit();
                     break;
                 default:
-                    Log.w(ApiSyncService.LOG_TAG, "no remote URI defined for " + c);
+                    Log.w(TAG, "no remote URI defined for " + c);
             }
 
         }
@@ -89,7 +91,7 @@ public class ApiSyncer {
 
     /* package */ Result syncActivities(Uri uri, String action) throws IOException {
         Result result = new Result(uri);
-        Log.d(ApiSyncService.LOG_TAG, "syncActivities(" + uri + ")");
+        log("syncActivities(" + uri + ")");
 
         final Content c = Content.match(uri);
         final int inserted;
@@ -114,7 +116,7 @@ public class ApiSyncer {
         }
 
         result.wasChanged = inserted > 0;
-        Log.d(ApiSyncService.LOG_TAG, "activities: inserted " + inserted + " objects");
+        log("activities: inserted " + inserted + " objects");
         return result;
     }
 
@@ -129,18 +131,18 @@ public class ApiSyncer {
                 DBHelper.CollectionItems.SORT_ORDER));
 
         List<Long> remote = getCollectionIds(mApi, c.remoteUri);
-        Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
+        log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(),remote.size(),null);
 
-        if (local.equals(remote) && !(c == Content.ME_FOLLOWERS || c == Content.ME_FOLLOWINGS)){
-            Log.d(ApiSyncService.LOG_TAG, "Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
+        if (local.equals(remote) && !(c == Content.ME_FOLLOWERS || c == Content.ME_FOLLOWINGS)) {
+            log("Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
             return result;
         }
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);
         itemDeletions.removeAll(remote);
 
-        Log.d(ApiSyncService.LOG_TAG, "Need to remove " + itemDeletions.size() + " items");
+        log("Need to remove " + itemDeletions.size() + " items");
 
         int i = 0;
         while (i < itemDeletions.size()) {
@@ -191,7 +193,7 @@ public class ApiSyncer {
                 break;
         }
 
-        Log.d(ApiSyncService.LOG_TAG, "Added " + added + " new items for this endpoint");
+        log("Added " + added + " new items for this endpoint");
         ContentValues[] cv = new ContentValues[remote.size()];
         i = 0;
         for (Long id : remote) {
@@ -321,6 +323,13 @@ public class ApiSyncer {
             Result r = new Result(uri);
             r.syncResult.stats.numIoExceptions++;
             return r;
+        }
+    }
+
+
+    private static void log(String message) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, message);
         }
     }
 }

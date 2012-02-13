@@ -223,7 +223,7 @@ public class SyncAdapterService extends Service {
 
                             maybeNotifyIncoming(app, incoming, exclusive);
                         } else if (Log.isLoggable(TAG, Log.DEBUG)) {
-                                Log.d(TAG, "skipping incoming notification, delta "+delta+" < frequency="+frequency);
+                            Log.d(TAG, "skipping incoming notification, delta "+delta+" < frequency="+frequency);
                         }
 
                         final long delta2 = System.currentTimeMillis() -
