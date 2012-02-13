@@ -10,6 +10,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import android.os.PowerManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -39,21 +40,25 @@ public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
         if (params.length < 3) throw new IllegalArgumentException("need reg_id,app_identifier and device");
 
         try {
-            HttpResponse resp = mApi.post(Request.to("/me/devices").with(
+            final Request request = Request.to("/me/devices").with(
                     "device_token",   params[0],
-                    "app_identifier", params[1],
-                    "device",         params[2]));
+                    "app_identifier", params[1]);
 
-           if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-               final Header location = resp.getFirstHeader("Location");
-               if (location != null) {
-                   return location.getValue();
-               } else {
-                   Log.w(TAG, "error registering device, location header missing");
-                   return null;
-               }
+            if (!TextUtils.isEmpty(params[2])) {
+                request.with("device", params[2]);
+            }
+
+            HttpResponse resp = mApi.post(request);
+            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
+                final Header location = resp.getFirstHeader("Location");
+                if (location != null) {
+                    return location.getValue();
+                } else {
+                    Log.w(TAG, "error registering device, location header missing");
+                    return null;
+                }
             } else {
-                Log.w(TAG, "error registering device, unexpected status "+resp.getStatusLine());
+                Log.w(TAG, "error registering device, unexpected status " + resp.getStatusLine());
                 return null;
             }
         } catch (IOException e) {
