@@ -99,16 +99,35 @@ public class PlaylistManager {
     }
 
     public boolean prev() {
-        if (mPlayPos == 0)
-            return false;
-        mPlayPos--;
-        return true;
+        if (mPlayPos > 0) {
+            int newPos = mPlayPos - 1;
+            Track newTrack = getTrackAt(newPos);
+            while (newPos > 0 && (newTrack == null || !newTrack.isStreamable())) {
+                newTrack = getTrackAt(--newPos);
+            }
+            if (newTrack != null && newTrack.isStreamable()) {
+                mPlayPos = newPos;
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    public boolean next() {
-        if (mPlayPos >= length()-1) return false;
-        mPlayPos++;
-        return true;
+    public Boolean next() {
+        if (mPlayPos < mPlaylist.length - 1) {
+            int newPos = mPlayPos + 1;
+            Track newTrack = getTrackAt(newPos);
+            while (newPos < mPlaylist.length - 1 && (newTrack == null || !newTrack.isStreamable())) {
+                newTrack = getTrackAt(++newPos);
+            }
+            if (newTrack != null && newTrack.isStreamable()) {
+                mPlayPos = newPos;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public Track getPrev() {

@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -50,7 +51,7 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldAddItemsFromUri() throws Exception {
-        List<Track> tracks = createTracks(3);
+        List<Track> tracks = createTracks(3, true, 0);
         pm.setUri(Content.TRACKS.uri, 0, null);
 
         expect(pm.getUri()).not.toBeNull();
@@ -82,7 +83,7 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldAddItemsFromUriWithPosition() throws Exception {
-        List<Track> tracks = createTracks(3);
+        List<Track> tracks = createTracks(3, true, 0);
         pm.setUri(Content.TRACKS.uri, 1, null);
 
         expect(pm.length()).toEqual(tracks.size());
@@ -105,7 +106,7 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldAddItemsFromUriWithInvalidPosition() throws Exception {
-        List<Track> tracks = createTracks(3);
+        List<Track> tracks = createTracks(3, true, 0);
         pm.setUri(Content.TRACKS.uri, tracks.size() + 100, null); // out of range
 
         expect(pm.length()).toEqual(tracks.size());
@@ -116,7 +117,7 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldAddItemsFromUriWithNegativePosition() throws Exception {
-        List<Track> tracks = createTracks(3);
+        List<Track> tracks = createTracks(3, true, 0);
         pm.setUri(Content.TRACKS.uri, -10, null); // out of range
 
         expect(pm.length()).toEqual(tracks.size());
@@ -127,7 +128,7 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldSupportSetPlaylistWithTrackObjects() throws Exception {
-        pm.setPlaylist(createTracks(3), 0);
+        pm.setPlaylist(createTracks(3, true, 0), 0);
         expect(pm.length()).toEqual(3);
 
         Track track = pm.getCurrentTrack();
@@ -154,7 +155,7 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldClearPlaylist() throws Exception {
-        pm.setPlaylist(createTracks(10), 0);
+        pm.setPlaylist(createTracks(10, true, 0), 0);
         pm.clear();
         expect(pm.isEmpty()).toBeTrue();
         expect(pm.length()).toEqual(0);
@@ -164,7 +165,7 @@ public class PlaylistManagerTest {
     public void shouldSaveCurrentTracksToDB() throws Exception {
         expect(Content.PLAYLIST).toBeEmpty();
         expect(PlaylistManager.DEFAULT_PLAYLIST_URI).toBeEmpty();
-        pm.setPlaylist(createTracks(10), 0);
+        pm.setPlaylist(createTracks(10, true, 0), 0);
         expect(Content.PLAYLIST).toHaveCount(1);
         expect(PlaylistManager.DEFAULT_PLAYLIST_URI).toHaveCount(10);
     }
@@ -216,7 +217,7 @@ public class PlaylistManagerTest {
 
     @Test
     public void shouldSavePlaylistStateInUriWithSetPlaylist() throws Exception {
-        pm.setPlaylist(createTracks(10), 5);
+        pm.setPlaylist(createTracks(10, true, 0), 5);
         expect(pm.getCurrentTrack().id).toEqual(5L);
         expect(pm.getPlaylistState(123L)).toEqual(
             PlaylistManager.DEFAULT_PLAYLIST_URI + "?trackId=5&playlistPos=5&seekPos=123"
@@ -224,8 +225,43 @@ public class PlaylistManagerTest {
     }
 
     @Test
+    public void shouldSkipUnstreamableTrackNext() throws Exception {
+        ArrayList<Playable> playables = new ArrayList<Playable>();
+        playables.addAll(createTracks(1, true, 0));
+        playables.addAll(createTracks(1, false, 1));
+
+        pm.setPlaylist(playables, 0);
+        expect(pm.getCurrentTrack().id).toEqual(0L);
+        expect(pm.next()).toEqual(false);
+
+        playables.addAll(createTracks(1, true, 2));
+        pm.setPlaylist(playables, 0);
+        expect(pm.getCurrentTrack().id).toEqual(0L);
+        expect(pm.next()).toEqual(true);
+        expect(pm.getCurrentTrack().id).toEqual(2L);
+    }
+
+    @Test
+    public void shouldSkipUnstreamableTrackPrev() throws Exception {
+        ArrayList<Playable> playables = new ArrayList<Playable>();
+        playables.addAll(createTracks(1, false, 0));
+        playables.addAll(createTracks(1, true, 1));
+
+        pm.setPlaylist(playables, 1);
+        expect(pm.getCurrentTrack().id).toEqual(1L);
+        expect(pm.prev()).toEqual(false);
+
+        playables.addAll(0, createTracks(1, true, 2));
+        pm.setPlaylist(playables, 2);
+        expect(pm.getCurrentTrack().id).toEqual(1L);
+        expect(pm.prev()).toEqual(true);
+        expect(pm.getCurrentTrack().id).toEqual(2L);
+    }
+
+
+    @Test
     public void shouldClearPlaylistState() throws Exception {
-        pm.setPlaylist(createTracks(10), 5);
+        pm.setPlaylist(createTracks(10, true, 0), 5);
         pm.saveQueue(1235);
 
         PlaylistManager.clearState(Robolectric.application);
@@ -250,7 +286,7 @@ public class PlaylistManagerTest {
         expect(c.getCount()).toEqual(3);
     }
 
-    private List<Track> createTracks(int n) {
+    private List<Track> createTracks(int n, boolean streamable, int startPos) {
         List<Track> list = new ArrayList<Track>();
 
         User user = new User();
@@ -258,9 +294,10 @@ public class PlaylistManagerTest {
 
         for (int i=0; i<n; i++) {
             Track t = new Track();
-            t.id = i;
-            t.title = "track #"+i;
+            t.id = (startPos +i);
+            t.title = "track #"+(startPos+i);
             t.user = user;
+            t.stream_url = streamable ? "http://www.soundcloud.com/sometrackurl" : null;
             SoundCloudDB.insertTrack(resolver, t);
             list.add(t);
         }
