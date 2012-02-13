@@ -49,6 +49,7 @@ import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -130,6 +131,17 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
                 enableSyncing(account, SyncAdapterService.DEFAULT_SYNC_DELAY);
             }
+            // remove device url so clients resubmit the registration request with
+            // device identifier
+            CloudUtils.doOnce(this, "reset.c2dm.reg_id", new Runnable() {
+                @Override public void run() {
+                    PreferenceManager.getDefaultSharedPreferences(SoundCloudApplication.this)
+                            .edit()
+                            .remove(C2DMReceiver.PREF_DEVICE_URL)
+                            .commit();
+                }
+            });
+
             C2DMReceiver.register(this, getLoggedInUser());
         }
 

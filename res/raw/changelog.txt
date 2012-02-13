@@ -2,7 +2,7 @@ $ 34
   % v current
   _ 2012-01-27
   ! Local caching
-    * Local caching of tracks, users & activities
+    * Local caching of sounds, users & activities
     * Added global search provider
 
 $ 33
