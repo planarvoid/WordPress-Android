@@ -356,23 +356,18 @@ public final class CloudUtils {
 
     /**
      * @param context
-     * @return a unique id for this device (MD5 of IMEI) or null
+     * @return a unique id for this device (MD5 of IMEI / {@link Settings.Secure#ANDROID_ID}) or null
      */
     public static String getUniqueDeviceID(Context context) {
         TelephonyManager tmgr = (TelephonyManager)
                 context.getSystemService(Context.TELEPHONY_SERVICE);
 
-        if (tmgr != null) {
-            String deviceId = tmgr.getDeviceId();
-            if (!TextUtils.isEmpty(deviceId)) {
-                return IOUtils.md5(deviceId);
-            } else {
-                // tablets don't have deviceId
-                return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-            }
-        } else {
-            return null;
+        String id = tmgr == null ? null : tmgr.getDeviceId();
+        if (TextUtils.isEmpty(id)) {
+            id = Settings.Secure.getString(
+                context.getContentResolver(), Settings.Secure.ANDROID_ID);
         }
+        return TextUtils.isEmpty(id) ? null : IOUtils.md5(id);
     }
 
      @SuppressWarnings("UnusedDeclaration")
