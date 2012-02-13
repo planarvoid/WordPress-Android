@@ -234,7 +234,7 @@ public class Activities extends CollectionHolder<Activity> {
         List<Activity> activityList = new ArrayList<Activity>();
         Request remote = new Request(request).add("limit", 20);
         do {
-            Log.d(TAG, "Making request " + remote);
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Making request " + remote);
             HttpResponse response = api.get(remote);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 Activities activities = fromJSON(response.getEntity().getContent());
@@ -256,7 +256,7 @@ public class Activities extends CollectionHolder<Activity> {
                 }
             } else {
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
-                    Log.d(TAG, "Got no content response (204)");
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
                     return EMPTY;
                 } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
                     throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
@@ -278,7 +278,7 @@ public class Activities extends CollectionHolder<Activity> {
             return fromJSON(response.getEntity().getContent());
         } else {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
-                Log.d(TAG, "Got no content response (204)");
+                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
                 return EMPTY;
             } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
                 throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,

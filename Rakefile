@@ -65,6 +65,8 @@ end
                StreamStorage
                C2DMReceiver
                SyncAdapterService
+               ScContentProvider
+               ApiSyncService
               ).each do |tag|
               sh "adb #{flag} shell setprop log.tag.#{tag} #{level.upcase}"
             end
