@@ -2,6 +2,13 @@
 package com.soundcloud.android.adapter;
 
 
+import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Parcelable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
@@ -22,14 +29,6 @@ import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
-
-import android.content.Context;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Parcelable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -395,7 +394,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         Request request = getRequest(isRefresh);
         if (request != null) {
             request.add("linked_partitioning", "1");
-            request.add("limit", mPageIndex == 0 ? Consts.COLLECTION_FIRST_PAGE_SIZE : Consts.COLLECTION_PAGE_SIZE);
+            request.add("limit", Consts.COLLECTION_PAGE_SIZE);
         }
         return request;
     }

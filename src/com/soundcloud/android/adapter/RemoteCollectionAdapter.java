@@ -219,7 +219,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
                 isRefresh = refresh;
                 refreshPageItems = !isSyncable();
                 startIndex = refresh ? 0 : getData().size();
-                maxToLoad = mPageIndex == 0 || refresh ? Consts.COLLECTION_FIRST_PAGE_SIZE : Consts.COLLECTION_PAGE_SIZE;
+                maxToLoad = Consts.COLLECTION_PAGE_SIZE;
             }};
     }
 

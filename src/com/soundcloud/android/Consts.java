@@ -30,7 +30,6 @@ public final class Consts {
     public static final File DEPRECATED_EXTERNAL_STORAGE_DIRECTORY =
             new File(Environment.getExternalStorageDirectory(), "Soundcloud");
 
-    public static final int COLLECTION_FIRST_PAGE_SIZE = 20;
     public static final int COLLECTION_PAGE_SIZE      = 50;
 
     // adapter loading constants
