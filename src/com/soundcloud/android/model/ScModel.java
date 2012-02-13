@@ -76,7 +76,11 @@ public abstract class ScModel implements Parcelable {
             } catch (IllegalArgumentException e) {
                 Log.e(TAG, "error ", e);
             } catch (NoSuchFieldException e) {
-                Log.e(TAG, "error ", e);
+                try {
+                    setFieldFromBundle(this, getClass().getField(key), data, key);
+                } catch (NoSuchFieldException ignored) {
+                    Log.e(TAG, "error ", ignored);
+                }
             }
         }
         this.id = data.getLong("id");
