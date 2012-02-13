@@ -72,13 +72,13 @@ public class RecordingTest {
 
     @Test
     public void shouldGenerateStatusWithNotUploaded() throws Exception {
-        expect(r.getStatus(res)).toEqual(("10 years, 1.26, not yet uploaded"));
+        expect(r.getStatus(res)).toMatch("1? years, 1\\.26, not yet uploaded");
     }
 
     @Test
      public void shouldGenerateStatusWithError() throws Exception {
         r.upload_error = true;
-        expect(r.getStatus(res)).toEqual("10 years, 1.26, upload failed");
+        expect(r.getStatus(res)).toMatch("1? years, 1\\.26, upload failed");
      }
 
     @Test
