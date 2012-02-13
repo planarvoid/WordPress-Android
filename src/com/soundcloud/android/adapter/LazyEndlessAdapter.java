@@ -325,9 +325,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
        return mState >= IDLE && !mKeepGoing && super.getCount() == 0 && !isRefreshing() ;
     }
 
-    protected void onEmptyRefresh(){
-    }
-
     public void setRequest(Request request) {
         mRequest = request;
     }

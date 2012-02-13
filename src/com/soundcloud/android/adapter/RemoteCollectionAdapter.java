@@ -120,7 +120,6 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     public boolean onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
-
         mKeepGoing = keepGoing;
         boolean success = (newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK;
         if (success) {
