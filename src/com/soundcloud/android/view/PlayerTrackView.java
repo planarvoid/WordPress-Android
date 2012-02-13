@@ -644,8 +644,9 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void destroy() {
-        if (mArtwork != null && mArtwork.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable) mArtwork.getDrawable()).getBitmap().recycle();
-        if (mAvatar.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable) mAvatar.getDrawable()).getBitmap().recycle();
+        // need a safer method of recycling, this crashes the app as the bitmaps are still stored in the imageloader
+        /*if (mArtwork != null && mArtwork.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable) mArtwork.getDrawable()).getBitmap().recycle();
+        if (mAvatar.getDrawable() instanceof BitmapDrawable) ((BitmapDrawable) mAvatar.getDrawable()).getBitmap().recycle();*/
         clear();
         mWaveformController.onDestroy();
     }
