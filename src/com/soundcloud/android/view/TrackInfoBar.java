@@ -1,7 +1,6 @@
 package com.soundcloud.android.view;
 
 import android.database.Cursor;
-import android.drm.DrmStore;
 import android.os.Parcelable;
 import android.view.animation.Transformation;
 import com.google.android.imageloader.ImageLoader;
