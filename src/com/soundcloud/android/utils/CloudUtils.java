@@ -374,19 +374,19 @@ public final class CloudUtils {
      public static void logScreenSize(Context context) {
         switch (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) {
             case Configuration.SCREENLAYOUT_SIZE_SMALL:
-                Log.i("ScreenSize", "Current Screen Size : Small Screen");
+                Log.d("ScreenSize", "Current Screen Size : Small Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_NORMAL:
-                Log.i("ScreenSize", "Current Screen Size : Normal Screen");
+                Log.d("ScreenSize", "Current Screen Size : Normal Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_LARGE:
-                Log.i("ScreenSize", "Current Screen Size : Large Screen");
+                Log.d("ScreenSize", "Current Screen Size : Large Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_XLARGE:
-                Log.i("ScreenSize", "Current Screen Size : XLarge Screen");
+                Log.d("ScreenSize", "Current Screen Size : XLarge Screen");
                 break;
             case Configuration.SCREENLAYOUT_SIZE_UNDEFINED:
-                Log.i("ScreenSize", "Current Screen Size : Undefined Screen");
+                Log.d("ScreenSize", "Current Screen Size : Undefined Screen");
                 break;
         }
     }

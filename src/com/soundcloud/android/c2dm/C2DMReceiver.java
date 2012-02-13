@@ -2,8 +2,6 @@ package com.soundcloud.android.c2dm;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.beta.Beta;
-import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.app.PendingIntent;
@@ -193,11 +191,7 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     private void onReceiveMessage(Context context, Intent intent) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceiveMessage(" + intent + ")");
-        if (intent.hasExtra(Beta.EXTRA_BETA_VERSION)) {
-            BetaService.onNewBeta(context, intent);
-        } else {
-            Log.w(TAG, "received unknown intent " + intent);
-        }
+        // TODO: handle message
     }
 
     /* package */ static String getRegistrationData(Context context, String key) {
