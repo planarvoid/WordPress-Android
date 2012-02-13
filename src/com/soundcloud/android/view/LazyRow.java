@@ -41,13 +41,6 @@ public abstract class LazyRow extends FrameLayout {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(getRowResourceId(), this);
         mIcon = (ImageView) findViewById(R.id.icon);
-
-        if (getContext().getResources().getDisplayMetrics().density > 1) {
-            mIcon.getLayoutParams().width  = 67;
-            mIcon.getLayoutParams().height = 67;
-        }
-
-        // if we ever do not rebuild the app on logout, this will need to be changed to account for changing user ids
         mCurrentUserId = SoundCloudApplication.getUserIdFromContext(getContext());
     }
 
