@@ -58,7 +58,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             setListLastUpdated();
             if (isStale(false)){
                 refresh(false);
-                if (!mAutoAppend) mListView.setRefreshing(); // this is to show the user something at the initial load
+                // this is to show the user something at the initial load
+                if (mLocalCollection.last_sync <= 0) mListView.setRefreshing();
             }
         }
     }
@@ -135,7 +136,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             handleResponseCode(responseCode);
         }
 
-        if (wasRefresh){
+        if (wasRefresh && (getData().size() > 0 || !isRefreshing())){
             doneRefreshing();
         }
 
