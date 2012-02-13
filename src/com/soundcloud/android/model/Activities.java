@@ -244,8 +244,6 @@ public class Activities extends CollectionHolder<Activity> {
                 }
                 next_href = activities.next_href;
 
-                Log.d(TAG,"Got events " + activities.size());
-
                 for (Activity evt : activities) {
                     if (max < 0 || activityList.size() < max) {
                         activityList.add(evt);
@@ -331,7 +329,9 @@ public class Activities extends CollectionHolder<Activity> {
         return getSince(content.uri, resolver, before);
     }
     public static Activities getSince(Uri contentUri, ContentResolver resolver, long since)  {
-        Log.d(TAG, "Activities.getSince("+contentUri+", since="+since+")");
+        if (Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "Activities.getSince("+contentUri+", since="+since+")");
+
         Activities activities = new Activities();
         LocalCollection lc = LocalCollection.fromContentUri(contentUri, resolver, false);
         if (lc != null) {
@@ -358,7 +358,8 @@ public class Activities extends CollectionHolder<Activity> {
         return getBefore(content.uri, resolver, before);
     }
     public static Activities getBefore(Uri contentUri, ContentResolver resolver, long before)  {
-        Log.d(TAG, "Activities.getBefore("+contentUri+", before="+before+")");
+        if (Log.isLoggable(TAG, Log.DEBUG))
+            Log.d(TAG, "Activities.getBefore("+contentUri+", before="+before+")");
         Activities activities = new Activities();
         Cursor c;
         if (before > 0) {

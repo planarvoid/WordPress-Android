@@ -137,7 +137,8 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
 
             StatusLine status = response.getStatusLine();
             if (status.getStatusCode() == HttpStatus.SC_CREATED) {
-                Log.d(TAG, "Upload successful");
+                if (Log.isLoggable(TAG, Log.DEBUG))
+                    Log.d(TAG, "Upload successful");
             } else {
                 Log.w(TAG, String.format("Upload failed: %d (%s)",
                            status.getStatusCode(),

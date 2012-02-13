@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.record;
 
 import static com.soundcloud.android.Consts.Notifications.*;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.provider.DBHelper.Recordings;
 import static com.soundcloud.android.utils.CloudUtils.isTaskFinished;
 
@@ -137,7 +138,8 @@ public class CloudCreateService extends Service {
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.NOT_YET_UPLOADED);
             cv.put(Recordings.UPLOAD_ERROR, true);
             int x = getContentResolver().update(Content.RECORDINGS.uri,cv, Recordings._ID+"="+ mCurrentUpload.local_recording_id, null);
-            Log.d(TAG, x+" row(s) marked with upload error.");
+            if (Log.isLoggable(TAG, Log.DEBUG))
+                Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
         // if we are getting shut down by the system, shut down recording/playback
@@ -503,7 +505,7 @@ public class CloudCreateService extends Service {
                     cv.put(Recordings.AUDIO_PATH, param.encodedFile.getAbsolutePath());
                     cv.put(Recordings.AUDIO_PROFILE, Profile.ENCODED_HIGH);
                     int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings._ID+"="+ mCurrentUpload.local_recording_id, null);
-                    Log.d(TAG, x + " row(s) audio path updated.");
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, x + " row(s) audio path updated.");
 
                     mCurrentUpload.trackPath = mCurrentUpload.encodedFile.getAbsolutePath();
                     mCurrentUpload.encode = false;
@@ -639,7 +641,7 @@ public class CloudCreateService extends Service {
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.UPLOADED);
             int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings._ID+"="+ mCurrentUpload.local_recording_id, null);
-            Log.d(TAG, x+" row(s) marked as uploaded.");
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, x+" row(s) marked as uploaded.");
 
             mCurrentUpload = null;
 
@@ -658,7 +660,7 @@ public class CloudCreateService extends Service {
             cv.put(Recordings.UPLOAD_ERROR, true);
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.NOT_YET_UPLOADED);
             int x = getContentResolver().update(Content.RECORDINGS.uri, cv, Recordings._ID + "=" + mCurrentUpload.local_recording_id, null);
-            Log.d(TAG, x+" row(s) marked with upload error.");
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
         int icon = R.drawable.statusbar;
@@ -710,7 +712,7 @@ public class CloudCreateService extends Service {
             ContentValues cv = new ContentValues();
             cv.put(Recordings.UPLOAD_STATUS, Upload.UploadStatus.NOT_YET_UPLOADED);
             int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings._ID+"="+ mCurrentUpload.local_recording_id, null);
-            Log.d(TAG, x+" row(s) marked with upload error.");
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, x+" row(s) marked with upload error.");
             mCurrentUpload.upload_status = Upload.UploadStatus.NOT_YET_UPLOADED;
         }
 

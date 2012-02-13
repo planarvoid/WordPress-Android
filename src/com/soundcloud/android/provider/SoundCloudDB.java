@@ -1,5 +1,7 @@
 package com.soundcloud.android.provider;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
@@ -187,14 +189,14 @@ public class SoundCloudDB {
         }
 
         int tracksInserted = resolver.bulkInsert(Content.TRACKS.uri, tracksCv);
-        Log.d(TAG, tracksInserted + " tracks bulk inserted");
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, tracksInserted + " tracks bulk inserted");
 
         int usersInserted = resolver.bulkInsert(Content.USERS.uri, usersCv);
-        Log.d(TAG, usersInserted + " users bulk inserted");
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, usersInserted + " users bulk inserted");
 
         if (bulkValues != null) {
             int itemsInserted = resolver.bulkInsert(uri, bulkValues);
-            Log.d(TAG, itemsInserted + " collection items bulk inserted");
+            if (Log.isLoggable(TAG, Log.DEBUG))Log.d(TAG, itemsInserted + " collection items bulk inserted");
         }
         return usersInserted + tracksInserted;
     }

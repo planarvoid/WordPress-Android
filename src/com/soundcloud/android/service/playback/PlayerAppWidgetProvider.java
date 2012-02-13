@@ -1,5 +1,7 @@
 package com.soundcloud.android.service.playback;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.UserBrowser;
@@ -76,7 +78,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
 
     /* package */ void notifyChange(Context context, Intent intent) {
         String action = intent.getAction();
-        Log.d(TAG, "notify change " + intent);
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "notify change " + intent);
         if (hasInstances(context)) {
             if (action.equals(CloudPlaybackService.META_CHANGED) ||
                     action.equals(CloudPlaybackService.PLAYBACK_COMPLETE) ||
