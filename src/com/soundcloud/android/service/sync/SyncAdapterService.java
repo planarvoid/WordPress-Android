@@ -163,7 +163,6 @@ public class SyncAdapterService extends Service {
             app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, now);
             app.setAccountData(User.DataKeys.LAST_OWN_SEEN, now);
             app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, now);
-            app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, now);
         }
 
         if (shouldUpdateDashboard(app)) {
@@ -234,16 +233,10 @@ public class SyncAdapterService extends Service {
                                 Log.d(TAG, "skipping incoming notification, delta "+delta+" < frequency="+frequency);
                         }
 
-                        final long delta2 = System.currentTimeMillis() -
-                                app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_AT);
-                        if (delta2 > frequency) {
-                            final long lastOwnSeen = app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN);
-                            final Activities news = !isActivitySyncEnabled(app, extras) ? Activities.EMPTY :
-                                    Activities.getSince(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
-                            maybeNotifyOwn(app, news, extras);
-                        } else if (Log.isLoggable(TAG, Log.DEBUG))  {
-                            Log.d(TAG, "skipping own notification, delta "+delta2+" < frequency="+frequency);
-                        }
+                        final long lastOwnSeen = app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN);
+                        final Activities news = !isActivitySyncEnabled(app, extras) ? Activities.EMPTY :
+                                Activities.getSince(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
+                        maybeNotifyOwn(app, news, extras);
                     }
                     Looper.myLooper().quit();
                     break;
@@ -314,13 +307,11 @@ public class SyncAdapterService extends Service {
                 if (activities.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
                     prefetchArtwork(app, activities);
 
-
                     showDashboardNotification(app, msg.ticker, msg.title, msg.message,
                             Actions.ACTIVITY,
                             Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID,
                             activities.getFirstAvailableAvatar());
 
-                    app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, System.currentTimeMillis());
                     app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, activities.getTimestamp());
                     return true;
                 } else return false;
@@ -464,7 +455,6 @@ public class SyncAdapterService extends Service {
                 app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, 1);
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, 1);
                 app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, 1);
-                app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, 1);
                 clearActivities(app.getContentResolver());
                 break;
             case REWIND_LAST_DAY:
@@ -474,7 +464,6 @@ public class SyncAdapterService extends Service {
                 rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_ITEM, null,  rewindTime);
                 rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM, null,  rewindTime);
                 rewind(app, User.DataKeys.LAST_INCOMING_NOTIFIED_AT, null, rewindTime);
-                rewind(app, User.DataKeys.LAST_OWN_NOTIFIED_AT, null, rewindTime);
                 clearActivities(app.getContentResolver());
                 break;
             default:

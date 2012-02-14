@@ -261,7 +261,6 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
         String LAST_OWN_SEEN      = "last_own_sync_event_timestamp";
 
         String LAST_INCOMING_NOTIFIED_AT = "last_incoming_notified_at_timestamp";
-        String LAST_OWN_NOTIFIED_AT = "last_own_notified_at_timestamp";
 
         String LAST_INCOMING_NOTIFIED_ITEM = "last_incoming_notified_timestamp";
         String LAST_OWN_NOTIFIED_ITEM = "last_own_notified_timestamp";

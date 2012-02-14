@@ -5,7 +5,6 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
-import android.content.SyncContext;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
