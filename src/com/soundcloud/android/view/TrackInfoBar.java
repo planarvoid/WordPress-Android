@@ -2,6 +2,7 @@ package com.soundcloud.android.view;
 
 import android.database.Cursor;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.animation.Transformation;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
@@ -27,7 +28,8 @@ import android.widget.TextView;
 
 public class TrackInfoBar extends LazyRow {
     public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(true, true);
-    private Track mTrack;
+
+    private Playable mPlayable;
 
     private TextView mUser;
     private TextView mTitle;
@@ -86,7 +88,7 @@ public class TrackInfoBar extends LazyRow {
                 mIcon.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ((ITracklistAdapter) mAdapter).getQuickTrackMenu().show(mIcon, mTrack, mCurrentPosition);
+                        ((ITracklistAdapter) mAdapter).getQuickTrackMenu().show(mIcon, mPlayable.getTrack(), mCurrentPosition);
                     }
                 });
             }
@@ -144,62 +146,110 @@ public class TrackInfoBar extends LazyRow {
 
     /** update the views with the data corresponding to selection index */
     public void display(Playable p, boolean shouldLoadIcon, long playingId, boolean keepHeight, long currentUserId) {
+        mPlayable = p;
         mShouldLoadIcon = shouldLoadIcon;
-        mTrack = p.getTrack();
-        if (mTrack == null) return;
+
+        final Track track = mPlayable.getTrack();
+        if (track == null) return;
 
         final Context context = getContext();
 
-        mUser.setText(mTrack.user != null ? mTrack.user.username : "");
+        mUser.setText(track.user != null ? track.user.username : "");
         mCreatedAt.setText(p.getTimeSinceCreated(context));
 
-        if (mTrack.sharing == null || mTrack.sharing.contentEquals("public")) {
+        if (track.sharing == null || track.sharing.contentEquals("public")) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
-            if (mTrack.shared_to_count == 0){
+            if (track.shared_to_count == 0){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
                 mPrivateIndicator.setText(R.string.tracklist_item_shared_count_unavailable);
-            } else if (mTrack.shared_to_count == 1){
+            } else if (track.shared_to_count == 1){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(mTrack.user_id == currentUserId ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
+                mPrivateIndicator.setText(track.user_id == currentUserId ? R.string.tracklist_item_shared_with_1_person : R.string.tracklist_item_shared_with_you);
             } else {
-                if (mTrack.shared_to_count < 8){
+                if (track.shared_to_count < 8){
                     mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
                 } else {
                     mPrivateIndicator.setBackgroundDrawable(getPrivateBgDrawable());
                 }
-                mPrivateIndicator.setText(context.getString(R.string.tracklist_item_shared_with_x_people, mTrack.shared_to_count));
+                mPrivateIndicator.setText(context.getString(R.string.tracklist_item_shared_with_x_people, track.shared_to_count));
             }
             mPrivateIndicator.setVisibility(View.VISIBLE);
         }
 
 
-        setStats(mTrack.playback_count, mPlayCount,
+        setStats(track.playback_count, mPlayCount,
                 mPlayCountSeparator,
-                mTrack.comment_count, mCommentCount,
+                track.comment_count, mCommentCount,
                 mCommentCountSeparator,
-                mTrack.favoritings_count, mFavoriteCount,
+                track.favoritings_count, mFavoriteCount,
                 keepHeight);
 
-        if (mTrack.user_favorite) {
+        if (track.user_favorite) {
             mFavoriteCount.setCompoundDrawablesWithIntrinsicBounds(getFavoritedDrawable(),null, null, null);
         } else {
             mFavoriteCount.setCompoundDrawables(getFavoritesDrawable(),null, null, null);
         }
 
 
-        if (mTrack.id == playingId) {
+        if (track.id == playingId) {
             SpannableStringBuilder sb = new SpannableStringBuilder();
             sb.append("  ");
             sb.setSpan(new ImageSpan(getPlayingDrawable(), ImageSpan.ALIGN_BASELINE), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            sb.append(mTrack.title);
+            sb.append(track.title);
             mTitle.setText(sb);
         } else {
-            mTitle.setText(mTrack.title);
+            mTitle.setText(track.title);
         }
-        if (shouldLoadIcon) loadIcon();
 
+        if (shouldLoadIcon) loadIcon();
     }
+
+    /** List specific functions **/
+
+    @Override
+    protected int getRowResourceId() {
+        return R.layout.track_info_bar;
+    }
+
+    @Override
+    public String getIconRemoteUri() {
+        return mPlayable.getTrack() == null ? null : mPlayable.getTrack().getListArtworkUrl(getContext());
+    }
+
+    @Override
+    public void display(Cursor cursor) {
+        display(cursor.getPosition(), new Track(cursor));
+    }
+
+    @Override
+    public void display(int position, Parcelable p) {
+        if (!(p instanceof Playable)) throw new IllegalArgumentException("Not a valid track");
+
+        // have to set the playable here for list icon loading purposes, it gets set again above for non-lists
+        mPlayable = (Playable) p;
+
+        super.display(position);
+
+        if (mPlayable.getTrack().isStreamable()) {
+            setStaticTransformationsEnabled(false);
+        } else {
+            setStaticTransformationsEnabled(true);
+        }
+
+        display(mPlayable, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false, mCurrentUserId);
+    }
+
+    @Override
+    protected boolean getChildStaticTransformation(View child, Transformation t) {
+         super.getChildStaticTransformation(child, t);
+         t.setAlpha((float) 0.4);
+         return true;
+
+     }
+
+
+    /** Non-list, Icon functions **/
 
     public void onConnected(){
         if (mCurrentIconBindResult == ImageLoader.BindResult.ERROR && mShouldLoadIcon){
@@ -208,7 +258,7 @@ public class TrackInfoBar extends LazyRow {
     }
 
     private void loadIcon() {
-        final String iconUrl = mTrack == null ? null : Consts.GraphicSize.formatUriForList(getContext(), mTrack.getArtwork());
+        final String iconUrl = mPlayable.getTrack() == null ? null : Consts.GraphicSize.formatUriForList(getContext(), mPlayable.getTrack().getArtwork());
         if (TextUtils.isEmpty(iconUrl)) {
             mCurrentIconBindResult = ImageLoader.BindResult.OK;
             ImageLoader.get(getContext()).unbind(mIcon); // no artwork
@@ -231,7 +281,6 @@ public class TrackInfoBar extends LazyRow {
 
     };
 
-
     public static void setStats(int stat1, TextView statTextView1,
                                 View separator1,
                                 int stat2, TextView statTextView2,
@@ -251,45 +300,4 @@ public class TrackInfoBar extends LazyRow {
         statTextView3.setVisibility(stat3 == 0 ? maintainSize ? View.INVISIBLE : View.GONE : View.VISIBLE);
     }
 
-    /** List specific functions **/
-
-
-    @Override
-    protected int getRowResourceId() {
-        return R.layout.track_info_bar;
-    }
-
-    @Override
-    public String getIconRemoteUri() {
-        return mTrack == null ? null : mTrack.getListArtworkUrl(getContext());
-    }
-
-
-     /** update the views with the data corresponding to selection index */
-    @Override
-    public void display(Cursor cursor) {
-        display(cursor.getPosition(), new Track(cursor));
-    }
-    @Override
-    public void display(int position, Parcelable p) {
-        if (!(p instanceof Playable)) throw new IllegalArgumentException("Not a valid track");
-
-        super.display(position);
-
-        if (((Playable) p).getTrack().isStreamable()) {
-            setStaticTransformationsEnabled(false);
-        } else {
-            setStaticTransformationsEnabled(true);
-        }
-
-        display((Playable) p, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false, mCurrentUserId);
-    }
-
-    @Override
-    protected boolean getChildStaticTransformation(View child, Transformation t) {
-         super.getChildStaticTransformation(child, t);
-         t.setAlpha((float) 0.4);
-         return true;
-
-     }
 }

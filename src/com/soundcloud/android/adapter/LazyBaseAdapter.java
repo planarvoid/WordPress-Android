@@ -1,10 +1,6 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.view.LazyRow;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -13,6 +9,9 @@ import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.view.LazyRow;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter {
-    public static final int NOTIFY_DELAY = 600;
+    public static final int NOTIFY_DELAY = 300;
     protected Context mContext;
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
