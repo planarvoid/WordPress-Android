@@ -40,7 +40,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -276,14 +275,14 @@ public class SyncAdapterService extends Service {
 
                 if (hasExclusive) {
                     message = getExclusiveNotificationMessage(app, exclusive);
-                    artwork_url = getFirstAvailableArtwork(exclusive);
+                    artwork_url = exclusive.getFirstAvailableArtwork();
                 } else {
                     message = getIncomingNotificationMessage(app, incoming);
                 }
 
                 // either no exclusive or no exclusive artwork
                 if (TextUtils.isEmpty(artwork_url)) {
-                    artwork_url = getFirstAvailableArtwork(incoming);
+                    artwork_url = incoming.getFirstAvailableArtwork();
                 }
 
                 if (incoming.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM)) ||
@@ -315,8 +314,11 @@ public class SyncAdapterService extends Service {
                 if (activities.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
                     prefetchArtwork(app, activities);
 
-                showDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
-                        Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID, getFirstAvailableAvatar(activities));
+
+                    showDashboardNotification(app, msg.ticker, msg.title, msg.message,
+                            Actions.ACTIVITY,
+                            Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID,
+                            activities.getFirstAvailableAvatar());
 
                     app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, System.currentTimeMillis());
                     app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, activities.getTimestamp());
@@ -446,7 +448,7 @@ public class SyncAdapterService extends Service {
                         notificationView.setTextViewText(R.id.title_txt, title);
                         notificationView.setTextViewText(R.id.content_txt, message);
 
-            if (bmp != null) notificationView.setImageViewBitmap(R.id.icon,bmp);
+            notificationView.setImageViewBitmap(R.id.icon,bmp);
             n.contentView = notificationView;
         }
         nm.notify(id, n);
@@ -627,30 +629,5 @@ public class SyncAdapterService extends Service {
 
     private static boolean isSyncWifiOnlyEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("syncWifiOnly", true);
-    }
-
-
-    /* package */ static String getFirstAvailableArtwork(Activities activities) {
-        String artwork_url = null;
-        for (int i = 0; (i < activities.size() && TextUtils.isEmpty(artwork_url)); i++) {
-            final String artwork_candidate = activities.get(i).getTrack() != null ? activities.get(i).getTrack().artwork_url : null;
-            if (ImageUtils.checkIconShouldLoad(artwork_candidate)) {
-                artwork_url = artwork_candidate;
-            }
-        }
-
-        return TextUtils.isEmpty(artwork_url) ? getFirstAvailableAvatar(activities) : artwork_url;
-    }
-
-    /* package */ static String getFirstAvailableAvatar(Activities activities) {
-        String avatar_url = null;
-        List<User> users = activities.getUniqueUsers();
-        for (int i = 0; (i < users.size() && TextUtils.isEmpty(avatar_url)); i++) {
-            final String artwork_candidate = users.get(i) != null ? users.get(i).avatar_url : null;
-            if (ImageUtils.checkIconShouldLoad(artwork_candidate)) {
-                avatar_url = artwork_candidate;
-            }
-        }
-        return avatar_url;
     }
 }

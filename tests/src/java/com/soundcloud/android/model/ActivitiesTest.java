@@ -386,4 +386,56 @@ public class ActivitiesTest {
             "http://i1.sndcdn.com/artworks-000009195725-njfi16-large.jpg?a1786a9"
         );
     }
+
+    @Test
+    public void shouldReturnCorrectIcon() throws Exception {
+        String artwork_1 = "artwork1.jpg";
+        String artwork_2 = "artwork2.jpg";
+        String avatar_1 = "avatar1.jpg";
+        String avatar_2 = "avatar2.jpg";
+
+        Activities a = new Activities();
+        a.add(makeActivity(makeTrack(null,null)));
+        a.add(makeActivity(makeTrack(null,null)));
+        expect(a.getFirstAvailableArtwork()).toBeNull();
+        expect(a.getFirstAvailableAvatar()).toBeNull();
+
+        a = new Activities();
+        a.add(makeActivity(makeTrack(null,artwork_1)));
+        a.add(makeActivity(makeTrack(null,artwork_2)));
+        expect(a.getFirstAvailableArtwork()).toEqual(artwork_1);
+        expect(a.getFirstAvailableAvatar()).toBeNull();
+
+        a = new Activities();
+        a.add(makeActivity(makeTrack(makeUser(avatar_1),null)));
+        a.add(makeActivity(makeTrack(null,artwork_2)));
+        expect(a.getFirstAvailableArtwork()).toEqual(artwork_2);
+        expect(a.getFirstAvailableAvatar()).toEqual(avatar_1);
+
+        a = new Activities();
+        a.add(makeActivity(makeTrack(null,null)));
+        a.add(makeActivity(makeTrack(makeUser(avatar_2),null)));
+        expect(a.getFirstAvailableArtwork()).toEqual(avatar_2);
+        expect(a.getFirstAvailableAvatar()).toEqual(avatar_2);
+    }
+
+    private Activity makeActivity(Track t){
+        Activity a = new Activity();
+        a.origin = t;
+        return a;
+    }
+
+    private Track makeTrack(User u, String artworkUrl){
+        Track t = new Track();
+        t.artwork_url = artworkUrl;
+        t.user = u;
+        return t;
+    }
+
+    private User makeUser(String avatarUrl){
+        User u = new User();
+        u.avatar_url = avatarUrl;
+        return u;
+    }
+
 }

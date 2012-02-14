@@ -514,4 +514,24 @@ public class Activities extends CollectionHolder<Activity> {
         }
         return artworkUrls;
     }
+
+    public String getFirstAvailableAvatar() {
+        for (User u : getUniqueUsers()) {
+            if (ImageUtils.checkIconShouldLoad(u.avatar_url)) {
+                return u.avatar_url;
+            }
+        }
+        return null;
+    }
+
+    public String getFirstAvailableArtwork() {
+        for (Activity a : this) {
+            Track t = a.getTrack();
+            if (t != null && ImageUtils.checkIconShouldLoad(t.artwork_url)) {
+                return t.artwork_url;
+            }
+        }
+        // no artwork found, fall back to avatar
+        return getFirstAvailableAvatar();
+    }
 }
