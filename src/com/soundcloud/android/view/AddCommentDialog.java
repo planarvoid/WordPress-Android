@@ -4,6 +4,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
+import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
@@ -13,7 +14,6 @@ import com.soundcloud.android.task.AddCommentTask;
 import android.app.Dialog;
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,9 +24,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 public class AddCommentDialog extends Dialog {
-
     private ScActivity mActivity;
-
     private EditText mInput;
 
     public AddCommentDialog(ScActivity context) {
@@ -78,7 +76,6 @@ public class AddCommentDialog extends Dialog {
             }
         });
 
-        // imm.showSoftInput(input,InputMethodManager.SHOW_FORCED);
         mInput.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -102,8 +99,28 @@ public class AddCommentDialog extends Dialog {
                     .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
             cancel();
             return true;
+        } else {
+            return false;
         }
-        return false;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        final Comment comment = mActivity.getApp().pendingComment;
+        if (comment != null) {
+            mActivity.track(Page.Sounds_add_comment, comment.getTrack());
+        }
     }
 
     private boolean isOutOfBounds(MotionEvent event) {
@@ -114,14 +131,4 @@ public class AddCommentDialog extends Dialog {
         return (x < -slop) || (y < -slop) || (x > (decorView.getWidth() + slop))
                 || (y > (decorView.getHeight() + slop));
     }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
 }

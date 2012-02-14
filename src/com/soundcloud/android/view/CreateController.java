@@ -14,6 +14,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.record.ICloudCreateService;
+import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
@@ -108,7 +109,6 @@ public class CreateController {
     }
 
     public CreateController(ScActivity c, ViewGroup vg, Recording recording, User privateUser) {
-
         mActivity = c;
         mRecording = recording;
         mPrivateUser = privateUser;
@@ -159,14 +159,33 @@ public class CreateController {
         btnAction = (ImageButton) vg.findViewById(R.id.btn_action);
         btnAction.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                onAction();
+                if (mCurrentState == CreateState.IDLE_STANDBY_REC) {
+                    mActivity.track(Click.Record_play_stop);
+                    stopRecording();
+                    configureState();
+                } else if (mCurrentState == CreateState.IDLE_STANDBY_PLAY) {
+                    mActivity.track(Click.Record_play_stop);
+                    stopPlayback();
+                    onCreateServiceBound(mCreateService);
+                } else {
+                    switch (mCurrentState) {
+                        case IDLE_RECORD:
+                            mActivity.track(Click.Record_rec);
+                            mCurrentState = CreateState.RECORD;
+                            break;
+                        case RECORD:        mCurrentState = CreateState.IDLE_PLAYBACK; break;
+                        case IDLE_PLAYBACK: mCurrentState = CreateState.PLAYBACK; break;
+                        case PLAYBACK:      mCurrentState = CreateState.IDLE_PLAYBACK; break;
+                    }
+                    updateUi(true);
+                }
             }
         });
 
         mResetButton = ((Button) vg.findViewById(R.id.btn_reset));
         mResetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, Consts.Tracking.Actions.RESET);
+                mActivity.track(Click.Record_discard);
                 mActivity.showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
             }
         });
@@ -182,8 +201,8 @@ public class CreateController {
 
         vg.findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, Consts.Tracking.Actions.SAVE);
-                if (mRecording == null){
+                mActivity.track(Click.Record_next);
+                if (mRecording == null) {
                     Recording r = new Recording(mRecordFile);
                     r.audio_profile = mAudioProfile;
                     r.user_id = mActivity.getCurrentUserId();
@@ -206,12 +225,12 @@ public class CreateController {
                     mRecording = r;
                     mRecording.id = Long.parseLong(newRecordingUri.getLastPathSegment());
 
-                    if (mCreateListener != null){
+                    if (mCreateListener != null) {
                         mCreateListener.onSave(newRecordingUri, mRecording, true);
                     }
                 } else {
                     //start for result, because if an upload starts, finish, playback should not longer be possible
-                    if (mCreateListener != null){
+                    if (mCreateListener != null) {
                         mCreateListener.onSave(mRecording.toUri(), mRecording, false);
                     }
                 }
@@ -376,25 +395,6 @@ public class CreateController {
     }
 
 
-    /*** State Handling ***/
-    private void onAction() {
-        if (mCurrentState == CreateState.IDLE_STANDBY_REC) {
-            stopRecording();
-            configureState();
-        } else if (mCurrentState == CreateState.IDLE_STANDBY_PLAY) {
-            stopPlayback();
-            onCreateServiceBound(mCreateService);
-        } else {
-            switch (mCurrentState) {
-                case IDLE_RECORD:   mCurrentState = CreateState.RECORD; break;
-                case RECORD:        mCurrentState = CreateState.IDLE_PLAYBACK; break;
-                case IDLE_PLAYBACK: mCurrentState = CreateState.PLAYBACK; break;
-                case PLAYBACK:      mCurrentState = CreateState.IDLE_PLAYBACK; break;
-            }
-            updateUi(true);
-        }
-    }
-
     void updateUi(boolean takeAction) {
         switch (mCurrentState) {
             case IDLE_RECORD:
@@ -489,15 +489,6 @@ public class CreateController {
     }
 
     private void startRecording() {
-        if (mPrivateUser == null){
-            mActivity.trackPage(Consts.Tracking.RECORD_RECORDING);
-            mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, Consts.Tracking.Actions.START);
-        } else {
-            mActivity.trackPage(Consts.Tracking.AUDIO_MESSAGE_RECORDING);
-            mActivity.trackEvent(Consts.Tracking.Categories.AUDIO_MESSAGE, Consts.Tracking.Actions.START);
-        }
-
-
         mActivity.pause();
 
         mRecordErrorMessage = "";
@@ -612,14 +603,6 @@ public class CreateController {
     };
 
     private void stopRecording() {
-         if (mPrivateUser == null){
-             mActivity.trackPage(Consts.Tracking.RECORD_COMPLETE);
-             mActivity.trackEvent(Consts.Tracking.Categories.RECORDING, "stop");
-         } else {
-             mActivity.trackPage(Consts.Tracking.AUDIO_MESSAGE_COMPLETE);
-             mActivity.trackEvent(Consts.Tracking.Categories.AUDIO_MESSAGE, "stop");
-         }
-
         if (mActivity.getApp().getRecordListener() == recListener) {
             mActivity.getApp().setRecordListener(null);
         }
@@ -686,7 +669,10 @@ public class CreateController {
 
     private void startPlayback() {
         try {
-            if (!mCreateService.isPlayingBack()) mCreateService.startPlayback(); //might already be playing back if activity just created
+            if (!mCreateService.isPlayingBack()) {
+                mActivity.track(Click.Record_play);
+                mCreateService.startPlayback(); //might already be playing back if activity just created
+            }
             startProgressThread();
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -944,11 +930,18 @@ public class CreateController {
                         .setMessage(R.string.dialog_reset_recording_message).setPositiveButton(
                                 android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
+                                mActivity.track(Click.Record_discard__ok);
+
                                 IOUtils.deleteFile(mRecordFile);
                                 mActivity.removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
                                 if (mCreateListener != null) mCreateListener.onCancel();
                             }
-                        }).setNegativeButton(android.R.string.no, null)
+                        }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mActivity.track(Click.Record_discard_cancel);
+                            }
+                        })
                         .create();
 
             case Consts.Dialogs.DIALOG_DELETE_RECORDING:

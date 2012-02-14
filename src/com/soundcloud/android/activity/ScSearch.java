@@ -3,13 +3,14 @@ package com.soundcloud.android.activity;
 import static android.widget.FrameLayout.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SearchHistoryAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.adapter.SectionedTracklistAdapter;
 import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.model.Search;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
@@ -36,7 +37,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-// XXX decouple from ScActivity
+@Tracking(page = Page.Search_main)
 public class ScSearch extends ScActivity {
     private EditText txtQuery;
 
@@ -134,7 +135,7 @@ public class ScSearch extends ScActivity {
     protected void onResume() {
         super.onResume();
         refreshHistory(getContentResolver(), mHistoryAdapter);
-        trackPage(Consts.Tracking.SEARCH);
+        track(getClass());
     }
 
     private Search getSearch() {
@@ -152,13 +153,13 @@ public class ScSearch extends ScActivity {
             case Search.SOUNDS:
                 rdoTrack.setChecked(true);
                 configureAdapter(mSoundAdpWrapper, search);
-                trackPage(Consts.Tracking.SEARCH_TRACKS + search.query);
+                track(Page.Search_results__sounds__keyword, search.query);
                 break;
 
             case Search.USERS:
                 rdoUser.setChecked(true);
                 configureAdapter(mUserAdpWrapper, search);
-                trackPage(Consts.Tracking.SEARCH_USERS + search.query);
+                track(Page.Search_results__people__keyword, search.query);
                 break;
             default:
                 Log.w(TAG, "unknown search type " + search.search_type);

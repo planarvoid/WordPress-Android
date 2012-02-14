@@ -19,7 +19,7 @@ import android.util.Log;
  * Facebook SSO based login. Most of this code is taken from the
  * <a href="https://github.com/facebook/facebook-android-sdk/">Facebook Android SDK </a>
  */
-public class FacebookSSO extends LoginActivity {
+public class FacebookSSO extends AbstractLoginActivity {
     static final String FB_PERMISSION_EXTRA = "scope";
     static final String FB_CLIENT_ID_EXTRA = "client_id";
 

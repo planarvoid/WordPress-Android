@@ -18,7 +18,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -26,7 +25,6 @@ public class CommentPanel extends RelativeLayout {
 
     private final ImageView mIcon;
     protected Comment mComment;
-    protected Track mTrack;
 
     protected final TextView mTxtUsername;
     protected final TextView mTxtTimestamp;
@@ -46,8 +44,6 @@ public class CommentPanel extends RelativeLayout {
 
     private final String at_timestamp;
 
-    private final boolean mIsLandscape;
-
     private final Paint mBgPaint;
     private final Paint mLinePaint;
     private int mPlayheadOffset;
@@ -57,8 +53,6 @@ public class CommentPanel extends RelativeLayout {
 
     public CommentPanel(Context context, boolean isLandscape) {
         super(context);
-
-        mIsLandscape = isLandscape;
 
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.comment_panel, this);
@@ -108,14 +102,13 @@ public class CommentPanel extends RelativeLayout {
             }
         });
 
-        if (mTxtReadOn != null)
-            mTxtReadOn.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mController.nextCommentInThread();
-                }
+        mTxtReadOn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mController.nextCommentInThread();
+            }
 
-            });
+        });
 
         mTxtUsername.setFocusable(true);
         mTxtUsername.setClickable(true);

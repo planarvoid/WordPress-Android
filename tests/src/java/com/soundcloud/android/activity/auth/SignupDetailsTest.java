@@ -17,11 +17,11 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(DefaultTestRunner.class)
-public class AddInfoTest extends ApiTests {
+public class SignupDetailsTest extends ApiTests {
 
     @Test
     public void testAddUserInfoSuccess() throws Exception {
-        AddInfo info = new AddInfo();
+        SignupDetails info = new SignupDetails();
         User user = new User();
 
         addPendingHttpResponse(200, resource("user.json"));
@@ -38,7 +38,7 @@ public class AddInfoTest extends ApiTests {
     @Test
     @DisableStrictI18n
     public void testAddUserInfoFail() throws Exception {
-        AddInfo info = new AddInfo();
+        SignupDetails info = new SignupDetails();
 
         addPendingHttpResponse(422, "{\"error\":\"Failz\"}");
         info.addUserInfo(new User(), "foobaz", null);

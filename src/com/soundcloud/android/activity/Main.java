@@ -1,5 +1,25 @@
 package com.soundcloud.android.activity;
 
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Search;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.service.auth.AuthenticatorService;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.task.ResolveTask;
+import com.soundcloud.android.utils.ChangeLog;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Env;
+import com.soundcloud.api.Request;
+
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
@@ -74,7 +94,7 @@ public class Main extends TabActivity implements
 
         final SoundCloudApplication app = getApp();
 
-        if (mChangeLog.isFirstRun()){
+        if (mChangeLog.isFirstRun()) {
             app.onFirstRun(mChangeLog.getOldVersionCode(), mChangeLog.getCurrentVersionCode());
         }
 
@@ -209,7 +229,7 @@ public class Main extends TabActivity implements
 
     private void handleIntent(Intent intent) {
         if (intent == null || (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return;
-        final Tab tab = Tab.fromIntent(intent);
+        final Tab tab = Main.Tab.fromIntent(intent);
 
         if (Intent.ACTION_VIEW.equals(intent.getAction()) && handleViewUrl(intent)) {
             // already handled
@@ -218,21 +238,21 @@ public class Main extends TabActivity implements
             if (recipient != -1) {
                 startActivity(new Intent(this, UserBrowser.class)
                         .putExtra("userId", recipient)
-                        .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
+                        .putExtra("userBrowserTag", UserBrowser.Tab.privateMessage.name()));
             }
-        } else if (tab != Tab.UNKNOWN) {
+        } else if (tab != Main.Tab.UNKNOWN) {
             getTabHost().setCurrentTabByTag(tab.tag);
         } else if (Actions.PLAYER.equals(intent.getAction())) {
             // start another activity to control history
             startActivity(new Intent(this, ScPlayer.class));
         } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            getTabHost().setCurrentTabByTag(Tab.SEARCH.tag);
+            getTabHost().setCurrentTabByTag(Main.Tab.SEARCH.tag);
             if (getCurrentActivity() instanceof ScSearch) {
                 ((ScSearch) getCurrentActivity()).perform(
                         Search.forSounds(intent.getStringExtra(SearchManager.QUERY)));
             }
         } else if (Actions.MY_PROFILE.equals(intent.getAction()) && intent.hasExtra("userBrowserTag")) {
-            getTabHost().setCurrentTabByTag(Tab.PROFILE.tag);
+            getTabHost().setCurrentTabByTag(Main.Tab.PROFILE.tag);
             if (getCurrentActivity() instanceof UserBrowser) {
                 ((UserBrowser) getCurrentActivity()).setTab(intent.getStringExtra("userBrowserTag"));
             }
@@ -244,7 +264,7 @@ public class Main extends TabActivity implements
             );
         } else if (justAuthenticated(intent)) {
             Log.d(TAG, "activity start after successful authentication");
-            getTabHost().setCurrentTabByTag(Tab.RECORD.tag);
+            getTabHost().setCurrentTabByTag(Main.Tab.RECORD.tag);
         }
         intent.setAction("");
         intent.setData(null);
@@ -291,8 +311,8 @@ public class Main extends TabActivity implements
     }
 
     private void buildTabHost(final SoundCloudApplication app, final TabHost host, final TabWidget widget) {
-        for (Tab tab : Tab.values()) {
-            if (tab == Tab.UNKNOWN) continue;
+        for (Tab tab : Main.Tab.values()) {
+            if (tab == Main.Tab.UNKNOWN) continue;
             TabHost.TabSpec spec = host.newTabSpec(tab.tag).setIndicator(
                     getString(tab.labelId),
                     getResources().getDrawable(tab.drawableId));
@@ -316,7 +336,7 @@ public class Main extends TabActivity implements
         }
 
         // set record tab to just image
-        final int recordTabIdx =  Tab.RECORD.ordinal();
+        final int recordTabIdx =  Main.Tab.RECORD.ordinal();
         View view = recordTabIdx < widget.getChildCount() ? widget.getChildAt(recordTabIdx) : null;
         if (view instanceof RelativeLayout) {
             RelativeLayout relativeLayout = (RelativeLayout) view;

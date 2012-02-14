@@ -2,6 +2,9 @@ package com.soundcloud.android.activity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.android.view.tour.Comment;
 import com.soundcloud.android.view.tour.Finish;
@@ -9,7 +12,6 @@ import com.soundcloud.android.view.tour.Follow;
 import com.soundcloud.android.view.tour.Record;
 import com.soundcloud.android.view.tour.Share;
 import com.soundcloud.android.view.tour.Start;
-import com.soundcloud.android.view.tour.TourLayout;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+
 
 public class Tour extends Activity {
 
@@ -37,34 +40,32 @@ public class Tour extends Activity {
         mWorkspaceView.initWorkspace(0);
 
         final Button btnDone = (Button) findViewById(R.id.btn_done);
-        final Button btnDoneDark = (Button) findViewById(R.id.btn_done_dark);
+        final Button btnSkip = (Button) findViewById(R.id.btn_done_dark);
 
-        btnDone.setOnClickListener(new View.OnClickListener() {
+        final View.OnClickListener done = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ((SoundCloudApplication) getApplication()).track(
+                        view == btnDone ? Click.Tour_Tour_done : Click.Tour_Tour_skip);
                 finish();
             }
-        });
+        };
 
-        btnDoneDark.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        btnDone.setOnClickListener(done);
+        btnSkip.setOnClickListener(done);
 
         mWorkspaceView.setOnScreenChangeListener(new WorkspaceView.OnScreenChangeListener() {
             @Override
             public void onScreenChanged(View newScreen, int newScreenIndex) {
                 ((RadioButton) ((RadioGroup) findViewById(R.id.rdo_tour_step)).getChildAt(newScreenIndex)).setChecked(true);
-                if (newScreenIndex < mWorkspaceView.getScreenCount()-1){
+                if (newScreenIndex < mWorkspaceView.getScreenCount() - 1) {
                     btnDone.setVisibility(View.GONE);
-                    btnDoneDark.setVisibility(View.VISIBLE);
+                    btnSkip.setVisibility(View.VISIBLE);
                 } else {
                     btnDone.setVisibility(View.VISIBLE);
-                    btnDoneDark.setVisibility(View.GONE);
+                    btnSkip.setVisibility(View.GONE);
                 }
-
+                track(newScreen);
             }
 
             @Override
@@ -80,7 +81,13 @@ public class Tour extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ((SoundCloudApplication) getApplication()).trackPage("/tour/" +
-                ((TourLayout) mWorkspaceView.getScreenAt(mWorkspaceView.getCurrentScreen())).getClass().getSimpleName());
+        track(mWorkspaceView.getScreenAt(mWorkspaceView.getCurrentScreen()));
+    }
+
+    private void track(View view) {
+        if (view != null) {
+            Tracking tracking = view.getClass().getAnnotation(Tracking.class);
+            ((SoundCloudApplication)getApplication()).track(tracking);
+        }
     }
 }

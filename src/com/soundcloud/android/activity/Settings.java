@@ -17,6 +17,9 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -38,6 +41,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+@Tracking(page = Page.Settings_main)
 public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
@@ -68,6 +72,7 @@ public class Settings extends PreferenceActivity {
         findPreference("changeLog").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
+                        getApp().track(Page.Settings_change_log);
                         cl.getDialog(true).show();
                         return true;
                     }
@@ -272,7 +277,7 @@ public class Settings extends PreferenceActivity {
 
     @Override
     protected void onResume() {
-        getApp().trackPage(Consts.Tracking.SETTINGS);
+        getApp().track(getClass());
         updateClearCacheTitles();
         super.onResume();
     }
@@ -316,18 +321,18 @@ public class Settings extends PreferenceActivity {
     }
 
     /* package */ static AlertDialog createLogoutDialog(final Activity a) {
+        final SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
+
         return new AlertDialog.Builder(a).setTitle(R.string.menu_clear_user_title)
-                .setMessage(R.string.menu_clear_user_desc).setPositiveButton(android.R.string.ok,
+                .setMessage(R.string.menu_clear_user_desc)
+                .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
+
                                 a.sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
+                                app.track(Click.Log_out_box_ok);
                                 User.clearLoggedInUserFromStorage(app);
-                                app.trackPage(Consts.Tracking.LOGGED_OUT);
-                                app.trackEvent(Consts.Tracking.Categories.AUTH, "logout");
-
                                 C2DMReceiver.unregister(a);
-
                                 app.clearSoundCloudAccount(
                                         new Runnable() {
                                             @Override
@@ -349,7 +354,12 @@ public class Settings extends PreferenceActivity {
                                 );
                             }
                         })
-                .setNegativeButton(android.R.string.cancel, null)
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        app.track(Click.Log_out_box_cancel);
+                    }
+                })
                 .create();
     }
 }

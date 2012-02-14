@@ -141,53 +141,6 @@ public final class Consts {
         int DASHBOARD_NOTIFY_FOLLOWER_ID = 6;
     }
 
-    public interface Tracking {
-        String LABEL_DOMAIN_PREFIX = "http://soundcloud.com/";
-        interface Categories {
-            String AUTH      = "auth";
-            String TRACKS    = "tracks";
-            String RECORDING = "recording";
-            String AUDIO_MESSAGE = "audio_message";
-            String SHARE     = "share";
-            String ERROR     = "error";
-        }
-
-        interface Actions {
-            String TRACK_PLAY = "Track Play";
-            String TEN_PERCENT = "10percent";
-            String NINTY_FIVE_PERCENT = "95percent";
-            String TRACK_COMPLETE = "Track Complete";
-
-            String START = "start";
-            String SAVE = "save";
-            String RESET = "reset";
-            String RECORD_ANOTHER = "recordAnother";
-            String UPLOAD_AND_SHARE = "uploadAndShare";
-        }
-
-        String STREAM   = "/incoming";
-        String ACTIVITY = "/activity";
-        String RECORD   = "/record";
-        String PLAYER   = "/player";
-        @Deprecated String RECORD_RECORDING = "/record/recording";
-        @Deprecated String RECORD_COMPLETE  = "/record/complete";
-        @Deprecated String SHARE_PUBLIC     = "/record/share/public";
-        @Deprecated String SHARE_PRIVATE    = "/record/share/private";
-        @Deprecated String AUDIO_MESSAGE_RECORDING = "/audio_message/recording";
-        @Deprecated String AUDIO_MESSAGE_COMPLETE  = "/audio_message/complete";
-        String SEARCH        = "/search";
-        String SEARCH_TRACKS = "/search?type=users&q=";
-        String SEARCH_USERS  = "/search?type=tracks&q=";
-        @Deprecated String LOGIN    = "/login";
-        @Deprecated String LOGGED_OUT = "/loggedout";
-        @Deprecated String SIGNUP   = "/signup";
-        String SIGNUP_DETAILS       = "/signup/details";
-        String PEOPLE_FINDER        = "/people/finder";
-        String SETTINGS             = "/settings";
-        String TRACKS_BY_TAG        = "/tracks_by_tag/";
-        String TRACKS_BY_GENRE      = "/tracks_by_genre/";
-    }
-
     public interface ResourceStaleTimes {
         long user = 86400000;       //24*60*60*1000 = 24hr
         long track = 3600000l;      //60*60*1000 = 1hr

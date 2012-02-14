@@ -9,10 +9,13 @@ import android.accounts.Account;
 import android.content.ContentResolver;
 import android.os.Bundle;
 import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Tracking(page = Page.Settings_notifications)
 public class NotificationSettings extends PreferenceActivity {
     final List<CheckBoxPreference> syncPreferences = new ArrayList<CheckBoxPreference>();
 
@@ -41,6 +44,12 @@ public class NotificationSettings extends PreferenceActivity {
             }
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ((SoundCloudApplication)getApplication()).track(getClass());
     }
 
     private void checkSyncNecessary() {

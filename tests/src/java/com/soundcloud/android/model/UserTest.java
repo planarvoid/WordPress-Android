@@ -33,13 +33,4 @@ public class UserTest {
         ContentValues cv = u.buildContentValues(false);
         expect(cv.getAsLong(DBHelper.Users._ID)).toEqual(1000L);
     }
-
-    @Test
-    public void shouldPageTrack() throws Exception {
-        User u = new User();
-        u.permalink = "username";
-
-        expect(u.pageTrack(false, "foo")).toEqual("/username/foo");
-        expect(u.pageTrack(true, "foo")).toEqual("/you/foo");
-    }
 }

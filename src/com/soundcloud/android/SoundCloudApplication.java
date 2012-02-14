@@ -4,7 +4,6 @@ import static android.content.pm.PackageManager.*;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.PrefetchHandler;
@@ -20,9 +19,12 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.WifiMonitor;
 import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.tracking.ATTracker;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.analytics.GATracker;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -50,7 +52,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -59,9 +60,6 @@ import java.net.ContentHandler;
 import java.net.ResponseCache;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 
 @ReportsCrashes(
         formUri = "https://bugsense.appspot.com/api/acra?api_key=806c72af",
@@ -82,7 +80,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     private RecordListener mRecListener;
     private ImageLoader mImageLoader;
 
-    private GATracker mTracker;
+    private ATTracker mTracker;
 
     private User mLoggedInUser;
     protected Wrapper mCloudApi; /* protected for testing */
@@ -101,13 +99,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (DALVIK) {
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
-                GoogleAnalyticsTracker gat = GoogleAnalyticsTracker.getInstance();
-                gat.startNewSession(
-                        getString(BETA_MODE || DEV_MODE ? R.string.ga_tracking_beta : R.string.ga_tracking_market),
-                        120 /* seconds */, this);
-
-                mTracker = new GATracker(gat);
-
+                mTracker = new ATTracker(this);
             }
         }
         IOUtils.checkState(this);
@@ -350,69 +342,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public String suggestEmail() {
-        Map<String,Integer> counts = new HashMap<String,Integer>();
-        Account[] accounts = AccountManager.get(this).getAccounts();
-        for (Account account : accounts) {
-            if (CloudUtils.checkEmail(account.name)) {
-                if (counts.get(account.name) == null) {
-                    counts.put(account.name, 1);
-                } else {
-                    counts.put(account.name, counts.get(account.name) + 1);
-                }
-            }
-        }
-        if (counts.isEmpty()) {
-            return null;
-        } else {
-            int max = 0;
-            String candidate = null;
-            for (Map.Entry<String,Integer> e : counts.entrySet()) {
-                if (e.getValue() > max) {
-                    max = e.getValue();
-                    candidate = e.getKey();
-                }
-            }
-            return candidate;
-        }
-    }
-
-    public void trackPage(String path, Object... customVars) {
-        if (mTracker != null && !TextUtils.isEmpty(path)) {
-            try {
-                if (customVars.length > 0 &&
-                    customVars.length % 2 == 0) {
-                    int slot=1;
-                    for (int i=0; i<customVars.length; i+=2) {
-                        Object key   = customVars[i];
-                        Object value = customVars[i+1];
-                        if (key == null) continue;
-                        mTracker.setCustomVar(slot++, key.toString(), value != null ? value.toString() : "");
-                        if (slot > 5) break; // max 5 slots
-                    }
-                }
-                mTracker.trackPageView(path);
-            } catch (IllegalStateException ignored) {
-                // logs indicate this gets thrown occasionally
-                Log.w(TAG, ignored);
-            }
-        }
-    }
-
-    public void trackEvent(String category, String action) {
-        trackEvent(category, action, null, 0);
-    }
-
-    public void trackEvent(String category, String action, String label) {
-        trackEvent(category, action, label, 0);
-    }
-
-    public void trackEvent(String category, String action, String label, int value) {
-        if (mTracker != null && !TextUtils.isEmpty(category) && !TextUtils.isEmpty(action)) {
-            mTracker.trackEvent(category, action, label, value);
-        }
-    }
-
     private String getClientId(boolean production) {
         return getResources().getString(production ?
                 R.string.client_id :
@@ -545,6 +474,25 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 default:
                     break;
             }
+        }
+    }
+
+    public void track(Click click) {
+        if (mTracker != null) mTracker.track(click);
+    }
+
+    public void track(Page page, Object... args) {
+        if (mTracker != null) mTracker.track(page, args);
+    }
+
+    public void track(Class<?> klazz, Object... args) {
+        track(klazz.getAnnotation(Tracking.class), args);
+    }
+
+    public void track(Tracking tracking, Object... args) {
+        if (mTracker != null && tracking != null) {
+            if (tracking.page() != Page.UNKNOWN) track(tracking.page(), args);
+            if (tracking.click() != Click.UNKNOWN) track(tracking.click());
         }
     }
 

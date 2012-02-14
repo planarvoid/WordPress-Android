@@ -1,14 +1,14 @@
 package com.soundcloud.android.activity;
 
-import android.os.Bundle;
-import android.os.Parcelable;
-
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.SectionedCommentAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
+import com.soundcloud.android.adapter.SectionedCommentAdapter;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.tracking.Page;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+
+import android.os.Parcelable;
 
 import java.util.ArrayList;
 
@@ -28,7 +28,7 @@ public class TrackComments extends TrackInfoCollection {
     public void onResume() {
         super.onResume();
         if (mTrack != null) {
-            trackPage(mTrack.pageTrack("comments"));
+            track(Page.Sounds_info__comment, mTrack);
         }
     }
 }

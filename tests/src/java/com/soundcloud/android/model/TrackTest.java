@@ -108,18 +108,6 @@ public class TrackTest {
     }
 
     @Test
-    public void shouldGeneratePageTrack() throws Exception {
-        Track t = new Track();
-        User u = new User();
-        u.permalink = "user";
-        t.permalink = "foo";
-        t.user = u;
-        expect(t.pageTrack()).toEqual("/user/foo");
-        expect(t.pageTrack("bar")).toEqual("/user/foo/bar");
-        expect(t.pageTrack("bar", "baz")).toEqual("/user/foo/bar/baz");
-    }
-
-    @Test
     public void testHasAvatar() throws Exception {
         Track t = new Track();
         expect(t.hasAvatar()).toBeFalse();
@@ -174,5 +162,26 @@ public class TrackTest {
         t2.user = new User();
         t2.user.avatar_url = "http://avatar.com";
         expect(t2.getArtwork()).toEqual("http://avatar.com");
+    }
+
+    @Test
+    public void shouldGenerateShareIntentForPublicTrack() throws Exception {
+        Track t = new Track();
+        t.sharing = "public";
+        t.title = "A track";
+        t.permalink_url = "http://soundcloud.com/foo/bar";
+        Intent intent = t.getShareIntent();
+        expect(intent).not.toBeNull();
+        expect(intent.getType()).toEqual("text/plain");
+        expect(intent.getAction()).toEqual(Intent.ACTION_SEND);
+        expect(intent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("A track on SoundCloud");
+        expect(intent.getStringExtra(Intent.EXTRA_TEXT)).toEqual(t.permalink_url);
+    }
+
+    @Test
+    public void shouldNotGenerateShareIntentForPrivateTrack() throws Exception {
+        Track t = new Track();
+        Intent intent = t.getShareIntent();
+        expect(intent).toBeNull();
     }
 }

@@ -29,7 +29,7 @@ import java.util.EnumSet;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends ScModel implements PageTrackable, Refreshable, Origin {
+public class User extends ScModel implements  Refreshable, Origin {
     @JsonView(Views.Mini.class) public String username;
     public int track_count = -1;
     public String discogs_name;
@@ -210,20 +210,6 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
         } else {
             return "";
         }
-    }
-
-    @Override
-    public String pageTrack(String... paths) {
-        return pageTrack(false, paths);
-    }
-
-    public String pageTrack(boolean currentUser, String... paths) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("/").append(currentUser ? "you" : permalink);
-        for (String p : paths) {
-            sb.append("/").append(p);
-        }
-        return sb.toString();
     }
 
     public String getDisplayName() {

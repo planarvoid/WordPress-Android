@@ -1,7 +1,6 @@
 package com.soundcloud.android.view;
 
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import com.soundcloud.android.R;
 
 import android.content.Context;
@@ -18,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserlistLayout extends RelativeLayout {
-    private static final String TAG = "UserlistLayout";
-
     private final WorkspaceView mWorkspaceView;
     private final RelativeLayout mLabelHolder;
 
@@ -118,10 +115,6 @@ public class UserlistLayout extends RelativeLayout {
         mWorkspaceView.setOnScreenChangeListener(listener, false);
     }
 
-    public void isShowingTag(String tag) {
-
-    }
-
     public void setCurrentScreenByTag(String tag) {
         for (TabLabel tl : tabLabels) {
             if (tl.tag.contentEquals(tag)) {
@@ -158,8 +151,6 @@ public class UserlistLayout extends RelativeLayout {
 
         private int mMarginOffset;
         private final TextView mTextView;
-        private final String mLabel;
-        private int mCurrentPosition;
         private boolean mBold = false;
 
         private int mCurrentLeftMargin;
@@ -167,7 +158,6 @@ public class UserlistLayout extends RelativeLayout {
 
         public TabLabel(TextView textView, String label, String tag, int index){
             this.mTextView = textView;
-            this.mLabel = label;
             this.tag = tag;
             this.index = index;
 

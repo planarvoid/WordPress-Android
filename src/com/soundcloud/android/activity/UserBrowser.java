@@ -41,6 +41,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
+import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.EmptyCollection;
@@ -81,14 +82,22 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private List<Connection> mConnections;
     private Object mAdapterStates[];
 
-    public interface TabTags {
-        String tracks = "tracks";
-        String favorites = "favorites";
-        String details = "details";
-        String followings = "followings";
-        String followers = "followers";
-        String friend_finder = "friend_finder";
-        String privateMessage = "private_message";
+    public enum Tab {
+
+        tracks(Page.Users_sounds, Page.You_sounds),
+        favorites(Page.Users_likes, Page.You_likes),
+        details(Page.Users_info, Page.You_info),
+        followings(Page.Users_following, Page.You_following),
+        followers(Page.Users_followers, Page.You_followers),
+        friend_finder(null, Page.You_find_friends),
+        privateMessage(Page.Users_dedicated_rec, null);
+
+        public final Page user, you;
+
+        Tab(Page user, Page you) {
+            this.user = user;
+            this.you = you;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -196,8 +205,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mUserlistBrowser.setCurrentScreenByTag(tag);
     }
 
-    public boolean isShowingTab(String tabTag) {
-        return mUserlistBrowser.getCurrentTag().contentEquals(tabTag);
+    public boolean isShowingTab(Tab tabTag) {
+        return mUserlistBrowser.getCurrentTag().equals(tabTag.name());
     }
 
     @Override
@@ -206,7 +215,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             restoreAdapterStates(mAdapterStates);
             mAdapterStates = null;
         }
-        trackCurrentScreen();
+
+        trackScreen(mUserlistBrowser.getCurrentTag());
+
         super.onResume();
         if (mMessager != null) mMessager.onResume();
     }
@@ -335,8 +346,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         setFollowingButton();
     }
 
-    private void trackCurrentScreen(){
-        trackPage(mUser.pageTrack(isMe(), mUserlistBrowser.getCurrentTag()));
+    private void trackScreen(String tag) {
+        Tab current = Tab.valueOf(tag);
+        track(isMe() ? current.you : current.user, mUser);
     }
 
     private void build() {
@@ -351,7 +363,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 new ArrayList<Parcelable>(), Track.class);
 
         LazyEndlessAdapter adpWrap = new RemoteCollectionAdapter(this, adp,
-                isMe ?  Content.ME_TRACKS.uri : null, //CloudUtils.replaceWildcard(Content.USER_TRACKS.uri, mUser.id),
+                isMe ?  Content.ME_TRACKS.uri : null,
                 isMe ?  null : Request.to(Endpoints.USER_TRACKS, mUser.id), false);
 
 
@@ -395,7 +407,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {
-                            mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
+                            mUserlistBrowser.setCurrentScreenByTag(Tab.friend_finder.name());
                         }
 
                         @Override
@@ -429,7 +441,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {
-                            mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
+                            mUserlistBrowser.setCurrentScreenByTag(Tab.friend_finder.name());
                         }
 
                         @Override
@@ -461,12 +473,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {
-                            mUserlistBrowser.setCurrentScreenByTag(TabTags.tracks);
+                            mUserlistBrowser.setCurrentScreenByTag(Tab.tracks.name());
                         }
 
                         @Override
                         public void onSecondaryAction() {
-                            //startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
                         }
                     }));
             } else {
@@ -481,7 +492,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
                         @Override
                         public void onSecondaryAction() {
-                            //startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
                         }
                     }));
             }
@@ -513,17 +523,18 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         }
 
-        if (mMessager != null) mUserlistBrowser.addView(mMessager, getString(R.string.user_browser_tab_message), getResources().getDrawable(R.drawable.ic_user_tab_rec), TabTags.privateMessage);
-        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, getString(R.string.user_browser_tab_friend_finder), getResources().getDrawable(R.drawable.ic_user_tab_friendfinder), TabTags.friend_finder);
-        mUserlistBrowser.addView(mMyTracksView,  getString(R.string.user_browser_tab_sounds), getResources().getDrawable(R.drawable.ic_user_tab_sounds), TabTags.tracks);
-        mUserlistBrowser.addView(favoritesView, getString(R.string.user_browser_tab_likes), getResources().getDrawable(R.drawable.ic_user_tab_likes), TabTags.favorites);
-        mUserlistBrowser.addView(followingsView, getString(R.string.user_browser_tab_followings), getResources().getDrawable(R.drawable.ic_user_tab_following), TabTags.followings);
-        mUserlistBrowser.addView(followersView, getString(R.string.user_browser_tab_followers), getResources().getDrawable(R.drawable.ic_user_tab_followers), TabTags.followers);
-        mUserlistBrowser.addView(infoView, getString(R.string.user_browser_tab_info), getResources().getDrawable(R.drawable.ic_user_tab_info), TabTags.details);
+        if (mMessager != null) mUserlistBrowser.addView(mMessager, getString(R.string.user_browser_tab_message), getResources().getDrawable(R.drawable.ic_user_tab_rec), Tab.privateMessage.name());
+        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, getString(R.string.user_browser_tab_friend_finder), getResources().getDrawable(R.drawable.ic_user_tab_friendfinder), Tab.friend_finder.name());
+        mUserlistBrowser.addView(mMyTracksView,  getString(R.string.user_browser_tab_sounds), getResources().getDrawable(R.drawable.ic_user_tab_sounds), Tab.tracks.name());
+        mUserlistBrowser.addView(favoritesView, getString(R.string.user_browser_tab_likes), getResources().getDrawable(R.drawable.ic_user_tab_likes), Tab.favorites.name());
+        mUserlistBrowser.addView(followingsView, getString(R.string.user_browser_tab_followings), getResources().getDrawable(R.drawable.ic_user_tab_following), Tab.followings.name());
+        mUserlistBrowser.addView(followersView, getString(R.string.user_browser_tab_followers), getResources().getDrawable(R.drawable.ic_user_tab_followers), Tab.followers.name());
+        mUserlistBrowser.addView(infoView, getString(R.string.user_browser_tab_info), getResources().getDrawable(R.drawable.ic_user_tab_info), Tab.details.name());
 
         mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
             @Override public void onScreenChanged(View newScreen, int newScreenIndex) {
-                trackCurrentScreen();
+                trackScreen(mUserlistBrowser.getCurrentTag());
+
                 if (isMe) {
                     getApp().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(newScreenIndex));
                 }
@@ -752,7 +763,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
                         .putExtra("edit", false)
                         .putExtra("recordingUri", recording.toUri().toString())
-                        .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
+                        .putExtra("userBrowserTag", Tab.privateMessage.name()));
             }
         }
     }
@@ -842,5 +853,4 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         int friendFinderState;
         boolean infoError;
     }
-
 }

@@ -39,7 +39,7 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ScModel implements PageTrackable, Origin, Playable, Refreshable {
+public class Track extends ScModel implements Origin, Playable, Refreshable {
     private static final String TAG = "Track";
 
     public static class TrackHolder extends CollectionHolder<Track> {}
@@ -191,10 +191,6 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
 
     public boolean isPublic() {
         return sharing.contentEquals("public");
-    }
-
-    public String getTrackEventLabel() {
-        return Consts.Tracking.LABEL_DOMAIN_PREFIX + (user == null ? user_id : user.permalink) + "/" + permalink;
     }
 
     public String getArtwork() {
@@ -470,19 +466,6 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
                 '}';
     }
 
-    @Override
-    public String pageTrack(String... paths) {
-        StringBuilder sb = new StringBuilder();
-        if (user != null && !TextUtils.isEmpty(user.permalink)) {
-            sb.append("/").append(user.permalink).append("/");
-        }
-        sb.append(permalink);
-        for (CharSequence p : paths) {
-            sb.append("/").append(p);
-        }
-        return sb.toString();
-    }
-
     public boolean hasAvatar() {
         return user != null && !TextUtils.isEmpty(user.avatar_url);
     }
@@ -504,6 +487,19 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @Override
     public boolean isStale(){
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
+    }
+
+    public Intent getShareIntent() {
+        if (!"public".equals(sharing)) return null;
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT,
+                title +
+                (user != null ? " by " + user.username : "") + " on SoundCloud");
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, permalink_url);
+
+        return intent;
     }
 
     public Track updateFrom(Context c, ScModel updatedItem) {

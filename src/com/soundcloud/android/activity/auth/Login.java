@@ -2,6 +2,9 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 
@@ -13,7 +16,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class Login extends LoginActivity {
+
+@Tracking(page = Page.Entry_login__main)
+public class Login extends AbstractLoginActivity {
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ((SoundCloudApplication)getApplication()).track(getClass());
+    }
+
     protected void build() {
         setContentView(R.layout.login);
 
@@ -21,7 +33,7 @@ public class Login extends LoginActivity {
         final EditText passwordField = (EditText) findViewById(R.id.txt_password);
         final Button loginBtn = (Button) findViewById(R.id.btn_login);
 
-        emailField.setText(((SoundCloudApplication)getApplication()).suggestEmail());
+        emailField.setText(CloudUtils.suggestEmail(this));
 
         passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
@@ -42,6 +54,8 @@ public class Login extends LoginActivity {
                 if (emailField.getText().length() == 0 || passwordField.getText().length() == 0) {
                     CloudUtils.showToast(Login.this, R.string.authentication_error_incomplete_fields);
                 } else {
+                    ((SoundCloudApplication)getApplication()).track(Click.Login_Login_done);
+
                     final String email = emailField.getText().toString();
                     final String password = passwordField.getText().toString();
                     login(email, password);

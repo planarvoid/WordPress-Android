@@ -613,7 +613,7 @@ public class CloudCreateService extends Service {
         final CharSequence notificationTitle;
         final CharSequence notificationMessage;
 
-        Intent i = (new Intent(Actions.MY_PROFILE).putExtra("userBrowserTag", UserBrowser.TabTags.tracks));
+        Intent i = (new Intent(Actions.MY_PROFILE).putExtra("userBrowserTag", UserBrowser.Tab.tracks));
 
         if (params.isSuccess()) {
             mCurrentUpload.upload_status = Upload.UploadStatus.UPLOADED;

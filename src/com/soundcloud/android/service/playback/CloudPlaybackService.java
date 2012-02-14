@@ -119,12 +119,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     private boolean resumeSeeking;
 
-    private long m10percentStamp;
-    private long m95percentStamp;
-
-    private boolean m10percentStampReached;
-    private boolean m95percentStampReached;
-
     private StreamProxy mProxy;
     private TrackCache mCache;
 
@@ -393,11 +387,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private void onStreamableTrack(Track track){
         if (mCurrentTrack.id != track.id) return;
 
-        m10percentStamp = (long) (mCurrentTrack.duration * .1);
-        m10percentStampReached = false;
-        m95percentStamp = (long) (mCurrentTrack.duration * .95);
-        m95percentStampReached = false;
-
         new Thread() {
             @Override
             public void run() {
@@ -407,10 +396,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             }
         }.start();
 
-        getApp().trackEvent(
-                Consts.Tracking.Categories.TRACKS,
-                Consts.Tracking.Actions.TRACK_PLAY,
-                mCurrentTrack.getTrackEventLabel());
+        // ATI
+//        getApp().trackEvent(
+//                Consts.Tracking.Categories.TRACKS,
+//                Consts.Tracking.Actions.TRACK_PLAY,
+//                mCurrentTrack.getTrackEventLabel());
         startTrack(track);
     }
 
@@ -1006,23 +996,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                         final long pos = getPosition();
                         // account for lack of accuracy in actual delay between checks
                         final long window = (long) (TRACK_EVENT_CHECK_DELAY * 1.5);
-
-                        if (!m10percentStampReached && pos > m10percentStamp && pos - m10percentStamp < window) {
-                            m10percentStampReached = true;
-                            getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TEN_PERCENT,
-                                    mCurrentTrack.getTrackEventLabel());
-                        }
-
-                        if (!m95percentStampReached && pos > m95percentStamp && pos - m95percentStamp < window) {
-                            m95percentStampReached = true;
-                            getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.NINTY_FIVE_PERCENT,
-                                    mCurrentTrack.getTrackEventLabel());
-                        }
                     }
                     mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
-                    if (!m10percentStampReached || !m95percentStampReached) {
-                        mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, TRACK_EVENT_CHECK_DELAY);
-                    }
                     break;
             }
         }
@@ -1093,10 +1068,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mResumeTime = targetPosition;
                 errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
             } else if (!state.isError()) {
-                getApp().trackEvent(
-                        Consts.Tracking.Categories.TRACKS,
-                        Consts.Tracking.Actions.TRACK_COMPLETE,
-                        mCurrentTrack.getTrackEventLabel());
+                // ATI
+//                getApp().trackEvent(
+//                        Consts.Tracking.Categories.TRACKS,
+//                        Consts.Tracking.Actions.TRACK_COMPLETE,
+//                        mCurrentTrack.getTrackEventLabel());
 
                 mPlayerHandler.sendEmptyMessage(TRACK_ENDED);
             } else {

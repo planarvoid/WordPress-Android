@@ -22,6 +22,8 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.ICloudPlaybackService;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.record.ICloudCreateService;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.AddCommentDialog;
@@ -573,17 +575,15 @@ public abstract class ScActivity extends android.app.Activity {
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:
-                trackPage(Consts.Tracking.PEOPLE_FINDER);
                 intent = new Intent(Actions.MY_PROFILE)
                     .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    .putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder);
+                    .putExtra("userBrowserTag", UserBrowser.Tab.friend_finder.name());
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD:
                 safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
             case Consts.OptionsMenu.SECRET_DEV_BUTTON:
-                //startActivity(new Intent(this,TestActivity.class));
                 return true;
 
             default:
@@ -613,14 +613,6 @@ public abstract class ScActivity extends android.app.Activity {
             mCurrentUserId = getApp().getCurrentUserId();
         }
         return mCurrentUserId;
-    }
-
-    public void trackPage(String path) {
-        getApp().trackPage(path);
-    }
-
-    public void trackEvent(String category, String action) {
-        getApp().trackEvent(category, action);
     }
 
     protected void handleRecordingClick(Recording recording) {
@@ -677,5 +669,18 @@ public abstract class ScActivity extends android.app.Activity {
 
     public ICloudCreateService getCreateService() {
         return mCreateService;
+    }
+
+    // tracking shizzle
+    public void track(Click click) {
+        getApp().track(click);
+    }
+
+    public void track(Page page, Object... args) {
+        getApp().track(page, args);
+    }
+
+    public void track(Class<?> klazz, Object... args) {
+        getApp().track(klazz, args);
     }
 }

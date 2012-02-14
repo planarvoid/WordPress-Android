@@ -2,7 +2,10 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.task.RecoverPasswordTask;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
 
@@ -18,11 +21,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+@Tracking(page = Page.Entry_login__recover_password)
 public class Recover extends Activity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         build();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ((SoundCloudApplication)getApplication()).track(getClass());
     }
 
     protected void build() {

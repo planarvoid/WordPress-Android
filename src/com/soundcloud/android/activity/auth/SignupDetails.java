@@ -3,11 +3,13 @@ package com.soundcloud.android.activity.auth;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.AddUserInfoTask;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -29,7 +31,8 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 
-public class AddInfo extends Activity {
+@Tracking(page = Page.Entry_signup__details)
+public class SignupDetails extends Activity {
     private File mAvatarFile;
     private ImageView mArtwork;
 
@@ -39,10 +42,17 @@ public class AddInfo extends Activity {
         build();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ((SoundCloudApplication)getApplication()).track(getClass());
+    }
+
     protected void build() {
-        setContentView(R.layout.add_info);
+        setContentView(R.layout.signup_details);
         final User user = getIntent().getParcelableExtra("user");
 
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
         final EditText usernameField = (EditText) findViewById(R.id.txt_username);
         usernameField.setHint(R.string.authentication_add_info_username_hint);
 
@@ -66,12 +76,14 @@ public class AddInfo extends Activity {
         findViewById(R.id.btn_skip).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                app.track(Click.Signup_Signup_details_skip);
                 finishSignup();
             }
         });
 
         findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
+                app.track(Click.Signup_Signup_details_next);
                 addUserInfo(user, usernameField.getText().toString(), mAvatarFile);
             }
         });
@@ -79,7 +91,7 @@ public class AddInfo extends Activity {
         mArtwork.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CloudUtils.showToast(AddInfo.this, R.string.cloud_upload_clear_artwork);
+                CloudUtils.showToast(SignupDetails.this, R.string.cloud_upload_clear_artwork);
             }
         });
 
@@ -110,7 +122,7 @@ public class AddInfo extends Activity {
         new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
             ProgressDialog dialog;
             @Override protected void onPreExecute() {
-                dialog = CloudUtils.showProgress(AddInfo.this,
+                dialog = CloudUtils.showProgress(SignupDetails.this,
                         R.string.authentication_add_info_progress_message);
             }
 
@@ -120,9 +132,9 @@ public class AddInfo extends Activity {
                     if (user != null) {
                         finishSignup();
                     } else {
-                        CloudUtils.showToast(AddInfo.this, getFirstError() == null ?
-                                getString(R.string.authentication_add_info_error) :
-                                getString(R.string.authentication_add_info_error_reason, getFirstError()));
+                        CloudUtils.showToast(SignupDetails.this, getFirstError() == null ?
+                            getString(R.string.authentication_add_info_error) :
+                            getString(R.string.authentication_add_info_error_reason, getFirstError()));
                     }
                 }
             }
@@ -133,12 +145,6 @@ public class AddInfo extends Activity {
     private void finishSignup() {
         setResult(RESULT_OK, getIntent());
         finish();
-    }
-
-     @Override
-    protected void onResume() {
-        super.onResume();
-        ((SoundCloudApplication) getApplication()).trackPage(Consts.Tracking.SIGNUP_DETAILS);
     }
 
     private void setImage(final File file) {

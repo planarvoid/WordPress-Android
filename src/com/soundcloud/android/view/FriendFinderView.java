@@ -108,7 +108,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
     public void onSectionLoaded(SectionedAdapter.Section section) {
         if ((mFriendsSection == section && mFriendsSection.data.size() == 0 &&
             !mActivity.getApp().getAccountDataBoolean(User.DataKeys.FRIEND_FINDER_NO_FRIENDS_SHOWN))) {
-            if (mActivity instanceof UserBrowser && ((UserBrowser) mActivity).isShowingTab(UserBrowser.TabTags.friend_finder)){
+            if (mActivity instanceof UserBrowser && ((UserBrowser) mActivity).isShowingTab(UserBrowser.Tab.friend_finder)){
                 showTrendsetterMessage();
             } else {
                 mPendingTrendsetterMessage = true;

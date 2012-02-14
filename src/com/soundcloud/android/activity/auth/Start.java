@@ -4,6 +4,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Token;
 
@@ -28,14 +30,24 @@ public class Start extends AccountAuthenticatorActivity {
     public static final String FB_CONNECTED_EXTRA = "facebook_connected";
     private final Handler mHandler = new Handler();
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ((SoundCloudApplication)getApplication()).track(Page.Entry_main);
+    }
+
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.start);
 
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+
         findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                app.track(Click.Login_with_facebook);
                 startActivityForResult(new Intent(Start.this, Facebook.class), 0);
             }
         });
@@ -43,6 +55,7 @@ public class Start extends AccountAuthenticatorActivity {
         findViewById(R.id.login_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                app.track(Click.Login);
                 startActivityForResult(new Intent(Start.this, Login.class), 0);
             }
         });
@@ -50,12 +63,14 @@ public class Start extends AccountAuthenticatorActivity {
         findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                app.track(Click.Signup_Signup);
                 startActivityForResult(new Intent(Start.this, SignUp.class), 0);
             }
         });
 
         Button forgotBtn = (Button) this.findViewById(R.id.forgot_btn);
-        forgotBtn.setText(Html.fromHtml("<u>" + getResources().getString(R.string.authentication_I_forgot_my_password)
+        forgotBtn.setText(Html.fromHtml("<u>" +
+                getResources().getString(R.string.authentication_I_forgot_my_password)
                 + "</u>"));
         forgotBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,7 +118,7 @@ public class Start extends AccountAuthenticatorActivity {
                     final Token token = (Token) data.getSerializableExtra("token");
 
                     /* native|facebook:(access-token|web-flow) */
-                    String signed_up = data.getStringExtra(LoginActivity.SIGNED_UP_EXTRA);
+                    String signed_up = data.getStringExtra(AbstractLoginActivity.SIGNED_UP_EXTRA);
 
                     // native signup will already have created the account
                     if ("native".equals(signed_up) || app.addUserAccount(user, token)) {

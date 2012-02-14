@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.FocusHelper;
+import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.view.PlayerTrackView;
 import com.soundcloud.android.view.TransportBar;
 import com.soundcloud.android.view.WaveformController;
@@ -95,7 +96,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             mPlaybackService.setAutoAdvance(!mIsCommenting);
         } catch (RemoteException ignored) {
         }
-
     }
 
     public ViewGroup getCommentHolder() {
@@ -285,12 +285,11 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     @Override
     protected void onServiceBound() {
         super.onServiceBound();
-
-        long trackId = -1;
+        long trackId;
         try {
             trackId = mPlaybackService.getCurrentTrackId();
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        } catch (RemoteException ignored) {
+            trackId = -1;
         }
 
         if (trackId == -1) {
@@ -469,7 +468,10 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 setTrackDisplayFromService();
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 if (mCurrentQueuePosition != queuePos) {
-                    if (mCurrentQueuePosition != -1 && queuePos == mCurrentQueuePosition + 1 && !mTrackWorkspace.isScrolling()) { // auto advance
+                    if (mCurrentQueuePosition != -1
+                            && queuePos == mCurrentQueuePosition + 1
+                            && !mTrackWorkspace.isScrolling()) {
+                        // auto advance
                         mTrackWorkspace.scrollRight();
                     } else {
                         setTrackDisplayFromService();
@@ -532,9 +534,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     @Override
     protected void onResume() {
-        trackPage(Consts.Tracking.PLAYER);
         super.onResume();
-
         FocusHelper.registerHeadphoneRemoteControl(this);
         setPlaybackState();
     }
