@@ -213,7 +213,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                 case COMMENT:
                     Bundle extras = new Bundle();
                     extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, event.type);
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requesting sync(event="+event+")");
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requesting sync (event="+event+")");
                     ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, extras);
                     break;
                 default:

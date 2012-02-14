@@ -90,7 +90,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public Comment pendingComment;
 
     public static boolean useRichNotifications() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+        return Build.VERSION.SDK_INT >= 11 /* HONEYCOMB */;
     }
 
     @Override
@@ -135,6 +135,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
                 enableSyncing(account, SyncAdapterService.DEFAULT_SYNC_DELAY);
             }
+
             // remove device url so clients resubmit the registration request with
             // device identifier
             CloudUtils.doOnce(this, "reset.c2dm.reg_id", new Runnable() {
