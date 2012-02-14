@@ -13,24 +13,44 @@ import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.*;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.MyTracksAdapter;
+import com.soundcloud.android.adapter.RemoteCollectionAdapter;
+import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.ParcelCache;
-import com.soundcloud.android.model.*;
+import com.soundcloud.android.model.Connection;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Upload;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.task.LoadUserInfoTask;
+import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.*;
+import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.FriendFinderView;
+import com.soundcloud.android.view.FullImageDialog;
+import com.soundcloud.android.view.PrivateMessager;
+import com.soundcloud.android.view.ScListView;
+import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.android.view.UserlistLayout;
+import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
@@ -38,7 +58,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** @noinspection unchecked*/
-public class UserBrowser extends ScActivity implements ParcelCache.Listener<Connection>, FollowStatus.Listener, LoadUserInfoTask.LoadUserInfoListener {
+public class UserBrowser extends ScActivity implements ParcelCache.Listener<Connection>, FollowStatus.Listener, FetchUserTask.FetchUserListener {
     private User mUser;
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
     private ImageView mIcon;
@@ -53,7 +73,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private FriendFinderView mFriendFinderView;
     private Button mFollowBtn, mFollowingBtn;
     private UserlistLayout mUserlistBrowser;
-    private LoadUserInfoTask mLoadUserTask;
+    private FetchUserTask mLoadUserTask;
     private boolean mUpdateInfo;
 
     private PrivateMessager mMessager;
@@ -301,9 +321,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         if (!mUpdateInfo) return;
 
         if (mLoadUserTask == null) {
-            mLoadUserTask = new LoadUserInfoTask(getApp(), mUser.id);
+            mLoadUserTask = new FetchUserTask(getApp(), mUser.id);
             mLoadUserTask.setActivity(this);
-            mLoadUserTask.setListener(this);
+            mLoadUserTask.addListener(this);
         }
 
         if (CloudUtils.isTaskPending(mLoadUserTask)) {
@@ -559,13 +579,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     @Override
-    public void onUserInfoLoaded(User user) {
+    public void onSuccess(User user, String action) {
         mInfoError = false;
         setUser(user);
     }
 
     @Override
-    public void onUserInfoError(long userId) {
+    public void onError(long userId) {
         mInfoError = true;
         if (!mDisplayedInfo) {
             configureEmptyView();
@@ -814,7 +834,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     private static class Configuration {
-        LoadUserInfoTask loadUserTask;
+        FetchUserTask loadUserTask;
         User user;
         List<Connection> connections;
         int workspaceIndex;

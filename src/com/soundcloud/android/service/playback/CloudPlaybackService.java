@@ -19,7 +19,7 @@ import com.soundcloud.android.streaming.StreamProxy;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
-import com.soundcloud.android.task.LoadTrackInfoTask;
+import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -368,9 +368,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
     }
 
-    private LoadTrackInfoTask.LoadTrackInfoListener mInfoListener = new LoadTrackInfoTask.LoadTrackInfoListener() {
+    private FetchTrackTask.FetchTrackListener mInfoListener = new FetchTrackTask.FetchTrackListener() {
         @Override
-        public void onTrackInfoLoaded(Track track, String action) {
+        public void onSuccess(Track track, String action) {
             if (track.isStreamable()) {
                 onStreamableTrack(track);
             } else {
@@ -379,7 +379,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
 
         @Override
-        public void onTrackInfoError(long trackId) {
+        public void onError(long trackId) {
             onUnstreamableTrack(trackId);
         }
     };

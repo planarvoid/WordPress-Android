@@ -271,7 +271,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case Consts.OptionsMenu.REFRESH:
-                mPlayingTrack.info_loaded = false;
+                mPlayingTrack.full_track_info_loaded = false;
                 mPlayingTrack.comments_loaded = false;
                 mPlayingTrack.comments = null;
                 getCurrentTrackView().onRefresh();

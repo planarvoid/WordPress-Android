@@ -1,6 +1,5 @@
 package com.soundcloud.android.view;
 
-import android.graphics.drawable.BitmapDrawable;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -9,8 +8,9 @@ import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.LoadCommentsTask;
-import com.soundcloud.android.task.LoadTrackInfoTask;
+import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -44,7 +44,7 @@ import java.util.List;
 
 public class PlayerTrackView extends LinearLayout implements
         View.OnTouchListener,
-        LoadTrackInfoTask.LoadTrackInfoListener,
+        FetchModelTask.FetchModelListener<Track>,
         LoadCommentsTask.LoadCommentsListener {
 
     private ScPlayer mPlayer;
@@ -193,9 +193,9 @@ public class PlayerTrackView extends LinearLayout implements
 
         setFavoriteStatus();
 
-        if (!mTrack.info_loaded) {
+        if (!mTrack.full_track_info_loaded) {
             if (CloudUtils.isTaskFinished(mTrack.load_info_task)) {
-                mTrack.load_info_task = new LoadTrackInfoTask(mPlayer.getApp(), mTrack.id);
+                mTrack.load_info_task = new FetchTrackTask(mPlayer.getApp(), mTrack.id);
             }
 
             mTrack.load_info_task.addListener(this);
@@ -463,23 +463,7 @@ public class PlayerTrackView extends LinearLayout implements
         return null;
     }
 
-    @Override
-    public void onTrackInfoLoaded(Track track, String action) {
-        if (track.id != mTrack.id) return;
 
-        setTrack(track, mPlayPos, true, mOnScreen);
-        if (mTrackInfo != null) {
-            mTrackInfo.onInfoLoadSuccess();
-        }
-    }
-
-    @Override
-    public void onTrackInfoError(long trackId) {
-        if (trackId != mTrack.id) return;
-        if (mTrackInfo != null){
-            mTrackInfo.onInfoLoadError();
-        }
-    }
 
     public void setCommentMode(boolean mIsCommenting) {
         getWaveformController().setCommentMode(mIsCommenting);
@@ -657,5 +641,23 @@ public class PlayerTrackView extends LinearLayout implements
         mAvatar.setImageBitmap(null);
         mWaveformController.reset(true);
         mWaveformController.setOnScreen(false);
+    }
+
+    @Override
+    public void onSuccess(Track t, String action) {
+        if (t.id != mTrack.id) return;
+
+        setTrack(t, mPlayPos, true, mOnScreen);
+        if (mTrackInfo != null) {
+            mTrackInfo.onInfoLoadSuccess();
+        }
+    }
+
+    @Override
+    public void onError(long trackId) {
+        if (trackId != mTrack.id) return;
+        if (mTrackInfo != null){
+            mTrackInfo.onInfoLoadError();
+        }
     }
 }

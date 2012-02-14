@@ -169,6 +169,7 @@ public class SyncAdapterService extends Service {
             if (isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
             if (isExclusiveEnabled(app, extras)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri);
             if (isActivitySyncEnabled(app, extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
+            if (isFollowersEnabled(app,extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
         }
 
         if (shouldSyncCollections(app)) {
@@ -614,6 +615,14 @@ public class SyncAdapterService extends Service {
         return PreferenceManager
                 .getDefaultSharedPreferences(c)
                 .getBoolean("notificationsComments", true) && (evt == PushEvent.NULL || evt == PushEvent.COMMENT);
+    }
+
+
+    private static boolean isFollowersEnabled(Context c, Bundle extras) {
+        PushEvent evt = PushEvent.fromExtras(extras);
+        return PreferenceManager
+                .getDefaultSharedPreferences(c)
+                .getBoolean("notificationsFollowers", true) && (evt == PushEvent.NULL || evt == PushEvent.FOLLOWER);
     }
 
     private static boolean isSyncWifiOnlyEnabled(Context c) {

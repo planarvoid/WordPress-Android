@@ -55,7 +55,6 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
     public boolean user_following; // is the user being followed by the logged in user
 
     public boolean primary_email_confirmed;
-    @JsonIgnore public long last_updated;
     @JsonIgnore public String _list_avatar_uri;
 
     public User() {

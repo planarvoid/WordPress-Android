@@ -155,6 +155,7 @@ public class ApiSyncer {
         switch (c) {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
+
                 // load the first page of items to getSince proper last_seen ordering
                 InputStream is = validateResponse(mApi.get(Request.to(c.remoteUri)
                         .add("linked_partitioning", "1").add("limit", Consts.COLLECTION_PAGE_SIZE)))

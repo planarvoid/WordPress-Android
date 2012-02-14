@@ -3,6 +3,7 @@ package com.soundcloud.android.task;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -20,12 +21,12 @@ import static org.junit.Assert.assertThat;
 
 
 @RunWith(DefaultTestRunner.class)
-public class LoadUserInfoTaskTest {
-    LoadUserInfoTask.LoadUserInfoListener listener;
+public class FetchUserInfoTaskTest {
+    FetchUserTask.FetchUserListener listener;
 
     @Test
-    public void testLoadTrackInfo() throws Exception {
-        LoadUserInfoTask task = new LoadUserInfoTask(DefaultTestRunner.application, 0);
+    public void fetchLoadTrackInfo() throws Exception {
+        FetchUserTask task = new FetchUserTask(DefaultTestRunner.application, 0);
 
         addHttpResponseRule("GET", "/users/12345",
                 new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("user.json"))));
@@ -38,17 +39,17 @@ public class LoadUserInfoTaskTest {
         ((SoundCloudApplication) Robolectric.application).USER_CACHE.put(u);
 
         final User[] user = {null};
-        listener = new LoadUserInfoTask.LoadUserInfoListener() {
+        listener = new FetchUserTask.FetchUserListener() {
             @Override
-            public void onUserInfoLoaded(User t) {
-                user[0] = t;
+            public void onSuccess(User u, String action) {
+                user[0] = u;
             }
             @Override
-            public void onUserInfoError(long id) {
+            public void onError(long id) {
             }
         };
 
-        task.setListener(listener);
+        task.addListener(listener);
         task.execute(Request.to(Endpoints.USER_DETAILS, 12345));
         assertThat(user[0], not(nullValue()));
         assertThat(user[0].username, equalTo("SoundCloud Android @ MWC"));

@@ -4,6 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.*;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonView;
 
@@ -26,6 +27,7 @@ import java.util.List;
 
 public abstract class ScModel implements Parcelable {
     @JsonView(Views.Mini.class) public long id = -1;
+    @JsonIgnore public long last_updated = -1;
 
     public ScModel() {
     }

@@ -44,9 +44,9 @@ public class MainTest {
             }
 
             @Override
-            public void onTrackInfoLoaded(Track track, String action) {
+            public void onTrackLoaded(Track track, String action) {
                 MainTest.this.track = track;
-                super.onTrackInfoLoaded(track, action);
+                super.onTrackLoaded(track, action);
             }
         };
     }

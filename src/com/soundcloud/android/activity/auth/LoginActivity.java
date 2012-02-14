@@ -1,19 +1,5 @@
 package com.soundcloud.android.activity.auth;
 
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.GetTokensTask;
-import com.soundcloud.android.task.LoadTask;
-import com.soundcloud.android.task.LoadUserInfoTask;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.CloudAPI;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
-import com.soundcloud.api.Token;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -21,6 +7,17 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.task.GetTokensTask;
+import com.soundcloud.android.task.fetch.FetchUserTask;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+import com.soundcloud.api.Token;
 
 import java.io.IOException;
 
@@ -78,7 +75,7 @@ public abstract class LoginActivity extends Activity {
             @Override
             protected void onPostExecute(final Token token) {
                 if (token != null) {
-                    new LoadUserInfoTask(app, -1) {
+                    new FetchUserTask(app, -1) {
                         @Override
                         protected void onPostExecute(User user) {
                             if (user != null) {

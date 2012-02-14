@@ -1,21 +1,20 @@
 package com.soundcloud.android.activity;
 
+import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.task.LoadTrackInfoTask;
+import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.android.view.TrackInfoBar;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
-import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
-
-public abstract class TrackInfoCollection extends ScActivity implements SectionedEndlessAdapter.SectionListener, LoadTrackInfoTask.LoadTrackInfoListener {
+public abstract class TrackInfoCollection extends ScActivity implements SectionedEndlessAdapter.SectionListener, FetchTrackTask.FetchTrackListener {
     Track mTrack;
     TrackInfoBar mTrackInfoBar;
     SectionedListView mListView;
@@ -50,9 +49,9 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
 
         adapter.sections.add(createSection());
 
-        if (!mTrack.info_loaded) {
+        if (!mTrack.full_track_info_loaded) {
             if (CloudUtils.isTaskFinished(mTrack.load_info_task)) {
-                mTrack.load_info_task = new LoadTrackInfoTask(getApp(), mTrack.id);
+                mTrack.load_info_task = new FetchTrackTask(getApp(), mTrack.id);
             }
             mTrack.load_info_task.addListener(this);
             if (CloudUtils.isTaskPending(mTrack.load_info_task)) {
@@ -83,12 +82,12 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
     }
 
     @Override
-    public void onTrackInfoLoaded(Track track, String action) {
+    public void onSuccess(Track track, String action) {
         ((TrackInfoBar) findViewById(R.id.track_info_bar)).display(track, true, -1, false, getCurrentUserId());
     }
 
     @Override
-    public void onTrackInfoError(long trackId) {
+    public void onError(long trackId) {
     }
 
     @Override

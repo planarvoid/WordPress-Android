@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
@@ -18,12 +19,12 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(DefaultTestRunner.class)
-public class LoadTrackInfoTaskTest {
-    LoadTrackInfoTask.LoadTrackInfoListener listener;
+public class FetchTrackInfoTaskTest {
+    FetchTrackTask.FetchTrackListener listener;
 
     @Test
-    public void testLoadTrackInfo() throws Exception {
-        LoadTrackInfoTask task = new LoadTrackInfoTask(DefaultTestRunner.application, 0);
+    public void testFetchTrackInfo() throws Exception {
+        FetchTrackTask task = new FetchTrackTask(DefaultTestRunner.application, 0);
 
         addHttpResponseRule("GET", "/tracks/12345",
                 new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("track.json"))));
@@ -35,13 +36,14 @@ public class LoadTrackInfoTaskTest {
         ((SoundCloudApplication) Robolectric.application).TRACK_CACHE.put(t);
 
         final Track[] track = {null};
-        listener = new LoadTrackInfoTask.LoadTrackInfoListener() {
+        listener = new FetchTrackTask.FetchTrackListener() {
             @Override
-            public void onTrackInfoLoaded(Track t, String action) {
+            public void onSuccess(Track t, String action) {
                 track[0] = t;
             }
+
             @Override
-            public void onTrackInfoError(long trackId) {
+            public void onError(long modelId) {
             }
         };
 

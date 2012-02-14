@@ -99,7 +99,7 @@ public class PlayerTrackInfo extends RelativeLayout{
     public void fillTrackDetails() {
 
         if (mPlayingTrack == null) return;
-        if (!mPlayingTrack.info_loaded) {
+        if (!mPlayingTrack.full_track_info_loaded) {
             if (findViewById(R.id.loading_layout) != null) {
                 findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
             } else {

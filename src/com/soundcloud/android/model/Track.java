@@ -10,8 +10,8 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Tracks;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.LoadCommentsTask;
-import com.soundcloud.android.task.LoadTrackInfoTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.FlowLayout;
@@ -134,12 +134,11 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @JsonIgnore public List<Comment> comments;
     @JsonIgnore public long filelength;
     @JsonIgnore public int local_user_playback_count;
-    @JsonIgnore public LoadTrackInfoTask load_info_task;
+    @JsonIgnore public FetchModelTask<Track> load_info_task;
     @JsonIgnore public LoadCommentsTask load_comments_task;
-    @JsonIgnore public boolean info_loaded;
+    @JsonIgnore public boolean full_track_info_loaded;
     @JsonIgnore public boolean comments_loaded;
     @JsonIgnore public int last_playback_error = -1;
-    @JsonIgnore public long last_updated;
     @JsonIgnore private CharSequence _elapsedTime;
     @JsonIgnore private String _list_artwork_uri;
 
@@ -290,7 +289,7 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     public void setAppFields(Track t) {
         comments = t.comments;
         filelength = t.filelength;
-        info_loaded = t.info_loaded;
+        full_track_info_loaded = t.full_track_info_loaded;
         comments_loaded = t.comments_loaded;
     }
 
