@@ -593,15 +593,14 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 if (bmp != null){
                     ((PlaybackRemoteViews) mNotificationView).setIcon(bmp);
                 } else {
-                    ((PlaybackRemoteViews) mNotificationView).setIcon(getDefaultArtwork());
+                    ((PlaybackRemoteViews) mNotificationView).clearIcon();
                     ImageLoader.get(getApplicationContext()).getBitmap(artworkUri,new ImageLoader.BitmapCallback(){
                         public void onImageLoaded(Bitmap mBitmap, String uri) {if (track == mCurrentTrack) setPlayingNotification(mCurrentTrack);}
                         public void onImageError(String uri, Throwable error) {}
                     });
-
                 }
             } else {
-                ((PlaybackRemoteViews) mNotificationView).setIcon(getDefaultArtwork());
+                ((PlaybackRemoteViews) mNotificationView).clearIcon();
             }
 
             status.contentView = mNotificationView;
