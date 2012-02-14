@@ -10,12 +10,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import android.os.PowerManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
 
 public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
+    private static final String ENDPOINT = "/me/devices";
+
     private PowerManager.WakeLock lock;
 
     public SendRegIdTask(AndroidCloudAPI api, PowerManager.WakeLock wakeLock) {
@@ -40,15 +41,11 @@ public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
         if (params.length < 3) throw new IllegalArgumentException("need reg_id,app_identifier and device");
 
         try {
-            final Request request = Request.to("/me/devices").with(
+            HttpResponse resp = mApi.post(Request.to(ENDPOINT).with(
                     "device_token",   params[0],
-                    "app_identifier", params[1]);
+                    "app_identifier", params[1],
+                    "device",         params[2]));
 
-            if (!TextUtils.isEmpty(params[2])) {
-                request.with("device", params[2]);
-            }
-
-            HttpResponse resp = mApi.post(request);
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
                 final Header location = resp.getFirstHeader("Location");
                 if (location != null) {
