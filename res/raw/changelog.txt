@@ -1,9 +1,12 @@
 $ 34
   % v current
-  _ 2012-01-27
-  ! Local caching
-    * Local caching of sounds, users & activities
-    * Added global search provider
+  _ 2012-02-14
+  ! Valentine's special
+    * Improved responsiveness
+    * Artwork in notifications
+    * Push notifications for likes and comments
+    * Search for sounds in Android Quick Search Box (must be manually enabled in system search settings)
+    - Local caching of sounds, users & activities
 
 $ 33
   % v 2.1.2
