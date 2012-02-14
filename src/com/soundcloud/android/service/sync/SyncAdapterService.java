@@ -1,5 +1,8 @@
 package com.soundcloud.android.service.sync;
 
+import android.graphics.Bitmap;
+import android.text.TextUtils;
+import android.widget.RemoteViews;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -35,6 +38,9 @@ import android.os.Looper;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -226,7 +232,7 @@ public class SyncAdapterService extends Service {
 
                             maybeNotifyIncoming(app, incoming, exclusive);
                         } else if (Log.isLoggable(TAG, Log.DEBUG)) {
-                            Log.d(TAG, "skipping incoming notification, delta "+delta+" < frequency="+frequency);
+                                Log.d(TAG, "skipping incoming notification, delta "+delta+" < frequency="+frequency);
                         }
 
                         final long delta2 = System.currentTimeMillis() -
@@ -247,14 +253,15 @@ public class SyncAdapterService extends Service {
         }
 
         private Notification maybeNotifyIncoming(SoundCloudApplication app,
-                                                                      Activities incoming,
-                                                                      Activities exclusive) {
+                                                 Activities incoming,
+                                                 Activities exclusive) {
 
             final int totalUnseen = Activities.getUniqueTrackCount(incoming, exclusive);
-            final boolean hasIncoming  = !incoming.isEmpty();
+            final boolean hasIncoming = !incoming.isEmpty();
             final boolean hasExclusive = !exclusive.isEmpty();
             if (hasIncoming || hasExclusive) {
                 final CharSequence title, message, ticker;
+                String artwork_url = null;
 
                 if (totalUnseen == 1) {
                     ticker = app.getString(R.string.dashboard_notifications_ticker_single);
@@ -269,18 +276,24 @@ public class SyncAdapterService extends Service {
 
                 if (hasExclusive) {
                     message = getExclusiveNotificationMessage(app, exclusive);
+                    artwork_url = getFirstAvailableArtwork(exclusive);
+                    Log.i("asdf","Exclusive artwork? " + exclusive);
                 } else {
                     message = getIncomingNotificationMessage(app, incoming);
                 }
 
-                if (incoming.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM)) ||
-                    exclusive.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM))) {
+                // either no exclusive or no exclusive artwork
+                if (TextUtils.isEmpty(artwork_url)) {
+                    artwork_url = getFirstAvailableArtwork(incoming);
+                }
 
+                if (incoming.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM)) ||
+                        exclusive.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM))) {
                     prefetchArtwork(app, incoming, exclusive);
 
                     Notification n = showDashboardNotification(app, ticker, title, message,
                             Actions.STREAM,
-                            Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
+                            Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, artwork_url);
 
                     app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, System.currentTimeMillis());
                     app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM,
@@ -304,8 +317,8 @@ public class SyncAdapterService extends Service {
                 if (activities.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
                     prefetchArtwork(app, activities);
 
-                    Notification n = showDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
-                            Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID);
+                Notification n = showDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
+                        Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID, getFirstAvailableAvatar(activities));
 
                     app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, System.currentTimeMillis());
                     app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, activities.getTimestamp());
@@ -384,8 +397,8 @@ public class SyncAdapterService extends Service {
     private static Notification showDashboardNotification(Context context,
                                                           CharSequence ticker,
                                                           CharSequence title,
-                                                          CharSequence message, String action, int id) {
-        NotificationManager nm = (NotificationManager)
+                                                          CharSequence message, String action, final int id, String artworkUri) {
+        final NotificationManager nm = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Intent intent = (new Intent(action))
@@ -395,13 +408,42 @@ public class SyncAdapterService extends Service {
         PendingIntent pi = PendingIntent.getActivity(
                 context.getApplicationContext(), 0, intent, 0);
 
-        Notification n = new Notification(R.drawable.statusbar, ticker, System.currentTimeMillis());
+        final Notification n = new Notification(R.drawable.statusbar, ticker, System.currentTimeMillis());
         n.contentIntent = pi;
         n.flags = Notification.FLAG_AUTO_CANCEL;
         n.setLatestEventInfo(context.getApplicationContext(), title, message, pi);
-        nm.notify(id, n);
+
+
+        if (!SoundCloudApplication.useRichNotifications()) {
+            n.setLatestEventInfo(context.getApplicationContext(), title, message, pi);
+            nm.notify(id, n);
+        } else {
+
+            final RemoteViews notificationView = new RemoteViews(context.getPackageName(), R.layout.dashboard_notification_v11);
+            notificationView.setTextViewText(R.id.title_txt, title);
+            notificationView.setTextViewText(R.id.content_txt, message);
+            n.contentView = notificationView;
+
+            final Bitmap bmp = !ImageUtils.checkIconShouldLoad(artworkUri) ? null :
+                    ImageLoader.get(context).getBitmap(artworkUri,null, new ImageLoader.Options(false));
+            if (bmp != null){
+                sendRichNotification(id, nm, n, notificationView, bmp);
+            } else {
+                ImageLoader.get(context).getBitmap(artworkUri,new ImageLoader.BitmapCallback(){
+                    public void onImageLoaded(Bitmap mBitmap, String uri) {sendRichNotification(id, nm, n, notificationView, mBitmap);}
+                    public void onImageError(String uri, Throwable error) {sendRichNotification(id, nm, n, notificationView, null);}
+                });
+
+            }
+        }
         return n;
     }
+
+    private static void sendRichNotification(int id, NotificationManager nm, Notification n, RemoteViews notificationView, Bitmap bmp) {
+        if (bmp != null) notificationView.setImageViewBitmap(R.id.icon,bmp);
+        nm.notify(id, n);
+    }
+
 
     // only used for debugging
     public static void requestNewSync(SoundCloudApplication app, int clearMode) {
@@ -579,4 +621,28 @@ public class SyncAdapterService extends Service {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("syncWifiOnly", true);
     }
 
+
+    /* package */ static String getFirstAvailableArtwork(Activities activities) {
+        String artwork_url = null;
+        for (int i = 0; (i < activities.size() && TextUtils.isEmpty(artwork_url)); i++) {
+            final String artwork_candidate = activities.get(i).getTrack() != null ? activities.get(i).getTrack().artwork_url : null;
+            if (ImageUtils.checkIconShouldLoad(artwork_candidate)) {
+                artwork_url = artwork_candidate;
+            }
+        }
+
+        return TextUtils.isEmpty(artwork_url) ? getFirstAvailableAvatar(activities) : artwork_url;
+    }
+
+    /* package */ static String getFirstAvailableAvatar(Activities activities) {
+        String avatar_url = null;
+        List<User> users = activities.getUniqueUsers();
+        for (int i = 0; (i < users.size() && TextUtils.isEmpty(avatar_url)); i++) {
+            final String artwork_candidate = users.get(i) != null ? users.get(i).avatar_url : null;
+            if (ImageUtils.checkIconShouldLoad(artwork_candidate)) {
+                avatar_url = artwork_candidate;
+            }
+        }
+        return avatar_url;
+    }
 }

@@ -541,7 +541,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         mPlayerHandler.removeMessages(FADE_IN);
         mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
         scheduleServiceShutdownCheck();
-        if (useRichNotifications()){
+        if (SoundCloudApplication.useRichNotifications()){
             stopForeground(false);
             if (status != null){
                 ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
@@ -577,12 +577,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
 
-        if (!useRichNotifications()) {
+        if (!SoundCloudApplication.useRichNotifications()) {
             status.setLatestEventInfo(this, track.getUserName(),track.title, pi);
         } else {
-
             if (mNotificationView == null){
-                mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11);
+                mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
             }
             ((PlaybackRemoteViews) mNotificationView).setCurrentTrack(track.title,track.user.username);
             ((PlaybackRemoteViews) mNotificationView).linkButtons(this,track.id,track.user_id,track.user_favorite, EXTRA_FROM_NOTIFICATION);
@@ -610,11 +609,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
 
         startForeground(PLAYBACKSERVICE_STATUS_ID, status);
-    }
-
-    private boolean useRichNotifications() {
-        return false;
-        //return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
 
     private Bitmap getDefaultArtwork() {
