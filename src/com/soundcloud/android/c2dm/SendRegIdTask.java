@@ -15,7 +15,7 @@ import android.util.Log;
 import java.io.IOException;
 
 public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
-    private static final String ENDPOINT = "/me/devices";
+    private static final String DEVICE_ENDPOINT = "/me/devices";
 
     private PowerManager.WakeLock lock;
 
@@ -38,10 +38,11 @@ public class SendRegIdTask extends AsyncApiTask<String,Void, String> {
 
     @Override
     protected String doInBackground(String... params) {
-        if (params.length < 3) throw new IllegalArgumentException("need reg_id,app_identifier and device");
+        if (params.length < 3)
+            throw new IllegalArgumentException("need reg_id, app_identifier and device");
 
         try {
-            HttpResponse resp = mApi.post(Request.to(ENDPOINT).with(
+            HttpResponse resp = mApi.post(Request.to(DEVICE_ENDPOINT).with(
                     "device_token",   params[0],
                     "app_identifier", params[1],
                     "device",         params[2]));
