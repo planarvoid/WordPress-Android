@@ -570,6 +570,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     }
 
     private void setCurrentTrackDataFromService(long id) {
+        if (mPlaybackService == null) return;
+
         try {
             mCurrentQueuePosition = mPlaybackService.getQueuePosition();
             mPlayingTrack = getTrackById(id);
