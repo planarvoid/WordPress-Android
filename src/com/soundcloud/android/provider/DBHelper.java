@@ -71,7 +71,7 @@ public class DBHelper extends SQLiteOpenHelper {
             }
 
             if (success) {
-                Log.i(TAG, "successful upgrade");
+                Log.i(TAG, "successful db upgrade");
             } else {
                 Log.w(TAG, "upgrade not successful, recreating db");
                 recreateDb(db);
