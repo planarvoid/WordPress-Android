@@ -5,7 +5,6 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -31,8 +30,7 @@ public class CloudUtilsTest {
         expect(CloudUtils.getUniqueDeviceID(Robolectric.application)).toEqual("04ddf8a23b64c654b938b95a50a486f0");
     }
 
-    @Test @Ignore
-    // re-enable when robolectric CI is fixed
+    @Test
     public void shouldGetUniqueDeviceIdWithoutTelephonyManager() throws Exception {
         shadowOf(Robolectric.application).setSystemService(Context.TELEPHONY_SERVICE, null);
         expect(CloudUtils.getUniqueDeviceID(Robolectric.application)).toBeNull();
