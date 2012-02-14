@@ -1,11 +1,16 @@
 package com.soundcloud.android.c2dm;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.utils.CloudUtils;
 
+import android.accounts.Account;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +18,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -41,6 +47,11 @@ public class C2DMReceiver extends BroadcastReceiver {
     public static final String C2DM_EXTRA_UNREGISTERED = "unregistered";
     public static final String C2DM_EXTRA_ERROR        = "error";
     public static final String C2DM_EXTRA_REG_ID       = "registration_id";
+
+    // actual extras sent via push notifications
+    public static final String SC_EXTRA_EVENT_TYPE     = "event_type";
+    @SuppressWarnings("UnusedDeclaration")
+    public static final String SC_URI                  = "uri";
 
     private PowerManager.WakeLock mWakeLock;
 
@@ -191,7 +202,25 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     private void onReceiveMessage(Context context, Intent intent) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onReceiveMessage(" + intent + ")");
-        // TODO: handle message
+        final Account account = SoundCloudApplication.fromContext(context).getAccount();
+
+        if (account == null) {
+            Log.w(TAG, "push event received but no account registered - ignoring");
+        } else {
+            final PushEvent event = PushEvent.fromIntent(intent);
+            switch (event) {
+                case LIKE:
+                case COMMENT:
+                    Bundle extras = new Bundle();
+                    extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, event.type);
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requesting sync(event="+event+")");
+                    ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, extras);
+                    break;
+                default:
+                    // other types not handled yet
+                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "unhandled event "+event);
+            }
+        }
     }
 
     /* package */ static String getRegistrationData(Context context, String key) {

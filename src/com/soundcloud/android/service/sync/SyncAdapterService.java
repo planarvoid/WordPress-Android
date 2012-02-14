@@ -5,6 +5,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
@@ -61,6 +62,8 @@ public class SyncAdapterService extends Service {
     public static final long CLEANUP_DELAY    = DEFAULT_STALE_TIME * 24; // every 24 hours
 
     public static final String EXTRA_CLEAR_MODE = "clearMode";
+    public static final String EXTRA_PUSH_EVENT = "pushEvent";
+
     public static final int CLEAR_ALL       = 1;
     public static final int REWIND_LAST_DAY = 2;
 
@@ -159,9 +162,9 @@ public class SyncAdapterService extends Service {
         }
 
         if (shouldUpdateDashboard(app)) {
-            if (isIncomingEnabled(app)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
-            if (isExclusiveEnabled(app)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri);
-            if (isActivitySyncEnabled(app)) urisToSync.add(Content.ME_ACTIVITIES.uri);
+            if (isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
+            if (isExclusiveEnabled(app, extras)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri);
+            if (isActivitySyncEnabled(app, extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
         }
 
         if (shouldSyncCollections(app)) {
@@ -215,10 +218,10 @@ public class SyncAdapterService extends Service {
                                 app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_AT);
                         if (delta > frequency) {
                             final long lastIncomingSeen = app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN);
-                            final Activities incoming = !isIncomingEnabled(app) ? Activities.EMPTY :
+                            final Activities incoming = !isIncomingEnabled(app, extras) ? Activities.EMPTY :
                                     Activities.getSince(Content.ME_SOUND_STREAM, app.getContentResolver(), lastIncomingSeen);
 
-                            final Activities exclusive = !isExclusiveEnabled(app) ? Activities.EMPTY
+                            final Activities exclusive = !isExclusiveEnabled(app, extras) ? Activities.EMPTY
                                     : Activities.getSince(Content.ME_EXCLUSIVE_STREAM, app.getContentResolver(), lastIncomingSeen);
 
                             maybeNotifyIncoming(app, incoming, exclusive);
@@ -230,9 +233,9 @@ public class SyncAdapterService extends Service {
                                 app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_AT);
                         if (delta2 > frequency) {
                             final long lastOwnSeen = app.getAccountDataLong(User.DataKeys.LAST_OWN_SEEN);
-                            final Activities news = !isActivitySyncEnabled(app) ? Activities.EMPTY :
+                            final Activities news = !isActivitySyncEnabled(app, extras) ? Activities.EMPTY :
                                     Activities.getSince(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
-                            maybeNotifyOwn(app, news);
+                            maybeNotifyOwn(app, news, extras);
                         } else if (Log.isLoggable(TAG, Log.DEBUG))  {
                             Log.d(TAG, "skipping own notification, delta "+delta2+" < frequency="+frequency);
                         }
@@ -291,10 +294,10 @@ public class SyncAdapterService extends Service {
             }
         }
 
-        private Notification maybeNotifyOwn(SoundCloudApplication app, Activities activities) {
+        private Notification maybeNotifyOwn(SoundCloudApplication app, Activities activities, Bundle extras) {
             if (!activities.isEmpty()) {
-                Activities favoritings = isFavoritingEnabled(app) ? activities.favoritings() : Activities.EMPTY;
-                Activities comments    = isCommentsEnabled(app) ? activities.comments() : Activities.EMPTY;
+                Activities favoritings = isLikeEnabled(app, extras) ? activities.favoritings() : Activities.EMPTY;
+                Activities comments    = isCommentsEnabled(app, extras) ? activities.comments() : Activities.EMPTY;
 
                 Message msg = new Message(app.getResources(), activities, favoritings, comments);
 
@@ -540,27 +543,40 @@ public class SyncAdapterService extends Service {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsWifiOnly", false);
     }
 
-    private static boolean isIncomingEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsIncoming", true);
+    private static boolean isIncomingEnabled(Context c, Bundle extras) {
+        PushEvent evt = PushEvent.fromExtras(extras);
+        return PreferenceManager
+                .getDefaultSharedPreferences(c)
+                .getBoolean("notificationsIncoming", true) && evt == PushEvent.NULL;
     }
 
-    private static boolean isExclusiveEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsExclusive", true);
+    private static boolean isExclusiveEnabled(Context c, Bundle extras) {
+        PushEvent evt = PushEvent.fromExtras(extras);
+        return PreferenceManager
+                .getDefaultSharedPreferences(c)
+                .getBoolean("notificationsExclusive", true) && evt == PushEvent.NULL;
     }
 
-    private static boolean isFavoritingEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsFavoritings", true);
+    private static boolean isLikeEnabled(Context c, Bundle extras) {
+        PushEvent evt = PushEvent.fromExtras(extras);
+        return PreferenceManager
+                .getDefaultSharedPreferences(c)
+                .getBoolean("notificationsFavoritings", true) && (evt == PushEvent.NULL || evt == PushEvent.LIKE);
     }
 
-    private static boolean isActivitySyncEnabled(Context c) {
-        return isFavoritingEnabled(c) || isCommentsEnabled(c);
+    private static boolean isActivitySyncEnabled(Context c, Bundle extras) {
+        return isLikeEnabled(c, extras) || isCommentsEnabled(c, extras);
     }
 
-    private static boolean isCommentsEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsComments", true);
+    private static boolean isCommentsEnabled(Context c, Bundle extras) {
+        PushEvent evt = PushEvent.fromExtras(extras);
+        return PreferenceManager
+                .getDefaultSharedPreferences(c)
+                .getBoolean("notificationsComments", true) && (evt == PushEvent.NULL || evt == PushEvent.COMMENT);
     }
 
     private static boolean isSyncWifiOnlyEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("syncWifiOnly", true);
     }
+
 }

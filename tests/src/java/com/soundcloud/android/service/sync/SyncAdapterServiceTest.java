@@ -9,6 +9,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
+import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -326,6 +327,44 @@ public class SyncAdapterServiceTest {
         expect(second.getTicker()).toEqual("3 new activities");
         expect(second.getInfo().getContentTitle().toString()).toEqual("3 new activities");
         expect(second.getInfo().getContentText().toString()).toEqual("Comments and likes from Paul Ko, jensnikolaus and others");
+    }
+
+    @Test
+    public void shouldCheckPushEventExtraParameterLike() throws Exception {
+        addCannedActivities("own_2.json");
+
+        Bundle extras = new Bundle();
+        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, PushEvent.LIKE.type);
+        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
+
+        expect(result.notifications.size()).toEqual(1);
+    }
+
+    @Test
+    public void shouldCheckPushEventExtraParameterComment() throws Exception {
+        addCannedActivities("own_2.json");
+
+        Bundle extras = new Bundle();
+        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, PushEvent.COMMENT.type);
+        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
+
+        expect(result.notifications.size()).toEqual(1);
+    }
+
+    @Test
+    public void shouldCheckPushEventExtraParameterFollower() throws Exception {
+        Bundle extras = new Bundle();
+        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, PushEvent.FOLLOWER.type);
+        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
+        expect(result.notifications.size()).toEqual(0);
+    }
+
+    @Test
+    public void shouldCheckPushEventExtraParameterUnknown() throws Exception {
+        Bundle extras = new Bundle();
+        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, "alien-sync");
+        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
+        expect(result.notifications.size()).toEqual(0);
     }
 
     static class SyncOutcome {
