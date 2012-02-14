@@ -170,33 +170,37 @@ public class FileCache extends FileResponseCache {
 
             long toTrim = dirSize - maxCacheSize;
 
-            File[] files = cache.dir.listFiles();
-            Arrays.sort(files, new Comparator<File>() {
-                public int compare(File f1, File f2) {
-                    long result = f2.lastModified() - f1.lastModified();
-                    if (result > 0) {
-                        return -1;
-                    } else if (result < 0) {
-                        return 1;
-                    } else {
-                        return 0;
+            final File[] files = cache.dir.listFiles();
+            if (files != null) {
+                Arrays.sort(files, new Comparator<File>() {
+                    public int compare(File f1, File f2) {
+                        long result = f2.lastModified() - f1.lastModified();
+                        if (result > 0) {
+                            return -1;
+                        } else if (result < 0) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
                     }
-                }
-            });
+                });
 
-            int i = 0;
-            while (toTrim > 0 && i < files.length){
-                final File file = files[i];
-                final long filesize = file.length();
-                if (!file.delete()) {
-                    Log.w(TAG, "could not delete file " + file);
-                } else {
-                    toTrim -= filesize;
+                int i = 0;
+                while (toTrim > 0 && i < files.length){
+                    final File file = files[i];
+                    final long filesize = file.length();
+                    if (!file.delete()) {
+                        Log.w(TAG, "could not delete file " + file);
+                    } else {
+                        toTrim -= filesize;
+                    }
+                    publishProgress(i, files.length);
+                    i++;
                 }
-                publishProgress(i, files.length);
-                i++;
+                return true;
+            } else {
+                return false;
             }
-            return true;
         }
     }
 }
