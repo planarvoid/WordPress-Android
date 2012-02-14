@@ -3,8 +3,6 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,5 +59,10 @@ public class CommentTest {
         expect(cv.getAsLong("track_id")).toEqual(c1.track_id);
         expect(cv.getAsLong("timestamp")).toEqual(c1.timestamp);
         expect(cv.getAsString("body")).toEqual(c1.body);
+    }
+
+    @Test
+    public void shouldNotCrashWithDivideByZero() throws Exception {
+        new Comment().calculateXPos(40, 0);
     }
 }

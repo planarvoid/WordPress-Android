@@ -38,6 +38,9 @@ public class Comment extends ScModel implements Origin {
 
     public Comment nextComment; //pointer to the next comment at this timestamp
 
+    public Comment() {
+    }
+
     public Comment(Cursor c, boolean view) {
         track = new Track(c);
         if (view) {
@@ -57,10 +60,9 @@ public class Comment extends ScModel implements Origin {
     }
 
     public void calculateXPos(int parentWidth, long duration){
-        this.xPos = (int) ((this.timestamp * parentWidth)/duration);
-    }
-
-    public Comment() {
+        if (duration != 0) {
+            xPos = (int) ((timestamp * parentWidth)/duration);
+        }
     }
 
     @Override @JsonIgnore
