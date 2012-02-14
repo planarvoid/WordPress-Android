@@ -31,6 +31,7 @@ public final class Consts {
             new File(Environment.getExternalStorageDirectory(), "Soundcloud");
 
     public static final int COLLECTION_PAGE_SIZE      = 50;
+    public static final int MAX_COMMENTS_TO_LOAD      = 50;
 
     // adapter loading constants
     public static final int ROW_APPEND_BUFFER = 6;

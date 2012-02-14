@@ -1,5 +1,6 @@
 package com.soundcloud.android.task;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
@@ -30,7 +31,7 @@ public class LoadCommentsTask extends LoadJsonTask<Comment> {
 
     @Override
     protected List<Comment> doInBackground(Request... path) {
-        return list(Request.to(Endpoints.TRACK_COMMENTS, mTrackId), Comment.class);
+        return list(Request.to(Endpoints.TRACK_COMMENTS, mTrackId).add("limit", Consts.MAX_COMMENTS_TO_LOAD), Comment.class);
     }
 
     @Override
