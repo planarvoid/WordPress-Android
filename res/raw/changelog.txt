@@ -1,5 +1,12 @@
-$ 34
+$ 35
   % v current
+  _ 2012-02-14
+  ! Maintenance
+    - Push follower notifications
+    - AT Internet tracking
+
+$ 34
+  % v 2.2.0
   _ 2012-02-14
   ! Valentine's special
     * Improved responsiveness
