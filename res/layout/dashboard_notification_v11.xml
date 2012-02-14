@@ -25,6 +25,7 @@
 		android:id="@+id/icon"
 		android:layout_gravity="left"
 		android:scaleType="fitXY"
+        android:src="@drawable/artwork_badge"
 		android:layout_width="65dip"
 		android:layout_height="65dip"
 		android:layout_alignParentLeft="true"

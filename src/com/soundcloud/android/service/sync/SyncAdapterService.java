@@ -252,7 +252,7 @@ public class SyncAdapterService extends Service {
             }
         }
 
-        private Notification maybeNotifyIncoming(SoundCloudApplication app,
+        private boolean maybeNotifyIncoming(SoundCloudApplication app,
                                                  Activities incoming,
                                                  Activities exclusive) {
 
@@ -277,7 +277,6 @@ public class SyncAdapterService extends Service {
                 if (hasExclusive) {
                     message = getExclusiveNotificationMessage(app, exclusive);
                     artwork_url = getFirstAvailableArtwork(exclusive);
-                    Log.i("asdf","Exclusive artwork? " + exclusive);
                 } else {
                     message = getIncomingNotificationMessage(app, incoming);
                 }
@@ -291,23 +290,22 @@ public class SyncAdapterService extends Service {
                         exclusive.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM))) {
                     prefetchArtwork(app, incoming, exclusive);
 
-                    Notification n = showDashboardNotification(app, ticker, title, message,
-                            Actions.STREAM,
+                    showDashboardNotification(app, ticker, title, message, Actions.STREAM,
                             Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, artwork_url);
 
                     app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, System.currentTimeMillis());
                     app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM,
                             Math.max(incoming.getTimestamp(), exclusive.getTimestamp()));
 
-                    return n;
-                } else return null;
+                    return true;
+                } else return false;
             } else {
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "no items, skip track notfication");
-                return null;
+                return false;
             }
         }
 
-        private Notification maybeNotifyOwn(SoundCloudApplication app, Activities activities, Bundle extras) {
+        private boolean maybeNotifyOwn(SoundCloudApplication app, Activities activities, Bundle extras) {
             if (!activities.isEmpty()) {
                 Activities favoritings = isLikeEnabled(app, extras) ? activities.favoritings() : Activities.EMPTY;
                 Activities comments    = isCommentsEnabled(app, extras) ? activities.comments() : Activities.EMPTY;
@@ -317,14 +315,14 @@ public class SyncAdapterService extends Service {
                 if (activities.newerThan(app.getAccountDataLong(User.DataKeys.LAST_OWN_NOTIFIED_ITEM))) {
                     prefetchArtwork(app, activities);
 
-                Notification n = showDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
+                showDashboardNotification(app, msg.ticker, msg.title, msg.message, Actions.ACTIVITY,
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID, getFirstAvailableAvatar(activities));
 
                     app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_AT, System.currentTimeMillis());
                     app.setAccountData(User.DataKeys.LAST_OWN_NOTIFIED_ITEM, activities.getTimestamp());
-                    return n;
-                } else return null;
-            } else return null;
+                    return true;
+                } else return false;
+            } else return false;
         }
 
         private int prefetchArtwork(Context context, Activities... activities) {
@@ -394,53 +392,63 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    private static Notification showDashboardNotification(Context context,
-                                                          CharSequence ticker,
-                                                          CharSequence title,
-                                                          CharSequence message, String action, final int id, String artworkUri) {
+    private static void showDashboardNotification(final Context context,
+                                                  final CharSequence ticker,
+                                                  final CharSequence title,
+                                                  final CharSequence message,
+                                                  final String action,
+                                                  final int id,
+                                                  String artworkUri) {
+
+        if (!SoundCloudApplication.useRichNotifications() || !ImageUtils.checkIconShouldLoad(artworkUri)) {
+            showDashboardNotification(context, ticker, action, title, message, id, null);
+        } else {
+            final Bitmap bmp = ImageLoader.get(context).getBitmap(artworkUri,null, new ImageLoader.Options(false));
+            if (bmp != null){
+                showDashboardNotification(context, ticker, action, title, message, id, bmp);
+            } else {
+                ImageLoader.get(context).getBitmap(artworkUri,new ImageLoader.BitmapCallback(){
+                    public void onImageLoaded(Bitmap loadedBmp, String uri) {
+                        showDashboardNotification(context, ticker, action, title, message, id, loadedBmp);
+                    }
+                    public void onImageError(String uri, Throwable error) {
+                        showDashboardNotification(context, ticker, action, title, message, id, null);
+                    }
+                });
+            }
+        }
+    }
+
+    private static void showDashboardNotification(Context context,
+                                                  CharSequence ticker,
+                                                  String action,
+                                                  CharSequence title,
+                                                  CharSequence message,
+                                                  int id,
+                                                  Bitmap bmp) {
+
         final NotificationManager nm = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Intent intent = (new Intent(action))
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-        PendingIntent pi = PendingIntent.getActivity(
-                context.getApplicationContext(), 0, intent, 0);
+        final PendingIntent pi = PendingIntent.getActivity(context.getApplicationContext(), 0, intent, 0);
 
         final Notification n = new Notification(R.drawable.statusbar, ticker, System.currentTimeMillis());
         n.contentIntent = pi;
         n.flags = Notification.FLAG_AUTO_CANCEL;
-        n.setLatestEventInfo(context.getApplicationContext(), title, message, pi);
 
-
-        if (!SoundCloudApplication.useRichNotifications()) {
+        if (bmp == null){
             n.setLatestEventInfo(context.getApplicationContext(), title, message, pi);
-            nm.notify(id, n);
         } else {
-
             final RemoteViews notificationView = new RemoteViews(context.getPackageName(), R.layout.dashboard_notification_v11);
-            notificationView.setTextViewText(R.id.title_txt, title);
-            notificationView.setTextViewText(R.id.content_txt, message);
+                        notificationView.setTextViewText(R.id.title_txt, title);
+                        notificationView.setTextViewText(R.id.content_txt, message);
+
+            if (bmp != null) notificationView.setImageViewBitmap(R.id.icon,bmp);
             n.contentView = notificationView;
-
-            final Bitmap bmp = !ImageUtils.checkIconShouldLoad(artworkUri) ? null :
-                    ImageLoader.get(context).getBitmap(artworkUri,null, new ImageLoader.Options(false));
-            if (bmp != null){
-                sendRichNotification(id, nm, n, notificationView, bmp);
-            } else {
-                ImageLoader.get(context).getBitmap(artworkUri,new ImageLoader.BitmapCallback(){
-                    public void onImageLoaded(Bitmap mBitmap, String uri) {sendRichNotification(id, nm, n, notificationView, mBitmap);}
-                    public void onImageError(String uri, Throwable error) {sendRichNotification(id, nm, n, notificationView, null);}
-                });
-
-            }
         }
-        return n;
-    }
-
-    private static void sendRichNotification(int id, NotificationManager nm, Notification n, RemoteViews notificationView, Bitmap bmp) {
-        if (bmp != null) notificationView.setImageViewBitmap(R.id.icon,bmp);
         nm.notify(id, n);
     }
 
