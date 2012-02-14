@@ -5,12 +5,15 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
+import android.content.SyncContext;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -330,6 +333,57 @@ public class SyncAdapterServiceTest {
     }
 
     @Test
+    public void shouldReturnCorrectIcon() throws Exception {
+        String artwork_1 = "artwork1.jpg";
+        String artwork_2 = "artwork2.jpg";
+        String avatar_1 = "avatar1.jpg";
+        String avatar_2 = "avatar2.jpg";
+
+
+        Activities a = new Activities();
+        a.collection.add(makeActivity(makeTrack(null,null)));
+        a.collection.add(makeActivity(makeTrack(null,null)));
+        expect(SyncAdapterService.getFirstAvailableArtwork(a)).toBeNull();
+        expect(SyncAdapterService.getFirstAvailableAvatar(a)).toBeNull();
+
+        a = new Activities();
+        a.collection.add(makeActivity(makeTrack(null,artwork_1)));
+        a.collection.add(makeActivity(makeTrack(null,artwork_2)));
+        expect(SyncAdapterService.getFirstAvailableArtwork(a)).toEqual(artwork_1);
+        expect(SyncAdapterService.getFirstAvailableAvatar(a)).toBeNull();
+
+        a = new Activities();
+        a.collection.add(makeActivity(makeTrack(makeUser(avatar_1),null)));
+        a.collection.add(makeActivity(makeTrack(null,artwork_2)));
+        expect(SyncAdapterService.getFirstAvailableArtwork(a)).toEqual(artwork_2);
+        expect(SyncAdapterService.getFirstAvailableAvatar(a)).toEqual(avatar_1);
+
+        a = new Activities();
+        a.collection.add(makeActivity(makeTrack(null,null)));
+        a.collection.add(makeActivity(makeTrack(makeUser(avatar_2),null)));
+        expect(SyncAdapterService.getFirstAvailableArtwork(a)).toEqual(avatar_2);
+        expect(SyncAdapterService.getFirstAvailableAvatar(a)).toEqual(avatar_2);
+    }
+
+    private Activity makeActivity(Track t){
+        Activity a = new Activity();
+        a.origin = t;
+        return a;
+    }
+
+    private Track makeTrack(User u, String artworkUrl){
+        Track t = new Track();
+        t.artwork_url = artworkUrl;
+        t.user = u;
+        return t;
+    }
+
+    private User makeUser(String avatarUrl){
+        User u = new User();
+        u.avatar_url = avatarUrl;
+        return u;
+    }
+
     public void shouldCheckPushEventExtraParameterLike() throws Exception {
         addCannedActivities("own_2.json");
 
