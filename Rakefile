@@ -10,6 +10,9 @@ file build_xml do
   sh "android update project -p #{Rake.original_dir} -n soundcloud"
 end
 
+c2dm_credentials = 'c2dm.credentials'
+file c2dm_credentials => 'c2dm:login'
+
 [:device, :emu].each do |t|
   def package() "com.soundcloud.android" end
   flag = (t == :device ? '-d' : '-e')
@@ -220,14 +223,19 @@ namespace :c2dm do
   end
 
 
-  desc "get a client login token"
+
+  desc "get a client login token (PASSWORD=)"
   task :login do
-    if tokens = login
-      puts "export TOKEN="+ tokens['Auth']
+    if !File.exists?(c2dm_credentials) && tokens = login
+      File.open(c2dm_credentials, 'w') do |f|
+        f.puts "export TOKEN="+ tokens['Auth']
+      end
     end
   end
 
   def post(reg_id, data={}, collapse_key='key', opts={})
+    raise "need reg_id" if reg_id.nil?
+
     params = {
       'registration_id' => reg_id,
       'collapse_key'    => collapse_key,
@@ -262,9 +270,10 @@ namespace :c2dm do
      end
   end
 
-  desc "post a message"
-  task :post do
-    puts post(ENV['REG_ID'], 'beta-version' => [versionCode, versionName].join(':'))
+  desc "post a message (REG_ID=)"
+  task :post => c2dm_credentials do
+    ENV['TOKEN'] = IO.read(c2dm_credentials)[/\Aexport TOKEN=(.+)$/, 1]
+    puts post(ENV['REG_ID'], 'event_type' => 'like')
   end
 end
 
