@@ -26,7 +26,7 @@ public class FocusHelper {
     private MusicFocusable mMusicFocusable;
     private boolean mAudioFocusLost = false;
 
-    private static Class<? extends BroadcastReceiver> RECEIVER = RemoteControlReceiver.class;
+    public static Class<? extends BroadcastReceiver> RECEIVER = RemoteControlReceiver.class;
 
 
     // Backwards compatibility code (methods available as of SDK Level 8)

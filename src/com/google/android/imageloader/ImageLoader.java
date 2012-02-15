@@ -796,7 +796,8 @@ public final class ImageLoader {
     }
 
     private Bitmap getBitmap(String url) {
-        return mBitmaps.get(url);
+        final Bitmap bmp = mBitmaps.get(url);
+        return bmp == null || bmp.isRecycled() ? null : bmp;
     }
 
     private ImageError getError(String url) {
