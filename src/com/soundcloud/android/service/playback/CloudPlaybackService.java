@@ -545,16 +545,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         mPlayerHandler.removeMessages(FADE_IN);
         mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
         scheduleServiceShutdownCheck();
-        if (SoundCloudApplication.useRichNotifications()){
-            stopForeground(false);
-            if (status != null){
-                ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
-            NotificationManager mManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mManager.notify(PLAYBACKSERVICE_STATUS_ID, status);
-            }
-        } else {
-            stopForeground(true);
-        }
+        stopForeground(true);
     }
 
     /* package */ State getState() {
