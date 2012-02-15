@@ -215,10 +215,9 @@ public class C2DMReceiver extends BroadcastReceiver {
                 case FOLLOWER:
                     Bundle extras = new Bundle();
                     extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, event.type);
-                    if (event.uri != null){
-                        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT_URI, event.uri);
+                    if (intent.getExtras().containsKey(C2DMReceiver.SC_URI)){
+                        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT_URI, extras.getString(C2DMReceiver.SC_URI));
                     }
-
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requesting sync (event="+event+")");
                     ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, extras);
                     break;

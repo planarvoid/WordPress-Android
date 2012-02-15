@@ -174,8 +174,10 @@ public class SyncAdapterService extends Service {
 
         PushEvent evt = PushEvent.fromExtras(extras);
         if (evt == PushEvent.FOLLOWER){
-            if (PreferenceManager.getDefaultSharedPreferences(app).getBoolean("notificationsFollowers", true)){
-                final Long id = getIdFromUri(Uri.parse(evt.uri));
+            if (PreferenceManager.getDefaultSharedPreferences(app).getBoolean("notificationsFollowers", true)
+                    && extras.containsKey(SyncAdapterService.EXTRA_PUSH_EVENT_URI)){
+
+                final Long id = getIdFromUri(Uri.parse(extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT_URI)));
                 if (id != -1){
                     User u = SoundCloudApplication.USER_CACHE.containsKey(id) ? SoundCloudApplication.USER_CACHE.get(id)
                             : SoundCloudDB.getUserById(app.getContentResolver(),id);
