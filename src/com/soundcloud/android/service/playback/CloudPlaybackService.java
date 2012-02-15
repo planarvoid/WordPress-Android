@@ -413,9 +413,14 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 Consts.Tracking.Actions.TRACK_PLAY,
                 mCurrentTrack.getTrackEventLabel());
         startTrack(track);
+
+
     }
 
     private void startTrack(Track track) {
+        setPlayingNotification(track);
+
+
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "startTrack("+track.title+")");
         }
@@ -508,7 +513,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (mMediaPlayer != null && state != PAUSED) {
             if (state.isPausable() && mMediaPlayer.isPlaying()) {
                 mMediaPlayer.pause();
-                mFocus.abandonMusicFocus(true);
                 gotoIdleState(PAUSED);
             } else {
                 // get into a determined state
@@ -581,7 +585,10 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             status.setLatestEventInfo(this, track.getUserName(),track.title, pi);
         } else {
             if (mNotificationView == null){
-                mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
+                mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11,
+                        android.R.drawable.ic_media_play,android.R.drawable.ic_media_pause);
+                mNotificationView.setImageViewResource(R.id.next, android.R.drawable.ic_media_next);
+                mNotificationView.setImageViewResource(R.id.close, android.R.drawable.ic_menu_close_clear_cancel);
             }
             ((PlaybackRemoteViews) mNotificationView).setCurrentTrack(track.title,track.user.username);
             ((PlaybackRemoteViews) mNotificationView).linkButtons(this,track.id,track.user_id,track.user_favorite, EXTRA_FROM_NOTIFICATION);
@@ -869,11 +876,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
             String action = intent.getAction();
             String cmd = intent.getStringExtra("command");
-
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "BroadcastReceiver#onReceive("+action+", "+cmd+")");
             }
-
             if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
                 next();
             } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
@@ -911,6 +916,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 stop();
                 if (intent.getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
                     stopForeground(true);
+                    NotificationManager mManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    mManager.cancel(PLAYBACKSERVICE_STATUS_ID);
                 }
             }
         }
@@ -950,6 +957,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             }
             switch (msg.what) {
                 case NOTIFY_META_CHANGED:
+                    Log.i("asdf","Notifying meta changeddd");
                     notifyChange(META_CHANGED);
                     break;
                 case FADE_IN:

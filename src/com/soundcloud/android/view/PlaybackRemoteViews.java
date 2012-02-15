@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import com.soundcloud.android.Actions;
@@ -17,8 +18,17 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 
 public class PlaybackRemoteViews extends RemoteViews{
+
+    private int mPlayBtnId;
+    private int mPauseBtnId;
+
     public PlaybackRemoteViews(String packageName, int layoutId) {
+        this(packageName,layoutId,R.drawable.ic_widget_play_states,R.drawable.ic_widget_pause_states);
+    }
+    public PlaybackRemoteViews(String packageName, int layoutId, int playBtnId, int pauseBtnId) {
         super(packageName, layoutId);
+        mPlayBtnId = playBtnId;
+        mPauseBtnId = pauseBtnId;
     }
 
     public PlaybackRemoteViews(Parcel parcel) {
@@ -91,6 +101,6 @@ public class PlaybackRemoteViews extends RemoteViews{
     }
 
     public void setPlaybackStatus(boolean playing) {
-        setImageViewResource(R.id.pause, playing ? R.drawable.ic_widget_pause_states : R.drawable.ic_widget_play_states);
+        setImageViewResource(R.id.pause, playing ? mPauseBtnId : mPlayBtnId);
     }
 }
