@@ -233,11 +233,13 @@ public class Main extends TabActivity implements
                 ((ScSearch) getCurrentActivity()).perform(
                         Search.forSounds(intent.getStringExtra(SearchManager.QUERY)));
             }
-        } else if (Actions.USER_BROWSER.equals(intent.getAction()) && intent.hasExtra("userBrowserTag")) {
+        } else if (Actions.MY_PROFILE.equals(intent.getAction()) && intent.hasExtra("userBrowserTag")) {
             getTabHost().setCurrentTabByTag(Tab.PROFILE.tag);
             if (getCurrentActivity() instanceof UserBrowser) {
                 ((UserBrowser) getCurrentActivity()).setTab(intent.getStringExtra("userBrowserTag"));
             }
+        } else if (Actions.USER_BROWSER.equals(intent.getAction())) {
+            startActivity((new Intent(this,UserBrowser.class).putExtras(intent.getExtras())));
         } else if (Actions.ACCOUNT_PREF.equals(intent.getAction())) {
             startActivity(
                 new Intent(this, AccountPreferences.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)

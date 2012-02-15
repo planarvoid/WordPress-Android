@@ -10,6 +10,7 @@ import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.PlaylistManager;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;

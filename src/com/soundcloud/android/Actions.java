@@ -8,9 +8,10 @@ public final class Actions {
     public static final String SEARCH       = "com.soundcloud.android.action.SEARCH";
     public static final String PROFILE      = "com.soundcloud.android.action.PROFILE";
     public static final String PLAYER       = "com.soundcloud.android.action.PLAYER";
-    public static final String USER_BROWSER = "com.soundcloud.android.action.USER_BROWSER";
+    public static final String MY_PROFILE   = "com.soundcloud.android.action.MY_PROFILE";
     public static final String SHARE        = "com.soundcloud.android.SHARE";
     public static final String ACCOUNT_PREF = "com.soundcloud.android.action.ACCOUNT_PREF";
+    public static final String USER_BROWSER = "com.soundcloud.android.action.USER_BROWSER";
 
     public static final String EXTRA_TITLE       = "com.soundcloud.android.extra.title";
     public static final String EXTRA_WHERE       = "com.soundcloud.android.extra.where";

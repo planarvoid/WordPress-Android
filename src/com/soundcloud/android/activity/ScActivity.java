@@ -574,7 +574,7 @@ public abstract class ScActivity extends android.app.Activity {
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:
                 trackPage(Consts.Tracking.PEOPLE_FINDER);
-                intent = new Intent(Actions.USER_BROWSER)
+                intent = new Intent(Actions.MY_PROFILE)
                     .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     .putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder);
                 startActivity(intent);

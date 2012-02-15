@@ -7,7 +7,6 @@ import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
@@ -77,7 +76,7 @@ public class Dashboard extends ScActivity {
                             .setSecondaryText(R.string.list_empty_activity_secondary)
                             .setActionListener(new EmptyCollection.ActionListener() {
                                 @Override public void onAction() {
-                                    startActivity(new Intent(Actions.USER_BROWSER)
+                                    startActivity(new Intent(Actions.MY_PROFILE)
                                             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                                             .putExtra("userBrowserTag", UserBrowser.TabTags.tracks));
                                 }
@@ -124,7 +123,7 @@ public class Dashboard extends ScActivity {
 
     private void goToFriendFinder() {
         trackPage(Consts.Tracking.PEOPLE_FINDER);
-        startActivity(new Intent(Actions.USER_BROWSER)
+        startActivity(new Intent(Actions.MY_PROFILE)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder));
     }

@@ -1,10 +1,9 @@
 package com.soundcloud.android.c2dm;
 
-import com.soundcloud.android.service.sync.SyncAdapterService;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 
 public enum PushEvent {
     LIKE("like"),
@@ -14,6 +13,7 @@ public enum PushEvent {
     NULL(null);
 
     public final String type;
+    public String uri;
 
     private PushEvent(String type) {
         this.type = type;
@@ -30,7 +30,14 @@ public enum PushEvent {
         if (type == null) type = extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT);
         if (!TextUtils.isEmpty(type)) {
             for (PushEvent e : PushEvent.values()) {
-                if (type.equals(e.type)) return e;
+                if (type.equals(e.type)) {
+                    if (extras.containsKey(SyncAdapterService.EXTRA_PUSH_EVENT_URI)){
+                        e.uri = extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT_URI);
+                    } else if (extras.containsKey(C2DMReceiver.SC_URI)){
+                        e.uri = extras.getString(C2DMReceiver.SC_URI);
+                    }
+                    return e;
+                }
             }
             return UNKNOWN;
         } else {

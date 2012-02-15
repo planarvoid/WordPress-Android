@@ -138,6 +138,7 @@ public final class Consts {
         int DASHBOARD_NOTIFY_STREAM_ID = 3;
         int DASHBOARD_NOTIFY_ACTIVITIES_ID = 4;
         int BETA_NOTIFY_ID    = 5;
+        int DASHBOARD_NOTIFY_FOLLOWER_ID = 6;
     }
 
     public interface Tracking {

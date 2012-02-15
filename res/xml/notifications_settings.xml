@@ -42,5 +42,11 @@
                 android:summary="@string/pref_notifications_comments_description"
                 android:key="notificationsComments"
                 android:defaultValue="true"/>
+
+         <CheckBoxPreference
+                android:title="@string/pref_notifications_followers"
+                android:summary="@string/pref_notifications_followers_description"
+                android:key="notificationsFollowers"
+                android:defaultValue="true"/>
     </PreferenceCategory>
 </PreferenceScreen>

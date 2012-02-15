@@ -1,7 +1,6 @@
 package com.soundcloud.android.service.record;
 
 import static com.soundcloud.android.Consts.Notifications.*;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.provider.DBHelper.Recordings;
 import static com.soundcloud.android.utils.CloudUtils.isTaskFinished;
 
@@ -614,7 +613,7 @@ public class CloudCreateService extends Service {
         final CharSequence notificationTitle;
         final CharSequence notificationMessage;
 
-        Intent i = (new Intent(Actions.USER_BROWSER).putExtra("userBrowserTag", UserBrowser.TabTags.tracks));
+        Intent i = (new Intent(Actions.MY_PROFILE).putExtra("userBrowserTag", UserBrowser.TabTags.tracks));
 
         if (params.isSuccess()) {
             mCurrentUpload.upload_status = Upload.UploadStatus.UPLOADED;

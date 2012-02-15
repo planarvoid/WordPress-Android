@@ -1,13 +1,5 @@
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.SoundCloudApplication.*;
-
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.json.Views;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonView;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -16,6 +8,11 @@ import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.json.Views;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonView;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +21,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Date;
 import java.util.List;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.SoundCloudApplication.TRACK_CACHE;
+import static com.soundcloud.android.SoundCloudApplication.USER_CACHE;
 
 public abstract class ScModel implements Parcelable {
     @JsonView(Views.Mini.class) public long id = -1;
@@ -208,7 +209,6 @@ public abstract class ScModel implements Parcelable {
     public boolean isSaved() {
         return id >= 0;
     }
-
 
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
     public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}

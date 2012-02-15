@@ -1,5 +1,6 @@
 package com.soundcloud.android.c2dm;
 
+import android.net.Uri;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -211,8 +212,13 @@ public class C2DMReceiver extends BroadcastReceiver {
             switch (event) {
                 case LIKE:
                 case COMMENT:
+                case FOLLOWER:
                     Bundle extras = new Bundle();
                     extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, event.type);
+                    if (event.uri != null){
+                        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT_URI, event.uri);
+                    }
+
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requesting sync (event="+event+")");
                     ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, extras);
                     break;

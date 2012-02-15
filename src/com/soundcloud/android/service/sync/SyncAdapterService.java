@@ -15,6 +15,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.utils.CloudUtils;
 
 import android.accounts.Account;
@@ -40,7 +41,12 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -68,6 +74,7 @@ public class SyncAdapterService extends Service {
 
     public static final String EXTRA_CLEAR_MODE = "clearMode";
     public static final String EXTRA_PUSH_EVENT = "pushEvent";
+    public static final String EXTRA_PUSH_EVENT_URI = "pushEventUri";
 
     public static final int CLEAR_ALL       = 1;
     public static final int REWIND_LAST_DAY = 2;
@@ -165,27 +172,55 @@ public class SyncAdapterService extends Service {
             app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, now);
         }
 
-        if (shouldUpdateDashboard(app)) {
-            if (isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
-            if (isExclusiveEnabled(app, extras)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri);
-            if (isActivitySyncEnabled(app, extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
-            if (isFollowersEnabled(app,extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
+        PushEvent evt = PushEvent.fromExtras(extras);
+        if (evt == PushEvent.FOLLOWER){
+            if (PreferenceManager.getDefaultSharedPreferences(app).getBoolean("notificationsFollowers", true)){
+                final Long id = getIdFromUri(Uri.parse(evt.uri));
+                if (id != -1){
+                    User u = SoundCloudApplication.USER_CACHE.containsKey(id) ? SoundCloudApplication.USER_CACHE.get(id)
+                            : SoundCloudDB.getUserById(app.getContentResolver(),id);
+                    if (u != null && !u.isStale()){
+                        showNewFollower(app, u);
+                    } else {
+                        try {
+                            HttpResponse resp = app.get(Request.to(Endpoints.USERS + "/" + id));
+                            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                                u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
+                                SoundCloudDB.insertUser(app.getContentResolver(), u);
+                                SoundCloudApplication.USER_CACHE.put(u);
+                                showNewFollower(app, u);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            intent.setData(Content.ME_FOLLOWERS.uri);
+
+        } else {
+             if (shouldUpdateDashboard(app)) {
+                if (isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
+                if (isExclusiveEnabled(app, extras)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri);
+                if (isActivitySyncEnabled(app, extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
+            }
+
+            if (shouldSyncCollections(app)) {
+                SyncContent.configureSyncExtras(app, urisToSync, force);
+            }
+
+            final long lastCleanup = PreferenceManager.getDefaultSharedPreferences(app).getLong(
+                    PREF_LAST_SYNC_CLEANUP,
+                    System.currentTimeMillis());
+
+            if (System.currentTimeMillis() - lastCleanup > CLEANUP_DELAY || force) {
+                urisToSync.add(Content.TRACK_CLEANUP.uri);
+                urisToSync.add(Content.USERS_CLEANUP.uri);
+            }
+
+            intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
         }
 
-        if (shouldSyncCollections(app)) {
-            SyncContent.configureSyncExtras(app, urisToSync, force);
-        }
-
-        final long lastCleanup = PreferenceManager.getDefaultSharedPreferences(app).getLong(
-                PREF_LAST_SYNC_CLEANUP,
-                System.currentTimeMillis());
-
-        if (System.currentTimeMillis() - lastCleanup > CLEANUP_DELAY || force) {
-            urisToSync.add(Content.TRACK_CLEANUP.uri);
-            urisToSync.add(Content.USERS_CLEANUP.uri);
-        }
-
-        intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
         Looper.prepare();
         intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
                 new ServiceResultReceiver(app, syncResult, extras));
@@ -283,7 +318,7 @@ public class SyncAdapterService extends Service {
                         exclusive.newerThan(app.getAccountDataLong(User.DataKeys.LAST_INCOMING_NOTIFIED_ITEM))) {
                     prefetchArtwork(app, incoming, exclusive);
 
-                    showDashboardNotification(app, ticker, title, message, Actions.STREAM,
+                    showDashboardNotification(app, ticker, title, message, createNotificationIntent(Actions.STREAM),
                             Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID, artwork_url);
 
                     app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, System.currentTimeMillis());
@@ -309,7 +344,7 @@ public class SyncAdapterService extends Service {
                     prefetchArtwork(app, activities);
 
                     showDashboardNotification(app, msg.ticker, msg.title, msg.message,
-                            Actions.ACTIVITY,
+                            createNotificationIntent(Actions.ACTIVITY),
                             Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID,
                             activities.getFirstAvailableAvatar());
 
@@ -386,36 +421,49 @@ public class SyncAdapterService extends Service {
         }
     }
 
+    private static void showNewFollower(SoundCloudApplication app, User u) {
+        showDashboardNotification(app,
+                app.getString(R.string.dashboard_notifications_ticker_follower),
+                app.getString(R.string.dashboard_notifications_title_follower),
+                app.getString(R.string.dashboard_notifications_message_follower, u.username),
+                createNotificationIntent(Actions.USER_BROWSER).putExtra("user",u),
+                Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID,
+                u.avatar_url);
+    }
+
+
     private static void showDashboardNotification(final Context context,
                                                   final CharSequence ticker,
                                                   final CharSequence title,
                                                   final CharSequence message,
-                                                  final String action,
+                                                  final Intent intent,
                                                   final int id,
                                                   String artworkUri) {
 
         if (!SoundCloudApplication.useRichNotifications() || !ImageUtils.checkIconShouldLoad(artworkUri)) {
-            showDashboardNotification(context, ticker, action, title, message, id, null);
+            showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
             final Bitmap bmp = ImageLoader.get(context).getBitmap(artworkUri,null, new ImageLoader.Options(false));
             if (bmp != null){
-                showDashboardNotification(context, ticker, action, title, message, id, bmp);
+                showDashboardNotification(context, ticker, intent, title, message, id, bmp);
             } else {
                 ImageLoader.get(context).getBitmap(artworkUri,new ImageLoader.BitmapCallback(){
                     public void onImageLoaded(Bitmap loadedBmp, String uri) {
-                        showDashboardNotification(context, ticker, action, title, message, id, loadedBmp);
+                        showDashboardNotification(context, ticker, intent, title, message, id, loadedBmp);
                     }
                     public void onImageError(String uri, Throwable error) {
-                        showDashboardNotification(context, ticker, action, title, message, id, null);
+                        showDashboardNotification(context, ticker, intent, title, message, id, null);
                     }
                 });
             }
         }
     }
 
+
+
     private static void showDashboardNotification(Context context,
                                                   CharSequence ticker,
-                                                  String action,
+                                                  Intent intent,
                                                   CharSequence title,
                                                   CharSequence message,
                                                   int id,
@@ -424,9 +472,7 @@ public class SyncAdapterService extends Service {
         final NotificationManager nm = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent intent = (new Intent(action))
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
         final PendingIntent pi = PendingIntent.getActivity(context.getApplicationContext(), 0, intent, 0);
 
         final Notification n = new Notification(R.drawable.statusbar, ticker, System.currentTimeMillis());
@@ -475,6 +521,11 @@ public class SyncAdapterService extends Service {
         ContentResolver.requestSync(app.getAccount(), ScContentProvider.AUTHORITY, extras);
     }
 
+    private static Intent createNotificationIntent(String action){
+        return new Intent(action)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    }
 
     private static void clearActivities(ContentResolver resolver){
         // drop all activities before re-sync
@@ -617,15 +668,24 @@ public class SyncAdapterService extends Service {
                 .getBoolean("notificationsComments", true) && (evt == PushEvent.NULL || evt == PushEvent.COMMENT);
     }
 
-
-    private static boolean isFollowersEnabled(Context c, Bundle extras) {
-        PushEvent evt = PushEvent.fromExtras(extras);
-        return PreferenceManager
-                .getDefaultSharedPreferences(c)
-                .getBoolean("notificationsFollowers", true) && (evt == PushEvent.NULL || evt == PushEvent.FOLLOWER);
-    }
-
     private static boolean isSyncWifiOnlyEnabled(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("syncWifiOnly", true);
+    }
+
+    private static long getIdFromUri(Uri uri) {
+        if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
+            final String specific = uri.getSchemeSpecificPart();
+            final String[] components = specific.split(":", 2);
+            if (components != null && components.length == 2) {
+                final String type = components[0];
+                final String id = components[1];
+                if (type != null && id != null) {
+                    try {
+                        return Long.parseLong(id);
+                    } catch (NumberFormatException ignored) { }
+                }
+            }
+        }
+        return -1;
     }
 }

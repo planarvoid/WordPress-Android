@@ -1,12 +1,16 @@
 package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.utils.IOUtils.readInputStream;
+import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
+import android.net.Uri;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.c2dm.PushEvent;
@@ -22,6 +26,7 @@ import com.soundcloud.api.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
+import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,6 +76,8 @@ public class SyncAdapterServiceTest {
                 .edit()
                 .putString(SyncAdapterService.PREF_NOTIFICATIONS_FREQUENCY, 0+"")
                 .commit();
+
+        DefaultTestRunner.application.setCurrentUserId(100l);
     }
 
     @After
@@ -354,11 +361,19 @@ public class SyncAdapterServiceTest {
     }
 
     @Test
-    public void shouldCheckPushEventExtraParameterFollower() throws Exception {
+    public void shouldShowNewFetchedFollower() throws Exception {
+        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
+                addResourceResponse("/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+
+        addHttpResponseRule("GET", "/users/12345",
+                new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("user.json"))));
+
         Bundle extras = new Bundle();
         extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, PushEvent.FOLLOWER.type);
+        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT_URI, "soundcloud:users:12345");
+
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
-        expect(result.notifications.size()).toEqual(0);
+        expect(result.notifications.size()).toEqual(1);
     }
 
     @Test
@@ -470,5 +485,25 @@ public class SyncAdapterServiceTest {
 
     void addCannedActivities(String... resources) throws IOException {
         TestHelper.addCannedResponses(SyncAdapterServiceTest.class, resources);
+    }
+
+    private void addResourceResponse(String url, String resource) throws IOException {
+        TestHelper.addCannedResponse(getClass(), url, resource);
+    }
+
+    private void serviceAction(ApiSyncService svc, String action, Content content, String... fixtures) throws IOException {
+        TestHelper.addCannedResponses(SyncAdapterServiceTest.class, fixtures);
+        svc.onStart(new Intent(action, content.uri), 1);
+    }
+
+    private void addIdResponse(String url, int... ids) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{ \"collection\": [");
+        for (int i = 0; i < ids.length; i++) {
+            sb.append(ids[i]);
+            if (i < ids.length - 1) sb.append(", ");
+        }
+        sb.append("] }");
+        Robolectric.addHttpResponseRule(url, new TestHttpResponse(200, sb.toString()));
     }
 }
