@@ -565,7 +565,7 @@ public abstract class ScActivity extends android.app.Activity {
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.VIEW_CURRENT_TRACK:
-                startActivity(new Intent(this, ScPlayer.class));
+                startActivity(new Intent(this, ScPlayer.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
                 return true;
             case Consts.OptionsMenu.STREAM:
                 intent = new Intent(Actions.STREAM);
