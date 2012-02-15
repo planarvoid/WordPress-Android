@@ -416,6 +416,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     private void startTrack(Track track) {
+        setPlayingNotification(track);
+
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "startTrack("+track.title+")");
         }
