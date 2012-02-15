@@ -223,10 +223,8 @@ public class Main extends TabActivity implements
         } else if (tab != Tab.UNKNOWN) {
             getTabHost().setCurrentTabByTag(tab.tag);
         } else if (Actions.PLAYER.equals(intent.getAction())) {
-            // start another activity to control history (back from player moves back to main)
-            startActivity(
-                new Intent(this, ScPlayer.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-            );
+            // start another activity to control history
+            startActivity(new Intent(this, ScPlayer.class));
         } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             getTabHost().setCurrentTabByTag(Tab.SEARCH.tag);
             if (getCurrentActivity() instanceof ScSearch) {
