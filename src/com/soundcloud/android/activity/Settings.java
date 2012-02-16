@@ -58,6 +58,15 @@ public class Settings extends PreferenceActivity {
             BetaPreferences.add(this, getPreferenceScreen());
         }
 
+        findPreference("accountSyncSettings").setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        getApp().track(Page.Settings_account_sync);
+                        return false;
+                    }
+        });
+
         findPreference("tour").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {

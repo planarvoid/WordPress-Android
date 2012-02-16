@@ -6,6 +6,7 @@
             android:title="@string/pref_basic_settings">
 
         <PreferenceScreen
+                android:key="accountSyncSettings"
                 android:title="@string/pref_sync_settings"
                 android:summary="@string/pref_sync_settings_summary">
             <intent android:action="android.intent.action.VIEW"
@@ -14,6 +15,7 @@
         </PreferenceScreen>
 
         <PreferenceScreen
+                android:key="notificationSettings"
                 android:title="@string/pref_notifications"
                 android:summary="@string/pref_notifications_description">
             <intent android:action="android.intent.action.VIEW"
