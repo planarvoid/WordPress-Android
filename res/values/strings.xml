@@ -33,7 +33,7 @@
     <string name="empty"></string>
 
     <string name="dashboard_notifications_title_follower">You have a new follower</string>
-    <string name="dashboard_notifications_message_follower">%s started following you</string>
+    <string name="dashboard_notifications_message_follower">%s is now following you. Follow back?</string>
     <string name="dashboard_notifications_ticker_follower">New follower</string>
 
     <string name="pref_notifications_followers">Followers</string>
