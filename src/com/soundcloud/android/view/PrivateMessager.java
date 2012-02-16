@@ -57,7 +57,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         uploadLayout.findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.track(Click.Dedicated_recording_back);
+                mActivity.track(Click.Dedicated_recording_details_back);
                 // reset
                 mapToRecording(mRecording);
                 saveRecording(mRecording);
@@ -70,7 +70,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
             public void onClick(View v) {
                 if (mRecording != null) {
                     mapToRecording(mRecording);
-                    mActivity.track(Click.Dedicated_recording_send);
+                    mActivity.track(Click.Dedicated_recording_details_send);
 
                     saveRecording(mRecording);
                     mActivity.startUpload(mRecording);
@@ -141,10 +141,6 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
 
     public Dialog onCreateDialog(int which) {
         return mCreateController.onCreateDialog(which);
-    }
-
-    private void mapFromRecording(final Recording recording) {
-        mRecordingMetadata.mapFromRecording(recording);
     }
 
     private void mapToRecording(final Recording recording) {
