@@ -2,7 +2,6 @@ package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.service.playback.State.*;
 
-import android.app.NotificationManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.*;
@@ -564,7 +563,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
         status = new Notification();
         status.flags |= Notification.FLAG_ONGOING_EVENT;
-        status.icon = R.drawable.statusbar;
+        status.icon = R.drawable.ic_status;
 
         Intent intent = new Intent(Actions.PLAYER);
         intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);

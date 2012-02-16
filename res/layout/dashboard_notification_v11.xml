@@ -35,6 +35,7 @@
 		android:layout_weight="4"
 		android:gravity="center_vertical"
 		android:paddingLeft="8dp"
+        android:paddingRight="5dp"
 		android:orientation="vertical"
 		android:layout_height="match_parent">
 		<TextView
@@ -42,12 +43,13 @@
 			style="@android:style/TextAppearance.StatusBar.EventContent.Title"
 			android:ellipsize="end"
 			android:singleLine="true"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+            android:drawableRight="@drawable/ic_status_right"
+            android:drawablePadding="5dp" />
 		<TextView
 			android:id="@+id/content_txt"
 			style="@android:style/TextAppearance.StatusBar.EventContent"
-			android:singleLine="true"
 			android:scrollHorizontally="true"
 			android:ellipsize="end"
 			android:layout_width="wrap_content"
