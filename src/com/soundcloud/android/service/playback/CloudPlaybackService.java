@@ -577,8 +577,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
             }
             ((PlaybackRemoteViews) mNotificationView).setCurrentTrack(track.title,track.user.username);
-            ((PlaybackRemoteViews) mNotificationView).linkButtons(this,track.id,track.user_id,track.user_favorite, EXTRA_FROM_NOTIFICATION);
-            ((PlaybackRemoteViews) mNotificationView).setPlaybackStatus(state.isSupposedToBePlaying());
+            /*((PlaybackRemoteViews) mNotificationView).linkButtons(this,track.id,track.user_id,track.user_favorite, EXTRA_FROM_NOTIFICATION);
+            ((PlaybackRemoteViews) mNotificationView).setPlaybackStatus(state.isSupposedToBePlaying());*/
 
             final String artworkUri = track.getListArtworkUrl(getApplicationContext());
             if (ImageUtils.checkIconShouldLoad(artworkUri)){
