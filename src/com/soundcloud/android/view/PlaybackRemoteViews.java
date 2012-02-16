@@ -19,8 +19,6 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 
 public class PlaybackRemoteViews extends RemoteViews{
 
-    private Track mCurrentTrack;
-
     public PlaybackRemoteViews(String packageName, int layoutId) {
         super(packageName, layoutId);
     }
@@ -76,15 +74,6 @@ public class PlaybackRemoteViews extends RemoteViews{
             setOnClickPendingIntent(R.id.btn_favorite, PendingIntent.getService(context,
                     0 /* requestCode */, toggleLike, PendingIntent.FLAG_UPDATE_CURRENT));
         }
-    }
-
-    public void setCurrentTrack(Track track) {
-        mCurrentTrack = track;
-        setCurrentTrack(track.title,track.user.username);
-    }
-
-    public Track getCurrentTrack(){
-        return mCurrentTrack;
     }
 
     public void setCurrentTrack(CharSequence title, CharSequence username) {

@@ -573,38 +573,34 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             status.setLatestEventInfo(this, track.getUserName(),track.title, pi);
         } else {
 
-            if (mNotificationView == null || track != ((PlaybackRemoteViews) mNotificationView).getCurrentTrack()){
+            mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
+            final PlaybackRemoteViews playbackRemoteViews1 = (PlaybackRemoteViews) mNotificationView;
+            playbackRemoteViews1.setCurrentTrack(track.title,track.user.username);
 
-                mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
-                status.contentView = mNotificationView;
-                status.contentIntent = pi;
-
-                final PlaybackRemoteViews playbackRemoteViews1 = (PlaybackRemoteViews) mNotificationView;
-                playbackRemoteViews1.setCurrentTrack(track.title, track.user.username);
-
-                final String artworkUri = track.getListArtworkUrl(getApplicationContext());
-                if (ImageUtils.checkIconShouldLoad(artworkUri)){
-                    final Bitmap bmp = ImageLoader.get(getApplicationContext()).getBitmap(artworkUri,null, ICON_OPTIONS);
-                    if (bmp != null){
-                        playbackRemoteViews1.setIcon(bmp);
-                    } else {
-                        playbackRemoteViews1.hideIcon();
-                        ImageLoader.get(getApplicationContext()).getBitmap(artworkUri,new ImageLoader.BitmapCallback(){
-
-                            public void onImageLoaded(Bitmap mBitmap, String uri) {
-                                if (status.contentView != null && ((PlaybackRemoteViews) status.contentView).getCurrentTrack() == track) {
-                                    ((PlaybackRemoteViews) status.contentView).setIcon(bmp);
-                                }
-                            }
-                            public void onImageError(String uri, Throwable error) {}
-                        });
-                    }
+            final String artworkUri = track.getListArtworkUrl(getApplicationContext());
+            if (ImageUtils.checkIconShouldLoad(artworkUri)) {
+                final Bitmap bmp = ImageLoader.get(getApplicationContext()).getBitmap(artworkUri, null, ICON_OPTIONS);
+                if (bmp != null) {
+                    playbackRemoteViews1.setIcon(bmp);
                 } else {
                     playbackRemoteViews1.hideIcon();
+                    ImageLoader.get(getApplicationContext()).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
+
+                        public void onImageLoaded(Bitmap mBitmap, String uri) {
+                            if (status.contentView != null && mCurrentTrack == track) {
+                                ((PlaybackRemoteViews) status.contentView).setIcon(bmp);
+                            }
+                        }
+
+                        public void onImageError(String uri, Throwable error) {
+                        }
+                    });
                 }
-
-
+            } else {
+                playbackRemoteViews1.hideIcon();
             }
+            status.contentView = mNotificationView;
+            status.contentIntent = pi;
         }
 
         startForeground(PLAYBACKSERVICE_STATUS_ID, status);
