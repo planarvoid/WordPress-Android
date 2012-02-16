@@ -272,7 +272,7 @@ public class PlayerAvatarBar extends View {
     };
 
     private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint, Paint imagePaint, Matrix matrix){
-
+        if (canvas != null){
             if (!ImageUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null || comment.avatar.isRecycled()) {
                 if (mLandscape) {
                     refreshDefaultAvatar();
@@ -291,7 +291,7 @@ public class PlayerAvatarBar extends View {
                 canvas.drawBitmap(comment.avatar, matrix, imagePaint);
                 canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
             }
-
+        }
     }
 
     @Override
