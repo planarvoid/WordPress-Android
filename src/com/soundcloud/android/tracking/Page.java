@@ -102,8 +102,10 @@ public enum Page {
             return expandVariables(template, (Track)o);
         } else if (o instanceof User) {
             return expandVariables(template, (User)o);
-        } else {
+        } else if (o != null) {
             return String.format(template, o);
+        } else {
+            return template;
         }
     }
 
