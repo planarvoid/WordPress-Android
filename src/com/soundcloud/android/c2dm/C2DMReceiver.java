@@ -1,6 +1,5 @@
 package com.soundcloud.android.c2dm;
 
-import android.net.Uri;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -112,7 +111,7 @@ public class C2DMReceiver extends BroadcastReceiver {
             }
         }
         // delete old device ids
-        processDeletionQueue(context, lock);
+//        processDeletionQueue(context, lock);
     }
 
     public static synchronized void unregister(Context context) {
@@ -170,7 +169,7 @@ public class C2DMReceiver extends BroadcastReceiver {
         setRegistrationData(context, PREF_REG_ID, null);
 
         // clear remote state
-        processDeletionQueue(context, mWakeLock);
+//        processDeletionQueue(context, mWakeLock);
     }
 
 
