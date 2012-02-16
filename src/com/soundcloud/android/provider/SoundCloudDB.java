@@ -138,6 +138,8 @@ public class SoundCloudDB {
             throw new IllegalArgumentException("need valid ownerId for collection");
         }
 
+        if (items == null) return 0;
+
         Set<User> usersToInsert = new HashSet<User>();
         Set<Track> tracksToInsert = new HashSet<Track>();
         ContentValues[] bulkValues = uri == null ? null : new ContentValues[items.size()];
