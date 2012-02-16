@@ -96,6 +96,12 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
         return count;
     }
 
+    public void setNextHref(int sectionIndex, String nextHref){
+        if (sections != null && sectionIndex < sections.size()){
+            sections.get(sectionIndex).nextHref = nextHref;
+        }
+    }
+
     public Object getItem(int location) {
         int c = 0;
         for (Section section : sections) {

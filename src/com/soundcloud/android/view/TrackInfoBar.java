@@ -88,7 +88,9 @@ public class TrackInfoBar extends LazyRow {
                 mIcon.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ((ITracklistAdapter) mAdapter).getQuickTrackMenu().show(mIcon, mPlayable.getTrack(), mCurrentPosition);
+                        if (mAdapter != null && mIcon != null && mPlayable.getTrack() != null){
+                            ((ITracklistAdapter) mAdapter).getQuickTrackMenu().show(mIcon, mPlayable.getTrack(), mCurrentPosition);
+                        }
                     }
                 });
             }

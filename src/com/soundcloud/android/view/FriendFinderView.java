@@ -67,8 +67,11 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                 new NewConnectionTask(mActivity.getApp()) {
                 @Override
                 protected void onPostExecute(Uri uri) {
-                    mHeaderLayout.findViewById(R.id.facebook_btn).setEnabled(true);
-                    mHeaderLayout.findViewById(R.id.facebook_btn).getBackground().setAlpha(255);
+                    if (mHeaderLayout != null && mHeaderLayout.findViewById(R.id.facebook_btn) != null){
+                        mHeaderLayout.findViewById(R.id.facebook_btn).setEnabled(true);
+                        mHeaderLayout.findViewById(R.id.facebook_btn).getBackground().setAlpha(255);
+                    }
+
                     if (uri != null) {
                         mActivity.startActivityForResult(
                                 (new Intent(mActivity, Connect.class))

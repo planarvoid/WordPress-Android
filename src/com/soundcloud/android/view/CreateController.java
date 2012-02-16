@@ -872,8 +872,11 @@ public class CreateController {
             try {
                 return Long.valueOf(path.substring(path.indexOf("_")+1,path.contains(".") ? path.indexOf(".") : path.length()));
             } catch (NumberFormatException e){
-                return -1;
+
+            } catch (StringIndexOutOfBoundsException e){
+
             }
+            return -1;
         }
     }
 

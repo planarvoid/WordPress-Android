@@ -274,7 +274,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 mPlayingTrack.full_track_info_loaded = false;
                 mPlayingTrack.comments_loaded = false;
                 mPlayingTrack.comments = null;
-                getCurrentTrackView().onRefresh();
+                final PlayerTrackView ptv = getCurrentTrackView();
+                if (ptv != null) getCurrentTrackView().onRefresh();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

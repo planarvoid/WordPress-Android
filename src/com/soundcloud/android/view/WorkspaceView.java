@@ -202,13 +202,15 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
     void handleScreenChangeCompletion(int currentScreen) {
         mCurrentScreen = currentScreen;
         View screen = getScreenAt(mCurrentScreen);
-        screen.requestFocus();
-        try {
-            ReflectionUtils.tryInvoke(screen, "dispatchDisplayHint",
-                    new Class[]{int.class}, View.VISIBLE);
-            invalidate();
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Caught NullPointerException", e);
+        if (screen != null) {
+            screen.requestFocus();
+            try {
+                ReflectionUtils.tryInvoke(screen, "dispatchDisplayHint",
+                        new Class[]{int.class}, View.VISIBLE);
+                invalidate();
+            } catch (NullPointerException e) {
+                Log.e(TAG, "Caught NullPointerException", e);
+            }
         }
         notifyScreenChangeListener(mCurrentScreen, true);
     }
@@ -652,9 +654,11 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
                     final float x = MotionEventUtils.getX(ev, pointerIndex);
 
                     final View lastChild = getChildAt(getChildCount() - 1);
-                    final int maxScrollX = lastChild.getRight() - getWidth();
-                    scrollTo(Math.max(0, Math.min(maxScrollX,
-                            (int) (mDownScrollX + mDownMotionX - (x + initialSlop)))), 0);
+                    if (lastChild != null){
+                        final int maxScrollX = lastChild.getRight() - getWidth();
+                        scrollTo(Math.max(0, Math.min(maxScrollX,
+                                (int) (mDownScrollX + mDownMotionX - (x + initialSlop)))), 0);
+                    }
 
                     if (mOnScrollListener != null) {
                         mOnScrollListener.onScroll(getCurrentScreenFraction());

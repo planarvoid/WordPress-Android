@@ -42,6 +42,8 @@ public class ScContentProvider extends ContentProvider {
         return true;
     }
 
+
+
     @Override
     public Cursor query(final Uri uri,
                         final String[] columns,
