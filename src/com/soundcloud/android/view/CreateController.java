@@ -160,7 +160,6 @@ public class CreateController {
         btnAction.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (mCurrentState == CreateState.IDLE_STANDBY_REC) {
-                    mActivity.track(Click.Record_play_stop);
                     stopRecording();
                     configureState();
                 } else if (mCurrentState == CreateState.IDLE_STANDBY_PLAY) {
@@ -173,9 +172,15 @@ public class CreateController {
                             mActivity.track(Click.Record_rec);
                             mCurrentState = CreateState.RECORD;
                             break;
-                        case RECORD:        mCurrentState = CreateState.IDLE_PLAYBACK; break;
+                        case RECORD:
+                            mActivity.track(Click.Record_rec_stop);
+                            mCurrentState = CreateState.IDLE_PLAYBACK;
+                            break;
                         case IDLE_PLAYBACK: mCurrentState = CreateState.PLAYBACK; break;
-                        case PLAYBACK:      mCurrentState = CreateState.IDLE_PLAYBACK; break;
+                        case PLAYBACK:
+                            mActivity.track(Click.Record_play_stop);
+                            mCurrentState = CreateState.IDLE_PLAYBACK;
+                            break;
                     }
                     updateUi(true);
                 }
