@@ -374,6 +374,10 @@ public class SyncAdapterServiceTest {
 
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
         expect(result.notifications.size()).toEqual(1);
+
+        expect(result.getTicker()).toEqual("New follower");
+        expect(result.getInfo().getContentTitle().toString()).toEqual("You have a new follower");
+        expect(result.getInfo().getContentText().toString()).toEqual("SoundCloud Android @ MWC is now following you. Follow back?");
     }
 
     @Test

@@ -173,32 +173,9 @@ public class SyncAdapterService extends Service {
         }
 
         PushEvent evt = PushEvent.fromExtras(extras);
-        if (evt == PushEvent.FOLLOWER){
-            if (PreferenceManager.getDefaultSharedPreferences(app).getBoolean("notificationsFollowers", true)
-                    && extras.containsKey(SyncAdapterService.EXTRA_PUSH_EVENT_URI)){
-                final Long id = getIdFromUri(Uri.parse(extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT_URI)));
-                if (id != -1){
-                    User u = SoundCloudApplication.USER_CACHE.containsKey(id) ? SoundCloudApplication.USER_CACHE.get(id)
-                            : SoundCloudDB.getUserById(app.getContentResolver(),id);
-                    if (u != null && !u.isStale()){
-                        showNewFollower(app, u);
-                    } else {
-                        try {
-                            HttpResponse resp = app.get(Request.to(Endpoints.USERS + "/" + id));
-                            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                                u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
-                                SoundCloudDB.insertUser(app.getContentResolver(), u);
-                                SoundCloudApplication.USER_CACHE.put(u);
-                                showNewFollower(app, u);
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
+        if (evt == PushEvent.FOLLOWER) {
+            handleFollowerEvent(app, extras);
             intent.setData(Content.ME_FOLLOWERS.uri);
-
         } else {
              if (shouldUpdateDashboard(app)) {
                 if (isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
@@ -228,6 +205,36 @@ public class SyncAdapterService extends Service {
         app.startService(intent);
         Looper.loop();
         return intent;
+    }
+
+
+    private static boolean handleFollowerEvent(SoundCloudApplication app, Bundle extras) {
+        if (PreferenceManager.getDefaultSharedPreferences(app).getBoolean("notificationsFollowers", true)
+                && extras.containsKey(SyncAdapterService.EXTRA_PUSH_EVENT_URI)) {
+            final long id = PushEvent.getIdFromUri(extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT_URI));
+            if (id != -1) {
+                User u = SoundCloudApplication.USER_CACHE.containsKey(id) ? SoundCloudApplication.USER_CACHE.get(id)
+                        : SoundCloudDB.getUserById(app.getContentResolver(), id);
+                if (u != null && !u.isStale()){
+                    showNewFollower(app, u);
+                    return true;
+                } else {
+                    try {
+                        HttpResponse resp = app.get(Request.to(Endpoints.USERS + "/" + id));
+                        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                            u = app.getMapper().readValue(resp.getEntity().getContent(), User.class);
+                            SoundCloudDB.insertUser(app.getContentResolver(), u);
+                            SoundCloudApplication.USER_CACHE.put(u);
+                            showNewFollower(app, u);
+                            return true;
+                        }
+                    } catch (IOException e) {
+                        Log.w(TAG, "error fetching user", e);
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     static class ServiceResultReceiver extends ResultReceiver {
@@ -280,6 +287,8 @@ public class SyncAdapterService extends Service {
                 }
             }
         }
+
+
 
         private boolean maybeNotifyIncoming(SoundCloudApplication app,
                                                  Activities incoming,
@@ -673,20 +682,5 @@ public class SyncAdapterService extends Service {
         return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("syncWifiOnly", true);
     }
 
-    private static long getIdFromUri(Uri uri) {
-        if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
-            final String specific = uri.getSchemeSpecificPart();
-            final String[] components = specific.split(":", 2);
-            if (components != null && components.length == 2) {
-                final String type = components[0];
-                final String id = components[1];
-                if (type != null && id != null) {
-                    try {
-                        return Long.parseLong(id);
-                    } catch (NumberFormatException ignored) { }
-                }
-            }
-        }
-        return -1;
-    }
+
 }
