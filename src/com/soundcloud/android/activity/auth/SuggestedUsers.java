@@ -42,6 +42,7 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
     private SectionedUserlistAdapter ffAdp;
     private SectionedEndlessAdapter ffAdpWrap;
     private Button facebookBtn;
+    private boolean resumedBefore;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -97,13 +98,14 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         startActivity(new Intent(this, Tour.class));
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isFinishing()) {
+        // don't track on first resume, since the activity gets preloaded
+        if (resumedBefore) {
             track(getClass());
         }
+        resumedBefore = true;
     }
 
     @Override
