@@ -115,13 +115,15 @@ public class AddInfo extends Activity {
             }
 
             @Override protected void onPostExecute(User user) {
-                if (dialog != null) dialog.dismiss();
-                if (user != null) {
-                    finishSignup();
-                } else {
-                    CloudUtils.showToast(AddInfo.this, getFirstError() == null ?
-                            getString(R.string.authentication_add_info_error) :
-                            getString(R.string.authentication_add_info_error_reason, getFirstError()));
+                if (!isFinishing()){
+                    if (dialog != null) dialog.dismiss();
+                    if (user != null) {
+                        finishSignup();
+                    } else {
+                        CloudUtils.showToast(AddInfo.this, getFirstError() == null ?
+                                getString(R.string.authentication_add_info_error) :
+                                getString(R.string.authentication_add_info_error_reason, getFirstError()));
+                    }
                 }
             }
         }.execute(Pair.create(user, avatarFile));
