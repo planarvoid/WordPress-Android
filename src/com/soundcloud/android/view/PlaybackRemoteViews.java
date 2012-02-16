@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import com.soundcloud.android.Actions;
@@ -17,6 +18,9 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 
 public class PlaybackRemoteViews extends RemoteViews{
+
+    private Track mCurrentTrack;
+
     public PlaybackRemoteViews(String packageName, int layoutId) {
         super(packageName, layoutId);
     }
@@ -74,6 +78,15 @@ public class PlaybackRemoteViews extends RemoteViews{
         }
     }
 
+    public void setCurrentTrack(Track track) {
+        mCurrentTrack = track;
+        setCurrentTrack(track.title,track.user.username);
+    }
+
+    public Track getCurrentTrack(){
+        return mCurrentTrack;
+    }
+
     public void setCurrentTrack(CharSequence title, CharSequence username) {
         setTextViewText(R.id.title_txt, title);
         setTextViewText(R.id.user_txt, username);
@@ -82,11 +95,11 @@ public class PlaybackRemoteViews extends RemoteViews{
     }
 
     public void setIcon(Bitmap icon){
-        setImageViewBitmap(R.id.icon,icon);
+        setImageViewBitmap(R.id.icon, icon);
         setViewVisibility(R.id.icon,View.VISIBLE);
     }
 
-    public void clearIcon(){
+    public void hideIcon(){
         setViewVisibility(R.id.icon,View.GONE);
     }
 
