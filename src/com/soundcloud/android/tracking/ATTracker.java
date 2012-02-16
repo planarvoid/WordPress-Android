@@ -32,10 +32,9 @@ public class ATTracker {
         atTag = ATTag.init(context,
             context.getString(R.string.at_tracking_subdomain),
             context.getString(R.string.at_tracking_siteid),
-            null,
-            ATTag.OfflineMode.OfflineModeAlways
+            null
         );
-//        atTag.setModePrintUrl(SoundCloudApplication.DEV_MODE);
+        //atTag.setModePrintUrl(SoundCloudApplication.DEV_MODE);
     }
 
     public void track(Click click, Object... args) {
@@ -85,7 +84,6 @@ public class ATTracker {
                     }
                     for (int i = 0; i < length; i++) {
                         ATParams event = mEvents[i];
-
                         try {
                             event.xt_sendTag();
                         } catch (Exception e) {
