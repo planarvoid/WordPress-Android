@@ -285,7 +285,7 @@ public abstract class ScActivity extends android.app.Activity {
                     .setAction(CloudPlaybackService.PLAY);
 
             if (info.uri != null) {
-                SoundCloudApplication.TRACK_CACHE.put(info.getTrack());
+                SoundCloudApplication.TRACK_CACHE.put(info.getTrack(), false);
                 intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
                       .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                       .setData(info.uri);
@@ -642,7 +642,7 @@ public abstract class ScActivity extends android.app.Activity {
         public void onEventClick(EventsAdapterWrapper wrapper, int position) {
             final Activity e = (Activity) wrapper.getItem(position);
             if (e.type == Activity.Type.FAVORITING) {
-                SoundCloudApplication.TRACK_CACHE.put(e.getTrack());
+                SoundCloudApplication.TRACK_CACHE.put(e.getTrack(), false);
                 startActivity(new Intent(ScActivity.this, TrackFavoriters.class)
                     .putExtra("track_id", e.getTrack().id));
             } else {

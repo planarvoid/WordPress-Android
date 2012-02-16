@@ -85,7 +85,7 @@ public class PlaylistManager {
                     mPlaylist[pos] = new Track(mTrackCursor);
                 }
             }
-            mCache.put(mPlaylist[pos]);
+            mCache.put(mPlaylist[pos], false);
             return mPlaylist[pos];
 
         } else {
@@ -147,7 +147,7 @@ public class PlaylistManager {
     }
 
     public void setTrack(Track toBePlayed) {
-        mCache.put(toBePlayed);
+        mCache.put(toBePlayed, false);
         mPlaylist = new Track[]{toBePlayed};
         mPlaylistUri = null;
         mPlayPos = 0;
@@ -165,7 +165,7 @@ public class PlaylistManager {
     }
 
     public void setUri(Uri uri, int position, Track t) {
-        if (t != null && !mCache.containsKey(t.id)) mCache.put(t);
+        mCache.put(t, false);
         mPlaylist = new Track[]{t};
         mPlayPos = 0;
         broadcastPlaylistChanged();

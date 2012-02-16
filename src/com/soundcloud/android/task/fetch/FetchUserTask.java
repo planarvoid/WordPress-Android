@@ -11,9 +11,9 @@ public class FetchUserTask extends FetchModelTask<User> {
     }
 
     protected void updateLocally(ContentResolver resolver, User user) {
-        SoundCloudApplication.USER_CACHE.putWithLocalFields(user);
-        SoundCloudDB.upsertUser(resolver, user);
         user.last_updated = System.currentTimeMillis();
+        SoundCloudDB.upsertUser(resolver, user);
+        SoundCloudApplication.USER_CACHE.putWithLocalFields(user);
     }
 
     public interface FetchUserListener extends FetchModelListener<User> {}

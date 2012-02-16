@@ -2,6 +2,7 @@ package com.soundcloud.android.cache;
 
 import android.database.Cursor;
 import android.os.Parcelable;
+import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Origin;
@@ -17,7 +18,14 @@ public class TrackCache extends LruCache<Long, Track> {
     }
 
     public Track put(Track t) {
-        return t != null ? put(t.id, t) : null;
+        return put(t,true);
+    }
+
+    public Track put(Track t, boolean overwrite) {
+        if (t != null && (!containsKey(t.id) || overwrite)){
+            return put(t.id,t);
+        }
+        return null;
     }
 
     /*

@@ -287,9 +287,8 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public void setAppFields(Track t) {
-        comments = t.comments;
         filelength = t.filelength;
-        full_track_info_loaded = t.full_track_info_loaded;
+        comments = t.comments;
         comments_loaded = t.comments_loaded;
     }
 
