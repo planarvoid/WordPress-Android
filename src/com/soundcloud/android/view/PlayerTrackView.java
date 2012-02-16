@@ -11,6 +11,7 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
@@ -51,7 +52,7 @@ public class PlayerTrackView extends LinearLayout implements
     private ScPlayer mPlayer;
 
     private ImageView mArtwork, mAvatar;
-    private ImageButton mFavoriteButton, mCommentButton;
+    private ImageButton mLikeButton, mCommentButton;
     private ImageLoader.BindResult mCurrentArtBindResult;
 
     private WaveformController mWaveformController;
@@ -69,7 +70,7 @@ public class PlayerTrackView extends LinearLayout implements
     private int mTouchSlop;
 
     private ImageLoader.BindResult mCurrentAvatarBindResult;
-    private Drawable mFavoriteDrawable, mFavoritedDrawable;
+    private Drawable mLikeDrawable, mLikedDrawable;
 
     public Track mTrack;
     private int mPlayPos;
@@ -125,6 +126,8 @@ public class PlayerTrackView extends LinearLayout implements
             findViewById(R.id.btn_share).setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     if (mTrack != null) {
+                        mPlayer.track(Click.Share_main, mTrack);
+
                         Intent intent = mTrack.getShareIntent();
                         if (intent != null) {
                             mPlayer.track(Page.Sounds_share, mTrack);
@@ -142,13 +145,18 @@ public class PlayerTrackView extends LinearLayout implements
             mCommentButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     toggleCommentMode();
+                    mPlayer.track(Click.Comment, mTrack);
+
                 }
             });
 
-            mFavoriteButton = (ImageButton) findViewById(R.id.btn_favorite);
-            mFavoriteButton.setOnClickListener(new View.OnClickListener() {
+            mLikeButton = (ImageButton) findViewById(R.id.btn_favorite);
+            mLikeButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    toggleFavorite();
+                    if (mTrack != null) {
+                        mPlayer.toggleLike(mTrack);
+                        mPlayer.track(Click.Like, mTrack);
+                    }
                 }
             });
         }
@@ -192,7 +200,7 @@ public class PlayerTrackView extends LinearLayout implements
             mDuration = mTrack.duration;
         }
 
-        setFavoriteStatus();
+        setLikeStatus();
 
         if (!mTrack.full_track_info_loaded) {
             if (CloudUtils.isTaskFinished(mTrack.load_info_task)) {
@@ -216,7 +224,10 @@ public class PlayerTrackView extends LinearLayout implements
             mWaveformController.clearTrackComments();
             mWaveformController.setProgress(0);
 
-            mPlayer.track(Page.Sounds_main, mTrack);
+            if (priority) {
+                // only track current track
+                mPlayer.track(Page.Sounds_main, mTrack);
+            }
 
             if (mTrack.comments != null) {
                 mWaveformController.setComments(mTrack.comments, true);
@@ -346,27 +357,19 @@ public class PlayerTrackView extends LinearLayout implements
         }
     }
 
-    private void setFavoriteStatus() {
-        if (mTrack == null || mFavoriteButton == null) {
+    private void setLikeStatus() {
+        if (mTrack == null || mLikeButton == null) {
             return;
         }
 
         if (mTrack.user_favorite) {
-            if (mFavoritedDrawable == null) mFavoritedDrawable = getResources().getDrawable(R.drawable.ic_liked_states_v1);
-            mFavoriteButton.setImageDrawable(mFavoritedDrawable);
+            if (mLikedDrawable == null) mLikedDrawable = getResources().getDrawable(R.drawable.ic_liked_states_v1);
+            mLikeButton.setImageDrawable(mLikedDrawable);
         } else {
-            if (mFavoriteDrawable == null) mFavoriteDrawable = getResources().getDrawable(R.drawable.ic_like_states_v1);
-            mFavoriteButton.setImageDrawable(mFavoriteDrawable);
+            if (mLikeDrawable == null) mLikeDrawable = getResources().getDrawable(R.drawable.ic_like_states_v1);
+            mLikeButton.setImageDrawable(mLikeDrawable);
         }
     }
-
-    private void toggleFavorite() {
-        if (mTrack == null)
-            return;
-
-        mPlayer.toggleFavorite(mTrack);
-    }
-
 
 
     /**
@@ -555,7 +558,7 @@ public class PlayerTrackView extends LinearLayout implements
         } else if (action.equals(CloudPlaybackService.FAVORITE_SET)) {
             if (mTrack != null && mTrack.id == intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1)) {
                 mTrack.user_favorite = intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isFavorite, false);
-                setFavoriteStatus();
+                setLikeStatus();
             }
         } else if (action.equals(CloudPlaybackService.BUFFERING)) {
             onBuffering();
@@ -627,7 +630,7 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void setPlaybackStatus(boolean isPlaying, long position) {
-        mWaveformController.setPlaybackStatus(isPlaying,position);
+        mWaveformController.setPlaybackStatus(isPlaying, position);
     }
 
     public long getTrackId() {

@@ -477,8 +477,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public void track(Click click) {
-        if (mTracker != null) mTracker.track(click);
+    public void track(Click click, Object... args) {
+        if (mTracker != null) mTracker.track(click, args);
     }
 
     public void track(Page page, Object... args) {
@@ -492,7 +492,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public void track(Tracking tracking, Object... args) {
         if (mTracker != null && tracking != null) {
             if (tracking.page() != Page.UNKNOWN) track(tracking.page(), args);
-            if (tracking.click() != Click.UNKNOWN) track(tracking.click());
+            if (tracking.click() != Click.UNKNOWN) track(tracking.click(), args);
         }
     }
 

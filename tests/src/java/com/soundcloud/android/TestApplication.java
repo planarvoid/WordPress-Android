@@ -61,7 +61,7 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     @Override
-    public void track(Click click) {
+    public void track(Click click, Object... args) {
         trackedClicks.add(click);
     }
 }

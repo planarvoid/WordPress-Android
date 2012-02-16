@@ -672,8 +672,8 @@ public abstract class ScActivity extends android.app.Activity {
     }
 
     // tracking shizzle
-    public void track(Click click) {
-        getApp().track(click);
+    public void track(Click click, Object... args) {
+        getApp().track(click, args);
     }
 
     public void track(Page page, Object... args) {

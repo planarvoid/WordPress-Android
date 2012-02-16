@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.FocusHelper;
-import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.view.PlayerTrackView;
 import com.soundcloud.android.view.TransportBar;
 import com.soundcloud.android.view.WaveformController;
@@ -231,7 +230,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         }
     }
 
-    public boolean toggleFavorite(Track track) {
+    public boolean toggleLike(Track track) {
         if (track == null) return false;
         try {
             mPlaybackService.setFavoriteStatus(track.id, !track.user_favorite);
@@ -348,7 +347,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     private final View.OnClickListener mFavoriteListener = new View.OnClickListener() {
         public void onClick(View v) {
-            toggleFavorite(mPlayingTrack);
+            toggleLike(mPlayingTrack);
         }
     };
 

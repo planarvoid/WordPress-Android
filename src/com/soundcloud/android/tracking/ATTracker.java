@@ -32,22 +32,23 @@ public class ATTracker {
         atTag = ATTag.init(context,
             context.getString(R.string.at_tracking_subdomain),
             context.getString(R.string.at_tracking_siteid),
-            null
+            null,
+            ATTag.OfflineMode.OfflineModeAlways
         );
 //        atTag.setModePrintUrl(SoundCloudApplication.DEV_MODE);
     }
 
-    public void track(Click click) {
+    public void track(Click click, Object... args) {
         if (click != null) {
-            Log.d(TAG, "track click "+click);
-            //enqueue(click.atParams());
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "track click "+click);
+            enqueue(click.atParams(args));
         }
     }
 
     public void track(Page page, Object... args) {
         if (page != null) {
-            Log.d(TAG, "track page "+page);
-//            enqueue(page.atParams(args));
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "track page "+page);
+            enqueue(page.atParams(args));
         }
     }
 

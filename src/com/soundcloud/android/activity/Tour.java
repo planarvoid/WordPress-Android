@@ -3,7 +3,6 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.android.view.tour.Comment;
@@ -22,7 +21,6 @@ import android.widget.RadioGroup;
 
 
 public class Tour extends Activity {
-
     private WorkspaceView mWorkspaceView;
 
     @Override
@@ -65,7 +63,8 @@ public class Tour extends Activity {
                     btnDone.setVisibility(View.VISIBLE);
                     btnSkip.setVisibility(View.GONE);
                 }
-                track(newScreen);
+                Tracking tracking = newScreen.getClass().getAnnotation(Tracking.class);
+                ((SoundCloudApplication)getApplication()).track(tracking);
             }
 
             @Override
@@ -75,19 +74,6 @@ public class Tour extends Activity {
             @Override
             public void onNextScreenVisible(View newScreen, int newScreenIndex) {
             }
-        }, false);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        track(mWorkspaceView.getScreenAt(mWorkspaceView.getCurrentScreen()));
-    }
-
-    private void track(View view) {
-        if (view != null) {
-            Tracking tracking = view.getClass().getAnnotation(Tracking.class);
-            ((SoundCloudApplication)getApplication()).track(tracking);
-        }
+        }, true);
     }
 }

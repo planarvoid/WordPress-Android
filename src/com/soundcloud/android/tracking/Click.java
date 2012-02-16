@@ -34,7 +34,7 @@ public enum Click {
     Record_discard_cancel("Record", "discard:cancel", Type.action, Level2.Record),
     Record_play          ("Record", "play",           Type.action, Level2.Record),
     Record_play_stop     ("Record", "play_stop",      Type.action, Level2.Record),
-    Record_next          ("Record", "next",           Type.navigation, Level2.Record),
+    Record_next          ("Record", "next",           Type.navigation, Level2.Record), // record another sound
 
     Record_details_add_image       ("Record_details", "add_image",        Type.action,     Level2.Record),
     Record_details_new_image       ("Record_details", "new_image",        Type.action,     Level2.Record),
@@ -52,7 +52,7 @@ public enum Click {
     Like      ("Like",       "user_permalink::track_permalink", Type.action, Level2.Sounds),
     Comment   ("Comment",    "user_permalink::track_permalink", Type.action, Level2.Sounds),
     Share_main("Share_main", "user_permalink::track_permalink", Type.action, Level2.Sounds),
-    Share_fb  ("Share_fb",   "user_permalink::track_permalink", Type.action, Level2.Sounds),
+    /* NOT USED */ Share_fb  ("Share_fb",   "user_permalink::track_permalink", Type.action, Level2.Sounds),
 
     UNKNOWN(null, null, null, null);
 

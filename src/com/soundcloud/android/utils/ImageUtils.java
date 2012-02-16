@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.tracking.Click;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -380,12 +381,18 @@ public final class ImageUtils {
 
         protected abstract File getFile();
 
+        public void onClick() {}
+        public void onExistingImage()  {}
+        public void onNewImage() {}
+
         @Override public void onClick(View view) {
+            onClick();
             new AlertDialog.Builder(mActivity)
                     .setMessage(R.string.image_where)
                     .setPositiveButton(R.string.take_new_picture, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int whichButton) {
+                            onNewImage();
                             final File file = getFile();
                             if (file != null) {
                                 Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -398,16 +405,17 @@ public final class ImageUtils {
                             }
                         }
                     }).setNegativeButton(R.string.use_existing_image, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    intent.setType("image/*");
-                    try {
-                        mActivity.startActivityForResult(intent, GALLERY_IMAGE_PICK);
-                    } catch (ActivityNotFoundException e) {
-                        CloudUtils.showToast(mActivity, R.string.use_existing_image_error);
-                    }
-                }
+                        @Override
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            onExistingImage();
+                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                            intent.setType("image/*");
+                            try {
+                                mActivity.startActivityForResult(intent, GALLERY_IMAGE_PICK);
+                            } catch (ActivityNotFoundException e) {
+                                CloudUtils.showToast(mActivity, R.string.use_existing_image_error);
+                            }
+                        }
             })
             .create()
             .show();
