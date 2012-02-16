@@ -1,8 +1,9 @@
 $ 35
   % v current
-  _ 2012-02-14
+  _ 2012-02-16
   ! Maintenance
-    - Push follower notifications
+    * Fixed ICS notifications
+    * Push notifications for followers
     - AT Internet tracking
 
 $ 34

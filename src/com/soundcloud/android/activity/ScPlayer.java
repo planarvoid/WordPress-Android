@@ -77,8 +77,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
-
     }
 
     public void toggleCommentMode(int playPos) {
