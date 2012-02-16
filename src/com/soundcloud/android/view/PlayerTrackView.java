@@ -576,7 +576,7 @@ public class PlayerTrackView extends LinearLayout implements
 
     public void onNewComment(Comment comment) {
         if (comment.track_id == mTrack.id) {
-            mWaveformController.setComments(mTrack.comments, false, true);
+            if (mTrack.comments != null) mWaveformController.setComments(mTrack.comments, false, true);
             mWaveformController.showNewComment(comment);
         }
     }
