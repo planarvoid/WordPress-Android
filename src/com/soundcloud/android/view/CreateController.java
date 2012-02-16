@@ -198,6 +198,7 @@ public class CreateController {
         mDeleteButton = ((Button) vg.findViewById(R.id.btn_delete));
         mDeleteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                mActivity.track(Click.Record_delete);
                 mActivity.showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
             }
         });

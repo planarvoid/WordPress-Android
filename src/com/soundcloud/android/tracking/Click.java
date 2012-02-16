@@ -32,6 +32,8 @@ public enum Click {
     Record_discard       ("Record", "discard",        Type.action, Level2.Record),
     Record_discard__ok   ("Record", "discard::ok",    Type.action, Level2.Record),
     Record_discard_cancel("Record", "discard:cancel", Type.action, Level2.Record),
+    Record_delete        ("Record", "delete",         Type.action, Level2.Record),
+
     Record_play          ("Record", "play",           Type.action, Level2.Record),
     Record_play_stop     ("Record", "play_stop",      Type.action, Level2.Record),
     Record_next          ("Record", "next",           Type.navigation, Level2.Record), // record another sound
@@ -40,7 +42,11 @@ public enum Click {
     Record_details_new_image       ("Record_details", "new_image",        Type.action,     Level2.Record),
     Record_details_existing_image  ("Record_details", "existing_image",   Type.action,     Level2.Record),
     Record_details_record_another  ("Record_details", "record_another",   Type.navigation, Level2.Record),
-    Record_details_Upload_and_share("Record_details", "Upload_and_share", Type.navigation, Level2.Record),
+    Record_details_Upload_and_share("Record_details", "Upload_and_share", Type.action,     Level2.Record),
+
+    Dedicated_recording_details_back("Dedicated_recording_details", "back",   Type.navigation, Level2.Record),
+    Dedicated_recording_details_send("Dedicated_recording_details", "send",   Type.action,     Level2.Record),
+
 
     /* NOT USED */ Follow_page_url  ("Follow",   "page_url", Type.action, null),
     /* NOT USED */ Unfollow_page_url("Unfollow", "page_url", Type.action, null),
