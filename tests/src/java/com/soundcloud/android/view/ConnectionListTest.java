@@ -3,9 +3,11 @@ package com.soundcloud.android.view;
 
 import static org.junit.Assert.assertEquals;
 
+import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.ApiTests;
 import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -15,6 +17,11 @@ import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
 public class ConnectionListTest extends ApiTests {
+
+    @Before
+    public void before() {
+        Connections.set(null);
+    }
 
     @Test @DisableStrictI18n
     public void shouldLoadConnectionsFromApi() throws Exception {
