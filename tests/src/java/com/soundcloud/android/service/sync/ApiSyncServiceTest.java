@@ -135,12 +135,14 @@ public class ApiSyncServiceTest {
         assertResolverNotified(Content.ME_TRACKS.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
 
-    @Test @Ignore // needs robolectric fix
+    @Test
     public void shouldSyncMe() throws Exception {
-        addCannedResponses(getClass(), "user.json");
-
+        addCannedResponses(getClass(), "me.json");
         ApiSyncService svc = new ApiSyncService();
+
+        expect(Content.ME).toBeEmpty();
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME.uri), 1);
+        expect(Content.ME).toHaveCount(1);
         expect(Content.USERS).toHaveCount(1);
     }
     @Test

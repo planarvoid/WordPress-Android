@@ -29,7 +29,7 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.SUGGESTED_USER;
 
 public enum Content {
-    ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, null),
+    ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
     ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.COLLECTION_ITEMS),
     ME_COMMENTS("me/comments", null, 102, Comment.class, -1, Table.COMMENTS),
     ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, User.class, FOLLOWING, Table.COLLECTION_ITEMS),

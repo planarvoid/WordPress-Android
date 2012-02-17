@@ -53,10 +53,18 @@ public class ScContentProvider extends ContentProvider {
         final long userId = SoundCloudApplication.getUserIdFromContext(getContext());
         final SCQueryBuilder qb = new SCQueryBuilder();
         String[] _columns = columns;
+        String _selection = selection;
+        String[] _selectionArgs = selectionArgs;
         String _sortOrder = sortOrder;
         final Content content = Content.match(uri);
         String query = null;
         switch (content) {
+
+            case ME:
+                qb.setTables(content.table.name);
+                _selection = "_id = ?";
+                _selectionArgs = new String[] {String.valueOf(userId)};
+                break;
             case COLLECTION_ITEMS:
                 qb.setTables(content.table.name);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
@@ -163,13 +171,13 @@ public class ScContentProvider extends ContentProvider {
                         " LEFT OUTER JOIN "+Table.USERS+
                         " ON "+content.table.field(DBHelper.Recordings.PRIVATE_USER_ID)+
                         "="+Table.USERS.field(DBHelper.Users._ID));
-                String _selection = DBHelper.Recordings.USER_ID+"="+userId;
+                String user_selection = DBHelper.Recordings.USER_ID+"="+userId;
                 if (selection != null) {
-                    _selection += (" AND " +selection);
+                    user_selection += (" AND " +selection);
                 }
                 query = qb.buildQuery(
                         new String[] { content.table.allFields(), DBHelper.Users.USERNAME },
-                        _selection,
+                        user_selection,
                         null,
                         null,
                         _sortOrder, null);
@@ -222,11 +230,11 @@ public class ScContentProvider extends ContentProvider {
         }
 
         if (query == null) {
-            query = qb.buildQuery(_columns, selection, null, null, _sortOrder, null);
+            query = qb.buildQuery(_columns, _selection, null /* selectionArgs passed further down */, null, _sortOrder, null);
         }
         log("query: "+query);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c = db.rawQuery(query, selectionArgs);
+        Cursor c = db.rawQuery(query, _selectionArgs);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
