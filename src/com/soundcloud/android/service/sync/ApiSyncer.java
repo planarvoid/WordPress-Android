@@ -228,6 +228,9 @@ public class ApiSyncer {
             result.success = user != null;
         } catch (InterruptedException ignored) {
         } catch (ExecutionException ignored) {
+            if (ignored.getCause() instanceof IOException) {
+                throw (IOException)ignored.getCause();
+            }
         }
         return result;
     }
