@@ -190,6 +190,7 @@
            <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
+
             <meta-data
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/sync" />
@@ -235,6 +236,10 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
                 <category android:name="com.soundcloud.android" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.ACCOUNT_ADDED" />
             </intent-filter>
         </receiver>
 

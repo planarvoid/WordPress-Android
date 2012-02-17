@@ -7,7 +7,6 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
-import android.net.Uri;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
@@ -15,8 +14,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -74,7 +71,7 @@ public class SyncAdapterServiceTest {
         // always notify
         PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
                 .edit()
-                .putString(SyncAdapterService.PREF_NOTIFICATIONS_FREQUENCY, 0+"")
+                .putString(SyncConfig.PREF_NOTIFICATIONS_FREQUENCY, 0+"")
                 .commit();
 
         DefaultTestRunner.application.setCurrentUserId(100l);
@@ -88,7 +85,7 @@ public class SyncAdapterServiceTest {
     @Test
     public void testIncomingNotificationMessage() throws Exception {
         Activities activities = Activities.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
-        String message = SyncAdapterService.getIncomingNotificationMessage(
+        String message = Message.getIncomingNotificationMessage(
                 DefaultTestRunner.application, activities);
 
         expect(message).toEqual("from All Tomorrows Parties, DominoRecordCo and others");
@@ -97,7 +94,7 @@ public class SyncAdapterServiceTest {
     @Test
     public void testExclusiveNotificationMessage() throws Exception {
         Activities events = Activities.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
-        String message = SyncAdapterService.getExclusiveNotificationMessage(
+        String message = Message.getExclusiveNotificationMessage(
                 DefaultTestRunner.application, events);
 
         expect(message).toEqual("exclusives from All Tomorrows Parties, DominoRecordCo and others");

@@ -78,7 +78,7 @@ public class ApiSyncer {
                     result.wasChanged = mResolver.update(c.uri, null, null, null) > 0;
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()
-                            .putLong(SyncAdapterService.PREF_LAST_SYNC_CLEANUP, System.currentTimeMillis())
+                            .putLong(SyncConfig.PREF_LAST_SYNC_CLEANUP, System.currentTimeMillis())
                             .commit();
                     break;
                 default:

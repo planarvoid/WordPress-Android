@@ -157,7 +157,7 @@ public class Main extends TabActivity implements
     }
 
     private void checkEmailConfirmed(final SoundCloudApplication app) {
-        (new FetchUserTask((SoundCloudApplication) getApplication(),-1) {
+        (new FetchUserTask((SoundCloudApplication) getApplication(), -1) {
             @Override
             protected void onPostExecute(User user) {
                 if (user == null) {

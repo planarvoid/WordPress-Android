@@ -1,5 +1,6 @@
 package com.soundcloud.android.c2dm;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -19,6 +20,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -77,9 +79,19 @@ public class C2DMReceiver extends BroadcastReceiver {
             } else if (intent.getAction().equals(ACTION_RECEIVE)) {
                 // actual c2dm message
                 onReceiveMessage(context, intent);
+            } else if (intent.getAction().equals(Actions.ACCOUNT_ADDED)) {
+                onAccountAdded(context, intent.<User>getParcelableExtra("user"));
+            } else {
+                Log.w(TAG, "unhandled intent: "+intent);
             }
         } finally {
             mWakeLock.release();
+        }
+    }
+
+    private void onAccountAdded(Context context, User user) {
+        if (user != null) {
+            register(context, user);
         }
     }
 
@@ -320,7 +332,6 @@ public class C2DMReceiver extends BroadcastReceiver {
     private static boolean isEnabled() {
         return Build.VERSION.SDK_INT >= 8;
     }
-
 
     private static PowerManager.WakeLock makeLock(Context context) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);

@@ -58,7 +58,6 @@ public abstract class AbstractLoginActivity extends Activity {
             // default to non-expiring scope+playcount
             data.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);
         }
-
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
         new GetTokensTask(app) {

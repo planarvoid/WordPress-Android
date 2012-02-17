@@ -1,8 +1,8 @@
 package com.soundcloud.android.activity.auth;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -127,7 +127,10 @@ public class Start extends AccountAuthenticatorActivity {
                         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
                         setAccountAuthenticatorResult(result);
 
-                        C2DMReceiver.register(this, user);
+                        sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
+                                .putExtra("user", user)
+                                .putExtra("signed_up", signed_up));
+
                         if (signed_up != null) {
                             startActivityForResult(new Intent(this, SuggestedUsers.class)
                                     .putExtra(FB_CONNECTED_EXTRA, signed_up.contains("facebook")),

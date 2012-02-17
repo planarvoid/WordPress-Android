@@ -2,19 +2,15 @@ package com.soundcloud.android.task.fetch;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.content.ContentResolver;
-import android.content.Context;
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
@@ -106,6 +102,4 @@ public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Re
     }
 
     abstract protected void updateLocally(ContentResolver resolver, Model model);
-
-
 }

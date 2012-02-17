@@ -8,7 +8,8 @@ import com.soundcloud.android.provider.ScContentProvider;
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.os.Bundle;
-import com.soundcloud.android.service.sync.SyncAdapterService;
+
+import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 
@@ -66,7 +67,7 @@ public class NotificationSettings extends PreferenceActivity {
         if (account != null) {
             final boolean autoSyncing = ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY);
             if (sync && !autoSyncing) {
-                ScContentProvider.enableSyncing(account, SyncAdapterService.DEFAULT_SYNC_DELAY);
+                ScContentProvider.enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
             } else if (!sync && autoSyncing){
                 ScContentProvider.disableSyncing(account);
             }

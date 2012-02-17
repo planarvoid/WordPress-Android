@@ -20,5 +20,11 @@ public final class Actions {
     public static final String EXTRA_LOCATION    = "com.soundcloud.android.extra.location" ;
     public static final String EXTRA_TAGS        = "com.soundcloud.android.extra.tags" ;
     public static final String EXTRA_GENRE       = "com.soundcloud.android.extra.genre" ;
-    public static final String EXTRA_ARTWORK     = "com.soundcloud.android.extra.artwork" ;
+    public static final String EXTRA_ARTWORK     = "com.soundcloud.android.extra.artwork";
+
+
+    // internal actions
+
+    public static final String ACCOUNT_ADDED     = "com.soundcloud.android.action.ACCOUNT_ADDED";
+
 }

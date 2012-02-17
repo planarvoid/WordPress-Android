@@ -18,7 +18,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.WifiMonitor;
-import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -125,7 +125,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             Connections.initialize(this, "connections-"+getCurrentUserId());
 
             if (ContentResolver.getIsSyncable(account, AUTHORITY) < 1) {
-                enableSyncing(account, SyncAdapterService.DEFAULT_SYNC_DELAY);
+                enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
             }
 
             // remove device url so clients resubmit the registration request with
@@ -279,7 +279,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 
-        enableSyncing(account, SyncAdapterService.DEFAULT_SYNC_DELAY);
+        enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
         return created;
     }
 
@@ -468,7 +468,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             switch (nextVersion) {
                 case 31:
                     if (getAccount() != null){ // enable syncing
-                        enableSyncing(getAccount(), SyncAdapterService.DEFAULT_SYNC_DELAY);
+                        enableSyncing(getAccount(), SyncConfig.DEFAULT_SYNC_DELAY);
                     }
                     break;
                 default:
