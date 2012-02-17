@@ -89,13 +89,13 @@ public class SyncAdapterService extends Service {
                 SyncContent.configureSyncExtras(app, urisToSync, force);
             }
 
-            final long lastCleanup = PreferenceManager.getDefaultSharedPreferences(app).getLong(
-                    SyncConfig.PREF_LAST_SYNC_CLEANUP,
-                    System.currentTimeMillis());
-
-            if (System.currentTimeMillis() - lastCleanup > SyncConfig.CLEANUP_DELAY || force) {
+            if (SyncConfig.shouldSync(app, SyncConfig.PREF_LAST_SYNC_CLEANUP, SyncConfig.CLEANUP_DELAY) || force) {
                 urisToSync.add(Content.TRACK_CLEANUP.uri);
                 urisToSync.add(Content.USERS_CLEANUP.uri);
+            }
+
+            if (SyncConfig.shouldSync(app, SyncConfig.PREF_LAST_USER_SYNC, SyncConfig.CLEANUP_DELAY) || force) {
+                urisToSync.add(Content.ME.uri);
             }
 
             syncIntent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);

@@ -19,6 +19,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -134,6 +135,14 @@ public class ApiSyncServiceTest {
         assertResolverNotified(Content.ME_TRACKS.uri, Content.TRACKS.uri, Content.USERS.uri);
     }
 
+    @Test @Ignore // needs robolectric fix
+    public void shouldSyncMe() throws Exception {
+        addCannedResponses(getClass(), "user.json");
+
+        ApiSyncService svc = new ApiSyncService();
+        svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME.uri), 1);
+        expect(Content.USERS).toHaveCount(1);
+    }
     @Test
     public void shouldSyncFollowers() throws Exception {
         ApiSyncService svc = new ApiSyncService();
