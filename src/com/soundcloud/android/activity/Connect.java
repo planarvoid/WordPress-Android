@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.task.NewConnectionTask;
+import com.soundcloud.android.task.create.NewConnectionTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;

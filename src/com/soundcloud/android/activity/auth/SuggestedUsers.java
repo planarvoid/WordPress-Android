@@ -24,7 +24,7 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.task.NewConnectionTask;
+import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.ScListView;

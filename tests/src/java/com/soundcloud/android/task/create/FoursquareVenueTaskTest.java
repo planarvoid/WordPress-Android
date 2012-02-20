@@ -1,4 +1,4 @@
-package com.soundcloud.android.task;
+package com.soundcloud.android.task.create;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.ApiTests;
+import com.soundcloud.android.task.create.FoursquareVenueTask;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;

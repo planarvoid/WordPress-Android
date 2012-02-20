@@ -76,6 +76,9 @@ public abstract class ScActivity extends android.app.Activity {
 
     protected static final int CONNECTIVITY_MSG = 0;
 
+    public static final int DEV_REQUEST_GENERATE_WAVEFORM = 1;
+
+
     // Need handler for callbacks to the UI thread
     protected final Handler mHandler = new Handler();
 
@@ -584,13 +587,27 @@ public abstract class ScActivity extends android.app.Activity {
                 safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
             case Consts.OptionsMenu.SECRET_DEV_BUTTON:
-                startActivity(new Intent(this, CreateEditor.class));
+                startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("audio/WAV"), DEV_REQUEST_GENERATE_WAVEFORM);
                 return true;
 
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case DEV_REQUEST_GENERATE_WAVEFORM:
+                if (resultCode == RESULT_OK) {
+                    final Uri uri = data.getData();
+                    final Intent intent = (new Intent(this, CreateEditor.class))
+                            .putExtra(Intent.EXTRA_STREAM, uri);
+                    startActivity(intent);
+                }
+        }
+    }
+
 
     private Handler connHandler = new Handler() {
         @Override

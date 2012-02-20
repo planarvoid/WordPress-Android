@@ -18,7 +18,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LocationPicker;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.task.FoursquareVenueTask;
+import com.soundcloud.android.task.create.FoursquareVenueTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;

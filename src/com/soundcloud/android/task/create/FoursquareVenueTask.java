@@ -1,4 +1,4 @@
-package com.soundcloud.android.task;
+package com.soundcloud.android.task.create;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 

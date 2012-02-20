@@ -1,4 +1,4 @@
-package com.soundcloud.android.task;
+package com.soundcloud.android.task.create;
 
 
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.ApiTests;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.task.create.NewConnectionTask;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

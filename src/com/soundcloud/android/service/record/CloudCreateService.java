@@ -12,7 +12,7 @@ import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.task.OggEncoderTask;
+import com.soundcloud.android.task.create.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.UploadTask.Params;
 import com.soundcloud.android.utils.CloudUtils;

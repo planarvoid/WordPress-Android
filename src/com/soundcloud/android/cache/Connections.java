@@ -4,7 +4,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.task.LoadConnectionsTask;
+import com.soundcloud.android.task.create.LoadConnectionsTask;
 import com.soundcloud.api.Request;
 
 import android.content.Context;

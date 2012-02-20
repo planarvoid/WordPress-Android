@@ -20,7 +20,7 @@ import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Connection.Service;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.task.NewConnectionTask;
+import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 

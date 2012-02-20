@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.ApiTests;
+import com.soundcloud.android.task.create.LoadConnectionsTask;
 import com.soundcloud.api.Request;
 import org.junit.Test;
 import org.junit.runner.RunWith;

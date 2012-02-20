@@ -6,7 +6,7 @@ import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.task.NewConnectionTask;
+import com.soundcloud.android.task.create.NewConnectionTask;
 
 import android.app.Activity;
 import android.content.Context;
