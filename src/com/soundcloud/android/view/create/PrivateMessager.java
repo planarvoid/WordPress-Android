@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.create;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -19,6 +19,7 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.*;
 
 public class PrivateMessager extends ScTabView implements CreateController.CreateListener{
 

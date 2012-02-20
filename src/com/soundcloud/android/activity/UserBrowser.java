@@ -47,7 +47,7 @@ import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.android.view.FullImageDialog;
-import com.soundcloud.android.view.PrivateMessager;
+import com.soundcloud.android.view.create.PrivateMessager;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.UserlistLayout;

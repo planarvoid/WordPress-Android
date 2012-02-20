@@ -11,8 +11,8 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ConnectionList;
-import com.soundcloud.android.view.RecordingMetaData;
-import com.soundcloud.android.view.ShareUserHeader;
+import com.soundcloud.android.view.create.RecordingMetaData;
+import com.soundcloud.android.view.create.ShareUserHeader;
 
 import android.content.Intent;
 import android.database.DataSetObserver;

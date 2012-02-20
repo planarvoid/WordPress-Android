@@ -20,7 +20,7 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
-import com.soundcloud.android.view.CreateController;
+import com.soundcloud.android.view.create.CreateController;
 import com.soundcloud.api.CloudAPI;
 
 import android.app.Notification;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.create;
 
 import android.app.Activity;
 import android.content.Context;

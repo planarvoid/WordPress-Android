@@ -10,7 +10,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import com.soundcloud.android.view.CreateController;
+import com.soundcloud.android.view.create.CreateController;
 
 import java.io.File;
 import java.io.IOException;

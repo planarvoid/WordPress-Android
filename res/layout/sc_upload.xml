@@ -20,7 +20,7 @@
                          android:layout_alignParentTop="true"
                         android:paddingBottom="5dip"/>
 
-            <com.soundcloud.android.view.RecordingMetaData android:id="@+id/metadata_layout"
+            <com.soundcloud.android.view.create.RecordingMetaData android:id="@+id/metadata_layout"
                             android:layout_height="wrap_content"
                             android:layout_width="fill_parent"
                             android:layout_below="@id/share_user_layout"
