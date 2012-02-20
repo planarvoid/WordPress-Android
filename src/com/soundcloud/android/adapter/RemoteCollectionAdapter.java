@@ -285,7 +285,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
+                if (mContentUri != null && resultData != null &&
+                        !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
                     doneRefreshing(); // nothing changed
                 }
                 break;
