@@ -145,7 +145,8 @@ class Message {
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
 
-        final PendingIntent pi = PendingIntent.getActivity(context.getApplicationContext(), 0, intent, 0);
+        final PendingIntent pi = PendingIntent.getActivity(context.getApplicationContext(), 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
         final Notification n = new Notification(R.drawable.ic_status, ticker, System.currentTimeMillis());
         n.contentIntent = pi;
