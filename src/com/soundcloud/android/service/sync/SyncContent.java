@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ enum SyncContent {
     public static List<Uri> configureSyncExtras(Context c, List<Uri> urisToSync, boolean force){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
         for (SyncContent sc : SyncContent.values()){
-            if (sp.getBoolean(sc.prefSyncEnabledKey, false)) {
+            if (sp.getBoolean(sc.prefSyncEnabledKey, true)) {
                 final long lastUpdated = LocalCollection.getLastSync(sc.content.uri, c.getContentResolver());
                 if (System.currentTimeMillis() - lastUpdated > sc.syncDelay || force){
                     urisToSync.add(sc.content.uri);
