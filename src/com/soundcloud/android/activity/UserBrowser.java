@@ -854,7 +854,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
         if (isMe()) mConnections = c.connections;
         mUserlistBrowser.initWorkspace(c.workspaceIndex);
-        restoreAdapterStates(c.adapterStates);
         if (c.friendFinderState != -1) {
             if (c.friendFinderState == FriendFinderView.States.LOADING){
                 refreshConnections();
@@ -862,6 +861,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 mFriendFinderView.setState(c.friendFinderState, false);
             }
         }
+        restoreAdapterStates(c.adapterStates);
     }
 
     private static class Configuration {
