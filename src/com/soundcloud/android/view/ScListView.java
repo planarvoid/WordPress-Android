@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
@@ -158,13 +159,15 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
                 throw e;
             }
 
+            Log.i("asdf", "Cliecked an item " + item);
+
             if (item instanceof Track) {
                 mListener.onTrackClick(wrapper, position);
             } else if (item instanceof Activity) {
                 mListener.onEventClick((EventsAdapterWrapper) wrapper, position);
             } else if (item instanceof User) {
                 mListener.onUserClick((User) item);
-            } else if (item instanceof User) {
+            } else if (item instanceof Friend) {
                 mListener.onUserClick(((Friend) item).user);
             } else if (item instanceof Comment) {
                 mListener.onCommentClick((Comment) item);
