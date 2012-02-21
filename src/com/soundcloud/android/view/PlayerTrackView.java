@@ -3,6 +3,7 @@ package com.soundcloud.android.view;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
@@ -105,6 +106,11 @@ public class PlayerTrackView extends LinearLayout implements
         mAvatar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (mTrack != null) {
+                    // get a valid id somehow or don't bother
+                    final long userId = mTrack.user != null ? mTrack.user.id : mTrack.user_id;
+                    if (userId == -1) return;
+
+                    if (mTrack.user != null) SoundCloudApplication.USER_CACHE.put(mTrack.user);
                     Intent intent = new Intent(getContext(), UserBrowser.class);
                     intent.putExtra("userId", mTrack.user_id);
                     getContext().startActivity(intent);

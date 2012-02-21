@@ -24,6 +24,7 @@ import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
@@ -313,7 +314,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     }
 
     private void loadUserById(long userId) {
-        setUser(SoundCloudDB.getUserById(getContentResolver(), userId));
+        if (userId != -1) {
+            final User u = SoundCloudApplication.USER_CACHE.get(userId);
+            setUser(u != null ? u : SoundCloudDB.getUserById(getContentResolver(), userId));
+        }
         if (mUser == null) {
             mUser = new User();
         }
