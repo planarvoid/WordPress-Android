@@ -63,6 +63,7 @@ import java.util.List;
 public class UserBrowser extends ScActivity implements ParcelCache.Listener<Connection>, FollowStatus.Listener, FetchUserTask.FetchUserListener {
     private User mUser;
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
+    private View mVrStats;
     private ImageView mIcon;
     private String mIconURL;
     private ImageLoader.BindResult avatarResult;
@@ -115,6 +116,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         mFollowerCount = (TextView) findViewById(R.id.followers);
         mTrackCount = (TextView) findViewById(R.id.tracks);
+        mVrStats = findViewById(R.id.vr_stats);
 
         CloudUtils.setTextShadowForGrayBg(mUsername);
         CloudUtils.setTextShadowForGrayBg(mFullName);
@@ -617,8 +619,22 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             mFullName.setText(user.full_name);
             mFullName.setVisibility(View.VISIBLE);
         }
-        mFollowerCount.setText(Integer.toString(Math.max(0,user.followers_count)));
-        mTrackCount.setText(Integer.toString(Math.max(0,user.track_count)));
+
+        mVrStats.setVisibility((user.followers_count <= 0 || user.track_count <= 0) ? View.GONE : View.VISIBLE);
+
+        if (user.track_count <= 0) {
+            mTrackCount.setVisibility(View.GONE);
+        } else {
+            mTrackCount.setVisibility(View.VISIBLE);
+            mTrackCount.setText(Integer.toString(user.followers_count));
+        }
+
+        if (user.followers_count <= 0) {
+            mFollowerCount.setVisibility(View.GONE);
+        } else {
+            mFollowerCount.setVisibility(View.VISIBLE);
+            mFollowerCount.setText(Integer.toString(user.followers_count));
+        }
 
         setFollowingButton();
         if (ImageUtils.checkIconShouldLoad(user.avatar_url)) {

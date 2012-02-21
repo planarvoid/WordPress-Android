@@ -49,7 +49,7 @@
                       android:layout_height="wrap_content"
                       android:layout_alignLeft="@id/username"
                       android:paddingRight="5dip"
-                      android:layout_toLeftOf="@+id/btn_followState"/>
+                      android:layout_toLeftOf="@+id/follow_btn_holder"/>
             <RelativeLayout
                     android:id="@+id/stats"
                     android:layout_below="@id/fullname"
@@ -84,12 +84,14 @@
                           android:id="@+id/followers"
                           android:text="@string/follower_count"
                           android:layout_toRightOf="@id/vr_stats"
+                          android:layout_alignWithParentIfMissing="true"
                           style="@style/txt_list_sub_secondary"/>
             </RelativeLayout>
 
             <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:id="@id/follow_btn_holder"
                     android:layout_alignParentRight="true"
                     android:layout_below="@id/username">
 
