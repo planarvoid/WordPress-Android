@@ -24,6 +24,7 @@ import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.AddCommentDialog;
@@ -60,7 +61,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public abstract class ScActivity extends android.app.Activity {
+public abstract class ScActivity extends android.app.Activity implements Tracker {
     private Boolean mIsConnected;
 
     protected Object[] mPreviousState;

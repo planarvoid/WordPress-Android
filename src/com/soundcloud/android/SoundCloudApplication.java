@@ -22,6 +22,7 @@ import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -66,7 +67,7 @@ import java.util.Arrays;
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
-public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
+public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener, Tracker {
 
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
