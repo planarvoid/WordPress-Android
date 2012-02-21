@@ -342,7 +342,6 @@ public class User extends ScModel implements  Refreshable, Origin {
     public void setAppFields(User u) {
         user_follower = u.user_follower;
         user_following = u.user_following;
-        primary_email_confirmed = u.primary_email_confirmed;
     }
 
     public static void clearLoggedInUserFromStorage(SoundCloudApplication app) {
