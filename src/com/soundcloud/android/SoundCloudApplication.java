@@ -170,6 +170,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mLoggedInUser;
     }
 
+
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
         mCloudApi.invalidateToken();
 
@@ -276,6 +277,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(
                     user.primary_email_confirmed));
         }
+        mLoggedInUser = null;
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 
