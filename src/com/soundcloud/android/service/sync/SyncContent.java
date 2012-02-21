@@ -39,4 +39,11 @@ enum SyncContent {
         }
         return urisToSync;
     }
+
+    public static void setAllSyncEnabledPrefs(Context c, boolean enabled){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+        for (SyncContent sc : SyncContent.values()){
+            sp.edit().putBoolean(sc.prefSyncEnabledKey, enabled).commit();
+        }
+    }
 }
