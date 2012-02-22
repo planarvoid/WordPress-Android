@@ -161,10 +161,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             if (getCurrentUserId() != -1) {
                 mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
             }
+            // user not in db, fall back to local storage
             if (mLoggedInUser == null) {
                 mLoggedInUser = new User();
                 mLoggedInUser.id = getAccountDataLong(User.DataKeys.USER_ID);
                 mLoggedInUser.username = getAccountData(User.DataKeys.USERNAME);
+                mLoggedInUser.permalink = getAccountData(User.DataKeys.USER_PERMALINK);
                 mLoggedInUser.primary_email_confirmed = getAccountDataBoolean(User.DataKeys.EMAIL_CONFIRMED);
             }
         }
@@ -275,6 +277,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account,  Token.SCOPE, token.scope);
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
+            am.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink);
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(
                     user.primary_email_confirmed));
         }
