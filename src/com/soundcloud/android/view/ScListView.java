@@ -159,8 +159,6 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
                 throw e;
             }
 
-            Log.i("asdf", "Cliecked an item " + item);
-
             if (item instanceof Track) {
                 mListener.onTrackClick(wrapper, position);
             } else if (item instanceof Activity) {
