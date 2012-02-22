@@ -1,25 +1,5 @@
 package com.soundcloud.android.activity;
 
-import android.app.Dialog;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
-import android.text.Html;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TextView;
-import android.widget.Toast;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Actions;
@@ -56,6 +36,26 @@ import com.soundcloud.android.view.UserlistLayout;
 import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+
+import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Parcelable;
+import android.text.Html;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.view.Gravity;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -177,6 +177,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             } else {
                 loadYou();
             }
+
+            build();
+            if (!isMe()) FollowStatus.get().requestUserFollowings(getApp(), this, false);
 
             if (intent.hasExtra("recordingUri")) {
                 mMessager.setRecording(Uri.parse(intent.getStringExtra("recordingUri")));
@@ -313,7 +316,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private void loadYou() {
         setUser(getApp().getLoggedInUser());
-        build();
     }
 
     private void loadUserById(long userId) {
@@ -326,15 +328,15 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             mUser = new User();
             mUser.id = userId;
         }
-        build();
-        FollowStatus.get().requestUserFollowings(getApp(), this, false);
     }
 
     private void loadUserByObject(User user) {
-        if (user == null) return;
-        setUser(user);
-        build();
-        FollowStatus.get().requestUserFollowings(getApp(), this, false);
+        if (user == null || user.id == -1) return;
+
+        // show a user out of db if possible because he will be a complete user unlike
+        // a parceled user that came from a track, list or comment
+        final User dbUser = SoundCloudDB.getUserById(getContentResolver(), user.id);
+        setUser(dbUser != null ? dbUser : user);
     }
 
     private void loadDetails() {
