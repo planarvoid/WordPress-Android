@@ -61,7 +61,8 @@ import java.util.List;
 
 /** @noinspection unchecked*/
 public class UserBrowser extends ScActivity implements ParcelCache.Listener<Connection>, FollowStatus.Listener, FetchUserTask.FetchUserListener {
-    private User mUser;
+    /* package */ User mUser;
+
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
     private View mVrStats;
     private ImageView mIcon;
@@ -160,6 +161,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mFollowingBtn.setOnClickListener(toggleFollowing);
 
         Intent intent = getIntent();
+        // XXX in case user is already loaded - should be handled here, not in caller
         mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
 
         Configuration c = (Configuration) getLastNonConfigurationInstance();
@@ -174,6 +176,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             } else {
                 loadYou();
             }
+
             if (intent.hasExtra("recordingUri")) {
                 mMessager.setRecording(Uri.parse(intent.getStringExtra("recordingUri")));
             }
@@ -309,9 +312,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private void loadYou() {
         setUser(getApp().getLoggedInUser());
-        if (mUser == null) {
-            mUser = new User();
-        }
         build();
     }
 
@@ -322,6 +322,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
         if (mUser == null) {
             mUser = new User();
+            mUser.id = userId;
         }
         build();
         FollowStatus.get().requestUserFollowings(getApp(), this, false);
@@ -341,9 +342,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             mLoadUserTask = new FetchUserTask(getApp(), mUser.id);
             mLoadUserTask.setActivity(this);
             mLoadUserTask.addListener(this);
-        }
-
-        if (CloudUtils.isTaskPending(mLoadUserTask)) {
             mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
         }
     }
@@ -612,7 +610,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private void setUser(final User user) {
         if (user == null || user.id < 0) return;
         mUser = user;
-        mUsername.setText(user.username);
+
+        if (!TextUtils.isEmpty(user.username)) mUsername.setText(user.username);
         if (TextUtils.isEmpty(user.full_name)){
             mFullName.setVisibility(View.GONE);
         } else {

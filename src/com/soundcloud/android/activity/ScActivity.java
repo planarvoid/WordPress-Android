@@ -115,7 +115,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     protected void onCreateServiceBound() {
         if (mLists == null || mLists.size() == 0 || !(this instanceof UserBrowser)) return;
         for (ScListView lv : mLists){
-            if (lv.getBaseAdapter() instanceof MyTracksAdapter)
+            if (lv.getBaseAdapter() instanceof MyTracksAdapter && mCreateService != null)
                 try {
                     ((MyTracksAdapter) lv.getBaseAdapter()).checkUploadStatus(mCreateService.getUploadLocalId());
                 } catch (RemoteException ignored) {}
