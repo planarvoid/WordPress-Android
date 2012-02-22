@@ -10,6 +10,7 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -317,8 +318,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private void loadUserById(long userId) {
         if (userId != -1) {
-            final User u = SoundCloudApplication.USER_CACHE.get(userId);
-            setUser(u != null ? u : SoundCloudDB.getUserById(getContentResolver(), userId));
+            // check DB first as the cached user might be incomplete
+            final User u = SoundCloudDB.getUserById(getContentResolver(), userId);
+            setUser(u != null ? u : SoundCloudApplication.USER_CACHE.get(userId));
         }
         if (mUser == null) {
             mUser = new User();
