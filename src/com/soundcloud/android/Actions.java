@@ -1,6 +1,8 @@
 package com.soundcloud.android;
 
 public final class Actions {
+
+    // public intent API (do not change)
     public static final String RECORD       = "com.soundcloud.android.action.RECORD";
     public static final String MESSAGE      = "com.soundcloud.android.action.MESSAGE";
     public static final String STREAM       = "com.soundcloud.android.action.STREAM";
@@ -22,9 +24,8 @@ public final class Actions {
     public static final String EXTRA_GENRE       = "com.soundcloud.android.extra.genre" ;
     public static final String EXTRA_ARTWORK     = "com.soundcloud.android.extra.artwork";
 
-
-    // internal actions
-
-    public static final String ACCOUNT_ADDED     = "com.soundcloud.android.action.ACCOUNT_ADDED";
-
+    // internal API
+    public static final String ACCOUNT_ADDED       = "com.soundcloud.android.action.ACCOUNT_ADDED";
+    public static final String CHANGE_PROXY_ACTION = "com.soundcloud.android.action.CHANGE_PROXY";
+    public static final String EXTRA_PROXY         = "proxy"; // proxy URL as string
 }

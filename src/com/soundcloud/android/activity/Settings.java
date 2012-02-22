@@ -7,7 +7,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.net.Uri;
-import com.soundcloud.android.AndroidCloudAPI;
+
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -259,7 +260,7 @@ public class Settings extends PreferenceActivity {
                                     return false;
                                 }
                             }
-                            final Intent intent = new Intent(AndroidCloudAPI.Wrapper.CHANGE_PROXY_ACTION);
+                            final Intent intent = new Intent(Actions.CHANGE_PROXY_ACTION);
                             if (!TextUtils.isEmpty(s.toString())) intent.putExtra("proxy", s.toString());
                             sendBroadcast(intent);
                             return true;

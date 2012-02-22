@@ -26,6 +26,7 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.ScListView;
@@ -73,9 +74,9 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
     private MenuItem menuCurrentUploadingItem;
     private long mCurrentUserId;
-    boolean mIgnorePlaybackStatus;
+    private boolean mIgnorePlaybackStatus;
 
-    protected static final int CONNECTIVITY_MSG = 0;
+    private static final int CONNECTIVITY_MSG = 0;
 
     // Need handler for callbacks to the UI thread
     protected final Handler mHandler = new Handler();
@@ -595,14 +596,20 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     private Handler connHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            final ScActivity ctxt = ScActivity.this;
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
-                    if (connectivityListener != null) {
-                        NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
-                        if (networkInfo != null) {
-                            if (networkInfo.isConnected()) ImageLoader.get(getApplicationContext()).clearErrors();
-                            ScActivity.this.onDataConnectionChanged(networkInfo.isConnectedOrConnecting());
+                    if (msg.obj instanceof NetworkInfo) {
+                        NetworkInfo networkInfo = (NetworkInfo) msg.obj;
+                        final boolean connected = networkInfo.isConnectedOrConnecting();
+                        if (connected) {
+                            ImageLoader.get(getApplicationContext()).clearErrors();
+
+                            // announce potential proxy change
+                            sendBroadcast(new Intent(Actions.CHANGE_PROXY_ACTION)
+                                            .putExtra(Actions.EXTRA_PROXY, IOUtils.getProxy(ctxt, networkInfo)));
                         }
+                        ctxt.onDataConnectionChanged(connected);
                     }
                     break;
             }

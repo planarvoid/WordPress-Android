@@ -3,13 +3,19 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Consts;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Proxy;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
@@ -317,6 +323,35 @@ public final class IOUtils {
             } catch (IOException ignored) {
             }
         }
+    }
+
+
+    /**
+     * @param context context
+     * @param info current network info
+     * @return the proxy to be used for the given network, or null
+     */
+    public static String getProxy(Context context, NetworkInfo info) {
+        final String proxy;
+        if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
+            // adjust mobile proxy settings
+            String proxyHost = Proxy.getHost(context);
+            if (proxyHost == null) {
+                proxyHost = Proxy.getDefaultHost();
+            }
+            int proxyPort = Proxy.getPort(context);
+            if (proxyPort == -1) {
+                proxyPort = Proxy.getDefaultPort();
+            }
+            if (proxyHost != null && proxyPort > -1) {
+                proxy = new HttpHost(proxyHost, proxyPort).toURI();
+            } else {
+                proxy = null;
+            }
+        } else {
+            proxy = null;
+        }
+        return proxy;
     }
 
     public static HttpClient createHttpClient(String userAgent) {
