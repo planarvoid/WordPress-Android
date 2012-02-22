@@ -626,7 +626,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             mTrackCount.setVisibility(View.GONE);
         } else {
             mTrackCount.setVisibility(View.VISIBLE);
-            mTrackCount.setText(Integer.toString(user.followers_count));
+            mTrackCount.setText(Integer.toString(user.track_count));
         }
 
         if (user.followers_count <= 0) {
