@@ -7,6 +7,7 @@ import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.PrefetchHandler;
+import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FileCache;
@@ -170,6 +171,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 mLoggedInUser.permalink = getAccountData(User.DataKeys.USER_PERMALINK);
                 mLoggedInUser.primary_email_confirmed = getAccountDataBoolean(User.DataKeys.EMAIL_CONFIRMED);
             }
+            mLoggedInUser.via = SignupVia.fromString(getAccountData(User.DataKeys.SIGNUP));
         }
         return mLoggedInUser;
     }
@@ -266,7 +268,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 Token.ACCESS_TOKEN, null, null, activity, callback, null);
     }
 
-    public boolean addUserAccount(User user, Token token) {
+    public boolean addUserAccount(User user, Token token, SignupVia via) {
         final String type = getString(R.string.account_type);
         final Account account = new Account(user.username, type);
         final AccountManager am = getAccountManager();
@@ -279,8 +281,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink);
-            am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(
-                    user.primary_email_confirmed));
+            am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
+            am.setUserData(account, User.DataKeys.SIGNUP, via.name);
         }
         mLoggedInUser = null;
         // move this when we can't guarantee we will only have 1 account active at a time

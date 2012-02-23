@@ -23,7 +23,6 @@ import java.io.IOException;
 public abstract class AbstractLoginActivity extends Activity {
     public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING, Token.SCOPE_PLAYCOUNT };
     public static final String SCOPES_EXTRA = "scopes";
-    public static final String SIGNED_UP_EXTRA = "signed_up";
 
     public static final String CODE_EXTRA = "code";
     public static final String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";
@@ -80,7 +79,7 @@ public abstract class AbstractLoginActivity extends Activity {
                             if (user != null) {
                                 dismissDialog(progress);
                                 setResult(RESULT_OK,
-                                        new Intent().putExtra(SIGNED_UP_EXTRA, token.getSignup())
+                                        new Intent().putExtra(SignupVia.EXTRA, token.getSignup())
                                                 .putExtra("user", user)
                                                 .putExtra("token", token)
                                                 .putExtras(data));

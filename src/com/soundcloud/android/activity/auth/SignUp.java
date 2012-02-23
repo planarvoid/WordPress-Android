@@ -124,7 +124,7 @@ public class SignUp extends Activity {
                 if (user != null) {
                     // need to create user account as soon as possible, so the executeRefreshTask logic in
                     // SoundCloudApplication works properly
-                    final boolean signedUp = app.addUserAccount(user, app.getToken());
+                    final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
 
                     final Bundle param = new Bundle();
                     param.putString("username", email);
@@ -133,7 +133,8 @@ public class SignUp extends Activity {
                         @Override protected void onPostExecute(Token token) {
                             if (token != null) {
                                 startActivityForResult(new Intent(SignUp.this, SignupDetails.class)
-                                    .putExtra(AbstractLoginActivity.SIGNED_UP_EXTRA, signedUp ? "native" : null)
+                                    .putExtra(SignupVia.EXTRA,
+                                            signedUp ? SignupVia.API.name : null)
                                     .putExtra("user", user)
                                     .putExtra("token", token), 0);
                             } else {

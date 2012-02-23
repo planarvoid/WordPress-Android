@@ -4,8 +4,8 @@ import com.at.ATParams;
 import com.at.ATTag;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.User;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -21,19 +21,35 @@ import java.util.Arrays;
 public class ATTracker {
     private static final String TAG = ATTracker.class.getSimpleName();
 
+    // identified visitors
+    private static final String USER_ID = "an";
+    private static final String PLAN    = "ac";
+
+    // custom variables
+    private static final String CUSTOM_SOUNDS      = "1";
+    private static final String CUSTOM_LIKES       = "2";
+    private static final String CUSTOM_FOLLOWINGS  = "3";
+    private static final String CUSTOM_FOLLOWERS   = "4";
+    private static final String CUSTOM_CREATED_AT  = "5";
+    private static final String CUSTOM_FB_SIGNUP   = "6";
+
     private final ArrayList<ATParams> mQueue = new ArrayList<ATParams>();
     private boolean mQueueFlushing = false;
     private ATParams[] mEvents = null; // temporary working set, held globally to avoid pointless repeated allocations
 
+    final private SoundCloudApplication app;
+
     @SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
     private final ATTag atTag;
 
-    public ATTracker(Context context) {
+    public ATTracker(SoundCloudApplication context) {
         atTag = ATTag.init(context,
             context.getString(R.string.at_tracking_subdomain),
             context.getString(R.string.at_tracking_siteid),
             null
         );
+
+        this.app = context;
     }
 
     public void track(Click click, Object... args) {
@@ -51,15 +67,41 @@ public class ATTracker {
     }
 
     // private utility methods
-    private void enqueue(ATParams event) {
+    private void enqueue(final ATParams atParams) {
+        final ATParams event = addUserExtras(atParams);
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "tracking "+event);
-
         synchronized (mQueue) {
             mQueue.add(event);
             if (!mQueueFlushing) {
                 //noinspection unchecked
                 new ATParamsTask().execute();
             }
+        }
+    }
+
+    private ATParams addUserExtras(ATParams event) {
+        final User user = app.getLoggedInUser();
+        // identified visitor
+        if (user.id > 0) {
+            event.put(USER_ID, String.valueOf(user.id));
+
+            // custom vars
+            setCustom(event, CUSTOM_SOUNDS, user.track_count);
+            setCustom(event, CUSTOM_FOLLOWERS, user.followers_count);
+            setCustom(event, CUSTOM_FOLLOWINGS, user.followings_count);
+
+            if (user.via != null && user.via.isFacebook()) {
+                event.setCustomCritera(CUSTOM_FB_SIGNUP, "1");
+            }
+        }
+        // TODO remaining variables - needs db migration (add plan + favorite_count)
+        return event;
+    }
+
+
+    private static void setCustom(ATParams event, String name, int value) {
+        if (value >= 0) {
+            event.setCustomCritera(name, String.valueOf(value));
         }
     }
 

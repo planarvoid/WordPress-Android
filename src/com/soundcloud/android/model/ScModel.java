@@ -27,8 +27,10 @@ import static com.soundcloud.android.SoundCloudApplication.TRACK_CACHE;
 import static com.soundcloud.android.SoundCloudApplication.USER_CACHE;
 
 public abstract class ScModel implements Parcelable {
-    @JsonView(Views.Mini.class) public long id = -1;
-    @JsonIgnore public long last_updated = -1;
+    public static final int NOT_SET = -1;
+
+    @JsonView(Views.Mini.class) public long id = NOT_SET;
+    @JsonIgnore public long last_updated       = NOT_SET;
 
     public ScModel() {
     }

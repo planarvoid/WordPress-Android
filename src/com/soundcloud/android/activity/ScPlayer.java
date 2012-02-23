@@ -294,7 +294,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             Intent intent = new Intent(this, Main.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
-
         } else {
             setTrackDisplayFromService();
 
@@ -307,7 +306,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 }, 200l);
                 getIntent().putExtra("commentMode", false);
             }
-
         }
     }
 

@@ -24,7 +24,7 @@ import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 
 public class Start extends AccountAuthenticatorActivity {
-    private static final int RECOVER_CODE = 1;
+    private static final int RECOVER_CODE    = 1;
     private static final int SUGGESTED_USERS = 2;
 
     public static final String FB_CONNECTED_EXTRA = "facebook_connected";
@@ -117,11 +117,9 @@ public class Start extends AccountAuthenticatorActivity {
                     final User user = data.getParcelableExtra("user");
                     final Token token = (Token) data.getSerializableExtra("token");
 
-                    /* native|facebook:(access-token|web-flow) */
-                    String signed_up = data.getStringExtra(AbstractLoginActivity.SIGNED_UP_EXTRA);
-
-                    // native signup will already have created the account
-                    if ("native".equals(signed_up) || app.addUserAccount(user, token)) {
+                    SignupVia via = SignupVia.fromIntent(data);
+                    // API signup will already have created the account
+                    if (SignupVia.API == via || app.addUserAccount(user, token, via)) {
                         final Bundle result = new Bundle();
                         result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
                         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
@@ -129,11 +127,11 @@ public class Start extends AccountAuthenticatorActivity {
 
                         sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
                                 .putExtra("user", user)
-                                .putExtra("signed_up", signed_up));
+                                .putExtra("signed_up", via.name));
 
-                        if (signed_up != null) {
-                            startActivityForResult(new Intent(this, SuggestedUsers.class)
-                                    .putExtra(FB_CONNECTED_EXTRA, signed_up.contains("facebook")),
+                        if (via != SignupVia.UNKNOWN) {
+                            startActivityForResult(
+                                new Intent(this, SuggestedUsers.class).putExtra(FB_CONNECTED_EXTRA, via.isFacebook()),
                                     SUGGESTED_USERS);
                         } else {
                             finish();
