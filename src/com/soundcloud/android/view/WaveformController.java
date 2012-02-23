@@ -395,15 +395,15 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
     public void updateTrack(Track track, boolean postAtFront) {
-        if (mPlayingTrack != null &&
+        if (track == null || (mPlayingTrack != null &&
                 mPlayingTrack.id == track.id
-                && waveformResult != BindResult.ERROR) {
+                && waveformResult != BindResult.ERROR)) {
             return;
         }
 
         final boolean changed = mPlayingTrack != track;
         mPlayingTrack = track;
-        mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
+        mDuration = mPlayingTrack.duration;
         mCurrentTimeDisplay.setDuration(mDuration);
 
         if (changed) {
@@ -414,7 +414,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
             if (mPlayer.isConnected()) ImageLoader.get(mPlayer).clearErrors();
         }
 
-        if (track != null && TextUtils.isEmpty(track.waveform_url)){
+        if (TextUtils.isEmpty(track.waveform_url)){
             waveformResult = BindResult.ERROR;
             mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
             showWaveform(false);
