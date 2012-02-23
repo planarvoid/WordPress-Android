@@ -55,6 +55,9 @@ public class SyncAdapterServiceTest {
     public void before() {
         Robolectric.application.onCreate();
 
+        // don't want default syncing for tests
+        SyncContent.setAllSyncEnabledPrefs(Robolectric.application, false);
+
         // pretend we're connected via wifi
         ConnectivityManager cm = (ConnectivityManager)
                 Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);

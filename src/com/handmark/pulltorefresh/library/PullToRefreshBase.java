@@ -557,6 +557,7 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout {
 		// Styleables from XML
 		final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PullToRefresh);
 		mode = a.getInteger(R.styleable.PullToRefresh_mode, MODE_PULL_DOWN_TO_REFRESH);
+        if (mode == 0) mode = MODE_PULL_DOWN_TO_REFRESH; // TODO robolectric
 
 		// Refreshable View
 		// By passing the attrs, we can add ListView/GridView params via XML

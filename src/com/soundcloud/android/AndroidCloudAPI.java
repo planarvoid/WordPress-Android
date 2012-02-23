@@ -58,7 +58,6 @@ public interface AndroidCloudAPI extends CloudAPI {
     ObjectMapper getMapper();
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
-        public static final String CHANGE_PROXY_ACTION = "com.soundcloud.android.CHANGE_PROXY";
 
         public static final ObjectMapper Mapper = createMapper();
         static {
@@ -78,10 +77,11 @@ public interface AndroidCloudAPI extends CloudAPI {
                 mContext = context;
                 userAgent = "SoundCloud Android ("+CloudUtils.getAppVersion(context, "unknown")+")";
                 final IntentFilter filter = new IntentFilter();
-                filter.addAction(CHANGE_PROXY_ACTION);
+                filter.addAction(Actions.CHANGE_PROXY_ACTION);
                 context.registerReceiver(new BroadcastReceiver() {
                     @Override public void onReceive(Context context, Intent intent) {
-                        String proxy = intent.getStringExtra("proxy");
+                        final String proxy = intent.getStringExtra(Actions.EXTRA_PROXY);
+                        Log.d(TAG, "proxy changed: "+proxy);
                         setProxy(proxy == null ? null : URI.create(proxy));
                     }
                 }, filter);
@@ -98,12 +98,15 @@ public interface AndroidCloudAPI extends CloudAPI {
         public void setProxy(URI proxy) {
             super.setProxy(proxy);
 
-            getHttpClient().getConnectionManager().getSchemeRegistry()
-                           .register(new Scheme("https",
-                               proxy != null ? unsafeSocketFactory() : getSSLSocketFactory(), 443));
+            if (SoundCloudApplication.DEV_MODE) {
+                getHttpClient().getConnectionManager().getSchemeRegistry()
+                               .register(new Scheme("https",
+                                       proxy != null ? unsafeSocketFactory() : getSSLSocketFactory(), 443));
+            }
 
         }
 
+        @SuppressWarnings({"PointlessBooleanExpression", "ConstantConditions"})
         @Override protected SSLSocketFactory getSSLSocketFactory() {
             if (SoundCloudApplication.DALVIK &&
                 SoundCloudApplication.API_PRODUCTION &&

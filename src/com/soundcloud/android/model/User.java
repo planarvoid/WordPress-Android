@@ -233,19 +233,16 @@ public class User extends ScModel implements  Refreshable, Origin {
 
 
     public static interface DataKeys {
-        String USERNAME = "currentUsername";
-        String USER_ID = "currentUserId";
+        String USERNAME        = "currentUsername";
+        String USER_ID         = "currentUserId";
+        String USER_PERMALINK  = "currentUserPermalink";
         String EMAIL_CONFIRMED = "email_confirmed";
-        String DASHBOARD_IDX = "lastDashboardIndex";
-        String PROFILE_IDX = "lastProfileIndex";
+        String DASHBOARD_IDX   = "lastDashboardIndex";
+        String PROFILE_IDX     = "lastProfileIndex";
 
-        // legacy
-        String OAUTH1_ACCESS_TOKEN = "oauth_access_token";
-        String OAUTH1_ACCESS_TOKEN_SECRET = "oauth_access_token_secret";
 
         String LAST_INCOMING_SEEN = "last_incoming_sync_event_timestamp";
         String LAST_OWN_SEEN      = "last_own_sync_event_timestamp";
-
         String LAST_INCOMING_NOTIFIED_AT = "last_incoming_notified_at_timestamp";
 
         String LAST_INCOMING_NOTIFIED_ITEM = "last_incoming_notified_timestamp";
@@ -342,7 +339,6 @@ public class User extends ScModel implements  Refreshable, Origin {
     public void setAppFields(User u) {
         user_follower = u.user_follower;
         user_following = u.user_following;
-        primary_email_confirmed = u.primary_email_confirmed;
     }
 
     public static void clearLoggedInUserFromStorage(SoundCloudApplication app) {

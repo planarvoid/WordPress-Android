@@ -3,10 +3,12 @@ package com.soundcloud.android.provider;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,6 +97,25 @@ public class ScContentProviderTest {
         expect(resolver.query(Content.USERS.uri, null, null, null, null).getCount()).toEqual(14);
     }
 
+
+    @Test
+    public void shouldIncludeUserPermalinkInTrackView() throws Exception {
+        Activities activities = Activities.fromJSON(
+                SyncAdapterService.class.getResourceAsStream("incoming_1.json"));
+
+        for (Track t : activities.getUniqueTracks()) {
+            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.TRACK.uri, t.buildContentValues())).not.toBeNull();
+        }
+
+        expect(Content.TRACK).toHaveCount(50);
+        expect(Content.USERS).toHaveCount(32);
+
+        Track t = SoundCloudDB.getTrackById(resolver, 18876167l); // jwagener/grand-piano-keys
+        expect(t).not.toBeNull();
+        expect(t.user.permalink).toEqual("jwagener");
+        expect(t.permalink).toEqual("grand-piano-keys");
+    }
 
     @Test
     public void shouldIncludeUsernameForPrivateRecordings() throws Exception {

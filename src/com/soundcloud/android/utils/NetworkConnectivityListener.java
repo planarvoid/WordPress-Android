@@ -191,8 +191,10 @@ public class NetworkConnectivityListener {
 
             // Notify any handlers.
             for (Handler target : mHandlers.keySet()) {
-                Message message = Message.obtain(target, mHandlers.get(target), old.ordinal(), mState.ordinal());
-                target.sendMessage(message);
+                target.sendMessage(Message.obtain(target, mHandlers.get(target),
+                        old.ordinal(),
+                        mState.ordinal(),
+                        mNetworkInfo));
             }
         }
     }

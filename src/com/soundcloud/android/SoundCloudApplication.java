@@ -22,6 +22,7 @@ import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -66,7 +67,7 @@ import java.util.Arrays;
         formKey= "",
         checkReportVersion = true,
         checkReportSender = true)
-public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener {
+public class SoundCloudApplication extends Application implements AndroidCloudAPI, CloudAPI.TokenListener, Tracker {
 
     public static final String TAG = SoundCloudApplication.class.getSimpleName();
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
@@ -117,7 +118,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         );
 
         mCloudApi.setTokenListener(this);
-        mCloudApi.debugRequests = DEV_MODE;
+        mCloudApi.debugRequests = DEV_MODE || !DALVIK;
 
 
         if (account != null) {
@@ -160,15 +161,18 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             if (getCurrentUserId() != -1) {
                 mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
             }
+            // user not in db, fall back to local storage
             if (mLoggedInUser == null) {
                 mLoggedInUser = new User();
                 mLoggedInUser.id = getAccountDataLong(User.DataKeys.USER_ID);
                 mLoggedInUser.username = getAccountData(User.DataKeys.USERNAME);
+                mLoggedInUser.permalink = getAccountData(User.DataKeys.USER_PERMALINK);
                 mLoggedInUser.primary_email_confirmed = getAccountDataBoolean(User.DataKeys.EMAIL_CONFIRMED);
             }
         }
         return mLoggedInUser;
     }
+
 
     public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
         mCloudApi.invalidateToken();
@@ -273,9 +277,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account,  Token.SCOPE, token.scope);
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
+            am.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink);
             am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(
                     user.primary_email_confirmed));
         }
+        mLoggedInUser = null;
         // move this when we can't guarantee we will only have 1 account active at a time
         FollowStatus.initialize(this, user.id);
 

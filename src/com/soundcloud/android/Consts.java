@@ -1,11 +1,14 @@
 package com.soundcloud.android;
 
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Environment;
 
 import java.io.File;
+import java.util.EnumSet;
 
 public final class Consts {
     // this directory will be preserved across re-installs - e.g. used for recordings
@@ -72,7 +75,7 @@ public final class Consts {
         LARGE("large", 100, 100),
         T67("t67x67", 67, 67),
         BADGE("badge", 47, 47),
-        SMALL("small", 100, 100),
+        SMALL("small", 32, 32),
         TINY_ARTWORK("tiny", 20, 20),
         TINY_AVATAR("tiny", 18, 18),
         MINI("mini", 16, 16),
@@ -118,6 +121,28 @@ public final class Consts {
             else if (this == Consts.GraphicSize.LARGE) return uri;
             else return uri.replace(Consts.GraphicSize.LARGE.key, key);
         }
+
+        public static Consts.GraphicSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {
+            Consts.GraphicSize valid = null;
+            for (GraphicSize gs : values()) {
+                if (fillDimensions){
+                    if (gs.width >= width && gs.height >= height) {
+                        valid = gs;
+                    } else {
+                        break;
+                    }
+                } else {
+                    if (gs.width >= width || gs.height >= height) {
+                        valid = gs;
+                    } else {
+                        break;
+                    }
+                }
+
+            }
+            return valid == null ? Unknown : valid;
+        }
+
     }
 
     public interface ListId {
