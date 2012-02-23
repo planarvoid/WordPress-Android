@@ -158,8 +158,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public synchronized User getLoggedInUser() {
         if (mLoggedInUser == null) {
-            if (getCurrentUserId() != -1) {
-                mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+            final long id = getCurrentUserId();
+            if (id != -1) {
+                mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), id);
             }
             // user not in db, fall back to local storage
             if (mLoggedInUser == null) {
@@ -274,7 +275,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (created) {
             am.setAuthToken(account, Token.ACCESS_TOKEN,  token.access);
             am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
-            am.setUserData(account,  Token.SCOPE, token.scope);
+            am.setUserData(account, Token.SCOPE, token.scope);
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink);

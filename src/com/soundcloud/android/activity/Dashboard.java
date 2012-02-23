@@ -145,7 +145,10 @@ public class Dashboard extends ScActivity {
     @Override
     public void onResume() {
         super.onResume();
-        track(mTrackingPage, getApp().getLoggedInUser());
+        if (getApp().getAccount() != null) {
+            track(mTrackingPage, getApp().getLoggedInUser());
+        }
+
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
                 .cancel(mCurrentTab == Main.Tab.ACTIVITY ?
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID :
