@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.play;
 
 import android.content.Context;
 import android.graphics.Canvas;

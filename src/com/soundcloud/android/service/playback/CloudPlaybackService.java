@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.os.*;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Playable;
@@ -37,7 +36,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
-import com.soundcloud.android.view.PlaybackRemoteViews;
+import com.soundcloud.android.view.play.PlaybackRemoteViews;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;

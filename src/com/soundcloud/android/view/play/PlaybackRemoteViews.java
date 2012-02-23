@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.play;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;

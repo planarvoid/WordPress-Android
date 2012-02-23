@@ -1,5 +1,4 @@
-
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.play;
 
 import com.soundcloud.android.R;
 

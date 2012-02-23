@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.play;
 
 import android.graphics.Matrix;
 import android.os.Build;
@@ -154,7 +154,7 @@ public class WaveformControllerLand extends WaveformController {
                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT,
                        (int) (mWaveformHolder.getHeight() / 2 + (getResources().getDisplayMetrics().density * 10)));
                lp.bottomMargin = (int) -(getResources().getDisplayMetrics().density * 10);
-               lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+               lp.addRule(ALIGN_PARENT_TOP);
                addView(mCommentPanel, lp);
            }
 
@@ -274,16 +274,16 @@ public class WaveformControllerLand extends WaveformController {
         if (commenting){
             toggleWaveformHalf(true);
             toggleCommentsPanelVisibility(false);
-            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ALIGN_PARENT_TOP);
-            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ABOVE,0);
+            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ALIGN_PARENT_TOP);
+            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ABOVE,0);
             mCurrentTimeDisplay.setCommentingHeight(mWaveformHolder.getHeight()/2);
             mCurrentTimeDisplay.setRoundTop(false);
             mCurrentTimeDisplay.setShowArrow(true);
 
         } else {
             toggleWaveformHalf(false);
-            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(RelativeLayout.ABOVE, R.id.player_avatar_bar_holder);
+            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ALIGN_PARENT_TOP, 0);
+            ((RelativeLayout.LayoutParams) mCurrentTimeDisplay.getLayoutParams()).addRule(ABOVE, R.id.player_avatar_bar_holder);
             mCurrentTimeDisplay.setRoundTop(true);
             mCurrentTimeDisplay.setShowArrow(false);
         }

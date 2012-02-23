@@ -1,13 +1,7 @@
 package com.soundcloud.android.service.playback;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.model.Track;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
@@ -16,7 +10,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-import com.soundcloud.android.view.PlaybackRemoteViews;
+import com.soundcloud.android.view.play.PlaybackRemoteViews;
 
 public class PlayerAppWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "PlayerWidget";

@@ -15,36 +15,42 @@ import java.lang.ref.WeakReference;
 public class RawAudioPlayer {
 
     private PlayRawAudioTask mPlayRawAudioTask;
-    private float mCurrentProgress;
     private File mFile;
+    private long mCurrentProgress, mTotalBytes;
     private boolean mPlaying;
 
     public void setFile(File f){
-        mFile = f;
         if (mPlaying) stop();
+        try {
+            FileInputStream fin = new FileInputStream(f);
+            WaveHeader waveHeader = new WaveHeader();
+            waveHeader.read(fin);
+            mTotalBytes = waveHeader.getNumBytes();
+            mFile = f;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            mFile = null;
+        }
     }
 
     public boolean isPlaying(){
         return mPlaying;
     }
 
-    public void togglePlayback(float currentProgress) {
+    public void togglePlayback() {
         if (mPlaying) {
             stopPlayback();
         } else {
-            play(currentProgress);
+            play();
         }
     }
 
     public void play(){
-        play(0);
-    }
-
-    public void play(float offsetPercent){
         if (!mPlaying){
             mPlaying = true;
             mPlayRawAudioTask = new PlayRawAudioTask(this, mFile);
-            mPlayRawAudioTask.execute(offsetPercent);
+            mPlayRawAudioTask.execute(mCurrentProgress);
         }
     }
 
@@ -53,8 +59,8 @@ public class RawAudioPlayer {
         mCurrentProgress = 0;
     }
 
-    public float getCurrentProgress(){
-        return mCurrentProgress;
+    public float getCurrentProgressPercent(){
+        return Math.min(1,((float) mCurrentProgress)/mTotalBytes);
     }
 
     private void stopPlayback(){
@@ -64,18 +70,25 @@ public class RawAudioPlayer {
         }
     }
 
-    private void setCurrentProgress(float progressPercent) {
-        mCurrentProgress = progressPercent;
+    private void setCurrentProgress(long progress) {
+        mCurrentProgress = progress;
     }
 
-    private static class PlayRawAudioTask extends AsyncTask<Float, Long, Boolean> {
+    public void seekTo(float percentage) {
+        mCurrentProgress = (long) (percentage * mTotalBytes);
+        if (mPlaying){
+            // TODO, stop and start just to seek. this is lazy
+            stopPlayback();
+            play();
+        }
+    }
+
+    private static class PlayRawAudioTask extends AsyncTask<Long, Long, Boolean> {
         private File mFile;
-        private long mLength;
         private AudioTrack mAudioTrack;
         private int minSize;
         private boolean isPlaying;
         private WeakReference<RawAudioPlayer> rawAudioPlayerWeakReference;
-
 
         public PlayRawAudioTask(RawAudioPlayer rawAudioPlayer, File f) {
             this(f, 44100, AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT);
@@ -89,8 +102,6 @@ public class RawAudioPlayer {
                     minSize, AudioTrack.MODE_STREAM);
         }
 
-
-
         public void setRawAudioPlayer(RawAudioPlayer rawAudioPlayer){
             rawAudioPlayerWeakReference = new WeakReference<RawAudioPlayer>(rawAudioPlayer);
         }
@@ -100,8 +111,8 @@ public class RawAudioPlayer {
         }
 
         @Override
-        protected Boolean doInBackground(Float... params) {
-            Float offsetPercent = params[0];
+        protected Boolean doInBackground(Long... params) {
+            Long offset = params[0];
             int bufferSize = 1024;
             int i = 0;
             byte[] s = new byte[bufferSize];
@@ -110,9 +121,8 @@ public class RawAudioPlayer {
                 WaveHeader waveHeader = new WaveHeader();
                 int headerLength = waveHeader.read(fin);
 
-                mLength = waveHeader.getNumBytes();
                 // round to the nearest buffer size to ensure valid audio data (TODO can this be more precise?)
-                long offset = ((long) (offsetPercent * mLength) / minSize) * minSize;
+                offset = (offset / minSize) * minSize;
 
                 DataInputStream dis = new DataInputStream(fin);
                 dis.skip(headerLength + offset);
@@ -148,7 +158,7 @@ public class RawAudioPlayer {
         @Override
         protected void onProgressUpdate(Long... values){
             if (isPlaying && rawAudioPlayerWeakReference != null && rawAudioPlayerWeakReference.get() != null){
-                rawAudioPlayerWeakReference.get().setCurrentProgress(Math.min(1, (float) values[0] / mLength));
+                rawAudioPlayerWeakReference.get().setCurrentProgress(values[0]);
             }
 
         }

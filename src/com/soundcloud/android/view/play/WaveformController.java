@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.play;
 
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
@@ -7,9 +7,9 @@ import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.InputObject;
+import com.soundcloud.android.view.TouchLayout;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
@@ -18,11 +18,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -37,9 +34,8 @@ import android.widget.RelativeLayout;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 
-public class WaveformController extends RelativeLayout implements OnTouchListener {
+public class WaveformController extends TouchLayout {
     private static final String TAG = "WaveformController";
 
     protected static final long CLOSE_COMMENT_DELAY = 5000;
@@ -67,8 +63,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected Comment mAddComment;
     protected Comment mLastAutoComment;
 
-    private ArrayBlockingQueue<InputObject> mInputObjectPool;
-    private TouchThread mTouchThread;
 
     private int mWaveformErrorCount, mDuration;
 
@@ -77,7 +71,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected final Handler mHandler = new Handler();
 
     private static final int MAX_WAVEFORM_RETRIES = 2;
-    private static final int INPUT_QUEUE_SIZE = 20;
 
     private static final int UI_UPDATE_SEEK = 1;
     private static final int UI_SEND_SEEK   = 2;
@@ -88,7 +81,6 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     // used by landscape
     protected static final int UI_SHOW_CURRENT_COMMENT = 7;
     protected static final int UI_TOGGLE_COMMENTS = 8;
-
 
     static final int TOUCH_MODE_NONE = 0;
     static final int TOUCH_MODE_SEEK_DRAG = 1;
@@ -121,16 +113,8 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.wave_form_controller, this);
 
-        mInputObjectPool = new ArrayBlockingQueue<InputObject>(INPUT_QUEUE_SIZE);
-        for (int i = 0; i < INPUT_QUEUE_SIZE; i++) {
-            mInputObjectPool.add(new InputObject(mInputObjectPool));
-        }
-
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         mTouchSlop = configuration.getScaledTouchSlop();
-
-        mTouchThread = new TouchThread();
-        mTouchThread.start();
 
         mWaveformFrame = (RelativeLayout) findViewById(R.id.waveform_frame);
         mWaveformHolder = (WaveformHolder) findViewById(R.id.waveform_holder);
@@ -465,30 +449,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-    public boolean onTouch(View v, MotionEvent event) {
-        try {
-            // Fix scrolling inside workspace view
-            if ((event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN) && getParent() != null) {
-                getParent().requestDisallowInterceptTouchEvent(true);
-            }
-            // history first
-            int hist = event.getHistorySize();
-            if (hist > 0) {
-                // add from oldest to newest
-                for (int i = 0; i < hist; i++) {
-                    InputObject input = mInputObjectPool.take();
-                    input.useEventHistory(v, event, i);
-                    mTouchThread.feedInput(input);
-                }
-            }
-            // current last
-            InputObject input = mInputObjectPool.take();
-            input.useEvent(v, event);
-            mTouchThread.feedInput(input);
-        } catch (InterruptedException ignored) {
-        }
-        return true; // indicate event was handled
-    }
+
 
     protected void showCurrentComment(boolean userTriggered) {
         if (mCurrentShowingComment != null) {
@@ -695,21 +656,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     }
 
 
-    private void processInputObject(InputObject input) {
-        switch (input.action) {
-            case InputObject.ACTION_TOUCH_DOWN:
-                processDownInput(input);
-                break;
-
-            case InputObject.ACTION_TOUCH_MOVE:
-                processMoveInput(input);
-                break;
-            case InputObject.ACTION_TOUCH_UP:
-                processUpInput(input);
-                break;
-        }
-    }
-
+    @Override
     protected void processDownInput(InputObject input) {
         if (mode == TOUCH_MODE_COMMENT_DRAG) {
             mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
@@ -724,6 +671,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
+    @Override
     protected void processMoveInput(InputObject input) {
         switch (mode) {
             case TOUCH_MODE_COMMENT_DRAG:
@@ -752,6 +700,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
+    @Override
     protected void processUpInput(InputObject input) {
         switch (mode) {
             case TOUCH_MODE_COMMENT_DRAG:
@@ -831,17 +780,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     };
 
     public void onDestroy() {
+        super.onDestroy();
+
         if (mCurrentComments != null) {
             for (Comment c : mCurrentComments) {
                 c.xPos = -1;
             }
         }
-
-        if (mTouchThread != null) {
-            mTouchThread.stopped = true;
-            mTouchThread.interrupt();
-        }
-
         mPlayerAvatarBar.clearTrackData();
         mCommentLines.clearTrackData();
     }
@@ -865,32 +810,5 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         mPlayerTrackView = playerTrackView;
     }
 
-    private class TouchThread extends Thread {
-        private ArrayBlockingQueue<InputObject> inputQueue = new ArrayBlockingQueue<InputObject>(INPUT_QUEUE_SIZE);
-        private boolean stopped = false;
 
-        public synchronized void feedInput(InputObject input) {
-            try {
-                inputQueue.put(input);
-            } catch (InterruptedException e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public void run() {
-            while (!stopped) {
-                InputObject input = null;
-                try {
-                    input = inputQueue.take();
-                    if (input.eventType == InputObject.EVENT_TYPE_TOUCH) {
-                        processInputObject(input);
-                    }
-                } catch (InterruptedException ignored) {
-                } finally {
-                    if (input != null) input.returnToPool();
-                }
-            }
-        }
-    }
 }

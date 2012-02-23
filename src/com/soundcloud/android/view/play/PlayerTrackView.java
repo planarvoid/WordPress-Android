@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.play;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
@@ -17,6 +17,7 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.TrackInfoBar;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 

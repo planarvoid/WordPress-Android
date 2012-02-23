@@ -6,7 +6,7 @@
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android">
 
-    <com.soundcloud.android.view.WaveformHolder android:id="@+id/waveform_holder"
+    <com.soundcloud.android.view.play.WaveformHolder android:id="@+id/waveform_holder"
                                                 android:layout_above="@+id/player_avatar_bar_holder"
                                                 android:background="@color/playerControlAlphaBackground"
                                                 android:layout_width="fill_parent"
@@ -25,7 +25,7 @@
                    android:layout_height="fill_parent"
                    android:scaleType="fitXY"/>
 
-        <com.soundcloud.android.view.PlayerTouchBar android:id="@+id/track_touch_bar"
+        <com.soundcloud.android.view.play.PlayerTouchBar android:id="@+id/track_touch_bar"
                                                     android:background="#00000000"
                                                     android:layout_gravity="left"
                                                     android:layout_width="fill_parent"
@@ -42,7 +42,7 @@
                          android:layout_width="40dip"
                          android:layout_height="40dip"/>
         </RelativeLayout>
-    </com.soundcloud.android.view.WaveformHolder>
+    </com.soundcloud.android.view.play.WaveformHolder>
 
     <View android:layout_width="fill_parent"
           android:layout_above="@id/player_avatar_bar_holder"
@@ -53,11 +53,11 @@
                  android:layout_height="@dimen/player_avatar_bar_height_land"
                  android:layout_alignParentBottom="true"
                  android:background="@color/playerControlBackground">
-        <com.soundcloud.android.view.PlayerAvatarBar android:id="@+id/player_avatar_bar"
+        <com.soundcloud.android.view.play.PlayerAvatarBar android:id="@+id/player_avatar_bar"
                                                      android:layout_width="fill_parent"
                                                      android:layout_height="fill_parent"/>
     </FrameLayout>
-    <com.soundcloud.android.view.PlayerTime android:id="@+id/currenttime"
+    <com.soundcloud.android.view.play.PlayerTime android:id="@+id/currenttime"
                                                     style="@style/txt_player_time"
                                                     android:layout_width="wrap_content"
                                                     android:layout_height="@dimen/player_time_height"

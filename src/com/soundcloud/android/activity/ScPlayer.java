@@ -9,9 +9,9 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.FocusHelper;
-import com.soundcloud.android.view.PlayerTrackView;
-import com.soundcloud.android.view.TransportBar;
-import com.soundcloud.android.view.WaveformController;
+import com.soundcloud.android.view.play.PlayerTrackView;
+import com.soundcloud.android.view.play.TransportBar;
+import com.soundcloud.android.view.play.WaveformController;
 import com.soundcloud.android.view.WorkspaceView;
 
 import android.content.BroadcastReceiver;

@@ -1,19 +1,12 @@
 package com.soundcloud.android.task.create;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.nfc.Tag;
 import android.os.AsyncTask;
-import android.os.Parcelable;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.record.WaveHeader;
-import com.soundcloud.android.view.create.WaveformView;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
@@ -46,12 +39,12 @@ public class CalculateAmplitudesTask extends AsyncTask<Void,Integer,Boolean>
 
     protected void onPreExecute() {
         onStart = System.currentTimeMillis();
-        Log.d(TAG, "Starting analyzing wave at " + onStart);
+        Log.d(TAG, "Starting analyzing play at " + onStart);
     }
 
 
     protected void onPostExecute(Boolean result) {
-        Log.d(TAG,"Finished analyzing wave: [duration:" + (System.currentTimeMillis() - onStart) + ", success: " + result + "]");
+        Log.d(TAG,"Finished analyzing play: [duration:" + (System.currentTimeMillis() - onStart) + ", success: " + result + "]");
         if (mListenerWeakReferences != null && !isCancelled()) {
             for (WeakReference<CalculateAmplitudesListener> listenerRef : mListenerWeakReferences) {
                 CalculateAmplitudesListener listener = listenerRef.get();

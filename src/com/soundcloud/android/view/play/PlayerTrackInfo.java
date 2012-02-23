@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.play;
 
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
@@ -7,6 +7,7 @@ import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.TrackComments;
 import com.soundcloud.android.activity.TrackFavoriters;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.view.FlowLayout;
 
 import android.content.Context;
 import android.content.Intent;

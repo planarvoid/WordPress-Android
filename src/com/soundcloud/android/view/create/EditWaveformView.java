@@ -12,7 +12,7 @@ import android.view.View;
 
 import java.io.File;
 
-public class WaveformView extends View implements CalculateAmplitudesTask.CalculateAmplitudesListener {
+public class EditWaveformView extends View implements CalculateAmplitudesTask.CalculateAmplitudesListener {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -31,17 +31,17 @@ public class WaveformView extends View implements CalculateAmplitudesTask.Calcul
     private float mCurrentProgress;
     private double mSampleMax;
 
-    public WaveformView(Context context) {
+    public EditWaveformView(Context context) {
         super(context);
         init();
     }
 
-    public WaveformView(Context context, AttributeSet attrs) {
+    public EditWaveformView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public WaveformView(Context context, AttributeSet attrs, int defStyle) {
+    public EditWaveformView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }
@@ -135,6 +135,12 @@ public class WaveformView extends View implements CalculateAmplitudesTask.Calcul
 
     public float getCurrentProgress() {
         return mCurrentProgress;
+    }
+
+    public void destroy() {
+        if (mCalculateAmplitudesTask != null){
+            mCalculateAmplitudesTask.cancel(true);
+        }
     }
 
     private static class Configuration {

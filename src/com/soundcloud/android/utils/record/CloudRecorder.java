@@ -201,7 +201,7 @@ public class CloudRecorder {
      * Prepares the recorder for recording, in case the recorder is not in the
      * INITIALIZING state and the file path was not set the recorder is set to
      * the ERROR state, which makes a reconstruction necessary. In case
-     * raw recording is toggled, the header of the wave file is
+     * raw recording is toggled, the header of the play file is
      * written. In case of an exception, the state is changed to ERROR
      */
     public void prepare() {
@@ -312,7 +312,7 @@ public class CloudRecorder {
 
     /**
      * Stops the recording, and sets the state to STOPPED. In case of further
-     * usage, a reset is needed. Also finalizes the wave file in case of
+     * usage, a reset is needed. Also finalizes the play file in case of
      * raw recording.
      */
     public void stop() {
