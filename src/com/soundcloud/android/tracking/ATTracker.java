@@ -66,7 +66,8 @@ public class ATTracker {
         }
     }
 
-    // private utility methods
+
+
     private void enqueue(final ATParams atParams) {
         final ATParams event = addUserExtras(atParams);
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "tracking "+event);
@@ -81,8 +82,8 @@ public class ATTracker {
 
     private ATParams addUserExtras(ATParams event) {
         final User user = app.getLoggedInUser();
-        // identified visitor
         if (user.id > 0) {
+            // identified visitor
             event.put(USER_ID, String.valueOf(user.id));
 
             // custom vars

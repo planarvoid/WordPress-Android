@@ -230,11 +230,6 @@ public class PlayerTrackView extends LinearLayout implements
             mWaveformController.clearTrackComments();
             mWaveformController.setProgress(0);
 
-            if (priority) {
-                // only track current track
-                mPlayer.track(Page.Sounds_main, mTrack);
-            }
-
             if (mTrack.comments != null) {
                 mWaveformController.setComments(mTrack.comments, true);
             } else {

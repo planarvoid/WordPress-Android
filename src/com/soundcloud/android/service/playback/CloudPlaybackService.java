@@ -19,6 +19,7 @@ import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -390,21 +391,16 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         new Thread() {
             @Override
             public void run() {
-                if (SoundCloudDB.markTrackAsPlayed(getContentResolver(), mCurrentTrack)) {
-                    mPlayerHandler.sendEmptyMessage(NOTIFY_META_CHANGED);
-                }
+                SoundCloudDB.markTrackAsPlayed(getContentResolver(), mCurrentTrack);
             }
         }.start();
 
-        // ATI
-//        getApp().trackEvent(
-//                Consts.Tracking.Categories.TRACKS,
-//                Consts.Tracking.Actions.TRACK_PLAY,
-//                mCurrentTrack.getTrackEventLabel());
+
         startTrack(track);
     }
 
     private void startTrack(Track track) {
+        getApp().track(Page.Sounds_main, track);
         setPlayingNotification(track);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
