@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -492,7 +493,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             } else if (action.equals(CloudPlaybackService.FAVORITE_SET) ||
                         action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
-                        action.equals(Consts.IntentActions.COMMENT_ADDED)) {
+                        action.equals(Actions.COMMENT_ADDED)) {
                 for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
                     ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).handleIdBasedIntent(intent);
                 }
@@ -525,7 +526,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
         f.addAction(CloudPlaybackService.FAVORITE_SET);
-        f.addAction(Consts.IntentActions.COMMENT_ADDED);
+        f.addAction(Actions.COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
 

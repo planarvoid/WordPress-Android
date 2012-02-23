@@ -1,7 +1,7 @@
 
 package com.soundcloud.android.task;
 
-import com.soundcloud.android.Consts;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
@@ -54,13 +54,13 @@ public class AddCommentTask extends AsyncTask<Comment, String, Boolean> {
                 track.comments.add(mAddComment);
             }
 
-            Intent i = new Intent(Consts.IntentActions.COMMENT_ADDED);
+            Intent i = new Intent(Actions.COMMENT_ADDED);
             i.putExtra("id",mAddComment.track_id);
             i.putExtra("comment", mAddComment);
             mApplication.sendBroadcast(i);
 
         } else if (CloudUtils.isConnectionException(mException)) {
-            mApplication.sendBroadcast(new Intent(Consts.IntentActions.CONNECTION_ERROR));
+            mApplication.sendBroadcast(new Intent(Actions.CONNECTION_ERROR));
         }
 
 

@@ -40,11 +40,6 @@ public final class Consts {
     public static final int ROW_APPEND_BUFFER = 6;
     public static final int ITEM_TYPE_LOADING = -1;
 
-    public interface IntentActions {
-        String CONNECTION_ERROR = "com.soundcloud.android.connectionerror";
-        String COMMENT_ADDED    = "com.soundcloud.android.commentadded";
-    }
-
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
         int DIALOG_UNAUTHORIZED = 2;

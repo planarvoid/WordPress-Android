@@ -173,7 +173,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
         IntentFilter generalIntentFilter = new IntentFilter();
-        generalIntentFilter.addAction(Consts.IntentActions.CONNECTION_ERROR);
+        generalIntentFilter.addAction(Actions.CONNECTION_ERROR);
         registerReceiver(mGeneralIntentListener, generalIntentFilter);
 
         mLists = new ArrayList<ScListView>();
@@ -403,7 +403,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(Consts.IntentActions.CONNECTION_ERROR)) {
+            if (action.equals(Actions.CONNECTION_ERROR)) {
                 safeShowDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
             }
         }
