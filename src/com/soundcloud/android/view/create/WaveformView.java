@@ -31,13 +31,19 @@ public class WaveformView extends View implements CalculateAmplitudesTask.Calcul
     private final String TAG = getClass().getSimpleName();
 
     private static final int WAVEFORM_ORANGE = 0xffff8000;
+    private static final int WAVEFORM_LIGHT = 0xffffffff;
+
     private boolean mSized;
     private File mFile;
     private Bitmap mBitmap;
-    private Paint mPaint;
+    private Paint mOrangePaint;
+    private Paint mWhitePaint;
     private ProgressDialog mProgressDialog;
+    private double[] mAmplitudes;
 
     private CalculateAmplitudesTask mCalculateAmplitudesTask;
+    private float mCurrentProgress;
+    private double mSampleMax;
 
     public WaveformView(Context context) {
         super(context);
@@ -55,8 +61,11 @@ public class WaveformView extends View implements CalculateAmplitudesTask.Calcul
     }
 
     private void init(){
-        mPaint = new Paint();
-        mPaint.setColor(WAVEFORM_ORANGE);
+        mOrangePaint = new Paint();
+        mOrangePaint.setColor(WAVEFORM_ORANGE);
+
+        mWhitePaint = new Paint();
+        mWhitePaint.setColor(WAVEFORM_LIGHT);
     }
 
     public void setFromFile(File f) {
@@ -73,7 +82,20 @@ public class WaveformView extends View implements CalculateAmplitudesTask.Calcul
 
     @Override
     protected void onDraw(android.graphics.Canvas canvas) {
-        if (mBitmap != null) canvas.drawBitmap(mBitmap, new Matrix(), new Paint());
+        if (mAmplitudes != null){
+
+            final int width = getWidth();
+            final int height = getHeight();
+            final int currentProgressIndex = (int) (width*mCurrentProgress);
+
+            int i = 0;
+            for (double amplitude : mAmplitudes) {
+                final int halfWaveHeight = (int) ((amplitude / mSampleMax) * height / 2);
+                canvas.drawLine(i, height / 2 - halfWaveHeight, i, height / 2 + halfWaveHeight,
+                        i >= currentProgressIndex ? mWhitePaint : mOrangePaint);
+                i++;
+            }
+        }
     }
 
     private void makeWave(){
@@ -92,24 +114,9 @@ public class WaveformView extends View implements CalculateAmplitudesTask.Calcul
     @Override
     public void onSuccess(File f, double[] amplitudes, double sampleMax) {
         mProgressDialog.cancel();
-
-        final int width = getWidth();
-        final int height = getHeight();
-
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(mBitmap);
-        int i = 0;
-
-        Paint p = new Paint();
-        p.setColor(WAVEFORM_ORANGE);
-
-        for (double amplitude : amplitudes) {
-            final int halfWaveHeight = (int) ((amplitude / sampleMax) * height / 2);
-            c.drawLine(i, height / 2 - halfWaveHeight, i, height / 2 + halfWaveHeight, p);
-            i++;
-        }
+        mAmplitudes = amplitudes;
+        mSampleMax = sampleMax;
         invalidate();
-
     }
 
     @Override
@@ -134,6 +141,12 @@ public class WaveformView extends View implements CalculateAmplitudesTask.Calcul
         if (mCalculateAmplitudesTask != null){
             mCalculateAmplitudesTask.addListener(this);
         }
+    }
+
+    public void setCurrentProgress(float currentProgress) {
+        Log.i("asdf","Setting smooth progress to " + currentProgress);
+        mCurrentProgress = currentProgress;
+        invalidate();
     }
 
     private static class Configuration {
