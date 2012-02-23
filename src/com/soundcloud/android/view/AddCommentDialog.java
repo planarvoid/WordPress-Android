@@ -29,7 +29,6 @@ public class AddCommentDialog extends Dialog {
 
     public AddCommentDialog(ScActivity context) {
         super(context, R.style.Theme_AddCommentDialog);
-
         mActivity = context;
 
         setContentView(R.layout.add_comment_dialog);
@@ -50,28 +49,33 @@ public class AddCommentDialog extends Dialog {
 
         mInput = (EditText) findViewById(R.id.comment_input);
         if (comment.reply_to_id > 0) {
-            mInput.setHint(String.format(mActivity.getString(R.string.comment_hint_reply),
-                    comment.reply_to_username,CloudUtils.formatTimestamp(comment.timestamp)));
+            mInput.setHint(getContext().getString(R.string.comment_hint_reply,
+                    comment.reply_to_username,
+                    CloudUtils.formatTimestamp(comment.timestamp)));
         } else {
-
-            mInput.setHint((comment.timestamp == -1 ? mActivity.getString(R.string.comment_hint_untimed) :
-                    String.format(mActivity.getString(R.string.comment_hint_timed), CloudUtils.formatTimestamp(comment.timestamp))));
+            mInput.setHint(comment.timestamp == -1 ?
+                    getContext().getString(R.string.comment_hint_untimed) :
+                    getContext().getString(R.string.comment_hint_timed, CloudUtils.formatTimestamp(comment.timestamp)));
         }
         findViewById(R.id.positiveButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (TextUtils.isEmpty(mInput.getText())) return;
-                ((InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE))
-                        .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
-                comment.body = mInput.getText().toString();
-                new AddCommentTask(mActivity.getApp()).execute(comment);
+                final String text = mInput.getText().toString();
+                if (!TextUtils.isEmpty(text))  {
+                    ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
+                            .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
+                    comment.body = text;
 
-                // cannot simply dismiss, or state will be saved
-                mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+                    new AddCommentTask(mActivity.getApp()).execute(comment);
 
-                SoundCloudApplication.TRACK_CACHE.addCommentToTrack(comment);
-                if (mActivity instanceof ScPlayer){
-                    ((ScPlayer)mActivity).onNewComment(comment);
+                    // cannot simply dismiss, or state will be saved
+                    mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+
+                    SoundCloudApplication.TRACK_CACHE.addCommentToTrack(comment);
+
+                    if (mActivity instanceof ScPlayer) {
+                        ((ScPlayer)mActivity).onNewComment(comment);
+                    }
                 }
             }
         });
@@ -81,7 +85,7 @@ public class AddCommentDialog extends Dialog {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    InputMethodManager imm = (InputMethodManager) mActivity
+                    InputMethodManager imm = (InputMethodManager) getContext()
                             .getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,
                             InputMethodManager.HIDE_IMPLICIT_ONLY);
@@ -95,7 +99,7 @@ public class AddCommentDialog extends Dialog {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN && isOutOfBounds(event)) {
-            ((InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE))
+            ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
                     .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
             cancel();
             return true;

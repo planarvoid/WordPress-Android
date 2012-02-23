@@ -12,6 +12,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.PlaylistManager;
+import com.soundcloud.android.utils.ImageUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
@@ -339,6 +340,10 @@ public class User extends ScModel implements  Refreshable, Origin {
     public void setAppFields(User u) {
         user_follower = u.user_follower;
         user_following = u.user_following;
+    }
+
+    public boolean shouldLoadIcon() {
+        return ImageUtils.checkIconShouldLoad(avatar_url);
     }
 
     public static void clearLoggedInUserFromStorage(SoundCloudApplication app) {

@@ -33,4 +33,16 @@ public class UserTest {
         ContentValues cv = u.buildContentValues(false);
         expect(cv.getAsLong(DBHelper.Users._ID)).toEqual(1000L);
     }
+
+    @Test
+    public void testShouldIconLoad() throws Exception {
+        User u = new User();
+        expect(u.shouldLoadIcon()).toBeFalse();
+        u.avatar_url = "";
+        expect(u.shouldLoadIcon()).toBeFalse();
+        u.avatar_url = "NULL";
+        expect(u.shouldLoadIcon()).toBeFalse();
+        u.avatar_url = "http://foo.com";
+        expect(u.shouldLoadIcon()).toBeTrue();
+    }
 }

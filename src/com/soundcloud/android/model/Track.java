@@ -137,7 +137,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     @JsonIgnore public FetchModelTask<Track> load_info_task;
     @JsonIgnore public LoadCommentsTask load_comments_task;
     @JsonIgnore public boolean full_track_info_loaded;
-    @JsonIgnore public boolean comments_loaded;
     @JsonIgnore public int last_playback_error = -1;
     @JsonIgnore private CharSequence _elapsedTime;
     @JsonIgnore private String _list_artwork_uri;
@@ -194,8 +193,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     public String getArtwork() {
-        if (ImageUtils.checkIconShouldLoad(artwork_url) ||
-            (user != null && ImageUtils.checkIconShouldLoad(user.avatar_url))) {
+        if (shouldLoadIcon() || (user != null && user.shouldLoadIcon())) {
             return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
         } else {
             return null;
@@ -285,7 +283,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     public void setAppFields(Track t) {
         filelength = t.filelength;
         comments = t.comments;
-        comments_loaded = t.comments_loaded;
     }
 
     @JsonIgnore public boolean isStreamable() {
@@ -531,6 +528,10 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         user_favorite = tracklistItem.user_favorite;
         shared_to_count = tracklistItem.shared_to_count;
         return this;
+    }
+
+    public boolean shouldLoadIcon() {
+        return ImageUtils.checkIconShouldLoad(artwork_url);
     }
 
     public static Track fromIntent(Intent intent, ContentResolver resolver) {

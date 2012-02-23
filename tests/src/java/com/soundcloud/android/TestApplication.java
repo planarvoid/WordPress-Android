@@ -7,6 +7,7 @@ import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 
 import android.accounts.Account;
+import android.content.Intent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ public class TestApplication extends SoundCloudApplication {
     public final Token token;
     public final List<Page> trackedPages = new ArrayList<Page>();
     public final List<Click> trackedClicks = new ArrayList<Click>();
+    public final List<Intent> broadcasts = new ArrayList<Intent>();
 
     public TestApplication() {
         this(new Token("access", null, Token.SCOPE_NON_EXPIRING));
@@ -63,5 +65,11 @@ public class TestApplication extends SoundCloudApplication {
     @Override
     public void track(Click click, Object... args) {
         trackedClicks.add(click);
+    }
+
+    @Override
+    public void sendBroadcast(Intent intent) {
+        broadcasts.add(intent);
+        super.sendBroadcast(intent);
     }
 }

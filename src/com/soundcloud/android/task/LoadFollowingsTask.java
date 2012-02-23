@@ -5,7 +5,7 @@ import com.soundcloud.api.Request;
 
 import java.util.List;
 
-public class LoadFollowingsTask extends LoadJsonTask<Long> {
+public class LoadFollowingsTask extends LoadJsonTask<Request, Long> {
     public LoadFollowingsTask(AndroidCloudAPI app) {
         super(app);
     }

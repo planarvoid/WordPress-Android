@@ -24,23 +24,20 @@ import com.soundcloud.android.utils.ImageUtils;
 public class CommentPanel extends RelativeLayout {
 
     private final ImageView mIcon;
-    protected Comment mComment;
+    private Comment mComment;
 
-    protected final TextView mTxtUsername;
-    protected final TextView mTxtTimestamp;
-    protected final TextView mTxtElapsed;
+    private final TextView mTxtUsername;
+    private final TextView mTxtTimestamp;
+    private final TextView mTxtElapsed;
 
-    protected final TextView mTxtReadOn;
-    protected final ImageButton mBtnClose;
+    private final TextView mTxtReadOn;
+    private final ImageButton mBtnClose;
     protected final TextView mTxtComment;
 
-    protected WaveformController mController;
-    protected ScPlayer mPlayer;
+    private WaveformController mController;
+    private ScPlayer mPlayer;
 
-    public Comment show_comment;
-
-    protected boolean interacted;
-    protected final boolean closing;
+    /* package */ boolean interacted, closing;
 
     private final String at_timestamp;
 
@@ -96,8 +93,15 @@ public class CommentPanel extends RelativeLayout {
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                    mPlayer.addNewComment(Comment.build(mPlayer, mPlayer.getCurrentUserId(), mComment.track_id,
-                            mComment.timestamp, "", mComment.id, mComment.user.username));
+                    mPlayer.addNewComment(
+                            Comment.build(
+                                mComment.track,
+                                mPlayer.getApp().getLoggedInUser(),
+                                mComment.timestamp,
+                                "",
+                                mComment.id,
+                                mComment.user.username));
+
                 return true;
             }
         });
@@ -138,7 +142,6 @@ public class CommentPanel extends RelativeLayout {
         });
 
         interacted = false;
-        closing = false;
     }
 
     protected void setControllers(ScPlayer player, WaveformController controller) {
@@ -146,8 +149,8 @@ public class CommentPanel extends RelativeLayout {
         mController = controller;
     }
 
-    protected void showComment(Comment currentShowingComment) {
-        mComment = currentShowingComment;
+    protected void showComment(final Comment current) {
+        mComment = current;
         if (mComment == null) return;
 
         mTxtUsername.setText(mComment.user.username);
@@ -161,20 +164,20 @@ public class CommentPanel extends RelativeLayout {
 
         if (mBtnClose != null) mBtnClose.setVisibility(View.VISIBLE);
         if (mTxtReadOn != null) {
-            if (currentShowingComment.nextComment != null) {
+            if (mComment.nextComment != null) {
                 mTxtReadOn.setVisibility(View.VISIBLE);
             } else {
                 mTxtReadOn.setVisibility(View.GONE);
             }
         }
 
-        if (currentShowingComment.user == null || !ImageUtils.checkIconShouldLoad(currentShowingComment.user.avatar_url)) {
+        if (!mComment.shouldLoadIcon()) {
             ImageLoader.get(getContext()).unbind(mIcon);
             return;
         }
 
         ImageLoader.get(getContext()).bind(mIcon,
-                Consts.GraphicSize.formatUriForList(getContext(), currentShowingComment.user.avatar_url),
+                Consts.GraphicSize.formatUriForList(getContext(), mComment.user.avatar_url),
                 new ImageLoader.Callback() {
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
@@ -195,8 +198,13 @@ public class CommentPanel extends RelativeLayout {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         //if (mIsLandscape){
-        if (true){ // might change this later
-            ImageUtils.drawSquareBubbleOnCanvas(canvas, mBgPaint, mLinePaint, getMeasuredWidth(), getMeasuredHeight() - mPlayheadArrowHeight,
+        //noinspection ConstantIfStatement
+        if (true) { // might change this later
+            ImageUtils.drawSquareBubbleOnCanvas(canvas,
+                    mBgPaint,
+                    mLinePaint,
+                    getMeasuredWidth(),
+                    getMeasuredHeight() - mPlayheadArrowHeight,
                     mPlayheadArrowWidth, mPlayheadArrowHeight, mPlayheadOffset);
         } else {
             canvas.drawRect(0,0,getMeasuredWidth(),getMeasuredHeight(),mBgPaint);

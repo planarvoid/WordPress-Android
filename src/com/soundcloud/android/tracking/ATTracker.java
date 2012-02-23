@@ -34,7 +34,6 @@ public class ATTracker {
             context.getString(R.string.at_tracking_siteid),
             null
         );
-        //atTag.setModePrintUrl(SoundCloudApplication.DEV_MODE);
     }
 
     public void track(Click click, Object... args) {
@@ -53,6 +52,8 @@ public class ATTracker {
 
     // private utility methods
     private void enqueue(ATParams event) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "tracking "+event);
+
         synchronized (mQueue) {
             mQueue.add(event);
             if (!mQueueFlushing) {

@@ -251,12 +251,12 @@ public class PlayerTrackView extends LinearLayout implements
         if (mTrack == null) return;
         if (CloudUtils.isTaskFinished(mTrack.load_comments_task)) {
             mTrack.load_comments_task =
-                    new LoadCommentsTask(mPlayer.getApp(), mTrack.id);
+                    new LoadCommentsTask(mPlayer.getApp());
         }
         mTrack.load_comments_task.addListener(this);
 
         if (CloudUtils.isTaskPending(mTrack.load_comments_task)) {
-            mTrack.load_comments_task.execute((Request) null);
+            mTrack.load_comments_task.execute(mTrack.id);
         }
     }
 

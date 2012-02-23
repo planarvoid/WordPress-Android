@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.InputObject;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
@@ -756,8 +755,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         switch (mode) {
             case TOUCH_MODE_COMMENT_DRAG:
                 if (isOnTouchBar(input.y)) {
-                    mAddComment = Comment.build(mPlayer, mPlayer.getCurrentUserId(),
-                            mPlayingTrack.id, stampFromPosition(input.x), "", 0, "");
+                    mAddComment = Comment.build(
+                            mPlayingTrack,
+                            mPlayer.getApp().getLoggedInUser(),
+                            stampFromPosition(input.x),
+                            "",
+                            0,
+                            "");
                     queueUnique(UI_ADD_COMMENT);
                 } else return;
 

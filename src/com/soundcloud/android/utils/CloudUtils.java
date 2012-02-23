@@ -407,12 +407,6 @@ public final class CloudUtils {
         }
     }
 
-    public static boolean isConnectionException(Exception e){
-        return (e instanceof UnknownHostException
-                || e instanceof SocketException
-                || e instanceof JSONException);
-    }
-
     public static void setTextShadowForGrayBg(TextView tv){
         tv.setShadowLayer(1, 0, 1, Color.WHITE);
     }
