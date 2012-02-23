@@ -1,30 +1,16 @@
 package com.soundcloud.android.view.create;
 
-import android.app.ProgressDialog;
-import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.create.CalculateAmplitudesTask;
-import com.soundcloud.android.task.fetch.FetchUserTask;
-import com.soundcloud.android.utils.record.WaveHeader;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.ShortBuffer;
-import java.util.List;
 
 public class WaveformView extends View implements CalculateAmplitudesTask.CalculateAmplitudesListener {
 
@@ -83,7 +69,6 @@ public class WaveformView extends View implements CalculateAmplitudesTask.Calcul
     @Override
     protected void onDraw(android.graphics.Canvas canvas) {
         if (mAmplitudes != null){
-
             final int width = getWidth();
             final int height = getHeight();
             final int currentProgressIndex = (int) (width*mCurrentProgress);
@@ -144,9 +129,12 @@ public class WaveformView extends View implements CalculateAmplitudesTask.Calcul
     }
 
     public void setCurrentProgress(float currentProgress) {
-        Log.i("asdf","Setting smooth progress to " + currentProgress);
         mCurrentProgress = currentProgress;
         invalidate();
+    }
+
+    public float getCurrentProgress() {
+        return mCurrentProgress;
     }
 
     private static class Configuration {

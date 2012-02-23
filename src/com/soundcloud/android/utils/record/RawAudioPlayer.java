@@ -1,7 +1,5 @@
 package com.soundcloud.android.utils.record;
 
-import com.soundcloud.android.utils.CloudUtils;
-
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -12,55 +10,98 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 public class RawAudioPlayer {
 
     private PlayRawAudioTask mPlayRawAudioTask;
     private float mCurrentProgress;
+    private File mFile;
+    private boolean mPlaying;
 
-    public void play(File f){
-        play(f,0);
+    public void setFile(File f){
+        mFile = f;
+        if (mPlaying) stop();
     }
 
-    public void play(File f, long position){
-        mPlayRawAudioTask = new PlayRawAudioTask(f);
-        mPlayRawAudioTask.execute(position);
+    public boolean isPlaying(){
+        return mPlaying;
     }
 
-    public void stop() {
-        if (mPlayRawAudioTask != null && !CloudUtils.isTaskFinished(mPlayRawAudioTask)){
-            mPlayRawAudioTask.stop();
+    public void togglePlayback(float currentProgress) {
+        if (mPlaying) {
+            stopPlayback();
+        } else {
+            play(currentProgress);
         }
+    }
+
+    public void play(){
+        play(0);
+    }
+
+    public void play(float offsetPercent){
+        if (!mPlaying){
+            mPlaying = true;
+            mPlayRawAudioTask = new PlayRawAudioTask(this, mFile);
+            mPlayRawAudioTask.execute(offsetPercent);
+        }
+    }
+
+    public void stop(){
+        stopPlayback();
+        mCurrentProgress = 0;
     }
 
     public float getCurrentProgress(){
         return mCurrentProgress;
     }
 
-    private class PlayRawAudioTask extends AsyncTask<Long, Long, Boolean> {
+    private void stopPlayback(){
+        mPlaying = false;
+        if (mPlayRawAudioTask != null && mPlayRawAudioTask.isPlaying){
+            mPlayRawAudioTask.stop();
+        }
+    }
+
+    private void setCurrentProgress(float progressPercent) {
+        mCurrentProgress = progressPercent;
+    }
+
+    private static class PlayRawAudioTask extends AsyncTask<Float, Long, Boolean> {
         private File mFile;
         private long mLength;
         private AudioTrack mAudioTrack;
-        private boolean mPlaying;
+        private int minSize;
+        private boolean isPlaying;
+        private WeakReference<RawAudioPlayer> rawAudioPlayerWeakReference;
 
-        public PlayRawAudioTask(File f) {
+
+        public PlayRawAudioTask(RawAudioPlayer rawAudioPlayer, File f) {
             this(f, 44100, AudioFormat.CHANNEL_CONFIGURATION_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+            setRawAudioPlayer(rawAudioPlayer);
         }
 
         public PlayRawAudioTask(File f, int sampleRate, int channelConfiguration, int encoding) {
             mFile = f;
-            int minSize = AudioTrack.getMinBufferSize(sampleRate, channelConfiguration, encoding);
+            minSize = AudioTrack.getMinBufferSize(sampleRate, channelConfiguration, encoding);
             mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelConfiguration, encoding,
                     minSize, AudioTrack.MODE_STREAM);
         }
 
+
+
+        public void setRawAudioPlayer(RawAudioPlayer rawAudioPlayer){
+            rawAudioPlayerWeakReference = new WeakReference<RawAudioPlayer>(rawAudioPlayer);
+        }
+
         public void stop(){
-            mPlaying = false;
+            isPlaying = false;
         }
 
         @Override
-        protected Boolean doInBackground(Long... params) {
-            Long offset = params[0];
+        protected Boolean doInBackground(Float... params) {
+            Float offsetPercent = params[0];
             int bufferSize = 1024;
             int i = 0;
             byte[] s = new byte[bufferSize];
@@ -70,12 +111,14 @@ public class RawAudioPlayer {
                 int headerLength = waveHeader.read(fin);
 
                 mLength = waveHeader.getNumBytes();
+                // round to the nearest buffer size to ensure valid audio data (TODO can this be more precise?)
+                long offset = ((long) (offsetPercent * mLength) / minSize) * minSize;
 
                 DataInputStream dis = new DataInputStream(fin);
                 dis.skip(headerLength + offset);
 
                 long written = 0;
-                while ((i = dis.read(s, 0, bufferSize)) > -1 && mPlaying) {
+                while ((i = dis.read(s, 0, bufferSize)) > -1 && isPlaying) {
                     written += mAudioTrack.write(s, 0, i);
                     publishProgress(written+offset);
                 }
@@ -93,7 +136,7 @@ public class RawAudioPlayer {
         @Override
         protected void onPreExecute() {
             mAudioTrack.play();
-            mPlaying = true;
+            isPlaying = true;
         }
 
         @Override
@@ -104,9 +147,11 @@ public class RawAudioPlayer {
 
         @Override
         protected void onProgressUpdate(Long... values){
-            mCurrentProgress = Math.min(1, (float) values[0] / mLength);
+            if (isPlaying && rawAudioPlayerWeakReference != null && rawAudioPlayerWeakReference.get() != null){
+                rawAudioPlayerWeakReference.get().setCurrentProgress(Math.min(1, (float) values[0] / mLength));
+            }
+
         }
     }
-
 
 }

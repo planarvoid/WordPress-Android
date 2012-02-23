@@ -16,6 +16,7 @@ import com.soundcloud.android.view.create.WaveformView;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
+import android.widget.Button;
 
 import java.io.File;
 import java.util.List;
@@ -26,7 +27,7 @@ public class CreateEditor extends ScActivity{
     RawAudioPlayer mRawAudioPlayer;
 
     private boolean mShowingSmoothProgress;
-    private long mProgressPeriod = 30;
+    private long mProgressPeriod = 1000 / 60; // aim for 60 fps.
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -34,36 +35,45 @@ public class CreateEditor extends ScActivity{
 
         setContentView(R.layout.sc_create_edit);
 
-        mWaveformView = (WaveformView) findViewById(R.id.waveform_view);
-
-        Object state = getLastNonConfigurationInstance();
-
+        // this will come from an intent, but for now just going to a wave file on my sd card
         final File f = new File(Environment.getExternalStorageDirectory(),"med_test.wav");
 
-        if (state != null){
-            mWaveformView.restoreConfigurationInstance(state);
-        } else {
-           mWaveformView.setFromFile(f);
-        }
+        // setup wave viewer
+        mWaveformView = (WaveformView) findViewById(R.id.waveform_view);
+        mWaveformView.setFromFile(f);
 
+        // setup wave player
         mRawAudioPlayer = new RawAudioPlayer();
+        mRawAudioPlayer.setFile(f);
+
+        // setup buttons
         findViewById((R.id.btn_play)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mRawAudioPlayer.play(f);
-                startSmoothProgress();
+                mRawAudioPlayer.togglePlayback(mWaveformView.getCurrentProgress());
+                setCurrentPlayState();
             }
         });
-
         findViewById((R.id.btn_stop)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mRawAudioPlayer.stop();
-                stopSmoothProgress();
+                setCurrentPlayState();
+                mWaveformView.setCurrentProgress(0);
             }
         });
 
+        setCurrentPlayState();
+    }
 
+    private void setCurrentPlayState(){
+        if (mRawAudioPlayer.isPlaying()){
+            ((Button) findViewById((R.id.btn_play))).setText("pause");
+            if (!mShowingSmoothProgress) startSmoothProgress();
+        } else {
+            ((Button) findViewById((R.id.btn_play))).setText("play");
+            if (mShowingSmoothProgress) stopSmoothProgress();
+        }
     }
 
     private Runnable mSmoothProgress = new Runnable() {
@@ -82,12 +92,5 @@ public class CreateEditor extends ScActivity{
         mShowingSmoothProgress = false;
         mHandler.removeCallbacks(mSmoothProgress);
     }
-
-
-    @Override
-    public Object onRetainNonConfigurationInstance() {
-        return mWaveformView.saveConfigurationInstance();
-    }
-
 
 }
