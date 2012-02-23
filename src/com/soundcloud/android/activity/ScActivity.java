@@ -544,10 +544,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
                 .setIcon(android.R.drawable.ic_menu_preferences);
 
-        if (SoundCloudApplication.DEV_MODE){
-            menu.add(menu.size(), Consts.OptionsMenu.SECRET_DEV_BUTTON, menu.size(), "Super Secret Dev Button")
-                .setIcon(android.R.drawable.ic_menu_compass);
-        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -585,8 +581,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
             case Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD:
                 safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
-            case Consts.OptionsMenu.SECRET_DEV_BUTTON:
-                return true;
+
 
             default:
                 return super.onOptionsItemSelected(item);
