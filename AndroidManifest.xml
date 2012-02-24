@@ -5,6 +5,33 @@
       android:installLocation="internalOnly"
       android:versionCode="36">
 
+    <supports-screens android:anyDensity="true" />
+    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10"/>
+
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- needed for pre 2.2: automatic call muting -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+
+    <!-- c2dm -->
+    <permission android:name="com.soundcloud.android.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+    <uses-permission android:name="com.soundcloud.android.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
     <application android:icon="@drawable/launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.ScLight"
@@ -174,11 +201,13 @@
 
         <service android:name=".service.playback.CloudPlaybackService"
                  android:exported="true">
+            <!-- XXX needs to be exported? -->
         </service>
 
         <service
             android:name=".service.record.CloudCreateService"
             android:exported="true">
+            <!-- XXX needs to be exported? -->
         </service>
 
         <service android:name=".service.auth.AuthenticatorService"
@@ -192,7 +221,7 @@
         </service>
 
         <service android:name=".service.sync.SyncAdapterService" android:exported="true">
-           <intent-filter>
+            <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
 
@@ -258,37 +287,4 @@
                    android:value=".activity.Main"/>
     </application>
 
-    <!-- Used for install referrer tracking -->
-    <receiver android:name="com.google.android.apps.analytics.AnalyticsReceiver"
-              android:exported="true">
-        <intent-filter>
-          <action android:name="com.android.vending.INSTALL_REFERRER" />
-        </intent-filter>
-    </receiver>
-
-    <supports-screens android:anyDensity="true" />
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- needed for pre 2.2: automatic call muting -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.READ_CONTACTS"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
-
-    <!-- c2dm -->
-    <permission android:name="com.soundcloud.android.permission.C2D_MESSAGE" android:protectionLevel="signature" />
-    <uses-permission android:name="com.soundcloud.android.permission.C2D_MESSAGE" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 </manifest>
