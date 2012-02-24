@@ -1,5 +1,11 @@
-$ 36
+$ 37
   % v current
+  _ 2012-02-24
+  ! Maintenance
+    * WIP
+
+$ 36
+  % v v2.2.2
   _ 2012-02-24
   ! Maintenance
     * Fixed "Find Friends"
