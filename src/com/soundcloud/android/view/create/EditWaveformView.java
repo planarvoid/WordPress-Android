@@ -2,34 +2,29 @@ package com.soundcloud.android.view.create;
 
 import com.soundcloud.android.task.create.CalculateAmplitudesTask;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
-import java.io.File;
-
-public class EditWaveformView extends View implements CalculateAmplitudesTask.CalculateAmplitudesListener {
+public class EditWaveformView extends View {
 
     private final String TAG = getClass().getSimpleName();
 
-    private static final int WAVEFORM_ORANGE = 0xffff8000;
-    private static final int WAVEFORM_LIGHT = 0xffffffff;
+    private static final int WAVEFORM_DARK_UNPLAYED = 0xff666666;
+    private static final int WAVEFORM_UNPLAYED = 0xffffffff;
+    private static final int WAVEFORM_DARK_PLAYED = 0xff662000;
+    private static final int WAVEFORM_PLAYED = 0xffff8000;
+
 
     private boolean mSized;
-    private File mFile;
-    private Bitmap mBitmap;
-    private Paint mOrangePaint;
-    private Paint mWhitePaint;
-    private ProgressDialog mProgressDialog;
+    private Paint mPlayedPaint, mUnplayedPaint,mDarkUnplayedPaint,mDarkPlayedPaint;
     private double[] mAmplitudes;
 
-    private CalculateAmplitudesTask mCalculateAmplitudesTask;
     private float mCurrentProgress;
     private double mSampleMax;
+    private int mTrimLeft, mTrimRight;
 
     public EditWaveformView(Context context) {
         super(context);
@@ -47,24 +42,19 @@ public class EditWaveformView extends View implements CalculateAmplitudesTask.Ca
     }
 
     private void init(){
-        mOrangePaint = new Paint();
-        mOrangePaint.setColor(WAVEFORM_ORANGE);
+        mPlayedPaint = new Paint();
+        mPlayedPaint.setColor(WAVEFORM_PLAYED);
 
-        mWhitePaint = new Paint();
-        mWhitePaint.setColor(WAVEFORM_LIGHT);
+        mUnplayedPaint = new Paint();
+        mUnplayedPaint.setColor(WAVEFORM_UNPLAYED);
+
+        mDarkUnplayedPaint = new Paint();
+        mDarkUnplayedPaint.setColor(WAVEFORM_DARK_UNPLAYED);
+
+        mDarkPlayedPaint = new Paint();
+        mDarkPlayedPaint.setColor(WAVEFORM_DARK_PLAYED);
     }
 
-    public void setFromFile(File f) {
-        mFile = f;
-        if (mSized) makeWave();
-    }
-
-    @Override
-    protected void onSizeChanged(int xNew, int yNew, int xOld, int yOld) {
-        super.onSizeChanged(xNew, yNew, xOld, yOld);
-        mSized = true;
-        if (mFile != null) makeWave();
-    }
 
     @Override
     protected void onDraw(android.graphics.Canvas canvas) {
@@ -76,57 +66,22 @@ public class EditWaveformView extends View implements CalculateAmplitudesTask.Ca
             int i = 0;
             for (double amplitude : mAmplitudes) {
                 final int halfWaveHeight = (int) ((amplitude / mSampleMax) * height / 2);
-                canvas.drawLine(i, height / 2 - halfWaveHeight, i, height / 2 + halfWaveHeight,
-                        i >= currentProgressIndex ? mWhitePaint : mOrangePaint);
+                if (i == mTrimLeft || i == mTrimRight -1) {
+                    canvas.drawLine(i, 0, i, height, mUnplayedPaint);
+                } else {
+                    final Paint p = (i < mTrimLeft) ? mDarkPlayedPaint :
+                                    ((i > mTrimRight) ? mDarkUnplayedPaint :
+                                     (i >= currentProgressIndex) ? mUnplayedPaint : mPlayedPaint);
+
+                    canvas.drawLine(i, height / 2 - halfWaveHeight, i, height / 2 + halfWaveHeight, p);
+                }
+
                 i++;
             }
         }
     }
 
-    private void makeWave(){
-        if (mCalculateAmplitudesTask != null){
-            mCalculateAmplitudesTask.cancel(true);
-        }
 
-        mCalculateAmplitudesTask = new CalculateAmplitudesTask(mFile,getWidth());
-        mCalculateAmplitudesTask.addListener(this);
-        mCalculateAmplitudesTask.execute();
-
-        mProgressDialog = ProgressDialog.show(getContext(),"Please wait", "Analyzing the hell out of your file", true,false);
-    }
-
-
-    @Override
-    public void onSuccess(File f, double[] amplitudes, double sampleMax) {
-        mProgressDialog.cancel();
-        mAmplitudes = amplitudes;
-        mSampleMax = sampleMax;
-        invalidate();
-    }
-
-    @Override
-    public void onError(File f) {
-        mProgressDialog.cancel();
-        Log.e(TAG, "Error making waveform, file: " + f.getAbsolutePath());
-    }
-
-    public Object saveConfigurationInstance() {
-        return new Configuration() {
-            {
-                calculateAmplitudesTask = mCalculateAmplitudesTask;
-                bitmap = mBitmap;
-            }
-        };
-    }
-
-    public void restoreConfigurationInstance(Object state) {
-        mCalculateAmplitudesTask = ((Configuration) state).calculateAmplitudesTask;
-        mBitmap = ((Configuration) state).bitmap;
-
-        if (mCalculateAmplitudesTask != null){
-            mCalculateAmplitudesTask.addListener(this);
-        }
-    }
 
     public void setCurrentProgress(float currentProgress) {
         mCurrentProgress = currentProgress;
@@ -137,10 +92,22 @@ public class EditWaveformView extends View implements CalculateAmplitudesTask.Ca
         return mCurrentProgress;
     }
 
-    public void destroy() {
-        if (mCalculateAmplitudesTask != null){
-            mCalculateAmplitudesTask.cancel(true);
-        }
+    public void setWave(double[] amplitudes, double sampleMax) {
+        mAmplitudes = amplitudes;
+        mSampleMax = sampleMax;
+        invalidate();
+        mTrimLeft = 0;
+        mTrimRight = getWidth();
+    }
+
+    public void setTrimLeft(int trimLeft) {
+        mTrimLeft = trimLeft;
+        invalidate();
+    }
+
+    public void setTrimRight(int trimRight) {
+        mTrimRight = trimRight;
+        invalidate();
     }
 
     private static class Configuration {
