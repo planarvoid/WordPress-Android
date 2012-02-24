@@ -18,8 +18,13 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.Window;
 
 /**
  * A utility class that emulates multitouch APIs available in Android 2.0+.
@@ -72,6 +77,26 @@ public final class MotionEventUtils {
             return WrappedStaticMotionEvent.findPointerIndex(ev, pointerId);
         } else {
             return (pointerId == 0) ? 0 : -1;
+        }
+    }
+
+
+    public static boolean isOutOfBounds(MotionEvent event, Dialog d) {
+        return isOutOfBounds(d.getContext(), event, d.getWindow());
+    }
+
+    public static boolean isOutOfBounds(Context context, MotionEvent event, Window window) {
+        if (context != null) {
+            final int x = (int) event.getX();
+            final int y = (int) event.getY();
+            final int slop = ViewConfiguration.get(context).getScaledWindowTouchSlop();
+            final View decorView = window.getDecorView();
+            return (x < -slop) ||
+                    (y < -slop) ||
+                    (x > (decorView.getWidth() + slop)) ||
+                    (y > (decorView.getHeight() + slop));
+        } else {
+            return true;
         }
     }
 
