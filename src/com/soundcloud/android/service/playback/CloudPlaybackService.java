@@ -392,8 +392,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 SoundCloudDB.markTrackAsPlayed(getContentResolver(), mCurrentTrack);
             }
         }.start();
-
-
         startTrack(track);
     }
 
@@ -562,14 +560,14 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
             view.setCurrentTrack(track.title,track.user.username);
 
-            final String artworkUri = track.getListArtworkUrl(getApplicationContext());
+            final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap bmp = ImageLoader.get(getApplicationContext()).getBitmap(artworkUri, null, ICON_OPTIONS);
+                final Bitmap bmp = ImageLoader.get(this).getBitmap(artworkUri, null, ICON_OPTIONS);
                 if (bmp != null) {
                     view.setIcon(bmp);
                 } else {
                     view.hideIcon();
-                    ImageLoader.get(getApplicationContext()).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
+                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
 
                         public void onImageLoaded(Bitmap mBitmap, String uri) {
                             if (status.contentView instanceof PlaybackRemoteViews && mCurrentTrack == track) {
