@@ -538,6 +538,11 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         return ImageUtils.checkIconShouldLoad(artwork_url);
     }
 
+    public String userTrackPermalink() {
+        if (permalink == null) return null;
+        return (user != null ? TextUtils.isEmpty(user.permalink) ? "" : user.permalink+"/" : "") + permalink;
+    }
+
     public static Track fromIntent(Intent intent, ContentResolver resolver) {
         if (intent == null) throw new IllegalArgumentException("intent is null");
         Track t = intent.getParcelableExtra("track");

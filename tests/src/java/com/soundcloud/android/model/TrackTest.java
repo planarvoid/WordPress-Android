@@ -204,4 +204,22 @@ public class TrackTest {
         t.duration = 100;
         expect(t.getEstimatedFileSize()).toEqual(1638400);
     }
+
+    @Test
+    public void shouldGetUserTrackPermalink() throws Exception {
+        Track t = new Track();
+        expect(t.userTrackPermalink()).toBeNull();
+        t.permalink = "foo";
+        expect(t.userTrackPermalink()).toEqual("foo");
+
+        t.user = new User();
+        expect(t.userTrackPermalink()).toEqual("foo");
+
+        t.user.permalink = "";
+        expect(t.userTrackPermalink()).toEqual("foo");
+
+        t.user.permalink = "user";
+        expect(t.userTrackPermalink()).toEqual("user/foo");
+    }
+
 }

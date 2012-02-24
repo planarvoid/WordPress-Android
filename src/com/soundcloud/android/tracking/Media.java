@@ -43,14 +43,14 @@ public class Media implements Event {
         params.xt_rm(ATParams.mediaType.mediaTypeAudio,
                 String.valueOf(Level2.Sounds.id),
                 "",         /* player id */
-                track.title,
+                track.userTrackPermalink(),
                 maction,
                 String.valueOf(refreshInSeconds),
                 String.valueOf(durationInSeconds),
                 ATParams.mediaQuality.quality44khz,
                 ATParams.mediaStream.mediaStream128kpbs,
                 ATParams.mediaSource.sourceInt,
-                true,
+                false /* true = live, false = clip */,
                 String.valueOf(fileSizeKB),
                 ATParams.mediaExtension.mp3
                 );
@@ -67,6 +67,6 @@ public class Media implements Event {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()+":"+track.toString();
+        return getClass().getSimpleName()+":"+track.userTrackPermalink();
     }
 }

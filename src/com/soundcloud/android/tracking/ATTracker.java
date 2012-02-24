@@ -83,10 +83,7 @@ public class ATTracker {
             setCustom(event, CUSTOM_SOUNDS, user.track_count);
             setCustom(event, CUSTOM_FOLLOWERS, user.followers_count);
             setCustom(event, CUSTOM_FOLLOWINGS, user.followings_count);
-
-            if (user.via != null && user.via.isFacebook()) {
-                event.setCustomCritera(CUSTOM_FB_SIGNUP, "1");
-            }
+            event.setCustomCritera(CUSTOM_FB_SIGNUP, user.via != null && user.via.isFacebook() ? "1" : "0");
         }
         // TODO remaining variables - needs db migration (add plan + favorite_count)
         return event;

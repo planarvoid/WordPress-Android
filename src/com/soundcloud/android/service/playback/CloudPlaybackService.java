@@ -340,8 +340,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             if (track.equals(mCurrentTrack) && track.isStreamable()) {
                 notifyChange(META_CHANGED);
                 startTrack(track);
-            } else {
-                if (mCurrentTrack != null) track(Media.fromTrack(mCurrentTrack), "stop");
+            } else { // new track
+                track(Media.fromTrack(mCurrentTrack), "stop");
                 mCurrentTrack = track;
                 notifyChange(META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts
@@ -534,12 +534,10 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ void prev() {
-        track(Media.fromTrack(mCurrentTrack), "backward");
         if (mPlaylistManager.prev()) openCurrent();
     }
 
     /* package */ void next() {
-        track(Media.fromTrack(mCurrentTrack), "forward");
         if (mPlaylistManager.next()) openCurrent();
     }
 
@@ -606,7 +604,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     /* package */ void setFavoriteStatus(long trackId, boolean favoriteStatus) {
         if (mCurrentTrack != null && mCurrentTrack.id == trackId) {
             if (favoriteStatus) {
-                track(Media.fromTrack(mCurrentTrack), "favor");
                 addFavorite();
             } else {
                 removeFavorite();
@@ -978,21 +975,15 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     break;
                 case CHECK_TRACK_EVENT:
                     if (mCurrentTrack != null) {
-                        switch (state) {
-                            case PLAYING:
-                                int refresh = Media.refresh(mCurrentTrack.duration);
-                                if (refresh > 0) {
-                                    long now = System.currentTimeMillis();
-                                    if (now - mLastRefresh > refresh) {
-                                        track(Media.fromTrack(mCurrentTrack), "refresh");
-                                        mLastRefresh = now;
-                                    }
+                        if (state.isSupposedToBePlaying()) {
+                            int refresh = Media.refresh(mCurrentTrack.duration);
+                            if (refresh > 0) {
+                                long now = System.currentTimeMillis();
+                                if (now - mLastRefresh > refresh) {
+                                    track(Media.fromTrack(mCurrentTrack), "refresh");
+                                    mLastRefresh = now;
                                 }
-                                break;
-                             case PAUSED_FOR_BUFFERING:
-                                // not sure if downloadAct means buffering
-                                // track(Media.fromTrack(mCurrentTrack), "downloadAct");
-                                break;
+                            }
                         }
                         mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
                     } else {
