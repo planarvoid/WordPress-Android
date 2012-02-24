@@ -38,7 +38,6 @@ import android.media.MediaPlayer;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.RemoteViews;
 import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import java.io.IOException;
@@ -560,21 +559,20 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (!SoundCloudApplication.useRichNotifications()) {
             status.setLatestEventInfo(this, track.getUserName(),track.title, pi);
         } else {
-            RemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
-            final PlaybackRemoteViews playbackRemoteViews1 = (PlaybackRemoteViews) view;
-            playbackRemoteViews1.setCurrentTrack(track.title,track.user.username);
+            PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
+            view.setCurrentTrack(track.title,track.user.username);
 
             final String artworkUri = track.getListArtworkUrl(getApplicationContext());
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
                 final Bitmap bmp = ImageLoader.get(getApplicationContext()).getBitmap(artworkUri, null, ICON_OPTIONS);
                 if (bmp != null) {
-                    playbackRemoteViews1.setIcon(bmp);
+                    view.setIcon(bmp);
                 } else {
-                    playbackRemoteViews1.hideIcon();
+                    view.hideIcon();
                     ImageLoader.get(getApplicationContext()).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
 
                         public void onImageLoaded(Bitmap mBitmap, String uri) {
-                            if (status.contentView != null && mCurrentTrack == track) {
+                            if (status.contentView instanceof PlaybackRemoteViews && mCurrentTrack == track) {
                                 ((PlaybackRemoteViews) status.contentView).setIcon(bmp);
                             }
                         }
@@ -584,7 +582,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     });
                 }
             } else {
-                playbackRemoteViews1.hideIcon();
+                view.hideIcon();
             }
             status.contentView = view;
             status.contentIntent = pi;
@@ -602,7 +600,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
     }
 
-    /* package */ void setClearToPlay(boolean clearToPlay) {
+    /* package */
+    @SuppressWarnings("UnusedParameters")
+    void setClearToPlay(boolean clearToPlay) {
     }
 
     /* package */ void setFavoriteStatus(long trackId, boolean favoriteStatus) {
