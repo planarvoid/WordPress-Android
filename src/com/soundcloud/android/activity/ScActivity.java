@@ -401,8 +401,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     private BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals(Actions.CONNECTION_ERROR)) {
+            if (Actions.CONNECTION_ERROR.equals(intent.getAction())) {
                 safeShowDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
             }
         }
@@ -414,12 +413,12 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
             if (mIgnorePlaybackStatus)
                 return;
 
-            String action = intent.getAction();
-            if (action.equals(CloudPlaybackService.META_CHANGED)) {
+            final String action = intent.getAction();
+            if (CloudPlaybackService.META_CHANGED.equals(action)) {
                 setPlayingTrack(intent.getLongExtra("id", -1), true);
-            } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
+            } else if (CloudPlaybackService.PLAYBACK_COMPLETE.equals(action)) {
                 setPlayingTrack(-1, false);
-            } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+            } else if (CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
                 setPlayingTrack(intent.getLongExtra("id", -1), intent.getBooleanExtra("isPlaying", false));
             }
         }
