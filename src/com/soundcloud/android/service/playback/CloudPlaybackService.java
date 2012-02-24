@@ -980,13 +980,21 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     break;
                 case CHECK_TRACK_EVENT:
                     if (mCurrentTrack != null) {
-                        int refresh = Media.refresh(mCurrentTrack.duration);
-                        if (refresh > 0) {
-                            long now = System.currentTimeMillis();
-                            if (now - mLastRefresh > refresh) {
-                                track(Media.fromTrack(mCurrentTrack), "refresh");
-                                mLastRefresh = now;
-                            }
+                        switch (state) {
+                            case PLAYING:
+                                int refresh = Media.refresh(mCurrentTrack.duration);
+                                if (refresh > 0) {
+                                    long now = System.currentTimeMillis();
+                                    if (now - mLastRefresh > refresh) {
+                                        track(Media.fromTrack(mCurrentTrack), "refresh");
+                                        mLastRefresh = now;
+                                    }
+                                }
+                                break;
+                             case PAUSED_FOR_BUFFERING:
+                                // not sure if downloadAct means buffering
+                                // track(Media.fromTrack(mCurrentTrack), "downloadAct");
+                                break;
                         }
                         mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
                     } else {
