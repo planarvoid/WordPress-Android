@@ -4,7 +4,7 @@ import com.at.ATParams;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 
-public enum Page {
+public enum Page implements Event {
     Entry_main("main", Level2.Entry),
     Entry_login__main("login::main", Level2.Entry),
     Entry_login__recover_password("login::recover_password", Level2.Entry),
@@ -87,6 +87,10 @@ public enum Page {
         if (level2 != null) atp.setLevel2(String.valueOf(level2.id));
         atp.setPage(expandPage(args));
         return atp;
+    }
+
+    @Override public String toString() {
+        return getClass().getSimpleName()+":"+super.toString();
     }
 
     /* package */ String expandPage(Object... args) {

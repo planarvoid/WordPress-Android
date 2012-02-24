@@ -1,8 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Event;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 
@@ -18,8 +17,7 @@ public class TestApplication extends SoundCloudApplication {
     public Account account;
     public final Map<String, String> accountData = new HashMap<String, String>();
     public final Token token;
-    public final List<Page> trackedPages = new ArrayList<Page>();
-    public final List<Click> trackedClicks = new ArrayList<Click>();
+    public final List<Event> trackedEvents = new ArrayList<Event>();
     public final List<Intent> broadcasts = new ArrayList<Intent>();
 
     public TestApplication() {
@@ -58,13 +56,8 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     @Override
-    public void track(Page page, Object... args) {
-        trackedPages.add(page);
-    }
-
-    @Override
-    public void track(Click click, Object... args) {
-        trackedClicks.add(click);
+    public void track(Event page, Object... args) {
+        trackedEvents.add(page);
     }
 
     @Override

@@ -444,6 +444,10 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         return "http://creativecommons.org/licenses/"+license+"/3.0";
     }
 
+    public int getEstimatedFileSize() {
+        // 128kbps estimate
+        return duration <= 0 ? 0 : ((128 * duration) / 8) * 1024;
+    }
 
     public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
         public Track createFromParcel(Parcel in) {

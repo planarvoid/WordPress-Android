@@ -22,8 +22,7 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.ICloudPlaybackService;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.record.ICloudCreateService;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -675,12 +674,8 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     }
 
     // tracking shizzle
-    public void track(Click click, Object... args) {
-        getApp().track(click, args);
-    }
-
-    public void track(Page page, Object... args) {
-        getApp().track(page, args);
+    public void track(Event event, Object... args) {
+        getApp().track(event, args);
     }
 
     public void track(Class<?> klazz, Object... args) {

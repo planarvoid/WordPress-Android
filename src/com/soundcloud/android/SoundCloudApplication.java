@@ -20,6 +20,7 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.WifiMonitor;
 import com.soundcloud.android.service.sync.SyncConfig;
+import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -486,19 +487,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public void track(Click click, Object... args) {
-        if (mTracker != null) mTracker.track(click, args);
-    }
-
-    public void track(Page page, Object... args) {
-        if (mTracker != null) mTracker.track(page, args);
+    public void track(Event event, Object... args) {
+        if (mTracker != null) mTracker.track(event, args);
     }
 
     public void track(Class<?> klazz, Object... args) {
-        track(klazz.getAnnotation(Tracking.class), args);
-    }
-
-    public void track(Tracking tracking, Object... args) {
+        Tracking tracking = klazz.getAnnotation(Tracking.class);
         if (mTracker != null && tracking != null) {
             if (tracking.page() != Page.UNKNOWN) track(tracking.page(), args);
             if (tracking.click() != Click.UNKNOWN) track(tracking.click(), args);

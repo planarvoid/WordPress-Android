@@ -52,23 +52,16 @@ public class ATTracker {
         this.app = context;
     }
 
-    public void track(Click click, Object... args) {
-        if (click != null) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "track click "+click);
-            enqueue(click.atParams(args));
+    public void track(Event event, Object... args) {
+        if (event != null) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "track event "+event);
+            enqueue(event.atParams(args));
         }
     }
-
-    public void track(Page page, Object... args) {
-        if (page != null) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "track page "+page);
-            enqueue(page.atParams(args));
-        }
-    }
-
-
 
     private void enqueue(final ATParams atParams) {
+        if (atParams == null) return;
+
         final ATParams event = addUserExtras(atParams);
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "tracking "+event);
         synchronized (mQueue) {

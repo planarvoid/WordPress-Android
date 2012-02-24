@@ -196,4 +196,12 @@ public class TrackTest {
         t.artwork_url = "http://foo.com";
         expect(t.shouldLoadIcon()).toBeTrue();
     }
+
+    @Test
+    public void shouldGetEstimatedFileSize() throws Exception {
+        Track t = new Track();
+        expect(t.getEstimatedFileSize()).toEqual(0);
+        t.duration = 100;
+        expect(t.getEstimatedFileSize()).toEqual(1638400);
+    }
 }
