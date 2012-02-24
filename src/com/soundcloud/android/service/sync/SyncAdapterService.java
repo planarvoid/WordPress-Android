@@ -76,7 +76,9 @@ public class SyncAdapterService extends Service {
 
         PushEvent evt = PushEvent.fromExtras(extras);
         if (evt == PushEvent.FOLLOWER) {
-            handleFollowerEvent(app, extras);
+            if (!handleFollowerEvent(app, extras)) {
+                Log.w(TAG, "unhandled follower event:"+extras);
+            }
             syncIntent.setData(Content.ME_FOLLOWERS.uri);
         } else {
              if (SyncConfig.shouldUpdateDashboard(app)) {
