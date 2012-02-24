@@ -65,9 +65,8 @@ public class Media implements Event {
         return Math.max(REFRESH_MIN, duration / 4);
     }
 
-
     @Override
     public String toString() {
-        return getClass().getSimpleName()+":"+super.toString();
+        return getClass().getSimpleName()+":"+track.toString();
     }
 }
