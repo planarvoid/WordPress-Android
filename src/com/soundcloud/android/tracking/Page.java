@@ -23,15 +23,15 @@ public enum Page implements Event {
     Entry_confirm_your_email  ("confirm_your_email",   Level2.Entry),
 
     // stream tab
-    Stream_main          ("main::user_permalink", Level2.Stream),
-    Stream_stream_setting("stream_setting::user_permalink", Level2.Stream),
+    Stream_main          ("main", Level2.Stream),
+    Stream_stream_setting("stream_setting", Level2.Stream),
 
     // activity tab
-    Activity_activity("main::user_permalink", Level2.Activity),
+    Activity_activity("main", Level2.Activity),
 
     // record tab
-    Record_main   ("main::user_permalink", Level2.Record),
-    Record_details("details::user_permalink", Level2.Record),
+    Record_main   ("main", Level2.Record),
+    Record_details("details", Level2.Record),
 
     // search
     Search_main("main", Level2.Search),
@@ -54,12 +54,12 @@ public enum Page implements Event {
     Users_info         ("user_permalink::info",      Level2.Users),
 
     // user browser (you)
-    You_find_friends("find_friends::user_permalink", Level2.You),
-    You_sounds      ("sounds::user_permalink",    Level2.You),
-    You_likes       ("likes::user_permalink",     Level2.You),
-    You_following   ("following::user_permalink", Level2.You),
-    You_followers   ("followers::user_permalink", Level2.You),
-    You_info        ("info::user_permalink",      Level2.You),
+    You_find_friends("find_friends::main", Level2.You),
+    You_sounds      ("sounds::main",    Level2.You),
+    You_likes       ("likes::main",     Level2.You),
+    You_following   ("following::main", Level2.You),
+    You_followers   ("followers::main", Level2.You),
+    You_info        ("info::main",      Level2.You),
 
     // player
     Sounds_main             ("user_permalink::track_permalink::main", Level2.Sounds),
