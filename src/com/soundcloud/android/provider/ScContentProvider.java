@@ -120,6 +120,12 @@ public class ScContentProvider extends ContentProvider {
                 qb.setTables(Table.TRACK_VIEW.name);
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
                 break;
+            case TRACKS_SHUFFLE:
+                qb.setTables(Table.TRACK_VIEW.name);
+                if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
+                // TODO: only include cached tracks / music / etc.
+                _sortOrder = "RANDOM()";
+                break;
             case TRACK:
                 qb.setTables(Table.TRACK_VIEW.name);
                 qb.appendWhere(Table.TRACK_VIEW.id + " = " + uri.getLastPathSegment());

@@ -33,7 +33,7 @@ public enum Content {
     ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.COLLECTION_ITEMS),
     ME_COMMENTS("me/comments", null, 102, Comment.class, -1, Table.COMMENTS),
     ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, User.class, FOLLOWING, Table.COLLECTION_ITEMS),
-    ME_FOLLOWING("/me/followings/#", null, 104, User.class, -1, null),
+    ME_FOLLOWING("me/followings/#", null, 104, User.class, -1, null),
     ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
     ME_FAVORITES("me/favorites", Endpoints.MY_FAVORITES, 107, Track.class, FAVORITE, Table.COLLECTION_ITEMS),
@@ -57,6 +57,7 @@ public enum Content {
     TRACK_COMMENTS("tracks/#/comments", null, 204, Comment.class, -1, Table.COMMENTS),
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
+    TRACKS_SHUFFLE("tracks/shuffle", null,207, null, -1, Table.TRACKS),
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", null, 302, User.class, -1, Table.USERS),

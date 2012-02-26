@@ -21,6 +21,8 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class ScContentProviderTest {
@@ -222,6 +224,7 @@ public class ScContentProviderTest {
         expect(Content.RECORDINGS).toBeEmpty();
     }
 
+
     @Test
     public void shouldInsertTrackMetadata() throws Exception {
         ContentValues values = new ContentValues();
@@ -231,5 +234,29 @@ public class ScContentProviderTest {
 
         Uri result = resolver.insert(Content.TRACK_METADATA.uri, values);
         expect(result).toEqual("content://com.soundcloud.android.provider.ScContentProvider/track_metadata/20");
+    }
+
+    @Test
+    public void shouldHaveATrackShuffleEndpoint() throws Exception {
+        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+                getClass().getResourceAsStream("user_favorites.json"),
+                Track.TrackHolder.class);
+
+        for (Track t : tracks) {
+            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+        }
+        Cursor c = resolver.query(Content.TRACKS_SHUFFLE.uri, null, null, null, null);
+        expect(c.getCount()).toEqual(15);
+        List<Long> ids = new ArrayList<Long>();
+        List<Long> ids2 = new ArrayList<Long>();
+        while (c.moveToNext()) {
+            ids.add(c.getLong(c.getColumnIndex(DBHelper.TrackView._ID)));
+        }
+        Cursor c2 = resolver.query(Content.TRACKS_SHUFFLE.uri, null, null, null, null);
+        while (c2.moveToNext()) {
+            ids2.add(c2.getLong(c2.getColumnIndex(DBHelper.TrackView._ID)));
+        }
+        expect(ids).not.toEqual(ids2);
     }
 }
