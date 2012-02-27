@@ -3,6 +3,9 @@ $ 37
   _ 2012-02-24
   ! Maintenance
     * WIP
+    - Track metadata (counts + type + cached)
+    - Force sync after push notification
+    - More tracking variables (plan + likes)
 
 $ 36
   % v v2.2.2
