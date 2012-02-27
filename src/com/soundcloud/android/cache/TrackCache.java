@@ -18,7 +18,7 @@ public class TrackCache extends LruCache<Long, Track> {
     }
 
     public Track put(Track t) {
-        return put(t,true);
+        return put(t, true);
     }
 
     public Track put(Track t, boolean overwrite) {

@@ -517,7 +517,7 @@ public class Activities extends CollectionHolder<Activity> {
 
     public String getFirstAvailableAvatar() {
         for (User u : getUniqueUsers()) {
-            if (ImageUtils.checkIconShouldLoad(u.avatar_url)) {
+            if (u.shouldLoadIcon()) {
                 return u.avatar_url;
             }
         }
@@ -527,7 +527,7 @@ public class Activities extends CollectionHolder<Activity> {
     public String getFirstAvailableArtwork() {
         for (Activity a : this) {
             Track t = a.getTrack();
-            if (t != null && ImageUtils.checkIconShouldLoad(t.artwork_url)) {
+            if (t != null && t.shouldLoadIcon()) {
                 return t.artwork_url;
             }
         }

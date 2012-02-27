@@ -110,8 +110,12 @@ public class SoundCloudDB {
 
 
 
-    public static User getUserById(ContentResolver resolver, long userId) {
-        return getUserByUri(resolver, Content.USERS.forId(userId));
+    public static User getUserById(ContentResolver resolver, long id) {
+        if (id >= 0) {
+            return getUserByUri(resolver, Content.USERS.forId(id));
+        } else {
+            return null;
+        }
     }
 
     public static User getUserByUri(ContentResolver resolver, Uri uri) {

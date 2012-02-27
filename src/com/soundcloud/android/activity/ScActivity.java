@@ -22,8 +22,7 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.ICloudPlaybackService;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.record.ICloudCreateService;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -173,7 +172,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
         IntentFilter generalIntentFilter = new IntentFilter();
-        generalIntentFilter.addAction(Consts.IntentActions.CONNECTION_ERROR);
+        generalIntentFilter.addAction(Actions.CONNECTION_ERROR);
         registerReceiver(mGeneralIntentListener, generalIntentFilter);
 
         mLists = new ArrayList<ScListView>();
@@ -402,8 +401,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     private BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals(Consts.IntentActions.CONNECTION_ERROR)) {
+            if (Actions.CONNECTION_ERROR.equals(intent.getAction())) {
                 safeShowDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
             }
         }
@@ -415,12 +413,12 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
             if (mIgnorePlaybackStatus)
                 return;
 
-            String action = intent.getAction();
-            if (action.equals(CloudPlaybackService.META_CHANGED)) {
+            final String action = intent.getAction();
+            if (CloudPlaybackService.META_CHANGED.equals(action)) {
                 setPlayingTrack(intent.getLongExtra("id", -1), true);
-            } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
+            } else if (CloudPlaybackService.PLAYBACK_COMPLETE.equals(action)) {
                 setPlayingTrack(-1, false);
-            } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+            } else if (CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
                 setPlayingTrack(intent.getLongExtra("id", -1), intent.getBooleanExtra("isPlaying", false));
             }
         }
@@ -544,10 +542,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
                 .setIcon(android.R.drawable.ic_menu_preferences);
 
-        if (SoundCloudApplication.DEV_MODE){
-            menu.add(menu.size(), Consts.OptionsMenu.SECRET_DEV_BUTTON, menu.size(), "Super Secret Dev Button")
-                .setIcon(android.R.drawable.ic_menu_compass);
-        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -585,10 +579,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
             case Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD:
                 safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
-            case Consts.OptionsMenu.SECRET_DEV_BUTTON:
-                startActivity(new Intent(this, CreateEditor.class));
-                return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -681,12 +671,8 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     }
 
     // tracking shizzle
-    public void track(Click click, Object... args) {
-        getApp().track(click, args);
-    }
-
-    public void track(Page page, Object... args) {
-        getApp().track(page, args);
+    public void track(Event event, Object... args) {
+        getApp().track(event, args);
     }
 
     public void track(Class<?> klazz, Object... args) {

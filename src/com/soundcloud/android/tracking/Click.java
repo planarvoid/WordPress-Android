@@ -7,7 +7,7 @@ import com.at.ATParams;
  * <a href="https://docs.google.com/a/soundcloud.com/spreadsheet/ccc?key=0AkJmFQ2aH2kTdHM2MXQzMjZ4blNHT00wNl9vMFMxNmc#gid=1">
  * master document</a> for more information.
  */
-public enum Click {
+public enum Click implements Event {
 
     Login_with_facebook("Login_main", "Login_with_facebook", Type.action,     Level2.Entry),
     Login              ("Login_main", "Login",               Type.navigation, Level2.Entry),
@@ -86,6 +86,11 @@ public enum Click {
             result = Page.expandVariables(result, o);
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()+":"+super.toString();
     }
 
     enum Type {

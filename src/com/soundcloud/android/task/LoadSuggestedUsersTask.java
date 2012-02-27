@@ -7,13 +7,13 @@ import com.soundcloud.api.Request;
 
 import java.util.List;
 
-public class LoadSuggestedUsersTask extends LoadJsonTask<Connection> {
+public class LoadSuggestedUsersTask extends LoadJsonTask<Void, Connection> {
     public LoadSuggestedUsersTask(AndroidCloudAPI api) {
         super(api);
     }
 
     @Override
-    protected List<Connection> doInBackground(Request... path) {
+    protected List<Connection> doInBackground(Void... unused) {
         return list(Request.to(Endpoints.SUGGESTED_USERS), Connection.class);
     }
 }

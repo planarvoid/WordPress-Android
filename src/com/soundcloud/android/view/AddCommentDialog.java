@@ -2,14 +2,15 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.task.AddCommentTask;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.MotionEventUtils;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -17,11 +18,11 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class AddCommentDialog extends Dialog {
     private ScActivity mActivity;
@@ -29,7 +30,6 @@ public class AddCommentDialog extends Dialog {
 
     public AddCommentDialog(ScActivity context) {
         super(context, R.style.Theme_AddCommentDialog);
-
         mActivity = context;
 
         setContentView(R.layout.add_comment_dialog);
@@ -50,38 +50,27 @@ public class AddCommentDialog extends Dialog {
 
         mInput = (EditText) findViewById(R.id.comment_input);
         if (comment.reply_to_id > 0) {
-            mInput.setHint(String.format(mActivity.getString(R.string.comment_hint_reply),
-                    comment.reply_to_username,CloudUtils.formatTimestamp(comment.timestamp)));
+            mInput.setHint(getContext().getString(R.string.comment_hint_reply,
+                    comment.reply_to_username,
+                    CloudUtils.formatTimestamp(comment.timestamp)));
         } else {
-
-            mInput.setHint((comment.timestamp == -1 ? mActivity.getString(R.string.comment_hint_untimed) :
-                    String.format(mActivity.getString(R.string.comment_hint_timed), CloudUtils.formatTimestamp(comment.timestamp))));
+            mInput.setHint(comment.timestamp == -1 ?
+                    getContext().getString(R.string.comment_hint_untimed) :
+                    getContext().getString(R.string.comment_hint_timed, CloudUtils.formatTimestamp(comment.timestamp)));
         }
-        findViewById(R.id.positiveButton).setOnClickListener(new View.OnClickListener() {
+
+        findViewById(R.id.doneButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (TextUtils.isEmpty(mInput.getText())) return;
-                ((InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE))
-                        .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
-                comment.body = mInput.getText().toString();
-                new AddCommentTask(mActivity.getApp()).execute(comment);
-
-                // cannot simply dismiss, or state will be saved
-                mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
-
-                SoundCloudApplication.TRACK_CACHE.addCommentToTrack(comment);
-                if (mActivity instanceof ScPlayer){
-                    ((ScPlayer)mActivity).onNewComment(comment);
-                }
+                done(comment);
             }
         });
 
-        mInput.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    InputMethodManager imm = (InputMethodManager) mActivity
+                    InputMethodManager imm = (InputMethodManager) getContext()
                             .getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,
                             InputMethodManager.HIDE_IMPLICIT_ONLY);
@@ -89,13 +78,28 @@ public class AddCommentDialog extends Dialog {
                 }
             }
         });
+        mInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                return actionId == EditorInfo.IME_ACTION_DONE && done(comment);
+            }
+        });
         mInput.requestFocus();
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        final Comment comment = mActivity.getApp().pendingComment;
+        if (comment != null) {
+            mActivity.track(Page.Sounds_add_comment, comment.getTrack());
+        }
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN && isOutOfBounds(event)) {
-            ((InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE))
+        if (event.getAction() == MotionEvent.ACTION_DOWN && MotionEventUtils.isOutOfBounds(event, this)) {
+            ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
                     .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
             cancel();
             return true;
@@ -114,21 +118,24 @@ public class AddCommentDialog extends Dialog {
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        final Comment comment = mActivity.getApp().pendingComment;
-        if (comment != null) {
-            mActivity.track(Page.Sounds_add_comment, comment.getTrack());
-        }
-    }
+    private boolean done(final Comment comment) {
+        final String text = mInput.getText().toString();
+        if (!TextUtils.isEmpty(text))  {
+            ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
+                    .hideSoftInputFromWindow(mInput.getApplicationWindowToken(), 0);
+            comment.body = text;
 
-    private boolean isOutOfBounds(MotionEvent event) {
-        final int x = (int) event.getX();
-        final int y = (int) event.getY();
-        final int slop = ViewConfiguration.get(mActivity).getScaledWindowTouchSlop();
-        final View decorView = getWindow().getDecorView();
-        return (x < -slop) || (y < -slop) || (x > (decorView.getWidth() + slop))
-                || (y > (decorView.getHeight() + slop));
+            new AddCommentTask(mActivity.getApp()).execute(comment);
+
+            // cannot simply dismiss, or state will be saved
+            mActivity.removeDialog(Consts.Dialogs.DIALOG_ADD_COMMENT);
+
+            SoundCloudApplication.TRACK_CACHE.addCommentToTrack(comment);
+
+            if (mActivity instanceof ScPlayer) {
+                ((ScPlayer)mActivity).onNewComment(comment);
+            }
+            return true;
+        } else return false;
     }
 }

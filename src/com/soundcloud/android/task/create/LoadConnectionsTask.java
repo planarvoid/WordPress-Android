@@ -8,7 +8,7 @@ import com.soundcloud.api.Request;
 
 import java.util.List;
 
-public class LoadConnectionsTask extends LoadJsonTask<Connection> {
+public class LoadConnectionsTask extends LoadJsonTask<Void, Connection> {
     public static final Request REQUEST = Request.to(Endpoints.MY_CONNECTIONS);
 
     public LoadConnectionsTask(AndroidCloudAPI api) {
@@ -16,7 +16,7 @@ public class LoadConnectionsTask extends LoadJsonTask<Connection> {
     }
 
     @Override
-    protected List<Connection> doInBackground(Request... path) {
+    protected List<Connection> doInBackground(Void... params) {
         return list(REQUEST, Connection.class);
     }
 }

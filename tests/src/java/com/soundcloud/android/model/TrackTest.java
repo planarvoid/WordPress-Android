@@ -184,4 +184,42 @@ public class TrackTest {
         Intent intent = t.getShareIntent();
         expect(intent).toBeNull();
     }
+
+    @Test
+    public void testShouldIconLoad() throws Exception {
+        Track t = new Track();
+        expect(t.shouldLoadIcon()).toBeFalse();
+        t.artwork_url = "";
+        expect(t.shouldLoadIcon()).toBeFalse();
+        t.artwork_url = "NULL";
+        expect(t.shouldLoadIcon()).toBeFalse();
+        t.artwork_url = "http://foo.com";
+        expect(t.shouldLoadIcon()).toBeTrue();
+    }
+
+    @Test
+    public void shouldGetEstimatedFileSize() throws Exception {
+        Track t = new Track();
+        expect(t.getEstimatedFileSize()).toEqual(0);
+        t.duration = 100;
+        expect(t.getEstimatedFileSize()).toEqual(1638400);
+    }
+
+    @Test
+    public void shouldGetUserTrackPermalink() throws Exception {
+        Track t = new Track();
+        expect(t.userTrackPermalink()).toBeNull();
+        t.permalink = "foo";
+        expect(t.userTrackPermalink()).toEqual("foo");
+
+        t.user = new User();
+        expect(t.userTrackPermalink()).toEqual("foo");
+
+        t.user.permalink = "";
+        expect(t.userTrackPermalink()).toEqual("foo");
+
+        t.user.permalink = "user";
+        expect(t.userTrackPermalink()).toEqual("user/foo");
+    }
+
 }

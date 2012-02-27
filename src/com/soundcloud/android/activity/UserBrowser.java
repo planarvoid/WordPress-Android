@@ -640,7 +640,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
 
         setFollowingButton();
-        if (ImageUtils.checkIconShouldLoad(user.avatar_url)) {
+        if (user.shouldLoadIcon()) {
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
                 || !user.avatar_url.substring(0, user.avatar_url.indexOf("?")).equals(mIconURL.substring(0, mIconURL.indexOf("?")))) {

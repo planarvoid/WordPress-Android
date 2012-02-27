@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -269,7 +270,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         switch (item.getItemId()) {
             case Consts.OptionsMenu.REFRESH:
                 mPlayingTrack.full_track_info_loaded = false;
-                mPlayingTrack.comments_loaded = false;
                 mPlayingTrack.comments = null;
                 final PlayerTrackView ptv = getCurrentTrackView();
                 if (ptv != null) getCurrentTrackView().onRefresh();
@@ -294,7 +294,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             Intent intent = new Intent(this, Main.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
-
         } else {
             setTrackDisplayFromService();
 
@@ -307,7 +306,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 }, 200l);
                 getIntent().putExtra("commentMode", false);
             }
-
         }
     }
 
@@ -492,7 +490,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             } else if (action.equals(CloudPlaybackService.FAVORITE_SET) ||
                         action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
-                        action.equals(Consts.IntentActions.COMMENT_ADDED)) {
+                        action.equals(Actions.COMMENT_ADDED)) {
                 for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
                     ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).handleIdBasedIntent(intent);
                 }
@@ -525,7 +523,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
         f.addAction(CloudPlaybackService.FAVORITE_SET);
-        f.addAction(Consts.IntentActions.COMMENT_ADDED);
+        f.addAction(Actions.COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
 

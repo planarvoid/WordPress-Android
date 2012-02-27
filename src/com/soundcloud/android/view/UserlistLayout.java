@@ -57,7 +57,7 @@ public class UserlistLayout extends RelativeLayout {
         mHolderPad = (int) (3 * getResources().getDisplayMetrics().density);
     }
 
-    public void addView(View view, String label, Drawable drawable, String tag){
+    public void addView(View view, String label, Drawable drawable, String tag) {
         mWorkspaceView.addView(view);
         TextView labelTxt = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.user_list_browser_label_txt, null);
         labelTxt.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.FILL_PARENT));
@@ -65,7 +65,7 @@ public class UserlistLayout extends RelativeLayout {
         labelTxt.setCompoundDrawablePadding((int) (getResources().getDisplayMetrics().density * 5));
         CloudUtils.setTextShadowForGrayBg(labelTxt);
         mLabelHolder.addView(labelTxt);
-        tabLabels.add(new TabLabel(labelTxt,label,tag, mLabelHolder.getChildCount() - 1));
+        tabLabels.add(new TabLabel(labelTxt, label, tag, mLabelHolder.getChildCount() - 1));
     }
 
     public void initWorkspace(int initialScreen){
@@ -116,10 +116,9 @@ public class UserlistLayout extends RelativeLayout {
     }
 
     public void setCurrentScreenByTag(String tag) {
-        for (TabLabel tl : tabLabels) {
-            if (tl.tag.contentEquals(tag)) {
-                mWorkspaceView.setCurrentScreenNow((int) tl.index, true);
-            }
+        TabLabel label = findLabel(tag);
+        if (label != null) {
+            mWorkspaceView.setCurrentScreenNow(label.index, true);
         }
     }
 
@@ -136,18 +135,25 @@ public class UserlistLayout extends RelativeLayout {
         return mWorkspaceView.getCurrentScreen();
     }
 
-    public void initByTag(String tag) {
+    private TabLabel findLabel(String tag) {
         for (TabLabel tl : tabLabels) {
-            if (tl.tag.contentEquals(tag)) {
-                mWorkspaceView.initWorkspace((int) tl.index);
+            if (tl != null && tl.tag != null && tl.tag.contentEquals(tag)) {
+                return tl;
             }
+        }
+        return null;
+    }
+
+    public void initByTag(String tag) {
+        TabLabel label = findLabel(tag);
+        if (label != null) {
+            mWorkspaceView.initWorkspace(label.index);
         }
     }
 
     private static class TabLabel {
-
         public final String tag;
-        public final float index;
+        public final int index;
 
         private int mMarginOffset;
         private final TextView mTextView;
@@ -156,7 +162,7 @@ public class UserlistLayout extends RelativeLayout {
         private int mCurrentLeftMargin;
         private int mCurrentWidth;
 
-        public TabLabel(TextView textView, String label, String tag, int index){
+        public TabLabel(TextView textView, String label, String tag, int index) {
             this.mTextView = textView;
             this.tag = tag;
             this.index = index;
@@ -165,17 +171,23 @@ public class UserlistLayout extends RelativeLayout {
             computeMarginOffset();
         }
 
-        private void computeMarginOffset(){
+        private void computeMarginOffset() {
             Drawable drawable = mTextView.getCompoundDrawables()[0];
             mCurrentWidth = (int) (mTextView.getPaint().measureText(mTextView.getText().toString()) +
                     drawable.getMinimumWidth() + mTextView.getCompoundDrawablePadding());
             mMarginOffset = -mCurrentWidth/2;
         }
 
-        public void setPosition(float screenFraction, int holderWidth, int holderPad, int middleLow, int middleHigh, int cutoffLeft, int cutoffRight, int spacer){
-            final int middlePos = (int) (holderWidth / 2 +
-                    (((index - screenFraction) / 1.7) * holderWidth));
+        public void setPosition(float screenFraction,
+                                int holderWidth,
+                                int holderPad,
+                                int middleLow,
+                                int middleHigh,
+                                int cutoffLeft,
+                                int cutoffRight,
+                                int spacer) {
 
+            final int middlePos = (int) (holderWidth / 2 + (((index - screenFraction) / 1.7) * holderWidth));
             if (middlePos > middleLow && middlePos < middleHigh) {
                 if (!mBold) {
                     mTextView.setTypeface(null, Typeface.BOLD);

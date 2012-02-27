@@ -5,7 +5,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.task.create.LoadConnectionsTask;
-import com.soundcloud.api.Request;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -42,7 +41,7 @@ public class Connections extends ParcelCache<Connection> {
             protected void onPostExecute(List<Connection> connections) {
                 listener.onChanged(connections, null);
             }
-        }.execute((Request)null);
+        }.execute((Void)null);
     }
 
     public static synchronized void initialize(final Context context, final String filename) {

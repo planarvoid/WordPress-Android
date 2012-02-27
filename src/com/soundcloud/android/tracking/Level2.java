@@ -23,8 +23,3 @@ public enum Level2 {
         this.id = id;
     }
 }
-
-
-
-
-

@@ -3,7 +3,6 @@ package com.soundcloud.android.service.playback;
 import static com.soundcloud.android.service.playback.State.*;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.*;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
@@ -18,6 +17,10 @@ import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.tracking.Event;
+import com.soundcloud.android.tracking.Media;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -35,14 +38,12 @@ import android.media.MediaPlayer;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.RemoteViews;
 import com.soundcloud.android.view.play.PlaybackRemoteViews;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class CloudPlaybackService extends Service implements FocusHelper.MusicFocusable {
+public class CloudPlaybackService extends Service implements FocusHelper.MusicFocusable, Tracker {
     public static final String TAG = "CloudPlaybackService";
     public static List<Playable> playlistXfer;
 
@@ -101,20 +102,20 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     protected NetworkConnectivityListener connectivityListener;
     /* package */ PlaylistManager mPlaylistManager;
     private Track mCurrentTrack;
-    private RemoteViews mNotificationView;
     private AudioManager mAudioManager;
 
     private long mResumeTime = -1;      // time of played track
     private long mResumeTrackId = -1;   // id of last played track
     private long mSeekPos = -1;         // desired seek position
     private int mConnectRetries = 0;
+    private long mLastRefresh;          // time last refresh hit was sent
 
     private int mServiceStartId = -1;
     private boolean mServiceInUse = false;
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
-    private static final int IDLE_DELAY = 60*1000;            // interval after which we stop the service when idle
-    private static final long TRACK_EVENT_CHECK_DELAY = 1000; // check for track timestamp events at this frequency
+    private static final int IDLE_DELAY = 60*1000;  // interval after which we stop the service when idle
+    private static final long CHECK_TRACK_EVENT_DELAY = Media.REFRESH_MIN; // check for track timestamp events at this frequency
 
     private boolean resumeSeeking;
 
@@ -128,7 +129,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private State state = STOPPED;
 
     private final IBinder mBinder = new ServiceStub(this);
-    private WeakReference<Bitmap> mDefaultArtwork;
     public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
     private Notification status;
 
@@ -336,12 +336,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             if (mAutoPause) {
                 mAutoPause = false;
             }
-
             mLoadPercent = 0;
             if (track.equals(mCurrentTrack) && track.isStreamable()) {
                 notifyChange(META_CHANGED);
                 startTrack(track);
-            } else {
+            } else { // new track
+                track(Media.fromTrack(mCurrentTrack), "stop");
                 mCurrentTrack = track;
                 notifyChange(META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts
@@ -389,21 +389,14 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         new Thread() {
             @Override
             public void run() {
-                if (SoundCloudDB.markTrackAsPlayed(getContentResolver(), mCurrentTrack)) {
-                    mPlayerHandler.sendEmptyMessage(NOTIFY_META_CHANGED);
-                }
+                SoundCloudDB.markTrackAsPlayed(getContentResolver(), mCurrentTrack);
             }
         }.start();
-
-        // ATI
-//        getApp().trackEvent(
-//                Consts.Tracking.Categories.TRACKS,
-//                Consts.Tracking.Actions.TRACK_PLAY,
-//                mCurrentTrack.getTrackEventLabel());
         startTrack(track);
     }
 
     private void startTrack(Track track) {
+        track(Page.Sounds_main, track);
         setPlayingNotification(track);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -469,6 +462,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     /* package */ void play() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "play(state=" + state + ")");
+        track(Media.fromTrack(mCurrentTrack), "play");
+        mLastRefresh = System.currentTimeMillis();
+
         if (mCurrentTrack != null && mFocus.requestMusicFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             if (mMediaPlayer != null && state.isStartable()) {
                 // resume
@@ -477,10 +473,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mMediaPlayer.start();
                 state = PLAYING;
                 setPlayingNotification(mCurrentTrack);
-
                 mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
-                mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, TRACK_EVENT_CHECK_DELAY);
-
+                mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
                 notifyChange(PLAYSTATE_CHANGED);
             } else if (state != PLAYING) {
                 // must have been a playback error
@@ -494,6 +488,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "pause(state="+state+")");
         }
+        track(Media.fromTrack(mCurrentTrack), "pause");
 
         if (mMediaPlayer != null && state != PAUSED) {
             if (state.isPausable() && mMediaPlayer.isPlaying()) {
@@ -546,7 +541,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (mPlaylistManager.next()) openCurrent();
     }
 
-
     private void setPlayingNotification(final Track track) {
         if (track == null) return;
 
@@ -561,22 +555,20 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (!SoundCloudApplication.useRichNotifications()) {
             status.setLatestEventInfo(this, track.getUserName(),track.title, pi);
         } else {
+            PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
+            view.setCurrentTrack(track.title,track.user.username);
 
-            mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
-            final PlaybackRemoteViews playbackRemoteViews1 = (PlaybackRemoteViews) mNotificationView;
-            playbackRemoteViews1.setCurrentTrack(track.title,track.user.username);
-
-            final String artworkUri = track.getListArtworkUrl(getApplicationContext());
+            final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap bmp = ImageLoader.get(getApplicationContext()).getBitmap(artworkUri, null, ICON_OPTIONS);
+                final Bitmap bmp = ImageLoader.get(this).getBitmap(artworkUri, null, ICON_OPTIONS);
                 if (bmp != null) {
-                    playbackRemoteViews1.setIcon(bmp);
+                    view.setIcon(bmp);
                 } else {
-                    playbackRemoteViews1.hideIcon();
-                    ImageLoader.get(getApplicationContext()).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
+                    view.hideIcon();
+                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
 
                         public void onImageLoaded(Bitmap mBitmap, String uri) {
-                            if (status.contentView != null && mCurrentTrack == track) {
+                            if (status.contentView instanceof PlaybackRemoteViews && mCurrentTrack == track) {
                                 ((PlaybackRemoteViews) status.contentView).setIcon(bmp);
                             }
                         }
@@ -586,24 +578,13 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     });
                 }
             } else {
-                playbackRemoteViews1.hideIcon();
+                view.hideIcon();
             }
-            status.contentView = mNotificationView;
+            status.contentView = view;
             status.contentIntent = pi;
         }
 
         startForeground(PLAYBACKSERVICE_STATUS_ID, status);
-    }
-
-    private Bitmap getDefaultArtwork() {
-        if (mDefaultArtwork == null || mDefaultArtwork.get() == null){
-            Bitmap defaultArtwork = null;
-            try {
-                 defaultArtwork = BitmapFactory.decodeResource(getResources(),R.drawable.artwork_badge);
-            } catch (OutOfMemoryError ignored){}
-            if (defaultArtwork != null) mDefaultArtwork = new WeakReference<Bitmap>(defaultArtwork);
-        }
-        return mDefaultArtwork.get();
     }
 
     /* package */ void setQueuePosition(int pos) {
@@ -615,7 +596,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
     }
 
-    /* package */ void setClearToPlay(boolean clearToPlay) {
+    /* package */
+    @SuppressWarnings("UnusedParameters")
+    void setClearToPlay(boolean clearToPlay) {
     }
 
     /* package */ void setFavoriteStatus(long trackId, boolean favoriteStatus) {
@@ -992,11 +975,20 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     break;
                 case CHECK_TRACK_EVENT:
                     if (mCurrentTrack != null) {
-                        final long pos = getPosition();
-                        // account for lack of accuracy in actual delay between checks
-                        final long window = (long) (TRACK_EVENT_CHECK_DELAY * 1.5);
+                        if (state.isSupposedToBePlaying()) {
+                            int refresh = Media.refresh(mCurrentTrack.duration);
+                            if (refresh > 0) {
+                                long now = System.currentTimeMillis();
+                                if (now - mLastRefresh > refresh) {
+                                    track(Media.fromTrack(mCurrentTrack), "refresh");
+                                    mLastRefresh = now;
+                                }
+                            }
+                        }
+                        mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
+                    } else {
+                        mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
                     }
-                    mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
                     break;
             }
         }
@@ -1067,12 +1059,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mResumeTime = targetPosition;
                 errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
             } else if (!state.isError()) {
-                // ATI
-//                getApp().trackEvent(
-//                        Consts.Tracking.Categories.TRACKS,
-//                        Consts.Tracking.Actions.TRACK_COMPLETE,
-//                        mCurrentTrack.getTrackEventLabel());
-
+                track(Media.fromTrack(mCurrentTrack), "stop");
                 mPlayerHandler.sendEmptyMessage(TRACK_ENDED);
             } else {
                 // onComplete must have been called in error state
@@ -1160,4 +1147,14 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             }
         }
     };
+
+
+    public void track(Event event, Object... args) {
+        getApp().track(event, args);
+    }
+
+    @Override
+    public void track(Class<?> klazz, Object... args) {
+        getApp().track(klazz, args);
+    }
 }

@@ -1,5 +1,13 @@
-$ 35
+$ 36
   % v current
+  _ 2012-02-24
+  ! Maintenance
+    * Fixed "Find Friends"
+    - Mobile proxy support (might fix 3G/4G streaming errors)
+    - Finished up AT Internet tracking (visitor+custom vars, rich media)
+
+$ 35
+  % v 2.2.1
   _ 2012-02-16
   ! Maintenance
     * Fixed ICS notifications

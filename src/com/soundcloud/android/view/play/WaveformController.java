@@ -380,15 +380,15 @@ public class WaveformController extends TouchLayout {
     }
 
     public void updateTrack(Track track, boolean postAtFront) {
-        if (mPlayingTrack != null &&
+        if (track == null || (mPlayingTrack != null &&
                 mPlayingTrack.id == track.id
-                && waveformResult != BindResult.ERROR) {
+                && waveformResult != BindResult.ERROR)) {
             return;
         }
 
         final boolean changed = mPlayingTrack != track;
         mPlayingTrack = track;
-        mDuration = mPlayingTrack != null ? mPlayingTrack.duration : 0;
+        mDuration = mPlayingTrack.duration;
         mCurrentTimeDisplay.setDuration(mDuration);
 
         if (changed) {
@@ -399,7 +399,7 @@ public class WaveformController extends TouchLayout {
             if (mPlayer.isConnected()) ImageLoader.get(mPlayer).clearErrors();
         }
 
-        if (track != null && TextUtils.isEmpty(track.waveform_url)){
+        if (TextUtils.isEmpty(track.waveform_url)){
             waveformResult = BindResult.ERROR;
             mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
             showWaveform(false);
@@ -705,8 +705,13 @@ public class WaveformController extends TouchLayout {
         switch (mode) {
             case TOUCH_MODE_COMMENT_DRAG:
                 if (isOnTouchBar(input.y)) {
-                    mAddComment = Comment.build(mPlayer, mPlayer.getCurrentUserId(),
-                            mPlayingTrack.id, stampFromPosition(input.x), "", 0, "");
+                    mAddComment = Comment.build(
+                            mPlayingTrack,
+                            mPlayer.getApp().getLoggedInUser(),
+                            stampFromPosition(input.x),
+                            "",
+                            0,
+                            "");
                     queueUnique(UI_ADD_COMMENT);
                 } else return;
 

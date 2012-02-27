@@ -1,14 +1,11 @@
 package com.soundcloud.android;
 
-import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Environment;
 
 import java.io.File;
-import java.util.EnumSet;
 
 public final class Consts {
     // this directory will be preserved across re-installs - e.g. used for recordings
@@ -40,11 +37,6 @@ public final class Consts {
     public static final int ROW_APPEND_BUFFER = 6;
     public static final int ITEM_TYPE_LOADING = -1;
 
-    public interface IntentActions {
-        String CONNECTION_ERROR = "com.soundcloud.android.connectionerror";
-        String COMMENT_ADDED    = "com.soundcloud.android.commentadded";
-    }
-
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
         int DIALOG_UNAUTHORIZED = 2;
@@ -65,7 +57,6 @@ public final class Consts {
         int FRIEND_FINDER = 205;
         int UPLOAD_FILE = 206;
         int FILTER = 207;
-        int SECRET_DEV_BUTTON = 208;
     }
 
     public enum GraphicSize {
@@ -85,7 +76,6 @@ public final class Consts {
         public final int height;
         public final String key;
 
-
         GraphicSize(String key, int width, int height) {
             this.key = key;
             this.width = width;
@@ -98,7 +88,6 @@ public final class Consts {
             }
             return Unknown;
         }
-
 
         public static String formatUriForList(Context c, String url){
             return getListItemGraphicSize(c).formatUri(url);
@@ -142,7 +131,6 @@ public final class Consts {
             }
             return valid == null ? Unknown : valid;
         }
-
     }
 
     public interface ListId {
@@ -163,7 +151,6 @@ public final class Consts {
         int DASHBOARD_NOTIFY_STREAM_ID = 3;
         int DASHBOARD_NOTIFY_ACTIVITIES_ID = 4;
         int BETA_NOTIFY_ID    = 5;
-        int DASHBOARD_NOTIFY_FOLLOWER_ID = 6;
     }
 
     public interface ResourceStaleTimes {

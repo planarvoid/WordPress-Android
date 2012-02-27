@@ -231,11 +231,6 @@ public class PlayerTrackView extends LinearLayout implements
             mWaveformController.clearTrackComments();
             mWaveformController.setProgress(0);
 
-            if (priority) {
-                // only track current track
-                mPlayer.track(Page.Sounds_main, mTrack);
-            }
-
             if (mTrack.comments != null) {
                 mWaveformController.setComments(mTrack.comments, true);
             } else {
@@ -252,12 +247,12 @@ public class PlayerTrackView extends LinearLayout implements
         if (mTrack == null) return;
         if (CloudUtils.isTaskFinished(mTrack.load_comments_task)) {
             mTrack.load_comments_task =
-                    new LoadCommentsTask(mPlayer.getApp(), mTrack.id);
+                    new LoadCommentsTask(mPlayer.getApp());
         }
         mTrack.load_comments_task.addListener(this);
 
         if (CloudUtils.isTaskPending(mTrack.load_comments_task)) {
-            mTrack.load_comments_task.execute((Request) null);
+            mTrack.load_comments_task.execute(mTrack.id);
         }
     }
 

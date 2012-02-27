@@ -7,6 +7,7 @@ import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.PrefetchHandler;
+import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FileCache;
@@ -19,6 +20,7 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.WifiMonitor;
 import com.soundcloud.android.service.sync.SyncConfig;
+import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -158,8 +160,9 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public synchronized User getLoggedInUser() {
         if (mLoggedInUser == null) {
-            if (getCurrentUserId() != -1) {
-                mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), getCurrentUserId());
+            final long id = getCurrentUserId();
+            if (id != -1) {
+                mLoggedInUser = SoundCloudDB.getUserById(getContentResolver(), id);
             }
             // user not in db, fall back to local storage
             if (mLoggedInUser == null) {
@@ -169,6 +172,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 mLoggedInUser.permalink = getAccountData(User.DataKeys.USER_PERMALINK);
                 mLoggedInUser.primary_email_confirmed = getAccountDataBoolean(User.DataKeys.EMAIL_CONFIRMED);
             }
+            mLoggedInUser.via = SignupVia.fromString(getAccountData(User.DataKeys.SIGNUP));
         }
         return mLoggedInUser;
     }
@@ -265,7 +269,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 Token.ACCESS_TOKEN, null, null, activity, callback, null);
     }
 
-    public boolean addUserAccount(User user, Token token) {
+    public boolean addUserAccount(User user, Token token, SignupVia via) {
         final String type = getString(R.string.account_type);
         final Account account = new Account(user.username, type);
         final AccountManager am = getAccountManager();
@@ -274,12 +278,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (created) {
             am.setAuthToken(account, Token.ACCESS_TOKEN,  token.access);
             am.setAuthToken(account, Token.REFRESH_TOKEN, token.refresh);
-            am.setUserData(account,  Token.SCOPE, token.scope);
+            am.setUserData(account, Token.SCOPE, token.scope);
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink);
-            am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(
-                    user.primary_email_confirmed));
+            am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
+            am.setUserData(account, User.DataKeys.SIGNUP, via.name);
         }
         mLoggedInUser = null;
         // move this when we can't guarantee we will only have 1 account active at a time
@@ -483,19 +487,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public void track(Click click, Object... args) {
-        if (mTracker != null) mTracker.track(click, args);
-    }
-
-    public void track(Page page, Object... args) {
-        if (mTracker != null) mTracker.track(page, args);
+    public void track(Event event, Object... args) {
+        if (mTracker != null) mTracker.track(event, args);
     }
 
     public void track(Class<?> klazz, Object... args) {
-        track(klazz.getAnnotation(Tracking.class), args);
-    }
-
-    public void track(Tracking tracking, Object... args) {
+        Tracking tracking = klazz.getAnnotation(Tracking.class);
         if (mTracker != null && tracking != null) {
             if (tracking.page() != Page.UNKNOWN) track(tracking.page(), args);
             if (tracking.click() != Click.UNKNOWN) track(tracking.click(), args);

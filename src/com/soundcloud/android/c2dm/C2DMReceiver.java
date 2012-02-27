@@ -20,7 +20,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -105,11 +104,15 @@ public class C2DMReceiver extends BroadcastReceiver {
             setRegistrationData(context, PREF_REG_LAST_TRY,
                     String.valueOf(System.currentTimeMillis()));
 
-            Intent reg = new Intent(ACTION_REGISTER)
+            final Intent reg = new Intent(ACTION_REGISTER)
                     .putExtra("app", PendingIntent.getBroadcast(context, 0, new Intent(), 0))
                     .putExtra("sender", SENDER);
 
-            context.startService(reg);
+            try {
+                context.startService(reg);
+            } catch (SecurityException e) { // not sure why this gets thrown
+                Log.w(TAG, "error registering", e);
+            }
         } else {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "device is already registered with " + regId);
 
@@ -133,7 +136,12 @@ public class C2DMReceiver extends BroadcastReceiver {
 
         Intent unreg = new Intent(ACTION_UNREGISTER)
                 .putExtra("app", PendingIntent.getBroadcast(context, 0, new Intent(), 0));
-        context.startService(unreg);
+
+        try {
+            context.startService(unreg);
+        } catch (SecurityException e) { // not sure why this gets thrown
+            Log.w(TAG, "error unregistering", e);
+        }
     }
 
 
