@@ -16,7 +16,7 @@ public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
     private static final String DATABASE_NAME = "SoundCloud";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -60,6 +60,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 9:
                             success = upgradeTo9(db, oldVersion);
+                            break;
+                        case 10:
+                            success = upgradeTo10(db, oldVersion);
                             break;
                         default:
                             break;
@@ -125,22 +128,35 @@ public class DBHelper extends SQLiteOpenHelper {
             ");";
 
     static final String DATABASE_CREATE_USERS = "CREATE TABLE Users (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            "last_updated INTEGER," +
+            // mini representation
             "username VARCHAR(255)," +
             "avatar_url VARCHAR(255)," +
             "permalink VARCHAR(255)," +
             "permalink_url VARCHAR(255)," +
+
+            "full_name VARCHAR(255)," +
+            "description text,"+
             "city VARCHAR(255)," +
             "country VARCHAR(255)," +
-            "discogs_name VARCHAR(255)," +
-            "followers_count INTEGER," +
-            "followings_count INTEGER," +
-            "full_name VARCHAR(255)," +
-            "myspace_name VARCHAR(255)," +
-            "track_count INTEGER," +
+
+            "plan VARCHAR(16)," +
+            "primary_email_confirmed INTEGER," +
+
             "website VARCHAR(255)," +
             "website_title VARCHAR(255), " +
-            "description text"+
+
+            "discogs_name VARCHAR(255)," +
+            "myspace_name VARCHAR(255)," +
+
+            // counts
+            "track_count INTEGER," +
+            "followers_count INTEGER," +
+            "followings_count INTEGER," +
+            "public_favorites_count INTEGER," +
+            "private_tracks_count INTEGER," +
+
+            // internal
+            "last_updated INTEGER" +
             ");";
 
     static final String DATABASE_CREATE_RECORDINGS = "CREATE TABLE Recordings (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -399,11 +415,18 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_FOLLOWER = "user_follower";
         public static final String PERMALINK_URL = "permalink_url";
 
+        public static final String PRIMARY_EMAIL_CONFIRMED = "primary_email_confirmed";
+        public static final String PUBLIC_FAVORITES_COUNT = "public_favorites_count";
+        public static final String PRIVATE_TRACKS_COUNT = "private_tracks_count";
+
+        public static final String PLAN = "plan";
+
         public static final String[] ALL_FIELDS = {
                 _ID, USERNAME, AVATAR_URL, CITY, COUNTRY, DISCOGS_NAME,
                 FOLLOWERS_COUNT, FOLLOWINGS_COUNT, FULL_NAME, MYSPACE_NAME,
                 TRACK_COUNT, WEBSITE, WEBSITE_TITLE, DESCRIPTION, PERMALINK,
-                LAST_UPDATED, PERMALINK_URL
+                LAST_UPDATED, PERMALINK_URL, PRIMARY_EMAIL_CONFIRMED, PUBLIC_FAVORITES_COUNT,
+                PRIVATE_TRACKS_COUNT
         };
     }
 
@@ -632,6 +655,18 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return false;
      }
+
+    private static boolean upgradeTo10(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.USERS.alterColumns(db);
+            return true;
+
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade9 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
 
     public static String getWhereIds(String column, List<Long> idSet){
         StringBuilder sb = new StringBuilder(column + " in (?");

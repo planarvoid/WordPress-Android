@@ -326,10 +326,9 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         // might overwrite valid db values
         if (filelength > 0) cv.put(Tracks.FILELENGTH, filelength);
 
-        if (isCompleteTrack()){
+        if (isCompleteTrack()) {
             cv.put(Tracks.LAST_UPDATED, System.currentTimeMillis());
         }
-
         return cv;
     }
 
