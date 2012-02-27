@@ -353,14 +353,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mRemoteControlClient.setPlaybackState(isPlaying() ?
                         RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
             } else if (what.equals(META_CHANGED)) {
-                Log.i("asdf","Trying to send new metadata " + getTrackName());
-                RemoteControlClient.MetadataEditor ed = mRemoteControlClient.editMetadata(true);
-                ed.clear();
-                ed.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, getTrackName());
-                ed.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, getUserName());
-                ed.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, getDuration());
-                // no artwork usage yet, cause it recycles the bitmaps, and can go straight to hell
-                ed.apply();
+                applyRemoteMetadata(mCurrentTrack);
             }
         }
 
@@ -374,6 +367,36 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
         // Share this notification directly with our widgets
         mAppWidgetProvider.notifyChange(this, i);
+    }
+
+    private void applyRemoteMetadata(final Track track) {
+        RemoteControlClient.MetadataEditor ed = mRemoteControlClient.editMetadata(true);
+        ed.clear();
+        ed.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, getTrackName());
+        ed.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, getUserName());
+        ed.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, getDuration());
+        final String artworkUri = mCurrentTrack.getListArtworkUrl(this);
+        if (ImageUtils.checkIconShouldLoad(artworkUri)) {
+            final Bitmap bmp = ImageLoader.get(this).getBitmap(artworkUri, null, ICON_OPTIONS);
+            if (bmp != null) {
+                // use a copy of the bitmap because it is going to get recycled afterwards
+                try {
+                    ed.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, bmp.copy(Bitmap.Config.ARGB_8888, true));
+                } catch (OutOfMemoryError e) {
+                    ed.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, null);
+                    System.gc();
+                    // retry?
+                }
+            } else {
+                ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
+                    public void onImageLoaded(Bitmap loadedBmp, String uri) {
+                        if (track.equals(mCurrentTrack)) applyRemoteMetadata(track);
+                    }
+                    public void onImageError(String uri, Throwable error) {}
+                });
+            }
+        }
+        ed.apply();
     }
 
     /* package */ void openCurrent() {
