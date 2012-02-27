@@ -23,7 +23,7 @@ public class PlaybackRemoteViews extends RemoteViews{
     private int mPauseBtnId;
 
     public PlaybackRemoteViews(String packageName, int layoutId) {
-        this(packageName,layoutId,R.drawable.ic_widget_play_states,R.drawable.ic_widget_pause_states);
+        this(packageName,layoutId, R.drawable.ic_widget_play_states, R.drawable.ic_widget_pause_states);
     }
     public PlaybackRemoteViews(String packageName, int layoutId, int playBtnId, int pauseBtnId) {
         super(packageName, layoutId);
@@ -92,11 +92,11 @@ public class PlaybackRemoteViews extends RemoteViews{
     }
 
     public void setIcon(Bitmap icon){
-        setImageViewBitmap(R.id.icon, icon);
+        setImageViewBitmap(R.id.icon,icon);
         setViewVisibility(R.id.icon,View.VISIBLE);
     }
 
-    public void hideIcon(){
+    public void clearIcon(){
         setViewVisibility(R.id.icon,View.GONE);
     }
 

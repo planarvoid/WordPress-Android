@@ -353,8 +353,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mRemoteControlClient.setPlaybackState(isPlaying() ?
                         RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
             } else if (what.equals(META_CHANGED)) {
-                Log.i("asdf","Editing meta data bitch" +
-                        "es");
+                Log.i("asdf","Trying to send new metadata " + getTrackName());
                 RemoteControlClient.MetadataEditor ed = mRemoteControlClient.editMetadata(true);
                 ed.clear();
                 ed.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, getTrackName());
@@ -598,7 +597,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ void next() {
-        Log.i("asdf","Next dude");
         if (mPlaylistManager.next()) openCurrent();
     }
 
@@ -617,8 +615,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (!SoundCloudApplication.useRichNotifications()) {
             status.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
-            PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
+            PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11,
+                    android.R.drawable.ic_media_play,android.R.drawable.ic_media_pause);
             view.setCurrentTrack(track.title, track.user.username);
+            view.linkButtons(this,track.id,track.user_id,track.user_favorite, EXTRA_FROM_NOTIFICATION);
+            view.setPlaybackStatus(state.isSupposedToBePlaying());
 
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
@@ -626,7 +627,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 if (bmp != null) {
                     view.setIcon(bmp);
                 } else {
-                    view.hideIcon();
+                    view.clearIcon();
                     ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
 
                         public void onImageLoaded(Bitmap mBitmap, String uri) {
@@ -639,14 +640,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                         }
                     });
                 }
-                Log.i("asdf", "Sending remote view " + bmp.isRecycled());
             } else {
-                view.hideIcon();
+                view.clearIcon();
             }
             status.contentView = view;
             status.contentIntent = pi;
         }
-        Log.i("asdf", "Starting foreground ");
         startForeground(PLAYBACKSERVICE_STATUS_ID, status);
     }
 
