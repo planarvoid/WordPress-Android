@@ -161,9 +161,7 @@ public class EditWaveformLayout extends TouchLayout {
     }
 
     private void seekTouch(int x) {
-        final long now = System.currentTimeMillis();
-        if ((lastTouchX == -1 || Math.abs(x - lastTouchX) > touchSlop) && (now - lastSeekTime >= MIN_SEEK_INTERVAL)) {
-            lastSeekTime = now;
+        if ((lastTouchX == -1 || Math.abs(x - lastTouchX) > touchSlop)) {
             lastTouchX = x;
             queueUnique(UI_UPDATE_SEEK);
         }
@@ -234,6 +232,7 @@ public class EditWaveformLayout extends TouchLayout {
                     mWaveformView.setTrimLeft((int) lastTouchX);
                     trimPercentLeft = Math.max(0,((float) lastTouchX  / waveformWidth));
                     leftHandle.requestLayout();
+                    if (mRawAudioPlayer != null) mRawAudioPlayer.onNewStartPosition(trimPercentLeft);
                     break;
 
                 case UI_UPDATE_TRIM_RIGHT:
@@ -241,6 +240,7 @@ public class EditWaveformLayout extends TouchLayout {
                     rightLp.rightMargin = (waveformWidth - (int) lastTouchX);
                     trimPercentRight = Math.min(1, ((float) lastTouchX / waveformWidth));
                     rightHandle.requestLayout();
+                    if (mRawAudioPlayer != null) mRawAudioPlayer.onNewEndPosition(trimPercentRight);
                     break;
 
                 default:

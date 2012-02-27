@@ -15,7 +15,7 @@ import android.widget.Button;
 
 import java.io.File;
 
-public class CreateEditor extends ScActivity implements CalculateAmplitudesTask.CalculateAmplitudesListener{
+public class CreateEditor extends ScActivity implements CalculateAmplitudesTask.CalculateAmplitudesListener, RawAudioPlayer.PlaybackListener {
 
     EditWaveformView mWaveformView;
     EditWaveformLayout mWaveformLayout;
@@ -41,19 +41,18 @@ public class CreateEditor extends ScActivity implements CalculateAmplitudesTask.
             @Override
             public void onClick(View view) {
                 mRawAudioPlayer.togglePlayback();
-                setCurrentPlayState();
             }
         });
         findViewById((R.id.btn_stop)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mRawAudioPlayer.stop();
-                setCurrentPlayState();
                 mWaveformView.setCurrentProgress(0);
             }
         });
 
         mRawAudioPlayer = new RawAudioPlayer();
+        mRawAudioPlayer.setListener(this);
         mWaveformLayout = (EditWaveformLayout) findViewById(R.id.waveform_layout);
         mWaveformLayout.setEditor(this);
 
@@ -140,5 +139,21 @@ public class CreateEditor extends ScActivity implements CalculateAmplitudesTask.
     public void onError(File f) {
         mProgressDialog.cancel();
         Log.e(getClass().getSimpleName(), "Error making waveform, file: " + f.getAbsolutePath());
+    }
+
+    @Override
+    public void onPlaybackStart() {
+        setCurrentPlayState();
+    }
+
+    @Override
+    public void onPlaybackStopped() {
+        setCurrentPlayState();
+    }
+
+    @Override
+    public void onPlaybackComplete() {
+        setCurrentPlayState();
+        mWaveformView.setCurrentProgress(0);
     }
 }
