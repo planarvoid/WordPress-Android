@@ -120,14 +120,6 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldGeneratePageTrack() throws Exception {
-        Recording r = new Recording(new File("/tmp"));
-        expect(r.pageTrack()).toEqual("/record/share/public");
-        r.is_private = true;
-        expect(r.pageTrack()).toEqual("/record/share/private");
-    }
-
-    @Test
     public void shouldPersistAndLoadCorrectly() throws Exception {
         Recording r = createRecording();
         ContentResolver resolver = Robolectric.application.getContentResolver();

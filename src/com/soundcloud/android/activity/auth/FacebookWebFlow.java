@@ -25,7 +25,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class FacebookWebFlow extends LoginActivity {
+public class FacebookWebFlow extends AbstractLoginActivity {
     private WebView mWebview;
 
     protected void build() {
@@ -83,7 +83,7 @@ public class FacebookWebFlow extends LoginActivity {
                         Bundle params = new Bundle();
                         params.putString(CODE_EXTRA, code);
                         if ("1".equals(result.getQueryParameter("signed_up"))) {
-                            params.putString(SIGNED_UP_EXTRA, "facebook:web-flow");
+                            params.putString(SignupVia.EXTRA, SignupVia.FACEBOOK_WEBFLOW.name);
                         }
                         login(params);
                     } else {

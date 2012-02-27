@@ -5,6 +5,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import org.json.JSONException;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
@@ -46,6 +48,7 @@ import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public final class CloudUtils {
@@ -404,12 +407,6 @@ public final class CloudUtils {
         }
     }
 
-    public static boolean isConnectionException(Exception e){
-        return (e instanceof UnknownHostException
-                || e instanceof SocketException
-                || e instanceof JSONException);
-    }
-
     public static void setTextShadowForGrayBg(TextView tv){
         tv.setShadowLayer(1, 0, 1, Color.WHITE);
     }
@@ -418,6 +415,32 @@ public final class CloudUtils {
         return EMAIL_ADDRESS_PATTERN.matcher(email).matches();
     }
 
+    public static String suggestEmail(Context context) {
+        Map<String, Integer> counts = new HashMap<String, Integer>();
+        Account[] accounts = AccountManager.get(context).getAccounts();
+        for (Account account : accounts) {
+            if (checkEmail(account.name)) {
+                if (counts.get(account.name) == null) {
+                    counts.put(account.name, 1);
+                } else {
+                    counts.put(account.name, counts.get(account.name) + 1);
+                }
+            }
+        }
+        if (counts.isEmpty()) {
+            return null;
+        } else {
+            int max = 0;
+            String candidate = null;
+            for (Map.Entry<String, Integer> e : counts.entrySet()) {
+                if (e.getValue() > max) {
+                    max = e.getValue();
+                    candidate = e.getKey();
+                }
+            }
+            return candidate;
+        }
+    }
 
     public static String[] longListToStringArr(List<Long> deletions) {
         int i = 0;

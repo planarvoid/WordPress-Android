@@ -1,9 +1,11 @@
 package com.soundcloud.android.activity.auth;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Token;
 
@@ -22,20 +24,30 @@ import android.view.animation.LayoutAnimationController;
 import android.widget.Button;
 
 public class Start extends AccountAuthenticatorActivity {
-    private static final int RECOVER_CODE = 1;
+    private static final int RECOVER_CODE    = 1;
     private static final int SUGGESTED_USERS = 2;
 
     public static final String FB_CONNECTED_EXTRA = "facebook_connected";
     private final Handler mHandler = new Handler();
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ((SoundCloudApplication)getApplication()).track(Page.Entry_main);
+    }
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.start);
 
+        final SoundCloudApplication app = (SoundCloudApplication) getApplication();
+
         findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                app.track(Click.Login_with_facebook);
                 startActivityForResult(new Intent(Start.this, Facebook.class), 0);
             }
         });
@@ -43,6 +55,7 @@ public class Start extends AccountAuthenticatorActivity {
         findViewById(R.id.login_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                app.track(Click.Login);
                 startActivityForResult(new Intent(Start.this, Login.class), 0);
             }
         });
@@ -50,12 +63,14 @@ public class Start extends AccountAuthenticatorActivity {
         findViewById(R.id.signup_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                app.track(Click.Signup_Signup);
                 startActivityForResult(new Intent(Start.this, SignUp.class), 0);
             }
         });
 
         Button forgotBtn = (Button) this.findViewById(R.id.forgot_btn);
-        forgotBtn.setText(Html.fromHtml("<u>" + getResources().getString(R.string.authentication_I_forgot_my_password)
+        forgotBtn.setText(Html.fromHtml("<u>" +
+                getResources().getString(R.string.authentication_I_forgot_my_password)
                 + "</u>"));
         forgotBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,20 +117,21 @@ public class Start extends AccountAuthenticatorActivity {
                     final User user = data.getParcelableExtra("user");
                     final Token token = (Token) data.getSerializableExtra("token");
 
-                    /* native|facebook:(access-token|web-flow) */
-                    String signed_up = data.getStringExtra(LoginActivity.SIGNED_UP_EXTRA);
-
-                    // native signup will already have created the account
-                    if ("native".equals(signed_up) || app.addUserAccount(user, token)) {
+                    SignupVia via = SignupVia.fromIntent(data);
+                    // API signup will already have created the account
+                    if (SignupVia.API == via || app.addUserAccount(user, token, via)) {
                         final Bundle result = new Bundle();
                         result.putString(AccountManager.KEY_ACCOUNT_NAME, user.username);
                         result.putString(AccountManager.KEY_ACCOUNT_TYPE, getString(R.string.account_type));
                         setAccountAuthenticatorResult(result);
 
-                        C2DMReceiver.register(this, user);
-                        if (signed_up != null) {
-                            startActivityForResult(new Intent(this, SuggestedUsers.class)
-                                    .putExtra(FB_CONNECTED_EXTRA, signed_up.contains("facebook")),
+                        sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
+                                .putExtra("user", user)
+                                .putExtra("signed_up", via.name));
+
+                        if (via != SignupVia.UNKNOWN) {
+                            startActivityForResult(
+                                new Intent(this, SuggestedUsers.class).putExtra(FB_CONNECTED_EXTRA, via.isFacebook()),
                                     SUGGESTED_USERS);
                         } else {
                             finish();

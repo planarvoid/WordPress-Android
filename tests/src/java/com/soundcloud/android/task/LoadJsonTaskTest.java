@@ -18,9 +18,9 @@ public class LoadJsonTaskTest extends ApiTests {
     @Test
     public void shouldReturnAList() throws Exception {
         expectGetRequestAndReturn("/foo", 200, "[{\"bar\": \"baz\"}]");
-        LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(mockedApi) {
+        LoadJsonTask<Void, Foo> task = new LoadJsonTask<Void, Foo>(mockedApi) {
             @Override
-            protected List<Foo> doInBackground(Request... r) {
+            protected List<Foo> doInBackground(Void... r) {
                 return null;
             }
         };
@@ -34,9 +34,9 @@ public class LoadJsonTaskTest extends ApiTests {
     public void shouldReturnNullWhenExceptionEncountered() throws Exception {
         expectGetRequestAndThrow("/foo", new IOException());
 
-        LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(mockedApi) {
+        LoadJsonTask<Void, Foo> task = new LoadJsonTask<Void, Foo>(mockedApi) {
             @Override
-            protected List<Foo> doInBackground(Request... strings) {
+            protected List<Foo> doInBackground(Void... strings) {
                 return null;
             }
         };
@@ -48,9 +48,9 @@ public class LoadJsonTaskTest extends ApiTests {
     public void shouldReraiseExceptionWhenTold() throws Exception {
         expectGetRequestAndThrow("/foo", new IOException());
 
-        LoadJsonTask<Foo> task = new LoadJsonTask<Foo>(mockedApi) {
+        LoadJsonTask<Void, Foo> task = new LoadJsonTask<Void,Foo>(mockedApi) {
             @Override
-            protected List<Foo> doInBackground(Request... r) {
+            protected List<Foo> doInBackground(Void... r) {
                 return null;
             }
         };

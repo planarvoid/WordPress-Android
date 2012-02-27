@@ -14,10 +14,12 @@ import android.view.View;
 import android.widget.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.LocationPicker;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.task.FoursquareVenueTask;
+import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -102,10 +104,16 @@ public class RecordingMetaData extends RelativeLayout{
 
 
         findViewById(R.id.txt_artwork_bg).setOnClickListener(
+
             new ImageUtils.ImagePickListener(mActivity) {
                 @Override protected File getFile() {
                     return getCurrentImageFile();
                 }
+
+                // tracking shizzle
+                @Override public void onClick() { getApp().track(Click.Record_details_add_image); }
+                @Override public void onExistingImage() { getApp().track(Click.Record_details_existing_image); }
+                @Override public void onNewImage() { getApp().track(Click.Record_details_new_image); }
             }
         );
 
@@ -236,5 +244,9 @@ public class RecordingMetaData extends RelativeLayout{
 
     public void onDestroy(){
         clearArtwork();
+    }
+
+    private SoundCloudApplication getApp() {
+        return (SoundCloudApplication) mActivity.getApplication();
     }
 }

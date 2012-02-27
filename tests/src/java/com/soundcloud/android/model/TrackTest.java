@@ -108,18 +108,6 @@ public class TrackTest {
     }
 
     @Test
-    public void shouldGeneratePageTrack() throws Exception {
-        Track t = new Track();
-        User u = new User();
-        u.permalink = "user";
-        t.permalink = "foo";
-        t.user = u;
-        expect(t.pageTrack()).toEqual("/user/foo");
-        expect(t.pageTrack("bar")).toEqual("/user/foo/bar");
-        expect(t.pageTrack("bar", "baz")).toEqual("/user/foo/bar/baz");
-    }
-
-    @Test
     public void testHasAvatar() throws Exception {
         Track t = new Track();
         expect(t.hasAvatar()).toBeFalse();
@@ -175,4 +163,63 @@ public class TrackTest {
         t2.user.avatar_url = "http://avatar.com";
         expect(t2.getArtwork()).toEqual("http://avatar.com");
     }
+
+    @Test
+    public void shouldGenerateShareIntentForPublicTrack() throws Exception {
+        Track t = new Track();
+        t.sharing = "public";
+        t.title = "A track";
+        t.permalink_url = "http://soundcloud.com/foo/bar";
+        Intent intent = t.getShareIntent();
+        expect(intent).not.toBeNull();
+        expect(intent.getType()).toEqual("text/plain");
+        expect(intent.getAction()).toEqual(Intent.ACTION_SEND);
+        expect(intent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("A track on SoundCloud");
+        expect(intent.getStringExtra(Intent.EXTRA_TEXT)).toEqual(t.permalink_url);
+    }
+
+    @Test
+    public void shouldNotGenerateShareIntentForPrivateTrack() throws Exception {
+        Track t = new Track();
+        Intent intent = t.getShareIntent();
+        expect(intent).toBeNull();
+    }
+
+    @Test
+    public void testShouldIconLoad() throws Exception {
+        Track t = new Track();
+        expect(t.shouldLoadIcon()).toBeFalse();
+        t.artwork_url = "";
+        expect(t.shouldLoadIcon()).toBeFalse();
+        t.artwork_url = "NULL";
+        expect(t.shouldLoadIcon()).toBeFalse();
+        t.artwork_url = "http://foo.com";
+        expect(t.shouldLoadIcon()).toBeTrue();
+    }
+
+    @Test
+    public void shouldGetEstimatedFileSize() throws Exception {
+        Track t = new Track();
+        expect(t.getEstimatedFileSize()).toEqual(0);
+        t.duration = 100;
+        expect(t.getEstimatedFileSize()).toEqual(1638400);
+    }
+
+    @Test
+    public void shouldGetUserTrackPermalink() throws Exception {
+        Track t = new Track();
+        expect(t.userTrackPermalink()).toBeNull();
+        t.permalink = "foo";
+        expect(t.userTrackPermalink()).toEqual("foo");
+
+        t.user = new User();
+        expect(t.userTrackPermalink()).toEqual("foo");
+
+        t.user.permalink = "";
+        expect(t.userTrackPermalink()).toEqual("foo");
+
+        t.user.permalink = "user";
+        expect(t.userTrackPermalink()).toEqual("user/foo");
+    }
+
 }

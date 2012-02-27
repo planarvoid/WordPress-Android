@@ -131,7 +131,7 @@ class ServiceStub extends com.soundcloud.android.service.playback.ICloudPlayback
     @Override
     public long getCurrentTrackId() throws RemoteException {
         CloudPlaybackService svc = mService.get();
-        return svc != null ? svc.getCurrentTrackId() : null;
+        return svc != null ? svc.getCurrentTrackId() : -1;
     }
 
     @Override

@@ -4,12 +4,12 @@ import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.utils.MotionEventUtils;
 
 import android.app.Dialog;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -76,27 +76,11 @@ public class FullImageDialog extends Dialog {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN && isOutOfBounds(event)) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN && MotionEventUtils.isOutOfBounds(event, this)) {
             cancel();
             return true;
         } else {
             return false;
-        }
-    }
-
-    private boolean isOutOfBounds(MotionEvent event) {
-        final ScActivity activity = mActivityRef.get();
-        if (activity != null) {
-            final int x = (int) event.getX();
-            final int y = (int) event.getY();
-            final int slop = ViewConfiguration.get(activity).getScaledWindowTouchSlop();
-            final View decorView = getWindow().getDecorView();
-            return (x < -slop) ||
-                   (y < -slop) ||
-                   (x > (decorView.getWidth() + slop)) ||
-                   (y > (decorView.getHeight() + slop));
-        } else {
-            return true;
         }
     }
 }

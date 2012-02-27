@@ -7,7 +7,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -21,10 +20,9 @@ import com.soundcloud.api.Token;
 
 import java.io.IOException;
 
-public abstract class LoginActivity extends Activity {
+public abstract class AbstractLoginActivity extends Activity {
     public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING, Token.SCOPE_PLAYCOUNT };
     public static final String SCOPES_EXTRA = "scopes";
-    public static final String SIGNED_UP_EXTRA = "signed_up";
 
     public static final String CODE_EXTRA = "code";
     public static final String EXTENSION_GRANT_TYPE_EXTRA = "extensionGrantType";
@@ -38,6 +36,7 @@ public abstract class LoginActivity extends Activity {
     }
 
     protected abstract void build();
+
 
     protected void login(String username, String password) {
         final Bundle param = new Bundle();
@@ -58,7 +57,6 @@ public abstract class LoginActivity extends Activity {
             // default to non-expiring scope+playcount
             data.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);
         }
-
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();
 
         new GetTokensTask(app) {
@@ -67,7 +65,7 @@ public abstract class LoginActivity extends Activity {
             @Override
             protected void onPreExecute() {
                 if (!isFinishing()) {
-                    progress = CloudUtils.showProgress(LoginActivity.this,
+                    progress = CloudUtils.showProgress(AbstractLoginActivity.this,
                             R.string.authentication_login_progress_message);
                 }
             }
@@ -79,11 +77,9 @@ public abstract class LoginActivity extends Activity {
                         @Override
                         protected void onPostExecute(User user) {
                             if (user != null) {
-                                app.trackEvent(Consts.Tracking.Categories.AUTH, "login");
-                                app.trackPage(Consts.Tracking.LOGIN);
                                 dismissDialog(progress);
                                 setResult(RESULT_OK,
-                                        new Intent().putExtra(SIGNED_UP_EXTRA, token.getSignup())
+                                        new Intent().putExtra(SignupVia.EXTRA, token.getSignup())
                                                 .putExtra("user", user)
                                                 .putExtra("token", token)
                                                 .putExtras(data));
@@ -104,7 +100,7 @@ public abstract class LoginActivity extends Activity {
     protected void showError(IOException e) {
         if (!isFinishing()) {
             final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
-            new AlertDialog.Builder(LoginActivity.this)
+            new AlertDialog.Builder(AbstractLoginActivity.this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle(tokenError ? R.string.authentication_error_title : R.string.authentication_error_no_connection_title)
                     .setMessage(tokenError ? R.string.authentication_login_error_password_message : R.string.authentication_error_no_connection_message)

@@ -22,7 +22,10 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.ICloudPlaybackService;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.record.ICloudCreateService;
+import com.soundcloud.android.tracking.Event;
+import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.ScListView;
@@ -58,7 +61,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public abstract class ScActivity extends android.app.Activity {
+public abstract class ScActivity extends android.app.Activity implements Tracker {
     private Boolean mIsConnected;
 
     protected Object[] mPreviousState;
@@ -70,9 +73,9 @@ public abstract class ScActivity extends android.app.Activity {
 
     private MenuItem menuCurrentUploadingItem;
     private long mCurrentUserId;
-    boolean mIgnorePlaybackStatus;
+    private boolean mIgnorePlaybackStatus;
 
-    protected static final int CONNECTIVITY_MSG = 0;
+    private static final int CONNECTIVITY_MSG = 0;
 
     // Need handler for callbacks to the UI thread
     protected final Handler mHandler = new Handler();
@@ -112,7 +115,7 @@ public abstract class ScActivity extends android.app.Activity {
     protected void onCreateServiceBound() {
         if (mLists == null || mLists.size() == 0 || !(this instanceof UserBrowser)) return;
         for (ScListView lv : mLists){
-            if (lv.getBaseAdapter() instanceof MyTracksAdapter)
+            if (lv.getBaseAdapter() instanceof MyTracksAdapter && mCreateService != null)
                 try {
                     ((MyTracksAdapter) lv.getBaseAdapter()).checkUploadStatus(mCreateService.getUploadLocalId());
                 } catch (RemoteException ignored) {}
@@ -169,7 +172,7 @@ public abstract class ScActivity extends android.app.Activity {
         registerReceiver(mPlaybackStatusListener, new IntentFilter(playbackFilter));
 
         IntentFilter generalIntentFilter = new IntentFilter();
-        generalIntentFilter.addAction(Consts.IntentActions.CONNECTION_ERROR);
+        generalIntentFilter.addAction(Actions.CONNECTION_ERROR);
         registerReceiver(mGeneralIntentListener, generalIntentFilter);
 
         mLists = new ArrayList<ScListView>();
@@ -285,7 +288,7 @@ public abstract class ScActivity extends android.app.Activity {
                     .setAction(CloudPlaybackService.PLAY);
 
             if (info.uri != null) {
-                SoundCloudApplication.TRACK_CACHE.put(info.getTrack());
+                SoundCloudApplication.TRACK_CACHE.put(info.getTrack(), false);
                 intent.putExtra(CloudPlaybackService.PlayExtras.trackId, info.getTrack().id)
                       .putExtra(CloudPlaybackService.PlayExtras.playPosition, info.position)
                       .setData(info.uri);
@@ -398,8 +401,7 @@ public abstract class ScActivity extends android.app.Activity {
     private BroadcastReceiver mGeneralIntentListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals(Consts.IntentActions.CONNECTION_ERROR)) {
+            if (Actions.CONNECTION_ERROR.equals(intent.getAction())) {
                 safeShowDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
             }
         }
@@ -411,12 +413,12 @@ public abstract class ScActivity extends android.app.Activity {
             if (mIgnorePlaybackStatus)
                 return;
 
-            String action = intent.getAction();
-            if (action.equals(CloudPlaybackService.META_CHANGED)) {
+            final String action = intent.getAction();
+            if (CloudPlaybackService.META_CHANGED.equals(action)) {
                 setPlayingTrack(intent.getLongExtra("id", -1), true);
-            } else if (action.equals(CloudPlaybackService.PLAYBACK_COMPLETE)) {
+            } else if (CloudPlaybackService.PLAYBACK_COMPLETE.equals(action)) {
                 setPlayingTrack(-1, false);
-            } else if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
+            } else if (CloudPlaybackService.PLAYSTATE_CHANGED.equals(action)) {
                 setPlayingTrack(intent.getLongExtra("id", -1), intent.getBooleanExtra("isPlaying", false));
             }
         }
@@ -540,10 +542,6 @@ public abstract class ScActivity extends android.app.Activity {
         menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
                 .setIcon(android.R.drawable.ic_menu_preferences);
 
-        if (SoundCloudApplication.DEV_MODE){
-            menu.add(menu.size(), Consts.OptionsMenu.SECRET_DEV_BUTTON, menu.size(), "Super Secret Dev Button")
-                .setIcon(android.R.drawable.ic_menu_compass);
-        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -565,7 +563,7 @@ public abstract class ScActivity extends android.app.Activity {
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.VIEW_CURRENT_TRACK:
-                startActivity(new Intent(this, ScPlayer.class));
+                startActivity(new Intent(this, ScPlayer.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
                 return true;
             case Consts.OptionsMenu.STREAM:
                 intent = new Intent(Actions.STREAM);
@@ -573,18 +571,15 @@ public abstract class ScActivity extends android.app.Activity {
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:
-                trackPage(Consts.Tracking.PEOPLE_FINDER);
                 intent = new Intent(Actions.MY_PROFILE)
                     .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    .putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder);
+                    .putExtra("userBrowserTag", UserBrowser.Tab.friend_finder.name());
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD:
                 safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
-            case Consts.OptionsMenu.SECRET_DEV_BUTTON:
-                //startActivity(new Intent(this,TestActivity.class));
-                return true;
+
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -594,14 +589,20 @@ public abstract class ScActivity extends android.app.Activity {
     private Handler connHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            final ScActivity ctxt = ScActivity.this;
             switch (msg.what) {
                 case CONNECTIVITY_MSG:
-                    if (connectivityListener != null) {
-                        NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
-                        if (networkInfo != null) {
-                            if (networkInfo.isConnected()) ImageLoader.get(getApplicationContext()).clearErrors();
-                            ScActivity.this.onDataConnectionChanged(networkInfo.isConnectedOrConnecting());
+                    if (msg.obj instanceof NetworkInfo) {
+                        NetworkInfo networkInfo = (NetworkInfo) msg.obj;
+                        final boolean connected = networkInfo.isConnectedOrConnecting();
+                        if (connected) {
+                            ImageLoader.get(getApplicationContext()).clearErrors();
+
+                            // announce potential proxy change
+                            sendBroadcast(new Intent(Actions.CHANGE_PROXY_ACTION)
+                                            .putExtra(Actions.EXTRA_PROXY, IOUtils.getProxy(ctxt, networkInfo)));
                         }
+                        ctxt.onDataConnectionChanged(connected);
                     }
                     break;
             }
@@ -613,14 +614,6 @@ public abstract class ScActivity extends android.app.Activity {
             mCurrentUserId = getApp().getCurrentUserId();
         }
         return mCurrentUserId;
-    }
-
-    public void trackPage(String path) {
-        getApp().trackPage(path);
-    }
-
-    public void trackEvent(String category, String action) {
-        getApp().trackEvent(category, action);
     }
 
     protected void handleRecordingClick(Recording recording) {
@@ -642,7 +635,7 @@ public abstract class ScActivity extends android.app.Activity {
         public void onEventClick(EventsAdapterWrapper wrapper, int position) {
             final Activity e = (Activity) wrapper.getItem(position);
             if (e.type == Activity.Type.FAVORITING) {
-                SoundCloudApplication.TRACK_CACHE.put(e.getTrack());
+                SoundCloudApplication.TRACK_CACHE.put(e.getTrack(), false);
                 startActivity(new Intent(ScActivity.this, TrackFavoriters.class)
                     .putExtra("track_id", e.getTrack().id));
             } else {
@@ -677,5 +670,14 @@ public abstract class ScActivity extends android.app.Activity {
 
     public ICloudCreateService getCreateService() {
         return mCreateService;
+    }
+
+    // tracking shizzle
+    public void track(Event event, Object... args) {
+        getApp().track(event, args);
+    }
+
+    public void track(Class<?> klazz, Object... args) {
+        getApp().track(klazz, args);
     }
 }

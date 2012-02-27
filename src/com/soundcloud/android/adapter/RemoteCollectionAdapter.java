@@ -121,7 +121,6 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     public boolean onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
-        mKeepGoing = keepGoing;
         boolean success = (newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK;
         if (success) {
             if (wasRefresh){
@@ -135,6 +134,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         } else {
             handleResponseCode(responseCode);
         }
+        mKeepGoing = keepGoing;
 
         if (wasRefresh && (getData().size() > 0 || !isRefreshing())){
             doneRefreshing();
@@ -285,7 +285,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
-                if (!resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
+                if (mContentUri != null && resultData != null &&
+                        !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
                     doneRefreshing(); // nothing changed
                 }
                 break;

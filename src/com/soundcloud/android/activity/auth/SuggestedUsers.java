@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScActivity;
@@ -26,6 +25,8 @@ import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.NewConnectionTask;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Endpoints;
@@ -33,12 +34,15 @@ import com.soundcloud.api.Request;
 
 import java.util.ArrayList;
 
+
+@Tracking(page = Page.Entry_signup__find_friends)
 public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapter.SectionListener {
     private ScListView mListView;
     private SectionedAdapter.Section mFriendsSection;
     private SectionedUserlistAdapter ffAdp;
     private SectionedEndlessAdapter ffAdpWrap;
     private Button facebookBtn;
+    private boolean resumedBefore;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -90,22 +94,27 @@ public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapte
         // result ok no matter what
         setResult(RESULT_OK);
 
+        // start tour on top so we can preload  users
         startActivity(new Intent(this, Tour.class));
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
-        trackPage(Consts.Tracking.PEOPLE_FINDER);
+        // don't track on first resume, since the activity gets preloaded
+        if (resumedBefore) {
+            track(getClass());
+        }
+        resumedBefore = true;
     }
-
 
     @Override
     public Object onRetainNonConfigurationInstance() {
         if (mListView != null) {
             return  mListView.getWrapper().saveState();
+        } else {
+            return null;
         }
-        return null;
     }
 
     public void onSectionLoaded(SectionedAdapter.Section section) {

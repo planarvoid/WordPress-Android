@@ -2,53 +2,56 @@ package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.service.playback.State.*;
 
-import android.app.NotificationManager;
-import android.content.ComponentName;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
-import android.media.RemoteControlClient;
-import android.os.*;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.cache.TrackCache;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.streaming.StreamProxy;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
 import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.tracking.Event;
+import com.soundcloud.android.tracking.Media;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
+import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.RemoteControlClient;
+import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.PowerManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.RemoteViews;
-import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public class CloudPlaybackService extends Service implements FocusHelper.MusicFocusable {
+public class CloudPlaybackService extends Service implements FocusHelper.MusicFocusable, Tracker {
     public static final String TAG = "CloudPlaybackService";
     public static List<Playable> playlistXfer;
 
@@ -107,28 +110,22 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     protected NetworkConnectivityListener connectivityListener;
     /* package */ PlaylistManager mPlaylistManager;
     private Track mCurrentTrack;
-    private RemoteViews mNotificationView;
     private AudioManager mAudioManager;
 
     private long mResumeTime = -1;      // time of played track
     private long mResumeTrackId = -1;   // id of last played track
     private long mSeekPos = -1;         // desired seek position
     private int mConnectRetries = 0;
+    private long mLastRefresh;          // time last refresh hit was sent
 
     private int mServiceStartId = -1;
     private boolean mServiceInUse = false;
     private PlayerAppWidgetProvider mAppWidgetProvider = PlayerAppWidgetProvider.getInstance();
 
-    private static final int IDLE_DELAY = 60*1000;            // interval after which we stop the service when idle
-    private static final long TRACK_EVENT_CHECK_DELAY = 1000; // check for track timestamp events at this frequency
+    private static final int IDLE_DELAY = 60*1000;  // interval after which we stop the service when idle
+    private static final long CHECK_TRACK_EVENT_DELAY = Media.REFRESH_MIN; // check for track timestamp events at this frequency
 
     private boolean resumeSeeking;
-
-    private long m10percentStamp;
-    private long m95percentStamp;
-
-    private boolean m10percentStampReached;
-    private boolean m95percentStampReached;
 
     private StreamProxy mProxy;
     private TrackCache mCache;
@@ -142,7 +139,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private State state = STOPPED;
 
     private final IBinder mBinder = new ServiceStub(this);
-    private WeakReference<Bitmap> mDefaultArtwork;
     public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
     private Notification status;
 
@@ -391,12 +387,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             if (mAutoPause) {
                 mAutoPause = false;
             }
-
             mLoadPercent = 0;
             if (track.equals(mCurrentTrack) && track.isStreamable()) {
                 notifyChange(META_CHANGED);
                 startTrack(track);
-            } else {
+            } else { // new track
+                track(Media.fromTrack(mCurrentTrack), "stop");
                 mCurrentTrack = track;
                 notifyChange(META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts
@@ -441,28 +437,19 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private void onStreamableTrack(Track track){
         if (mCurrentTrack.id != track.id) return;
 
-        m10percentStamp = (long) (mCurrentTrack.duration * .1);
-        m10percentStampReached = false;
-        m95percentStamp = (long) (mCurrentTrack.duration * .95);
-        m95percentStampReached = false;
-
         new Thread() {
             @Override
             public void run() {
                 SoundCloudDB.markTrackAsPlayed(getContentResolver(), mCurrentTrack);
             }
         }.start();
-
-        getApp().trackEvent(
-                Consts.Tracking.Categories.TRACKS,
-                Consts.Tracking.Actions.TRACK_PLAY,
-                mCurrentTrack.getTrackEventLabel());
         startTrack(track);
 
 
     }
 
     private void startTrack(Track track) {
+        track(Page.Sounds_main, track);
         setPlayingNotification(track);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -528,6 +515,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     /* package */ void play() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "play(state=" + state + ")");
+        track(Media.fromTrack(mCurrentTrack), "play");
+        mLastRefresh = System.currentTimeMillis();
+
         if (mCurrentTrack != null && mFocus.requestMusicFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             if (mMediaPlayer != null && state.isStartable()) {
                 // resume
@@ -536,10 +526,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mMediaPlayer.start();
                 state = PLAYING;
                 setPlayingNotification(mCurrentTrack);
-
                 mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
-                mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, TRACK_EVENT_CHECK_DELAY);
-
+                mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
                 notifyChange(PLAYSTATE_CHANGED);
             } else if (state != PLAYING) {
                 // must have been a playback error
@@ -553,6 +541,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "pause(state="+state+")");
         }
+        track(Media.fromTrack(mCurrentTrack), "pause");
 
         if (mMediaPlayer != null && state != PAUSED) {
             if (state.isPausable() && mMediaPlayer.isPlaying()) {
@@ -613,55 +602,51 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (mPlaylistManager.next()) openCurrent();
     }
 
-
     private void setPlayingNotification(final Track track) {
 
         if (track == null) return;
 
         status = new Notification();
         status.flags |= Notification.FLAG_ONGOING_EVENT;
-        status.icon = R.drawable.statusbar;
+        status.icon = R.drawable.ic_status;
 
         Intent intent = new Intent(Actions.PLAYER);
         intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
 
         if (!SoundCloudApplication.useRichNotifications()) {
-            status.setLatestEventInfo(this, track.getUserName(),track.title, pi);
+            status.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
-            if (mNotificationView == null){
-                mNotificationView = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11,
-                        android.R.drawable.ic_media_play,android.R.drawable.ic_media_pause);
-                mNotificationView.setImageViewResource(R.id.next, android.R.drawable.ic_media_next);
-                mNotificationView.setImageViewResource(R.id.close, android.R.drawable.ic_menu_close_clear_cancel);
-            }
-            ((PlaybackRemoteViews) mNotificationView).setCurrentTrack(track.title,track.user.username);
-            ((PlaybackRemoteViews) mNotificationView).linkButtons(this,track.id,track.user_id,track.user_favorite, EXTRA_FROM_NOTIFICATION);
-            ((PlaybackRemoteViews) mNotificationView).setPlaybackStatus(state.isSupposedToBePlaying());
+            PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
+            view.setCurrentTrack(track.title, track.user.username);
 
-            final String artworkUri = track.getListArtworkUrl(getApplicationContext());
-            if (ImageUtils.checkIconShouldLoad(artworkUri)){
-                final Bitmap bmp = ImageLoader.get(getApplicationContext()).getBitmap(artworkUri,null, ICON_OPTIONS);
-                Log.i("asdf","Just got a bitmap for track " + track.title + " " + bmp + " " + (bmp == null ? "null" : bmp.isRecycled()));
-                if (bmp != null){
-                    ((PlaybackRemoteViews) mNotificationView).setIcon(bmp);
+            final String artworkUri = track.getListArtworkUrl(this);
+            if (ImageUtils.checkIconShouldLoad(artworkUri)) {
+                final Bitmap bmp = ImageLoader.get(this).getBitmap(artworkUri, null, ICON_OPTIONS);
+                if (bmp != null) {
+                    view.setIcon(bmp);
                 } else {
-                    ((PlaybackRemoteViews) mNotificationView).clearIcon();
-                    ImageLoader.get(getApplicationContext()).getBitmap(artworkUri,new ImageLoader.BitmapCallback(){
-                        public void onImageLoaded(Bitmap mBitmap, String uri) {if (track == mCurrentTrack) setPlayingNotification(mCurrentTrack);}
-                        public void onImageError(String uri, Throwable error) {}
+                    view.hideIcon();
+                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
+
+                        public void onImageLoaded(Bitmap mBitmap, String uri) {
+                            if (status.contentView instanceof PlaybackRemoteViews && mCurrentTrack == track) {
+                                ((PlaybackRemoteViews) status.contentView).setIcon(bmp);
+                            }
+                        }
+
+                        public void onImageError(String uri, Throwable error) {
+                        }
                     });
                 }
-                Log.i("asdf","Sending remote view " + bmp.isRecycled());
+                Log.i("asdf", "Sending remote view " + bmp.isRecycled());
             } else {
-
-                ((PlaybackRemoteViews) mNotificationView).clearIcon();
+                view.hideIcon();
             }
-
-            status.contentView = mNotificationView;
+            status.contentView = view;
             status.contentIntent = pi;
         }
-        Log.i("asdf","Starting foreground ");
+        Log.i("asdf", "Starting foreground ");
         startForeground(PLAYBACKSERVICE_STATUS_ID, status);
     }
 
@@ -674,7 +659,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         }
     }
 
-    /* package */ void setClearToPlay(boolean clearToPlay) {
+    /* package */
+    @SuppressWarnings("UnusedParameters")
+    void setClearToPlay(boolean clearToPlay) {
     }
 
     /* package */ void setFavoriteStatus(long trackId, boolean favoriteStatus) {
@@ -1049,25 +1036,19 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     break;
                 case CHECK_TRACK_EVENT:
                     if (mCurrentTrack != null) {
-                        final long pos = getPosition();
-                        // account for lack of accuracy in actual delay between checks
-                        final long window = (long) (TRACK_EVENT_CHECK_DELAY * 1.5);
-
-                        if (!m10percentStampReached && pos > m10percentStamp && pos - m10percentStamp < window) {
-                            m10percentStampReached = true;
-                            getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.TEN_PERCENT,
-                                    mCurrentTrack.getTrackEventLabel());
+                        if (state.isSupposedToBePlaying()) {
+                            int refresh = Media.refresh(mCurrentTrack.duration);
+                            if (refresh > 0) {
+                                long now = System.currentTimeMillis();
+                                if (now - mLastRefresh > refresh) {
+                                    track(Media.fromTrack(mCurrentTrack), "refresh");
+                                    mLastRefresh = now;
+                                }
+                            }
                         }
-
-                        if (!m95percentStampReached && pos > m95percentStamp && pos - m95percentStamp < window) {
-                            m95percentStampReached = true;
-                            getApp().trackEvent(Consts.Tracking.Categories.TRACKS, Consts.Tracking.Actions.NINTY_FIVE_PERCENT,
-                                    mCurrentTrack.getTrackEventLabel());
-                        }
-                    }
-                    mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
-                    if (!m10percentStampReached || !m95percentStampReached) {
-                        mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, TRACK_EVENT_CHECK_DELAY);
+                        mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
+                    } else {
+                        mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
                     }
                     break;
             }
@@ -1139,11 +1120,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mResumeTime = targetPosition;
                 errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
             } else if (!state.isError()) {
-                getApp().trackEvent(
-                        Consts.Tracking.Categories.TRACKS,
-                        Consts.Tracking.Actions.TRACK_COMPLETE,
-                        mCurrentTrack.getTrackEventLabel());
-
+                track(Media.fromTrack(mCurrentTrack), "stop");
                 mPlayerHandler.sendEmptyMessage(TRACK_ENDED);
             } else {
                 // onComplete must have been called in error state
@@ -1231,4 +1208,14 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             }
         }
     };
+
+
+    public void track(Event event, Object... args) {
+        getApp().track(event, args);
+    }
+
+    @Override
+    public void track(Class<?> klazz, Object... args) {
+        getApp().track(klazz, args);
+    }
 }

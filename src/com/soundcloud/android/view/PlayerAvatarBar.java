@@ -154,9 +154,7 @@ public class PlayerAvatarBar extends View {
     }
 
     private void loadAvatar(final Comment c){
-        if (c == null || c.user == null || !ImageUtils.checkIconShouldLoad(c.user.avatar_url))
-            return;
-
+        if (c == null || !c.shouldLoadIcon()) return;
 
         ImageUtils.getBitmapSubstitute(mContext, c.user.avatar_url, getAvatarBarGraphicSize(mContext), new BitmapCallback() {
             @Override
@@ -272,8 +270,8 @@ public class PlayerAvatarBar extends View {
     };
 
     private void drawCommentOnCanvas(Comment comment, Canvas canvas, Paint linePaint, Paint imagePaint, Matrix matrix){
-
-            if (!ImageUtils.checkIconShouldLoad(comment.user.avatar_url) || comment.avatar == null || comment.avatar.isRecycled()) {
+        if (canvas != null){
+            if (!comment.shouldLoadIcon() || comment.avatar == null || comment.avatar.isRecycled()) {
                 if (mLandscape) {
                     refreshDefaultAvatar();
                     matrix.setScale(mDefaultAvatarScale, mDefaultAvatarScale);
@@ -291,7 +289,7 @@ public class PlayerAvatarBar extends View {
                 canvas.drawBitmap(comment.avatar, matrix, imagePaint);
                 canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), linePaint);
             }
-
+        }
     }
 
     @Override

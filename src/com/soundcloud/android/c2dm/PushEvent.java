@@ -1,9 +1,11 @@
 package com.soundcloud.android.c2dm;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.view.UserlistRow;
 
 public enum PushEvent {
     LIKE("like"),
@@ -37,5 +39,26 @@ public enum PushEvent {
         } else {
             return NULL;
         }
+    }
+
+    public static long getIdFromUri(String uri) {
+        return getIdFromUri(Uri.parse(uri));
+    }
+
+    public static long getIdFromUri(Uri uri) {
+        if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
+            final String specific = uri.getSchemeSpecificPart();
+            final String[] components = specific.split(":", 2);
+            if (components != null && components.length == 2) {
+                final String type = components[0];
+                final String id = components[1];
+                if (type != null && id != null) {
+                    try {
+                        return Long.parseLong(id);
+                    } catch (NumberFormatException ignored) { }
+                }
+            }
+        }
+        return -1;
     }
 }

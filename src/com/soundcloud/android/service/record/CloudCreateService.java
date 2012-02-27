@@ -613,7 +613,7 @@ public class CloudCreateService extends Service {
         final CharSequence notificationTitle;
         final CharSequence notificationMessage;
 
-        Intent i = (new Intent(Actions.MY_PROFILE).putExtra("userBrowserTag", UserBrowser.TabTags.tracks));
+        Intent i = (new Intent(Actions.MY_PROFILE).putExtra("userBrowserTag", UserBrowser.Tab.tracks));
 
         if (params.isSuccess()) {
             mCurrentUpload.upload_status = Upload.UploadStatus.UPLOADED;
@@ -662,7 +662,7 @@ public class CloudCreateService extends Service {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, x+" row(s) marked with upload error.");
         }
 
-        int icon = R.drawable.statusbar;
+        int icon = R.drawable.ic_status;
         CharSequence tickerText = params.isSuccess() ? getString(R.string.cloud_uploader_notification_finished_ticker)
                 : getString(R.string.cloud_uploader_notification_error_ticker);
         long when = System.currentTimeMillis();
@@ -735,7 +735,7 @@ public class CloudCreateService extends Service {
     }
 
     private Notification createOngoingNotification(CharSequence tickerText, PendingIntent pendingIntent) {
-        int icon = R.drawable.statusbar;
+        int icon = R.drawable.ic_status;
         Notification notification = new Notification(icon, tickerText, System.currentTimeMillis());
         notification.contentIntent = pendingIntent;
         notification.flags |= Notification.FLAG_ONGOING_EVENT;

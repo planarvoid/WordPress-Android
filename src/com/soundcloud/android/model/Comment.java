@@ -6,7 +6,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.utils.ImageUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonView;
 
@@ -76,7 +75,7 @@ public class Comment extends ScModel implements Origin {
     }
 
     public void prefetchAvatar(Context c) {
-        if (user != null && ImageUtils.checkIconShouldLoad(user.avatar_url)) {
+        if (shouldLoadIcon()) {
             ImageLoader.get(c).prefetch(Consts.GraphicSize.formatUriForList(c, user.avatar_url));
         }
     }
@@ -90,6 +89,10 @@ public class Comment extends ScModel implements Origin {
         cv.put(DBHelper.Comments.TRACK_ID, track_id);
         cv.put(DBHelper.Comments.TIMESTAMP, timestamp);
         return cv;
+    }
+
+    public boolean shouldLoadIcon() {
+        return user != null && user.shouldLoadIcon();
     }
 
     public static class CompareTimestamp implements Comparator<Comment> {
@@ -107,20 +110,19 @@ public class Comment extends ScModel implements Origin {
         }
     }
 
-    public static Comment build(Context context,
-                                long userId,
-                                long trackId,
+    public static Comment build(Track track,
+                                User user,
                                 long timestamp,
-                                String commentBody,
+                                String body,
                                 long replyToId,
                                 String replyToUsername){
         Comment comment = new Comment();
-        comment.track_id = trackId;
-        comment.created_at = new Date(System.currentTimeMillis());
-        comment.user_id = userId;
-        comment.user = SoundCloudDB.getUserById(context.getContentResolver(), comment.user_id);
+        comment.track = track;
+        comment.user = user;
+        comment.user_id = user.id;
         comment.timestamp = timestamp;
-        comment.body = commentBody;
+        comment.created_at = new Date(); // not actually used?
+        comment.body = body;
         comment.reply_to_id = replyToId;
         comment.reply_to_username = replyToUsername;
         return comment;

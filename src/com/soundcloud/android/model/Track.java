@@ -39,7 +39,7 @@ import java.util.List;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Track extends ScModel implements PageTrackable, Origin, Playable, Refreshable {
+public class Track extends ScModel implements Origin, Playable, Refreshable {
     private static final String TAG = "Track";
 
     public static class TrackHolder extends CollectionHolder<Track> {}
@@ -137,7 +137,6 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @JsonIgnore public FetchModelTask<Track> load_info_task;
     @JsonIgnore public LoadCommentsTask load_comments_task;
     @JsonIgnore public boolean full_track_info_loaded;
-    @JsonIgnore public boolean comments_loaded;
     @JsonIgnore public int last_playback_error = -1;
     @JsonIgnore private CharSequence _elapsedTime;
     @JsonIgnore private String _list_artwork_uri;
@@ -193,13 +192,8 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         return sharing.contentEquals("public");
     }
 
-    public String getTrackEventLabel() {
-        return Consts.Tracking.LABEL_DOMAIN_PREFIX + (user == null ? user_id : user.permalink) + "/" + permalink;
-    }
-
     public String getArtwork() {
-        if (ImageUtils.checkIconShouldLoad(artwork_url) ||
-            (user != null && ImageUtils.checkIconShouldLoad(user.avatar_url))) {
+        if (shouldLoadIcon() || (user != null && user.shouldLoadIcon())) {
             return TextUtils.isEmpty(artwork_url) ? user.avatar_url : artwork_url;
         } else {
             return null;
@@ -287,10 +281,8 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     }
 
     public void setAppFields(Track t) {
-        comments = t.comments;
         filelength = t.filelength;
-        full_track_info_loaded = t.full_track_info_loaded;
-        comments_loaded = t.comments_loaded;
+        comments = t.comments;
     }
 
     @JsonIgnore public boolean isStreamable() {
@@ -452,6 +444,10 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         return "http://creativecommons.org/licenses/"+license+"/3.0";
     }
 
+    public int getEstimatedFileSize() {
+        // 128kbps estimate
+        return duration <= 0 ? 0 : ((128 * duration) / 8) * 1024;
+    }
 
     public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
         public Track createFromParcel(Parcel in) {
@@ -469,19 +465,6 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
                 "title='" + title + '\'' +
                 ", user=" + user +
                 '}';
-    }
-
-    @Override
-    public String pageTrack(String... paths) {
-        StringBuilder sb = new StringBuilder();
-        if (user != null && !TextUtils.isEmpty(user.permalink)) {
-            sb.append("/").append(user.permalink).append("/");
-        }
-        sb.append(permalink);
-        for (CharSequence p : paths) {
-            sb.append("/").append(p);
-        }
-        return sb.toString();
     }
 
     public boolean hasAvatar() {
@@ -505,6 +488,19 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
     @Override
     public boolean isStale(){
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.track;
+    }
+
+    public Intent getShareIntent() {
+        if (!"public".equals(sharing)) return null;
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT,
+                title +
+                (user != null ? " by " + user.username : "") + " on SoundCloud");
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, permalink_url);
+
+        return intent;
     }
 
     public Track updateFrom(Context c, ScModel updatedItem) {
@@ -536,6 +532,15 @@ public class Track extends ScModel implements PageTrackable, Origin, Playable, R
         user_favorite = tracklistItem.user_favorite;
         shared_to_count = tracklistItem.shared_to_count;
         return this;
+    }
+
+    public boolean shouldLoadIcon() {
+        return ImageUtils.checkIconShouldLoad(artwork_url);
+    }
+
+    public String userTrackPermalink() {
+        if (permalink == null) return null;
+        return (user != null ? TextUtils.isEmpty(user.permalink) ? "" : user.permalink+"/" : "") + permalink;
     }
 
     public static Track fromIntent(Intent intent, ContentResolver resolver) {

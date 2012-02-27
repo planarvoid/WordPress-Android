@@ -1,15 +1,13 @@
 package com.soundcloud.android.view.tour;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 
+@Tracking(page = Page.Entry_tour__main)
 public class Start extends TourLayout {
 
     public Start(Context context) {
@@ -17,6 +15,5 @@ public class Start extends TourLayout {
 
         ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.tour_start, this);
-        init(context.getString(R.string.tour_comment_title));
     }
 }

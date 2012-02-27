@@ -6,12 +6,13 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import android.content.Context;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.PlaylistManager;
+import com.soundcloud.android.utils.ImageUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonView;
@@ -29,34 +30,35 @@ import java.util.EnumSet;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends ScModel implements PageTrackable, Refreshable, Origin {
+public class User extends ScModel implements  Refreshable, Origin {
     @JsonView(Views.Mini.class) public String username;
-    public int track_count = -1;
-    public String discogs_name;
-    public String city;
     @JsonView(Views.Mini.class) public String uri;
     @JsonView(Views.Mini.class) public String avatar_url;
-    public String local_avatar_url;
-    public String website_title;
-    public String website;
-    public String description;
-    public String online;
     @JsonView(Views.Mini.class) public String permalink;
     @JsonView(Views.Mini.class) public String permalink_url;
     public String full_name;
-    public int followers_count = -1;
-    public int followings_count = -1;
-    public int public_favorites_count = -1;
-    public int private_tracks_count = -1;
+    public String city;
+    public String website;
+    public String website_title;
+    public String description;
     public String myspace_name;
+    public String discogs_name;
     public String country;
     public String plan;
-
-    public boolean user_follower; // is the user following the logged in user
-    public boolean user_following; // is the user being followed by the logged in user
-
     public boolean primary_email_confirmed;
+
+    // counts
+    public int    track_count            = NOT_SET;
+    public int    followers_count        = NOT_SET;
+    public int    followings_count       = NOT_SET;
+    public int    public_favorites_count = NOT_SET;
+    public int    private_tracks_count   = NOT_SET;
+
+    // internal fields
     @JsonIgnore public String _list_avatar_uri;
+    @JsonIgnore public boolean user_follower;  // is the user following the logged in user
+    @JsonIgnore public boolean user_following; // is the user being followed by the logged in user
+    @JsonIgnore public SignupVia via;          // used for tracking
 
     public User() {
     }
@@ -176,11 +178,9 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
                 ", city='" + city + '\'' +
                 ", uri='" + uri + '\'' +
                 ", avatar_url='" + avatar_url + '\'' +
-                ", local_avatar_url='" + local_avatar_url + '\'' +
                 ", website_title='" + website_title + '\'' +
                 ", website='" + website + '\'' +
                 ", description='" + description + '\'' +
-                ", online='" + online + '\'' +
                 ", permalink='" + permalink + '\'' +
                 ", permalink_url='" + permalink_url + '\'' +
                 ", full_name='" + full_name + '\'' +
@@ -212,20 +212,6 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
         }
     }
 
-    @Override
-    public String pageTrack(String... paths) {
-        return pageTrack(false, paths);
-    }
-
-    public String pageTrack(boolean currentUser, String... paths) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("/").append(currentUser ? "you" : permalink);
-        for (String p : paths) {
-            sb.append("/").append(p);
-        }
-        return sb.toString();
-    }
-
     public String getDisplayName() {
         if (!TextUtils.isEmpty(username)){
             return username;
@@ -247,19 +233,16 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
 
 
     public static interface DataKeys {
-        String USERNAME = "currentUsername";
-        String USER_ID = "currentUserId";
+        String USERNAME        = "currentUsername";
+        String USER_ID         = "currentUserId";
+        String USER_PERMALINK  = "currentUserPermalink";
         String EMAIL_CONFIRMED = "email_confirmed";
-        String DASHBOARD_IDX = "lastDashboardIndex";
-        String PROFILE_IDX = "lastProfileIndex";
-
-        // legacy
-        String OAUTH1_ACCESS_TOKEN = "oauth_access_token";
-        String OAUTH1_ACCESS_TOKEN_SECRET = "oauth_access_token_secret";
+        String DASHBOARD_IDX   = "lastDashboardIndex";
+        String PROFILE_IDX     = "lastProfileIndex";
+        String SIGNUP          = "signup";
 
         String LAST_INCOMING_SEEN = "last_incoming_sync_event_timestamp";
         String LAST_OWN_SEEN      = "last_own_sync_event_timestamp";
-
         String LAST_INCOMING_NOTIFIED_AT = "last_incoming_notified_at_timestamp";
 
         String LAST_INCOMING_NOTIFIED_ITEM = "last_incoming_notified_timestamp";
@@ -356,7 +339,10 @@ public class User extends ScModel implements PageTrackable, Refreshable, Origin 
     public void setAppFields(User u) {
         user_follower = u.user_follower;
         user_following = u.user_following;
-        primary_email_confirmed = u.primary_email_confirmed;
+    }
+
+    public boolean shouldLoadIcon() {
+        return ImageUtils.checkIconShouldLoad(avatar_url);
     }
 
     public static void clearLoggedInUserFromStorage(SoundCloudApplication app) {

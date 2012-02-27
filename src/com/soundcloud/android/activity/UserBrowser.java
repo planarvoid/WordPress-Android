@@ -1,5 +1,42 @@
 package com.soundcloud.android.activity;
 
+import com.google.android.imageloader.ImageLoader;
+import com.google.android.imageloader.ImageLoader.BindResult;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.MyTracksAdapter;
+import com.soundcloud.android.adapter.RemoteCollectionAdapter;
+import com.soundcloud.android.adapter.TracklistAdapter;
+import com.soundcloud.android.adapter.UserlistAdapter;
+import com.soundcloud.android.cache.Connections;
+import com.soundcloud.android.cache.FollowStatus;
+import com.soundcloud.android.cache.ParcelCache;
+import com.soundcloud.android.model.Connection;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.Upload;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.task.fetch.FetchUserTask;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.FriendFinderView;
+import com.soundcloud.android.view.FullImageDialog;
+import com.soundcloud.android.view.PrivateMessager;
+import com.soundcloud.android.view.ScListView;
+import com.soundcloud.android.view.ScTabView;
+import com.soundcloud.android.view.UserlistLayout;
+import com.soundcloud.android.view.WorkspaceView;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -19,48 +56,16 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.MyTracksAdapter;
-import com.soundcloud.android.adapter.RemoteCollectionAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
-import com.soundcloud.android.cache.Connections;
-import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.cache.ParcelCache;
-import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.Upload;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.task.fetch.FetchUserTask;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.EmptyCollection;
-import com.soundcloud.android.view.FriendFinderView;
-import com.soundcloud.android.view.FullImageDialog;
-import com.soundcloud.android.view.PrivateMessager;
-import com.soundcloud.android.view.ScListView;
-import com.soundcloud.android.view.ScTabView;
-import com.soundcloud.android.view.UserlistLayout;
-import com.soundcloud.android.view.WorkspaceView;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Request;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /** @noinspection unchecked*/
 public class UserBrowser extends ScActivity implements ParcelCache.Listener<Connection>, FollowStatus.Listener, FetchUserTask.FetchUserListener {
-    private User mUser;
+    /* package */ User mUser;
+
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
+    private View mVrStats;
     private ImageView mIcon;
     private String mIconURL;
     private ImageLoader.BindResult avatarResult;
@@ -81,14 +86,22 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private List<Connection> mConnections;
     private Object mAdapterStates[];
 
-    public interface TabTags {
-        String tracks = "tracks";
-        String favorites = "favorites";
-        String details = "details";
-        String followings = "followings";
-        String followers = "followers";
-        String friend_finder = "friend_finder";
-        String privateMessage = "private_message";
+    public enum Tab {
+
+        tracks(Page.Users_sounds, Page.You_sounds),
+        favorites(Page.Users_likes, Page.You_likes),
+        details(Page.Users_info, Page.You_info),
+        followings(Page.Users_following, Page.You_following),
+        followers(Page.Users_followers, Page.You_followers),
+        friend_finder(null, Page.You_find_friends),
+        privateMessage(Page.Users_dedicated_rec, null);
+
+        public final Page user, you;
+
+        Tab(Page user, Page you) {
+            this.user = user;
+            this.you = you;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -105,6 +118,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         mFollowerCount = (TextView) findViewById(R.id.followers);
         mTrackCount = (TextView) findViewById(R.id.tracks);
+        mVrStats = findViewById(R.id.vr_stats);
 
         CloudUtils.setTextShadowForGrayBg(mUsername);
         CloudUtils.setTextShadowForGrayBg(mFullName);
@@ -148,6 +162,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mFollowingBtn.setOnClickListener(toggleFollowing);
 
         Intent intent = getIntent();
+        // XXX in case user is already loaded - should be handled here, not in caller
         mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
 
         Configuration c = (Configuration) getLastNonConfigurationInstance();
@@ -162,6 +177,10 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             } else {
                 loadYou();
             }
+
+            build();
+            if (!isMe()) FollowStatus.get().requestUserFollowings(getApp(), this, false);
+
             if (intent.hasExtra("recordingUri")) {
                 mMessager.setRecording(Uri.parse(intent.getStringExtra("recordingUri")));
             }
@@ -196,8 +215,8 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mUserlistBrowser.setCurrentScreenByTag(tag);
     }
 
-    public boolean isShowingTab(String tabTag) {
-        return mUserlistBrowser.getCurrentTag().contentEquals(tabTag);
+    public boolean isShowingTab(Tab tabTag) {
+        return mUserlistBrowser.getCurrentTag().equals(tabTag.name());
     }
 
     @Override
@@ -206,7 +225,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             restoreAdapterStates(mAdapterStates);
             mAdapterStates = null;
         }
-        trackCurrentScreen();
+
+        trackScreen(mUserlistBrowser.getCurrentTag());
+
         super.onResume();
         if (mMessager != null) mMessager.onResume();
     }
@@ -295,26 +316,27 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
     private void loadYou() {
         setUser(getApp().getLoggedInUser());
-        if (mUser == null) {
-            mUser = new User();
-        }
-        build();
     }
 
     private void loadUserById(long userId) {
-        setUser(SoundCloudDB.getUserById(getContentResolver(), userId));
+        if (userId != -1) {
+            // check DB first as the cached user might be incomplete
+            final User u = SoundCloudDB.getUserById(getContentResolver(), userId);
+            setUser(u != null ? u : SoundCloudApplication.USER_CACHE.get(userId));
+        }
         if (mUser == null) {
             mUser = new User();
+            mUser.id = userId;
         }
-        build();
-        FollowStatus.get().requestUserFollowings(getApp(), this, false);
     }
 
     private void loadUserByObject(User user) {
-        if (user == null) return;
-        setUser(user);
-        build();
-        FollowStatus.get().requestUserFollowings(getApp(), this, false);
+        if (user == null || user.id == -1) return;
+
+        // show a user out of db if possible because he will be a complete user unlike
+        // a parceled user that came from a track, list or comment
+        final User dbUser = SoundCloudDB.getUserById(getContentResolver(), user.id);
+        setUser(dbUser != null ? dbUser : user);
     }
 
     private void loadDetails() {
@@ -324,9 +346,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             mLoadUserTask = new FetchUserTask(getApp(), mUser.id);
             mLoadUserTask.setActivity(this);
             mLoadUserTask.addListener(this);
-        }
-
-        if (CloudUtils.isTaskPending(mLoadUserTask)) {
             mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
         }
     }
@@ -335,8 +354,9 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         setFollowingButton();
     }
 
-    private void trackCurrentScreen(){
-        trackPage(mUser.pageTrack(isMe(), mUserlistBrowser.getCurrentTag()));
+    private void trackScreen(String tag) {
+        Tab current = Tab.valueOf(tag);
+        track(isMe() ? current.you : current.user, mUser);
     }
 
     private void build() {
@@ -351,7 +371,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 new ArrayList<Parcelable>(), Track.class);
 
         LazyEndlessAdapter adpWrap = new RemoteCollectionAdapter(this, adp,
-                isMe ?  Content.ME_TRACKS.uri : null, //CloudUtils.replaceWildcard(Content.USER_TRACKS.uri, mUser.id),
+                isMe ?  Content.ME_TRACKS.uri : null,
                 isMe ?  null : Request.to(Endpoints.USER_TRACKS, mUser.id), false);
 
 
@@ -395,7 +415,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {
-                            mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
+                            mUserlistBrowser.setCurrentScreenByTag(Tab.friend_finder.name());
                         }
 
                         @Override
@@ -429,7 +449,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {
-                            mUserlistBrowser.setCurrentScreenByTag(TabTags.friend_finder);
+                            mUserlistBrowser.setCurrentScreenByTag(Tab.friend_finder.name());
                         }
 
                         @Override
@@ -461,12 +481,11 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                     .setActionListener(new EmptyCollection.ActionListener() {
                         @Override
                         public void onAction() {
-                            mUserlistBrowser.setCurrentScreenByTag(TabTags.tracks);
+                            mUserlistBrowser.setCurrentScreenByTag(Tab.tracks.name());
                         }
 
                         @Override
                         public void onSecondaryAction() {
-                            //startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
                         }
                     }));
             } else {
@@ -481,7 +500,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
                         @Override
                         public void onSecondaryAction() {
-                            //startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://soundcloud.com/settings/connections")));
                         }
                     }));
             }
@@ -513,17 +531,18 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
             }
         }
 
-        if (mMessager != null) mUserlistBrowser.addView(mMessager, getString(R.string.user_browser_tab_message), getResources().getDrawable(R.drawable.ic_user_tab_rec), TabTags.privateMessage);
-        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, getString(R.string.user_browser_tab_friend_finder), getResources().getDrawable(R.drawable.ic_user_tab_friendfinder), TabTags.friend_finder);
-        mUserlistBrowser.addView(mMyTracksView,  getString(R.string.user_browser_tab_sounds), getResources().getDrawable(R.drawable.ic_user_tab_sounds), TabTags.tracks);
-        mUserlistBrowser.addView(favoritesView, getString(R.string.user_browser_tab_likes), getResources().getDrawable(R.drawable.ic_user_tab_likes), TabTags.favorites);
-        mUserlistBrowser.addView(followingsView, getString(R.string.user_browser_tab_followings), getResources().getDrawable(R.drawable.ic_user_tab_following), TabTags.followings);
-        mUserlistBrowser.addView(followersView, getString(R.string.user_browser_tab_followers), getResources().getDrawable(R.drawable.ic_user_tab_followers), TabTags.followers);
-        mUserlistBrowser.addView(infoView, getString(R.string.user_browser_tab_info), getResources().getDrawable(R.drawable.ic_user_tab_info), TabTags.details);
+        if (mMessager != null) mUserlistBrowser.addView(mMessager, getString(R.string.user_browser_tab_message), getResources().getDrawable(R.drawable.ic_user_tab_rec), Tab.privateMessage.name());
+        if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, getString(R.string.user_browser_tab_friend_finder), getResources().getDrawable(R.drawable.ic_user_tab_friendfinder), Tab.friend_finder.name());
+        mUserlistBrowser.addView(mMyTracksView,  getString(R.string.user_browser_tab_sounds), getResources().getDrawable(R.drawable.ic_user_tab_sounds), Tab.tracks.name());
+        mUserlistBrowser.addView(favoritesView, getString(R.string.user_browser_tab_likes), getResources().getDrawable(R.drawable.ic_user_tab_likes), Tab.favorites.name());
+        mUserlistBrowser.addView(followingsView, getString(R.string.user_browser_tab_followings), getResources().getDrawable(R.drawable.ic_user_tab_following), Tab.followings.name());
+        mUserlistBrowser.addView(followersView, getString(R.string.user_browser_tab_followers), getResources().getDrawable(R.drawable.ic_user_tab_followers), Tab.followers.name());
+        mUserlistBrowser.addView(infoView, getString(R.string.user_browser_tab_info), getResources().getDrawable(R.drawable.ic_user_tab_info), Tab.details.name());
 
         mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
             @Override public void onScreenChanged(View newScreen, int newScreenIndex) {
-                trackCurrentScreen();
+                trackScreen(mUserlistBrowser.getCurrentTag());
+
                 if (isMe) {
                     getApp().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(newScreenIndex));
                 }
@@ -595,18 +614,33 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private void setUser(final User user) {
         if (user == null || user.id < 0) return;
         mUser = user;
-        mUsername.setText(user.username);
+
+        if (!TextUtils.isEmpty(user.username)) mUsername.setText(user.username);
         if (TextUtils.isEmpty(user.full_name)){
             mFullName.setVisibility(View.GONE);
         } else {
             mFullName.setText(user.full_name);
             mFullName.setVisibility(View.VISIBLE);
         }
-        mFollowerCount.setText(Integer.toString(Math.max(0,user.followers_count)));
-        mTrackCount.setText(Integer.toString(Math.max(0,user.track_count)));
+
+        mVrStats.setVisibility((user.followers_count <= 0 || user.track_count <= 0) ? View.GONE : View.VISIBLE);
+
+        if (user.track_count <= 0) {
+            mTrackCount.setVisibility(View.GONE);
+        } else {
+            mTrackCount.setVisibility(View.VISIBLE);
+            mTrackCount.setText(Integer.toString(user.track_count));
+        }
+
+        if (user.followers_count <= 0) {
+            mFollowerCount.setVisibility(View.GONE);
+        } else {
+            mFollowerCount.setVisibility(View.VISIBLE);
+            mFollowerCount.setText(Integer.toString(user.followers_count));
+        }
 
         setFollowingButton();
-        if (ImageUtils.checkIconShouldLoad(user.avatar_url)) {
+        if (user.shouldLoadIcon()) {
             if (mIconURL == null
                 || avatarResult == BindResult.ERROR
                 || !user.avatar_url.substring(0, user.avatar_url.indexOf("?")).equals(mIconURL.substring(0, mIconURL.indexOf("?")))) {
@@ -752,7 +786,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
                         .putExtra("edit", false)
                         .putExtra("recordingUri", recording.toUri().toString())
-                        .putExtra("userBrowserTag", UserBrowser.TabTags.privateMessage));
+                        .putExtra("userBrowserTag", Tab.privateMessage.name()));
             }
         }
     }
@@ -823,7 +857,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         }
         if (isMe()) mConnections = c.connections;
         mUserlistBrowser.initWorkspace(c.workspaceIndex);
-        restoreAdapterStates(c.adapterStates);
         if (c.friendFinderState != -1) {
             if (c.friendFinderState == FriendFinderView.States.LOADING){
                 refreshConnections();
@@ -831,6 +864,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                 mFriendFinderView.setState(c.friendFinderState, false);
             }
         }
+        restoreAdapterStates(c.adapterStates);
     }
 
     private static class Configuration {
@@ -842,5 +876,4 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         int friendFinderState;
         boolean infoError;
     }
-
 }

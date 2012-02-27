@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -77,8 +78,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
         // this is to make sure keyboard is hidden after commenting
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
-
     }
 
     public void toggleCommentMode(int playPos) {
@@ -95,7 +94,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             mPlaybackService.setAutoAdvance(!mIsCommenting);
         } catch (RemoteException ignored) {
         }
-
     }
 
     public ViewGroup getCommentHolder() {
@@ -231,7 +229,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         }
     }
 
-    public boolean toggleFavorite(Track track) {
+    public boolean toggleLike(Track track) {
         if (track == null) return false;
         try {
             mPlaybackService.setFavoriteStatus(track.id, !track.user_favorite);
@@ -272,9 +270,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         switch (item.getItemId()) {
             case Consts.OptionsMenu.REFRESH:
                 mPlayingTrack.full_track_info_loaded = false;
-                mPlayingTrack.comments_loaded = false;
                 mPlayingTrack.comments = null;
-                getCurrentTrackView().onRefresh();
+                final PlayerTrackView ptv = getCurrentTrackView();
+                if (ptv != null) getCurrentTrackView().onRefresh();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -284,12 +282,11 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     @Override
     protected void onServiceBound() {
         super.onServiceBound();
-
-        long trackId = -1;
+        long trackId;
         try {
             trackId = mPlaybackService.getCurrentTrackId();
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        } catch (RemoteException ignored) {
+            trackId = -1;
         }
 
         if (trackId == -1) {
@@ -297,7 +294,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             Intent intent = new Intent(this, Main.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
-
         } else {
             setTrackDisplayFromService();
 
@@ -310,7 +306,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 }, 200l);
                 getIntent().putExtra("commentMode", false);
             }
-
         }
     }
 
@@ -348,7 +343,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     private final View.OnClickListener mFavoriteListener = new View.OnClickListener() {
         public void onClick(View v) {
-            toggleFavorite(mPlayingTrack);
+            toggleLike(mPlayingTrack);
         }
     };
 
@@ -468,7 +463,10 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 setTrackDisplayFromService();
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
                 if (mCurrentQueuePosition != queuePos) {
-                    if (mCurrentQueuePosition != -1 && queuePos == mCurrentQueuePosition + 1 && !mTrackWorkspace.isScrolling()) { // auto advance
+                    if (mCurrentQueuePosition != -1
+                            && queuePos == mCurrentQueuePosition + 1
+                            && !mTrackWorkspace.isScrolling()) {
+                        // auto advance
                         mTrackWorkspace.scrollRight();
                     } else {
                         setTrackDisplayFromService();
@@ -492,7 +490,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
             } else if (action.equals(CloudPlaybackService.FAVORITE_SET) ||
                         action.equals(CloudPlaybackService.COMMENTS_LOADED) ||
-                        action.equals(Consts.IntentActions.COMMENT_ADDED)) {
+                        action.equals(Actions.COMMENT_ADDED)) {
                 for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
                     ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).handleIdBasedIntent(intent);
                 }
@@ -525,15 +523,13 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
         f.addAction(CloudPlaybackService.FAVORITE_SET);
-        f.addAction(Consts.IntentActions.COMMENT_ADDED);
+        f.addAction(Actions.COMMENT_ADDED);
         registerReceiver(mStatusListener, new IntentFilter(f));
     }
 
     @Override
     protected void onResume() {
-        trackPage(Consts.Tracking.PLAYER);
         super.onResume();
-
         FocusHelper.registerHeadphoneRemoteControl(this);
         setPlaybackState();
     }

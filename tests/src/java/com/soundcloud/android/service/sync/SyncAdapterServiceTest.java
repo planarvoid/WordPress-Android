@@ -7,7 +7,6 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
-import android.net.Uri;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
@@ -15,8 +14,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -58,6 +55,9 @@ public class SyncAdapterServiceTest {
     public void before() {
         Robolectric.application.onCreate();
 
+        // don't want default syncing for tests
+        SyncContent.setAllSyncEnabledPrefs(Robolectric.application, false);
+
         // pretend we're connected via wifi
         ConnectivityManager cm = (ConnectivityManager)
                 Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -74,7 +74,7 @@ public class SyncAdapterServiceTest {
         // always notify
         PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
                 .edit()
-                .putString(SyncAdapterService.PREF_NOTIFICATIONS_FREQUENCY, 0+"")
+                .putString(SyncConfig.PREF_NOTIFICATIONS_FREQUENCY, 0+"")
                 .commit();
 
         DefaultTestRunner.application.setCurrentUserId(100l);
@@ -88,7 +88,7 @@ public class SyncAdapterServiceTest {
     @Test
     public void testIncomingNotificationMessage() throws Exception {
         Activities activities = Activities.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
-        String message = SyncAdapterService.getIncomingNotificationMessage(
+        String message = Message.getIncomingNotificationMessage(
                 DefaultTestRunner.application, activities);
 
         expect(message).toEqual("from All Tomorrows Parties, DominoRecordCo and others");
@@ -97,7 +97,7 @@ public class SyncAdapterServiceTest {
     @Test
     public void testExclusiveNotificationMessage() throws Exception {
         Activities events = Activities.fromJSON(getClass().getResourceAsStream("incoming_2.json"));
-        String message = SyncAdapterService.getExclusiveNotificationMessage(
+        String message = Message.getExclusiveNotificationMessage(
                 DefaultTestRunner.application, events);
 
         expect(message).toEqual("exclusives from All Tomorrows Parties, DominoRecordCo and others");
@@ -374,6 +374,10 @@ public class SyncAdapterServiceTest {
 
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
         expect(result.notifications.size()).toEqual(1);
+
+        expect(result.getTicker()).toEqual("New follower");
+        expect(result.getInfo().getContentTitle().toString()).toEqual("You have a new follower");
+        expect(result.getInfo().getContentText().toString()).toEqual("SoundCloud Android @ MWC is now following you. Follow back?");
     }
 
     @Test

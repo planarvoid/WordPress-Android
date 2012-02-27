@@ -110,8 +110,12 @@ public class SoundCloudDB {
 
 
 
-    public static User getUserById(ContentResolver resolver, long userId) {
-        return getUserByUri(resolver, Content.USERS.forId(userId));
+    public static User getUserById(ContentResolver resolver, long id) {
+        if (id >= 0) {
+            return getUserByUri(resolver, Content.USERS.forId(id));
+        } else {
+            return null;
+        }
     }
 
     public static User getUserByUri(ContentResolver resolver, Uri uri) {
@@ -137,6 +141,8 @@ public class SoundCloudDB {
         if (uri != null && ownerId < 0) {
             throw new IllegalArgumentException("need valid ownerId for collection");
         }
+
+        if (items == null) return 0;
 
         Set<User> usersToInsert = new HashSet<User>();
         Set<Track> tracksToInsert = new HashSet<Track>();

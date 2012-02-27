@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class LoadJsonTask<T> extends AsyncApiTask<Request, Parcelable, List<T>> {
+public abstract class LoadJsonTask<Params, T> extends AsyncApiTask<Params, Parcelable, List<T>> {
     public LoadJsonTask(AndroidCloudAPI api) {
         super(api);
     }

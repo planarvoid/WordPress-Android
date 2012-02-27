@@ -1,10 +1,12 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.tracking.Event;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 
 import android.accounts.Account;
+import android.content.Intent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +17,8 @@ public class TestApplication extends SoundCloudApplication {
     public Account account;
     public final Map<String, String> accountData = new HashMap<String, String>();
     public final Token token;
-    public final List<String> trackedPages = new ArrayList<String>();
+    public final List<Event> trackedEvents = new ArrayList<Event>();
+    public final List<Intent> broadcasts = new ArrayList<Intent>();
 
     public TestApplication() {
         this(new Token("access", null, Token.SCOPE_NON_EXPIRING));
@@ -26,11 +29,6 @@ public class TestApplication extends SoundCloudApplication {
         mCloudApi = new Wrapper(null, "id", "secret", null, token, Env.LIVE);
     }
 
-
-    @Override
-    public void trackPage(String path, Object... customVars) {
-        trackedPages.add(path);
-    }
 
     @Override
     public Account getAccount() {
@@ -55,5 +53,16 @@ public class TestApplication extends SoundCloudApplication {
 
     public void setCurrentUserId(long id) {
         setAccountData(User.DataKeys.USER_ID, id);
+    }
+
+    @Override
+    public void track(Event page, Object... args) {
+        trackedEvents.add(page);
+    }
+
+    @Override
+    public void sendBroadcast(Intent intent) {
+        broadcasts.add(intent);
+        super.sendBroadcast(intent);
     }
 }

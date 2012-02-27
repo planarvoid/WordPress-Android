@@ -7,6 +7,8 @@ import com.soundcloud.android.adapter.EventsAdapter;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
@@ -28,7 +30,7 @@ import java.util.ArrayList;
 
 public class Dashboard extends ScActivity {
     protected ScListView mListView;
-    private String mTrackingPath;
+    private Page mTrackingPage;
     private Main.Tab mCurrentTab;
 
     private static final String EXCLUSIVE_ONLY_KEY = "incoming_exclusive_only";
@@ -65,7 +67,8 @@ public class Dashboard extends ScActivity {
                         Activity.class,
                         ec,
                         Consts.ListId.LIST_STREAM, false);
-                mTrackingPath = Consts.Tracking.STREAM;
+
+                mTrackingPage = Page.Stream_main;
                 break;
 
             case ACTIVITY:
@@ -78,7 +81,7 @@ public class Dashboard extends ScActivity {
                                 @Override public void onAction() {
                                     startActivity(new Intent(Actions.MY_PROFILE)
                                             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                            .putExtra("userBrowserTag", UserBrowser.TabTags.tracks));
+                                            .putExtra("userBrowserTag", UserBrowser.Tab.tracks.name()));
                                 }
 
                                 @Override public void onSecondaryAction() {
@@ -107,7 +110,8 @@ public class Dashboard extends ScActivity {
                         Activity.class,
                         ec,
                         Consts.ListId.LIST_ACTIVITY, true);
-                mTrackingPath = Consts.Tracking.ACTIVITY;
+
+                mTrackingPage = Page.Activity_activity;
                 break;
             default:
                 throw new IllegalArgumentException("no valid tab extra");
@@ -122,10 +126,10 @@ public class Dashboard extends ScActivity {
     }
 
     private void goToFriendFinder() {
-        trackPage(Consts.Tracking.PEOPLE_FINDER);
+        track(Page.You_find_friends, getApp().getLoggedInUser());
         startActivity(new Intent(Actions.MY_PROFILE)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra("userBrowserTag", UserBrowser.TabTags.friend_finder));
+                .putExtra("userBrowserTag", UserBrowser.Tab.friend_finder.name()));
     }
 
     private void goTo101s() {
@@ -141,7 +145,10 @@ public class Dashboard extends ScActivity {
     @Override
     public void onResume() {
         super.onResume();
-        trackPage(mTrackingPath);
+        if (getApp().getAccount() != null) {
+            track(mTrackingPage, getApp().getLoggedInUser());
+        }
+
         ((NotificationManager) getApp().getSystemService(Context.NOTIFICATION_SERVICE))
                 .cancel(mCurrentTab == Main.Tab.ACTIVITY ?
                         Consts.Notifications.DASHBOARD_NOTIFY_ACTIVITIES_ID :
@@ -200,28 +207,47 @@ public class Dashboard extends ScActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case Consts.OptionsMenu.FILTER:
+                track(Page.Stream_stream_setting, getApp().getLoggedInUser());
+                track(Click.Stream_main_stream_setting);
+
                 new AlertDialog.Builder(this)
                    .setTitle(getString(R.string.dashboard_filter_title))
-                   .setNegativeButton(R.string.dashboard_filter_cancel, null)
-                        .setItems(new String[]{getString(R.string.dashboard_filter_all), getString(R.string.dashboard_filter_exclusive)},
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        SharedPreferencesUtils.apply(PreferenceManager.getDefaultSharedPreferences(Dashboard.this).edit()
-                                                .putBoolean(EXCLUSIVE_ONLY_KEY, which == 1));
-                                        ((EventsAdapterWrapper) mListView.getWrapper()).setContent(which == 1 ?
-                                                Content.ME_EXCLUSIVE_STREAM : Content.ME_SOUND_STREAM);
-                                        mListView.getWrapper().reset();
-                                        mListView.getRefreshableView().invalidateViews();
-                                        mListView.post(new Runnable() {
-                                            @Override public void run() {
-                                                mListView.getWrapper().onRefresh();
-                                            }
-                                        });
+                   .setNegativeButton(R.string.dashboard_filter_cancel, new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialog, int which) {
+                           track(Click.Stream_box_stream_cancel);
+                       }
+                   })
+                   .setItems(new String[]{
+                           getString(R.string.dashboard_filter_all),
+                           getString(R.string.dashboard_filter_exclusive)
+                   },
+                           new DialogInterface.OnClickListener() {
+                               @Override
+                               public void onClick(DialogInterface dialog, int which) {
+                                   final boolean exclusive = which == 1;
 
-                                    }
-                                })
+                                   SharedPreferencesUtils.apply(PreferenceManager
+                                           .getDefaultSharedPreferences(Dashboard.this)
+                                           .edit()
+                                           .putBoolean(EXCLUSIVE_ONLY_KEY, exclusive));
 
+                                   ((EventsAdapterWrapper) mListView.getWrapper()).setContent(exclusive ?
+                                           Content.ME_EXCLUSIVE_STREAM : Content.ME_SOUND_STREAM);
+
+                                   mListView.getWrapper().reset();
+                                   mListView.getRefreshableView().invalidateViews();
+                                   mListView.post(new Runnable() {
+                                       @Override
+                                       public void run() {
+                                           mListView.getWrapper().onRefresh();
+                                       }
+                                   });
+
+                                   track(exclusive ? Click.Stream_box_stream_only_Exclusive
+                                           : Click.Stream_box_stream_all_tracks);
+                               }
+                           })
                    .create()
                    .show();
                 return true;

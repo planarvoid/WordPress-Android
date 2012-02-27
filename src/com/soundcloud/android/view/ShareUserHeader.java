@@ -34,7 +34,7 @@ public class ShareUserHeader extends RelativeLayout {
         ((TextView) findViewById(R.id.share_header_username)).setText(user.username);
 
         final ImageView icon = (ImageView) findViewById(R.id.icon);
-        if (ImageUtils.checkIconShouldLoad(user.avatar_url)) {
+        if (user.shouldLoadIcon()) {
             if (ImageLoader.get(activity).bind(icon, user.avatar_url, null) != ImageLoader.BindResult.OK) {
                 icon.setImageDrawable(getResources().getDrawable(R.drawable.avatar_badge));
             }

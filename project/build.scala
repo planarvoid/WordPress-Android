@@ -25,9 +25,9 @@ object AndroidBuild extends Build {
     "org.codehaus.jackson" % "jackson-mapper-asl" % jacksonVersion,
     "com.soundcloud" % "java-api-wrapper" % "1.1.1-SNAPSHOT",
     "com.google.android" % "filecache" % "r153",
-    "com.google.android" % "libGoogleAnalytics" % "1.3",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
     "org.xiph" % "libvorbis" % "1.0.0-beta",
+    "com.at" % "ATInternet" % "1.0",
     "com.google.android" % "android" % "2.3.3" % "provided"
   )
 

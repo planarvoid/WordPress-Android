@@ -72,4 +72,11 @@ public class PushEventTest {
         expect(PushEvent.fromExtras(new Bundle())).toEqual(PushEvent.NULL);
         expect(PushEvent.fromExtras(null)).toEqual(PushEvent.NULL);
     }
+
+    @Test
+    public void shouldGetIdFromUri() throws Exception {
+        expect(PushEvent.getIdFromUri("soundcloud:people:1234")).toEqual(1234l);
+        expect(PushEvent.getIdFromUri("soundcloud:people:foo")).toEqual(-1l);
+        expect(PushEvent.getIdFromUri("blargh")).toEqual(-1l);
+    }
 }

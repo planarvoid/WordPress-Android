@@ -1,7 +1,6 @@
 
 package com.soundcloud.android.model;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -25,7 +24,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 @SuppressWarnings({"UnusedDeclaration"})
-public class Recording extends ScModel implements PageTrackable {
+public class Recording extends ScModel {
     public long user_id;
     public long timestamp;
     public double longitude;
@@ -249,10 +248,5 @@ public class Recording extends ScModel implements PageTrackable {
                 ", description='" + description + '\'' +
                 ", genre='" + genre + '\'' +
                 '}';
-    }
-
-    @Override
-    public String pageTrack(String... params) {
-         return is_private ? Consts.Tracking.SHARE_PRIVATE : Consts.Tracking.SHARE_PUBLIC;
     }
 }

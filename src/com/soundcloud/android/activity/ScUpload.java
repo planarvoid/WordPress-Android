@@ -2,9 +2,11 @@ package com.soundcloud.android.activity;
 
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.AccessList;
@@ -31,6 +33,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+@Tracking(page = Page.Record_details)
 public class ScUpload extends ScActivity {
     private ViewFlipper mSharingFlipper;
     private RadioGroup mRdoPrivacy;
@@ -69,6 +72,7 @@ public class ScUpload extends ScActivity {
     protected void onResume() {
         super.onResume();
         mConnectionList.getAdapter().loadIfNecessary();
+        track(getClass(), getApp().getLoggedInUser());
     }
 
     @Override
@@ -105,8 +109,7 @@ public class ScUpload extends ScActivity {
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                trackEvent(Consts.Tracking.Categories.RECORDING, Consts.Tracking.Actions.RECORD_ANOTHER);
-
+                track(Click.Record_details_record_another);
                 startActivity((new Intent(Actions.RECORD))
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
@@ -116,12 +119,10 @@ public class ScUpload extends ScActivity {
         findViewById(R.id.btn_upload).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                trackEvent(Consts.Tracking.Categories.RECORDING, Consts.Tracking.Actions.UPLOAD_AND_SHARE);
+                track(Click.Record_details_Upload_and_share);
 
                 if (mRecording != null) {
                     mapToRecording(mRecording);
-                    trackPage(mRecording.pageTrack());
-                    trackEvent(Consts.Tracking.Categories.SHARE, mRecording.is_private ? "private" : "public");
                     saveRecording(mRecording);
                 }
 
@@ -133,8 +134,6 @@ public class ScUpload extends ScActivity {
                 }
             }
         });
-
-
 
         mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
         mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);

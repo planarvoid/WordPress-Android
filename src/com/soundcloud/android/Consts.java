@@ -37,11 +37,6 @@ public final class Consts {
     public static final int ROW_APPEND_BUFFER = 6;
     public static final int ITEM_TYPE_LOADING = -1;
 
-    public interface IntentActions {
-        String CONNECTION_ERROR = "com.soundcloud.android.connectionerror";
-        String COMMENT_ADDED    = "com.soundcloud.android.commentadded";
-    }
-
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
         int DIALOG_UNAUTHORIZED = 2;
@@ -62,7 +57,6 @@ public final class Consts {
         int FRIEND_FINDER = 205;
         int UPLOAD_FILE = 206;
         int FILTER = 207;
-        int SECRET_DEV_BUTTON = 208;
     }
 
     public enum GraphicSize {
@@ -72,7 +66,7 @@ public final class Consts {
         LARGE("large", 100, 100),
         T67("t67x67", 67, 67),
         BADGE("badge", 47, 47),
-        SMALL("small", 100, 100),
+        SMALL("small", 32, 32),
         TINY_ARTWORK("tiny", 20, 20),
         TINY_AVATAR("tiny", 18, 18),
         MINI("mini", 16, 16),
@@ -81,7 +75,6 @@ public final class Consts {
         public final int width;
         public final int height;
         public final String key;
-
 
         GraphicSize(String key, int width, int height) {
             this.key = key;
@@ -95,7 +88,6 @@ public final class Consts {
             }
             return Unknown;
         }
-
 
         public static String formatUriForList(Context c, String url){
             return getListItemGraphicSize(c).formatUri(url);
@@ -118,6 +110,27 @@ public final class Consts {
             else if (this == Consts.GraphicSize.LARGE) return uri;
             else return uri.replace(Consts.GraphicSize.LARGE.key, key);
         }
+
+        public static Consts.GraphicSize getMinimumSizeFor(int width, int height, boolean fillDimensions) {
+            Consts.GraphicSize valid = null;
+            for (GraphicSize gs : values()) {
+                if (fillDimensions){
+                    if (gs.width >= width && gs.height >= height) {
+                        valid = gs;
+                    } else {
+                        break;
+                    }
+                } else {
+                    if (gs.width >= width || gs.height >= height) {
+                        valid = gs;
+                    } else {
+                        break;
+                    }
+                }
+
+            }
+            return valid == null ? Unknown : valid;
+        }
     }
 
     public interface ListId {
@@ -138,54 +151,6 @@ public final class Consts {
         int DASHBOARD_NOTIFY_STREAM_ID = 3;
         int DASHBOARD_NOTIFY_ACTIVITIES_ID = 4;
         int BETA_NOTIFY_ID    = 5;
-        int DASHBOARD_NOTIFY_FOLLOWER_ID = 6;
-    }
-
-    public interface Tracking {
-        String LABEL_DOMAIN_PREFIX = "http://soundcloud.com/";
-        interface Categories {
-            String AUTH      = "auth";
-            String TRACKS    = "tracks";
-            String RECORDING = "recording";
-            String AUDIO_MESSAGE = "audio_message";
-            String SHARE     = "share";
-            String ERROR     = "error";
-        }
-
-        interface Actions {
-            String TRACK_PLAY = "Track Play";
-            String TEN_PERCENT = "10percent";
-            String NINTY_FIVE_PERCENT = "95percent";
-            String TRACK_COMPLETE = "Track Complete";
-
-            String START = "start";
-            String SAVE = "save";
-            String RESET = "reset";
-            String RECORD_ANOTHER = "recordAnother";
-            String UPLOAD_AND_SHARE = "uploadAndShare";
-        }
-
-        String STREAM   = "/incoming";
-        String ACTIVITY = "/activity";
-        String RECORD   = "/record";
-        String PLAYER   = "/player";
-        @Deprecated String RECORD_RECORDING = "/record/recording";
-        @Deprecated String RECORD_COMPLETE  = "/record/complete";
-        @Deprecated String SHARE_PUBLIC     = "/record/share/public";
-        @Deprecated String SHARE_PRIVATE    = "/record/share/private";
-        @Deprecated String AUDIO_MESSAGE_RECORDING = "/audio_message/recording";
-        @Deprecated String AUDIO_MESSAGE_COMPLETE  = "/audio_message/complete";
-        String SEARCH        = "/search";
-        String SEARCH_TRACKS = "/search?type=users&q=";
-        String SEARCH_USERS  = "/search?type=tracks&q=";
-        @Deprecated String LOGIN    = "/login";
-        @Deprecated String LOGGED_OUT = "/loggedout";
-        @Deprecated String SIGNUP   = "/signup";
-        String SIGNUP_DETAILS       = "/signup/details";
-        String PEOPLE_FINDER        = "/people/finder";
-        String SETTINGS             = "/settings";
-        String TRACKS_BY_TAG        = "/tracks_by_tag/";
-        String TRACKS_BY_GENRE      = "/tracks_by_genre/";
     }
 
     public interface ResourceStaleTimes {

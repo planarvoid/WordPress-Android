@@ -35,11 +35,14 @@ public class UserTest {
     }
 
     @Test
-    public void shouldPageTrack() throws Exception {
+    public void testShouldIconLoad() throws Exception {
         User u = new User();
-        u.permalink = "username";
-
-        expect(u.pageTrack(false, "foo")).toEqual("/username/foo");
-        expect(u.pageTrack(true, "foo")).toEqual("/you/foo");
+        expect(u.shouldLoadIcon()).toBeFalse();
+        u.avatar_url = "";
+        expect(u.shouldLoadIcon()).toBeFalse();
+        u.avatar_url = "NULL";
+        expect(u.shouldLoadIcon()).toBeFalse();
+        u.avatar_url = "http://foo.com";
+        expect(u.shouldLoadIcon()).toBeTrue();
     }
 }

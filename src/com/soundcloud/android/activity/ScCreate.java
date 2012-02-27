@@ -4,6 +4,8 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.view.CreateController;
 
 import android.app.Dialog;
@@ -13,6 +15,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
+@Tracking(page = Page.Record_main)
 public class ScCreate extends ScActivity implements CreateController.CreateListener {
 
     public static final int REQUEST_UPLOAD_FILE = 1;
@@ -32,7 +35,7 @@ public class ScCreate extends ScActivity implements CreateController.CreateListe
     protected void onResume() {
         super.onResume();
         mCreateController.onResume();
-        trackPage(Consts.Tracking.RECORD);
+        track(getClass(), getApp().getLoggedInUser());
     }
 
     @Override

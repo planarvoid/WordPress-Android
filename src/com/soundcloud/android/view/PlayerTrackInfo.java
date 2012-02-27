@@ -33,7 +33,6 @@ public class PlayerTrackInfo extends RelativeLayout{
 
     private boolean mTrackInfoFilled;
 
-
     public PlayerTrackInfo(ScPlayer player) {
         super(player);
 

@@ -3,7 +3,6 @@ package com.soundcloud.android.provider;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.Friend;
-import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -28,6 +27,27 @@ public class SoundCloudDBTest {
     public void before() {
         resolver = DefaultTestRunner.application.getContentResolver();
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
+    }
+
+    @Test
+    public void shouldGetUserById() throws Exception {
+        User u = new User();
+        u.id = 100L;
+        u.permalink = "foo";
+
+        Uri uri = SoundCloudDB.insertUser(resolver, u);
+
+        expect(uri).not.toBeNull();
+
+        User u2 = SoundCloudDB.getUserById(resolver, 100);
+        expect(u2).not.toBeNull();
+        expect(u2.id).toEqual(u.id);
+        expect(u2.permalink).toEqual(u.permalink);
+    }
+
+    @Test
+    public void shouldNotGetUserByIdNegative() throws Exception {
+        expect(SoundCloudDB.getUserById(resolver, -1)).toBeNull();
     }
 
     @Test

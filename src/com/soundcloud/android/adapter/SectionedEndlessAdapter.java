@@ -50,7 +50,8 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter {
     @Override
     protected void setNextHref(String nextHref) {
         if (!TextUtils.isEmpty(nextHref)) {
-            getWrappedAdapter().sections.get(mSectionIndex).nextHref = nextHref;
+
+            getWrappedAdapter().setNextHref(mSectionIndex,nextHref);
         }
     }
 

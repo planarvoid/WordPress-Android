@@ -101,7 +101,7 @@ public class UserlistRow extends LazyRow {
         setFollowingStatus(true);
         setTrackCount();
         setFollowerCount();
-        mVrStats.setVisibility((mUser.track_count == 0 || mUser.followers_count == 0) ? View.GONE : View.VISIBLE);
+        mVrStats.setVisibility((mUser.track_count <= 0 || mUser.followers_count <= 0) ? View.GONE : View.VISIBLE);
     }
 
     public void setFollowingStatus(boolean enabled) {
@@ -119,7 +119,7 @@ public class UserlistRow extends LazyRow {
     }
 
     protected void setTrackCount() {
-        if (mUser.track_count == 0){
+        if (mUser.track_count <= 0){
             mTracks.setVisibility(View.GONE);
         } else {
             mTracks.setText(Integer.toString(mUser.track_count));
@@ -128,7 +128,7 @@ public class UserlistRow extends LazyRow {
     }
 
     protected void setFollowerCount() {
-        if (mUser.followers_count == 0){
+        if (mUser.followers_count <= 0){
             mFollowers.setVisibility(View.GONE);
         } else {
             mFollowers.setText(Integer.toString(mUser.followers_count));

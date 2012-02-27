@@ -13,6 +13,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
@@ -56,6 +58,14 @@ public class ApiSyncer {
         Result result = null;
         if (c.remoteUri != null) {
             switch (c) {
+                case ME:
+                    result = syncMe(c);
+                    PreferenceManager.getDefaultSharedPreferences(mContext)
+                            .edit()
+                            .putLong(SyncConfig.PREF_LAST_USER_SYNC, System.currentTimeMillis())
+                            .commit();
+
+                    break;
                 case ME_ALL_ACTIVITIES:
                 case ME_ACTIVITIES:
                 case ME_EXCLUSIVE_STREAM:
@@ -78,7 +88,7 @@ public class ApiSyncer {
                     result.wasChanged = mResolver.update(c.uri, null, null, null) > 0;
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()
-                            .putLong(SyncAdapterService.PREF_LAST_SYNC_CLEANUP, System.currentTimeMillis())
+                            .putLong(SyncConfig.PREF_LAST_SYNC_CLEANUP, System.currentTimeMillis())
                             .commit();
                     break;
                 default:
@@ -208,6 +218,22 @@ public class ApiSyncer {
         return result;
     }
 
+    private Result syncMe(Content c) throws IOException {
+        Result result = new Result(c.uri);
+        try {
+            User user = new FetchUserTask(mApi, SoundCloudApplication.getUserIdFromContext(mContext))
+                    .execute(c.request())
+                    .get();
+
+            result.success = user != null;
+        } catch (InterruptedException ignored) {
+        } catch (ExecutionException ignored) {
+            if (ignored.getCause() instanceof IOException) {
+                throw (IOException)ignored.getCause();
+            }
+        }
+        return result;
+    }
 
     public static List<Parcelable> getAdditionsFromIds(AndroidCloudAPI app,
                                                        ContentResolver resolver,
@@ -294,9 +320,9 @@ public class ApiSyncer {
     public static class IdHolder extends CollectionHolder<Long> {}
 
     public static class Result {
-        public Uri uri;
+        public final Uri uri;
+        public final SyncResult syncResult = new SyncResult();
         public boolean wasChanged;
-        public SyncResult syncResult;
         public boolean success;
 
         public long synced_at;
@@ -305,7 +331,6 @@ public class ApiSyncer {
 
         public Result(Uri uri) {
             this.uri = uri;
-            syncResult = new SyncResult();
         }
 
         public void setSyncData(long synced_at, int new_size, String extra){

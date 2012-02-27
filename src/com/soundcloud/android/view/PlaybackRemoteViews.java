@@ -92,11 +92,11 @@ public class PlaybackRemoteViews extends RemoteViews{
     }
 
     public void setIcon(Bitmap icon){
-        setImageViewBitmap(R.id.icon,icon);
+        setImageViewBitmap(R.id.icon, icon);
         setViewVisibility(R.id.icon,View.VISIBLE);
     }
 
-    public void clearIcon(){
+    public void hideIcon(){
         setViewVisibility(R.id.icon,View.GONE);
     }
 

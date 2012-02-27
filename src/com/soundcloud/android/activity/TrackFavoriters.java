@@ -4,10 +4,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.tracking.Page;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
-import android.os.Bundle;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class TrackFavoriters extends TrackInfoCollection {
     public void onResume() {
         super.onResume();
         if (mTrack != null) {
-            trackPage(mTrack.pageTrack("favorites"));
+            track(Page.Sounds_info__people_like, mTrack);
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.soundcloud.android.c2dm;
 
-import android.net.Uri;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -78,9 +78,19 @@ public class C2DMReceiver extends BroadcastReceiver {
             } else if (intent.getAction().equals(ACTION_RECEIVE)) {
                 // actual c2dm message
                 onReceiveMessage(context, intent);
+            } else if (intent.getAction().equals(Actions.ACCOUNT_ADDED)) {
+                onAccountAdded(context, intent.<User>getParcelableExtra("user"));
+            } else {
+                Log.w(TAG, "unhandled intent: "+intent);
             }
         } finally {
             mWakeLock.release();
+        }
+    }
+
+    private void onAccountAdded(Context context, User user) {
+        if (user != null) {
+            register(context, user);
         }
     }
 
@@ -94,11 +104,15 @@ public class C2DMReceiver extends BroadcastReceiver {
             setRegistrationData(context, PREF_REG_LAST_TRY,
                     String.valueOf(System.currentTimeMillis()));
 
-            Intent reg = new Intent(ACTION_REGISTER)
+            final Intent reg = new Intent(ACTION_REGISTER)
                     .putExtra("app", PendingIntent.getBroadcast(context, 0, new Intent(), 0))
                     .putExtra("sender", SENDER);
 
-            context.startService(reg);
+            try {
+                context.startService(reg);
+            } catch (SecurityException e) { // not sure why this gets thrown
+                Log.w(TAG, "error registering", e);
+            }
         } else {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "device is already registered with " + regId);
 
@@ -112,7 +126,7 @@ public class C2DMReceiver extends BroadcastReceiver {
             }
         }
         // delete old device ids
-        processDeletionQueue(context, lock);
+//        processDeletionQueue(context, lock);
     }
 
     public static synchronized void unregister(Context context) {
@@ -122,7 +136,12 @@ public class C2DMReceiver extends BroadcastReceiver {
 
         Intent unreg = new Intent(ACTION_UNREGISTER)
                 .putExtra("app", PendingIntent.getBroadcast(context, 0, new Intent(), 0));
-        context.startService(unreg);
+
+        try {
+            context.startService(unreg);
+        } catch (SecurityException e) { // not sure why this gets thrown
+            Log.w(TAG, "error unregistering", e);
+        }
     }
 
 
@@ -170,7 +189,7 @@ public class C2DMReceiver extends BroadcastReceiver {
         setRegistrationData(context, PREF_REG_ID, null);
 
         // clear remote state
-        processDeletionQueue(context, mWakeLock);
+//        processDeletionQueue(context, mWakeLock);
     }
 
 
@@ -321,7 +340,6 @@ public class C2DMReceiver extends BroadcastReceiver {
     private static boolean isEnabled() {
         return Build.VERSION.SDK_INT >= 8;
     }
-
 
     private static PowerManager.WakeLock makeLock(Context context) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);

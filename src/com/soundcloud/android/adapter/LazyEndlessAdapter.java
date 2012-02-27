@@ -365,7 +365,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         mState = INITIALIZED;
         mKeepGoing = false;
         getWrappedAdapter().setData(new ArrayList<Parcelable>());
-        clearAppendTask();
         notifyDataSetChanged();
     }
 
