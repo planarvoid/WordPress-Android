@@ -198,9 +198,9 @@ public class SoundCloudDBTest {
         expect(c.getCount()).toEqual(1);
         expect(c.moveToFirst()).toBeTrue();
 
-        expect(c.getLong(c.getColumnIndex(DBHelper.TrackPlays.TRACK_ID))).toEqual(100L);
-        expect(c.getLong(c.getColumnIndex(DBHelper.TrackPlays.USER_ID))).toEqual(USER_ID);
-        expect(c.getInt(c.getColumnIndex(DBHelper.TrackPlays.PLAY_COUNT))).toEqual(PLAYS);
+        expect(c.getLong(c.getColumnIndex(DBHelper.TrackMetadata.TRACK_ID))).toEqual(100L);
+        expect(c.getLong(c.getColumnIndex(DBHelper.TrackMetadata.USER_ID))).toEqual(USER_ID);
+        expect(c.getInt(c.getColumnIndex(DBHelper.TrackMetadata.PLAY_COUNT))).toEqual(PLAYS);
 
         Track played = SoundCloudDB.getTrackById(resolver, 100L);
         expect(played.local_user_playback_count).toEqual(PLAYS);

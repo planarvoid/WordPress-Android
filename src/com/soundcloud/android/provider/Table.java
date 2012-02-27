@@ -14,7 +14,8 @@ import java.util.List;
 
 public enum Table {
     TRACKS("Tracks", DBHelper.DATABASE_CREATE_TRACKS, DBHelper.Tracks.ALL_FIELDS),
-    TRACK_PLAYS("TrackPlays", DBHelper.DATABASE_CREATE_TRACK_PLAYS),
+    TRACK_PLAYS("TrackPlays", ""),
+    TRACK_METADATA("TrackMetadata", DBHelper.DATABASE_CREATE_TRACK_METADATA),
     USERS("Users", DBHelper.DATABASE_CREATE_USERS, DBHelper.Users.ALL_FIELDS),
     COMMENTS("Comments", DBHelper.DATABASE_CREATE_COMMENTS),
     ACTIVITIES("Activities", DBHelper.DATABASE_CREATE_ACTIVITIES),
@@ -71,7 +72,9 @@ public enum Table {
 
     public void create(SQLiteDatabase db) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "creating " + name);
-        db.execSQL(createString);
+        if (!TextUtils.isEmpty(createString)) {
+            db.execSQL(createString);
+        }
     }
 
     public void recreate(SQLiteDatabase db) {

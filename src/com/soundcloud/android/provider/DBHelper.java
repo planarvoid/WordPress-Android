@@ -120,12 +120,16 @@ public class DBHelper extends SQLiteOpenHelper {
             "filelength INTEGER"+
             ");";
 
-    static final String DATABASE_CREATE_TRACK_PLAYS = "CREATE TABLE TrackPlays (_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+
+    static final String DATABASE_CREATE_TRACK_METADATA = "CREATE TABLE TrackMetadata (_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "track_id INTEGER, " +
             "user_id INTEGER, "+
             "play_count INTEGER DEFAULT 0, "+
+            "cached INTEGER DEFAULT 0," +
+            "type INTEGER," +
             "UNIQUE (track_id, user_id) ON CONFLICT IGNORE"+
             ");";
+
 
     static final String DATABASE_CREATE_USERS = "CREATE TABLE Users (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             // mini representation
@@ -288,12 +292,12 @@ public class DBHelper extends SQLiteOpenHelper {
             "Users." + Users.USERNAME + " as " + TrackView.USERNAME + "," +
             "Users." + Users.PERMALINK + " as " + TrackView.USER_PERMALINK + "," +
             "Users." + Users.AVATAR_URL + " as " + TrackView.USER_AVATAR_URL + "," +
-            "COALESCE(TrackPlays." + TrackPlays.PLAY_COUNT + ", 0) as " + TrackView.USER_PLAY_COUNT +
+            "COALESCE(TrackMetadata." + TrackMetadata.PLAY_COUNT + ", 0) as " + TrackView.USER_PLAY_COUNT +
             " FROM Tracks" +
             " JOIN Users ON(" +
             "   Tracks." + Tracks.USER_ID + " = " + "Users." + Users._ID + ")" +
-            " LEFT OUTER JOIN TrackPlays ON(" +
-            "   TrackPlays." + TrackPlays.TRACK_ID + " = " + "Tracks." + TrackView._ID + ")" +
+            " LEFT OUTER JOIN TrackMetadata ON(" +
+            "   TrackMetadata." + TrackMetadata.TRACK_ID + " = " + "Tracks." + TrackView._ID + ")" +
             "";
 
     /** A view which combines activity data + tracks/users/comments */
@@ -376,10 +380,12 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper.DATABASE_CREATE_TRACK_PLAYS}
      */
-    public static final class TrackPlays implements BaseColumns {
-        public static final String TRACK_ID = "track_id";
-        public static final String USER_ID = "user_id";
+    public static final class TrackMetadata implements BaseColumns {
+        public static final String TRACK_ID   = "track_id";
+        public static final String USER_ID    = "user_id";
         public static final String PLAY_COUNT = "play_count";
+        public static final String CACHED     = "cached";
+        public static final String TYPE       = "type";
     }
 
     /**
@@ -597,7 +603,6 @@ public class DBHelper extends SQLiteOpenHelper {
     private static boolean upgradeTo6(SQLiteDatabase db, int oldVersion) {
         try {
             Table.RECORDINGS.create(db);
-            Table.TRACK_PLAYS.create(db);
             Table.TRACKS.alterColumns(db);
             Table.USERS.alterColumns(db);
             return true;
@@ -658,6 +663,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static boolean upgradeTo10(SQLiteDatabase db, int oldVersion) {
         try {
+            Table.TRACK_PLAYS.drop(db);
+            Table.TRACK_METADATA.create(db);
             Table.USERS.alterColumns(db);
             return true;
 

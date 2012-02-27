@@ -4,8 +4,8 @@ import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DelegatingContentResolver;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 
@@ -61,10 +61,10 @@ public class TestHelper {
     }
 
     public static void assertResolverNotified(Uri... uris) {
-        DelegatingContentResolver res  =
+        ShadowContentResolver res  =
                 Robolectric.shadowOf_(Robolectric.application.getContentResolver());
         Set<Uri> _uris = new HashSet<Uri>();
-        for (DelegatingContentResolver.NotifiedUri u : res.getNotifiedUris()) {
+        for (ShadowContentResolver.NotifiedUri u : res.getNotifiedUris()) {
             _uris.add(u.uri);
         }
         expect(_uris).toContain(uris);

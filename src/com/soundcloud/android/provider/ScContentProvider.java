@@ -158,7 +158,7 @@ public class ScContentProvider extends ContentProvider {
 
             case TRACK_PLAYS:
                 qb.setTables(content.table.name);
-                qb.appendWhere(DBHelper.TrackPlays.USER_ID + " = "+ userId);
+                qb.appendWhere(DBHelper.TrackMetadata.USER_ID + " = "+ userId);
                 break;
 
             case TRACK_PLAYS_ITEM:
@@ -267,11 +267,11 @@ public class ScContentProvider extends ContentProvider {
                 return result;
 
             case TRACK_PLAYS:
-                if (!values.containsKey(DBHelper.TrackPlays.USER_ID)) {
-                    values.put(DBHelper.TrackPlays.USER_ID, userId);
+                if (!values.containsKey(DBHelper.TrackMetadata.USER_ID)) {
+                    values.put(DBHelper.TrackMetadata.USER_ID, userId);
                 }
                 id = db.insert(content.table.name, null, values);
-                String counter = DBHelper.TrackPlays.PLAY_COUNT;
+                String counter = DBHelper.TrackMetadata.PLAY_COUNT;
                 db.execSQL("UPDATE "+content.table.name+
                         " SET "+counter+"="+counter+" + 1 WHERE "+content.table.id +"= ?",
                         new String[] {String.valueOf(id)});

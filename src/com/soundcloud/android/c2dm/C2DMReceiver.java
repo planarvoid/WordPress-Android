@@ -238,6 +238,11 @@ public class C2DMReceiver extends BroadcastReceiver {
                         extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT_URI, intent.getExtras().getString(C2DMReceiver.SC_URI));
                     }
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requesting sync (event="+event+")");
+
+                    // force a sync if triggered by push
+                    extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS, true);
+                    extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF, true);
+
                     ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, extras);
                     break;
                 default:

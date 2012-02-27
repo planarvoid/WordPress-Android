@@ -93,8 +93,8 @@ public enum Content {
     RECORDINGS("recordings", null, 1100, Recording.class, -1, Table.RECORDINGS),
     RECORDING("recordings/#", null, 1101, Recording.class, -1, Table.RECORDINGS),
 
-    TRACK_PLAYS("track_plays", null, 1300, null, -1, Table.TRACK_PLAYS),
-    TRACK_PLAYS_ITEM("track_plays/#", null, 1301, null, -1, Table.TRACK_PLAYS),
+    TRACK_PLAYS("track_plays", null, 1300, null, -1, Table.TRACK_METADATA),
+    TRACK_PLAYS_ITEM("track_plays/#", null, 1301, null, -1, Table.TRACK_METADATA),
 
     SEARCHES("searches", null, 1400, null, -1, Table.SEARCHES),
     SEARCH("searches/#", null, 1401, null, -1, Table.SEARCHES),
