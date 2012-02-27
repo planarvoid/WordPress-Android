@@ -535,7 +535,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     @Override
     protected void onResume() {
         super.onResume();
-        FocusHelper.registerHeadphoneRemoteControl(this);
+        // TODO, can we delete this?
+        //FocusHelper.registerHeadphoneRemoteControl(this);
         setPlaybackState();
     }
 

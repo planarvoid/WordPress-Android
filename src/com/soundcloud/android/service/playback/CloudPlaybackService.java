@@ -134,8 +134,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private FocusHelper mFocus;
     private boolean mTransientFocusLoss;
 
-    private RemoteControlClient mRemoteControlClient;
-
     private State state = STOPPED;
 
     private final IBinder mBinder = new ServiceStub(this);
@@ -181,28 +179,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 
-        mFocus = new FocusHelper(this, this);
-
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        ComponentName rec = new ComponentName(getApp(), RemoteControlReceiver.class);
-
-        mAudioManager.registerMediaButtonEventReceiver(rec);
-        Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-        mediaButtonIntent.setComponent(rec);
-	    PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
-	            0, mediaButtonIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        mRemoteControlClient = new RemoteControlClient(mediaPendingIntent);
-        mAudioManager.registerRemoteControlClient(mRemoteControlClient);
-
-        int flags = RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS
-                | RemoteControlClient.FLAG_KEY_MEDIA_NEXT
-                | RemoteControlClient.FLAG_KEY_MEDIA_PLAY
-                | RemoteControlClient.FLAG_KEY_MEDIA_PAUSE
-                | RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE
-                | RemoteControlClient.FLAG_KEY_MEDIA_STOP;
-        mRemoteControlClient.setTransportControlFlags(flags);
-
-
+        mFocus = new FocusHelper(this, this);
         if (!mFocus.isSupported()) {
             // setup call listening if not handled by audiofocus
             TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -235,8 +213,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         mPlaylistManager.onDestroy();
 
         mFocus.abandonMusicFocus(false);
-        mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
-
         unregisterReceiver(mIntentReceiver);
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
     }
@@ -350,8 +326,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
         if (SoundCloudApplication.useRichNotifications()) {
             if (what.equals(PLAYSTATE_CHANGED)) {
-                mRemoteControlClient.setPlaybackState(isPlaying() ?
+                mFocus.getRemoteControlClient().setPlaybackState(isPlaying() ?
                         RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
+                ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
             } else if (what.equals(META_CHANGED)) {
                 applyRemoteMetadata(mCurrentTrack);
             }
@@ -361,16 +338,13 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
         }
 
-        if (what.equals(PLAYSTATE_CHANGED)){
-            ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
-        }
 
         // Share this notification directly with our widgets
         mAppWidgetProvider.notifyChange(this, i);
     }
 
     private void applyRemoteMetadata(final Track track) {
-        RemoteControlClient.MetadataEditor ed = mRemoteControlClient.editMetadata(true);
+        RemoteControlClient.MetadataEditor ed = mFocus.getRemoteControlClient().editMetadata(true);
         ed.clear();
         ed.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, getTrackName());
         ed.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, getUserName());
@@ -1204,7 +1178,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 }
                 mMediaPlayer.release();
                 mMediaPlayer = null;
-                mFocus.abandonMusicFocus(false);
 
                 gotoIdleState(ERROR);
                 notifyChange(isConnected() ? PLAYBACK_ERROR : STREAM_DIED);

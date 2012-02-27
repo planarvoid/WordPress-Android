@@ -1,10 +1,13 @@
 package com.soundcloud.android.service.playback;
 
 
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
+import android.media.RemoteControlClient;
 import android.util.Log;
 
 import java.lang.reflect.InvocationHandler;
@@ -14,6 +17,7 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 public class FocusHelper {
+
     public interface MusicFocusable {
         public void focusGained();
         public void focusLost(boolean isTransient, boolean canDuck);
@@ -25,6 +29,7 @@ public class FocusHelper {
     private Object mAudioFocusChangeListener;
     private MusicFocusable mMusicFocusable;
     private boolean mAudioFocusLost = false;
+    private RemoteControlClient mRemoteControlClient;
 
     public static Class<? extends BroadcastReceiver> RECEIVER = RemoteControlReceiver.class;
 
@@ -43,6 +48,22 @@ public class FocusHelper {
         }
     }
 
+    public RemoteControlClient getRemoteControlClient() {
+        if (mRemoteControlClient == null) {
+            mRemoteControlClient = registerRemoteControlClient(((Context) mMusicFocusable).getApplicationContext());
+            if (mRemoteControlClient != null) {
+                int flags = RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS
+                        | RemoteControlClient.FLAG_KEY_MEDIA_NEXT
+                        | RemoteControlClient.FLAG_KEY_MEDIA_PLAY
+                        | RemoteControlClient.FLAG_KEY_MEDIA_PAUSE
+                        | RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE
+                        | RemoteControlClient.FLAG_KEY_MEDIA_STOP;
+                mRemoteControlClient.setTransportControlFlags(flags);
+            }
+        }
+        return mRemoteControlClient;
+    }
+
 
     // http://android-developers.blogspot.com/2010/06/allowing-applications-to-play-nicer.html
     private static void initializeRemoteControlRegistrationMethods() {
@@ -52,9 +73,22 @@ public class FocusHelper {
                         "registerMediaButtonEventReceiver",
                         new Class[]{ComponentName.class});
             }
+
+            if (sRegisterRemoteControlClient == null) {
+                sRegisterRemoteControlClient = AudioManager.class.getMethod(
+                        "registerRemoteControlClient",
+                        new Class[]{RemoteControlClient.class});
+            }
+
             if (sUnregisterMediaButtonEventReceiver == null) {
                 sUnregisterMediaButtonEventReceiver = AudioManager.class.getMethod(
                         "unregisterMediaButtonEventReceiver",
+                        new Class[]{ComponentName.class});
+            }
+
+             if (sUnregisterRemoteControlClient == null) {
+                sUnregisterRemoteControlClient = AudioManager.class.getMethod(
+                        "unregisterRemoteControlClient",
                         new Class[]{ComponentName.class});
             }
         } catch (NoSuchMethodException ignored) {
@@ -62,12 +96,27 @@ public class FocusHelper {
         }
     }
 
-    public static void registerHeadphoneRemoteControl(Context context) {
-        if (sRegisterMediaButtonEventReceiver == null) return;
+
+
+    public static RemoteControlClient registerRemoteControlClient(Context context) {
+        if (sRegisterMediaButtonEventReceiver == null) return null;
         try {
+            ComponentName rec =     new ComponentName(context, RECEIVER);
             sRegisterMediaButtonEventReceiver.invoke(
-                    context.getSystemService(Context.AUDIO_SERVICE),
-                    new ComponentName(context, RECEIVER));
+                    context.getSystemService(Context.AUDIO_SERVICE), rec);
+
+            if (sRegisterRemoteControlClient == null) return null;
+
+            Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+            mediaButtonIntent.setComponent(rec);
+
+            PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(context,
+                         0, mediaButtonIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            RemoteControlClient client = new RemoteControlClient(mediaPendingIntent);
+            sRegisterRemoteControlClient.invoke(context.getSystemService(Context.AUDIO_SERVICE), client);
+
+            return client;
+
         } catch (InvocationTargetException ite) {
             Throwable cause = ite.getCause();
             if (cause instanceof RuntimeException) {
@@ -80,14 +129,20 @@ public class FocusHelper {
         } catch (IllegalAccessException ie) {
             Log.e(TAG, "unexpected", ie);
         }
+        return null;
     }
 
-    public static void unregisterRemoteControl(Context context) {
+    public static void unregisterRemoteControl(Context context, RemoteControlClient remoteControlClient) {
         if (sUnregisterMediaButtonEventReceiver == null) return;
         try {
             sUnregisterMediaButtonEventReceiver.invoke(
                     context.getSystemService(Context.AUDIO_SERVICE),
                     new ComponentName(context, RECEIVER));
+            if (remoteControlClient != null){
+                sUnregisterRemoteControlClient.invoke(
+                        context.getSystemService(Context.AUDIO_SERVICE),
+                        remoteControlClient);
+            }
         } catch (InvocationTargetException ite) {
             Throwable cause = ite.getCause();
             if (cause instanceof RuntimeException) {
@@ -112,16 +167,19 @@ public class FocusHelper {
                  AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
          if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-             Log.d(TAG, "requestMusicFocus() => "+ret);
+             Log.d(TAG, "requestMusicFocus() => " + ret);
          }
 
          if (mMusicFocusable instanceof Context) {
-            registerHeadphoneRemoteControl((Context) mMusicFocusable);
+             if (mRemoteControlClient == null) {
+                 mRemoteControlClient = getRemoteControlClient();
+             }
+
          }
          return ret;
      }
 
-     public int abandonMusicFocus(boolean isTemporary) {
+    public int abandonMusicFocus(boolean isTemporary) {
          final int ret = abandonAudioFocusCompat(mAudioManager, mAudioFocusChangeListener);
          if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
              Log.d(TAG, "abandonMusicFocus() => "+ret);
@@ -129,7 +187,7 @@ public class FocusHelper {
 
          // only unregister headphone control on stop, not on pause
          if (!isTemporary && mMusicFocusable instanceof Context) {
-            unregisterRemoteControl((Context) mMusicFocusable);
+            unregisterRemoteControl(((Context) mMusicFocusable).getApplicationContext(), mRemoteControlClient);
          }
          return ret;
      }
@@ -175,7 +233,9 @@ public class FocusHelper {
     static Method sMethodRequestAudioFocus;
     static Method sMethodAbandonAudioFocus;
     static Method sRegisterMediaButtonEventReceiver;
+    static Method sRegisterRemoteControlClient;
     static Method sUnregisterMediaButtonEventReceiver;
+    static Method sUnregisterRemoteControlClient;
 
     private static void initializeStaticCompat() {
         try {
