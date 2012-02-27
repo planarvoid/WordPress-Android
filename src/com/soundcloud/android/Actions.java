@@ -30,4 +30,5 @@ public final class Actions {
     public static final String EXTRA_PROXY         = "proxy"; // proxy URL as string
     public static final String CONNECTION_ERROR    = "com.soundcloud.android.connectionerror";
     public static final String COMMENT_ADDED       = "com.soundcloud.android.commentadded";
+    public static final String RESEND              = "com.soundcloud.android.RESEND";
 }

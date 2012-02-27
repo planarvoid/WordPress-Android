@@ -198,7 +198,7 @@ public class Main extends TabActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         dismissSplash();
         if (resultCode == RESULT_OK) {
-            if (data != null && EmailConfirm.RESEND.equals(data.getAction())) {
+            if (data != null && Actions.RESEND.equals(data.getAction())) {
                 // user pressed resend button
             }
         } else {
