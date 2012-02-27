@@ -115,14 +115,16 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     @Override
     public void onScreenChanged(View newScreen, int newScreenIndex) {
+
         if (newScreen == null) return;
         final int newQueuePos = ((PlayerTrackView) newScreen).getPlayPosition();
 
-        mCurrentQueuePosition = newQueuePos;
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
-                mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
+        if (mCurrentQueuePosition != newQueuePos){
+            mCurrentQueuePosition = newQueuePos;
+            mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
+                    mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
+        }
         mChangeTrackFast = false;
 
         final long prevTrackId;
@@ -460,12 +462,15 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             String action = intent.getAction();
 
             if (action.equals(CloudPlaybackService.PLAYLIST_CHANGED)) {
+                mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 setTrackDisplayFromService();
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
+                mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 if (mCurrentQueuePosition != queuePos) {
                     if (mCurrentQueuePosition != -1
                             && queuePos == mCurrentQueuePosition + 1
-                            && !mTrackWorkspace.isScrolling()) {
+                            && !mTrackWorkspace.isScrolling()
+                            && mTrackWorkspace.isScrollerFinished()) {
                         // auto advance
                         mTrackWorkspace.scrollRight();
                     } else {
@@ -613,8 +618,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     ((PlayerTrackView) mTrackWorkspace.getLastScreen()).destroy();
                     mTrackWorkspace.removeViewFromBack();
                 }
-                mTrackWorkspace.resetScroll();
             }
+
+            mTrackWorkspace.resetScroll();
 
             final int workspacePos = mCurrentQueuePosition > 0 ? 1 : 0;
             if (!mTrackWorkspace.isInitialized()){
