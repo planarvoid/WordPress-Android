@@ -259,4 +259,25 @@ public class ScContentProviderTest {
         }
         expect(ids).not.toEqual(ids2);
     }
+
+    @Test
+    public void shouldHaveATrackShuffleEndpointWhichReturnsOnlyCachedItems() throws Exception {
+        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+                getClass().getResourceAsStream("user_favorites.json"),
+                Track.TrackHolder.class);
+
+        for (Track t : tracks) {
+            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+        }
+
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.TrackMetadata._ID, 27583938l);
+        cv.put(DBHelper.TrackMetadata.CACHED, 1);
+        resolver.insert(Content.TRACK_METADATA.uri, cv);
+
+        Uri cachedShuffle = Content.TRACKS_SHUFFLE.uri.buildUpon().appendQueryParameter("cached", "1").build();
+        Cursor cached = resolver.query(cachedShuffle, null, null, null, null);
+        expect(cached.getCount()).toEqual(1);
+    }
 }

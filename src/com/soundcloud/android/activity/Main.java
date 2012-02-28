@@ -17,6 +17,7 @@ import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
@@ -30,8 +31,6 @@ import android.app.SearchManager;
 import android.app.TabActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -82,7 +81,7 @@ public class Main extends TabActivity implements
         final boolean showSplash = showSplash(state);
         mSplash = findViewById(R.id.splash);
         mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);
-        if (isConnected() &&
+        if (IOUtils.isConnected(this) &&
             app.getAccount() != null &&
             app.getToken().valid() &&
             !app.getLoggedInUser().primary_email_confirmed &&
@@ -371,11 +370,6 @@ public class Main extends TabActivity implements
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
-    private boolean isConnected() {
-        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info =  manager.getActiveNetworkInfo();
-        return info != null && info.isConnectedOrConnecting();
-    }
 
    @Override
     public Object onRetainNonConfigurationInstance() {

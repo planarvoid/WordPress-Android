@@ -123,7 +123,10 @@ public class ScContentProvider extends ContentProvider {
             case TRACKS_SHUFFLE:
                 qb.setTables(Table.TRACK_VIEW.name);
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
-                // TODO: only include cached tracks / music / etc.
+                boolean cached = uri.getQueryParameter("cached") != null;
+                if (cached) {
+                    _selection = DBHelper.TrackView.CACHED + "= 1";
+                }
                 _sortOrder = "RANDOM()";
                 break;
             case TRACK:

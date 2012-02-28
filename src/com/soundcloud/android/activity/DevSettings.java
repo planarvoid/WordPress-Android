@@ -8,6 +8,7 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlaylistManager;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.app.AlarmManager;
@@ -188,6 +189,11 @@ public final class DevSettings {
         private void play(Context context, Uri uri) {
             // TODO: should be handled via intent parameter
             PlaylistManager.clearLastPlayed(context);
+
+            if (!IOUtils.isConnected(context)) {
+                // just pick cached items if there is no network connection
+                uri = uri.buildUpon().appendQueryParameter("cached", "1").build();
+            }
 
             context.startService(new Intent(
                     context,

@@ -455,10 +455,4 @@ public final class CloudUtils {
         }
         return idList;
     }
-
-    public static boolean isWifiConnected(Context c) {
-        ConnectivityManager mgr = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ni = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        return !(ni == null || !ni.isConnectedOrConnecting());
-    }
 }
