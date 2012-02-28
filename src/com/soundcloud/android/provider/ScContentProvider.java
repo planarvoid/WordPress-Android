@@ -82,8 +82,10 @@ public class ScContentProvider extends ContentProvider {
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
+                if ("1".equals(uri.getQueryParameter("cached"))) {
+                    qb.appendWhere(" AND "+DBHelper.TrackView.CACHED + "= 1");
+                }
                 break;
-
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
             case ME_FRIENDS:
@@ -204,6 +206,9 @@ public class ScContentProvider extends ContentProvider {
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
                 if (_columns == null) _columns = formatWithUser(fullActivityColumns, userId);
+                if ("1".equals(uri.getQueryParameter("cached"))) {
+                    qb.appendWhere(DBHelper.TrackView.CACHED + "= 1 AND ");
+                }
 
             case ME_ALL_ACTIVITIES:
             case ME_ACTIVITIES:
@@ -627,9 +632,7 @@ public class ScContentProvider extends ContentProvider {
             " ON (" + table.id +" = " + DBHelper.CollectionItems.ITEM_ID+ ")";
     }
 
-    static SCQueryBuilder makeCollectionSelection(SCQueryBuilder qb,
-                                                      String userId, int collectionType) {
-
+    static SCQueryBuilder makeCollectionSelection(SCQueryBuilder qb, String userId, int collectionType) {
         qb.appendWhere(Table.COLLECTION_ITEMS.name+"."+ DBHelper.CollectionItems.USER_ID + " = " + userId);
         qb.appendWhere(" AND "+DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType);
         return qb;

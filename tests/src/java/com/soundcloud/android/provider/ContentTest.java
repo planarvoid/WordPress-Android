@@ -37,8 +37,10 @@ public class ContentTest {
 
         expect(Content.TRACK_ARTWORK.forId(1234).toString()).toEqual(
                 "content://com.soundcloud.android.provider.ScContentProvider/tracks/1234/artwork");
-
-
     }
 
+    @Test
+    public void shouldBuildQuery() throws Exception {
+        expect(Content.ME_ACTIVITIES.withQuery("a", "1")).toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/activities/all/own?a=1");
+    }
 }

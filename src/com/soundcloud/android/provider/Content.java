@@ -177,6 +177,10 @@ public enum Content {
         return uri.buildUpon();
     }
 
+    public Uri withQuery(String name, String value) {
+        return buildUpon().appendQueryParameter(name, value).build();
+    }
+
     public Uri forId(long id) {
         if (uri.toString().contains("#")) {
             return Uri.parse(uri.toString().replace("#", String.valueOf(id)));

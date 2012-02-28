@@ -391,8 +391,6 @@ public class StreamStorage {
                 }
                 if (cleanedSpace >= spaceToClean) break;
             }
-
-
             return true;
         } else {
             return false;
