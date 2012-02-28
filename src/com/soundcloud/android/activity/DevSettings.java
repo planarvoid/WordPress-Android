@@ -121,8 +121,6 @@ public final class DevSettings {
 
     public static final class AlarmClock {
         public static final String TAG = AlarmClock.class.getSimpleName();
-        public static final String ALARM_ACTION  = "com.soundcloud.android.actions.ALARM";
-        public static final String CANCEL_ACTION = "com.soundcloud.android.actions.CANCEL_ALARM";
         public static final String PREF_URI      = "dev.alarmClock.uri";
         public static final String DEFAULT_URI = Content.ME_TRACKS.uri.toString();
         public static final int NOTIFICATION_ID = 9999;
@@ -237,12 +235,12 @@ public final class DevSettings {
 
         private PendingIntent getCancelAlarmIntent() {
             return PendingIntent.getBroadcast(mContext, 0,
-                    new Intent(CANCEL_ACTION), 0);
+                    new Intent(Actions.CANCEL_ALARM), 0);
         }
 
         private PendingIntent getAlarmIntent(Uri uri) {
             return PendingIntent.getBroadcast(mContext, 0,
-                    new Intent(ALARM_ACTION)
+                    new Intent(Actions.ALARM)
                             .putExtra(EXTRA_URI, uri), 0);
             // NB: uri is not set with setData() to make intent cancelable
             // http://developer.android.com/reference/android/content/Intent.html#filterEquals%28android.content.Intent%29
@@ -310,7 +308,7 @@ public final class DevSettings {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final AlarmClock alarm = new AlarmClock(context);
-                if (ALARM_ACTION.equals(intent.getAction())) {
+                if (Actions.ALARM.equals(intent.getAction())) {
                     alarm.disableAirplaneMode();
                     alarm.cancel();
 
@@ -325,7 +323,7 @@ public final class DevSettings {
                         // TODO: should have some fallback here
                         Log.w(TAG, "no uri found, no alarm");
                     }
-                } else if (CANCEL_ACTION.equals(intent.getAction())) {
+                } else if (Actions.CANCEL_ALARM.equals(intent.getAction())) {
                     alarm.cancel();
                 } else {
                     Log.w(TAG, "unhandled intent: "+intent);
