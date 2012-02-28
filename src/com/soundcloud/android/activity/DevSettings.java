@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.PowerManager;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -133,7 +134,7 @@ public final class DevSettings {
         private Context mContext;
         private int mHour, mMinute;
 
-        private AlarmClock(Context context) {
+        /* package */ AlarmClock(Context context) {
             this.mContext = context;
         }
 
@@ -155,14 +156,21 @@ public final class DevSettings {
             Log.d(TAG, "setting alarm to: " + alarm.format2445());
             mgr.set(AlarmManager.RTC_WAKEUP, alarm.toMillis(false), getAlarmIntent(null));
             double in = (alarm.toMillis(false) - now.toMillis(false)) / 1000d;
-            CloudUtils.showToast(mContext,
-                    "Alarm in " + CloudUtils.getTimeString(mContext.getResources(), in, false));
+            CloudUtils.showToast(mContext, R.string.dev_alarm_set,
+                    CloudUtils.getTimeString(mContext.getResources(), in, false));
 
-            final String message = "Alarm set to " + alarm.format("%k:%M");
+            final String message = mContext.getString(R.string.dev_alarm_set, alarm.format("%k:%M"));
             getNotifications().notify(NOTIFICATION_ID, createNotification(message));
             setAlarmMessage(message);
             saveToPrefs();
             return true;
+        }
+
+        public void rescheduleDelayed(int seconds) {
+            if (seconds > 0) {
+                AlarmManager mgr = getAlarmManager();
+                mgr.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+(seconds*1000), getAlarmIntent(null));
+            }
         }
 
         public boolean cancel() {
@@ -185,16 +193,15 @@ public final class DevSettings {
         }
 
 
-        private void play(Context context, Uri uri) {
+        /* package */ void play(Context context, Uri uri) {
             // TODO: should be handled via intent parameter
             PlaylistManager.clearLastPlayed(context);
 
             if (!IOUtils.isConnected(context)) {
-                // just pick cached items if there is no network connection
+                // just use cached items if there is no network connection
                 uri = uri.buildUpon().appendQueryParameter(
                         ScContentProvider.Parameter.CACHED, "1").build();
             }
-
             context.startService(new Intent(
                     context,
                     CloudPlaybackService.class)
@@ -281,17 +288,17 @@ public final class DevSettings {
 
         private boolean disableAirplaneMode() {
             // switch off airplane mode if enabled
-            boolean isEnabled = android.provider.Settings.System.getInt(
+            final boolean isEnabled = android.provider.Settings.System.getInt(
                     mContext.getContentResolver(),
                     android.provider.Settings.System.AIRPLANE_MODE_ON, 0) == 1;
 
             if (isEnabled) {
                 android.provider.Settings.System.putInt(
-                        mContext.getContentResolver(),
-                        android.provider.Settings.System.AIRPLANE_MODE_ON, 0);
+                    mContext.getContentResolver(),
+                    android.provider.Settings.System.AIRPLANE_MODE_ON, 0);
 
                 mContext.sendBroadcast(new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED)
-                                .putExtra("state", !isEnabled));
+                                .putExtra("state", false));
                 return true;
             } else return false;
         }
@@ -307,26 +314,37 @@ public final class DevSettings {
         public static final class Receiver extends BroadcastReceiver {
             @Override
             public void onReceive(Context context, Intent intent) {
-                final AlarmClock alarm = new AlarmClock(context);
-                if (Actions.ALARM.equals(intent.getAction())) {
-                    alarm.disableAirplaneMode();
-                    alarm.cancel();
-
-                    Uri uri = intent.getParcelableExtra(EXTRA_URI);
-                    if (uri == null) {
-                        uri = alarm.getPlayUri();
-                    }
-                    if (uri != null) {
-                        Log.d(TAG, "alarm with uri=" + uri);
-                        alarm.play(context, uri);
+                PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+                PowerManager.WakeLock lock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+                if (lock != null) lock.acquire();
+                try {
+                    final AlarmClock alarm = new AlarmClock(context);
+                    if (Actions.ALARM.equals(intent.getAction())) {
+                        alarm.cancel();
+                        if (alarm.disableAirplaneMode()) {
+                            // if we had to disable airplane mode reschedule the alarm
+                            // with a slight delay to allow the connection to come up
+                            alarm.rescheduleDelayed(15);
+                        } else {
+                            Uri uri = intent.getParcelableExtra(EXTRA_URI);
+                            if (uri == null) {
+                                uri = alarm.getPlayUri();
+                            }
+                            if (uri != null) {
+                                Log.d(TAG, "alarm with uri=" + uri);
+                                alarm.play(context, uri);
+                            } else {
+                                // TODO: should have some fallback here
+                                Log.w(TAG, "no uri found, no alarm");
+                            }
+                        }
+                    } else if (Actions.CANCEL_ALARM.equals(intent.getAction())) {
+                        alarm.cancel();
                     } else {
-                        // TODO: should have some fallback here
-                        Log.w(TAG, "no uri found, no alarm");
+                        Log.w(TAG, "unhandled intent: "+intent);
                     }
-                } else if (Actions.CANCEL_ALARM.equals(intent.getAction())) {
-                    alarm.cancel();
-                } else {
-                    Log.w(TAG, "unhandled intent: "+intent);
+                } finally {
+                    if (lock != null) lock.release();
                 }
             }
         }

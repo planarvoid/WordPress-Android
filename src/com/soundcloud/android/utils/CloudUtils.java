@@ -93,8 +93,13 @@ public final class CloudUtils {
         return dialog;
     }
 
-    public static void showToast(Context c, int resId) {
-        Toast toast = Toast.makeText(c, resId, Toast.LENGTH_LONG);
+    public static void showToast(Context c, int resId, Object... args) {
+        Toast toast;
+        if (args.length > 0) {
+            toast = Toast.makeText(c, c.getString(resId, args), Toast.LENGTH_LONG);
+        } else {
+            toast = Toast.makeText(c, resId, Toast.LENGTH_LONG);
+        }
         toast.show();
     }
 

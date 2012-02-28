@@ -302,8 +302,8 @@ public class DBHelper extends SQLiteOpenHelper {
             " JOIN Users ON(" +
             "   Tracks." + Tracks.USER_ID + " = " + "Users." + Users._ID + ")" +
             " LEFT OUTER JOIN TrackMetadata ON(" +
-            "   TrackMetadata." + TrackMetadata._ID + " = " + "Tracks." + TrackView._ID + ")" +
-            "";
+            "   TrackMetadata." + TrackMetadata._ID + " = " + "Tracks." + TrackView._ID + ")"
+            ;
 
     /** A view which combines activity data + tracks/users/comments */
     static final String DATABASE_CREATE_ACTIVITY_VIEW = "CREATE VIEW ActivityView AS SELECT " +
