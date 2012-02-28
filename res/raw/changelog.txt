@@ -2,7 +2,7 @@ $ 37
   % v current
   _ 2012-02-24
   ! Maintenance
-    * WIP
+    * Spanish localisation (WIP)
     - dev: Alarm Clock
     - Track metadata (counts + type + cached)
     - Force sync after push notification
