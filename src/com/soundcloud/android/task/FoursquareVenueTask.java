@@ -21,6 +21,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class FoursquareVenueTask extends AsyncTask<Location, Void, List<FoursquareVenue>> {
     public static final int VENUE_LIMIT     = 25; // fetch this number of 4sq venues
@@ -44,7 +45,7 @@ public class FoursquareVenueTask extends AsyncTask<Location, Void, List<Foursqua
     protected List<FoursquareVenue> doInBackground(Location... locations) {
         Location loc = locations[0];
         HttpClient client = IOUtils.createHttpClient(CloudAPI.USER_AGENT);
-        final String ll = String.format("%.6f,%.6f", loc.getLatitude(), loc.getLongitude());
+        final String ll = String.format(Locale.ENGLISH, "%.6f,%.6f", loc.getLatitude(), loc.getLongitude());
 
         //http://developer.foursquare.com/docs/venues/search.html
         Request r = new Request("https://api.foursquare.com/v2/venues/search").with(
