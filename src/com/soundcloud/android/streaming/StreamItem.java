@@ -41,6 +41,7 @@ public class StreamItem implements Parcelable {
     private URL mRedirectedUrl;
     private String mEtag;  // audio content ETag
     private long mExpires; // expiration time of the redirect link
+    private int mBitrate;
 
     private File mCachedFile;
 
@@ -79,6 +80,7 @@ public class StreamItem implements Parcelable {
         mContentLength = s.contentLength;
         mEtag = s.eTag;
         mExpires = s.expires;
+        mBitrate = s.bitRate;
         return this;
     }
 
@@ -122,6 +124,10 @@ public class StreamItem implements Parcelable {
 
     public long getContentLength() {
         return mContentLength;
+    }
+
+    public int getBitrate() {
+        return mBitrate;
     }
 
     public Range byteRange() {

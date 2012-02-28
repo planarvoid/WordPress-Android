@@ -134,6 +134,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     @JsonIgnore public List<Comment> comments;
     @JsonIgnore public long filelength;
     @JsonIgnore public int local_user_playback_count;
+    @JsonIgnore public boolean local_cached;
     @JsonIgnore public FetchModelTask<Track> load_info_task;
     @JsonIgnore public LoadCommentsTask load_comments_task;
     @JsonIgnore public boolean full_track_info_loaded;
@@ -270,6 +271,10 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         final int localPlayCountIdx = cursor.getColumnIndex(DBHelper.TrackView.USER_PLAY_COUNT);
         if (localPlayCountIdx != -1) {
             local_user_playback_count = cursor.getInt(localPlayCountIdx);
+        }
+        final int cachedIdx = cursor.getColumnIndex(DBHelper.TrackView.CACHED);
+        if (cachedIdx != -1) {
+            local_cached = cursor.getInt(cachedIdx) == 1;
         }
         return this;
     }

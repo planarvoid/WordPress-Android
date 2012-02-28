@@ -166,6 +166,11 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere(Table.TRACK_PLAYS.id + " = " + uri.getLastPathSegment());
                 break;
 
+            case TRACK_METADATA:
+                qb.setTables(content.table.name);
+                qb.appendWhere(DBHelper.TrackMetadata.USER_ID + " = "+ userId);
+                break;
+
             case RECORDINGS:
                 qb.setTables(content.table.name +
                         " LEFT OUTER JOIN "+Table.USERS+
@@ -265,17 +270,25 @@ public class ScContentProvider extends ContentProvider {
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
-
-            case TRACK_PLAYS:
+            case TRACK_METADATA:
                 if (!values.containsKey(DBHelper.TrackMetadata.USER_ID)) {
                     values.put(DBHelper.TrackMetadata.USER_ID, userId);
                 }
-                id = db.insert(content.table.name, null, values);
+                content.table.upsert(db, new ContentValues[] {values} );
+                return uri.buildUpon().appendPath(
+                        values.getAsString(DBHelper.TrackMetadata._ID)).build();
+            case TRACK_PLAYS:
+                // TODO should be in update()
+                if (!values.containsKey(DBHelper.TrackMetadata.USER_ID)) {
+                    values.put(DBHelper.TrackMetadata.USER_ID, userId);
+                }
+                String trackId = values.getAsString(DBHelper.TrackMetadata._ID);
+                db.insert(content.table.name, null, values);
                 String counter = DBHelper.TrackMetadata.PLAY_COUNT;
                 db.execSQL("UPDATE "+content.table.name+
                         " SET "+counter+"="+counter+" + 1 WHERE "+content.table.id +"= ?",
-                        new String[] {String.valueOf(id)});
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                        new String[] {trackId}) ;
+                result = uri.buildUpon().appendPath(trackId).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
             case SEARCHES:

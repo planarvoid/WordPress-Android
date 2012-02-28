@@ -15,7 +15,7 @@ import java.util.List;
 public enum Table {
     TRACKS("Tracks", DBHelper.DATABASE_CREATE_TRACKS, DBHelper.Tracks.ALL_FIELDS),
     TRACK_PLAYS("TrackPlays", ""),
-    TRACK_METADATA("TrackMetadata", DBHelper.DATABASE_CREATE_TRACK_METADATA),
+    TRACK_METADATA("TrackMetadata", DBHelper.DATABASE_CREATE_TRACK_METADATA, DBHelper.TrackMetadata.ALL_FIELDS),
     USERS("Users", DBHelper.DATABASE_CREATE_USERS, DBHelper.Users.ALL_FIELDS),
     COMMENTS("Comments", DBHelper.DATABASE_CREATE_COMMENTS),
     ACTIVITIES("Activities", DBHelper.DATABASE_CREATE_ACTIVITIES),
@@ -182,7 +182,8 @@ public enum Table {
                 }
             }
             sb.append(");");
-            db.execSQL(sb.toString(), bindArgs.toArray());
+            final String sql = sb.toString();
+            db.execSQL(sql, bindArgs.toArray());
         }
         db.setTransactionSuccessful();
         db.endTransaction();

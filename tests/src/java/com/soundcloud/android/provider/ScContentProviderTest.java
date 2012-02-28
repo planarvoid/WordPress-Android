@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 
 import android.app.SearchManager;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -219,5 +220,16 @@ public class ScContentProviderTest {
         expect(Content.RECORDINGS).toHaveCount(1);
         expect(resolver.delete(uri, null, null)).toEqual(1);
         expect(Content.RECORDINGS).toBeEmpty();
+    }
+
+    @Test
+    public void shouldInsertTrackMetadata() throws Exception {
+        ContentValues values = new ContentValues();
+        values.put(DBHelper.TrackMetadata._ID, 20);
+        values.put(DBHelper.TrackMetadata.ETAG, "123456");
+        values.put(DBHelper.TrackMetadata.CACHED, 1);
+
+        Uri result = resolver.insert(Content.TRACK_METADATA.uri, values);
+        expect(result).toEqual("content://com.soundcloud.android.provider.ScContentProvider/track_metadata/20");
     }
 }

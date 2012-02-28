@@ -102,7 +102,7 @@ public class SoundCloudDB {
 
     public static boolean markTrackAsPlayed(ContentResolver resolver, Track track) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBHelper.TrackMetadata.TRACK_ID, track.id);
+        contentValues.put(DBHelper.TrackMetadata._ID, track.id);
         return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 

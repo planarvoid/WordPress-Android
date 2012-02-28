@@ -186,6 +186,7 @@ public class StreamStorage {
                 @Override protected void onPostExecute(Boolean success) {
                     if (success) {
                         removeIncompleteDataForItem(url);
+                        new UpdateMetadataTask(mContext.getContentResolver()).execute(item);
                     } else {
                         removeAllDataForItem(url);
                     }
@@ -373,8 +374,8 @@ public class StreamStorage {
                 final long length = f.length();
                 if (f.delete()) {
                     cleanedSpace += length;
-                    if (Log.isLoggable(LOG_TAG, Log.DEBUG))
-                        Log.d(LOG_TAG, "deleted "+f);
+                    if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "deleted "+f);
+
                     String name = f.getName();
                     if (name.endsWith(CHUNKS_EXTENSION)) {
                         String hash = name.substring(0, name.indexOf('.'));
@@ -390,6 +391,8 @@ public class StreamStorage {
                 }
                 if (cleanedSpace >= spaceToClean) break;
             }
+
+
             return true;
         } else {
             return false;
