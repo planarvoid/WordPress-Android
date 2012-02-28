@@ -57,7 +57,6 @@ public enum Content {
     TRACK_COMMENTS("tracks/#/comments", null, 204, Comment.class, -1, Table.COMMENTS),
     TRACK_PERMISSIONS("tracks/#/permissions", null, 205, null, -1, null),
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
-    TRACKS_SHUFFLE("tracks/shuffle", null,207, null, -1, Table.TRACKS),
 
     USERS("users", Endpoints.USERS, 301, User.class, -1, Table.USERS),
     USER("users/#", null, 302, User.class, -1, Table.USERS),
@@ -177,8 +176,14 @@ public enum Content {
         return uri.buildUpon();
     }
 
-    public Uri withQuery(String name, String value) {
-        return buildUpon().appendQueryParameter(name, value).build();
+    public Uri withQuery(String... args) {
+        if (args.length % 2 != 0) throw new IllegalArgumentException("need even params");
+
+        Uri.Builder builder = buildUpon();
+        for (int i=0; i<args.length; i+=2) {
+            builder.appendQueryParameter(args[i], args[i+1]);
+        }
+        return builder.build();
     }
 
     public Uri forId(long id) {
@@ -232,7 +237,7 @@ public enum Content {
 
     public boolean isStale(long lastSync) {
         // do not auto refresh users when the list opens, because users are always changing
-        if (resourceType == User.class) return lastSync > 0 ? false : true;
+        if (resourceType == User.class) return lastSync <= 0;
         final long staleTime = (resourceType == Track.class) ? SyncConfig.TRACK_STALE_TIME :
                                (resourceType == Activity.class) ? SyncConfig.ACTIVITY_STALE_TIME :
                                SyncConfig.DEFAULT_STALE_TIME;

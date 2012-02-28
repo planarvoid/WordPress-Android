@@ -41,6 +41,7 @@ public class ContentTest {
 
     @Test
     public void shouldBuildQuery() throws Exception {
-        expect(Content.ME_ACTIVITIES.withQuery("a", "1")).toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/activities/all/own?a=1");
+        expect(Content.ME_ACTIVITIES.withQuery("a", "1", "b", "2"))
+                .toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/activities/all/own?a=1&b=2");
     }
 }

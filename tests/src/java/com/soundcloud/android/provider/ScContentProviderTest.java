@@ -1,6 +1,7 @@
 package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.provider.ScContentProvider.Parameter.*;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Activities;
@@ -26,6 +27,7 @@ import android.provider.BaseColumns;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -241,7 +243,7 @@ public class ScContentProviderTest {
     }
 
     @Test
-    public void shouldHaveATrackShuffleEndpoint() throws Exception {
+    public void shouldHaveATracksEndpointWithRandom() throws Exception {
         Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
                 Track.TrackHolder.class);
@@ -250,22 +252,23 @@ public class ScContentProviderTest {
             expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
             expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
         }
-        Cursor c = resolver.query(Content.TRACKS_SHUFFLE.uri, null, null, null, null);
+        Cursor c = resolver.query(Content.TRACK.withQuery(RANDOM, "0"), null, null, null, null);
         expect(c.getCount()).toEqual(15);
-        List<Long> ids = new ArrayList<Long>();
-        List<Long> ids2 = new ArrayList<Long>();
+        List<Long> sorted = new ArrayList<Long>();
+        List<Long> random = new ArrayList<Long>();
         while (c.moveToNext()) {
-            ids.add(c.getLong(c.getColumnIndex(DBHelper.TrackView._ID)));
+            sorted.add(c.getLong(c.getColumnIndex(DBHelper.TrackView._ID)));
         }
-        Cursor c2 = resolver.query(Content.TRACKS_SHUFFLE.uri, null, null, null, null);
+        Cursor c2 = resolver.query(Content.TRACK.withQuery(RANDOM, "1"), null, null, null, null);
+        expect(c2.getCount()).toEqual(15);
         while (c2.moveToNext()) {
-            ids2.add(c2.getLong(c2.getColumnIndex(DBHelper.TrackView._ID)));
+            random.add(c2.getLong(c2.getColumnIndex(DBHelper.TrackView._ID)));
         }
-        expect(ids).not.toEqual(ids2);
+        expect(sorted).not.toEqual(random);
     }
 
     @Test
-    public void shouldHaveATrackShuffleEndpointWhichReturnsOnlyCachedItems() throws Exception {
+    public void shouldHaveATracksEndpointWhichReturnsOnlyCachedItems() throws Exception {
         Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
                 getClass().getResourceAsStream("user_favorites.json"),
                 Track.TrackHolder.class);
@@ -281,7 +284,7 @@ public class ScContentProviderTest {
         cv.put(DBHelper.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);
 
-        Uri uri = Content.TRACKS_SHUFFLE.withQuery("cached", "1");
+        Uri uri = Content.TRACKS.withQuery(CACHED, "1");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
@@ -305,11 +308,61 @@ public class ScContentProviderTest {
         cv.put(DBHelper.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);
 
-        Uri uri = Content.ME_FAVORITES.withQuery("cached", "1");
+        Uri uri = Content.ME_FAVORITES.withQuery(CACHED, "1");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
         expect(c.getLong(c.getColumnIndex(DBHelper.TrackView._ID))).toEqual(cachedId);
+    }
+
+    @Test
+    public void shouldHaveFavoriteEndpointWhichReturnsRandomItems() throws Exception {
+        Track.TrackHolder tracks  = AndroidCloudAPI.Mapper.readValue(
+                getClass().getResourceAsStream("user_favorites.json"),
+                Track.TrackHolder.class);
+
+        for (Track t : tracks) {
+            expect(resolver.insert(Content.USERS.uri, t.user.buildContentValues())).not.toBeNull();
+            expect(resolver.insert(Content.ME_FAVORITES.uri, t.buildContentValues())).not.toBeNull();
+        }
+
+        Uri uri = Content.ME_FAVORITES.withQuery(RANDOM, "1", LIMIT, "5");
+        Cursor c = resolver.query(uri, null, null, null, null);
+        expect(c.getCount()).toEqual(5);
+
+        long[] sorted = new long[] { 13403434, 18071729, 18213041, 18571159, 19658312 };
+        long[] result = new long[sorted.length];
+        int i = 0;
+        while(c.moveToNext()) {
+            result[i++] = c.getLong(c.getColumnIndex(DBHelper.TrackView._ID));
+        }
+        expect(Arrays.equals(result, sorted)).toBeFalse();
+    }
+
+    @Test
+    public void shouldHaveStreamEndpointWhichReturnsRandomItems() throws Exception {
+        // TODO: find easier way to populate stream
+        ApiSyncService svc = new ApiSyncService();
+        TestHelper.addCannedResponses(SyncAdapterServiceTest.class,  "incoming_2.json");
+        svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
+        expect(Content.ME_SOUND_STREAM).toHaveCount(49);
+
+        ContentValues cv = new ContentValues();
+        final long firstId = 18508668l;
+        cv.put(DBHelper.TrackMetadata._ID, firstId);
+        cv.put(DBHelper.TrackMetadata.CACHED, 1);
+        resolver.insert(Content.TRACK_METADATA.uri, cv);
+
+        Uri uri = Content.ME_SOUND_STREAM.withQuery(RANDOM, "1", LIMIT, "5");
+        Cursor c = resolver.query(uri, null, null, null, null);
+        expect(c.getCount()).toEqual(5);
+        long sorted[] = new long[] {18508668, 18508600, 18508493, 18028217, 18223729};
+        long result[] = new long[sorted.length];
+        int i=0;
+        while (c.moveToNext()) {
+            result[i++] = c.getLong(c.getColumnIndex(DBHelper.ActivityView.TRACK_ID));
+        }
+        expect(Arrays.equals(result, sorted)).toBeFalse();
     }
 
     @Test
@@ -326,7 +379,7 @@ public class ScContentProviderTest {
         cv.put(DBHelper.TrackMetadata.CACHED, 1);
         resolver.insert(Content.TRACK_METADATA.uri, cv);
 
-        Uri uri = Content.ME_SOUND_STREAM.withQuery("cached", "1");
+        Uri uri = Content.ME_SOUND_STREAM.withQuery(CACHED, "1");
         Cursor c = resolver.query(uri, null, null, null, null);
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();

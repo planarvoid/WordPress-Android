@@ -34,6 +34,13 @@ public class ScContentProvider extends ContentProvider {
     private static final String TAG = ScContentProvider.class.getSimpleName();
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
 
+    public static interface Parameter {
+        String RANDOM = "random";
+        String CACHED = "cached";
+        String LIMIT  = "limit";
+        String OFFSET = "offset";
+    }
+
     private DBHelper dbHelper;
 
     @Override
@@ -82,7 +89,7 @@ public class ScContentProvider extends ContentProvider {
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
-                if ("1".equals(uri.getQueryParameter("cached"))) {
+                if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
                     qb.appendWhere(" AND "+DBHelper.TrackView.CACHED + "= 1");
                 }
                 break;
@@ -116,20 +123,15 @@ public class ScContentProvider extends ContentProvider {
                 makeCollectionSelection(qb, uri.getPathSegments().get(1), content.collectionType);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
-
-
             case TRACKS:
                 qb.setTables(Table.TRACK_VIEW.name);
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
-                break;
-            case TRACKS_SHUFFLE:
-                qb.setTables(Table.TRACK_VIEW.name);
-                if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
-                boolean cached = uri.getQueryParameter("cached") != null;
-                if (cached) {
-                    _selection = DBHelper.TrackView.CACHED + "= 1";
+                if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
+                    _sortOrder = "RANDOM()";
                 }
-                _sortOrder = "RANDOM()";
+                if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
+                    qb.appendWhere(DBHelper.TrackView.CACHED + "= 1");
+                }
                 break;
             case TRACK:
                 qb.setTables(Table.TRACK_VIEW.name);
@@ -206,7 +208,7 @@ public class ScContentProvider extends ContentProvider {
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
                 if (_columns == null) _columns = formatWithUser(fullActivityColumns, userId);
-                if ("1".equals(uri.getQueryParameter("cached"))) {
+                if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
                     qb.appendWhere(DBHelper.TrackView.CACHED + "= 1 AND ");
                 }
 
@@ -605,26 +607,30 @@ public class ScContentProvider extends ContentProvider {
 
     static String makeCollectionSort(Uri uri, String sortCol) {
         StringBuilder b = new StringBuilder();
-        b.append(sortCol == null ? DBHelper.CollectionItems.POSITION : sortCol);
-        String limit = uri.getQueryParameter("limit");
+        if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
+            b.append("RANDOM()");
+        }  else {
+            b.append(sortCol == null ? DBHelper.CollectionItems.POSITION : sortCol);
+        }
+        String limit = uri.getQueryParameter(Parameter.LIMIT);
         if (!TextUtils.isEmpty(limit)) b.append(" LIMIT ").append(limit);
-        String offset = uri.getQueryParameter("offset");
+        String offset = uri.getQueryParameter(Parameter.OFFSET);
         if (!TextUtils.isEmpty(offset)) b.append(" OFFSET ").append(offset);
         return b.toString();
     }
 
     static String makeActivitiesSort(Uri uri, String sortCol) {
-        String limit = uri.getQueryParameter("limit");
-        String offset = uri.getQueryParameter("offset");
-        if (TextUtils.isEmpty("limit") && TextUtils.isEmpty("offset")) {
-            return null;
+        String limit  = uri.getQueryParameter(Parameter.LIMIT);
+        String offset = uri.getQueryParameter(Parameter.OFFSET);
+        StringBuilder b = new StringBuilder();
+        if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
+            b.append("RANDOM()");
         } else {
-            StringBuilder b = new StringBuilder();
-            b.append(sortCol == null ? DBHelper.ActivityView.CREATED_AT + " DESC": sortCol);
-            if (!TextUtils.isEmpty(limit)) b.append(" LIMIT ").append(limit);
-            if (!TextUtils.isEmpty(offset)) b.append(" OFFSET ").append(offset);
-            return b.toString();
+            b.append(sortCol == null ? DBHelper.ActivityView.CREATED_AT + " DESC" : sortCol);
         }
+        if (!TextUtils.isEmpty(limit)) b.append(" LIMIT ").append(limit);
+        if (!TextUtils.isEmpty(offset)) b.append(" OFFSET ").append(offset);
+        return b.toString();
     }
 
     static String makeCollectionJoin(Table table){
@@ -664,7 +670,7 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         SCQueryBuilder qb = new SCQueryBuilder();
         qb.setTables(Table.TRACK_VIEW.name);
-        String limit = uri.getQueryParameter("limit");
+        String limit = uri.getQueryParameter(Parameter.LIMIT);
 
         qb.appendWhere( DBHelper.TrackView.TITLE+" LIKE '%"+selectionArgs[0]+"%'");
         String query = qb.buildQuery(

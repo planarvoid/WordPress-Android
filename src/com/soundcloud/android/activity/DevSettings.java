@@ -4,6 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlaylistManager;
 import com.soundcloud.android.service.sync.SyncAdapterService;
@@ -192,7 +193,8 @@ public final class DevSettings {
 
             if (!IOUtils.isConnected(context)) {
                 // just pick cached items if there is no network connection
-                uri = uri.buildUpon().appendQueryParameter("cached", "1").build();
+                uri = uri.buildUpon().appendQueryParameter(
+                        ScContentProvider.Parameter.CACHED, "1").build();
             }
 
             context.startService(new Intent(
