@@ -684,7 +684,7 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
 
         } catch (SQLException e) {
-            SoundCloudApplication.handleSilentException("error during upgrade9 " +
+            SoundCloudApplication.handleSilentException("error during upgrade10 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
