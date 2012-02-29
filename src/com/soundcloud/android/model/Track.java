@@ -132,7 +132,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
     // Fields used by app
     @JsonIgnore public List<Comment> comments;
-    @JsonIgnore public long filelength;
     @JsonIgnore public int local_user_playback_count;
     @JsonIgnore public boolean local_cached;
     @JsonIgnore public FetchModelTask<Track> load_info_task;
@@ -254,7 +253,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         favoritings_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.FAVORITINGS_COUNT));
         shared_to_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.SHARED_TO_COUNT));
         user_id = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.USER_ID));
-        filelength = cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.FILELENGTH));
         commentable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENTABLE)) == 1;
         final int sharingNoteIdx = cursor.getColumnIndex(DBHelper.TrackView.SHARING_NOTE_TEXT);
         if (sharingNoteIdx != -1) {
@@ -286,7 +284,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     public void setAppFields(Track t) {
-        filelength = t.filelength;
         comments = t.comments;
     }
 
@@ -327,10 +324,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         if (sharing_note != null && !sharing_note.isEmpty()) {
             cv.put(Tracks.SHARING_NOTE_TEXT, sharing_note.text);
         }
-        // app level, only add these 2 if they have been set, otherwise they
-        // might overwrite valid db values
-        if (filelength > 0) cv.put(Tracks.FILELENGTH, filelength);
-
         if (isCompleteTrack()) {
             cv.put(Tracks.LAST_UPDATED, System.currentTimeMillis());
         }

@@ -32,8 +32,7 @@ public class FetchTrackInfoTaskTest {
         Track t = new Track();
         t.id = 12345;
         t.title = "Old Title";
-        t.filelength = 9999;
-        ((SoundCloudApplication) Robolectric.application).TRACK_CACHE.put(t);
+        SoundCloudApplication.TRACK_CACHE.put(t);
 
         final Track[] track = {null};
         listener = new FetchTrackTask.FetchTrackListener() {
@@ -56,11 +55,8 @@ public class FetchTrackInfoTaskTest {
         assertThat(t, not(nullValue()));
         assertThat(t.title, equalTo("recording on sunday night"));
 
-        t = ((SoundCloudApplication) Robolectric.application).TRACK_CACHE.get(12345l);
+        t = SoundCloudApplication.TRACK_CACHE.get(12345l);
         assertThat(t, not(nullValue()));
         assertThat(t.title, equalTo("recording on sunday night"));
-        assertThat(t.filelength, equalTo(9999l));
-
-
     }
 }

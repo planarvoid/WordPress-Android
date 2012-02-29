@@ -2,6 +2,7 @@ package com.soundcloud.android.provider;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
@@ -9,29 +10,28 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 
 public enum Table {
-    TRACKS("Tracks", DBHelper.DATABASE_CREATE_TRACKS, DBHelper.Tracks.ALL_FIELDS),
-    TRACK_PLAYS("TrackPlays", ""),
-    TRACK_METADATA("TrackMetadata", DBHelper.DATABASE_CREATE_TRACK_METADATA, DBHelper.TrackMetadata.ALL_FIELDS),
-    USERS("Users", DBHelper.DATABASE_CREATE_USERS, DBHelper.Users.ALL_FIELDS),
-    COMMENTS("Comments", DBHelper.DATABASE_CREATE_COMMENTS),
-    ACTIVITIES("Activities", DBHelper.DATABASE_CREATE_ACTIVITIES),
-    RECORDINGS("Recordings", DBHelper.DATABASE_CREATE_RECORDINGS),
-    SEARCHES("Searches", DBHelper.DATABASE_CREATE_SEARCHES),
+    TRACKS("Tracks", false, DBHelper.DATABASE_CREATE_TRACKS, DBHelper.Tracks.ALL_FIELDS),
+    TRACK_PLAYS("TrackPlays", false, null),
+    TRACK_METADATA("TrackMetadata", false, DBHelper.DATABASE_CREATE_TRACK_METADATA, DBHelper.TrackMetadata.ALL_FIELDS),
+    USERS("Users", false, DBHelper.DATABASE_CREATE_USERS, DBHelper.Users.ALL_FIELDS),
+    COMMENTS("Comments", false, DBHelper.DATABASE_CREATE_COMMENTS),
+    ACTIVITIES("Activities", false, DBHelper.DATABASE_CREATE_ACTIVITIES),
+    RECORDINGS("Recordings", false, DBHelper.DATABASE_CREATE_RECORDINGS),
+    SEARCHES("Searches", false, DBHelper.DATABASE_CREATE_SEARCHES),
 
-    PLAYLIST("Playlist", DBHelper.DATABASE_CREATE_PLAYLIST),
-    PLAYLIST_ITEMS("PlaylistItems", DBHelper.DATABASE_CREATE_PLAYLIST_ITEMS),
+    PLAYLIST("Playlist", false, DBHelper.DATABASE_CREATE_PLAYLIST),
+    PLAYLIST_ITEMS("PlaylistItems", false, DBHelper.DATABASE_CREATE_PLAYLIST_ITEMS),
 
-    COLLECTION_ITEMS("CollectionItems", DBHelper.DATABASE_CREATE_COLLECTION_ITEMS),
-    COLLECTIONS("Collections", DBHelper.DATABASE_CREATE_COLLECTIONS),
-    COLLECTION_PAGES("CollectionPages", DBHelper.DATABASE_CREATE_COLLECTION_PAGES),
+    COLLECTION_ITEMS("CollectionItems", false, DBHelper.DATABASE_CREATE_COLLECTION_ITEMS),
+    COLLECTIONS("Collections", false, DBHelper.DATABASE_CREATE_COLLECTIONS),
+    COLLECTION_PAGES("CollectionPages", false, DBHelper.DATABASE_CREATE_COLLECTION_PAGES),
 
     // views
-    TRACK_VIEW("TrackView", DBHelper.DATABASE_CREATE_TRACK_VIEW),
-    ACTIVITY_VIEW("ActivityView", DBHelper.DATABASE_CREATE_ACTIVITY_VIEW),
+    TRACK_VIEW("TrackView", true, DBHelper.DATABASE_CREATE_TRACK_VIEW),
+    ACTIVITY_VIEW("ActivityView", true, DBHelper.DATABASE_CREATE_ACTIVITY_VIEW),
     ;
 
 
@@ -39,12 +39,18 @@ public enum Table {
     public final String createString;
     public final String id;
     public final String[] fields;
+    public final boolean view;
     public static final String TAG = DBHelper.TAG;
 
-    Table(String name, String create, String... fields) {
-        if (name == null || create == null) throw new NullPointerException();
+    Table(String name, boolean view, String create, String... fields) {
+        if (name == null) throw new NullPointerException();
         this.name = name;
-        createString = create;
+        this.view = view;
+        if (create != null) {
+            createString = "CREATE "+(view ? "VIEW" : "TABLE")+" "+name+" "+create;
+        } else {
+            createString = null;
+        }
         id = this.name +"."+BaseColumns._ID;
         this.fields = fields;
     }
@@ -58,8 +64,7 @@ public enum Table {
     }
 
     public static Table get(String name) {
-        EnumSet<Table> tables = EnumSet.allOf(Table.class);
-        for (Table table : tables) {
+        for (Table table : values()) {
             if (table.name.equals(name)) return table;
         }
         return null;
@@ -67,14 +72,23 @@ public enum Table {
 
     public void drop(SQLiteDatabase db) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "dropping " + name);
-        db.execSQL("DROP TABLE IF EXISTS "+name);
+        db.execSQL("DROP " + (view ? "VIEW" : "TABLE") +" IF EXISTS "+name);
+    }
+
+    public boolean exists(SQLiteDatabase db) {
+        try {
+            db.execSQL("SELECT 1 FROM "+name);
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     public void create(SQLiteDatabase db) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "creating " + name);
         if (!TextUtils.isEmpty(createString)) {
             db.execSQL(createString);
-        }
+        } else if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "NOT creating " + name);
     }
 
     public void recreate(SQLiteDatabase db) {
@@ -87,7 +101,7 @@ public enum Table {
     }
 
     public static List<String> getColumnNames(SQLiteDatabase db, String table) {
-        Cursor cursor = db.rawQuery("pragma table_info (" + table + ")", null);
+        Cursor cursor = db.rawQuery("PRAGMA table_info (" + table + ")", null);
         List<String> cols = new ArrayList<String>();
         while (cursor != null && cursor.moveToNext()) {
             cols.add(cursor.getString(1));
