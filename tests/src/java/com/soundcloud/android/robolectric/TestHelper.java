@@ -39,6 +39,10 @@ public class TestHelper {
     }
 
     public static void addPendingIOException(String path) {
+        if (path != null && path.startsWith("/")) {
+            path = path.substring(1, path.length());
+        }
+
         FakeHttpLayer.RequestMatcherBuilder builder = new FakeHttpLayer.RequestMatcherBuilder();
         if (path != null) {
             builder.path(path);
