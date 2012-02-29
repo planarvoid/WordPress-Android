@@ -10,6 +10,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
@@ -143,5 +146,21 @@ public class TableTest {
         expect(c.getLong(c.getColumnIndex("_id"))).toEqual(1L);
         expect(c.getString(c.getColumnIndex("keep_me"))).toEqual("blavalue");
         expect(c.getInt(c.getColumnIndex("renamed"))).toEqual(200);
+    }
+
+    @Test
+    public void shouldSnapshotSchema() throws Exception {
+        String snapshot = Table.schemaSnapshot();
+        expect(snapshot).toMatch("CREATE TABLE");
+        expect(snapshot).toMatch("CREATE VIEW");
+    }
+
+    public static void main(String[] args) throws IOException {
+        File schema = new File("tests/src/resources/com/soundcloud/android/provider/schema_"
+                +DBHelper.DATABASE_VERSION+".sql");
+
+        FileOutputStream fos = new FileOutputStream(schema);
+        fos.write(Table.schemaSnapshot().getBytes());
+        fos.close();
     }
 }

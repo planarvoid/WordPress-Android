@@ -208,4 +208,15 @@ public enum Table {
     public String toString() {
         return name;
     }
+
+    public static String schemaSnapshot() {
+        StringBuilder sb = new StringBuilder();
+        for (Table t : values()) {
+            if (t.createString != null) {
+                sb.append(t.createString);
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
+    }
 }
