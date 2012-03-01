@@ -1,4 +1,6 @@
 <resources>
+    <string name="empty"/>
+
     <string name='pref_dev_settings'>Dev settings</string>
 
     <string name='pref_record_high_quality_type'>High quality type</string>
@@ -22,4 +24,28 @@
     <string name='pref_dev_http_proxy'>HTTP proxy</string>
     <string name='pref_dev_http_proxy_summary'>Use a proxy to connect to the API</string>
     <string name='pref_dev_http_proxy_invalid_url'>Invalid URL</string>
+
+
+    <!-- alarm clock -->
+    <string name="dev_alarm_set">Alarm set to %s</string>
+    <string name='pref_dev_alarm_clock'>Alarm clock</string>
+    <string name='pref_dev_alarm_clock_summary'>Set an alarm</string>
+    <string name='pref_dev_alarm_play_uri'>Alarm playlist</string>
+    <string name='pref_dev_alarm_play_uri_summary'>What to play on alarm</string>
+
+    <string-array name="dev_alarmClock_uri_entries">
+        <item>Stream</item>
+        <item>Shuffled Stream</item>
+        <item>Likes</item>
+        <item>Shuffled Likes</item>
+        <item>Random Sounds</item>
+    </string-array>
+
+    <string-array name="dev_alarmClock_uri_values">
+        <item>content://com.soundcloud.android.provider.ScContentProvider/me/activities/tracks</item>
+        <item>content://com.soundcloud.android.provider.ScContentProvider/me/activities/tracks?random=1</item>
+        <item>content://com.soundcloud.android.provider.ScContentProvider/me/favorites</item>
+        <item>content://com.soundcloud.android.provider.ScContentProvider/me/favorites?random=1</item>
+        <item>content://com.soundcloud.android.provider.ScContentProvider/tracks?random=1</item>
+    </string-array>
 </resources>

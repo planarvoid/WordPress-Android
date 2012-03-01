@@ -93,8 +93,13 @@ public final class CloudUtils {
         return dialog;
     }
 
-    public static void showToast(Context c, int resId) {
-        Toast toast = Toast.makeText(c, resId, Toast.LENGTH_LONG);
+    public static void showToast(Context c, int resId, Object... args) {
+        Toast toast;
+        if (args.length > 0) {
+            toast = Toast.makeText(c, c.getString(resId, args), Toast.LENGTH_LONG);
+        } else {
+            toast = Toast.makeText(c, resId, Toast.LENGTH_LONG);
+        }
         toast.show();
     }
 
@@ -172,21 +177,25 @@ public final class CloudUtils {
         return sFormatter.format(durationformat, timeArgs).toString();
     }
 
+
     public static CharSequence getElapsedTimeString(Resources r, long start, boolean longerText) {
         double elapsed = Double.valueOf(Math.ceil((System.currentTimeMillis() - start) / 1000d)).longValue();
+        return getTimeString(r, elapsed, longerText);
+    }
 
-        if (elapsed < 60)
-            return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsed, (int) elapsed);
-        else if (elapsed < 3600)
-            return r.getQuantityString(longerText ? R.plurals.elapsed_minutes_ago : R.plurals.elapsed_minutes, (int) (elapsed / 60), (int) (elapsed / 60));
-        else if (elapsed < 86400)
-            return r.getQuantityString(longerText ? R.plurals.elapsed_hours_ago : R.plurals.elapsed_hours, (int) (elapsed / 3600), (int) (elapsed / 3600));
-        else if (elapsed < 2592000)
-            return r.getQuantityString(longerText ? R.plurals.elapsed_days_ago : R.plurals.elapsed_days, (int) (elapsed / 86400), (int) (elapsed / 86400));
-        else if (elapsed < 31536000)
-            return r.getQuantityString(longerText ? R.plurals.elapsed_months_ago : R.plurals.elapsed_months, (int) (elapsed / 2592000), (int) (elapsed / 2592000));
+    public static CharSequence getTimeString(Resources r, double elapsedSeconds, boolean longerText) {
+        if (elapsedSeconds < 60)
+            return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsedSeconds, (int) elapsedSeconds);
+        else if (elapsedSeconds < 3600)
+            return r.getQuantityString(longerText ? R.plurals.elapsed_minutes_ago : R.plurals.elapsed_minutes, (int) (elapsedSeconds / 60), (int) (elapsedSeconds / 60));
+        else if (elapsedSeconds < 86400)
+            return r.getQuantityString(longerText ? R.plurals.elapsed_hours_ago : R.plurals.elapsed_hours, (int) (elapsedSeconds / 3600), (int) (elapsedSeconds / 3600));
+        else if (elapsedSeconds < 2592000)
+            return r.getQuantityString(longerText ? R.plurals.elapsed_days_ago : R.plurals.elapsed_days, (int) (elapsedSeconds / 86400), (int) (elapsedSeconds / 86400));
+        else if (elapsedSeconds < 31536000)
+            return r.getQuantityString(longerText ? R.plurals.elapsed_months_ago : R.plurals.elapsed_months, (int) (elapsedSeconds / 2592000), (int) (elapsedSeconds / 2592000));
         else
-            return r.getQuantityString(longerText ? R.plurals.elapsed_years_ago : R.plurals.elapsed_years, (int) (elapsed / 31536000), (int) (elapsed / 31536000));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_years_ago : R.plurals.elapsed_years, (int) (elapsedSeconds / 31536000), (int) (elapsedSeconds / 31536000));
     }
 
     public static int getDigitsFromSeconds(int secs) {
@@ -450,11 +459,5 @@ public final class CloudUtils {
             i++;
         }
         return idList;
-    }
-
-    public static boolean isWifiConnected(Context c) {
-        ConnectivityManager mgr = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ni = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        return !(ni == null || !ni.isConnectedOrConnecting());
     }
 }

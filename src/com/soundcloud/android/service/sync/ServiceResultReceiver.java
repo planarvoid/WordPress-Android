@@ -8,7 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
 import android.content.SyncResult;
@@ -153,7 +153,7 @@ class ServiceResultReceiver extends ResultReceiver {
     }
 
     private int prefetchArtwork(Context context, Activities... activities) {
-        if (CloudUtils.isWifiConnected(context)) {
+        if (IOUtils.isWifiConnected(context)) {
             Set<String> urls = new HashSet<String>();
             for (Activities a : activities) {
                 urls.addAll(a.artworkUrls());

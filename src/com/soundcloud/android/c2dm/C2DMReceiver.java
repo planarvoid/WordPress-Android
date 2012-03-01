@@ -7,6 +7,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
 import android.app.PendingIntent;
@@ -15,8 +16,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -238,6 +237,11 @@ public class C2DMReceiver extends BroadcastReceiver {
                         extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT_URI, intent.getExtras().getString(C2DMReceiver.SC_URI));
                     }
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requesting sync (event="+event+")");
+
+                    // force a sync if triggered by push
+                    extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS, true);
+                    extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF, true);
+
                     ContentResolver.requestSync(account, ScContentProvider.AUTHORITY, extras);
                     break;
                 default:
@@ -287,7 +291,7 @@ public class C2DMReceiver extends BroadcastReceiver {
     }
 
     /* package */ static synchronized boolean processDeletionQueue(Context context, PowerManager.WakeLock lock) {
-        if (isConnected(context)) {
+        if (IOUtils.isConnected(context)) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "processDeletionQueue()");
             String _urls = getRegistrationData(context, PREF_REG_TO_DELETE);
             if (_urls != null) {
@@ -317,12 +321,6 @@ public class C2DMReceiver extends BroadcastReceiver {
                 }
             }.execute(url);
         }
-    }
-
-    private static boolean isConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ni = cm.getActiveNetworkInfo();
-        return ni != null && ni.isConnectedOrConnecting();
     }
 
     private static void clearRegistrationData(Context context) {

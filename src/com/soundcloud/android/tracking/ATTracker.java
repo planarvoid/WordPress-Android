@@ -4,6 +4,7 @@ import com.at.ATParams;
 import com.at.ATTag;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Plan;
 import com.soundcloud.android.model.User;
 
 import android.os.AsyncTask;
@@ -30,7 +31,7 @@ public class ATTracker {
     private static final String CUSTOM_LIKES       = "2";
     private static final String CUSTOM_FOLLOWINGS  = "3";
     private static final String CUSTOM_FOLLOWERS   = "4";
-    private static final String CUSTOM_CREATED_AT  = "5";
+    private static final String CUSTOM_CREATED_AT  = "5";  // TODO created_at: needs API changes
     private static final String CUSTOM_FB_SIGNUP   = "6";
 
     private final ArrayList<ATParams> mQueue = new ArrayList<ATParams>();
@@ -78,17 +79,20 @@ public class ATTracker {
         if (user.id > 0) {
             // identified visitor
             event.put(USER_ID, String.valueOf(user.id));
-
+            Plan plan = user.getPlan();
+            if (plan != Plan.UNKNOWN) {
+                event.put(PLAN, String.valueOf(plan.id));
+            }
             // custom vars
             setCustom(event, CUSTOM_SOUNDS, user.track_count);
             setCustom(event, CUSTOM_FOLLOWERS, user.followers_count);
             setCustom(event, CUSTOM_FOLLOWINGS, user.followings_count);
+            setCustom(event, CUSTOM_LIKES, user.public_favorites_count);
             event.setCustomCritera(CUSTOM_FB_SIGNUP, user.via != null && user.via.isFacebook() ? "1" : "0");
         }
-        // TODO remaining variables - needs db migration (add plan + favorite_count)
+
         return event;
     }
-
 
     private static void setCustom(ATParams event, String name, int value) {
         if (value >= 0) {

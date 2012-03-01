@@ -20,6 +20,7 @@ import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
@@ -162,7 +163,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     protected void checkForStaleItems(List<? extends Parcelable> newItems){
-        if (!(CloudUtils.isWifiConnected(mActivity)) || newItems == null || newItems.size() == 0 || !(newItems.get(0) instanceof Refreshable))
+        if (!(IOUtils.isWifiConnected(mActivity)) || newItems == null || newItems.size() == 0 || !(newItems.get(0) instanceof Refreshable))
             return;
 
         Map<Long, ScModel> toUpdate = new HashMap<Long, ScModel>();

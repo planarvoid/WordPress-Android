@@ -45,4 +45,24 @@ public class UserTest {
         u.avatar_url = "http://foo.com";
         expect(u.shouldLoadIcon()).toBeTrue();
     }
+
+    @Test
+    public void shouldGetPlan() throws Exception {
+        User u = new User();
+        expect(u.getPlan()).toBe(Plan.UNKNOWN);
+        u.plan = "";
+        expect(u.getPlan()).toBe(Plan.UNKNOWN);
+
+        u.plan = "Pro plus";
+        expect(u.getPlan()).toBe(Plan.PRO_PLUS);
+
+        u.plan = "Pro";
+
+        expect(u.getPlan()).toBe(Plan.PRO);
+        u.plan = "Free";
+        expect(u.getPlan()).toBe(Plan.FREE);
+
+        u.plan = "lite";
+        expect(u.getPlan()).toBe(Plan.LITE);
+    }
 }

@@ -15,8 +15,8 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
+    public static final int DATABASE_VERSION = 10;
     private static final String DATABASE_NAME = "SoundCloud";
-    private static final int DATABASE_VERSION = 9;
 
     DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -61,6 +61,9 @@ public class DBHelper extends SQLiteOpenHelper {
                         case 9:
                             success = upgradeTo9(db, oldVersion);
                             break;
+                        case 10:
+                            success = upgradeTo10(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -90,7 +93,8 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    static final String DATABASE_CREATE_TRACKS = "CREATE TABLE Tracks (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_TRACKS = "("+
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "last_updated INTEGER," +
             "permalink VARCHAR(255)," +
             "duration INTEGER," +
@@ -113,37 +117,59 @@ public class DBHelper extends SQLiteOpenHelper {
             "favoritings_count INTEGER," +
             "shared_to_count INTEGER," +
             "sharing_note_text VARCHAR(255),"+
-            "user_id INTEGER," +
-            "filelength INTEGER"+
+            "user_id INTEGER" +
             ");";
 
-    static final String DATABASE_CREATE_TRACK_PLAYS = "CREATE TABLE TrackPlays (_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "track_id INTEGER, " +
+
+    static final String DATABASE_CREATE_TRACK_METADATA = "("+
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "user_id INTEGER, "+
-            "play_count INTEGER DEFAULT 0, "+
-            "UNIQUE (track_id, user_id) ON CONFLICT IGNORE"+
+            "play_count INTEGER DEFAULT 0,"+
+            "cached INTEGER DEFAULT 0," +
+            "type INTEGER DEFAULT 0," +
+            "etag VARCHAR(34)," +
+            "url_hash VARCHAR(32)," +
+            "size INTEGER," +
+            "bitrate INTEGER," +
+            "UNIQUE (_id, user_id) ON CONFLICT IGNORE"+
             ");";
 
-    static final String DATABASE_CREATE_USERS = "CREATE TABLE Users (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            "last_updated INTEGER," +
+
+    static final String DATABASE_CREATE_USERS = "("+
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            // mini representation
             "username VARCHAR(255)," +
             "avatar_url VARCHAR(255)," +
             "permalink VARCHAR(255)," +
             "permalink_url VARCHAR(255)," +
+
+            "full_name VARCHAR(255)," +
+            "description text,"+
             "city VARCHAR(255)," +
             "country VARCHAR(255)," +
-            "discogs_name VARCHAR(255)," +
-            "followers_count INTEGER," +
-            "followings_count INTEGER," +
-            "full_name VARCHAR(255)," +
-            "myspace_name VARCHAR(255)," +
-            "track_count INTEGER," +
+
+            "plan VARCHAR(16)," +
+            "primary_email_confirmed INTEGER," +
+
             "website VARCHAR(255)," +
             "website_title VARCHAR(255), " +
-            "description text"+
+
+            "discogs_name VARCHAR(255)," +
+            "myspace_name VARCHAR(255)," +
+
+            // counts
+            "track_count INTEGER," +
+            "followers_count INTEGER," +
+            "followings_count INTEGER," +
+            "public_favorites_count INTEGER," +
+            "private_tracks_count INTEGER," +
+
+            // internal
+            "last_updated INTEGER" +
             ");";
 
-    static final String DATABASE_CREATE_RECORDINGS = "CREATE TABLE Recordings (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_RECORDINGS = "("+
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "user_id INTEGER," +
             "timestamp INTEGER," +
             "longitude VARCHAR(255)," +
@@ -165,7 +191,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "upload_error BOOLEAN"+
             ");";
 
-    static final String DATABASE_CREATE_COMMENTS = "CREATE TABLE Comments (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_COMMENTS = "("+
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "user_id INTEGER," +
             "track_id INTEGER," +
             "timestamp INTEGER," +
@@ -173,7 +200,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "body VARCHAR(255)" +
             ");";
 
-    static final String DATABASE_CREATE_ACTIVITIES = "CREATE TABLE Activities (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_ACTIVITIES = "("+
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "user_id INTEGER," +
             "track_id INTEGER," +
             "comment_id INTEGER," +
@@ -184,7 +212,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "UNIQUE (created_at, type, content_id, track_id, user_id)" +
             ");";
 
-    static final String DATABASE_CREATE_SEARCHES = "CREATE TABLE Searches (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_SEARCHES = "("+
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "created_at INTEGER," +
             "user_id INTEGER," +
             "query VARCHAR(255)," +
@@ -192,14 +221,16 @@ public class DBHelper extends SQLiteOpenHelper {
             "UNIQUE (user_id, search_type, query) ON CONFLICT REPLACE"+
             ");";
 
-    static final String DATABASE_CREATE_PLAYLIST = "CREATE TABLE Playlists (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_PLAYLIST = "("+
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "created_at INTEGER," +
             "position INTEGER," +
             "seek_pos INTEGER," +
             "user_id INTEGER"+
             ");";
 
-    static final String DATABASE_CREATE_PLAYLIST_ITEMS = "CREATE TABLE PlaylistItems (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_PLAYLIST_ITEMS = "("+
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "playlist_id INTEGER," +
             "track_id INTEGER," +
             "position INTEGER," +
@@ -210,7 +241,8 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper.Collections}
      */
-    static final String DATABASE_CREATE_COLLECTIONS = "CREATE TABLE Collections(_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    static final String DATABASE_CREATE_COLLECTIONS = "("+
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "uri VARCHAR(255)," +
             "last_addition INTEGER, " +
             "last_sync INTEGER, " +
@@ -223,8 +255,8 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper.CollectionPages}
      */
-    static final String DATABASE_CREATE_COLLECTION_PAGES = "CREATE TABLE CollectionPages(" +
-            "collection_id INTEGER, " +
+    static final String DATABASE_CREATE_COLLECTION_PAGES = "(" +
+            "collection_id INTEGER," +
             "page_index INTEGER," +
             "etag VARCHAR(255), " +
             "size INTEGER, " +
@@ -234,7 +266,7 @@ public class DBHelper extends SQLiteOpenHelper {
     /**
      * {@link DBHelper.CollectionItems}
      */
-    static final String DATABASE_CREATE_COLLECTION_ITEMS = "CREATE TABLE CollectionItems(" +
+    static final String DATABASE_CREATE_COLLECTION_ITEMS = "(" +
             "user_id INTEGER, " +
             "item_id INTEGER," +
             "collection_type INTEGER, " +
@@ -243,66 +275,67 @@ public class DBHelper extends SQLiteOpenHelper {
             ");";
 
 
-    static final String DATABASE_CREATE_TRACK_VIEW = "CREATE VIEW TrackView AS SELECT " +
-            "Tracks." + Tracks._ID + " as " + TrackView._ID + "," +
-            "Tracks." + Tracks.LAST_UPDATED + " as " + TrackView.LAST_UPDATED + "," +
-            "Tracks." + Tracks.PERMALINK + " as " + TrackView.PERMALINK + "," +
-            "Tracks." + Tracks.CREATED_AT + " as " + TrackView.CREATED_AT + "," +
-            "Tracks." + Tracks.DURATION + " as " + TrackView.DURATION + "," +
-            "Tracks." + Tracks.TAG_LIST + " as " + TrackView.TAG_LIST + "," +
-            "Tracks." + Tracks.TRACK_TYPE + " as " + TrackView.TRACK_TYPE + "," +
-            "Tracks." + Tracks.TITLE + " as " + TrackView.TITLE + "," +
-            "Tracks." + Tracks.PERMALINK_URL + " as " + TrackView.PERMALINK_URL + "," +
-            "Tracks." + Tracks.ARTWORK_URL + " as " + TrackView.ARTWORK_URL + "," +
-            "Tracks." + Tracks.WAVEFORM_URL + " as " + TrackView.WAVEFORM_URL + "," +
-            "Tracks." + Tracks.DOWNLOADABLE + " as " + TrackView.DOWNLOADABLE + "," +
-            "Tracks." + Tracks.DOWNLOAD_URL + " as " + TrackView.DOWNLOAD_URL + "," +
-            "Tracks." + Tracks.STREAM_URL + " as " + TrackView.STREAM_URL + "," +
-            "Tracks." + Tracks.STREAMABLE + " as " + TrackView.STREAMABLE + "," +
-            "Tracks." + Tracks.COMMENTABLE + " as " + TrackView.COMMENTABLE + "," +
-            "Tracks." + Tracks.SHARING + " as " + TrackView.SHARING + "," +
-            "Tracks." + Tracks.PLAYBACK_COUNT + " as " + TrackView.PLAYBACK_COUNT + "," +
-            "Tracks." + Tracks.DOWNLOAD_COUNT + " as " + TrackView.DOWNLOAD_COUNT + "," +
-            "Tracks." + Tracks.COMMENT_COUNT + " as " + TrackView.COMMENT_COUNT + "," +
-            "Tracks." + Tracks.FAVORITINGS_COUNT + " as " + TrackView.FAVORITINGS_COUNT + "," +
-            "Tracks." + Tracks.SHARED_TO_COUNT + " as " + TrackView.SHARED_TO_COUNT + "," +
-            "Tracks." + Tracks.FILELENGTH + " as " + TrackView.FILELENGTH + "," +
-            "Tracks." + Tracks.SHARING_NOTE_TEXT + " as " + TrackView.SHARING_NOTE_TEXT + "," +
-            "Users." + Users._ID + " as " + TrackView.USER_ID + "," +
-            "Users." + Users.USERNAME + " as " + TrackView.USERNAME + "," +
-            "Users." + Users.PERMALINK + " as " + TrackView.USER_PERMALINK + "," +
-            "Users." + Users.AVATAR_URL + " as " + TrackView.USER_AVATAR_URL + "," +
-            "COALESCE(TrackPlays." + TrackPlays.PLAY_COUNT + ", 0) as " + TrackView.USER_PLAY_COUNT +
+    static final String DATABASE_CREATE_TRACK_VIEW = "AS SELECT " +
+            "Tracks." + Tracks._ID + " as " + TrackView._ID +
+            ",Tracks." + Tracks.LAST_UPDATED + " as " + TrackView.LAST_UPDATED +
+            ",Tracks." + Tracks.PERMALINK + " as " + TrackView.PERMALINK +
+            ",Tracks." + Tracks.CREATED_AT + " as " + TrackView.CREATED_AT +
+            ",Tracks." + Tracks.DURATION + " as " + TrackView.DURATION +
+            ",Tracks." + Tracks.TAG_LIST + " as " + TrackView.TAG_LIST +
+            ",Tracks." + Tracks.TRACK_TYPE + " as " + TrackView.TRACK_TYPE +
+            ",Tracks." + Tracks.TITLE + " as " + TrackView.TITLE +
+            ",Tracks." + Tracks.PERMALINK_URL + " as " + TrackView.PERMALINK_URL +
+            ",Tracks." + Tracks.ARTWORK_URL + " as " + TrackView.ARTWORK_URL +
+            ",Tracks." + Tracks.WAVEFORM_URL + " as " + TrackView.WAVEFORM_URL +
+            ",Tracks." + Tracks.DOWNLOADABLE + " as " + TrackView.DOWNLOADABLE +
+            ",Tracks." + Tracks.DOWNLOAD_URL + " as " + TrackView.DOWNLOAD_URL +
+            ",Tracks." + Tracks.STREAM_URL + " as " + TrackView.STREAM_URL +
+            ",Tracks." + Tracks.STREAMABLE + " as " + TrackView.STREAMABLE +
+            ",Tracks." + Tracks.COMMENTABLE + " as " + TrackView.COMMENTABLE +
+            ",Tracks." + Tracks.SHARING + " as " + TrackView.SHARING +
+            ",Tracks." + Tracks.PLAYBACK_COUNT + " as " + TrackView.PLAYBACK_COUNT +
+            ",Tracks." + Tracks.DOWNLOAD_COUNT + " as " + TrackView.DOWNLOAD_COUNT +
+            ",Tracks." + Tracks.COMMENT_COUNT + " as " + TrackView.COMMENT_COUNT +
+            ",Tracks." + Tracks.FAVORITINGS_COUNT + " as " + TrackView.FAVORITINGS_COUNT +
+            ",Tracks." + Tracks.SHARED_TO_COUNT + " as " + TrackView.SHARED_TO_COUNT +
+            ",Tracks." + Tracks.SHARING_NOTE_TEXT + " as " + TrackView.SHARING_NOTE_TEXT +
+            ",Users." + Users._ID + " as " + TrackView.USER_ID +
+            ",Users." + Users.USERNAME + " as " + TrackView.USERNAME +
+            ",Users." + Users.PERMALINK + " as " + TrackView.USER_PERMALINK +
+            ",Users." + Users.AVATAR_URL + " as " + TrackView.USER_AVATAR_URL +
+            ",COALESCE(TrackMetadata." + TrackMetadata.PLAY_COUNT + ", 0) as " + TrackView.USER_PLAY_COUNT +
+            ",COALESCE(TrackMetadata." + TrackMetadata.CACHED + ", 0) as " + TrackView.CACHED +
+            ",COALESCE(TrackMetadata." + TrackMetadata.TYPE + ", 0) as " + TrackView.TYPE +
             " FROM Tracks" +
             " JOIN Users ON(" +
             "   Tracks." + Tracks.USER_ID + " = " + "Users." + Users._ID + ")" +
-            " LEFT OUTER JOIN TrackPlays ON(" +
-            "   TrackPlays." + TrackPlays.TRACK_ID + " = " + "Tracks." + TrackView._ID + ")" +
-            "";
+            " LEFT OUTER JOIN TrackMetadata ON(" +
+            "   TrackMetadata." + TrackMetadata._ID + " = " + "Tracks." + TrackView._ID + ")"
+            ;
 
     /** A view which combines activity data + tracks/users/comments */
-    static final String DATABASE_CREATE_ACTIVITY_VIEW = "CREATE VIEW ActivityView AS SELECT " +
-            "Activities." + Activities._ID + " as " + ActivityView._ID + "," +
-            "Activities." + Activities.TYPE + " as " + ActivityView.TYPE+","+
-            "Activities." + Activities.TAGS + " as " + ActivityView.TAGS+","+
-            "Activities." + Activities.CREATED_AT + " as " + ActivityView.CREATED_AT+","+
-            "Activities." + Activities.COMMENT_ID + " as " + ActivityView.COMMENT_ID+","+
-            "Activities." + Activities.TRACK_ID + " as " + ActivityView.TRACK_ID+","+
-            "Activities." + Activities.USER_ID + " as " + ActivityView.USER_ID +","+
-            "Activities." + Activities.CONTENT_ID + " as " + ActivityView.CONTENT_ID +","+
+    static final String DATABASE_CREATE_ACTIVITY_VIEW = "AS SELECT " +
+            "Activities." + Activities._ID + " as " + ActivityView._ID +
+            ",Activities." + Activities.TYPE + " as " + ActivityView.TYPE+
+            ",Activities." + Activities.TAGS + " as " + ActivityView.TAGS+
+            ",Activities." + Activities.CREATED_AT + " as " + ActivityView.CREATED_AT+
+            ",Activities." + Activities.COMMENT_ID + " as " + ActivityView.COMMENT_ID+
+            ",Activities." + Activities.TRACK_ID + " as " + ActivityView.TRACK_ID+
+            ",Activities." + Activities.USER_ID + " as " + ActivityView.USER_ID +
+            ",Activities." + Activities.CONTENT_ID + " as " + ActivityView.CONTENT_ID +
 
             // activity user (who commented, favorited etc. on contained following)
-            "Users." + Users.USERNAME + " as " + ActivityView.USER_USERNAME + "," +
-            "Users." + Users.PERMALINK + " as " + ActivityView.USER_PERMALINK + "," +
-            "Users." + Users.AVATAR_URL + " as " + ActivityView.USER_AVATAR_URL + "," +
+            ",Users." + Users.USERNAME + " as " + ActivityView.USER_USERNAME +
+            ",Users." + Users.PERMALINK + " as " + ActivityView.USER_PERMALINK +
+            ",Users." + Users.AVATAR_URL + " as " + ActivityView.USER_AVATAR_URL +
 
             // track+user data
-            "TrackView.*," +
+            ",TrackView.*" +
 
             // comment data (only for type=comment)
-            "Comments." + Comments.BODY + " as " + ActivityView.COMMENT_BODY + " ," +
-            "Comments." + Comments.CREATED_AT + " as " + ActivityView.COMMENT_CREATED_AT + " ," +
-            "Comments." + Comments.TIMESTAMP + " as " +ActivityView.COMMENT_TIMESTAMP +
+            ",Comments." + Comments.BODY + " as " + ActivityView.COMMENT_BODY +
+            ",Comments." + Comments.CREATED_AT + " as " + ActivityView.COMMENT_CREATED_AT +
+            ",Comments." + Comments.TIMESTAMP + " as " +ActivityView.COMMENT_TIMESTAMP +
             " FROM Activities" +
             " JOIN Users ON(" +
             "   Activities." + Activities.USER_ID + " = " + "Users." + Users._ID + ")" +
@@ -346,24 +379,32 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String SHARED_TO_COUNT = "shared_to_count";
         public static final String SHARING_NOTE_TEXT = "sharing_note_text";
         public static final String USER_ID = "user_id";
-        public static final String FILELENGTH = "filelength";
 
         public static final String[] ALL_FIELDS = {
                 _ID, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
                 WAVEFORM_URL, DOWNLOADABLE, DOWNLOAD_URL, STREAM_URL, STREAM_URL,
                 STREAMABLE, COMMENTABLE, SHARING, PLAYBACK_COUNT, DOWNLOAD_COUNT,
                 COMMENT_COUNT, FAVORITINGS_COUNT, SHARED_TO_COUNT, SHARING_NOTE_TEXT,
-                USER_ID, FILELENGTH, CREATED_AT, PERMALINK, LAST_UPDATED
+                USER_ID, CREATED_AT, PERMALINK, LAST_UPDATED
         };
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_TRACK_PLAYS}
+     * {@link DBHelper.DATABASE_CREATE_TRACK_METADATA}
      */
-    public static final class TrackPlays implements BaseColumns {
-        public static final String TRACK_ID = "track_id";
-        public static final String USER_ID = "user_id";
+    public static final class TrackMetadata implements BaseColumns {
+        public static final String USER_ID    = "user_id";
         public static final String PLAY_COUNT = "play_count";
+        public static final String CACHED     = "cached";
+        public static final String TYPE       = "type";
+        public static final String SIZE       = "size";
+        public static final String URL_HASH   = "url_hash";
+        public static final String ETAG       = "etag";
+        public static final String BITRATE    = "bitrate";
+
+        public static final String[] ALL_FIELDS = new String[] {
+            _ID, USER_ID, PLAY_COUNT, CACHED, TYPE, ETAG, BITRATE, URL_HASH, SIZE
+        };
     }
 
     /**
@@ -399,11 +440,18 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_FOLLOWER = "user_follower";
         public static final String PERMALINK_URL = "permalink_url";
 
+        public static final String PRIMARY_EMAIL_CONFIRMED = "primary_email_confirmed";
+        public static final String PUBLIC_FAVORITES_COUNT = "public_favorites_count";
+        public static final String PRIVATE_TRACKS_COUNT = "private_tracks_count";
+
+        public static final String PLAN = "plan";
+
         public static final String[] ALL_FIELDS = {
                 _ID, USERNAME, AVATAR_URL, CITY, COUNTRY, DISCOGS_NAME,
                 FOLLOWERS_COUNT, FOLLOWINGS_COUNT, FULL_NAME, MYSPACE_NAME,
                 TRACK_COUNT, WEBSITE, WEBSITE_TITLE, DESCRIPTION, PERMALINK,
-                LAST_UPDATED, PERMALINK_URL
+                LAST_UPDATED, PERMALINK_URL, PRIMARY_EMAIL_CONFIRMED, PUBLIC_FAVORITES_COUNT,
+                PRIVATE_TRACKS_COUNT, PLAN
         };
     }
 
@@ -517,7 +565,6 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String FAVORITINGS_COUNT = Tracks.FAVORITINGS_COUNT;
         public static final String SHARED_TO_COUNT = Tracks.SHARED_TO_COUNT;
         public static final String SHARING_NOTE_TEXT = Tracks.SHARING_NOTE_TEXT;
-        public static final String FILELENGTH = Tracks.FILELENGTH;
 
         public static final String USER_ID         = "track_user_id";
         public static final String USERNAME        = "track_user_username";
@@ -526,6 +573,9 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String USER_AVATAR_URL = "track_user_avatar_url";
         public static final String USER_FAVORITE   = "track_user_favorite";
         public static final String USER_PLAY_COUNT = "track_user_play_count";
+
+        public static final String CACHED          = "track_cached";
+        public static final String TYPE            = "track_type";
     }
 
     public final static class ActivityView extends Activities {
@@ -574,7 +624,6 @@ public class DBHelper extends SQLiteOpenHelper {
     private static boolean upgradeTo6(SQLiteDatabase db, int oldVersion) {
         try {
             Table.RECORDINGS.create(db);
-            Table.TRACK_PLAYS.create(db);
             Table.TRACKS.alterColumns(db);
             Table.USERS.alterColumns(db);
             return true;
@@ -632,6 +681,21 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return false;
      }
+
+    private static boolean upgradeTo10(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.TRACK_PLAYS.drop(db);
+            Table.TRACK_METADATA.create(db);
+            Table.TRACK_VIEW.recreate(db);
+            Table.USERS.alterColumns(db);
+            return true;
+
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade10 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
 
     public static String getWhereIds(String column, List<Long> idSet){
         StringBuilder sb = new StringBuilder(column + " in (?");

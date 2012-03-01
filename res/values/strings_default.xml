@@ -1,4 +1,4 @@
-<!-- generated with lolcatlizr at Thu Dec 01 2011 18:20:16 GMT+0000 (UTC) -->
+<!-- generated with lolcatlizr at Tue Feb 28 2012 19:31:28 GMT+0000 (UTC) -->
 
 <resources xmlns:xliff="http://schemas.android.com/apk/res/android">
   <string name="about">About</string>
@@ -50,6 +50,9 @@
   <string name="authentication_your_password">Your password</string>
   <string name="btn_back">Back</string>
   <string name="btn_done">Done</string>
+  <string name="btn_follow">Follow</string>
+  <string name="btn_follow_back">Follow Back</string>
+  <string name="btn_following">Following</string>
   <string name="btn_login">Log In</string>
   <string name="btn_next">Next</string>
   <string name="btn_reply">Reply</string>
@@ -143,13 +146,16 @@
   <string name="dashboard_notifications_message_exclusive">exclusives from %s</string>
   <string name="dashboard_notifications_message_exclusive_2">exclusives from %1$s and %2$s</string>
   <string name="dashboard_notifications_message_exclusive_others">exclusives from %1$s, %2$s and others</string>
+  <string name="dashboard_notifications_message_follower">%s is now following you. Follow back?</string>
   <string name="dashboard_notifications_message_incoming">from %s</string>
   <string name="dashboard_notifications_message_incoming_2">from %1$s and %2$s</string>
   <string name="dashboard_notifications_message_incoming_others">from %1$s, %2$s and others</string>
   <string name="dashboard_notifications_message_single_exclusive">1 exclusive from %s</string>
   <string name="dashboard_notifications_ticker">%s new sounds</string>
+  <string name="dashboard_notifications_ticker_follower">New follower</string>
   <string name="dashboard_notifications_ticker_single">1 new sound</string>
   <string name="dashboard_notifications_title">%s new sounds</string>
+  <string name="dashboard_notifications_title_follower">You have a new follower</string>
   <string name="dashboard_notifications_title_single">1 new sound</string>
   <string name="delete">Delete</string>
   <string name="dialog_cancel_upload_message">Cancel upload?</string>
@@ -225,6 +231,7 @@
   <string name="empty_user_followings_text">%1$s isn\'t following anyone yet.</string>
   <string name="empty_user_tracks_text">%1$s hasn\'t uploaded any public sounds yet.</string>
   <string name="error_change_following_status">Error changing following status</string>
+  <string name="error_creating_account">Error creating account</string>
   <string name="error_getting_recording">Error getting recording</string>
   <string name="error_loading_connections">There was a problem sharing to your networks.</string>
   <string name="error_loading_message">There was a problem contacting Soundcloud.</string>
@@ -326,6 +333,8 @@
   <string name="pref_clear_stream_cache">Clear Stream Cache</string>
   <string name="pref_clear_stream_cache_desc">Clear the stream cache</string>
   <string name="pref_connection_and_data">Connection and data</string>
+  <string name="pref_help">Help</string>
+  <string name="pref_help_desc">Access the SoundCloud support site</string>
   <string name="pref_notifications">Notifications</string>
   <string name="pref_notifications_activity">Activity</string>
   <string name="pref_notifications_comments">Comments</string>
@@ -335,6 +344,8 @@
   <string name="pref_notifications_exclusive_description">Receive updates on new private sounds shared with you</string>
   <string name="pref_notifications_favoritings">Likes</string>
   <string name="pref_notifications_favoritings_description">Receive updates on new likes on your sounds</string>
+  <string name="pref_notifications_followers">Followers</string>
+  <string name="pref_notifications_followers_description">Receive updates when have a new follower</string>
   <string name="pref_notifications_frequency">Notifications Frequency</string>
   <string name="pref_notifications_frequency_description">Set the frequency between updates</string>
   <string name="pref_notifications_incoming">Incoming Sounds</string>
@@ -348,6 +359,19 @@
   <string name="pref_record_quality_desc">Choose your preferred recording quality</string>
   <string name="pref_revoke_access">Log Out</string>
   <string name="pref_revoke_desc">Log out current user</string>
+  <string name="pref_sync_my_favorites">My Favorites</string>
+  <string name="pref_sync_my_favorites_description">Keep my favorites updated locally</string>
+  <string name="pref_sync_my_followers">My Followers</string>
+  <string name="pref_sync_my_followers_description">Keep the people that follow me updated locally</string>
+  <string name="pref_sync_my_following">My Following</string>
+  <string name="pref_sync_my_following_description">Keep the people I follow updated locally</string>
+  <string name="pref_sync_my_sounds">My Sounds</string>
+  <string name="pref_sync_my_sounds_description">Keep my sounds updated locally</string>
+  <string name="pref_sync_settings">Account Sync Settings</string>
+  <string name="pref_sync_settings_summary">Manage your synced resources</string>
+  <string name="pref_sync_toggles">Synced Resources</string>
+  <string name="pref_sync_wifi_only">Wifi only syncing</string>
+  <string name="pref_sync_wifi_only_description">Sync my data only when connected via wifi</string>
   <string name="pref_take_tour">SoundCloud tour</string>
   <string name="pref_take_tour_desc">Take a quick tour of the app</string>
   <string name="private_message">Private message</string>
@@ -358,6 +382,7 @@
   <string name="private_message_upload_title">Your sound message got saved.</string>
   <string name="pull_to_refresh_last_updated">updated %1$s</string>
   <string name="pull_to_refresh_pull_label">Pull to refresh...</string>
+  <string name="pull_to_refresh_refreshing_label">Refreshing...</string>
   <string name="pull_to_refresh_release_label">Release to refresh...</string>
   <string name="raw">Raw</string>
   <string name="record_another_sound">Record another sound</string>
@@ -387,6 +412,7 @@
   <string name="sc_upload_with_access">With Access</string>
   <string name="search">Search</string>
   <string name="search_hint">Sounds</string>
+  <string name="search_settings_description">Search sounds</string>
   <plurals name="seconds_available">
     <item quantity="one">1 second available</item>
     <item quantity="other">%d seconds available</item>
@@ -399,6 +425,7 @@
   <string name="share_retry_upload">Retry upload</string>
   <string name="share_success_message">Yay, that worked!</string>
   <string name="share_to_soundcloud">&lt;b&gt;Share&lt;/b&gt; to &lt;b&gt;SoundCloud&lt;/b&gt;</string>
+  <string name="share_track">Share: %s</string>
   <string name="share_uploading">Uploading...</string>
   <string name="sounds_from">Sounds from %s</string>
   <string name="suggested_users">Suggested People</string>
@@ -420,10 +447,9 @@
   <string name="take_new_picture">Take a new picture</string>
   <string name="take_new_picture_error">Could not take picture</string>
   <string name="this_user">this user</string>
+  <string name="tour_btn_done">Done</string>
   <string name="tour_btn_lets_party">Let\'s Go!</string>
   <string name="tour_btn_next">Next</string>
-  <string name="tour_title">Welcome</string>
-  <string name="tour_btn_done">Done</string>
   <string name="tour_comment_message">Favorite sounds and comment on the ones you like. Check out comments on your own sounds too!</string>
   <string name="tour_comment_subject">Comment &amp; Favorite</string>
   <string name="tour_comment_title">Add Activity</string>
@@ -444,6 +470,7 @@
   <string name="tour_start_message">You\'re all signed up so let\'s start creating and sharing sounds.</string>
   <string name="tour_start_title">Welcome to SoundCloud</string>
   <string name="tour_start_welcome">Welcome to SoundCloud</string>
+  <string name="tour_title">Welcome</string>
   <string name="tour_you_message">Explore your own sounds, favorites and info settings. See who you\'re following and being followed by.</string>
   <string name="tour_you_subject">Don\'t forget You!</string>
   <string name="tour_you_title">You</string>
@@ -481,6 +508,8 @@
   <string name="username">username</string>
   <string name="wait_for_upload_to_finish">You can only upload one sound at a time</string>
   <string name="website">Website</string>
+  <string name="what_hint">What</string>
+  <string name="where_hint">Where</string>
   <string name="widget_touch_to_open">Touch to open SoundCloud</string>
   <string name="wifi_settings">Wireless &amp; network settings</string>
   <string name="wifi_settings_summary">Edit your settings. Use Wi-Fi for best performance.</string>
