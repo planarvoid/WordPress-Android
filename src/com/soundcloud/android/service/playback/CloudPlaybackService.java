@@ -30,15 +30,12 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.media.RemoteControlClient;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -51,7 +48,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.List;
 
-public class CloudPlaybackService extends Service implements FocusHelper.MusicFocusable, Tracker {
+public class CloudPlaybackService extends Service implements AudioManagerHelper.MusicFocusable, Tracker {
     public static final String TAG = "CloudPlaybackService";
     public static List<Playable> playlistXfer;
 
@@ -131,7 +128,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private TrackCache mCache;
 
     // audio focus related
-    private FocusHelper mFocus;
+    private AudioManagerHelper mFocus;
     private boolean mTransientFocusLoss;
 
     private State state = STOPPED;
@@ -182,7 +179,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 
-        mFocus = new FocusHelper(this, this);
+        mFocus = new AudioManagerHelper(this, this);
         if (!mFocus.isSupported()) {
             // setup call listening if not handled by audiofocus
             TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -322,11 +319,10 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
         if (SoundCloudApplication.useRichNotifications()) {
             if (what.equals(PLAYSTATE_CHANGED)) {
-                mFocus.getRemoteControlClient().setPlaybackState(isPlaying() ?
-                        RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
+                mFocus.setPlaybackState(isPlaying());
                 ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
             } else if (what.equals(META_CHANGED)) {
-                applyRemoteMetadata(mCurrentTrack);
+                applyCurrentMetadata(mCurrentTrack);
             }
         }
 
@@ -339,35 +335,34 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         mAppWidgetProvider.notifyChange(this, i);
     }
 
-    private void applyRemoteMetadata(final Track track) {
-        RemoteControlClient.MetadataEditor ed = mFocus.getRemoteControlClient().editMetadata(true);
-        ed.clear();
-        ed.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, getTrackName());
-        ed.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, getUserName());
-        ed.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, getDuration());
-        final String artworkUri = mCurrentTrack.getListArtworkUrl(this);
-        if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-            final Bitmap bmp = ImageLoader.get(this).getBitmap(artworkUri, null, ICON_OPTIONS);
-            if (bmp != null) {
-                // use a copy of the bitmap because it is going to get recycled afterwards
-                try {
-                    ed.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, bmp.copy(Bitmap.Config.ARGB_8888, true));
-                } catch (OutOfMemoryError e) {
-                    ed.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, null);
-                    System.gc();
-                    // retry?
-                }
-            } else {
-                ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
-                    public void onImageLoaded(Bitmap loadedBmp, String uri) {
-                        if (track.equals(mCurrentTrack)) applyRemoteMetadata(track);
+    private void applyCurrentMetadata(final Track track){
+        if (SoundCloudApplication.useRichNotifications()) {
+            final String artworkUri = track.getListArtworkUrl(this);
+            if (ImageUtils.checkIconShouldLoad(artworkUri)) {
+                final Bitmap bmp = ImageLoader.get(this).getBitmap(artworkUri, null, new ImageLoader.Options(false));
+                if (bmp != null) {
+                    // use a copy of the bitmap because it is going to get recycled afterwards
+                    try {
+                        mFocus.applyRemoteMetadata(this, track, bmp.copy(Bitmap.Config.ARGB_8888, true));
+                    } catch (OutOfMemoryError e) {
+                        mFocus.applyRemoteMetadata(this, track, null);
+                        System.gc();
+                        // retry?
                     }
-                    public void onImageError(String uri, Throwable error) {}
-                });
+                } else {
+                    mFocus.applyRemoteMetadata(this, track);
+                    ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
+                        public void onImageLoaded(Bitmap loadedBmp, String uri) {
+                            if (track.equals(mCurrentTrack)) applyCurrentMetadata(track);
+                        }
+                        public void onImageError(String uri, Throwable error) {}
+                    });
+                }
             }
         }
-        ed.apply();
     }
+
+
 
     /* package */ void openCurrent() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -573,8 +568,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             stopForeground(false);
             if (status != null){
                 ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
-            NotificationManager mManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mManager.notify(PLAYBACKSERVICE_STATUS_ID, status);
+                NotificationManager mManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                mManager.notify(PLAYBACKSERVICE_STATUS_ID, status);
             }
         } else {
             stopForeground(true);

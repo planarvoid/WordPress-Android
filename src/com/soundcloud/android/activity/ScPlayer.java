@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.FocusHelper;
 import com.soundcloud.android.view.PlayerTrackView;
 import com.soundcloud.android.view.TransportBar;
 import com.soundcloud.android.view.WaveformController;
@@ -536,7 +535,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     protected void onResume() {
         super.onResume();
         // TODO, can we delete this?
-        //FocusHelper.registerHeadphoneRemoteControl(this);
+        //AudioManagerHelper.registerHeadphoneRemoteControl(this);
         setPlaybackState();
     }
 
