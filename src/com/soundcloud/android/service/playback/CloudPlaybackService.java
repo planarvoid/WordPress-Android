@@ -286,7 +286,11 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
             Log.d(TAG, "focusLost("+isTransient+", canDuck="+canDuck+")");
         }
         if (state.isSupposedToBePlaying()) {
-            mPlayerHandler.sendEmptyMessage(canDuck ? DUCK : FADE_OUT);
+            if (isTransient){
+                mPlayerHandler.sendEmptyMessage(canDuck ? DUCK : FADE_OUT);
+            } else {
+                pause();
+            }
         }
         mTransientFocusLoss = isTransient;
     }
