@@ -3,12 +3,6 @@ package com.soundcloud.android.activity;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.net.Uri;
-
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -17,30 +11,29 @@ import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 @Tracking(page = Page.Settings_main)
 public class Settings extends PreferenceActivity {
@@ -186,87 +179,14 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        final ListPreference recordingQuality = (ListPreference) findPreference("defaultRecordingQuality");
-        recordingQuality.setOnPreferenceChangeListener(
-                new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object o) {
-                        CharSequence label = recordingQuality.getEntries()[recordingQuality.findIndexOfValue(o.toString())];
-                        preference.setTitle(getString(R.string.pref_record_quality) + " (" + label + ")");
-                        return true;
-                    }
-                }
-        );
-
-        recordingQuality.setTitle(getString(R.string.pref_record_quality) +
-                " (" + recordingQuality.getEntry() + ")");
+        SharedPreferencesUtils.listWithLabel(this,
+                R.string.pref_record_quality,
+                "defaultRecordingQuality");
 
         if (!SoundCloudApplication.DEV_MODE) {
-            getPreferenceScreen().removePreference(findPreference("dev-settings"));
+            getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
         } else {
-            findPreference("dev.clearNotifications").setOnPreferenceClickListener(
-                    new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
-                            SyncAdapterService.requestNewSync(getApp(), SyncAdapterService.CLEAR_ALL);
-                            return true;
-                        }
-                    });
-
-            findPreference("dev.rewindNotifications").setOnPreferenceClickListener(
-                    new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
-                            SyncAdapterService.requestNewSync(getApp(), SyncAdapterService.REWIND_LAST_DAY);
-                            return true;
-                        }
-                    });
-
-
-            findPreference("dev.syncNow").setOnPreferenceClickListener(
-                    new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
-                            SyncAdapterService.requestNewSync(getApp(), -1);
-                            return true;
-                        }
-                    });
-
-
-            findPreference("dev.crash").setOnPreferenceClickListener(
-                    new Preference.OnPreferenceClickListener() {
-                        @Override
-                        public boolean onPreferenceClick(Preference preference) {
-                            if (!CloudUtils.isUserAMonkey()) {
-                                throw new RuntimeException("developer requested crash");
-                            } else {
-                                return true;
-                            }
-                        }
-                    });
-
-            findPreference("dev.http.proxy").setOnPreferenceChangeListener(
-                    new Preference.OnPreferenceChangeListener() {
-                        @Override public boolean onPreferenceChange(Preference preference, Object s) {
-                            if (!TextUtils.isEmpty(s.toString())) {
-                                try {
-                                    URL proxy = new URL(s.toString());
-                                    if (!"https".equals(proxy.getProtocol()) &&
-                                        !"http".equals(proxy.getProtocol()))  {
-                                        throw new MalformedURLException("Need http/https url");
-                                    }
-                                } catch (MalformedURLException e) {
-                                    Toast.makeText(Settings.this, R.string.pref_dev_http_proxy_invalid_url, Toast.LENGTH_SHORT).show();
-                                    return false;
-                                }
-                            }
-                            final Intent intent = new Intent(Actions.CHANGE_PROXY_ACTION);
-                            if (!TextUtils.isEmpty(s.toString())) intent.putExtra("proxy", s.toString());
-                            sendBroadcast(intent);
-                            return true;
-                        }
-                    }
-            );
+            DevSettings.setup(this, getApp());
         }
     }
 

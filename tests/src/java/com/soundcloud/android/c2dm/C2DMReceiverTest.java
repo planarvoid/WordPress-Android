@@ -3,10 +3,13 @@ package com.soundcloud.android.c2dm;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
+import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.message.BasicHeader;
 import org.junit.After;
@@ -14,6 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.accounts.Account;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Build;
 
@@ -86,5 +91,27 @@ public class C2DMReceiverTest {
         RobolectricTestRunner.setStaticValue(Build.VERSION.class, "SDK_INT", 5);
         C2DMReceiver.register(DefaultTestRunner.application, new User());
         C2DMReceiver.unregister(DefaultTestRunner.application);
+    }
+
+    @Test
+    public void shouldForceSyncOnPushNotification() throws Exception {
+        Account account = new Account("test", "type");
+        DefaultTestRunner.application.useAccount(account);
+
+        C2DMReceiver receiver = new C2DMReceiver();
+
+        Intent intent = new Intent(C2DMReceiver.ACTION_RECEIVE)
+                .putExtra(SyncAdapterService.EXTRA_PUSH_EVENT, "follower")
+                .putExtra(SyncAdapterService.EXTRA_PUSH_EVENT_URI, "soundcloud:people:1234");
+
+        receiver.onReceive(DefaultTestRunner.application, intent);
+
+        ShadowContentResolver.Status status =
+                ShadowContentResolver.getStatus(account, ScContentProvider.AUTHORITY);
+
+        expect(status).not.toBeNull();
+        expect(status.syncRequests).toEqual(1);
+        expect(status.syncExtras.getBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS, false)).toBeTrue();
+        expect(status.syncExtras.getBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF, false)).toBeTrue();
     }
 }

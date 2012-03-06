@@ -1,7 +1,7 @@
 package com.soundcloud.android.service.sync;
 
 import com.soundcloud.android.c2dm.PushEvent;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -71,11 +71,11 @@ public class SyncConfig {
     }
 
     public static boolean shouldUpdateDashboard(Context c) {
-        return (!isNotificationsWifiOnlyEnabled(c) || CloudUtils.isWifiConnected(c));
+        return (!isNotificationsWifiOnlyEnabled(c) || IOUtils.isWifiConnected(c));
     }
 
     public static boolean shouldSyncCollections(Context c) {
-        return (!isSyncWifiOnlyEnabled(c) || CloudUtils.isWifiConnected(c));
+        return (!isSyncWifiOnlyEnabled(c) || IOUtils.isWifiConnected(c));
     }
 
     public static boolean shouldSync(Context context, String prefKey, long max) {

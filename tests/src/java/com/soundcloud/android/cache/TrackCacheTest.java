@@ -23,7 +23,7 @@ public class TrackCacheTest {
         TracklistItem listItem = new TracklistItem();
         listItem.id = 1234;
         listItem.duration = 9876;
-        Track t = (Track) cache.fromListItem(listItem);
+        Track t = cache.fromListItem(listItem);
 
         expect(t.bpm).toEqual(track.bpm);
         expect(t.duration).toEqual(track.duration);
@@ -33,7 +33,6 @@ public class TrackCacheTest {
     public void testPutWithLocalFields() {
         Track track = new Track();
         track.id = 1234;
-        track.filelength = 999l;
         cache.put(track);
 
         Track updated = new Track();
@@ -41,7 +40,6 @@ public class TrackCacheTest {
         updated.duration = 9876;
         cache.putWithLocalFields(updated);
 
-        expect(updated.filelength).toEqual(999l);
         expect(updated.duration).toEqual(9876);
     }
 

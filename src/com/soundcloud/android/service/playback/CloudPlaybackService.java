@@ -164,6 +164,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         super.onCreate();
         mCache = SoundCloudApplication.TRACK_CACHE;
         mPlaylistManager = new PlaylistManager(this, mCache, getApp().getCurrentUserId());
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(SERVICECMD);
@@ -175,11 +176,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         commandFilter.addAction(REMOVE_FAVORITE);
         commandFilter.addAction(RESET_ALL);
         commandFilter.addAction(STOP_ACTION);
+        commandFilter.addAction(PLAYLIST_CHANGED);
+
         registerReceiver(mIntentReceiver, commandFilter);
         registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mFocus = new FocusHelper(this, this);
         if (!mFocus.isSupported()) {
             // setup call listening if not handled by audiofocus
@@ -262,12 +264,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         mDelayedStopHandler.removeCallbacksAndMessages(null);
 
         if (intent != null) {
-            String action = intent.getAction();
-            String cmd = intent.getStringExtra("command");
-
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onStartCommand(action="+action+", cmd="+cmd+", intent="+intent+")");
-            }
             mIntentReceiver.onReceive(this, intent);
         }
         scheduleServiceShutdownCheck();
@@ -401,9 +397,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     onUnstreamableTrack(track.id);
                 }
             }
-
         } else {
             Log.d(TAG, "playlist is empty");
+            state = EMPTY_PLAYLIST;
         }
     }
 
@@ -936,6 +932,10 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 stop();
                 if (intent.getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
                     stopForeground(true);
+                }
+            } else if (PLAYLIST_CHANGED.equals(action)) {
+                if (state == EMPTY_PLAYLIST) {
+                    openCurrent();
                 }
             }
         }

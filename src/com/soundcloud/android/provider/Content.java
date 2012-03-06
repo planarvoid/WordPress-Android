@@ -33,7 +33,7 @@ public enum Content {
     ME_TRACKS("me/tracks", Endpoints.MY_TRACKS, 101, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.COLLECTION_ITEMS),
     ME_COMMENTS("me/comments", null, 102, Comment.class, -1, Table.COMMENTS),
     ME_FOLLOWINGS("me/followings", Endpoints.MY_FOLLOWINGS, 103, User.class, FOLLOWING, Table.COLLECTION_ITEMS),
-    ME_FOLLOWING("/me/followings/#", null, 104, User.class, -1, null),
+    ME_FOLLOWING("me/followings/#", null, 104, User.class, -1, null),
     ME_FOLLOWERS("me/followers", Endpoints.MY_FOLLOWERS, 105, User.class, FOLLOWER, Table.COLLECTION_ITEMS),
     ME_FOLLOWER("me/followers/#", null, 106, User.class, -1, null),
     ME_FAVORITES("me/favorites", Endpoints.MY_FAVORITES, 107, Track.class, FAVORITE, Table.COLLECTION_ITEMS),
@@ -93,8 +93,9 @@ public enum Content {
     RECORDINGS("recordings", null, 1100, Recording.class, -1, Table.RECORDINGS),
     RECORDING("recordings/#", null, 1101, Recording.class, -1, Table.RECORDINGS),
 
-    TRACK_PLAYS("track_plays", null, 1300, null, -1, Table.TRACK_PLAYS),
-    TRACK_PLAYS_ITEM("track_plays/#", null, 1301, null, -1, Table.TRACK_PLAYS),
+    TRACK_PLAYS("track_plays", null, 1300, null, -1, Table.TRACK_METADATA),
+    TRACK_PLAYS_ITEM("track_plays/#", null, 1301, null, -1, Table.TRACK_METADATA),
+    TRACK_METADATA("track_metadata", null, 1302, null, -1, Table.TRACK_METADATA),
 
     SEARCHES("searches", null, 1400, null, -1, Table.SEARCHES),
     SEARCH("searches/#", null, 1401, null, -1, Table.SEARCHES),
@@ -175,6 +176,16 @@ public enum Content {
         return uri.buildUpon();
     }
 
+    public Uri withQuery(String... args) {
+        if (args.length % 2 != 0) throw new IllegalArgumentException("need even params");
+
+        Uri.Builder builder = buildUpon();
+        for (int i=0; i<args.length; i+=2) {
+            builder.appendQueryParameter(args[i], args[i+1]);
+        }
+        return builder.build();
+    }
+
     public Uri forId(long id) {
         if (uri.toString().contains("#")) {
             return Uri.parse(uri.toString().replace("#", String.valueOf(id)));
@@ -226,7 +237,7 @@ public enum Content {
 
     public boolean isStale(long lastSync) {
         // do not auto refresh users when the list opens, because users are always changing
-        if (resourceType == User.class) return lastSync > 0 ? false : true;
+        if (resourceType == User.class) return lastSync <= 0;
         final long staleTime = (resourceType == Track.class) ? SyncConfig.TRACK_STALE_TIME :
                                (resourceType == Activity.class) ? SyncConfig.ACTIVITY_STALE_TIME :
                                SyncConfig.DEFAULT_STALE_TIME;

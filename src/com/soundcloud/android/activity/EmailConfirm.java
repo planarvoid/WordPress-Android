@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -27,8 +28,6 @@ public class EmailConfirm extends Activity  {
     public static final String PREF_LAST_REMINDED = "confirmation_last_reminded";
     public static final int REMIND_PERIOD = 86400 * 1000 * 7; // 1 week
 
-    public static final String RESEND = "com.soundcloud.android.RESEND";
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,11 +40,10 @@ public class EmailConfirm extends Activity  {
         } else {
             setContentView(R.layout.email_confirmation);
             findViewById(R.id.btn_resend).setOnClickListener(new View.OnClickListener() {
-                @SuppressWarnings({"unchecked"})
                 @Override
                 public void onClick(View v) {
-                    setResult(RESULT_OK, new Intent(RESEND));
-                    new ResendConfirmationTask((AndroidCloudAPI) getApplication()).execute();
+                    setResult(RESULT_OK, new Intent(Actions.RESEND));
+                    new ResendConfirmationTask((AndroidCloudAPI) getApplication()).execute((Void)null);
                     finish();
                 }
             });

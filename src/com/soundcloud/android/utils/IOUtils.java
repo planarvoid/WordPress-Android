@@ -6,9 +6,7 @@ import com.soundcloud.android.Consts;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
-import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpParams;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -369,5 +367,17 @@ public final class IOUtils {
         } else if (client != null) {
             client.getConnectionManager().shutdown();
         }
+    }
+
+    public static boolean isConnected(Context context) {
+        ConnectivityManager mgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info =  mgr == null ? null : mgr.getActiveNetworkInfo();
+        return info != null && info.isConnectedOrConnecting();
+    }
+
+    public static boolean isWifiConnected(Context c) {
+        ConnectivityManager mgr = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return info != null && info.isConnectedOrConnecting();
     }
 }

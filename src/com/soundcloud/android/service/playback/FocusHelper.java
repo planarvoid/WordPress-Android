@@ -33,6 +33,15 @@ public class FocusHelper {
 
     public static Class<? extends BroadcastReceiver> RECEIVER = RemoteControlReceiver.class;
 
+    @SuppressWarnings("rawtypes")
+    static Class sClassOnAudioFocusChangeListener;
+    static Method sMethodRequestAudioFocus;
+    static Method sMethodAbandonAudioFocus;
+    static Method sRegisterMediaButtonEventReceiver;
+    static Method sUnregisterMediaButtonEventReceiver;
+    static Method sRegisterRemoteControlClient;
+    static Method sUnregisterRemoteControlClient;
+
 
     // Backwards compatibility code (methods available as of SDK Level 8)
     static {
@@ -44,9 +53,10 @@ public class FocusHelper {
         if (sClassOnAudioFocusChangeListener != null) {
             mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             mMusicFocusable = musicFocusable;
-            createAudioFocusChangeListener();
+            mAudioFocusChangeListener = createAudioFocusChangeListener();
         }
     }
+
 
     public RemoteControlClient getRemoteControlClient() {
         if (mRemoteControlClient == null) {
@@ -62,6 +72,78 @@ public class FocusHelper {
             }
         }
         return mRemoteControlClient;
+
+    }
+
+    public boolean isSupported() {
+        return (sClassOnAudioFocusChangeListener != null);
+    }
+
+    public int requestMusicFocus() {
+         final int ret = requestAudioFocusCompat(mAudioManager, mAudioFocusChangeListener,
+                 AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
+         if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
+             Log.d(TAG, "requestMusicFocus() => " + ret);
+         }
+
+         if (mMusicFocusable instanceof Context) {
+             if (mRemoteControlClient == null) {
+                 mRemoteControlClient = getRemoteControlClient();
+             }
+
+         }
+         return ret;
+     }
+
+    public int abandonMusicFocus(boolean isTemporary) {
+         final int ret = abandonAudioFocusCompat(mAudioManager, mAudioFocusChangeListener);
+         if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
+             Log.d(TAG, "abandonMusicFocus() => "+ret);
+         }
+
+         // only unregister headphone control on stop, not on pause
+         if (!isTemporary && mMusicFocusable instanceof Context) {
+            unregisterRemoteControl(((Context) mMusicFocusable).getApplicationContext(), mRemoteControlClient);
+         }
+         return ret;
+     }
+
+
+
+    public Object createAudioFocusChangeListener() {
+        if (sClassOnAudioFocusChangeListener == null) return null;
+        return Proxy.newProxyInstance(AudioManager.class.getClassLoader(),
+            new Class[]{ sClassOnAudioFocusChangeListener },
+            new InvocationHandler() {
+                public Object invoke(Object proxy, Method method, Object[] args) {
+
+                    if (!method.getName().equals("onAudioFocusChange"))
+                        return null;
+
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "onAudioFocusChange("+ Arrays.toString(args)+")");
+                    }
+
+                    int focusChange = (Integer) args[0];
+                    if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                        if (mAudioFocusLost) {
+                            mMusicFocusable.focusGained();
+                            mAudioFocusLost = false;
+                        }
+                    } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                        mAudioFocusLost = true;
+                        mMusicFocusable.focusLost(false, false);
+                    } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+                        mAudioFocusLost = true;
+                        mMusicFocusable.focusLost(true, false);
+                    } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+                        mAudioFocusLost = true;
+                        mMusicFocusable.focusLost(true, true);
+                    }
+                    return null;
+                }
+            });
     }
 
 
@@ -156,86 +238,6 @@ public class FocusHelper {
             Log.e(TAG, "unexpected", ie);
         }
     }
-
-
-    public boolean isSupported() {
-         return (sClassOnAudioFocusChangeListener != null);
-     }
-
-     public int requestMusicFocus() {
-         final int ret = requestAudioFocusCompat(mAudioManager, mAudioFocusChangeListener,
-                 AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-
-         if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-             Log.d(TAG, "requestMusicFocus() => " + ret);
-         }
-
-         if (mMusicFocusable instanceof Context) {
-             if (mRemoteControlClient == null) {
-                 mRemoteControlClient = getRemoteControlClient();
-             }
-
-         }
-         return ret;
-     }
-
-    public int abandonMusicFocus(boolean isTemporary) {
-         final int ret = abandonAudioFocusCompat(mAudioManager, mAudioFocusChangeListener);
-         if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-             Log.d(TAG, "abandonMusicFocus() => "+ret);
-         }
-
-         // only unregister headphone control on stop, not on pause
-         if (!isTemporary && mMusicFocusable instanceof Context) {
-            unregisterRemoteControl(((Context) mMusicFocusable).getApplicationContext(), mRemoteControlClient);
-         }
-         return ret;
-     }
-
-     public void createAudioFocusChangeListener() {
-         if (sClassOnAudioFocusChangeListener == null) return;
-
-         mAudioFocusChangeListener = Proxy.newProxyInstance(AudioManager.class.getClassLoader(),
-                 new Class[]{sClassOnAudioFocusChangeListener},
-                 new InvocationHandler() {
-                     public Object invoke(Object proxy, Method method, Object[] args) {
-                         if (!method.getName().equals("onAudioFocusChange"))
-                             return null;
-
-                         if (Log.isLoggable(TAG, Log.DEBUG)) {
-                             Log.d(TAG, "onAudioFocusChange("+ Arrays.asList(args)+")");
-                         }
-
-                         int focusChange = (Integer) args[0];
-                         if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-                             if (mAudioFocusLost) {
-                                 mMusicFocusable.focusGained();
-                                 mAudioFocusLost = false;
-                             }
-                         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-                             mAudioFocusLost = true;
-                             mMusicFocusable.focusLost(false, false);
-                         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-                             mAudioFocusLost = true;
-                             mMusicFocusable.focusLost(true, false);
-                         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-                             mAudioFocusLost = true;
-                             mMusicFocusable.focusLost(true, true);
-                         }
-                         return null;
-                     }
-                 });
-     }
-
-
-    @SuppressWarnings("rawtypes")
-    static Class sClassOnAudioFocusChangeListener;
-    static Method sMethodRequestAudioFocus;
-    static Method sMethodAbandonAudioFocus;
-    static Method sRegisterMediaButtonEventReceiver;
-    static Method sRegisterRemoteControlClient;
-    static Method sUnregisterMediaButtonEventReceiver;
-    static Method sUnregisterRemoteControlClient;
 
     private static void initializeStaticCompat() {
         try {

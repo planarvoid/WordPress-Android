@@ -22,29 +22,28 @@
                   android:stretchColumns="1"
                   android:shrinkColumns="0">
         <TableRow>
-        <TextView android:id="@+id/txt_username"
-                  android:layout_height="wrap_content"
-                  style="@style/txt_comment_panel_user"
-                  android:text="Katharina"
-                  android:singleLine="true"
-                  android:ellipsize="marquee"
-                  android:layout_width="wrap_content"/>
-        <TextView android:id="@+id/txt_timestamp"
-                  android:text="at 2.11"
-                  android:singleLine="true"
-                  android:ellipsize="marquee"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  style="@style/txt_comment_panel_timestamp" />
-        <TextView android:id="@+id/txt_elapsed"
-                  android:text="Just now"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  style="@style/txt_comment_panel_created_at"
-                  android:layout_marginLeft="5dp"
-                  android:layout_marginRight="@dimen/list_text_margin_right"
-                  android:singleLine="true"
-                  android:ellipsize="marquee"/>
+            <TextView android:id="@+id/txt_username"
+                      android:layout_height="wrap_content"
+                      style="@style/txt_comment_panel_user"
+                      android:singleLine="true"
+                      android:ellipsize="marquee"
+                      android:layout_width="wrap_content"/>
+
+            <TextView android:id="@+id/txt_timestamp"
+                      android:singleLine="true"
+                      android:ellipsize="marquee"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      style="@style/txt_comment_panel_timestamp" />
+
+            <TextView android:id="@+id/txt_elapsed"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      style="@style/txt_comment_panel_created_at"
+                      android:layout_marginLeft="5dp"
+                      android:layout_marginRight="@dimen/list_text_margin_right"
+                      android:singleLine="true"
+                      android:ellipsize="marquee"/>
         </TableRow>
     </TableLayout>
 
@@ -58,7 +57,7 @@
               android:lines="2"
               android:ellipsize="marquee"
               style="@style/txt_comment_panel_body"
-              android:text="it's always a blessing to hear the prince... the abbot... the rza... peace fam"/>
+              />
 
     <ImageButton android:id="@+id/btn_close"
                  android:background="@android:color/transparent"

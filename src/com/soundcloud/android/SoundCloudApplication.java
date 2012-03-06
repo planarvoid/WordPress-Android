@@ -170,7 +170,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 mLoggedInUser.id = getAccountDataLong(User.DataKeys.USER_ID);
                 mLoggedInUser.username = getAccountData(User.DataKeys.USERNAME);
                 mLoggedInUser.permalink = getAccountData(User.DataKeys.USER_PERMALINK);
-                mLoggedInUser.primary_email_confirmed = getAccountDataBoolean(User.DataKeys.EMAIL_CONFIRMED);
             }
             mLoggedInUser.via = SignupVia.fromString(getAccountData(User.DataKeys.SIGNUP));
         }
@@ -203,14 +202,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         FollowStatus.set(null);
         Connections.set(null);
         mLoggedInUser = null;
-    }
-
-    public boolean isEmailConfirmed() {
-        return getAccountDataBoolean(User.DataKeys.EMAIL_CONFIRMED);
-    }
-
-    public void confirmEmail() {
-        setAccountData(User.DataKeys.EMAIL_CONFIRMED, true);
     }
 
     private ImageLoader createImageLoader() {
@@ -282,7 +273,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             am.setUserData(account, User.DataKeys.USER_ID, Long.toString(user.id));
             am.setUserData(account, User.DataKeys.USERNAME, user.username);
             am.setUserData(account, User.DataKeys.USER_PERMALINK, user.permalink);
-            am.setUserData(account, User.DataKeys.EMAIL_CONFIRMED, Boolean.toString(user.primary_email_confirmed));
             am.setUserData(account, User.DataKeys.SIGNUP, via.name);
         }
         mLoggedInUser = null;

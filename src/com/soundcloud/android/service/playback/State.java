@@ -14,8 +14,8 @@ import java.util.EnumSet;
     PAUSED,             // paused by user
     PAUSED_FOR_BUFFERING, // paused by framework
     PAUSED_FOCUS_LOST,    // paused because the focus got lost
-    COMPLETED;            // onComplete() was called
-
+    COMPLETED,            // onComplete() was called
+    EMPTY_PLAYLIST;       // got told to play but playlist was empty
 
     // see Valid and invalid states on http://developer.android.com/reference/android/media/MediaPlayer.html
     public static final EnumSet<State> SEEKABLE =
@@ -52,6 +52,6 @@ import java.util.EnumSet;
 
     // is the service currently playing, or about to play soon?
     public boolean isSupposedToBePlaying() {
-        return this == PREPARING || this == PLAYING || this == PAUSED_FOR_BUFFERING;
+        return this == PREPARING || this == PLAYING || this == PAUSED_FOR_BUFFERING || this == EMPTY_PLAYLIST;
     }
 }

@@ -1,7 +1,6 @@
 package com.soundcloud.android.service.playback;
 
 
-import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
@@ -155,20 +154,29 @@ public class PlaylistManager {
     }
 
     public void setUri(Uri uri, int position, long trackId) {
-        Track t = mCache.get(trackId);
-        // ensure that we have an initial track to load, should be cached to avoid this db hit on the UI
-        if (t == null){
-            t = SoundCloudDB.getTrackById(mContext.getContentResolver(), trackId);
+        Track t = null;
+        if (trackId != -1) {
+            t = mCache.get(trackId);
+            // ensure that we have an initial track to load, should be cached to avoid this db hit on the UI
+            if (t == null) {
+                t = SoundCloudDB.getTrackById(mContext.getContentResolver(), trackId);
+            }
         }
-        setUri(uri,position,t);
+        setUri(uri, position, t);
 
     }
 
-    public void setUri(Uri uri, int position, Track t) {
-        mCache.put(t, false);
-        mPlaylist = new Track[]{t};
-        mPlayPos = 0;
-        broadcastPlaylistChanged();
+    public void setUri(Uri uri, int position, Track track) {
+        if (track != null) {
+            mCache.put(track, false);
+            mPlaylist = new Track[]{ track };
+            mPlayPos = 0;
+            broadcastPlaylistChanged();
+        } else {
+            // no track yet, load async
+            mPlaylist = new Track[0];
+            mPlayPos = 0;
+        }
 
         if (uri != null) {
             loadCursor(uri, position);
@@ -211,8 +219,8 @@ public class PlaylistManager {
     }
 
     private void broadcastPlaylistChanged() {
-        Intent intent = new Intent(CloudPlaybackService.PLAYLIST_CHANGED);
-        intent.putExtra(CloudPlaybackService.BroadcastExtras.queuePosition, mPlayPos);
+        Intent intent = new Intent(CloudPlaybackService.PLAYLIST_CHANGED)
+            .putExtra(CloudPlaybackService.BroadcastExtras.queuePosition, mPlayPos);
         mContext.sendBroadcast(intent);
     }
 
@@ -275,7 +283,7 @@ public class PlaylistManager {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         final String lastUri = preferences.getString(PREF_PLAYLIST_URI, null);
 
-        if (!TextUtils.isEmpty(lastUri)){
+        if (!TextUtils.isEmpty(lastUri)) {
             final Uri uri = Uri.parse(lastUri);
             final long trackId = extractValue(uri, PARAM_TRACK_ID, 0);
             long seekPos = extractValue(uri, PARAM_SEEK_POS, 0);
@@ -327,6 +335,10 @@ public class PlaylistManager {
     public static void clearState(Context context) {
         context.getContentResolver().delete(Content.PLAYLISTS.uri, null, null);
         context.getContentResolver().delete(DEFAULT_PLAYLIST_URI, null, null);
+        clearLastPlayed(context);
+    }
+
+    public static void clearLastPlayed(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
                 .remove(PlaylistManager.PREF_PLAYLIST_URI)
                 .commit();

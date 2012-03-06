@@ -3,17 +3,15 @@ package com.soundcloud.android.activity.auth;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Bundle;
@@ -113,7 +111,7 @@ public class FacebookWebFlow extends AbstractLoginActivity {
             }
         });
 
-        if (isConnected()) {
+        if (IOUtils.isConnected(this)) {
             final SoundCloudApplication app = (SoundCloudApplication) getApplication();
             removeAllCookies();
             String[] options = new String[SCOPES_TO_REQUEST.length+1];
@@ -150,12 +148,6 @@ public class FacebookWebFlow extends AbstractLoginActivity {
     private void removeAllCookies() {
         CookieSyncManager.createInstance(this);
         CookieManager.getInstance().removeAllCookie();
-    }
-
-    private boolean isConnected() {
-        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info =  manager.getActiveNetworkInfo();
-        return info != null && info.isConnectedOrConnecting();
     }
 
     @Override

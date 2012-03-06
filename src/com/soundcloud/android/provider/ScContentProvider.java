@@ -34,6 +34,13 @@ public class ScContentProvider extends ContentProvider {
     private static final String TAG = ScContentProvider.class.getSimpleName();
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
 
+    public static interface Parameter {
+        String RANDOM = "random";
+        String CACHED = "cached";
+        String LIMIT  = "limit";
+        String OFFSET = "offset";
+    }
+
     private DBHelper dbHelper;
 
     @Override
@@ -82,8 +89,10 @@ public class ScContentProvider extends ContentProvider {
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns, userId);
                 makeCollectionSelection(qb, String.valueOf(userId), content.collectionType);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
+                if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
+                    qb.appendWhere(" AND "+DBHelper.TrackView.CACHED + "= 1");
+                }
                 break;
-
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
             case ME_FRIENDS:
@@ -114,11 +123,15 @@ public class ScContentProvider extends ContentProvider {
                 makeCollectionSelection(qb, uri.getPathSegments().get(1), content.collectionType);
                 _sortOrder = makeCollectionSort(uri, sortOrder);
                 break;
-
-
             case TRACKS:
                 qb.setTables(Table.TRACK_VIEW.name);
                 if (_columns == null) _columns = formatWithUser(fullTrackColumns,userId);
+                if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
+                    _sortOrder = "RANDOM()";
+                }
+                if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
+                    qb.appendWhere(DBHelper.TrackView.CACHED + "= 1");
+                }
                 break;
             case TRACK:
                 qb.setTables(Table.TRACK_VIEW.name);
@@ -158,12 +171,17 @@ public class ScContentProvider extends ContentProvider {
 
             case TRACK_PLAYS:
                 qb.setTables(content.table.name);
-                qb.appendWhere(DBHelper.TrackPlays.USER_ID + " = "+ userId);
+                qb.appendWhere(DBHelper.TrackMetadata.USER_ID + " = "+ userId);
                 break;
 
             case TRACK_PLAYS_ITEM:
                 qb.setTables(content.table.name);
                 qb.appendWhere(Table.TRACK_PLAYS.id + " = " + uri.getLastPathSegment());
+                break;
+
+            case TRACK_METADATA:
+                qb.setTables(content.table.name);
+                qb.appendWhere(DBHelper.TrackMetadata.USER_ID + " = "+ userId);
                 break;
 
             case RECORDINGS:
@@ -190,6 +208,9 @@ public class ScContentProvider extends ContentProvider {
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
                 if (_columns == null) _columns = formatWithUser(fullActivityColumns, userId);
+                if ("1".equals(uri.getQueryParameter(Parameter.CACHED))) {
+                    qb.appendWhere(DBHelper.TrackView.CACHED + "= 1 AND ");
+                }
 
             case ME_ALL_ACTIVITIES:
             case ME_ACTIVITIES:
@@ -265,17 +286,25 @@ public class ScContentProvider extends ContentProvider {
                 result = uri.buildUpon().appendPath(String.valueOf(id)).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
-
-            case TRACK_PLAYS:
-                if (!values.containsKey(DBHelper.TrackPlays.USER_ID)) {
-                    values.put(DBHelper.TrackPlays.USER_ID, userId);
+            case TRACK_METADATA:
+                if (!values.containsKey(DBHelper.TrackMetadata.USER_ID)) {
+                    values.put(DBHelper.TrackMetadata.USER_ID, userId);
                 }
-                id = db.insert(content.table.name, null, values);
-                String counter = DBHelper.TrackPlays.PLAY_COUNT;
+                content.table.upsert(db, new ContentValues[] {values} );
+                return uri.buildUpon().appendPath(
+                        values.getAsString(DBHelper.TrackMetadata._ID)).build();
+            case TRACK_PLAYS:
+                // TODO should be in update()
+                if (!values.containsKey(DBHelper.TrackMetadata.USER_ID)) {
+                    values.put(DBHelper.TrackMetadata.USER_ID, userId);
+                }
+                String trackId = values.getAsString(DBHelper.TrackMetadata._ID);
+                db.insert(content.table.name, null, values);
+                String counter = DBHelper.TrackMetadata.PLAY_COUNT;
                 db.execSQL("UPDATE "+content.table.name+
                         " SET "+counter+"="+counter+" + 1 WHERE "+content.table.id +"= ?",
-                        new String[] {String.valueOf(id)});
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                        new String[] {trackId}) ;
+                result = uri.buildUpon().appendPath(trackId).build();
                 getContext().getContentResolver().notifyChange(result, null, false);
                 return result;
             case SEARCHES:
@@ -578,26 +607,30 @@ public class ScContentProvider extends ContentProvider {
 
     static String makeCollectionSort(Uri uri, String sortCol) {
         StringBuilder b = new StringBuilder();
-        b.append(sortCol == null ? DBHelper.CollectionItems.POSITION : sortCol);
-        String limit = uri.getQueryParameter("limit");
+        if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
+            b.append("RANDOM()");
+        }  else {
+            b.append(sortCol == null ? DBHelper.CollectionItems.POSITION : sortCol);
+        }
+        String limit = uri.getQueryParameter(Parameter.LIMIT);
         if (!TextUtils.isEmpty(limit)) b.append(" LIMIT ").append(limit);
-        String offset = uri.getQueryParameter("offset");
+        String offset = uri.getQueryParameter(Parameter.OFFSET);
         if (!TextUtils.isEmpty(offset)) b.append(" OFFSET ").append(offset);
         return b.toString();
     }
 
     static String makeActivitiesSort(Uri uri, String sortCol) {
-        String limit = uri.getQueryParameter("limit");
-        String offset = uri.getQueryParameter("offset");
-        if (TextUtils.isEmpty("limit") && TextUtils.isEmpty("offset")) {
-            return null;
+        String limit  = uri.getQueryParameter(Parameter.LIMIT);
+        String offset = uri.getQueryParameter(Parameter.OFFSET);
+        StringBuilder b = new StringBuilder();
+        if ("1".equals(uri.getQueryParameter(Parameter.RANDOM))) {
+            b.append("RANDOM()");
         } else {
-            StringBuilder b = new StringBuilder();
-            b.append(sortCol == null ? DBHelper.ActivityView.CREATED_AT + " DESC": sortCol);
-            if (!TextUtils.isEmpty(limit)) b.append(" LIMIT ").append(limit);
-            if (!TextUtils.isEmpty(offset)) b.append(" OFFSET ").append(offset);
-            return b.toString();
+            b.append(sortCol == null ? DBHelper.ActivityView.CREATED_AT + " DESC" : sortCol);
         }
+        if (!TextUtils.isEmpty(limit)) b.append(" LIMIT ").append(limit);
+        if (!TextUtils.isEmpty(offset)) b.append(" OFFSET ").append(offset);
+        return b.toString();
     }
 
     static String makeCollectionJoin(Table table){
@@ -605,9 +638,7 @@ public class ScContentProvider extends ContentProvider {
             " ON (" + table.id +" = " + DBHelper.CollectionItems.ITEM_ID+ ")";
     }
 
-    static SCQueryBuilder makeCollectionSelection(SCQueryBuilder qb,
-                                                      String userId, int collectionType) {
-
+    static SCQueryBuilder makeCollectionSelection(SCQueryBuilder qb, String userId, int collectionType) {
         qb.appendWhere(Table.COLLECTION_ITEMS.name+"."+ DBHelper.CollectionItems.USER_ID + " = " + userId);
         qb.appendWhere(" AND "+DBHelper.CollectionItems.COLLECTION_TYPE + " = " + collectionType);
         return qb;
@@ -639,7 +670,7 @@ public class ScContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         SCQueryBuilder qb = new SCQueryBuilder();
         qb.setTables(Table.TRACK_VIEW.name);
-        String limit = uri.getQueryParameter("limit");
+        String limit = uri.getQueryParameter(Parameter.LIMIT);
 
         qb.appendWhere( DBHelper.TrackView.TITLE+" LIKE '%"+selectionArgs[0]+"%'");
         String query = qb.buildQuery(

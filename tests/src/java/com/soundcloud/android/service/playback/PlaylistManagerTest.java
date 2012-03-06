@@ -35,7 +35,7 @@ public class PlaylistManagerTest {
     @Before
     public void before() {
         resolver = Robolectric.application.getContentResolver();
-        pm = new PlaylistManager(Robolectric.application, ((SoundCloudApplication) Robolectric.application).TRACK_CACHE, USER_ID);
+        pm = new PlaylistManager(Robolectric.application, SoundCloudApplication.TRACK_CACHE, USER_ID);
 
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
     }
@@ -277,7 +277,7 @@ public class PlaylistManagerTest {
         List<Parcelable> items = new ArrayList<Parcelable>();
         ScModel.getCollectionFromStream(getClass().getResourceAsStream("tracks.json"), AndroidCloudAPI.Mapper, Track.class, items);
         for (Parcelable p: items){
-            ((SoundCloudApplication) Robolectric.application).TRACK_CACHE.put((Track) p);
+            SoundCloudApplication.TRACK_CACHE.put((Track) p);
         }
 
         expect(SoundCloudDB.bulkInsertParcelables(resolver, items, uri, USER_ID)).toEqual(4);
