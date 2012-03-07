@@ -1,7 +1,11 @@
 package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -10,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
@@ -205,5 +210,27 @@ public class RecordingTest {
         r.upload_status = 10;
 
         return r;
+    }
+
+    @Test
+    public void shouldMapIntentToRecording() throws Exception {
+        Intent i = new Intent(Actions.SHARE)
+                .putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File("/tmp")))
+                .putExtra(Actions.EXTRA_DESCRIPTION, "description")
+                .putExtra(Actions.EXTRA_GENRE, "genre")
+//                .putExtra(Actions.EXTRA_PUBLIC, false)
+                .putExtra(Actions.EXTRA_TITLE, "title")
+                .putExtra(Actions.EXTRA_WHERE, "where")
+//                .putExtra(Actions.EXTRA_TAGS, new String[] { "tags" })
+                ;
+
+        Recording r = Recording.fromIntent(i, Robolectric.application.getContentResolver(),-1);
+        assertThat(r, notNullValue());
+        assertThat(r.description, equalTo("description"));
+        assertThat(r.genre, equalTo("genre"));
+//        assertThat(r.is_private, is(false));
+        assertThat(r.where_text, equalTo("where"));
+        assertThat(r.what_text, equalTo("title"));
+//        assertThat(r.tags, equalTo(new String[] { "tags" } ));
     }
 }

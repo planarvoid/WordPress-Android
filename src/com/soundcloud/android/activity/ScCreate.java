@@ -1,17 +1,25 @@
 package com.soundcloud.android.activity;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
 import com.soundcloud.android.view.create.CreateController;
 
 @Tracking(page = Page.Record_main)
@@ -96,7 +104,7 @@ public class ScCreate extends ScActivity implements CreateController.CreateListe
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case Consts.OptionsMenu.UPLOAD_FILE:
+            case Consts.OptionsMenu.SELECT_FILE:
                 startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("audio/*"), REQUEST_UPLOAD_FILE);
                 return true;
             default:
@@ -116,7 +124,7 @@ public class ScCreate extends ScActivity implements CreateController.CreateListe
             case REQUEST_UPLOAD_FILE:
                 if (resultCode == RESULT_OK) {
                     final Uri uri = data.getData();
-                    final Intent intent = (new Intent(Actions.SHARE))
+                    final Intent intent = (new Intent(Actions.EDIT))
                             .putExtra(Intent.EXTRA_STREAM, uri);
 
                     final String file = uri.getLastPathSegment();
@@ -132,7 +140,8 @@ public class ScCreate extends ScActivity implements CreateController.CreateListe
     @Override
     public void onSave(Uri recordingUri, final Recording recording, boolean newRecording) {
         if (newRecording){
-            startActivity(new Intent(this, ScUpload.class).setData(recordingUri));
+            //startActivity(new Intent(this, ScUpload.class).setData(recordingUri));
+            startActivity(new Intent(this, CreateEditor.class).setData(recordingUri));
             mCreateController.reset();
         } else {
             startActivityForResult(new Intent(this, ScUpload.class).setData(recordingUri), 0);
@@ -147,5 +156,13 @@ public class ScCreate extends ScActivity implements CreateController.CreateListe
     @Override
     public void onDelete() {
         finish();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file).setIcon(
+                R.drawable.ic_menu_incoming);
+
+        return super.onCreateOptionsMenu(menu);
     }
 }

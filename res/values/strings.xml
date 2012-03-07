@@ -41,4 +41,6 @@
     <string name="empty"/>
 
     <string name="share_track">Share: %s</string>
+
+    <string name="menu_select_file">Select File</string>
 </resources>

@@ -1,16 +1,20 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.task.create.CalculateAmplitudesTask;
 import com.soundcloud.android.utils.record.RawAudioPlayer;
 import com.soundcloud.android.view.create.EditWaveformLayout;
 import com.soundcloud.android.view.create.EditWaveformView;
+import com.soundcloud.android.view.create.ShareUserHeader;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 import java.io.File;
@@ -29,6 +33,7 @@ public class CreateEditor extends ScActivity implements CalculateAmplitudesTask.
     private CalculateAmplitudesTask mCalculateAmplitudesTask;
     private File mFile;
     private int mWaveWidth;
+    private Recording mRecording;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -56,9 +61,12 @@ public class CreateEditor extends ScActivity implements CalculateAmplitudesTask.
         mWaveformLayout = (EditWaveformLayout) findViewById(R.id.waveform_layout);
         mWaveformLayout.setEditor(this);
 
-
-        // this will come from an intent, but for now just going to a play file on my sd card
-        setFile(new File(Environment.getExternalStorageDirectory(), "med_test.wav"));
+        final Intent intent = getIntent();
+        if (intent != null && (mRecording = Recording.fromIntent(intent, getContentResolver(),getCurrentUserId())) != null) {
+            if (mRecording.exists()) {
+                setFile(mRecording.audio_path);
+            }
+        }
     }
 
     public RawAudioPlayer getPlayer() {

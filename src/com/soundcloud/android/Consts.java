@@ -57,6 +57,7 @@ public final class Consts {
         int FRIEND_FINDER = 205;
         int UPLOAD_FILE = 206;
         int FILTER = 207;
+        int SELECT_FILE = 208;
     }
 
     public enum GraphicSize {

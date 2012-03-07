@@ -176,7 +176,13 @@
         <activity android:name=".activity.LocationPicker"/>
         <activity android:name=".activity.EmailConfirm"/>
         <activity android:name=".activity.ScCreate"/>
-        <activity android:name=".activity.CreateEditor" android:screenOrientation="landscape" />
+        <activity android:name=".activity.CreateEditor" android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.EDIT"/>
+                <!--<data android:mimeType="audio/*"/>-->
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".activity.UploadMonitor" android:launchMode="singleTask" />
         <activity android:name=".activity.ScUpload" android:windowSoftInputMode="adjustPan">
 

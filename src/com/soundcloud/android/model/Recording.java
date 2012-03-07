@@ -1,20 +1,25 @@
 
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -248,5 +253,45 @@ public class Recording extends ScModel {
                 ", description='" + description + '\'' +
                 ", genre='" + genre + '\'' +
                 '}';
+    }
+
+    public static Recording fromIntent(Intent intent, ContentResolver resolver, long userId) {
+        if ((Intent.ACTION_SEND.equals(intent.getAction()) ||
+                Actions.SHARE.equals(intent.getAction()) ||
+                Actions.EDIT.equals(intent.getAction())) &&
+                intent.hasExtra(Intent.EXTRA_STREAM)) {
+
+            Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            File file = IOUtils.getFromMediaUri(resolver, stream);
+            if (file != null && file.exists()) {
+                Recording r = new Recording(file);
+                r.external_upload = true;
+                r.user_id = userId;
+                r.timestamp = System.currentTimeMillis();
+
+                r.what_text = intent.getStringExtra(Actions.EXTRA_TITLE);
+                r.where_text = intent.getStringExtra(Actions.EXTRA_WHERE);
+                r.is_private = !intent.getBooleanExtra(Actions.EXTRA_PUBLIC, true);
+                Location loc = intent.getParcelableExtra(Actions.EXTRA_LOCATION);
+                if (loc != null) {
+                    r.latitude = loc.getLatitude();
+                    r.longitude = loc.getLongitude();
+                }
+                r.tags = intent.getStringArrayExtra(Actions.EXTRA_TAGS);
+                r.description = intent.getStringExtra(Actions.EXTRA_DESCRIPTION);
+                r.genre = intent.getStringExtra(Actions.EXTRA_GENRE);
+
+                Uri artwork = intent.getParcelableExtra(Actions.EXTRA_ARTWORK);
+
+                if (artwork != null && "file".equals(artwork.getScheme())) {
+                    r.artwork_path = new File(artwork.getPath());
+                }
+
+                return r;
+            }
+        } else if (intent.getData() != null) {
+            return Recording.fromUri(intent.getData(), resolver);
+        }
+        return null;
     }
 }

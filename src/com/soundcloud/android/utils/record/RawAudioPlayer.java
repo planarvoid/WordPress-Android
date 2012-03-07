@@ -6,6 +6,7 @@ import android.media.AudioTrack;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -170,7 +171,7 @@ public class RawAudioPlayer {
     private static class PlayRawAudioTask extends AsyncTask<Long, Long, Boolean> {
         private File mFile;
         private AudioTrack mAudioTrack;
-        private int minSize;
+        private int minSize, headerLength;
         private boolean isPlaying;
         private long mEndPos, mStartPos, mLastPlayedPos;
         private WeakReference<RawAudioPlayer> rawAudioPlayerWeakReference;
@@ -200,7 +201,7 @@ public class RawAudioPlayer {
             try {
                 FileInputStream fin = new FileInputStream(mFile);
                 WaveHeader waveHeader = new WaveHeader();
-                int headerLength = waveHeader.read(fin);
+                headerLength = waveHeader.read(fin);
 
                 // round to the nearest buffer size to ensure valid audio data (TODO can this be more precise?)
                 offset = (offset / minSize) * minSize;
@@ -216,7 +217,8 @@ public class RawAudioPlayer {
                 mLastPlayedPos = written + offset;
                 dis.close();
                 fin.close();
-                return (written + offset > mEndPos);
+                return true;
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -240,7 +242,7 @@ public class RawAudioPlayer {
             mAudioTrack.release();
 
             if (rawAudioPlayerWeakReference != null && rawAudioPlayerWeakReference.get() != null){
-                if (mLastPlayedPos >= mEndPos){
+                if (mLastPlayedPos + headerLength >= mEndPos){
                     rawAudioPlayerWeakReference.get().onPlaybackComplete();
                 } else {
                     rawAudioPlayerWeakReference.get().onPlaybackStopped();

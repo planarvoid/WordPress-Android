@@ -93,7 +93,7 @@ public class CreateController {
     }
 
     public static int REC_SAMPLE_RATE = 44100;
-    public static int PCM_REC_CHANNELS = 1;
+    public static int PCM_REC_CHANNELS = 2;
     public static int PCM_REC_BITS_PER_SAMPLE = 16;
     public static int PCM_REC_MAX_FILE_SIZE = -1;
 
@@ -516,7 +516,7 @@ public class CreateController {
         final boolean hiQ = PreferenceManager.getDefaultSharedPreferences(mActivity)
             .getString("defaultRecordingQuality", "high")
             .contentEquals("high");
-
+        /*
         if (hiQ && SoundCloudApplication.DEV_MODE
                 && !PreferenceManager.getDefaultSharedPreferences(mActivity)
                         .getString("dev.defaultRecordingHighQualityType", "compressed")
@@ -525,7 +525,8 @@ public class CreateController {
             mAudioProfile = CloudRecorder.Profile.RAW;
         } else  {
             mAudioProfile = hiQ ? CloudRecorder.Profile.best() : CloudRecorder.Profile.low();
-        }
+        }  */
+        mAudioProfile = CloudRecorder.Profile.RAW;
 
         if (mPrivateUser != null) {
             mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "_" + mPrivateUser.id + "." + mAudioProfile);

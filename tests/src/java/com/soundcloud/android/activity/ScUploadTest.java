@@ -14,6 +14,7 @@ import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.api.Params;
+import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
 import org.junit.Before;
 import org.junit.Test;
@@ -121,28 +122,5 @@ public class ScUploadTest implements Params.Track {
         assertEquals(2, ids.size());
         assertEquals("1000", ids.get(0).toString());
         assertEquals("1001", ids.get(1).toString());
-    }
-
-
-    @Test
-    public void shouldMapIntentToRecording() throws Exception {
-        Intent i = new Intent(Actions.SHARE)
-                .putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File("/tmp")))
-                .putExtra(Actions.EXTRA_DESCRIPTION, "description")
-                .putExtra(Actions.EXTRA_GENRE, "genre")
-//                .putExtra(Actions.EXTRA_PUBLIC, false)
-                .putExtra(Actions.EXTRA_TITLE, "title")
-                .putExtra(Actions.EXTRA_WHERE, "where")
-//                .putExtra(Actions.EXTRA_TAGS, new String[] { "tags" })
-                ;
-
-        Recording r = create.recordingFromIntent(i);
-        assertThat(r, notNullValue());
-        assertThat(r.description, equalTo("description"));
-        assertThat(r.genre, equalTo("genre"));
-//        assertThat(r.is_private, is(false));
-        assertThat(r.where_text, equalTo("where"));
-        assertThat(r.what_text, equalTo("title"));
-//        assertThat(r.tags, equalTo(new String[] { "tags" } ));
     }
 }
