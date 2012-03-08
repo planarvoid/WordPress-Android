@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -258,7 +259,7 @@ public class Settings extends PreferenceActivity {
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-
+                                a.sendBroadcast(new Intent(Actions.LOGGING_OUT));
                                 a.sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
                                 app.track(Click.Log_out_box_ok);
                                 User.clearLoggedInUserFromStorage(app);
