@@ -116,7 +116,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18876071\/attachments",
         "sharing_note": {
@@ -301,7 +302,8 @@
           "id": 3749,
           "name": "technoBox2",
           "uri": "https:\/\/api.soundcloud.com\/apps\/3749",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/technobox2"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/technobox2",
+          "external_url": null
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18873390\/attachments"
       },
@@ -903,7 +905,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18802719\/attachments",
         "sharing_note": {
@@ -969,7 +972,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18802702\/attachments",
         "sharing_note": {
@@ -1035,7 +1039,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18764902\/attachments",
         "sharing_note": {
@@ -1101,7 +1106,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18746370\/attachments",
         "sharing_note": {
@@ -1404,7 +1410,8 @@
           "id": 3152,
           "name": "SoundCloud Android",
           "uri": "https:\/\/api.soundcloud.com\/apps\/3152",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/android"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/android",
+          "external_url": "https://market.android.com/details?id=com.soundcloud.android"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18692493\/attachments",
         "sharing_note": {
@@ -1529,7 +1536,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18700900\/attachments",
         "sharing_note": {
@@ -1595,7 +1603,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18700003\/attachments",
         "sharing_note": {
@@ -1660,7 +1669,8 @@
           "id": 3152,
           "name": "SoundCloud Android",
           "uri": "https:\/\/api.soundcloud.com\/apps\/3152",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/android"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/android",
+          "external_url": "https://market.android.com/details?id=com.soundcloud.android"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18696664\/attachments",
         "sharing_note": {
@@ -1726,7 +1736,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18694535\/attachments",
         "sharing_note": {
@@ -1792,7 +1803,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18694382\/attachments",
         "sharing_note": {
@@ -1920,7 +1932,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18679861\/attachments",
         "sharing_note": {
@@ -2046,7 +2059,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18668721\/attachments",
         "sharing_note": {
@@ -2112,7 +2126,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18662508\/attachments",
         "sharing_note": {
@@ -2177,7 +2192,8 @@
           "id": 3152,
           "name": "SoundCloud Android",
           "uri": "https:\/\/api.soundcloud.com\/apps\/3152",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/android"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/android",
+          "external_url": "https://market.android.com/details?id=com.soundcloud.android"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18657408\/attachments",
         "sharing_note": {
@@ -2242,7 +2258,8 @@
           "id": 3152,
           "name": "SoundCloud Android",
           "uri": "https:\/\/api.soundcloud.com\/apps\/3152",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/android"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/android",
+          "external_url": "https://market.android.com/details?id=com.soundcloud.android"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18657188\/attachments",
         "sharing_note": {
@@ -2307,7 +2324,8 @@
           "id": 3152,
           "name": "SoundCloud Android",
           "uri": "https:\/\/api.soundcloud.com\/apps\/3152",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/android"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/android",
+          "external_url": "https://market.android.com/details?id=com.soundcloud.android"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18656606\/attachments",
         "sharing_note": {
@@ -2671,7 +2689,8 @@
           "id": 124,
           "name": "SoundCloud iPhone",
           "uri": "https:\/\/api.soundcloud.com\/apps\/124",
-          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone"
+          "permalink_url": "http:\/\/soundcloud.com\/apps\/iphone",
+          "external_url": "http://itunes.com/app/soundcloud"
         },
         "attachments_uri": "https:\/\/api.soundcloud.com\/tracks\/18590264\/attachments",
         "sharing_note": {
