@@ -394,7 +394,7 @@ public class AudioManagerHelper {
     }
 
     private static void setPlaybackStateCompat(Object remoteControlClient, int i) {
-        if (sMethodSetPlaybackState == null) return;
+        if (sMethodSetPlaybackState == null || remoteControlClient == null) return;
 
         try {
             Object ret = sMethodSetPlaybackState.invoke(remoteControlClient, i);
@@ -416,7 +416,7 @@ public class AudioManagerHelper {
     }
 
     private static void setTransportControlFlagsCompat(Object remoteControlClient, int flags) {
-        if (sMethodSetTransportControlFlags == null) return;
+        if (sMethodSetTransportControlFlags == null || remoteControlClient == null) return;
 
         try {
             sMethodSetTransportControlFlags.invoke(remoteControlClient, flags);

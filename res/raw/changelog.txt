@@ -4,6 +4,7 @@ $ 38
   ! Undetermined
     * Spanish translations
     * Lockscreen and Notification playback control (still very rough)
+    * HOTFIX - for record crashing
 
 $ 37
   % v 2.2.3

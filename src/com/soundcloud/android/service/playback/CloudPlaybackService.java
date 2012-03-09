@@ -324,7 +324,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         if (SoundCloudApplication.useRichNotifications()) {
             if (what.equals(PLAYSTATE_CHANGED)) {
                 mFocus.setPlaybackState(isPlaying());
-                ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
+                if (status != null) ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
             } else if (what.equals(META_CHANGED)) {
                 applyCurrentMetadata(mCurrentTrack);
             }
