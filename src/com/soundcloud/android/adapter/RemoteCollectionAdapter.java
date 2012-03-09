@@ -20,6 +20,7 @@ import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
 
@@ -35,7 +36,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     private Boolean mIsSyncable;
     protected LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
-    private boolean mContentInvalid;
+    private boolean mContentInvalid, mObservingContent;
 
     protected String mNextHref;
 
@@ -47,6 +48,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             mLocalCollection = LocalCollection.fromContentUri(contentUri,activity.getContentResolver(), true);
             mLocalCollection.startObservingSelf(activity.getContentResolver());
             mChangeObserver = new ChangeObserver();
+            mObservingContent = true;
             activity.getContentResolver().registerContentObserver(contentUri, true, mChangeObserver);
         }
     }
@@ -162,7 +164,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     protected void checkForStaleItems(List<? extends Parcelable> newItems){
-        if (!(CloudUtils.isWifiConnected(mActivity)) || newItems == null || newItems.size() == 0 || !(newItems.get(0) instanceof Refreshable))
+        if (!(IOUtils.isWifiConnected(mActivity)) || newItems == null || newItems.size() == 0 || !(newItems.get(0) instanceof Refreshable))
             return;
 
         Map<Long, ScModel> toUpdate = new HashMap<Long, ScModel>();
@@ -294,18 +296,32 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         }
     }
 
-    public void onDestroy() {
-        if (mChangeObserver != null) {
-            mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);
-        }
-        if (mLocalCollection != null){
-            mLocalCollection.stopObservingSelf();
+    private void stopObservingChanges() {
+        if (mObservingContent) {
+            mObservingContent = false;
+
+            if (mChangeObserver != null) {
+                mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);
+            }
+            if (mLocalCollection != null) {
+                mLocalCollection.stopObservingSelf();
+            }
         }
     }
 
-    protected void onContentChanged(){
+    public void onDestroy() {
+        stopObservingChanges();
+    }
+
+    @Override
+    public void onLogout() {
+        stopObservingChanges();
+    }
+
+    protected void onContentChanged() {
         mContentInvalid = true;
         executeRefreshTask();
+
     }
 
     private class ChangeObserver extends ContentObserver {
@@ -320,7 +336,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
         @Override
         public void onChange(boolean selfChange) {
-            onContentChanged();
+            // even after unregistering, we will still get asynchronous change notifications, so make sure we want them
+            if (mObservingContent) onContentChanged();
         }
     }
 }

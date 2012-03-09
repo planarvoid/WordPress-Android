@@ -13,8 +13,11 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.auth.AuthenticatorService;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.ResolveTask;
+import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
@@ -28,8 +31,6 @@ import android.app.SearchManager;
 import android.app.TabActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,30 +46,9 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.Search;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.auth.AuthenticatorService;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.task.ResolveTask;
-import com.soundcloud.android.task.fetch.FetchTrackTask;
-import com.soundcloud.android.task.fetch.FetchUserTask;
-import com.soundcloud.android.utils.ChangeLog;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Env;
-import com.soundcloud.api.Request;
 
 import java.io.IOException;
 import java.util.List;
-
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class Main extends TabActivity implements
         ResolveTask.ResolveListener {
@@ -101,12 +81,13 @@ public class Main extends TabActivity implements
         final boolean showSplash = showSplash(state);
         mSplash = findViewById(R.id.splash);
         mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);
-        if (isConnected() &&
-                app.getAccount() != null &&
-                app.getToken().valid() &&
-                !app.isEmailConfirmed() &&
-                !justAuthenticated(getIntent())) {
-            checkEmailConfirmed(app);
+        if (IOUtils.isConnected(this) &&
+            app.getAccount() != null &&
+            app.getToken().valid() &&
+            !app.getLoggedInUser().primary_email_confirmed &&
+            !justAuthenticated(getIntent()))
+        {
+                checkEmailConfirmed(app);
         } else if (showSplash) {
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -157,16 +138,13 @@ public class Main extends TabActivity implements
     }
 
     private void checkEmailConfirmed(final SoundCloudApplication app) {
-        (new FetchUserTask((SoundCloudApplication) getApplication(), -1) {
-            @Override
-            protected void onPostExecute(User user) {
-                if (user == null) {
-                    dismissSplash();
-                } else if (user.primary_email_confirmed) {
-                    app.confirmEmail();
+        (new FetchUserTask(app) {
+            @Override protected void onPostExecute(User user) {
+                if (user == null || user.primary_email_confirmed) {
                     dismissSplash();
                 } else {
-                    startActivityForResult(new Intent(Main.this, EmailConfirm.class)
+                    startActivityForResult(
+                            new Intent(Main.this, EmailConfirm.class)
                             .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS), 0);
                 }
             }
@@ -219,7 +197,7 @@ public class Main extends TabActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         dismissSplash();
         if (resultCode == RESULT_OK) {
-            if (data != null && EmailConfirm.RESEND.equals(data.getAction())) {
+            if (data != null && Actions.RESEND.equals(data.getAction())) {
                 // user pressed resend button
             }
         } else {
@@ -392,11 +370,6 @@ public class Main extends TabActivity implements
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
-    private boolean isConnected() {
-        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info =  manager.getActiveNetworkInfo();
-        return info != null && info.isConnectedOrConnecting();
-    }
 
    @Override
     public Object onRetainNonConfigurationInstance() {

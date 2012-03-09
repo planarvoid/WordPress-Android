@@ -469,8 +469,10 @@ public class CreateController {
                 mChrono.setText(mCurrentDurationString);
                 btnAction.setImageDrawable(btn_rec_play_states_drawable);
                 txtInstructions.setVisibility(View.GONE);
-                mPowerGauge.setVisibility(View.GONE);
-                mProgressBar.setVisibility(View.VISIBLE);
+                mPowerGauge.showAll();
+                //mPowerGauge.setVisibility(View.GONE);
+                //mProgressBar.setVisibility(View.VISIBLE);
+
                 mChrono.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.VISIBLE);
                 txtRecordStatus.setVisibility(View.GONE);

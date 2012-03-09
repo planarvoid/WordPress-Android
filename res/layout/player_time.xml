@@ -5,7 +5,7 @@
               android:layout_height="wrap_content"
               android:layout_marginTop="5dp"
               style="@style/txt_player_time_instructrions"
-              android:text="Drag along the waveform and release to make a comment at:"
+              android:text="@string/drag_waveform_comment"
               android:gravity="center"
               android:visibility="gone"/>
     <include layout="@layout/player_time_common"

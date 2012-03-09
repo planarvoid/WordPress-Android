@@ -1,7 +1,5 @@
 package com.soundcloud.android.provider;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
@@ -104,7 +102,7 @@ public class SoundCloudDB {
 
     public static boolean markTrackAsPlayed(ContentResolver resolver, Track track) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBHelper.TrackPlays.TRACK_ID, track.id);
+        contentValues.put(DBHelper.TrackMetadata._ID, track.id);
         return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 

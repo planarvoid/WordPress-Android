@@ -2,14 +2,16 @@ package com.soundcloud.android.robolectric;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
-import com.soundcloud.android.provider.DelegatingContentResolver;
+import com.soundcloud.android.provider.ScContentProvider;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
+import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import org.junit.runners.model.InitializationError;
 
+import android.content.ContentProvider;
 import android.util.Log;
 
 import java.io.File;
@@ -29,6 +31,10 @@ public class DefaultTestRunner extends RobolectricTestRunner {
     @Override
     public void beforeTest(Method method) {
         application = (TestApplication) Robolectric.application;
+        // delegate content provider methods
+        ContentProvider provider = new ScContentProvider();
+        provider.onCreate();
+        ShadowContentResolver.registerProvider(ScContentProvider.AUTHORITY, provider);
     }
 
     @Override
@@ -42,7 +48,6 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         super.bindShadowClasses();
         Robolectric.bindShadowClass(ShadowLog.class);
         Robolectric.bindShadowClass(ShadowHandlerThread.class);
-        Robolectric.bindShadowClass(DelegatingContentResolver.class);
     }
 
     @Override

@@ -149,7 +149,7 @@ public class LocationPicker extends ListActivity {
         switch (id) {
             case LOADING:
                 ProgressDialog progress = new ProgressDialog(this);
-                progress.setMessage("Loading");
+                progress.setMessage(getString(R.string.connect_progress));
                 progress.setCancelable(true);
                 progress.setIndeterminate(true);
                 return progress;

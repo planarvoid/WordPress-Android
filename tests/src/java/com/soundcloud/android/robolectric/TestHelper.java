@@ -2,15 +2,19 @@ package com.soundcloud.android.robolectric;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DelegatingContentResolver;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.provider.Settings;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +39,10 @@ public class TestHelper {
     }
 
     public static void addPendingIOException(String path) {
+        if (path != null && path.startsWith("/")) {
+            path = path.substring(1, path.length());
+        }
+
         FakeHttpLayer.RequestMatcherBuilder builder = new FakeHttpLayer.RequestMatcherBuilder();
         if (path != null) {
             builder.path(path);
@@ -61,12 +69,24 @@ public class TestHelper {
     }
 
     public static void assertResolverNotified(Uri... uris) {
-        DelegatingContentResolver res  =
+        ShadowContentResolver res  =
                 Robolectric.shadowOf_(Robolectric.application.getContentResolver());
         Set<Uri> _uris = new HashSet<Uri>();
-        for (DelegatingContentResolver.NotifiedUri u : res.getNotifiedUris()) {
+        for (ShadowContentResolver.NotifiedUri u : res.getNotifiedUris()) {
             _uris.add(u.uri);
         }
         expect(_uris).toContain(uris);
+    }
+
+    public static void simulateOffline() {
+        ConnectivityManager cm = (ConnectivityManager)
+                Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
+        shadowOf(shadowOf(cm).getActiveNetworkInfo()).setConnectionStatus(false);
+    }
+
+    public static void enableFlightmode(boolean enabled) {
+        Settings.System.putInt(Robolectric.application.getContentResolver(),
+                Settings.System.AIRPLANE_MODE_ON, enabled ? 1 : 0);
+
     }
 }

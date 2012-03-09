@@ -93,11 +93,26 @@ public class SoundCloudDBTest {
     }
 
     @Test
-    public void shouldInsertUser() throws Exception {
+    public void shouldInsertUserAndReadBackUser() throws Exception {
         User u = new User();
         u.id = 100L;
+        u.full_name = "Bobby Fuller";
         u.permalink = "foo";
         u.description = "baz";
+        u.city = "Somewhere";
+        u.plan = "plan";
+        u.website = "http://foo.com";
+        u.website_title = "Site";
+        u.primary_email_confirmed = true;
+        u.myspace_name = "myspace";
+        u.discogs_name = "discogs";
+
+        int counter = 0;
+        u.track_count     = ++counter;
+        u.followers_count = ++counter;
+        u.followings_count = ++counter;
+        u.public_favorites_count = ++counter;
+        u.private_tracks_count = ++counter;
 
         Uri uri = SoundCloudDB.insertUser(resolver, u);
 
@@ -105,7 +120,25 @@ public class SoundCloudDBTest {
 
         User u2 = SoundCloudDB.getUserByUri(resolver, uri);
         expect(u2).not.toBeNull();
+        expect(u2.full_name).toEqual(u.full_name);
         expect(u2.permalink).toEqual(u.permalink);
+        expect(u2.city).toEqual(u.city);
+        expect(u2.plan).toEqual(u.plan);
+        expect(u2.website).toEqual(u.website);
+        expect(u2.website_title).toEqual(u.website_title);
+        expect(u2.primary_email_confirmed).toEqual(u.primary_email_confirmed);
+        expect(u2.myspace_name).toEqual(u.myspace_name);
+        expect(u2.discogs_name).toEqual(u.discogs_name);
+
+        expect(u2.track_count).toEqual(u.track_count);
+        expect(u2.followers_count).toEqual(u.followers_count);
+        expect(u2.followings_count).toEqual(u.followings_count);
+        expect(u2.public_favorites_count).toEqual(u.public_favorites_count);
+        expect(u2.private_tracks_count).toEqual(u.private_tracks_count);
+
+        expect(u2.last_updated).not.toEqual(u.last_updated);
+
+        // description is not store
         expect(u2.description).toBeNull();
     }
 
@@ -113,7 +146,6 @@ public class SoundCloudDBTest {
     public void shouldInsertUserWithDescriptionIfCurrentUser() throws Exception {
         User u = new User();
         u.id = USER_ID;
-        u.permalink = "foo";
         u.description = "i make beatz";
 
         Uri uri = SoundCloudDB.insertUser(resolver, u);
@@ -166,9 +198,9 @@ public class SoundCloudDBTest {
         expect(c.getCount()).toEqual(1);
         expect(c.moveToFirst()).toBeTrue();
 
-        expect(c.getLong(c.getColumnIndex(DBHelper.TrackPlays.TRACK_ID))).toEqual(100L);
-        expect(c.getLong(c.getColumnIndex(DBHelper.TrackPlays.USER_ID))).toEqual(USER_ID);
-        expect(c.getInt(c.getColumnIndex(DBHelper.TrackPlays.PLAY_COUNT))).toEqual(PLAYS);
+        expect(c.getLong(c.getColumnIndex(DBHelper.TrackMetadata._ID))).toEqual(100L);
+        expect(c.getLong(c.getColumnIndex(DBHelper.TrackMetadata.USER_ID))).toEqual(USER_ID);
+        expect(c.getInt(c.getColumnIndex(DBHelper.TrackMetadata.PLAY_COUNT))).toEqual(PLAYS);
 
         Track played = SoundCloudDB.getTrackById(resolver, 100L);
         expect(played.local_user_playback_count).toEqual(PLAYS);

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.2.2"
+      android:versionName="2.2.3-BETA3"
       android:installLocation="internalOnly"
-      android:versionCode="36">
+      android:versionCode="37">
 
     <supports-screens android:anyDensity="true" />
     <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10"/>
@@ -247,6 +247,13 @@
 
           <meta-data android:name="android.appwidget.provider"
                      android:resource="@xml/widget_player" />
+        </receiver>
+
+        <receiver android:name=".activity.DevSettings$AlarmClock$Receiver">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.actions.ALARM"/>
+                <action android:name="com.soundcloud.android.actions.CANCEL_ALARM"/>
+            </intent-filter>
         </receiver>
 
         <receiver android:label="SoundCloud Recorder"

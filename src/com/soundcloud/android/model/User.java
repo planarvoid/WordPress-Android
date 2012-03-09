@@ -31,21 +31,24 @@ import java.util.EnumSet;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends ScModel implements  Refreshable, Origin {
+
     @JsonView(Views.Mini.class) public String username;
     @JsonView(Views.Mini.class) public String uri;
     @JsonView(Views.Mini.class) public String avatar_url;
     @JsonView(Views.Mini.class) public String permalink;
     @JsonView(Views.Mini.class) public String permalink_url;
     public String full_name;
+    public String description;
     public String city;
+    public String country;
+
+    public String plan;      // free|lite|solo|pro|pro plus
+    public boolean primary_email_confirmed;
+
     public String website;
     public String website_title;
-    public String description;
     public String myspace_name;
     public String discogs_name;
-    public String country;
-    public String plan;
-    public boolean primary_email_confirmed;
 
     // counts
     public int    track_count            = NOT_SET;
@@ -88,6 +91,13 @@ public class User extends ScModel implements  Refreshable, Origin {
         user_following = cursor.getInt(cursor.getColumnIndex(Users.USER_FOLLOWING)) == 1;
         last_updated = cursor.getLong(cursor.getColumnIndex(Users.LAST_UPDATED));
         description = cursor.getString(cursor.getColumnIndex(Users.DESCRIPTION));
+        plan = cursor.getString(cursor.getColumnIndex(Users.PLAN));
+        website = cursor.getString(cursor.getColumnIndex(Users.WEBSITE));
+        website_title = cursor.getString(cursor.getColumnIndex(Users.WEBSITE_TITLE));
+        primary_email_confirmed = cursor.getInt(cursor.getColumnIndex(Users.PRIMARY_EMAIL_CONFIRMED)) == 1;
+        public_favorites_count = cursor.getInt(cursor.getColumnIndex(Users.PUBLIC_FAVORITES_COUNT));
+        private_tracks_count = cursor.getInt(cursor.getColumnIndex(Users.PRIVATE_TRACKS_COUNT));
+
         final String tempDesc = cursor.getString(cursor.getColumnIndex(Users.DESCRIPTION));
         if (TextUtils.isEmpty(tempDesc)) description = tempDesc;
         return this;
@@ -153,18 +163,26 @@ public class User extends ScModel implements  Refreshable, Origin {
         if (permalink != null) cv.put(Users.PERMALINK, permalink);
         if (avatar_url != null) cv.put(Users.AVATAR_URL, avatar_url);
         if (permalink_url != null) cv.put(Users.PERMALINK_URL, permalink_url);
-        if (track_count != -1) cv.put(Users.LAST_UPDATED, System.currentTimeMillis());
+        if (track_count != NOT_SET) cv.put(Users.TRACK_COUNT, track_count);
+        if (public_favorites_count != NOT_SET) cv.put(Users.PUBLIC_FAVORITES_COUNT, public_favorites_count);
         if (city != null) cv.put(Users.CITY, city);
         if (country != null) cv.put(Users.COUNTRY, country);
         if (discogs_name != null) cv.put(Users.DISCOGS_NAME, discogs_name);
         if (full_name != null) cv.put(Users.FULL_NAME, full_name);
         if (myspace_name != null) cv.put(Users.MYSPACE_NAME, myspace_name);
-        if (followers_count != -1) cv.put(Users.FOLLOWERS_COUNT, followers_count);
-        if (followings_count != -1)cv.put(Users.FOLLOWINGS_COUNT, followings_count);
+        if (followers_count != NOT_SET) cv.put(Users.FOLLOWERS_COUNT, followers_count);
+        if (followings_count != NOT_SET)cv.put(Users.FOLLOWINGS_COUNT, followings_count);
         if (track_count != -1)cv.put(Users.TRACK_COUNT, track_count);
         if (website != null) cv.put(Users.WEBSITE, website);
         if (website_title != null) cv.put(Users.WEBSITE_TITLE, website_title);
-        if (isCurrentUser && description != null) cv.put(Users.DESCRIPTION, description);
+        if (plan != null) cv.put(Users.PLAN, plan);
+        if (private_tracks_count != NOT_SET) cv.put(Users.PRIVATE_TRACKS_COUNT, private_tracks_count);
+        cv.put(Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed  ? 1 : 0);
+
+        if (isCurrentUser) {
+            if (description != null) cv.put(Users.DESCRIPTION, description);
+        }
+        cv.put(Users.LAST_UPDATED, System.currentTimeMillis());
         return cv;
     }
 
@@ -236,7 +254,6 @@ public class User extends ScModel implements  Refreshable, Origin {
         String USERNAME        = "currentUsername";
         String USER_ID         = "currentUserId";
         String USER_PERMALINK  = "currentUserPermalink";
-        String EMAIL_CONFIRMED = "email_confirmed";
         String DASHBOARD_IDX   = "lastDashboardIndex";
         String PROFILE_IDX     = "lastProfileIndex";
         String SIGNUP          = "signup";
@@ -343,6 +360,10 @@ public class User extends ScModel implements  Refreshable, Origin {
 
     public boolean shouldLoadIcon() {
         return ImageUtils.checkIconShouldLoad(avatar_url);
+    }
+
+    public Plan getPlan() {
+        return Plan.fromApi(plan);
     }
 
     public static void clearLoggedInUserFromStorage(SoundCloudApplication app) {

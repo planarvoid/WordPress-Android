@@ -173,6 +173,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
         IntentFilter generalIntentFilter = new IntentFilter();
         generalIntentFilter.addAction(Actions.CONNECTION_ERROR);
+        generalIntentFilter.addAction(Actions.LOGGING_OUT);
         registerReceiver(mGeneralIntentListener, generalIntentFilter);
 
         mLists = new ArrayList<ScListView>();
@@ -403,6 +404,12 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         public void onReceive(Context context, Intent intent) {
             if (Actions.CONNECTION_ERROR.equals(intent.getAction())) {
                 safeShowDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
+            } else if (Actions.LOGGING_OUT.equals(intent.getAction())) {
+                if (mLists != null) {
+                    for (final ScListView lv : mLists) {
+                        if (lv.getWrapper() != null) lv.getWrapper().onLogout();
+                    }
+                }
             }
         }
     };

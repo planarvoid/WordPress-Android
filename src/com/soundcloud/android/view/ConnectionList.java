@@ -203,13 +203,11 @@ public class ConnectionList extends LinearLayout {
             Connections.get().requestUpdate(api, true,
                 new ParcelCache.Listener<Connection>() {
                         @Override public void onChanged(List<Connection> objects, ParcelCache<Connection> cache) {
-                            if (connections == null) {
-                                if (objects != null) {
-                                    setConnections(objects, true);
-                                } else {
-                                    mFailed = true;
-                                    notifyDataSetChanged();
-                                }
+                            if (objects != null) {
+                                setConnections(objects, true);
+                            } else {
+                                mFailed = true;
+                                notifyDataSetChanged();
                             }
                         }
                     });

@@ -8,6 +8,10 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 
 public class FetchUserTask extends FetchModelTask<User> {
+    public FetchUserTask(AndroidCloudAPI app) {
+        this(app, -1);
+    }
+
     public FetchUserTask(AndroidCloudAPI app, long userId) {
         super(app, User.class, userId);
     }

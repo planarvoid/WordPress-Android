@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				android:id="@+id/RelativeLayout01"
-                android:layout_width="fill_parent" 
+                android:id="@+id/RelativeLayout01"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
     <include layout="@layout/share_header"
              android:id="@+id/share_header_txt" />
@@ -26,7 +26,7 @@
                 android:layout_centerVertical="true"
                 android:gravity="center_vertical"
                 style="@style/txt_share_header_username"
-                android:text="Seams"/>
+                />
         <View
                 android:background="#ff000000"
                 android:layout_toRightOf="@id/share_header_username"

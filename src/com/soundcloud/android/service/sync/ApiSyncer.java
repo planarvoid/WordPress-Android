@@ -15,6 +15,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -301,6 +302,7 @@ public class ApiSyncer {
         do {
             Request request =  (holder == null) ? Request.to(endpoint + "/ids") : Request.to(holder.next_href);
             request.add("linked_partitioning", "1");
+
             holder = app.getMapper().readValue(validateResponse(app.get(request)).getEntity().getContent(), IdHolder.class);
             if (holder.collection != null) items.addAll(holder.collection);
 
@@ -309,8 +311,11 @@ public class ApiSyncer {
     }
 
     private static HttpResponse validateResponse(HttpResponse response) throws IOException {
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK
-            && response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_MODIFIED) {
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+            throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
+                    response.getStatusLine().getReasonPhrase());
+        } else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK
+                && response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_MODIFIED) {
             throw new IOException("Invalid response: " + response.getStatusLine());
         }
         return response;

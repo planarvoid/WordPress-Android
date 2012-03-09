@@ -5,11 +5,16 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PowerGauge extends View {
 
@@ -24,6 +29,15 @@ public class PowerGauge extends View {
     private final Paint mBlurPaint = new Paint();
     private static final int WAVEFORM_ORANGE = 0xffff8000;
     private final Path mPath = new Path();
+
+    private ArrayList<Float> mAllAmplitudes = new ArrayList<Float>();
+
+
+    private long mShowFullStartTime;
+    private boolean mShowFullAnimating;
+    private static long SHOW_FULL_ANIMATE_TIME = 500;
+    private int mFrameCount;
+    private static AccelerateDecelerateInterpolator SHOW_FULL_INTERPOLATOR = new AccelerateDecelerateInterpolator();
 
     public PowerGauge(Context context) {
         super(context);
@@ -45,11 +59,74 @@ public class PowerGauge extends View {
     }
 
     public void clear() {
+        mAllAmplitudes.clear();
         nextBufferX = 0;
         if (bitmap != null) {
             bitmap.recycle();
         }
         bitmap = null;
+    }
+
+
+
+    public void showAll(){
+        mShowFullAnimating = true;
+        mShowFullStartTime = System.currentTimeMillis();
+
+        nextBufferX = 0;
+        if (bitmap != null) {
+            bitmap.recycle();
+        }
+        bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        mFrameCount = 0;
+    }
+
+    private void drawFullWave(Canvas c) {
+        mFrameCount++;
+        float normalizedTime = Math.min(1.0f,(((float) (System.currentTimeMillis() - mShowFullStartTime)) /
+                SHOW_FULL_ANIMATE_TIME));
+        float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
+
+        int xIndex = 0;
+        final int width = getWidth();
+        int end = width;
+        List<Float> amplitudesSubArray;
+        final int amplitudeSize = mAllAmplitudes.size();
+
+        if (amplitudeSize < width){
+            final int gap = width - amplitudeSize;
+            end = (int) (amplitudeSize + gap * interpolatedTime);
+            amplitudesSubArray = mAllAmplitudes;
+        } else {
+            final int start = (int) (amplitudeSize - width - (interpolatedTime * (amplitudeSize - width)));
+            amplitudesSubArray = mAllAmplitudes.subList(start, amplitudeSize);
+        }
+
+        final int amplitudeSubArraySize = amplitudesSubArray.size();
+        for (xIndex = 0; xIndex < end; xIndex++) {
+            drawAmplitude(c,xIndex,amplitudesSubArray.get((int)((((float )xIndex) /end) * amplitudeSubArraySize)));
+        }
+
+        if (normalizedTime < 1.0f) {
+            postInvalidate();
+        } else {
+            mShowFullAnimating = false;
+            Log.i("asdf","Current frame count " + mFrameCount);
+        }
+
+
+    }
+
+    private void drawAmplitude(Canvas c, int xIndex, float amplitude) {
+        // draw blur
+        mPath.reset();
+        mPath.moveTo(xIndex, this.getHeight() / 2 - amplitude * mMaxWaveHeight / 2);
+        mPath.lineTo(xIndex, this.getHeight() / 2 + amplitude * mMaxWaveHeight / 2);
+        c.drawPath(mPath, mBlurPaint);
+
+        // draw amplitude
+        c.drawLine(xIndex, this.getHeight() / 2 - amplitude * mMaxWaveHeight / 2,
+                xIndex, this.getHeight() / 2 + amplitude * mMaxWaveHeight / 2, mPaint);
     }
 
     @Override
@@ -63,7 +140,9 @@ public class PowerGauge extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (bitmap != null) {
+        if (mShowFullAnimating) {
+            drawFullWave(canvas);
+        } else if (bitmap != null) {
             if (nextBufferX > getWidth()) {
                 m.setTranslate(getWidth() - nextBufferX, 0);
             } else {
@@ -74,6 +153,7 @@ public class PowerGauge extends View {
     }
 
     public void updateAmplitude(float maxAmplitude) {
+        mAllAmplitudes.add(maxAmplitude);
 
         if (getWidth() == 0 || getHeight() == 0) { return; }
 
