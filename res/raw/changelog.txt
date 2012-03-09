@@ -3,6 +3,7 @@ $ 37
   _ 2012-03-09
   ! Maintenance
     * Fixes for background sync workflow
+    * Fixed some incorrectly empty streams
     - dev: Alarm Clock
     - Track metadata (counts + type + cached)
     - Force sync after push notification
