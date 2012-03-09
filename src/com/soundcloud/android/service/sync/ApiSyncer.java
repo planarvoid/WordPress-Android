@@ -106,13 +106,17 @@ public class ApiSyncer {
 
         final Content c = Content.match(uri);
         final int inserted;
-        final Activities activities;
+        Activities activities = null;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
             final Activity lastActivity = Activities.getLastActivity(c, mResolver);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
-            activities = Activities.fetch(mApi, request);
-            if (activities.size() == 1 && activities.get(0).equals(lastActivity)) {
+            try {
+                activities = Activities.fetch(mApi, request);
+            } catch (IllegalArgumentException e){
+                // TODO : 10k crashes in 2 weeks, figure out why
+            }
+            if (activities == null || (activities.size() == 1 && activities.get(0).equals(lastActivity))) {
                 // this can happen at the end of the list
                 inserted = 0;
             } else {
