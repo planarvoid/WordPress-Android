@@ -6,6 +6,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -466,4 +467,6 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     public void onRefresh() {
         refresh(true);
     }
+
+    public abstract void onLogout();
 }

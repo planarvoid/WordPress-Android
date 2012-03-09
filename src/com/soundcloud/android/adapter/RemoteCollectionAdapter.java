@@ -36,7 +36,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     private Boolean mIsSyncable;
     protected LocalCollection mLocalCollection;
     private ChangeObserver mChangeObserver;
-    private boolean mContentInvalid;
+    private boolean mContentInvalid, mObservingContent;
 
     protected String mNextHref;
 
@@ -48,6 +48,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             mLocalCollection = LocalCollection.fromContentUri(contentUri,activity.getContentResolver(), true);
             mLocalCollection.startObservingSelf(activity.getContentResolver());
             mChangeObserver = new ChangeObserver();
+            mObservingContent = true;
             activity.getContentResolver().registerContentObserver(contentUri, true, mChangeObserver);
         }
     }
@@ -295,18 +296,32 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         }
     }
 
-    public void onDestroy() {
-        if (mChangeObserver != null) {
-            mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);
-        }
-        if (mLocalCollection != null){
-            mLocalCollection.stopObservingSelf();
+    private void stopObservingChanges() {
+        if (mObservingContent) {
+            mObservingContent = false;
+
+            if (mChangeObserver != null) {
+                mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);
+            }
+            if (mLocalCollection != null) {
+                mLocalCollection.stopObservingSelf();
+            }
         }
     }
 
-    protected void onContentChanged(){
+    public void onDestroy() {
+        stopObservingChanges();
+    }
+
+    @Override
+    public void onLogout() {
+        stopObservingChanges();
+    }
+
+    protected void onContentChanged() {
         mContentInvalid = true;
         executeRefreshTask();
+
     }
 
     private class ChangeObserver extends ContentObserver {
@@ -321,7 +336,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
         @Override
         public void onChange(boolean selfChange) {
-            onContentChanged();
+            // even after unregistering, we will still get asynchronous change notifications, so make sure we want them
+            if (mObservingContent) onContentChanged();
         }
     }
 }

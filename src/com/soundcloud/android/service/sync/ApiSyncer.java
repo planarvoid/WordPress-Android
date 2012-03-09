@@ -15,6 +15,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -105,13 +106,17 @@ public class ApiSyncer {
 
         final Content c = Content.match(uri);
         final int inserted;
-        final Activities activities;
+        Activities activities = null;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
             final Activity lastActivity = Activities.getLastActivity(c, mResolver);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
-            activities = Activities.fetch(mApi, request);
-            if (activities.size() == 1 && activities.get(0).equals(lastActivity)) {
+            try {
+                activities = Activities.fetch(mApi, request);
+            } catch (IllegalArgumentException e){
+                // TODO : 10k crashes in 2 weeks, figure out why
+            }
+            if (activities == null || (activities.size() == 1 && activities.get(0).equals(lastActivity))) {
                 // this can happen at the end of the list
                 inserted = 0;
             } else {
@@ -301,6 +306,7 @@ public class ApiSyncer {
         do {
             Request request =  (holder == null) ? Request.to(endpoint + "/ids") : Request.to(holder.next_href);
             request.add("linked_partitioning", "1");
+
             holder = app.getMapper().readValue(validateResponse(app.get(request)).getEntity().getContent(), IdHolder.class);
             if (holder.collection != null) items.addAll(holder.collection);
 
@@ -309,8 +315,11 @@ public class ApiSyncer {
     }
 
     private static HttpResponse validateResponse(HttpResponse response) throws IOException {
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK
-            && response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_MODIFIED) {
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+            throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
+                    response.getStatusLine().getReasonPhrase());
+        } else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK
+                && response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_MODIFIED) {
             throw new IOException("Invalid response: " + response.getStatusLine());
         }
         return response;
