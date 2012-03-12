@@ -701,11 +701,12 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Fix for incorrect future-href. Have to clean out activities.
+     * Fix for incorrect future-href. Have to clean out activities and stored future-href.
      */
     private static boolean upgradeTo11(SQLiteDatabase db, int oldVersion) {
         try {
             Table.ACTIVITIES.recreate(db);
+            db.execSQL("UPDATE " + Table.COLLECTIONS + " SET " + Collections.EXTRA + " = NULL");
             return true;
 
         } catch (SQLException e) {
