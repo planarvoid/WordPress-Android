@@ -231,7 +231,7 @@ public class Main extends TabActivity implements
             }
         } else if (Actions.MY_PROFILE.equals(intent.getAction()) && intent.hasExtra("userBrowserTag")) {
             getTabHost().setCurrentTabByTag(Main.Tab.PROFILE.tag);
-            if (getCurrentActivity() instanceof UserBrowser) {
+            if (getCurrentActivity() instanceof UserBrowser && intent.getStringExtra("userBrowserTag") != null) {
                 ((UserBrowser) getCurrentActivity()).setTab(intent.getStringExtra("userBrowserTag"));
             }
         } else if (Actions.USER_BROWSER.equals(intent.getAction())) {

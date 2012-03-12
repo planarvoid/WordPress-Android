@@ -214,7 +214,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         @SuppressWarnings({"CloneDoesntCallSuperClone"})
         @Override
         public CloudDateFormat clone() {
-            return new CloudDateFormat();
+            return instance();
         }
 
         @Override

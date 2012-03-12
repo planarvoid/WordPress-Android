@@ -15,7 +15,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
-    public static final int DATABASE_VERSION = 10;
+    public static final int DATABASE_VERSION = 11;
     private static final String DATABASE_NAME = "SoundCloud";
 
     DBHelper(Context context) {
@@ -63,6 +63,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 10:
                             success = upgradeTo10(db, oldVersion);
+                            break;
+                        case 11:
+                            success = upgradeTo11(db, oldVersion);
                             break;
                         default:
                             break;
@@ -692,6 +695,21 @@ public class DBHelper extends SQLiteOpenHelper {
 
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade10 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
+    /**
+     * Fix for incorrect future-href. Have to clean out activities.
+     */
+    private static boolean upgradeTo11(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.ACTIVITIES.recreate(db);
+            return true;
+
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade11 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;

@@ -266,7 +266,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         public Uri uri;
 
         Track getTrack() {
-            return playables.get(position).getTrack();
+            return playables.get(Math.max(0,Math.min(playables.size() -1 ,position))).getTrack();
         }
 
         public static PlayInfo forTracks(Track... t) {

@@ -189,7 +189,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     public boolean isPublic() {
-        return sharing.contentEquals("public");
+        return sharing != null && sharing.contentEquals("public");
     }
 
     public String getArtwork() {
@@ -200,11 +200,13 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         }
     }
 
+    @JsonIgnoreProperties(ignoreUnknown=true)
     public static class CreatedWith {
         @JsonView(Views.Full.class) public long id;
         @JsonView(Views.Full.class) public String name;
         @JsonView(Views.Full.class) public String uri;
         @JsonView(Views.Full.class) public String permalink_url;
+        @JsonView(Views.Full.class) public String external_url;
 
         public boolean isEmpty() {
             return TextUtils.isEmpty(name) || TextUtils.isEmpty(permalink_url);
