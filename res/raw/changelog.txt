@@ -1,10 +1,16 @@
-$ 38
+$ 39
   % v current
-  _ 2012-03-09
+  _ 2012-03
   ! Undetermined
     * Spanish translations
     * Lockscreen and Notification playback control (still very rough)
-    * HOTFIX - for record crashing
+
+$ 38
+  % v 2.2.4
+  _ 2012-03-12
+  ! Maintenance
+    * refreshing streams to get rid of incorrect items
+    * small bug fixes
 
 $ 37
   % v 2.2.3
