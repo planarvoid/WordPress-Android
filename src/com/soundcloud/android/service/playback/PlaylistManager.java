@@ -244,8 +244,8 @@ public class PlaylistManager {
                 if (mUserId > -1) {
                     mContext.getContentResolver().delete(DEFAULT_PLAYLIST_URI, null, null);
                     SoundCloudDB.bulkInsertParcelables(mContext.getContentResolver(), playlist, DEFAULT_PLAYLIST_URI, mUserId);
-                    return null;
                 }
+                return null;
             }
         }.execute();
 
