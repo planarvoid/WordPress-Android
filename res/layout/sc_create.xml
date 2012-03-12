@@ -40,26 +40,11 @@
                   android:layout_height="wrap_content"
                   android:gravity="center_vertical"
                   android:layout_weight="1">
-
-            <RelativeLayout android:layout_width="fill_parent"
-                            android:gravity="center_vertical"
-                            android:layout_height="100dip"
-                            android:layout_marginLeft="15dip"
-                            android:layout_marginRight="15dip">
-
-                <SeekBar android:id="@+id/progress_bar"
-                         android:thumb="@drawable/empty"
-                         android:layout_centerVertical="true"
-                         android:orientation="horizontal"
-                         style="@style/ScProgressBarRound"
-                         android:layout_width="fill_parent"
-                         android:layout_height="30dp"/>
-
-                <FrameLayout android:id="@+id/gauge_holder"
-                             android:layout_below="@+id/chronometer"
-                             android:layout_width="fill_parent"
-                             android:layout_height="fill_parent"/>
-            </RelativeLayout>
+            <FrameLayout android:id="@+id/gauge_holder"
+                         android:layout_below="@+id/chronometer"
+                         android:layout_height="100dip"
+                         android:layout_marginLeft="15dip"
+                         android:layout_marginRight="15dip"/>
         </TableRow>
     </TableLayout>
 

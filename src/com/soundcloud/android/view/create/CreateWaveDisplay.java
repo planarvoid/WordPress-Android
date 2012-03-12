@@ -4,28 +4,16 @@ import com.soundcloud.android.activity.CreateEditor;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.utils.record.RawAudioPlayer;
 import com.soundcloud.android.view.TouchLayout;
-import com.soundcloud.android.view.create.EditWaveformView;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BlurMaskFilter;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.RelativeLayout;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.TransitionListener{
 
@@ -292,16 +280,21 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
 
     public void gotoRecordMode() {
         mMode = MODE_GAUGE_REC;
-        mWaveformView.showZoom();
+        mWaveformView.gotoRecordMode();
     }
 
     public void gotoPlaybackMode(){
         mMode = MODE_PLAYBACK;
-        mWaveformView.showFull();
+        mWaveformView.gotoPlaybackMode();
     }
 
     public void updateAmplitude(float maxAmplitude) {
         mWaveformView.updateAmplitude(maxAmplitude);
+        mWaveformView.postInvalidate();
+    }
+
+    public void setProgress(float progress) {
+        mWaveformView.setPlaybackProgress(progress);
         mWaveformView.postInvalidate();
     }
 }

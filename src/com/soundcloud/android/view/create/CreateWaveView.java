@@ -38,15 +38,13 @@ public class CreateWaveView extends View{
     private int mGlowHeight;
     private int mMaxWaveHeight;
     private final Matrix m = new Matrix();
-    private final Paint mPaint = new Paint();
     private final Paint mBlurPaint = new Paint();
-    private static final int WAVEFORM_ORANGE = 0xffff8000;
     private final Path mPath = new Path();
 
     private static final int WAVEFORM_DARK_UNPLAYED = 0xff666666;
     private static final int WAVEFORM_UNPLAYED = 0xffffffff;
-    private static final int WAVEFORM_DARK_PLAYED = 0xff662000;
-    private static final int WAVEFORM_PLAYED = 0xffff8000;
+    private static final int WAVEFORM_DARK_ORANGE = 0xff662000;
+    private static final int WAVEFORM_ORANGE = 0xffff8000;
 
     private float mCurrentProgress;
     private double mSampleMax;
@@ -82,8 +80,6 @@ public class CreateWaveView extends View{
 
         mTransitionListener = listener;
 
-        mPaint.setColor(WAVEFORM_ORANGE);
-
         mGlowHeight = (int) (5 * getContext().getResources().getDisplayMetrics().density);
 
         mBlurPaint.setAntiAlias(true);
@@ -97,7 +93,7 @@ public class CreateWaveView extends View{
                 mGlowHeight, BlurMaskFilter.Blur.OUTER));
 
         mPlayedPaint = new Paint();
-        mPlayedPaint.setColor(WAVEFORM_PLAYED);
+        mPlayedPaint.setColor(WAVEFORM_ORANGE);
 
         mUnplayedPaint = new Paint();
         mUnplayedPaint.setColor(WAVEFORM_UNPLAYED);
@@ -106,10 +102,11 @@ public class CreateWaveView extends View{
         mDarkUnplayedPaint.setColor(WAVEFORM_DARK_UNPLAYED);
 
         mDarkPlayedPaint = new Paint();
-        mDarkPlayedPaint.setColor(WAVEFORM_DARK_PLAYED);
+        mDarkPlayedPaint.setColor(WAVEFORM_DARK_ORANGE);
     }
 
-    public void showFull(){
+    public void gotoPlaybackMode(){
+        mCurrentProgress = -1;
         if (mMode != MODE_FULL){
             mMode = MODE_FULL;
             mAnimationStartTime = System.currentTimeMillis();
@@ -117,12 +114,17 @@ public class CreateWaveView extends View{
         }
     }
 
-    public void showZoom(){
+    public void gotoRecordMode(){
         if (mMode != MODE_ZOOM){
             mMode = MODE_ZOOM;
             mAnimationStartTime = System.currentTimeMillis();
             postInvalidate();
         }
+    }
+
+    public void setPlaybackProgress(float progress){
+        Log.i("asdf","Setting playback progress to " + progress);
+        mCurrentProgress = progress;
     }
 
     @Override
@@ -135,7 +137,7 @@ public class CreateWaveView extends View{
                     } else {
                         m.setTranslate(0, 0);
                     }
-                    canvas.drawBitmap(bitmap, m, mPaint);
+                    canvas.drawBitmap(bitmap, m, mPlayedPaint);
                 }
                 break;
             case MODE_FULL:
@@ -149,36 +151,9 @@ public class CreateWaveView extends View{
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         mMaxWaveHeight = h - mGlowHeight;
+        mTrimRight = w;
     }
 
-    /*
-
-    playback drawing logic
-
-    @Override
-    protected void onDraw(android.graphics.Canvas canvas) {
-        if (mAmplitudes != null){
-            final int width = getWidth();
-            final int height = getHeight();
-            final int currentProgressIndex = (int) (width*mCurrentProgress);
-
-            int i = 0;
-            for (double amplitude : mAmplitudes) {
-                final int halfWaveHeight = (int) ((amplitude / mSampleMax) * height / 2);
-                if (i == mTrimLeft || i == mTrimRight -1) {
-                    canvas.drawLine(i, 0, i, height, mUnplayedPaint);
-                } else {
-                    final Paint p = (i < mTrimLeft) ? mDarkPlayedPaint :
-                                    ((i > mTrimRight) ? mDarkUnplayedPaint :
-                                     (i >= currentProgressIndex) ? mUnplayedPaint : mPlayedPaint);
-
-                    canvas.drawLine(i, height / 2 - halfWaveHeight, i, height / 2 + halfWaveHeight, p);
-                }
-
-                i++;
-            }
-        }
-    }*/
 
     public void updateAmplitude(float maxAmplitude) {
         mAllAmplitudes.add(maxAmplitude);
@@ -196,13 +171,13 @@ public class CreateWaveView extends View{
             mat.setTranslate(-old.getWidth() / 2, 0);
 
             final Canvas c = new Canvas(bitmap);
-            c.drawBitmap(old, mat, mPaint);
+            c.drawBitmap(old, mat, new Paint());
 
             nextBufferX = nextBufferX - old.getWidth() / 2;
             old.recycle();
         }
 
-        drawAmplitude(new Canvas(bitmap),nextBufferX,maxAmplitude);
+        drawAmplitude(new Canvas(bitmap),nextBufferX,maxAmplitude, mPlayedPaint);
 
         nextBufferX++;
         postInvalidate();
@@ -236,7 +211,7 @@ public class CreateWaveView extends View{
         invalidate();
     }
 
-    private void drawAmplitude(Canvas c, int xIndex, float amplitude) {
+    private void drawAmplitude(Canvas c, int xIndex, float amplitude, Paint paint) {
         // draw blur
         mPath.reset();
         mPath.moveTo(xIndex, this.getHeight() / 2 - amplitude * mMaxWaveHeight / 2);
@@ -245,7 +220,7 @@ public class CreateWaveView extends View{
 
         // draw amplitude
         c.drawLine(xIndex, this.getHeight() / 2 - amplitude * mMaxWaveHeight / 2,
-                xIndex, this.getHeight() / 2 + amplitude * mMaxWaveHeight / 2, mPaint);
+                xIndex, this.getHeight() / 2 + amplitude * mMaxWaveHeight / 2, paint);
     }
 
     private void drawFullWave(Canvas c) {
@@ -269,12 +244,27 @@ public class CreateWaveView extends View{
             amplitudesSubArray = mAllAmplitudes.subList(start, amplitudeSize);
         }
 
+        boolean animating = (normalizedTime < 1.0f);
+
+        Paint p;
         final int amplitudeSubArraySize = amplitudesSubArray.size();
+        int currentProgressIndex = (int) (getWidth()*mCurrentProgress);
         for (xIndex = 0; xIndex < end; xIndex++) {
-            drawAmplitude(c,xIndex,amplitudesSubArray.get((int)((((float )xIndex) /end) * amplitudeSubArraySize)));
+
+            if (animating || currentProgressIndex < 0) {
+                p = mPlayedPaint;
+            } else if (xIndex == mTrimLeft || xIndex == mTrimRight - 1) {
+                p = mUnplayedPaint;
+            } else {
+                p = (xIndex < mTrimLeft) ? mDarkPlayedPaint :
+                        ((xIndex > mTrimRight) ? mDarkUnplayedPaint :
+                                (xIndex >= currentProgressIndex) ? mUnplayedPaint : mPlayedPaint);
+            }
+
+            drawAmplitude(c,xIndex,amplitudesSubArray.get((int)((((float )xIndex) /end) * amplitudeSubArraySize)), p);
         }
 
-        if (normalizedTime < 1.0f) postInvalidate();
+        if (animating) postInvalidate();
     }
 
 

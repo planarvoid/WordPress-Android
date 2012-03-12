@@ -67,7 +67,6 @@ public class CreateController {
     private TextView txtInstructions, txtRecordStatus, mChrono;
     private ViewGroup mFileLayout;
     private CreateWaveDisplay mWaveDisplay;
-    private SeekBar mProgressBar;
     private ImageButton btnAction;
     private File mRecordFile, mRecordDir;
     private CreateState mLastState, mCurrentState;
@@ -120,31 +119,6 @@ public class CreateController {
         mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
 
         txtInstructions = (TextView) vg.findViewById(R.id.txt_instructions);
-
-        mProgressBar = (SeekBar) vg.findViewById(R.id.progress_bar);
-        SeekBar.OnSeekBarChangeListener mSeekListener = new SeekBar.OnSeekBarChangeListener() {
-            public void onStartTrackingTouch(SeekBar bar) {
-                mLastSeekEventTime = 0;
-            }
-
-            public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
-                if (!fromuser) return;
-                long now = SystemClock.elapsedRealtime();
-                if ((now - mLastSeekEventTime) > 250) {
-                    mLastSeekEventTime = now;
-                    try {
-                        mCreateService.seekTo(progress);
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "error", e);
-                    }
-                }
-            }
-
-            public void onStopTrackingTouch(SeekBar bar) {
-            }
-        };
-        mProgressBar.setOnSeekBarChangeListener(mSeekListener);
-
         txtRecordStatus = (TextView) vg.findViewById(R.id.txt_record_status);
 
         mChrono = (TextView) vg.findViewById(R.id.chronometer);
@@ -416,8 +390,6 @@ public class CreateController {
                 txtRecordStatus.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.GONE);
                 mChrono.setVisibility(View.GONE);
-                mProgressBar.setVisibility(View.GONE);
-                mWaveDisplay.setVisibility(View.GONE);
                 txtInstructions.setVisibility(View.VISIBLE);
                 break;
 
@@ -427,8 +399,6 @@ public class CreateController {
                 txtRecordStatus.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.GONE);
                 mChrono.setVisibility(View.GONE);
-                mProgressBar.setVisibility(View.GONE);
-                mWaveDisplay.setVisibility(View.GONE);
                 txtInstructions.setVisibility(View.VISIBLE);
                 txtRecordStatus.setText(mCurrentState == CreateState.IDLE_STANDBY_REC ?
                         mActivity.getString(R.string.recording_in_progress) : mActivity.getString(R.string.playback_in_progress));
@@ -442,8 +412,6 @@ public class CreateController {
                 mChrono.setText("0.00");
                 mChrono.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.GONE);
-                mProgressBar.setVisibility(View.GONE);
-                mWaveDisplay.setVisibility(View.VISIBLE);
 
                 if (takeAction) startRecording();
                 break;
@@ -481,8 +449,6 @@ public class CreateController {
             case PLAYBACK:
                 txtRecordStatus.setVisibility(View.GONE);
                 txtInstructions.setVisibility(View.GONE);
-                mWaveDisplay.setVisibility(View.GONE);
-                mProgressBar.setVisibility(View.VISIBLE);
                 mChrono.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.VISIBLE);
                 btnAction.setImageDrawable(btn_rec_stop_states_drawable);
@@ -646,13 +612,12 @@ public class CreateController {
     private void configurePlaybackInfo(){
         try {
             mCurrentDurationString =  CloudUtils.formatTimestamp(getDuration());
-            mProgressBar.setMax((int) (getDuration()));
 
             if (mCreateService.getCurrentPlaybackPosition() > 0
                     && mCreateService.getCurrentPlaybackPosition() < getDuration()) {
-                mProgressBar.setProgress(mCreateService.getCurrentPlaybackPosition());
+                mWaveDisplay.setProgress(((float) mCreateService.getCurrentPlaybackPosition())/getDuration());
             } else {
-                mProgressBar.setProgress(0);
+                mWaveDisplay.setProgress(0.0f);
             }
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
@@ -666,7 +631,6 @@ public class CreateController {
 
     private void onPlaybackComplete(){
         stopProgressThread();
-        mProgressBar.setProgress(0);
         if (mCurrentState == CreateState.PLAYBACK) {
             mCurrentState = CreateState.IDLE_PLAYBACK;
             loadPlaybackTrack();
@@ -705,7 +669,7 @@ public class CreateController {
                                             .append(CloudUtils.formatTimestamp(pos))
                                             .append(" / ")
                                             .append(mCurrentDurationString));
-                                    mProgressBar.setProgress((int) pos);
+                                    mWaveDisplay.setProgress(((float) pos) / mDuration);
                                 }
                             }
                         });
@@ -735,7 +699,6 @@ public class CreateController {
             Log.e(TAG, "error", e);
         }
         stopProgressThread();
-        mProgressBar.setProgress(0);
     }
 
 
