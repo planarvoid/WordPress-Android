@@ -43,7 +43,7 @@
 
             <RelativeLayout android:layout_width="fill_parent"
                             android:gravity="center_vertical"
-                            android:layout_height="60dip"
+                            android:layout_height="100dip"
                             android:layout_marginLeft="15dip"
                             android:layout_marginRight="15dip">
 

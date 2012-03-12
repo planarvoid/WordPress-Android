@@ -18,7 +18,6 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
-import com.soundcloud.android.utils.record.PowerGauge;
 import com.soundcloud.android.utils.record.RemainingTimeCalculator;
 
 import android.app.AlertDialog;
@@ -67,7 +66,7 @@ public class CreateController {
 
     private TextView txtInstructions, txtRecordStatus, mChrono;
     private ViewGroup mFileLayout;
-    private PowerGauge mPowerGauge;
+    private CreateWaveDisplay mWaveDisplay;
     private SeekBar mProgressBar;
     private ImageButton btnAction;
     private File mRecordFile, mRecordDir;
@@ -244,8 +243,8 @@ public class CreateController {
         });
 
         mRemainingTimeCalculator = new RemainingTimeCalculator();
-        mPowerGauge = new PowerGauge(mActivity);
-        ((FrameLayout) vg.findViewById(R.id.gauge_holder)).addView(mPowerGauge);
+        mWaveDisplay = new CreateWaveDisplay(mActivity);
+        ((FrameLayout) vg.findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
 
         mCurrentState = CreateState.IDLE_RECORD;
         mRecordDir = IOUtils.ensureUpdatedDirectory(
@@ -418,7 +417,7 @@ public class CreateController {
                 mFileLayout.setVisibility(View.GONE);
                 mChrono.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.GONE);
-                mPowerGauge.setVisibility(View.GONE);
+                mWaveDisplay.setVisibility(View.GONE);
                 txtInstructions.setVisibility(View.VISIBLE);
                 break;
 
@@ -429,7 +428,7 @@ public class CreateController {
                 mFileLayout.setVisibility(View.GONE);
                 mChrono.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.GONE);
-                mPowerGauge.setVisibility(View.GONE);
+                mWaveDisplay.setVisibility(View.GONE);
                 txtInstructions.setVisibility(View.VISIBLE);
                 txtRecordStatus.setText(mCurrentState == CreateState.IDLE_STANDBY_REC ?
                         mActivity.getString(R.string.recording_in_progress) : mActivity.getString(R.string.playback_in_progress));
@@ -444,7 +443,7 @@ public class CreateController {
                 mChrono.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.GONE);
-                mPowerGauge.setVisibility(View.VISIBLE);
+                mWaveDisplay.setVisibility(View.VISIBLE);
 
                 if (takeAction) startRecording();
                 break;
@@ -469,8 +468,8 @@ public class CreateController {
                 mChrono.setText(mCurrentDurationString);
                 btnAction.setImageDrawable(btn_rec_play_states_drawable);
                 txtInstructions.setVisibility(View.GONE);
-                mPowerGauge.showAll();
-                //mPowerGauge.setVisibility(View.GONE);
+                mWaveDisplay.gotoPlaybackMode();
+                //mWaveDisplay.setVisibility(View.GONE);
                 //mProgressBar.setVisibility(View.VISIBLE);
 
                 mChrono.setVisibility(View.VISIBLE);
@@ -482,7 +481,7 @@ public class CreateController {
             case PLAYBACK:
                 txtRecordStatus.setVisibility(View.GONE);
                 txtInstructions.setVisibility(View.GONE);
-                mPowerGauge.setVisibility(View.GONE);
+                mWaveDisplay.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
                 mChrono.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.VISIBLE);
@@ -505,7 +504,7 @@ public class CreateController {
         mLastDisplayedTime = 0;
 
         mRemainingTimeCalculator.reset();
-        mPowerGauge.clear();
+        mWaveDisplay.gotoRecordMode();
 
         if (!IOUtils.isSDCardAvailable()) {
             mSampleInterrupted = true;
@@ -604,8 +603,7 @@ public class CreateController {
         @Override
         public void onFrameUpdate(float maxAmplitude, long elapsed) {
             synchronized (this) {
-                mPowerGauge.updateAmplitude(maxAmplitude);
-                mPowerGauge.postInvalidate();
+                mWaveDisplay.updateAmplitude(maxAmplitude);
                 onRecProgressUpdate(elapsed);
             }
         }
