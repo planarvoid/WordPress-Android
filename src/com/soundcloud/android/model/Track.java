@@ -189,7 +189,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     public boolean isPublic() {
-        return sharing.contentEquals("public");
+        return sharing != null && sharing.contentEquals("public");
     }
 
     public String getArtwork() {
