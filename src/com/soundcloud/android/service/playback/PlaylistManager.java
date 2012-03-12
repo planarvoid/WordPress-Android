@@ -241,11 +241,14 @@ public class PlaylistManager {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                mContext.getContentResolver().delete(DEFAULT_PLAYLIST_URI, null, null);
-                SoundCloudDB.bulkInsertParcelables(mContext.getContentResolver(), playlist, DEFAULT_PLAYLIST_URI, mUserId);
+                if (mUserId > -1) {
+                    mContext.getContentResolver().delete(DEFAULT_PLAYLIST_URI, null, null);
+                    SoundCloudDB.bulkInsertParcelables(mContext.getContentResolver(), playlist, DEFAULT_PLAYLIST_URI, mUserId);
+                }
                 return null;
             }
         }.execute();
+
 
         broadcastPlaylistChanged();
     }
