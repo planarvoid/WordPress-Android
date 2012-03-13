@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class ApiSyncer {
@@ -124,7 +125,13 @@ public class ApiSyncer {
             }
         } else {
             String future_href = LocalCollection.getExtraFromUri(uri, mResolver);
-            Request request = future_href == null ? c.request() : Request.to(future_href);
+            Request request = c.request();
+            // this is a hack because of the api returning future hrefs to the wrong endpoints
+            if (future_href != null){
+                for (Map.Entry<String,String> entry : Request.to(future_href).getParams().entrySet()){
+                    request.add(entry.getKey(),entry.getValue());
+                }
+            }
             activities = Activities.fetchRecent(mApi, request, MINIMUM_LOCAL_ITEMS_STORED);
             inserted = activities.insert(c, mResolver);
             result.setSyncData(System.currentTimeMillis(), activities.size(), activities.future_href);

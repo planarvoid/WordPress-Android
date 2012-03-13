@@ -3,7 +3,7 @@
       package="com.soundcloud.android"
       android:versionName="2.2.4"
       android:installLocation="internalOnly"
-      android:versionCode="38">
+      android:versionCode="39">
 
     <supports-screens android:anyDensity="true" />
     <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10"/>
