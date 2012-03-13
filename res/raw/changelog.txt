@@ -1,5 +1,12 @@
-$ 37
+$ 38
   % v current
+  _ 2012-03-12
+  ! Maintenance
+    * refreshing streams to get rid of incorrect items
+    * small bug fixes
+
+$ 37
+  % v 2.2.3
   _ 2012-03-09
   ! Maintenance
     * Fixes for background sync workflow
@@ -10,7 +17,7 @@ $ 37
     - More tracking variables (plan + likes)
 
 $ 36
-  % v v2.2.2
+  % v 2.2.2
   _ 2012-02-24
   ! Maintenance
     * Fixed "Find Friends"
