@@ -15,7 +15,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
-    public static final int DATABASE_VERSION = 11;
+    public static final int DATABASE_VERSION = 12;
     private static final String DATABASE_NAME = "SoundCloud";
 
     DBHelper(Context context) {
@@ -66,6 +66,9 @@ public class DBHelper extends SQLiteOpenHelper {
                             break;
                         case 11:
                             success = upgradeTo11(db, oldVersion);
+                            break;
+                         case 12:
+                            success = upgradeTo12(db, oldVersion);
                             break;
                         default:
                             break;
@@ -705,12 +708,21 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo11(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.ACTIVITIES.recreate(db);
-            db.execSQL("UPDATE " + Table.COLLECTIONS + " SET " + Collections.EXTRA + " = NULL");
+            cleanActivities(db);
             return true;
-
         } catch (SQLException e) {
             SoundCloudApplication.handleSilentException("error during upgrade11 " +
+                    "(from " + oldVersion + ")", e);
+        }
+        return false;
+    }
+
+    private static boolean upgradeTo12(SQLiteDatabase db, int oldVersion) {
+        try {
+            cleanActivities(db);
+            return true;
+        } catch (SQLException e) {
+            SoundCloudApplication.handleSilentException("error during upgrade12 " +
                     "(from " + oldVersion + ")", e);
         }
         return false;
@@ -723,5 +735,10 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    private static void cleanActivities(SQLiteDatabase db){
+        Table.ACTIVITIES.recreate(db);
+        db.execSQL("UPDATE " + Table.COLLECTIONS + " SET " + Collections.EXTRA + " = NULL");
     }
 }
