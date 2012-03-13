@@ -13,8 +13,9 @@ interface ICloudCreateService
   void startPlayback();
   void pausePlayback();
   void stopPlayback();
-  int getCurrentPlaybackPosition();
-  int getPlaybackDuration();
+  long getCurrentPlaybackPosition();
+  float getCurrentProgressPercent();
+  long getPlaybackDuration();
   void seekTo(int position);
   String getPlaybackPath();
   long getPlaybackLocalId();

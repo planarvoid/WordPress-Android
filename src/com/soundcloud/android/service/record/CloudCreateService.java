@@ -20,6 +20,7 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
+import com.soundcloud.android.utils.record.RawAudioPlayer;
 import com.soundcloud.android.view.create.CreateController;
 import com.soundcloud.api.CloudAPI;
 
@@ -31,8 +32,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -43,11 +42,10 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class CloudCreateService extends Service {
+public class CloudCreateService extends Service implements RawAudioPlayer.PlaybackListener {
     private static final String TAG = "CloudUploaderService";
 
     public static final String RECORD_STARTED      = "com.soundcloud.android.recordstarted";
@@ -57,6 +55,8 @@ public class CloudCreateService extends Service {
     public static final String UPLOAD_SUCCESS    = "com.sound.android.fileuploadsuccessful";
     public static final String UPLOAD_ERROR      = "com.sound.android.fileuploaderror";
     public static final String UPLOAD_CANCELLED  = "com.sound.android.fileuploadcancelled";
+    public static final String PLAYBACK_STARTED = "com.soundcloud.android.playbackstarted";
+    public static final String PLAYBACK_STOPPED = "com.soundcloud.android.playbackstarted";
     public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_ERROR    = "com.soundcloud.android.playbackerror";
 
@@ -75,7 +75,7 @@ public class CloudCreateService extends Service {
     private int mServiceStartId = -1;
     private long mRecordStartTime;
     private int frameCount;
-    private MediaPlayer mPlayer;
+    private RawAudioPlayer mPlayer;
     private Uri mPlaybackLocal;
     private Upload mCurrentUpload;
     private HashMap<Long,Upload> mUploadMap;
@@ -119,10 +119,8 @@ public class CloudCreateService extends Service {
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
                 | PowerManager.ON_AFTER_RELEASE, TAG);
 
-        mPlayer = new MediaPlayer();
-        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mPlayer.setOnCompletionListener(completionListener);
-        mPlayer.setOnErrorListener(errorListener);
+        mPlayer = new RawAudioPlayer();
+        mPlayer.setListener(this);
 
         mUploadMap = new HashMap<Long, Upload>();
     }
@@ -292,8 +290,8 @@ public class CloudCreateService extends Service {
 
 
     public void loadPlaybackTrack(String playbackPath) {
-        mPlayer.reset();
         mPlaybackFile = new File(playbackPath);
+        mPlayer.setFile(mPlaybackFile);
 
         String[] columns = { Recordings._ID, Recordings.WHERE_TEXT, Recordings.WHAT_TEXT };
         Cursor cursor = getContentResolver().query(Content.RECORDINGS.uri,
@@ -312,16 +310,6 @@ public class CloudCreateService extends Service {
             mPlaybackTitle = CloudUtils.generateRecordingSharingNote(getResources(), null, null, mPlaybackFile.lastModified());
         }
         if (cursor != null) cursor.close();
-
-        try {
-            FileInputStream fis = new FileInputStream(playbackPath);
-            mPlayer.setDataSource(fis.getFD());
-            fis.close();
-            mPlayer.prepare();
-        } catch (IOException e) {
-            Log.e(TAG, "error", e);
-            sendBroadcast(new Intent(PLAYBACK_ERROR));
-        }
     }
 
     public void stopPlayback() {
@@ -334,20 +322,53 @@ public class CloudCreateService extends Service {
     }
 
     public void pausePlayback() {
-       mPlayer.pause();
-       nm.cancel(PLAYBACK_NOTIFY_ID);
+       if (mPlayer.isPlaying()) mPlayer.togglePlayback();
+        nm.cancel(PLAYBACK_NOTIFY_ID);
        gotoIdleState();
     }
 
-    private void onPlaybackComplete(){
-        mPlaybackFile = null;
-        mPlaybackLocal = null;
+    @Override
+    public void onPlaybackStart() {
+        Intent i = new Intent(PLAYBACK_STARTED);
+        i.putExtra("path", mPlaybackFile.getAbsolutePath());
+        sendBroadcast(i);
+    }
+
+    @Override
+    public void onPlaybackStopped() {
+        Intent i = new Intent(PLAYBACK_STOPPED);
+        i.putExtra("path", mPlaybackFile.getAbsolutePath());
+        sendBroadcast(i);
+
         nm.cancel(PLAYBACK_NOTIFY_ID);
         gotoIdleState();
     }
 
+    @Override
+    public void onPlaybackComplete() {
+        if (mPlaybackFile != null) {
+            Intent i = new Intent(PLAYBACK_COMPLETE);
+            i.putExtra("path", mPlaybackFile.getAbsolutePath());
+            sendBroadcast(i);
+        }
+
+        mPlaybackFile = null;
+        mPlaybackLocal = null;
+
+        nm.cancel(PLAYBACK_NOTIFY_ID);
+        gotoIdleState();
+    }
+
+    @Override
+    public void onPlaybackError() {
+        Intent i = new Intent(PLAYBACK_ERROR);
+        i.putExtra("path", mPlaybackFile.getAbsolutePath());
+        sendBroadcast(i);
+        onPlaybackComplete();
+    }
+
     public void startPlayback() {
-        mPlayer.start();
+        mPlayer.play();
 
         Intent i;
         if (mPlaybackLocal == null) {
@@ -386,7 +407,7 @@ public class CloudCreateService extends Service {
         return mPlayer.isPlaying();
     }
 
-    public int getPlaybackDuration() {
+    public long getPlaybackDuration() {
         return mPlayer.getDuration();
     }
 
@@ -394,8 +415,12 @@ public class CloudCreateService extends Service {
         return mPlaybackFile == null ? "" : mPlaybackFile.getAbsolutePath();
     }
 
-    public int getCurrentPlaybackPosition() {
-        return mPlayer.getCurrentPosition();
+    public long getCurrentPlaybackPosition() {
+        return mPlayer.getCurrentPlaybackPosition();
+    }
+
+    public float getCurrentProgressPercent() {
+        return mPlayer.getCurrentProgressPercent();
     }
 
     @SuppressWarnings("unchecked")
@@ -753,27 +778,6 @@ public class CloudCreateService extends Service {
             mWakeLock.release();
         }
     }
-
-    private MediaPlayer.OnCompletionListener completionListener = new MediaPlayer.OnCompletionListener() {
-        public void onCompletion(MediaPlayer mp) {
-            if (mPlaybackFile == null) return;
-            Intent i = new Intent(PLAYBACK_COMPLETE);
-            i.putExtra("path",mPlaybackFile.getAbsolutePath());
-            sendBroadcast(i);
-            onPlaybackComplete();
-        }
-    };
-
-    private MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
-        public boolean onError(MediaPlayer mp, int what, int extra) {
-            if (mPlaybackFile == null) return false;
-            Intent i = new Intent(PLAYBACK_ERROR);
-            i.putExtra("path",mPlaybackFile.getAbsolutePath());
-            sendBroadcast(i);
-            onPlaybackComplete();
-            return true;
-        }
-    };
 
     private final IBinder mBinder = new ServiceStub(this);
 }

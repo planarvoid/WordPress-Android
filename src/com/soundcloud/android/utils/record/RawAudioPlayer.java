@@ -24,19 +24,34 @@ public class RawAudioPlayer {
 
     private PlayRawAudioTask mPlayRawAudioTask;
     private File mFile;
-    private long mCurrentProgress, mTotalBytes, mStartPos, mEndPos, mNextSeek, mLastSeekAt;
+    private long mCurrentProgress, mTotalBytes, mStartPos, mEndPos, mNextSeek, mLastSeekAt, mDuration;
     private int mMinBufferSize;
     private boolean mPlaying;
     private PlaybackListener mListener;
 
+    private int mBytesPerSecond = (44100*2*2); //ms, sample rate * 2 bytes per sample * 2 channels
+
     public RawAudioPlayer() {
         mMinBufferSize = AudioTrack.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, ENCODING);
+    }
+
+    public long getDuration() {
+        return mDuration;
+    }
+
+    public long getCurrentPlaybackPosition() {
+        return byteToMs(mCurrentProgress);
+    }
+
+    public long getCurrentPlaybackBytePosition() {
+        return mCurrentProgress;
     }
 
     public interface PlaybackListener {
         void onPlaybackStart();
         void onPlaybackStopped();
         void onPlaybackComplete();
+        void onPlaybackError();
     }
 
     public void setListener(PlaybackListener listener){
@@ -56,6 +71,11 @@ public class RawAudioPlayer {
             e.printStackTrace();
             mFile = null;
         }
+        mDuration = byteToMs(mEndPos); //ms, sample rate * 2 bytes per sample * 2 channels
+    }
+
+    private long byteToMs(long bytePos){
+        return (1000*bytePos)/mBytesPerSecond;
     }
 
     public boolean isPlaying(){

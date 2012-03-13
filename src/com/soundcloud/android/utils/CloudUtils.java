@@ -168,11 +168,12 @@ public final class CloudUtils {
     /* package */ static String makeTimeString(String durationformat, long secs) {
         sBuilder.setLength(0);
         final Object[] timeArgs = sTimeArgs;
-        timeArgs[0] = secs / 3600;
-        timeArgs[1] = secs / 60;
-        timeArgs[2] = (secs / 60) % 60;
-        timeArgs[3] = secs;
-        timeArgs[4] = secs % 60;
+        timeArgs[0] = ((int) secs / 3600);
+        timeArgs[1] = ((int) secs / 60);
+        timeArgs[2] = ((int) (secs / 60) % 60);
+        timeArgs[3] = ((int) secs);
+        timeArgs[4] = ((int) secs % 60);
+
         // performance optimise - run in player loop
         return sFormatter.format(durationformat, timeArgs).toString();
     }

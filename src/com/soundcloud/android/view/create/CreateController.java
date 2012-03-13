@@ -35,7 +35,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -45,7 +44,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.File;
@@ -79,12 +77,17 @@ public class CreateController {
     private List<Recording> mUnsavedRecordings;
     private Button mResetButton, mDeleteButton;
 
+    private android.os.Handler mHandler;
+    private long mLastPos, mLastProgressTimestamp, mLastTrackTime;
+    private long mProgressPeriod = 1000 / 60; // aim for 60 fps.
+
     private CreateListener mCreateListener;
 
     private Drawable
             btn_rec_states_drawable,
             btn_rec_stop_states_drawable,
             btn_rec_play_states_drawable;
+
 
     public enum CreateState {
         IDLE_STANDBY_REC, IDLE_STANDBY_PLAY, IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK
@@ -110,6 +113,8 @@ public class CreateController {
         mActivity = c;
         mRecording = recording;
         mPrivateUser = privateUser;
+
+        mHandler = mActivity.getHandler();
 
         btn_rec_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_states);
         btn_rec_stop_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_stop_states);
@@ -289,7 +294,7 @@ public class CreateController {
                     mCurrentState = CreateState.PLAYBACK;
                     setRecordFile(new File(mCreateService.getPlaybackPath()));
                     configurePlaybackInfo();
-                    startProgressThread();
+                    mHandler.postDelayed(mSmoothProgress, 0);
                     takeAction = true;
                 } else {
                     mCurrentState = CreateState.IDLE_STANDBY_PLAY;
@@ -377,9 +382,7 @@ public class CreateController {
     void updateUi(boolean takeAction) {
         switch (mCurrentState) {
             case IDLE_RECORD:
-                if (takeAction) {
-                    stopPlayback();
-                }
+                if (takeAction) stopPlayback();
                 if (!TextUtils.isEmpty(mRecordErrorMessage)) {
                     txtRecordStatus.setText(mRecordErrorMessage);
                 } else {
@@ -425,10 +428,8 @@ public class CreateController {
                                 if (mCreateService != null && mCreateService.isPlayingBack())  {
                                     mCreateService.pausePlayback();
                                 }
-                            } catch (RemoteException e) {
-                                Log.e(TAG, "error", e);
-                            }
-                            stopProgressThread();
+                            } catch (RemoteException ignored) {}
+                            mHandler.removeCallbacks(mSmoothProgress);
                             break;
                     }
                 }
@@ -437,9 +438,6 @@ public class CreateController {
                 btnAction.setImageDrawable(btn_rec_play_states_drawable);
                 txtInstructions.setVisibility(View.GONE);
                 mWaveDisplay.gotoPlaybackMode();
-                //mWaveDisplay.setVisibility(View.GONE);
-                //mProgressBar.setVisibility(View.VISIBLE);
-
                 mChrono.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.VISIBLE);
                 txtRecordStatus.setVisibility(View.GONE);
@@ -514,9 +512,7 @@ public class CreateController {
                 mCreateService.startRecording(mRecordFile.getAbsolutePath(), mAudioProfile);
                 //noinspection ResultOfMethodCallIgnored
                 mRecordFile.setLastModified(System.currentTimeMillis());
-            } catch (RemoteException e) {
-                Log.e(TAG, "error", e);
-            }
+            } catch (RemoteException ignored) {}
 
             mActivity.getApp().setRecordListener(recListener);
         }
@@ -585,9 +581,7 @@ public class CreateController {
             if (mCreateService != null) {
                 mCreateService.stopRecording();
             }
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-        }
+        } catch (RemoteException ignored) { }
 
         // disable actions during processing and playback preparation
         btnAction.setEnabled(false);
@@ -604,33 +598,31 @@ public class CreateController {
                 }
                 configurePlaybackInfo();
             }
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-        }
+        } catch (RemoteException ignored) { }
     }
 
     private void configurePlaybackInfo(){
         try {
             mCurrentDurationString =  CloudUtils.formatTimestamp(getDuration());
-
-            if (mCreateService.getCurrentPlaybackPosition() > 0
-                    && mCreateService.getCurrentPlaybackPosition() < getDuration()) {
-                mWaveDisplay.setProgress(((float) mCreateService.getCurrentPlaybackPosition())/getDuration());
+            final long currentPlaybackPosition = mCreateService.getCurrentPlaybackPosition();
+            if (currentPlaybackPosition > 0 && currentPlaybackPosition < getDuration()) {
+                mWaveDisplay.setProgress(((float) currentPlaybackPosition) / getDuration());
             } else {
                 mWaveDisplay.setProgress(0.0f);
             }
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-        }
+        } catch (RemoteException ignored) {}
     }
 
     private long getDuration() throws RemoteException{
-        return mDuration == 0 ? mCreateService.getPlaybackDuration() : mDuration;
+        if (mDuration <= 0){
+            mDuration = mCreateService.getPlaybackDuration();
+        }
+        return mDuration;
     }
 
 
     private void onPlaybackComplete(){
-        stopProgressThread();
+        mHandler.removeCallbacks(mSmoothProgress);
         if (mCurrentState == CreateState.PLAYBACK) {
             mCurrentState = CreateState.IDLE_PLAYBACK;
             loadPlaybackTrack();
@@ -639,66 +631,73 @@ public class CreateController {
     }
 
     private void startPlayback() {
+        mLastPos = -1;
+        mLastTrackTime = -1;
         try {
             if (!mCreateService.isPlayingBack()) {
                 mActivity.track(Click.Record_play);
                 mCreateService.startPlayback(); //might already be playing back if activity just created
             }
-            startProgressThread();
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-        }
+            mHandler.postDelayed(mSmoothProgress, 0);
+        } catch (RemoteException ignores) { }
 
     }
 
-    private void startProgressThread(){
-        if (mProgressThread != null)
-            return;
+    private Runnable mSmoothProgress = new Runnable() {
+        public void run() {
+            if (mCurrentState == CreateState.PLAYBACK) {
+                long posMs;
+                if (mLastTrackTime == -1) {
+                    mHandler.post(mRefreshPositionFromService);
+                    posMs = 0;
+                } else {
+                    posMs = mLastTrackTime + System.currentTimeMillis() - mLastProgressTimestamp;
+                }
 
-        mProgressThread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    while (mCurrentState == CreateState.PLAYBACK) {
-                        final long pos = mCreateService.getCurrentPlaybackPosition();
+                final long pos = posMs / 1000;
 
-                        // Update the progress bar
-                        mActivity.getHandler().post(new Runnable() {
-                            public void run() {
-                                if (mCurrentState == CreateState.PLAYBACK) {
-                                    mChrono.setText(new StringBuilder()
-                                            .append(CloudUtils.formatTimestamp(pos))
-                                            .append(" / ")
-                                            .append(mCurrentDurationString));
-                                    mWaveDisplay.setProgress(((float) pos) / mDuration);
-                                }
-                            }
-                        });
-                        Thread.sleep(50);
-                    }
-                } catch (RemoteException ignored) {
-                } catch (InterruptedException ignored) {}
+                if (mLastPos != pos) {
+                    mLastPos = pos;
+                    mChrono.setText(new StringBuilder()
+                            .append(CloudUtils.formatTimestamp(posMs))
+                            .append(" / ")
+                            .append(mCurrentDurationString));
+                }
+                setProgressInternal(posMs);
+                mHandler.postDelayed(this, mProgressPeriod);
             }
-        });
-        mProgressThread.start();
-    }
+        }
+    };
 
-    private void stopProgressThread(){
-        if (mProgressThread == null)
-            return;
+    private Runnable mRefreshPositionFromService = new Runnable() {
+        @Override
+        public void run() {
+            final boolean stillPlaying;
+            try {
+                stillPlaying = mCreateService.isPlayingBack();
+                mLastTrackTime = stillPlaying ? mCreateService.getCurrentPlaybackPosition() : getDuration();
+                mLastProgressTimestamp = System.currentTimeMillis();
+                if (stillPlaying) mHandler.postDelayed(this, 500);
 
-        if (!mProgressThread.isInterrupted())
-            mProgressThread.interrupt();
+            } catch (RemoteException ignored) {}
+        }
+    };
 
-        mProgressThread = null;
+    protected void setProgressInternal(long pos) {
+        try {
+            final long duration = getDuration();
+            if (duration != 0){
+                mWaveDisplay.setProgress(((float) Math.max(0,Math.min(pos,duration))) / duration);
+            }
+
+        } catch (RemoteException ignored) { }
     }
 
     private void stopPlayback() {
+        mHandler.removeCallbacks(mSmoothProgress);
         try {
             mCreateService.stopPlayback();
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-        }
-        stopProgressThread();
+        } catch (RemoteException ignored) { }
     }
 
 
@@ -810,7 +809,7 @@ public class CreateController {
     }
 
     public void onStop() {
-        stopProgressThread();
+        mHandler.removeCallbacks(mSmoothProgress);
         mActivity.unregisterReceiver(mUploadStatusListener);
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }

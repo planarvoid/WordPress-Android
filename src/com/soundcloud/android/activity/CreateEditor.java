@@ -164,4 +164,9 @@ public class CreateEditor extends ScActivity implements CalculateAmplitudesTask.
         setCurrentPlayState();
         mWaveformView.setCurrentProgress(0);
     }
+
+    @Override
+    public void onPlaybackError() {
+
+    }
 }

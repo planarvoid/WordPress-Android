@@ -123,7 +123,6 @@ public class CreateWaveView extends View{
     }
 
     public void setPlaybackProgress(float progress){
-        Log.i("asdf","Setting playback progress to " + progress);
         mCurrentProgress = progress;
     }
 

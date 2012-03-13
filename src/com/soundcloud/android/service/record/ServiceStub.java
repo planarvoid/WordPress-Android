@@ -79,13 +79,18 @@ class ServiceStub extends ICloudCreateService.Stub {
     }
 
     @Override
-    public int getCurrentPlaybackPosition() {
+    public long getCurrentPlaybackPosition() {
         final CloudCreateService service = mService.get();
         return service != null ? service.getCurrentPlaybackPosition() : 0;
     }
 
+    public float getCurrentProgressPercent() {
+        final CloudCreateService service = mService.get();
+        return service != null ? service.getCurrentProgressPercent() : 0f;
+    }
+
     @Override
-    public int getPlaybackDuration() {
+    public long getPlaybackDuration() {
         final CloudCreateService service = mService.get();
         return service != null ? service.getPlaybackDuration() : -1;
     }
