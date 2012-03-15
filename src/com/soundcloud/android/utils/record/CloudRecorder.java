@@ -98,6 +98,7 @@ public class CloudRecorder {
      */
     public void startReading() {
         if (mState == State.IDLE) {
+            mState = State.READING;
             mAudioRecord.startRecording();
             readerThread = new Thread(new Runnable() {
                 @Override
@@ -109,7 +110,6 @@ public class CloudRecorder {
             readerThread.setPriority(Thread.MAX_PRIORITY);
             readerThread.start();
             queueNextRefresh(TIMER_INTERVAL);
-            mState = State.READING;
         }
 
     }
@@ -180,15 +180,16 @@ public class CloudRecorder {
      * Main loop of the audio reader.  This runs in its own thread.
      */
     private void readerRun() {
+        State saved = mState;
         while (mState == State.READING || mState == State.RECORDING) {
             long stime = System.currentTimeMillis();
             int shortValue;
 
             synchronized (buffer) {
-                mAudioRecord.read(buffer, 0, buffer.length); // Fill buffer
+                int read = mAudioRecord.read(buffer, 0, buffer.length); // Fill buffer
                 if (mWriter != null) {
                     try {
-                        mWriter.write(buffer); // Write buffer to file
+                        mWriter.write(buffer,0,read); // Write buffer to file
                     } catch (IOException e) {
                         Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
                         stop();
@@ -213,7 +214,6 @@ public class CloudRecorder {
                 } catch (InterruptedException e) {
                 }
             }
-
         }
     }
 
@@ -251,9 +251,13 @@ public class CloudRecorder {
                             mCurrentAdjustedMaxAmplitude = (int) (mCurrentAdjustedMaxAmplitude * .8);
                         }
 
-                        service.onRecordFrameUpdate((float) Math.max(.1f,
-                                ((float) Math.log(mCurrentAdjustedMaxAmplitude) - 4)
-                                / MAX_ADJUSTED_AMPLITUDE), mState == State.RECORDING);
+                        try {
+                            service.onRecordFrameUpdate((float) Math.max(.1f,
+                                    ((float) Math.log(mCurrentAdjustedMaxAmplitude) - 4)
+                                    / MAX_ADJUSTED_AMPLITUDE), mState != State.RECORDING ? -1 : PcmUtils.byteToMs(mWriter.length()));
+                        } catch (IOException e) {
+                            Log.e(TAG,"Error accessing writer on frame update",e);
+                        }
                     }
 
                     queueNextRefresh(TIMER_INTERVAL);

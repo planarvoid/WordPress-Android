@@ -49,12 +49,6 @@ class ServiceStub extends ICloudCreateService.Stub {
     }
 
     @Override
-    public void updateRecordTicker() throws RemoteException {
-        final CloudCreateService service = mService.get();
-        if (service != null) service.updateRecordTicker();
-    }
-
-    @Override
     public void loadPlaybackTrack(String playbackFile) {
         final CloudCreateService service = mService.get();
         if (service != null) service.loadPlaybackTrack(playbackFile);

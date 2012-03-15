@@ -389,11 +389,18 @@ public class CreateController {
                 mChrono.setVisibility(View.INVISIBLE);
                 txtInstructions.setVisibility(View.VISIBLE);
 
-                if (mRecordFile == null && mCreateService != null) {
-                    try {
-                        mCreateService.startReading();
-                    } catch (RemoteException ignored1) { }
-                }
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mRecordFile == null && mCreateService != null) {
+                            try {
+                                mCreateService.startReading();
+                            } catch (RemoteException ignored1) {
+                            }
+                        }
+                    }
+                });
+
                 break;
 
             case IDLE_STANDBY_REC:

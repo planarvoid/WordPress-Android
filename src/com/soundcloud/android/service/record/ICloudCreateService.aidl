@@ -8,7 +8,6 @@ interface ICloudCreateService
   boolean isRecording();
   String getRecordingPath();
   void stopRecording();
-  void updateRecordTicker();
   void loadPlaybackTrack(String playbackFile);
   boolean isPlayingBack();
   void startPlayback();

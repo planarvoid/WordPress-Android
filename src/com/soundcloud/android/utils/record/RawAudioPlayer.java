@@ -29,8 +29,6 @@ public class RawAudioPlayer {
     private boolean mPlaying;
     private PlaybackListener mListener;
 
-    private int mBytesPerSecond = (44100*2*2); //ms, sample rate * 2 bytes per sample * 2 channels
-
     public RawAudioPlayer() {
         mMinBufferSize = AudioTrack.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, ENCODING);
     }
@@ -40,7 +38,7 @@ public class RawAudioPlayer {
     }
 
     public long getCurrentPlaybackPosition() {
-        return byteToMs(mCurrentProgress);
+        return PcmUtils.byteToMs(mCurrentProgress);
     }
 
     public long getCurrentPlaybackBytePosition() {
@@ -71,11 +69,7 @@ public class RawAudioPlayer {
             e.printStackTrace();
             mFile = null;
         }
-        mDuration = byteToMs(mEndPos); //ms, sample rate * 2 bytes per sample * 2 channels
-    }
-
-    private long byteToMs(long bytePos){
-        return (1000*bytePos)/mBytesPerSecond;
+        mDuration = PcmUtils.byteToMs(mEndPos); //ms, sample rate * 2 bytes per sample * 2 channels
     }
 
     public boolean isPlaying(){

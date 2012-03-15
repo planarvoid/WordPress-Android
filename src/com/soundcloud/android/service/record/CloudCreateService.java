@@ -72,7 +72,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     private String mRecordEventTitle, mRecordEventMessage, mPlaybackTitle;
     private NotificationManager nm;
     private int mServiceStartId = -1;
-    private long mRecordStartTime;
     private int frameCount;
     private RawAudioPlayer mPlayer;
     private Uri mPlaybackLocal;
@@ -196,8 +195,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
                     mRecorder.recordToFile(mRecordFile.getAbsolutePath());
                     if (mRecorder.getState() == CloudRecorder.State.ERROR){
                         onRecordError();
-                    } else {
-                        mRecordStartTime = System.currentTimeMillis();
                     }
                 } catch (RuntimeException e) {
                     // seems to get thrown in start()
@@ -260,12 +257,10 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     }
 
 
-    public void onRecordFrameUpdate(float maxAmplitude, boolean isRecording) {
-
-        ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude,
-                mRecordStartTime == 0 ? 0 : System.currentTimeMillis() - mRecordStartTime);
+    public void onRecordFrameUpdate(float maxAmplitude, long recordTimeMs) {
+        ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude,recordTimeMs);
         // this should happen every second
-        if (isRecording && frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker();
+        if (recordTimeMs > -1 && frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker(recordTimeMs);
     }
 
     /* package */ void stopRecording() {
@@ -273,8 +268,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
             mRecorder.stop();
         }
         mRecording = false;
-        mRecordStartTime = 0;
-
         nm.cancel(RECORD_NOTIFY_ID);
         gotoIdleState();
     }
@@ -287,11 +280,10 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         return mRecording;
     }
 
-    /* package */ void updateRecordTicker() {
+    /* package */ void updateRecordTicker(long recordTimeMs) {
 
         mRecordNotification.setLatestEventInfo(getApplicationContext(), mRecordEventTitle, CloudUtils
-                .formatString(mRecordEventMessage,
-                        mRecordStartTime == 0 ? 0 : (int)(System.currentTimeMillis() - mRecordStartTime)/1000), mRecordPendingIntent);
+                .formatString(mRecordEventMessage,recordTimeMs/1000), mRecordPendingIntent);
 
         nm.notify(RECORD_NOTIFY_ID, mRecordNotification);
     }
