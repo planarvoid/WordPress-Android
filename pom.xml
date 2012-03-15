@@ -5,7 +5,7 @@
     <artifactId>soundcloud-android</artifactId>
     <packaging>apk</packaging>
     <description>soundcloud-android</description>
-    <version>2.2.4_1</version>
+    <version>2.2.4</version>
     <name>soundcloud-android</name>
     <organization>
         <name>com.soundcloud</name>
@@ -233,7 +233,7 @@
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.9.1</artifactId>
-            <version>1.6.1</version>
+            <version>1.7.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

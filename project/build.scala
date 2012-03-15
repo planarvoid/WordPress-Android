@@ -38,7 +38,7 @@ object AndroidBuild extends Build {
     "org.hamcrest" % "hamcrest-core" % "1.1" % "test",
     "com.github.xian" % "great-expectations" % "0.10" % "test",
     "com.novocode" % "junit-interface" % "0.7" % "test" intransitive(),
-    "org.scalatest" %% "scalatest" % "1.6.1" % "test",
+    "org.scalatest" %% "scalatest" % "1.7.1" % "test",
     "org.scala-lang" % "scala-compiler" % "2.9.1" % "test"
   )
 
