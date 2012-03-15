@@ -32,7 +32,7 @@ $ 35
     * Push notifications for followers
     - AT Internet tracking
 
-$ 34
+$ 34                                                                                                                  x
   % v 2.2.0
   _ 2012-02-14
   ! Valentine's special
