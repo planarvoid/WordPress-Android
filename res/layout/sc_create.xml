@@ -11,21 +11,20 @@
                     android:layout_height="0dp">
         <LinearLayout android:layout_height="fill_parent"
                       android:layout_width="fill_parent"
-                      android:layout_above="@+id/btn_action"
+                      android:layout_alignParentBottom="true"
                       android:orientation="vertical">
             <TextView android:id="@+id/chronometer"
                       android:gravity="center"
                       android:layout_width="fill_parent"
-                      android:layout_weight="1"
-                      android:layout_height="wrap_content"
+                      android:singleLine="true"
+                      android:layout_height="50dp"
                       style="@style/txt_record_counter"/>
             <FrameLayout android:id="@+id/gauge_holder"
                          android:layout_below="@+id/chronometer"
-                         android:layout_height="120dip"
+                         android:layout_height="100dip"
                          android:layout_width="fill_parent"
                          android:layout_marginLeft="15dip"
                          android:layout_marginRight="15dip"/>
-
         </LinearLayout>
         <TextView android:id="@+id/txt_instructions"
                   android:layout_centerHorizontal="true"
@@ -55,14 +54,12 @@
                      android:layout_height="wrap_content"/>
     </RelativeLayout>
 
-    <RelativeLayout android:layout_width="fill_parent"
-                    android:layout_height="wrap_content">
-        <TextView android:id="@+id/txt_record_status"
-                  android:layout_width="fill_parent"
-                  android:layout_margin="5dip"
-                  style="@style/txt_record_message"
-                  android:layout_height="wrap_content"/>
-    </RelativeLayout>
+    <TextView android:id="@+id/txt_record_status"
+              android:layout_width="200dp"
+              android:layout_margin="5dip"
+              style="@style/txt_record_message"
+              android:singleLine="true"
+              android:layout_height="30dp"/>
 
     <LinearLayout android:id="@+id/file_layout"
                   android:paddingBottom="5dip"

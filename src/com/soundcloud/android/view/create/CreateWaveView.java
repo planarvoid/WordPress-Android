@@ -41,7 +41,7 @@ public class CreateWaveView extends View{
     private final Paint mBlurPaint = new Paint();
     private final Path mPath = new Path();
 
-    private static final int WAVEFORM_DARK_UNPLAYED = 0xff666666;
+    private static final int WAVEFORM_DARK_UNPLAYED = 0xff444444;
     private static final int WAVEFORM_UNPLAYED = 0xffffffff;
     private static final int WAVEFORM_DARK_ORANGE = 0xff662000;
     private static final int WAVEFORM_ORANGE = 0xffff8000;
@@ -60,6 +60,7 @@ public class CreateWaveView extends View{
     private Paint mPlayedPaint, mUnplayedPaint,mDarkUnplayedPaint,mDarkPlayedPaint;
 
     private ArrayList<Float> mAllAmplitudes = new ArrayList<Float>();
+    private int mRecordStartIndex = -1;
     private double[] mRealAmplitudes;
 
     private boolean mAnimating;
@@ -68,6 +69,8 @@ public class CreateWaveView extends View{
         void onFull();
         void onZoom();
     }
+
+
 
     private long mAnimationStartTime;
 
@@ -128,7 +131,10 @@ public class CreateWaveView extends View{
 
     public void reset() {
         mAllAmplitudes.clear();
-        mCurrentProgress = mAnimationStartTime = -1;
+
+        mRecordStartIndex = -1;
+        mCurrentProgress = -1f;
+        mAnimationStartTime = -1l;
         nextBufferX = 0;
         mMode = MODE_ZOOM;
 
@@ -189,11 +195,13 @@ public class CreateWaveView extends View{
             old.recycle();
         }
 
-        drawAmplitude(new Canvas(bitmap),nextBufferX,maxAmplitude, isRecording ? mPlayedPaint : mDarkPlayedPaint);
+        if (isRecording && mRecordStartIndex == -1) {
+            mRecordStartIndex = mAllAmplitudes.size()-1;
+        }
+        drawAmplitude(new Canvas(bitmap),nextBufferX,maxAmplitude, isRecording ? mPlayedPaint : mDarkUnplayedPaint);
 
         nextBufferX++;
         postInvalidate();
-
     }
 
     public void setCurrentProgress(float currentProgress) {
@@ -241,39 +249,52 @@ public class CreateWaveView extends View{
                 ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
 
-        int xIndex = 0;
+        int startIndex = 0;
         final int width = getWidth();
-        int end = width;
-        List<Float> amplitudesSubArray;
-        final int amplitudeSize = mAllAmplitudes.size();
+        int endIndex = width;
 
-        if (amplitudeSize < width){
-            final int gap = width - amplitudeSize;
-            end = (int) (amplitudeSize + gap * interpolatedTime);
-            amplitudesSubArray = mAllAmplitudes;
+        List<Float> amplitudesSubArray;
+
+        // how many actual amplitudes do we want to display
+        final int totalAmplitudeSize = mAllAmplitudes.size();
+        final int recordedAmplitudeSize = mAllAmplitudes.size() - (mRecordStartIndex + 1);
+
+        if (totalAmplitudeSize < width){
+
+            startIndex = (int) (mRecordStartIndex - mRecordStartIndex * interpolatedTime);
+            endIndex = (int) (totalAmplitudeSize + (width - totalAmplitudeSize) * interpolatedTime);
+            amplitudesSubArray = mAllAmplitudes.subList(mRecordStartIndex, mAllAmplitudes.size()-1);
+        } else if (recordedAmplitudeSize < width){
+
+            final int gap = width - recordedAmplitudeSize;
+            startIndex = (int) (gap - gap * interpolatedTime);
+            amplitudesSubArray = mAllAmplitudes.subList(mRecordStartIndex, mAllAmplitudes.size()-1);
         } else {
-            final int start = (int) (amplitudeSize - width - (interpolatedTime * (amplitudeSize - width)));
-            amplitudesSubArray = mAllAmplitudes.subList(start, amplitudeSize);
+            final int start = mRecordStartIndex + (int) (recordedAmplitudeSize - width - (interpolatedTime * (recordedAmplitudeSize - width)));
+            amplitudesSubArray = mAllAmplitudes.subList(start, mAllAmplitudes.size()-1);
         }
+
+
 
         boolean animating = (normalizedTime < 1.0f);
 
         Paint p;
         final int amplitudeSubArraySize = amplitudesSubArray.size();
-        int currentProgressIndex = (int) (getWidth()*mCurrentProgress);
-        for (xIndex = 0; xIndex < end; xIndex++) {
 
+        int currentProgressIndex = (int) (getWidth()*mCurrentProgress);
+        for (int x = startIndex; x <= endIndex; x++) {
             if (animating || currentProgressIndex < 0) {
                 p = mPlayedPaint;
-            } else if (xIndex == mTrimLeft || xIndex == mTrimRight - 1) {
+            } else if (x == mTrimLeft || x == mTrimRight - 1) {
                 p = mUnplayedPaint;
             } else {
-                p = (xIndex < mTrimLeft) ? mDarkPlayedPaint :
-                        ((xIndex > mTrimRight) ? mDarkUnplayedPaint :
-                                (xIndex >= currentProgressIndex) ? mUnplayedPaint : mPlayedPaint);
+                p = (x < mTrimLeft) ? mDarkPlayedPaint :
+                        ((x > mTrimRight) ? mDarkUnplayedPaint :
+                                (x >= currentProgressIndex) ? mUnplayedPaint : mPlayedPaint);
             }
 
-            drawAmplitude(c,xIndex,amplitudesSubArray.get((int)((((float )xIndex) /end) * amplitudeSubArraySize)), p);
+            final int drawIndex = (int) Math.min(amplitudeSubArraySize - 1,((float ) (x - startIndex)) /(endIndex - startIndex) * amplitudeSubArraySize);
+            drawAmplitude(c,x,amplitudesSubArray.get(drawIndex), p);
         }
 
         if (animating) postInvalidate();

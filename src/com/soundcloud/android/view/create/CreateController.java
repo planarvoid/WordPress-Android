@@ -385,7 +385,7 @@ public class CreateController {
 
                 btnAction.setImageDrawable(btn_rec_states_drawable);
                 txtRecordStatus.setVisibility(View.VISIBLE);
-                mFileLayout.setVisibility(View.GONE);
+                mFileLayout.setVisibility(View.INVISIBLE);
                 mChrono.setVisibility(View.INVISIBLE);
                 txtInstructions.setVisibility(View.VISIBLE);
 
@@ -407,7 +407,7 @@ public class CreateController {
             case IDLE_STANDBY_PLAY:
                 btnAction.setImageDrawable(btn_rec_stop_states_drawable);
                 txtRecordStatus.setVisibility(View.VISIBLE);
-                mFileLayout.setVisibility(View.GONE);
+                mFileLayout.setVisibility(View.INVISIBLE);
                 mChrono.setVisibility(View.INVISIBLE);
                 txtInstructions.setVisibility(View.VISIBLE);
                 txtRecordStatus.setText(mCurrentState == CreateState.IDLE_STANDBY_REC ?
@@ -421,7 +421,7 @@ public class CreateController {
                 txtRecordStatus.setVisibility(View.VISIBLE);
                 mChrono.setVisibility(View.VISIBLE);
                 mChrono.setText("");
-                mFileLayout.setVisibility(View.GONE);
+                mFileLayout.setVisibility(View.INVISIBLE);
 
                 if (takeAction) startRecording();
                 break;
@@ -447,12 +447,12 @@ public class CreateController {
                 mWaveDisplay.gotoPlaybackMode();
                 mChrono.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.VISIBLE);
-                txtRecordStatus.setVisibility(View.GONE);
+                txtRecordStatus.setVisibility(View.INVISIBLE);
 
                 break;
 
             case PLAYBACK:
-                txtRecordStatus.setVisibility(View.GONE);
+                txtRecordStatus.setVisibility(View.INVISIBLE);
                 txtInstructions.setVisibility(View.GONE);
                 mChrono.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.VISIBLE);

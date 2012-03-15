@@ -101,7 +101,7 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         }
 
         mWaveformView = new CreateWaveView(getContext(), this);
-        addView(mWaveformView, generateWaveLayoutParams());
+        addView(mWaveformView, new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
         return mWaveformView;
     }
 
@@ -220,19 +220,13 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         return mTouchMode;
     }
 
+
+
     private void calcualteWaveformRect(){
         if (mWaveformView != null){
             mWaveformRect = new Rect();
             mWaveformView.getHitRect(mWaveformRect);
         }
-    }
-
-    private LayoutParams generateWaveLayoutParams(){
-        RelativeLayout.LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
-        float density = getContext().getResources().getDisplayMetrics().density;
-        lp.setMargins(0, (int) (10 * density),0, (int) (30 * density));
-        return lp;
-
     }
 
     Handler mTouchHandler = new Handler() {
