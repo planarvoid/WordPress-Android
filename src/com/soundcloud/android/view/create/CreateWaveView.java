@@ -53,9 +53,8 @@ public class CreateWaveView extends View{
 
     private int mMode;
 
-
+    private static final int MODE_ZOOM = 0;
     private static final int MODE_FULL = 1;
-    private static final int MODE_ZOOM = 2;
 
     private boolean mSized;
     private Paint mPlayedPaint, mUnplayedPaint,mDarkUnplayedPaint,mDarkPlayedPaint;
@@ -124,6 +123,21 @@ public class CreateWaveView extends View{
 
     public void setPlaybackProgress(float progress){
         mCurrentProgress = progress;
+        postInvalidate();
+    }
+
+    public void reset() {
+        mAllAmplitudes.clear();
+        mCurrentProgress = mAnimationStartTime = -1;
+        nextBufferX = 0;
+        mMode = MODE_ZOOM;
+
+        if (bitmap != null) {
+            bitmap.recycle();
+            bitmap = null;
+        }
+
+        postInvalidate();
     }
 
     @Override
@@ -154,11 +168,10 @@ public class CreateWaveView extends View{
     }
 
 
-    public void updateAmplitude(float maxAmplitude) {
+    public void updateAmplitude(float maxAmplitude, boolean isRecording) {
         mAllAmplitudes.add(maxAmplitude);
 
         if (mMaxWaveHeight == 0) return;
-
         if (bitmap == null) {
             bitmap = Bitmap.createBitmap(getWidth() * 2, getHeight(), Bitmap.Config.ARGB_8888);
         } else if (nextBufferX + 1 > bitmap.getWidth()) {
@@ -176,7 +189,7 @@ public class CreateWaveView extends View{
             old.recycle();
         }
 
-        drawAmplitude(new Canvas(bitmap),nextBufferX,maxAmplitude, mPlayedPaint);
+        drawAmplitude(new Canvas(bitmap),nextBufferX,maxAmplitude, isRecording ? mPlayedPaint : mDarkPlayedPaint);
 
         nextBufferX++;
         postInvalidate();

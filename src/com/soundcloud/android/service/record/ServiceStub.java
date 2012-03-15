@@ -19,9 +19,15 @@ class ServiceStub extends ICloudCreateService.Stub {
     }
 
     @Override
-    public void startRecording(String path, int mode) throws RemoteException {
+    public void startReading() throws RemoteException {
         final CloudCreateService service = mService.get();
-        if (service != null) service.startRecording(path, mode);
+        if (service != null) service.startReading();
+    }
+
+    @Override
+    public void startRecording(String path) throws RemoteException {
+        final CloudCreateService service = mService.get();
+        if (service != null) service.startRecording(path);
     }
 
     @Override

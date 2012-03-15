@@ -17,7 +17,6 @@ import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.android.utils.record.RemainingTimeCalculator;
 
 import android.app.AlertDialog;
@@ -69,7 +68,6 @@ public class CreateController {
     private File mRecordFile, mRecordDir;
     private CreateState mLastState, mCurrentState;
     private long mLastDisplayedTime,mDuration, mLastSeekEventTime;
-    private int mAudioProfile;
     private String mRecordErrorMessage, mCurrentDurationString;
     private boolean mSampleInterrupted, mActive;
     private RemainingTimeCalculator mRemainingTimeCalculator;
@@ -127,10 +125,7 @@ public class CreateController {
         txtRecordStatus = (TextView) vg.findViewById(R.id.txt_record_status);
 
         mChrono = (TextView) vg.findViewById(R.id.chronometer);
-        mChrono.setVisibility(View.GONE);
-
-        RelativeLayout mProgressFrame = (RelativeLayout) vg.findViewById(R.id.progress_frame);
-        mProgressFrame.setVisibility(View.GONE);
+        mChrono.setVisibility(View.INVISIBLE);
 
         mFileLayout = (ViewGroup) vg.findViewById(R.id.file_layout);
 
@@ -188,7 +183,6 @@ public class CreateController {
                 mActivity.track(Click.Record_next);
                 if (mRecording == null) {
                     Recording r = new Recording(mRecordFile);
-                    r.audio_profile = mAudioProfile;
                     r.user_id = mActivity.getCurrentUserId();
                     if (mPrivateUser != null){
                         SoundCloudDB.upsertUser(mActivity.getContentResolver(),
@@ -239,6 +233,7 @@ public class CreateController {
         mRecordFile = null;
         mRecording = null;
         mCurrentState = CreateState.IDLE_RECORD;
+        mWaveDisplay.reset();
         updateUi(true);
         setResetState();
     }
@@ -254,8 +249,8 @@ public class CreateController {
 
     public void onCreateServiceBound(ICloudCreateService createService) {
         mCreateService = createService;
+        mActivity.getApp().setRecordListener(recListener);
         if (mActive) configureState();
-
     }
 
     public void setListener(CreateListener listener){
@@ -275,7 +270,6 @@ public class CreateController {
 
             if (mRecording != null) {
                 setRecordFile(mRecording.audio_path);
-                mAudioProfile = mRecording.audio_profile;
                 mDuration = mRecording.duration;
             }
 
@@ -392,8 +386,14 @@ public class CreateController {
                 btnAction.setImageDrawable(btn_rec_states_drawable);
                 txtRecordStatus.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.GONE);
-                mChrono.setVisibility(View.GONE);
+                mChrono.setVisibility(View.INVISIBLE);
                 txtInstructions.setVisibility(View.VISIBLE);
+
+                if (mRecordFile == null && mCreateService != null) {
+                    try {
+                        mCreateService.startReading();
+                    } catch (RemoteException ignored1) { }
+                }
                 break;
 
             case IDLE_STANDBY_REC:
@@ -401,7 +401,7 @@ public class CreateController {
                 btnAction.setImageDrawable(btn_rec_stop_states_drawable);
                 txtRecordStatus.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.GONE);
-                mChrono.setVisibility(View.GONE);
+                mChrono.setVisibility(View.INVISIBLE);
                 txtInstructions.setVisibility(View.VISIBLE);
                 txtRecordStatus.setText(mCurrentState == CreateState.IDLE_STANDBY_REC ?
                         mActivity.getString(R.string.recording_in_progress) : mActivity.getString(R.string.playback_in_progress));
@@ -412,8 +412,8 @@ public class CreateController {
                 txtInstructions.setVisibility(View.GONE);
                 txtRecordStatus.setText("");
                 txtRecordStatus.setVisibility(View.VISIBLE);
-                mChrono.setText("0.00");
                 mChrono.setVisibility(View.VISIBLE);
+                mChrono.setText("");
                 mFileLayout.setVisibility(View.GONE);
 
                 if (takeAction) startRecording();
@@ -466,6 +466,7 @@ public class CreateController {
         mSampleInterrupted = false;
 
         mLastDisplayedTime = 0;
+        mChrono.setText("0.00");
 
         mRemainingTimeCalculator.reset();
         mWaveDisplay.gotoRecordMode();
@@ -491,12 +492,11 @@ public class CreateController {
         } else  {
             mAudioProfile = hiQ ? CloudRecorder.Profile.best() : CloudRecorder.Profile.low();
         }  */
-        mAudioProfile = CloudRecorder.Profile.RAW;
 
         if (mPrivateUser != null) {
-            mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "_" + mPrivateUser.id + "." + mAudioProfile);
+            mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "_" + mPrivateUser.id);
         } else {
-            mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "." + mAudioProfile);
+            mRecordFile = new File(mRecordDir, String.valueOf(System.currentTimeMillis()));
         }
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;
@@ -509,12 +509,10 @@ public class CreateController {
 
             mActivity.setRequestedOrientation(mActivity.getResources().getConfiguration().orientation);
             try {
-                mCreateService.startRecording(mRecordFile.getAbsolutePath(), mAudioProfile);
+                mCreateService.startRecording(mRecordFile.getAbsolutePath());
                 //noinspection ResultOfMethodCallIgnored
                 mRecordFile.setLastModified(System.currentTimeMillis());
             } catch (RemoteException ignored) {}
-
-            mActivity.getApp().setRecordListener(recListener);
         }
     }
 
@@ -565,18 +563,16 @@ public class CreateController {
         @Override
         public void onFrameUpdate(float maxAmplitude, long elapsed) {
             synchronized (this) {
-                mWaveDisplay.updateAmplitude(maxAmplitude);
-                onRecProgressUpdate(elapsed);
+                if (mCurrentState == CreateState.IDLE_RECORD || mCurrentState == CreateState.RECORD) {
+                    mWaveDisplay.updateAmplitude(maxAmplitude, mCurrentState == CreateState.RECORD);
+                    if (mCurrentState == CreateState.RECORD)  onRecProgressUpdate(elapsed);
+                }
             }
         }
     };
 
     private void stopRecording() {
-        if (mActivity.getApp().getRecordListener() == recListener) {
-            mActivity.getApp().setRecordListener(null);
-        }
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-
         try {
             if (mCreateService != null) {
                 mCreateService.stopRecording();
@@ -725,7 +721,6 @@ public class CreateController {
             // XXX TODO exclude currently uploading file!
             if ((cursor == null || cursor.getCount() == 0)) {
                 Recording r = new Recording(f);
-                r.audio_profile = Recording.isRawFilename(f.getName()) ? CloudRecorder.Profile.RAW : CloudRecorder.Profile.ENCODED_LOW;
                 r.user_id = mActivity.getCurrentUserId();
 
                 try {
@@ -773,13 +768,12 @@ public class CreateController {
 
     /* package */ void setRecordFile(File f) {
         mRecordFile = f;
-        if (f != null) mAudioProfile = Recording.isRawFilename(f.getName()) ? CloudRecorder.Profile.RAW : CloudRecorder.Profile.ENCODED_LOW;
     }
 
 
     public void onRecProgressUpdate(long elapsed) {
         if (elapsed - mLastDisplayedTime > 1000) {
-            mChrono.setText(CloudUtils.formatTimestamp(elapsed));
+            mChrono.setText(CloudUtils.formatTimestamp(elapsed).toString());
             updateTimeRemaining();
             mLastDisplayedTime = (elapsed / 1000)*1000;
         }
@@ -799,6 +793,11 @@ public class CreateController {
 
     public void onPause() {
         mActive = false;
+        if (mCurrentState != CreateState.RECORD && mCreateService != null){
+            try {
+                mCreateService.stopRecording(); // this will stop the amplitude reading loop
+            } catch (RemoteException ignored) {}
+        }
     }
 
     public void onResume() {

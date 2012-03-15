@@ -3,7 +3,8 @@ package com.soundcloud.android.service.record;
 import com.soundcloud.android.model.Upload;
 interface ICloudCreateService
 {
-  void startRecording(String path, int mode);
+  void startReading();
+  void startRecording(String path);
   boolean isRecording();
   String getRecordingPath();
   void stopRecording();

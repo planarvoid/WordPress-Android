@@ -11,6 +11,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.RelativeLayout;
@@ -288,13 +289,15 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         mWaveformView.gotoPlaybackMode();
     }
 
-    public void updateAmplitude(float maxAmplitude) {
-        mWaveformView.updateAmplitude(maxAmplitude);
-        mWaveformView.postInvalidate();
+    public void updateAmplitude(float maxAmplitude, boolean isRecording) {
+        mWaveformView.updateAmplitude(maxAmplitude, isRecording);
     }
 
     public void setProgress(float progress) {
         mWaveformView.setPlaybackProgress(progress);
-        mWaveformView.postInvalidate();
+    }
+
+    public void reset() {
+        mWaveformView.reset();
     }
 }

@@ -177,7 +177,7 @@
 
     <style name="txt_record_instructions">
         <item name="android:textColor">#ff000000</item>
-        <item name="android:textSize">28sp</item>
+        <item name="android:textSize">38sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>

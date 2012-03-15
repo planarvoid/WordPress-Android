@@ -19,7 +19,6 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.record.CloudRecorder;
-import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 import com.soundcloud.android.utils.record.RawAudioPlayer;
 import com.soundcloud.android.view.create.CreateController;
 import com.soundcloud.api.CloudAPI;
@@ -121,8 +120,15 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
 
         mPlayer = new RawAudioPlayer();
         mPlayer.setListener(this);
-
+        refreshRecorder();
         mUploadMap = new HashMap<Long, Upload>();
+    }
+
+
+    private void refreshRecorder(){
+        if (mRecorder != null) mRecorder.onDestroy();
+        mRecorder = new CloudRecorder(MediaRecorder.AudioSource.MIC);
+        mRecorder.setRecordService(CloudCreateService.this);
     }
 
     @Override
@@ -174,8 +180,8 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         Log.i(TAG, "upload Service shutdown complete.");
     }
 
-    /* package */ void startRecording(String path, int mode) {
-        Log.v(TAG, "startRecording("+path+", "+mode+")");
+    /* package */ void startRecording(String path) {
+        Log.v(TAG, "startRecording("+path+")");
 
         acquireWakeLock();
 
@@ -183,17 +189,11 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         frameCount = 0;
 
         sendBroadcast(new Intent(RECORD_STARTED));
-
-        mRecorder = new CloudRecorder(mode, MediaRecorder.AudioSource.MIC);
-        mRecorder.setRecordService(CloudCreateService.this);
-        mRecorder.setOutputFile(mRecordFile.getAbsolutePath());
-
         Thread t = new Thread() {
             @Override
             public void run() {
-                mRecorder.prepare();
                 try {
-                    mRecorder.start();
+                    mRecorder.recordToFile(mRecordFile.getAbsolutePath());
                     if (mRecorder.getState() == CloudRecorder.State.ERROR){
                         onRecordError();
                     } else {
@@ -251,8 +251,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         sendBroadcast(new Intent(RECORD_ERROR));
 
         //already in an error state, so just call these in case
-        mRecorder.stop();
-        mRecorder.release();
+        refreshRecorder();
         mRecording = false;
 
         nm.cancel(RECORD_NOTIFY_ID);
@@ -261,20 +260,27 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     }
 
 
-    public void onRecordFrameUpdate(float maxAmplitude) {
-        ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude, System.currentTimeMillis() - mRecordStartTime);
+    public void onRecordFrameUpdate(float maxAmplitude, boolean isRecording) {
+
+        ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude,
+                mRecordStartTime == 0 ? 0 : System.currentTimeMillis() - mRecordStartTime);
         // this should happen every second
-        if (frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker();
+        if (isRecording && frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker();
     }
 
     /* package */ void stopRecording() {
         if (mRecorder != null) {
             mRecorder.stop();
-            mRecorder.release();
         }
         mRecording = false;
+        mRecordStartTime = 0;
+
         nm.cancel(RECORD_NOTIFY_ID);
         gotoIdleState();
+    }
+
+    public void startReading() {
+        mRecorder.startReading();
     }
 
     /* package */ boolean isRecording() {
@@ -282,8 +288,10 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     }
 
     /* package */ void updateRecordTicker() {
+
         mRecordNotification.setLatestEventInfo(getApplicationContext(), mRecordEventTitle, CloudUtils
-                .formatString(mRecordEventMessage, (int)(System.currentTimeMillis() - mRecordStartTime)/1000), mRecordPendingIntent);
+                .formatString(mRecordEventMessage,
+                        mRecordStartTime == 0 ? 0 : (int)(System.currentTimeMillis() - mRecordStartTime)/1000), mRecordPendingIntent);
 
         nm.notify(RECORD_NOTIFY_ID, mRecordNotification);
     }
@@ -527,7 +535,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
 
                     ContentValues cv = new ContentValues();
                     cv.put(Recordings.AUDIO_PATH, param.encodedFile.getAbsolutePath());
-                    cv.put(Recordings.AUDIO_PROFILE, Profile.ENCODED_HIGH);
                     int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings._ID+"="+ mCurrentUpload.local_recording_id, null);
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, x + " row(s) audio path updated.");
 

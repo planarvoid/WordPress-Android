@@ -1,15 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:background="@drawable/bg_rec">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical"
+              android:background="@drawable/bg_rec">
 
-    <RelativeLayout android:id="@+id/RelativeLayout01"
-                    android:layout_height="wrap_content"
+    <RelativeLayout android:layout_margin="5dip"
+                    android:layout_weight="1"
                     android:layout_width="fill_parent"
-                    android:layout_above="@+id/btn_action"
-                    android:layout_alignParentTop="true">
+                    android:layout_height="0dp">
+        <LinearLayout android:layout_height="fill_parent"
+                      android:layout_width="fill_parent"
+                      android:layout_above="@+id/btn_action"
+                      android:orientation="vertical">
+            <TextView android:id="@+id/chronometer"
+                      android:gravity="center"
+                      android:layout_width="fill_parent"
+                      android:layout_weight="1"
+                      android:layout_height="wrap_content"
+                      style="@style/txt_record_counter"/>
+            <FrameLayout android:id="@+id/gauge_holder"
+                         android:layout_below="@+id/chronometer"
+                         android:layout_height="120dip"
+                         android:layout_width="fill_parent"
+                         android:layout_marginLeft="15dip"
+                         android:layout_marginRight="15dip"/>
 
+        </LinearLayout>
         <TextView android:id="@+id/txt_instructions"
                   android:layout_centerHorizontal="true"
                   android:layout_width="wrap_content"
@@ -17,109 +34,70 @@
                   android:gravity="center"
                   style="@style/txt_record_instructions"
                   android:text="@string/record_instructions"
-                  android:layout_centerInParent="true"/>
+                  android:layout_centerInParent="true"
+                  android:layout_marginLeft="20dp"
+                  android:layout_marginRight="20dp"
+                  android:paddingBottom="50dp"/>
     </RelativeLayout>
 
-    <TableLayout android:layout_height="wrap_content"
-                 android:layout_width="fill_parent"
-                 android:layout_above="@+id/btn_action"
-                 android:layout_alignParentTop="true"
-                 android:stretchColumns="*">
-        <TableRow android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"
-                  android:gravity="center_vertical"
-                  android:layout_weight="1">
-            <TextView android:id="@+id/chronometer"
-                      android:gravity="center"
-                      android:layout_marginBottom="-5dp"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      style="@style/txt_record_counter"/>
-        </TableRow>
-        <TableRow android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"
-                  android:gravity="center_vertical"
-                  android:layout_weight="1">
-            <FrameLayout android:id="@+id/gauge_holder"
-                         android:layout_below="@+id/chronometer"
-                         android:layout_height="100dip"
-                         android:layout_marginLeft="15dip"
-                         android:layout_marginRight="15dip"/>
-        </TableRow>
-    </TableLayout>
-
-    <ImageButton android:id="@+id/btn_action"
-                 android:background="@color/transparent"
-                 android:src="@drawable/btn_rec_states"
-                 android:layout_centerInParent="true"
-                 android:scaleType="centerInside"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"/>
-
-    <TextView android:id="@+id/txt_record_status"
-              android:layout_width="fill_parent"
-              android:layout_marginTop="5dip"
-              style="@style/txt_record_message"
-              android:layout_alignParentBottom="true"
-              android:layout_alignParentTop="false"
-              android:layout_marginBottom="10dip"
-              android:gravity="bottom|center"
-              android:layout_height="wrap_content"/>
-
-    <RelativeLayout android:layout_height="wrap_content"
-                    android:layout_width="fill_parent"
-                    android:paddingBottom="5dip"
-                    android:layout_alignParentBottom="true"
-                    android:layout_below="@+id/btn_action">
-
-        <LinearLayout android:id="@+id/file_layout"
-                      android:paddingBottom="5dip"
-                      android:orientation="horizontal"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      android:layout_alignParentBottom="false"
-                      android:layout_centerInParent="true">
-
-            <Button android:id="@+id/btn_delete"
-                    style="@style/btn_orange"
-                    android:text="@string/delete"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:padding="15dip"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginRight="15dip"/>
-
-            <Button android:id="@+id/btn_reset"
-                    style="@style/btn_dark"
-                    android:text="@string/reset"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:padding="15dip"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginRight="15dip"/>
-
-            <Button android:id="@+id/btn_save"
-                    style="@style/btn_dark"
-                    android:text="@string/btn_next"
-                    android:padding="15dip"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dip"
-                    android:layout_marginRight="10dip"/>
-        </LinearLayout>
+    <RelativeLayout android:layout_width="fill_parent"
+                    android:id="@+id/control_layout"
+                    android:layout_margin="5dip"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+        <ImageButton android:id="@+id/btn_action"
+                     android:background="@color/transparent"
+                     android:src="@drawable/btn_rec_states"
+                     android:layout_alignParentTop="true"
+                     android:layout_centerHorizontal="true"
+                     android:scaleType="centerInside"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"/>
     </RelativeLayout>
-    <RelativeLayout android:id="@+id/progress_frame"
-                    android:layout_height="fill_parent"
-                    android:layout_width="fill_parent"
-                    android:background="@color/progressDarkAlphaBackground"
-                    android:visibility="gone">
 
-        <ProgressBar android:indeterminateOnly="true"
-                     android:layout_centerInParent="true"
-                     android:layout_width="40dip"
-                     android:layout_height="40dip"/>
+    <RelativeLayout android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+        <TextView android:id="@+id/txt_record_status"
+                  android:layout_width="fill_parent"
+                  android:layout_margin="5dip"
+                  style="@style/txt_record_message"
+                  android:layout_height="wrap_content"/>
     </RelativeLayout>
-</RelativeLayout>
+
+    <LinearLayout android:id="@+id/file_layout"
+                  android:paddingBottom="5dip"
+                  android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content">
+
+        <Button android:id="@+id/btn_delete"
+                style="@style/btn_orange"
+                android:text="@string/delete"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:padding="15dip"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="15dip"/>
+
+        <Button android:id="@+id/btn_reset"
+                style="@style/btn_dark"
+                android:text="@string/reset"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:padding="15dip"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="15dip"/>
+
+        <Button android:id="@+id/btn_save"
+                style="@style/btn_dark"
+                android:text="@string/btn_next"
+                android:padding="15dip"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dip"
+                android:layout_marginRight="10dip"/>
+    </LinearLayout>
+</LinearLayout>
