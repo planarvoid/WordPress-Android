@@ -256,7 +256,7 @@ public class CloudRecorder {
                         else
                         {
                             /*  decay of output when signal is low. */
-                            mCurrentAdjustedMaxAmplitude = (int) (mCurrentAdjustedMaxAmplitude * .8);
+                            mCurrentAdjustedMaxAmplitude = (int) (mCurrentAdjustedMaxAmplitude * .4);
                         }
 
                         try {
