@@ -11,7 +11,6 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.RelativeLayout;
@@ -37,6 +36,8 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
     private int mMode;
     private int mTouchMode;
 
+    private boolean mInEditMode;
+
     private CreateWaveView mWaveformView;
     private RawAudioPlayer mRawAudioPlayer;
 
@@ -48,11 +49,16 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
 
     private View rightHandle, leftHandle;
     private LayoutParams rightLp, leftLp;
-    private CreateEditor mEditor;
+    private TrimListener mTrimListener;
 
     private float trimPercentLeft, trimPercentRight;
     private int waveformWidth;
     private int dragOffsetX;
+
+    public static interface TrimListener {
+        void onAdjustTrimLeft(float pos);
+        void onAdjustTrimRight(float pos);
+    }
 
     public CreateWaveDisplay(Context context) {
         super(context);
@@ -77,14 +83,14 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         final int dim = (int) (30 * density);
 
         leftHandle = new View(getContext());
-        leftHandle.setBackgroundColor(Color.WHITE);
+        leftHandle.setBackgroundColor(Color.GRAY);
         leftLp = new LayoutParams(dim,dim);
         leftLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,1);
         leftLp.addRule(RelativeLayout.ALIGN_PARENT_LEFT,1);
         trimPercentLeft = 0.0f;
 
         rightHandle = new View(getContext());
-        rightHandle.setBackgroundColor(Color.WHITE);
+        rightHandle.setBackgroundColor(Color.GRAY);
         rightLp = new LayoutParams(dim,dim);
         rightLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,1);
         rightLp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,1);
@@ -95,19 +101,24 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         refreshWaveView();
     }
 
+
+
     public CreateWaveView refreshWaveView() {
         if (mWaveformView != null && mWaveformView.getParent() == this) {
             removeView(mWaveformView);
         }
 
         mWaveformView = new CreateWaveView(getContext(), this);
-        addView(mWaveformView, new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
+
+        LayoutParams viewParams = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
+        //viewParams.rightMargin = viewParams.leftMargin = (int) (getContext().getResources().getDisplayMetrics().density * 15);
+        viewParams.bottomMargin = (int) (getContext().getResources().getDisplayMetrics().density * 15);
+        addView(mWaveformView, viewParams);
         return mWaveformView;
     }
 
-    public void setEditor(CreateEditor editor) {
-        mEditor = editor;
-        mRawAudioPlayer = editor.getPlayer();
+    public void setTrimListener(TrimListener trimListener) {
+        mTrimListener = trimListener;
     }
 
     @Override
@@ -132,7 +143,7 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
             waveformWidth = mWaveformView.getWidth();
 
 
-            //mEditor.onWaveWidth(waveformWidth);
+            //mTrimListener.onWaveWidth(waveformWidth);
         }
     }
 
@@ -244,7 +255,9 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
                     mWaveformView.setTrimLeft((int) lastTouchX);
                     trimPercentLeft = Math.max(0,((float) lastTouchX  / waveformWidth));
                     leftHandle.requestLayout();
-                    if (mRawAudioPlayer != null) mRawAudioPlayer.onNewStartPosition(trimPercentLeft);
+                    if (mTrimListener != null) {
+                        mTrimListener.onAdjustTrimLeft(trimPercentLeft);
+                    }
                     break;
 
                 case UI_UPDATE_TRIM_RIGHT:
@@ -252,7 +265,9 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
                     rightLp.rightMargin = (waveformWidth - (int) lastTouchX);
                     trimPercentRight = Math.min(1, ((float) lastTouchX / waveformWidth));
                     rightHandle.requestLayout();
-                    if (mRawAudioPlayer != null) mRawAudioPlayer.onNewEndPosition(trimPercentRight);
+                    if (mTrimListener != null) {
+                        mTrimListener.onAdjustTrimRight(trimPercentRight);
+                    }
                     break;
 
                 default:
@@ -262,7 +277,7 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
 
     public void setTrimHandles() {
         leftLp.leftMargin = (int) (waveformWidth * trimPercentLeft);
-        if (rightHandle.getParent() != this){
+        if (leftHandle.getParent() != this){
             addView(leftHandle, leftLp);
         }
 
@@ -271,7 +286,6 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
             addView(rightHandle, rightLp);
         }
     }
-
 
     public void gotoRecordMode() {
         mMode = MODE_GAUGE_REC;
@@ -293,5 +307,20 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
 
     public void reset() {
         mWaveformView.reset();
+    }
+
+    public void setInEditMode(boolean inEditMode) {
+        if (inEditMode != mInEditMode){
+            mInEditMode = inEditMode;
+            mWaveformView.setInEditMode(inEditMode);
+            if (mInEditMode){
+                setTrimHandles();
+                mWaveformView.setBackgroundColor(Color.BLACK);
+            } else {
+                if (leftHandle.getParent() == this) removeView(leftHandle);
+                if (rightHandle.getParent() == this) removeView(rightHandle);
+                mWaveformView.setBackgroundDrawable(null);
+            }
+        }
     }
 }

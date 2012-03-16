@@ -180,7 +180,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     }
 
     /* package */ void startRecording(String path) {
-        Log.v(TAG, "startRecording("+path+")");
+        Log.v(TAG, "startRecording(" + path + ")");
 
         acquireWakeLock();
 
@@ -283,7 +283,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     /* package */ void updateRecordTicker(long recordTimeMs) {
 
         mRecordNotification.setLatestEventInfo(getApplicationContext(), mRecordEventTitle, CloudUtils
-                .formatString(mRecordEventMessage,recordTimeMs/1000), mRecordPendingIntent);
+                .formatString(mRecordEventMessage, recordTimeMs / 1000), mRecordPendingIntent);
 
         nm.notify(RECORD_NOTIFY_ID, mRecordNotification);
     }
@@ -325,6 +325,14 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
        if (mPlayer.isPlaying()) mPlayer.togglePlayback();
         nm.cancel(PLAYBACK_NOTIFY_ID);
        gotoIdleState();
+    }
+
+    public void setPlaybackStart(float pos) {
+        mPlayer.onNewStartPosition(pos);
+    }
+
+    public void setPlaybackEnd(float pos) {
+        mPlayer.onNewEndPosition(pos);
     }
 
     @Override
@@ -475,6 +483,8 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         startForeground(UPLOAD_NOTIFY_ID, mUploadNotification);
         return true;
     }
+
+
 
     private class EncodeOggTask extends OggEncoderTask<UploadTask.Params, UploadTask.Params> {
         private String eventString;

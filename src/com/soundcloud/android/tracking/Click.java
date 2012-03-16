@@ -38,6 +38,8 @@ public enum Click implements Event {
     Record_play_stop     ("Record", "play_stop",      Type.action, Level2.Record),
     Record_next          ("Record", "next",           Type.navigation, Level2.Record), // record another sound
 
+    Record_edit          ("Record", "edit",         Type.navigation, Level2.Record),
+
     Record_details_add_image       ("Record_details", "add_image",        Type.action,     Level2.Record),
     Record_details_new_image       ("Record_details", "new_image",        Type.action,     Level2.Record),
     Record_details_existing_image  ("Record_details", "existing_image",   Type.action,     Level2.Record),
@@ -66,6 +68,7 @@ public enum Click implements Event {
     public final String chapter, name;
     public final Type type;
     public final Level2 level2;
+
 
     Click(String chapter, String name, Type type, Level2 level2) {
         this.chapter = chapter;

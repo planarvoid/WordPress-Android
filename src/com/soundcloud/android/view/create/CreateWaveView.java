@@ -50,20 +50,19 @@ public class CreateWaveView extends View{
     private double mSampleMax;
     private int mTrimLeft, mTrimRight;
 
-
     private int mMode;
+    private boolean mInEditMode;
 
     private static final int MODE_ZOOM = 0;
     private static final int MODE_FULL = 1;
 
     private boolean mSized;
-    private Paint mPlayedPaint, mUnplayedPaint,mDarkUnplayedPaint,mDarkPlayedPaint;
+    private Paint mTrimLinePaint, mPlayedPaint, mUnplayedPaint,mDarkUnplayedPaint,mDarkPlayedPaint;
 
     private ArrayList<Float> mAllAmplitudes = new ArrayList<Float>();
     private int mRecordStartIndex = -1;
     private double[] mRealAmplitudes;
 
-    private boolean mAnimating;
     private TransitionListener mTransitionListener;
     public interface TransitionListener {
         void onFull();
@@ -93,6 +92,9 @@ public class CreateWaveView extends View{
         mBlurPaint.setStrokeWidth(1);
         mBlurPaint.setMaskFilter(new BlurMaskFilter(
                 mGlowHeight, BlurMaskFilter.Blur.OUTER));
+
+        mTrimLinePaint = new Paint();
+        mTrimLinePaint.setColor(Color.GRAY);
 
         mPlayedPaint = new Paint();
         mPlayedPaint.setColor(WAVEFORM_ORANGE);
@@ -137,6 +139,10 @@ public class CreateWaveView extends View{
         mAnimationStartTime = -1l;
         nextBufferX = 0;
         mMode = MODE_ZOOM;
+        mInEditMode = false;
+
+        mTrimLeft = -1;
+        mTrimRight = getWidth();
 
         if (bitmap != null) {
             bitmap.recycle();
@@ -146,10 +152,15 @@ public class CreateWaveView extends View{
         postInvalidate();
     }
 
+    public void setInEditMode(boolean inEditMode) {
+        mInEditMode = inEditMode;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         switch (mMode) {
             case MODE_ZOOM :
+
                 if (bitmap != null) {
                     if (nextBufferX > getWidth()) {
                         m.setTranslate(getWidth() - nextBufferX, 0);
@@ -217,7 +228,7 @@ public class CreateWaveView extends View{
         mRealAmplitudes = amplitudes;
         mSampleMax = sampleMax;
         invalidate();
-        mTrimLeft = 0;
+        mTrimLeft = -1;
         mTrimRight = getWidth();
     }
 
@@ -244,6 +255,7 @@ public class CreateWaveView extends View{
     }
 
     private void drawFullWave(Canvas c) {
+
         mFrameCount++;
         float normalizedTime = Math.min(1.0f,(((float) (System.currentTimeMillis() - mAnimationStartTime)) /
                 ANIMATION_ZOOM_TIME));
@@ -260,7 +272,6 @@ public class CreateWaveView extends View{
         final int recordedAmplitudeSize = mAllAmplitudes.size() - (mRecordStartIndex + 1);
 
         if (totalAmplitudeSize < width){
-
             startIndex = (int) (mRecordStartIndex - mRecordStartIndex * interpolatedTime);
             endIndex = (int) (totalAmplitudeSize + (width - totalAmplitudeSize) * interpolatedTime);
             amplitudesSubArray = mAllAmplitudes.subList(mRecordStartIndex, mAllAmplitudes.size()-1);
@@ -283,18 +294,19 @@ public class CreateWaveView extends View{
 
         int currentProgressIndex = (int) (getWidth()*mCurrentProgress);
         for (int x = startIndex; x <= endIndex; x++) {
-            if (animating || currentProgressIndex < 0) {
-                p = mPlayedPaint;
-            } else if (x == mTrimLeft || x == mTrimRight - 1) {
-                p = mUnplayedPaint;
+            if (mInEditMode && (x == mTrimLeft || x == mTrimRight - 1)) {
+                drawAmplitude(c,x,1.0f,mTrimLinePaint);
             } else {
-                p = (x < mTrimLeft) ? mDarkPlayedPaint :
-                        ((x > mTrimRight) ? mDarkUnplayedPaint :
-                                (x >= currentProgressIndex) ? mUnplayedPaint : mPlayedPaint);
+                if (animating || (!mInEditMode && currentProgressIndex < 0)) {
+                    p = mPlayedPaint;
+                } else {
+                    p = (x < mTrimLeft) ? mDarkPlayedPaint :
+                            ((x > mTrimRight) ? mDarkUnplayedPaint :
+                                    (x >= currentProgressIndex) && currentProgressIndex >= 0 ? mUnplayedPaint : mPlayedPaint);
+                }
+                final int drawIndex = (int) Math.min(amplitudeSubArraySize - 1,((float ) (x - startIndex)) /(endIndex - startIndex) * amplitudeSubArraySize);
+                drawAmplitude(c,x,amplitudesSubArray.get(drawIndex), p);
             }
-
-            final int drawIndex = (int) Math.min(amplitudeSubArraySize - 1,((float ) (x - startIndex)) /(endIndex - startIndex) * amplitudeSubArraySize);
-            drawAmplitude(c,x,amplitudesSubArray.get(drawIndex), p);
         }
 
         if (animating) postInvalidate();

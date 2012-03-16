@@ -2,8 +2,8 @@ package com.soundcloud.android.model;
 
 import android.content.res.Resources;
 import android.os.Parcel;
+import android.provider.ContactsContract;
 import android.text.TextUtils;
-import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 import com.soundcloud.api.Params;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
@@ -161,13 +161,12 @@ public class Upload extends ScModel {
         tag_list = TextUtils.join(" ", tags);
 
         if (!r.external_upload) {
-            if (r.audio_profile == Profile.RAW) {
-                encodedFile = new File(encodeDir(r.audio_path),
-                        String.format("%s.%s",
+            encodedFile = new File(encodeDir(r.audio_path),
+                    String.format("%s.%s",
                             r.audio_path.getName().contains(".") ? r.audio_path.getName().substring(0,
-                            r.audio_path.getName().lastIndexOf(".")) : r.audio_path.getName() ,"ogg"));
-                encode = true;
-            }
+                                    r.audio_path.getName().lastIndexOf(".")) : r.audio_path.getName(), "ogg"));
+            encode = true;
+
             is_native_recording = true;
         }
     }

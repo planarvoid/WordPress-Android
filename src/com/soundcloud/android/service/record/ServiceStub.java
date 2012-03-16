@@ -61,6 +61,18 @@ class ServiceStub extends ICloudCreateService.Stub {
     }
 
     @Override
+    public void setPlaybackStart(float pos) throws RemoteException {
+        final CloudCreateService service = mService.get();
+        if (service != null) service.setPlaybackStart(pos);
+    }
+
+    @Override
+    public void setPlaybackEnd(float pos) throws RemoteException {
+        final CloudCreateService service = mService.get();
+        if (service != null) service.setPlaybackEnd(pos);
+    }
+
+    @Override
     public void startPlayback() {
         final CloudCreateService service = mService.get();
         if (service != null) service.startPlayback();

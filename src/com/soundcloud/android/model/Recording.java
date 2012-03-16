@@ -8,7 +8,6 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -19,7 +18,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import android.provider.ContactsContract;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -81,7 +80,6 @@ public class Recording extends ScModel {
     public Recording(File f) {
         if (f == null) throw new IllegalArgumentException("file is null");
         audio_path = f;
-        audio_profile = Profile.ENCODED_LOW;
         timestamp = f.lastModified();
     }
 

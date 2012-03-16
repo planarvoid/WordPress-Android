@@ -10,6 +10,8 @@ interface ICloudCreateService
   void stopRecording();
   void loadPlaybackTrack(String playbackFile);
   boolean isPlayingBack();
+  void setPlaybackStart(float pos);
+  void setPlaybackEnd(float pos);
   void startPlayback();
   void pausePlayback();
   void stopPlayback();
