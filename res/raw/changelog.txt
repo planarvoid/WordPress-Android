@@ -1,4 +1,4 @@
-$ 40
+$ 41
   % v current
   _ 2012-03
   ! Undetermined
@@ -6,13 +6,15 @@ $ 40
     * Lockscreen and Notification playback control (still very rough)
     * Sound and Activity stream items fix
 
-$ 39
+$ 40
   % v 2.2.5
   _ 2012-03-16
   ! Maintenance
-    * Proxy crashes
+    * Fixed crashes for certain versions of HTTPClient
+    * Fixed email confirmation nag
+    - Upgraded java-api-wrapper
 
-$ 38
+$ 39
   % v 2.2.4
   _ 2012-03-12
   ! Maintenance
