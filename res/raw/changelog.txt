@@ -6,6 +6,12 @@ $ 40
     * Lockscreen and Notification playback control (still very rough)
     * Sound and Activity stream items fix
 
+$ 39
+  % v 2.2.5
+  _ 2012-03-16
+  ! Maintenance
+    * Proxy crashes
+
 $ 38
   % v 2.2.4
   _ 2012-03-12
