@@ -1,4 +1,4 @@
-$ 39
+$ 40
   % v current
   _ 2012-03-16
   ! Maintenance
@@ -6,7 +6,7 @@ $ 39
     * Fixed email confirmation nag
     - Upgraded java-api-wrapper
 
-$ 38
+$ 39
   % v 2.2.4
   _ 2012-03-12
   ! Maintenance
