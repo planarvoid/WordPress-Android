@@ -15,6 +15,8 @@ import com.soundcloud.android.service.playback.PlaylistManager;
 import com.soundcloud.android.utils.ImageUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentResolver;
@@ -251,7 +253,8 @@ public class User extends ScModel implements  Refreshable, Origin {
     }
 
     // setter for deserialization, we want it null if it doesn't exist and to keep it private
-    public void setPrimary_email_confirmed(boolean val){
+    @JsonProperty("primary_email_confirmed")
+    public void setPrimaryEmailConfirmed(boolean val){
         primary_email_confirmed = val;
     }
 
@@ -346,6 +349,7 @@ public class User extends ScModel implements  Refreshable, Origin {
         if (user.discogs_name != null) this.discogs_name = user.discogs_name;
         if (user.myspace_name != null) this.myspace_name = user.myspace_name;
         if (user.description != null) this.description = user.description;
+        if (user.primary_email_confirmed != null) this.primary_email_confirmed = user.primary_email_confirmed;
         return this;
     }
 

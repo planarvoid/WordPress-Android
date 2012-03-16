@@ -42,6 +42,7 @@ public class FetchUserInfoTaskTest {
         listener = new FetchUserTask.FetchUserListener() {
             @Override
             public void onSuccess(User u, String action) {
+
                 user[0] = u;
             }
             @Override
@@ -53,6 +54,7 @@ public class FetchUserInfoTaskTest {
         task.execute(Request.to(Endpoints.USER_DETAILS, 12345));
         assertThat(user[0], not(nullValue()));
         assertThat(user[0].username, equalTo("SoundCloud Android @ MWC"));
+        assertThat(user[0].isPrimaryEmailConfirmed(), equalTo(false));
 
 
         u = SoundCloudDB.getUserById(Robolectric.application.getContentResolver(), 3135930);

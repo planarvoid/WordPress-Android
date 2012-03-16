@@ -103,7 +103,7 @@ public class SoundCloudDBTest {
         u.plan = "plan";
         u.website = "http://foo.com";
         u.website_title = "Site";
-        u.setPrimary_email_confirmed(true);
+        u.setPrimaryEmailConfirmed(true);
         u.myspace_name = "myspace";
         u.discogs_name = "discogs";
 
