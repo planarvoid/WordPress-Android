@@ -42,7 +42,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
@@ -73,7 +72,7 @@ public class CreateController {
     private RemainingTimeCalculator mRemainingTimeCalculator;
     private Thread mProgressThread;
     private List<Recording> mUnsavedRecordings;
-    private Button mResetButton, mDeleteButton;
+    private Button mResetButton, mDeleteButton, mPlayButton, mEditButton;
 
     private android.os.Handler mHandler;
     private long mLastPos, mLastProgressTimestamp, mLastTrackTime;
@@ -83,12 +82,11 @@ public class CreateController {
 
     private Drawable
             btn_rec_states_drawable,
-            btn_rec_stop_states_drawable,
-            btn_rec_play_states_drawable;
+            btn_rec_stop_states_drawable;
 
 
     public enum CreateState {
-        IDLE_STANDBY_REC, IDLE_STANDBY_PLAY, IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK
+        IDLE_STANDBY_REC, IDLE_STANDBY_PLAY, IDLE_RECORD, RECORD, IDLE_PLAYBACK, PLAYBACK, EDIT
     }
 
     public static int REC_SAMPLE_RATE = 44100;
@@ -115,8 +113,7 @@ public class CreateController {
         mHandler = mActivity.getHandler();
 
         btn_rec_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_states);
-        btn_rec_stop_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_stop_states);
-        btn_rec_play_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_play_states);
+        btn_rec_stop_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_pause_states);
 
         mRemainingTimeCalculator = new RemainingTimeCalculator();
         mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
@@ -142,6 +139,7 @@ public class CreateController {
                 } else {
                     switch (mCurrentState) {
                         case IDLE_RECORD:
+                        case IDLE_PLAYBACK:
                             mActivity.track(Click.Record_rec);
                             mCurrentState = CreateState.RECORD;
                             break;
@@ -149,7 +147,6 @@ public class CreateController {
                             mActivity.track(Click.Record_rec_stop);
                             mCurrentState = CreateState.IDLE_PLAYBACK;
                             break;
-                        case IDLE_PLAYBACK: mCurrentState = CreateState.PLAYBACK; break;
                         case PLAYBACK:
                             mActivity.track(Click.Record_play_stop);
                             mCurrentState = CreateState.IDLE_PLAYBACK;
@@ -162,6 +159,7 @@ public class CreateController {
 
         mResetButton = ((Button) vg.findViewById(R.id.btn_reset));
         mResetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 mActivity.track(Click.Record_discard);
                 mActivity.showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
@@ -170,6 +168,7 @@ public class CreateController {
 
         mDeleteButton = ((Button) vg.findViewById(R.id.btn_delete));
         mDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 mActivity.track(Click.Record_delete);
                 mActivity.showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
@@ -177,6 +176,32 @@ public class CreateController {
         });
 
         setResetState();
+
+        mPlayButton = ((Button) vg.findViewById(R.id.btn_play));
+        mPlayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (mCurrentState) {
+                    case IDLE_PLAYBACK:
+                        mActivity.track(Click.Record_play);
+                        mCurrentState = CreateState.PLAYBACK;
+                        break;
+                    case PLAYBACK:
+                        mActivity.track(Click.Record_play_stop);
+                        mCurrentState = CreateState.IDLE_PLAYBACK;
+                        break;
+                }
+                updateUi(true);
+
+            }
+        });
+
+        mEditButton = ((Button) vg.findViewById(R.id.btn_edit));
+        mEditButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
 
         vg.findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -383,6 +408,9 @@ public class CreateController {
                     txtRecordStatus.setText(null);
                 }
 
+                mPlayButton.setVisibility(View.GONE);
+                mEditButton.setVisibility(View.GONE);
+
                 btnAction.setImageDrawable(btn_rec_states_drawable);
                 txtRecordStatus.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.INVISIBLE);
@@ -405,7 +433,13 @@ public class CreateController {
 
             case IDLE_STANDBY_REC:
             case IDLE_STANDBY_PLAY:
+
+                mPlayButton.setVisibility(View.GONE);
+                mEditButton.setVisibility(View.GONE);
+
                 btnAction.setImageDrawable(btn_rec_stop_states_drawable);
+
+
                 txtRecordStatus.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.INVISIBLE);
                 mChrono.setVisibility(View.INVISIBLE);
@@ -415,6 +449,10 @@ public class CreateController {
                 break;
 
             case RECORD:
+
+                mPlayButton.setVisibility(View.GONE);
+                mEditButton.setVisibility(View.GONE);
+
                 btnAction.setImageDrawable(btn_rec_stop_states_drawable);
                 txtInstructions.setVisibility(View.GONE);
                 txtRecordStatus.setText("");
@@ -423,7 +461,10 @@ public class CreateController {
                 mChrono.setText("");
                 mFileLayout.setVisibility(View.INVISIBLE);
 
-                if (takeAction) startRecording();
+                if (takeAction) {
+                    stopPlayback();
+                    startRecording();
+                }
                 break;
 
             case IDLE_PLAYBACK:
@@ -441,17 +482,26 @@ public class CreateController {
                     }
                 }
 
+                mPlayButton.setVisibility(View.VISIBLE);
+                mEditButton.setVisibility(View.VISIBLE);
+
+                mPlayButton.setText("P");
+
                 mChrono.setText(mCurrentDurationString);
-                btnAction.setImageDrawable(btn_rec_play_states_drawable);
+                btnAction.setImageDrawable(btn_rec_states_drawable);
                 txtInstructions.setVisibility(View.GONE);
                 mWaveDisplay.gotoPlaybackMode();
                 mChrono.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.VISIBLE);
                 txtRecordStatus.setVisibility(View.INVISIBLE);
-
                 break;
 
             case PLAYBACK:
+
+                mPlayButton.setVisibility(View.VISIBLE);
+                mEditButton.setVisibility(View.VISIBLE);
+                mPlayButton.setText("S");
+
                 txtRecordStatus.setVisibility(View.INVISIBLE);
                 txtInstructions.setVisibility(View.GONE);
                 mChrono.setVisibility(View.VISIBLE);
@@ -500,11 +550,14 @@ public class CreateController {
             mAudioProfile = hiQ ? CloudRecorder.Profile.best() : CloudRecorder.Profile.low();
         }  */
 
-        if (mPrivateUser != null) {
-            mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "_" + mPrivateUser.id);
-        } else {
-            mRecordFile = new File(mRecordDir, String.valueOf(System.currentTimeMillis()));
+        if (mRecordFile == null){
+            if (mPrivateUser != null) {
+                mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "_" + mPrivateUser.id);
+            } else {
+                mRecordFile = new File(mRecordDir, String.valueOf(System.currentTimeMillis()));
+            }
         }
+
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;
             updateUi(true);
@@ -698,6 +751,7 @@ public class CreateController {
 
     private void stopPlayback() {
         mHandler.removeCallbacks(mSmoothProgress);
+        mDuration = 0;
         try {
             mCreateService.stopPlayback();
         } catch (RemoteException ignored) { }

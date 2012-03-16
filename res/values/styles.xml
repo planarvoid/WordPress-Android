@@ -175,22 +175,23 @@
         <item name="android:shadowRadius">1</item>
     </style>
 
-    <style name="txt_record_instructions">
+    <style name="txt_record_dark">
         <item name="android:textColor">#ff000000</item>
-        <item name="android:textSize">38sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:paddingLeft">5dip</item>
-        <item name="android:paddingRight">5dip</item>
         <item name="android:shadowColor">#ff777777</item>
-        <item name="android:shadowDx">1</item>
         <item name="android:shadowDy">1</item>
         <item name="android:shadowRadius">1</item>
     </style>
 
-    <style name="txt_record_counter">
-        <item name="android:textColor">#ffffffff</item>
+
+    <style name="txt_record_instructions" parent="txt_record_dark">
+        <item name="android:textSize">38sp</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:paddingRight">5dip</item>
+    </style>
+
+    <style name="txt_record_chrono" parent="txt_record_dark">
         <item name="android:textSize">28sp</item>
-        <item name="android:textStyle">bold</item>
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
     </style>

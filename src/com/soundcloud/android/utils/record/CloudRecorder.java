@@ -125,20 +125,25 @@ public class CloudRecorder {
                 mFilepath = argPath;
                 // write file header
                 mWriter = new RandomAccessFile(mFilepath, "rw");
-                mWriter.setLength(0); // truncate
-                mWriter.writeBytes("RIFF");
-                mWriter.writeInt(0); // 36+numBytes
-                mWriter.writeBytes("WAVE");
-                mWriter.writeBytes("fmt ");
-                mWriter.writeInt(Integer.reverseBytes(16)); // Sub-chunk size, 16 for PCM
-                mWriter.writeShort(Short.reverseBytes((short) 1)); //  AudioFormat, 1 for PCM
-                mWriter.writeShort(Short.reverseBytes(nChannels));// Number of channels, 1 for mono, 2 for stereo
-                mWriter.writeInt(Integer.reverseBytes(mSampleRate)); //  Sample rate
-                mWriter.writeInt(Integer.reverseBytes(mSampleRate * mSamples * nChannels / 8)); // Bitrate
-                mWriter.writeShort(Short.reverseBytes((short) (nChannels * mSamples / 8))); // Block align
-                mWriter.writeShort(Short.reverseBytes(mSamples)); // Bits per sample
-                mWriter.writeBytes("data");
-                mWriter.writeInt(0); // Data chunk size not known yet
+                if (mWriter.length() == 0){
+                    // new file
+                    mWriter.setLength(0); // truncate
+                    mWriter.writeBytes("RIFF");
+                    mWriter.writeInt(0); // 36+numBytes
+                    mWriter.writeBytes("WAVE");
+                    mWriter.writeBytes("fmt ");
+                    mWriter.writeInt(Integer.reverseBytes(16)); // Sub-chunk size, 16 for PCM
+                    mWriter.writeShort(Short.reverseBytes((short) 1)); //  AudioFormat, 1 for PCM
+                    mWriter.writeShort(Short.reverseBytes(nChannels));// Number of channels, 1 for mono, 2 for stereo
+                    mWriter.writeInt(Integer.reverseBytes(mSampleRate)); //  Sample rate
+                    mWriter.writeInt(Integer.reverseBytes(mSampleRate * mSamples * nChannels / 8)); // Bitrate
+                    mWriter.writeShort(Short.reverseBytes((short) (nChannels * mSamples / 8))); // Block align
+                    mWriter.writeShort(Short.reverseBytes(mSamples)); // Bits per sample
+                    mWriter.writeBytes("data");
+                    mWriter.writeInt(0); // Data chunk size not known yet
+                } else {
+                    mWriter.seek(mWriter.length());
+                }
                 mState = State.RECORDING;
             }
         } catch (Exception e) {
@@ -156,14 +161,17 @@ public class CloudRecorder {
         if (mState == State.RECORDING) {
             // stop the file writing
             try {
-                long length = mWriter.length();
-                // fill in missing header bytes
-                mWriter.seek(4);
-                mWriter.writeInt(Integer.reverseBytes((int) (length - 8)));
-                mWriter.seek(40);
-                mWriter.writeInt(Integer.reverseBytes((int) (length - 44)));
-                mWriter.close();
-                mWriter = null;
+                if (mWriter != null){
+                    long length = mWriter.length();
+                    // fill in missing header bytes
+                    mWriter.seek(4);
+                    mWriter.writeInt(Integer.reverseBytes((int) (length - 8)));
+                    mWriter.seek(40);
+                    mWriter.writeInt(Integer.reverseBytes((int) (length - 44)));
+                    mWriter.close();
+                    mWriter = null;
+                }
+
             } catch (IOException e) {
                 Log.e(TAG, "I/O exception occured while closing output file");
                 mState = State.ERROR;
