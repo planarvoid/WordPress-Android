@@ -69,7 +69,7 @@ public class FollowStatus implements Parcelable {
     }
 
     public boolean isFollowing(User user) {
-        return isFollowing(user.id);
+        return user != null && isFollowing(user.id);
     }
 
     public synchronized void requestUserFollowings(AndroidCloudAPI api, final Listener listener, boolean force) {
