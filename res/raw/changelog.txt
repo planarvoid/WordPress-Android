@@ -2,7 +2,9 @@ $ 39
   % v current
   _ 2012-03-16
   ! Maintenance
-    * Proxy crashes
+    * Fixed crashes for certain versions of HTTPClient
+    * Fixed email confirmation nag
+    - Upgraded java-api-wrapper
 
 $ 38
   % v 2.2.4
