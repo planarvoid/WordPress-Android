@@ -3,14 +3,14 @@ package com.soundcloud.android.robolectric
 import com.xtremelabs.robolectric.bytecode.{RobolectricClassLoader, ShadowWrangler}
 import android.net.Uri__FromAndroid
 import com.xtremelabs.robolectric.internal.RealObject
-import com.xtremelabs.robolectric.shadows.ShadowApplication
+import com.xtremelabs.robolectric.shadows.{ShadowApplication, ShadowLog}
 import com.xtremelabs.robolectric.{Robolectric, ApplicationResolver, RobolectricConfig}
 import java.io.File
 import com.xtremelabs.robolectric.res.ResourceLoader
 import org.scalatest._
 import com.xtremelabs.robolectric.util.DatabaseConfig.{UsingDatabaseMap, DatabaseMap}
 import com.xtremelabs.robolectric.util.DatabaseConfig
-
+import java.io.{PrintStream, FileOutputStream}
 
 trait RobolectricSuite extends Suite {
   lazy val instrumentedClass = RobolectricSuite.classLoader.bootstrap(this.getClass)
@@ -52,6 +52,7 @@ trait RobolectricSuite extends Suite {
 
   protected def setupApplicationState() {
       robolectricConfig.validate()
+      setupLogging()
       Robolectric.bindDefaultShadowClasses()
       bindShadowClasses()
 
@@ -60,6 +61,27 @@ trait RobolectricSuite extends Suite {
 
       DatabaseConfig.setDatabaseMap(setupDatabaseMap(getClass, defaultDatabaseMap))
       Robolectric.application = ShadowApplication.bind(new ApplicationResolver(robolectricConfig).resolveApplication(), resourceLoader)
+  }
+
+  protected def setupLogging() {
+    val logging = System.getProperty("robolectric.logging")
+    if (logging != null && ShadowLog.stream == null) {
+      ShadowLog.stream = logging match {
+        case "stdout" => System.out
+        case "stderr" => System.err
+        case _ => {
+          val file = new PrintStream(new FileOutputStream(logging))
+          Runtime.getRuntime.addShutdownHook(new Thread() {
+            override def run() {
+              try {
+                file.close();
+              } catch { case e:Exception =>  }
+            }
+          })
+          file
+        }
+      }
+    }
   }
 
   protected def setupDatabaseMap(testClass: Class[_], map: DatabaseMap):DatabaseMap = {

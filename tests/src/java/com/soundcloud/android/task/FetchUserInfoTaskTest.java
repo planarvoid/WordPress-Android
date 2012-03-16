@@ -25,7 +25,7 @@ public class FetchUserInfoTaskTest {
     FetchUserTask.FetchUserListener listener;
 
     @Test
-    public void fetchLoadTrackInfo() throws Exception {
+    public void fetchLoadUserInfo() throws Exception {
         FetchUserTask task = new FetchUserTask(DefaultTestRunner.application, 0);
 
         addHttpResponseRule("GET", "/users/12345",
@@ -36,12 +36,13 @@ public class FetchUserInfoTaskTest {
         u.username = "old username";
         u.user_following = true;
         u.user_follower = true;
-        ((SoundCloudApplication) Robolectric.application).USER_CACHE.put(u);
+        SoundCloudApplication.USER_CACHE.put(u);
 
         final User[] user = {null};
         listener = new FetchUserTask.FetchUserListener() {
             @Override
             public void onSuccess(User u, String action) {
+
                 user[0] = u;
             }
             @Override
@@ -53,13 +54,14 @@ public class FetchUserInfoTaskTest {
         task.execute(Request.to(Endpoints.USER_DETAILS, 12345));
         assertThat(user[0], not(nullValue()));
         assertThat(user[0].username, equalTo("SoundCloud Android @ MWC"));
+        assertThat(user[0].isPrimaryEmailConfirmed(), equalTo(false));
 
 
         u = SoundCloudDB.getUserById(Robolectric.application.getContentResolver(), 3135930);
         assertThat(u, not(nullValue()));
         assertThat(u.username, equalTo("SoundCloud Android @ MWC"));
 
-        u = ((SoundCloudApplication) Robolectric.application).USER_CACHE.get(3135930l);
+        u = SoundCloudApplication.USER_CACHE.get(3135930l);
         assertThat(u, not(nullValue()));
         assertThat(u.username, equalTo("SoundCloud Android @ MWC"));
         assertThat(u.user_following, equalTo(true));

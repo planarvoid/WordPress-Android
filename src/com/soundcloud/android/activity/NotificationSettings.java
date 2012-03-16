@@ -53,7 +53,7 @@ public class NotificationSettings extends PreferenceActivity {
         ((SoundCloudApplication)getApplication()).track(getClass());
     }
 
-    private void checkSyncNecessary() {
+    private boolean checkSyncNecessary() {
         PreferenceManager.getDefaultSharedPreferences(this);
         boolean sync = false;
         for (CheckBoxPreference p : syncPreferences) {
@@ -62,7 +62,6 @@ public class NotificationSettings extends PreferenceActivity {
                 break;
             }
         }
-
         final Account account = ((SoundCloudApplication) getApplication()).getAccount();
         if (account != null) {
             final boolean autoSyncing = ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY);
@@ -72,5 +71,6 @@ public class NotificationSettings extends PreferenceActivity {
                 ScContentProvider.disableSyncing(account);
             }
         }
+        return sync;
     }
 }

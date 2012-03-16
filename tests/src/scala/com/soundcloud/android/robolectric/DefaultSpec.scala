@@ -12,9 +12,4 @@ trait DefaultSpec extends FlatSpec with RobolectricSuite with ShouldMatchers wit
   override lazy val robolectricConfig = new RobolectricConfig(new File(".")) {
     override def getApplicationName = classOf[TestApplication].getName
   }
-
-  override protected def bindShadowClasses() {
-    Robolectric.bindShadowClass(classOf[DefaultTestRunner.ShadowLog])
-    Robolectric.bindShadowClass(classOf[ShadowHandlerThread])
-  }
 }

@@ -171,7 +171,7 @@ public final class IOUtils {
         return f.exists() && f.getParentFile() != null && f.getParentFile().listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.contentEquals(f.getName());
+                return name.equals(f.getName());
             }
         }).length > 0;
     }

@@ -103,7 +103,7 @@ public class SoundCloudDBTest {
         u.plan = "plan";
         u.website = "http://foo.com";
         u.website_title = "Site";
-        u.primary_email_confirmed = true;
+        u.setPrimaryEmailConfirmed(true);
         u.myspace_name = "myspace";
         u.discogs_name = "discogs";
 
@@ -126,7 +126,7 @@ public class SoundCloudDBTest {
         expect(u2.plan).toEqual(u.plan);
         expect(u2.website).toEqual(u.website);
         expect(u2.website_title).toEqual(u.website_title);
-        expect(u2.primary_email_confirmed).toEqual(u.primary_email_confirmed);
+        expect(u2.isPrimaryEmailConfirmed()).toEqual(u.isPrimaryEmailConfirmed());
         expect(u2.myspace_name).toEqual(u.myspace_name);
         expect(u2.discogs_name).toEqual(u.discogs_name);
 

@@ -362,7 +362,7 @@ public final class ImageUtils {
 
     public static boolean checkIconShouldLoad(String url) {
         return !(TextUtils.isEmpty(url)
-                || url.toLowerCase().contentEquals("null")
+                || url.toLowerCase().equals("null")
                 || url.contains("default_avatar"));
     }
 
