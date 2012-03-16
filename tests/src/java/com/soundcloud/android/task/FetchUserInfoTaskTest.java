@@ -36,7 +36,7 @@ public class FetchUserInfoTaskTest {
         u.username = "old username";
         u.user_following = true;
         u.user_follower = true;
-        ((SoundCloudApplication) Robolectric.application).USER_CACHE.put(u);
+        SoundCloudApplication.USER_CACHE.put(u);
 
         final User[] user = {null};
         listener = new FetchUserTask.FetchUserListener() {
@@ -61,7 +61,7 @@ public class FetchUserInfoTaskTest {
         assertThat(u, not(nullValue()));
         assertThat(u.username, equalTo("SoundCloud Android @ MWC"));
 
-        u = ((SoundCloudApplication) Robolectric.application).USER_CACHE.get(3135930l);
+        u = SoundCloudApplication.USER_CACHE.get(3135930l);
         assertThat(u, not(nullValue()));
         assertThat(u.username, equalTo("SoundCloud Android @ MWC"));
         assertThat(u.user_following, equalTo(true));

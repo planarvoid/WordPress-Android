@@ -67,7 +67,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         case 11:
                             success = upgradeTo11(db, oldVersion);
                             break;
-                         case 12:
+                        case 12:
                             success = upgradeTo12(db, oldVersion);
                             break;
                         default:
