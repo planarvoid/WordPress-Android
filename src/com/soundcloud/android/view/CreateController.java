@@ -515,12 +515,12 @@ public class CreateController {
 
         final boolean hiQ = PreferenceManager.getDefaultSharedPreferences(mActivity)
             .getString("defaultRecordingQuality", "high")
-            .contentEquals("high");
+            .equals("high");
 
         if (hiQ && SoundCloudApplication.DEV_MODE
                 && !PreferenceManager.getDefaultSharedPreferences(mActivity)
                         .getString("dev.defaultRecordingHighQualityType", "compressed")
-                        .contentEquals("compressed")) {
+                        .equals("compressed")) {
             //force raw for developer mode
             mAudioProfile = CloudRecorder.Profile.RAW;
         } else  {
@@ -632,7 +632,7 @@ public class CreateController {
             if (mCreateService != null && mRecordFile != null) {
                 // might be loaded and paused already
                 if (TextUtils.isEmpty(mCreateService.getPlaybackPath()) ||
-                    !mCreateService.getPlaybackPath().contentEquals(mRecordFile.getAbsolutePath())) {
+                    !mCreateService.getPlaybackPath().equals(mRecordFile.getAbsolutePath())) {
                     mCreateService.loadPlaybackTrack(mRecordFile.getAbsolutePath());
                 }
                 configurePlaybackInfo();

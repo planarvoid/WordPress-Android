@@ -269,8 +269,8 @@ public class Main extends TabActivity implements
             // TODO put this code under test
             // only handle the first 2 path segments (resource only for now, actions to be implemented later)
             int cutoff = 0;
-            if (data.getPathSegments().size() > 1 && (data.getPathSegments().get(1).contentEquals("follow")
-                    || data.getPathSegments().get(1).contentEquals("favorite"))){
+            if (data.getPathSegments().size() > 1 && (data.getPathSegments().get(1).equals("follow")
+                    || data.getPathSegments().get(1).equals("favorite"))){
                 cutoff = 1;
             } else if (data.getPathSegments().size() > 2){
                 cutoff = 2;

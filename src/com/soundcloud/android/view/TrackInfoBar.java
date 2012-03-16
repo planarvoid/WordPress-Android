@@ -159,7 +159,7 @@ public class TrackInfoBar extends LazyRow {
         mUser.setText(track.user != null ? track.user.username : "");
         mCreatedAt.setText(p.getTimeSinceCreated(context));
 
-        if (track.sharing == null || track.sharing.contentEquals("public")) {
+        if (track.sharing == null || track.sharing.equals("public")) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
             if (track.shared_to_count == 0){

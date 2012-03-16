@@ -124,7 +124,7 @@ public class User extends ScModel implements  Refreshable, Origin {
                 cursor.moveToFirst();
                 String[] keys = cursor.getColumnNames();
                 for (String key : keys) {
-                    if (key.contentEquals("_id")) {
+                    if (key.equals("_id")) {
                         id = cursor.getLong(cursor.getColumnIndex(key));
                     } else {
                         try {
