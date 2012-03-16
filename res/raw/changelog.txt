@@ -1,5 +1,11 @@
-$ 38
+$ 39
   % v current
+  _ 2012-03-16
+  ! Maintenance
+    * Proxy crashes
+
+$ 38
+  % v 2.2.4
   _ 2012-03-12
   ! Maintenance
     * refreshing streams to get rid of incorrect items
