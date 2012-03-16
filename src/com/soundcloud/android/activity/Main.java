@@ -84,7 +84,7 @@ public class Main extends TabActivity implements
         if (IOUtils.isConnected(this) &&
             app.getAccount() != null &&
             app.getToken().valid() &&
-            !app.getLoggedInUser().primary_email_confirmed &&
+            !app.getLoggedInUser().isPrimaryEmailConfirmed() &&
             !justAuthenticated(getIntent()))
         {
                 checkEmailConfirmed(app);
@@ -140,7 +140,7 @@ public class Main extends TabActivity implements
     private void checkEmailConfirmed(final SoundCloudApplication app) {
         (new FetchUserTask(app) {
             @Override protected void onPostExecute(User user) {
-                if (user == null || user.primary_email_confirmed) {
+                if (user == null || user.isPrimaryEmailConfirmed()) {
                     dismissSplash();
                 } else {
                     startActivityForResult(

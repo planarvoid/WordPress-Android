@@ -25,7 +25,7 @@ public class FetchUserInfoTaskTest {
     FetchUserTask.FetchUserListener listener;
 
     @Test
-    public void fetchLoadTrackInfo() throws Exception {
+    public void fetchLoadUserInfo() throws Exception {
         FetchUserTask task = new FetchUserTask(DefaultTestRunner.application, 0);
 
         addHttpResponseRule("GET", "/users/12345",
