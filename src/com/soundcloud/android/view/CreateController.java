@@ -394,7 +394,7 @@ public class CreateController {
     public void onRecordingError() {
         mSampleInterrupted = true;
         mRecordErrorMessage = mActivity.getResources().getString(R.string.error_recording_message);
-        if (mRecordFile.exists()) mRecordFile.delete();
+        IOUtils.deleteFile(mRecordFile);
         mRecordFile = null;
         mCurrentState = CreateState.IDLE_RECORD;
         updateUi(true);
