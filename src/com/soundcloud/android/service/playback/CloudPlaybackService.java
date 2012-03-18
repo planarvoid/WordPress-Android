@@ -69,6 +69,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public static final String STOP_ACTION        = "com.soundcloud.android.musicservicecommand.stop";
 
     public static final String EXTRA_FROM_NOTIFICATION  = "com.soundcloud.android.musicserviceextra.fromNotification";
+    public static final String EXTRA_UNMUTE             = "com.soundcloud.android.musicserviceextra.unmute";
 
     public static final String ADD_FAVORITE       = "com.soundcloud.android.favorite.add";
     public static final String REMOVE_FAVORITE    = "com.soundcloud.android.favorite.remove";
@@ -551,7 +552,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             status.setLatestEventInfo(this, track.getUserName(),track.title, pi);
         } else {
             PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_no_controls_v11);
-            view.setCurrentTrack(track.title,track.user.username);
+            view.setCurrentTrack(track.title, track.user.username);
 
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
@@ -887,6 +888,15 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "handlePlayAction("+intent+")");
         }
+
+        if (intent.getBooleanExtra(EXTRA_UNMUTE, false)) {
+            final int volume = (int) Math.round(
+                    mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+                    * 0.75d);
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setting volume to "+volume);
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
+        }
+
         Track track = intent.getParcelableExtra("track");
         if (track != null) {
             mPlaylistManager.setTrack(track);
