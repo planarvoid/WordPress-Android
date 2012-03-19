@@ -526,6 +526,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         f.addAction(CloudPlaybackService.BUFFERING);
         f.addAction(CloudPlaybackService.BUFFERING_COMPLETE);
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
+        f.addAction(CloudPlaybackService.SEEKING);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
         f.addAction(CloudPlaybackService.FAVORITE_SET);
         f.addAction(Actions.COMMENT_ADDED);

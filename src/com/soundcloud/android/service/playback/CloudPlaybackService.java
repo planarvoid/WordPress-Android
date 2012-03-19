@@ -55,6 +55,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     public static final String STREAM_DIED        = "com.soundcloud.android.streamdied";
     public static final String COMMENTS_LOADED    = "com.soundcloud.android.commentsloaded";
     public static final String FAVORITE_SET       = "com.soundcloud.android.favoriteset";
+    public static final String SEEKING            = "com.soundcloud.android.seeking";
     public static final String SEEK_COMPLETE      = "com.soundcloud.android.seekcomplete";
     public static final String BUFFERING          = "com.soundcloud.android.buffering";
     public static final String BUFFERING_COMPLETE = "com.soundcloud.android.bufferingcomplete";
@@ -118,7 +119,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     private static final int IDLE_DELAY = 60*1000;  // interval after which we stop the service when idle
     private static final long CHECK_TRACK_EVENT_DELAY = Media.REFRESH_MIN; // check for track timestamp events at this frequency
 
-    private boolean resumeSeeking;
+    private boolean mWaitingForSeek;
 
     private StreamProxy mProxy;
     private TrackCache mCache;
@@ -402,30 +403,28 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             mMediaPlayer = new MediaPlayer();
         }
 
-        switch (state) {
-            case PREPARING:
-                Log.w(TAG, "stuck in preparing state!");
-                final MediaPlayer old = mMediaPlayer;
-                new Thread() {
-                    @Override
-                    public void run() {
-                        old.reset();
-                        old.release();
+        if (mWaitingForSeek) {
+            mWaitingForSeek = false;
+            refreshMediaPlayer();
+        } else {
+            switch (state) {
+                case PREPARING:
+                case PAUSED_FOR_BUFFERING:
+                    refreshMediaPlayer();
+                    break;
+                case PLAYING:
+                    mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
+                    try {
+                        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.stop");
+                        mMediaPlayer.stop();
+                        state = STOPPED;
+                    } catch (IllegalStateException e) {
+                        Log.w(TAG, e);
                     }
-                }.start();
-                mMediaPlayer = new MediaPlayer();
-                break;
-            case PLAYING:
-                mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
-                try {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.stop");
-                    mMediaPlayer.stop();
-                    state = STOPPED;
-                } catch (IllegalStateException e) {
-                    Log.w(TAG, e);
-                }
-                break;
+                    break;
+            }
         }
+
         state = PREPARING;
         try {
             if (mProxy == null) {
@@ -453,6 +452,19 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             Log.e(TAG, "error", e);
             errorListener.onError(mMediaPlayer, 0, 0);
         }
+    }
+
+    private void refreshMediaPlayer() {
+        Log.w(TAG, "stuck in preparing state!");
+        final MediaPlayer old = mMediaPlayer;
+        new Thread() {
+            @Override
+            public void run() {
+                old.reset();
+                old.release();
+            }
+        }.start();
+        mMediaPlayer = new MediaPlayer();
     }
 
 
@@ -620,17 +632,19 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ boolean isBuffering() {
-        return state == PAUSED_FOR_BUFFERING || state == PREPARING || resumeSeeking;
+        return state == PAUSED_FOR_BUFFERING || state == PREPARING || mWaitingForSeek;
     }
 
     /*
      * Returns the current playback position in milliseconds
      */
     /* package */ long getPosition() {
-        if (mMediaPlayer != null && !state.isError()) {
-            return mMediaPlayer.getCurrentPosition();
-        } else if (mCurrentTrack != null && mResumeTrackId == mCurrentTrack.id) {
+        if (mCurrentTrack != null && mResumeTrackId == mCurrentTrack.id) {
             return mResumeTime; // either -1 or a valid resume time
+        } else if (mWaitingForSeek && mSeekPos > 0) {
+            return mSeekPos;
+        } else if (mMediaPlayer != null && !state.isError()) {
+            return mMediaPlayer.getCurrentPosition();
         } else {
             return 0;
         }
@@ -657,7 +671,8 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             if (pos <= 0) {
                 pos = 0;
             }
-            final long currentPos = getPosition();
+
+            final long currentPos = (mMediaPlayer != null && !state.isError()) ? mMediaPlayer.getCurrentPosition() :0;
             // workaround for devices which can't do content-range requests
             if (isNotSeekablePastBuffer() && isPastBuffer(pos)) {
                 Log.d(TAG, "MediaPlayer bug: cannot seek past buffer");
@@ -680,6 +695,9 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "seeking to "+newPos);
                     }
+                    mSeekPos = newPos;
+                    mWaitingForSeek = true;
+                    notifyChange(SEEKING);
                     mMediaPlayer.seekTo((int) newPos);
                 } else {
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -1012,11 +1030,15 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
             switch (what) {
                 case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                    mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
                     state = PAUSED_FOR_BUFFERING;
                     notifyChange(BUFFERING);
                     break;
 
                 case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                    mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
+                    mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
+
                     state = PLAYING;
                     notifyChange(BUFFERING_COMPLETE);
                     break;
@@ -1047,7 +1069,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
                 mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
                 mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
-                resumeSeeking = false;
+                mWaitingForSeek = false;
                 notifyChange(SEEK_COMPLETE);
             }
         }
@@ -1060,8 +1082,10 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             }
             // mediaplayer seems to reset itself to 0 before this is called in certain builds, so if so,
             // pretend it's finished
-            final long targetPosition = (mp.getCurrentPosition() <= 0 && state == PLAYING) ? getDuration()
-                                        : (mSeekPos == -1) ? mp.getCurrentPosition()  : mSeekPos;
+            final long targetPosition = (mSeekPos != -1) ? mSeekPos :
+                                        (mResumeTime > -1 && mResumeTrackId == getTrackId()) ? mResumeTime :
+                                        (mp.getCurrentPosition() <= 0 && state == PLAYING) ? getDuration() : mp.getCurrentPosition();
+
             // premature track end ?
             if (isSeekable() && getDuration() - targetPosition > 3000) {
                 Log.w(TAG, "premature end of track (targetpos="+targetPosition+")");
@@ -1088,15 +1112,13 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 }
                 if (state == PREPARING) {
                     state = PREPARED;
-
                     // do we need to resume a track position ?
                     if (mCurrentTrack.id == mResumeTrackId && mResumeTime > 0) {
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
                             Log.d(TAG, "resuming to "+mResumeTime);
                         }
                         seek(mResumeTime, true);
-                        mResumeTime = mResumeTrackId -1;
-                        resumeSeeking = true;
+                        mResumeTime = mResumeTrackId = -1;
                         play();
 
                     // normal play, unless first start (autopause=true)
