@@ -276,7 +276,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         setProgress(seekTime);
         stopSmoothProgress();
         mWaitingForSeekComplete = true;
-        showWaiting();
+        mHandler.postDelayed(mShowWaiting,500);
     }
 
     public void onSeekComplete(){
@@ -289,10 +289,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
     private void showWaiting() {
         mWaveformHolder.showWaitingLayout(true);
+        mHandler.removeCallbacks(mShowWaiting);
         invalidate();
     }
 
     private void hideWaiting() {
+        mHandler.removeCallbacks(mShowWaiting);
         mWaveformHolder.hideWaitingLayout();
         invalidate();
 
@@ -548,6 +550,12 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     protected void cancelAutoCloseComment() {
         mHandler.removeCallbacks(mAutoCloseComment);
     }
+
+    final Runnable mShowWaiting = new Runnable() {
+        public void run() {
+            showWaiting();
+        }
+    };
 
     final Runnable mAutoCloseComment = new Runnable() {
         public void run() {
