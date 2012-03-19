@@ -168,12 +168,15 @@ public final class IOUtils {
     }
 
     public static boolean fileExistsCaseSensitive(final File f) {
-        return f.exists() && f.getParentFile() != null && f.getParentFile().listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.equals(f.getName());
-            }
-        }).length > 0;
+        if (f != null && f.exists() && f.getParentFile() != null) {
+            File[] files = f.getParentFile().listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.equals(f.getName());
+                }
+            });
+            return files != null && files.length > 0;
+        } else return false;
     }
 
     public static boolean nomedia(File dir) {
