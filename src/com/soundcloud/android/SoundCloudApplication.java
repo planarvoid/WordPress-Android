@@ -35,8 +35,10 @@ import com.soundcloud.api.Stream;
 import com.soundcloud.api.Token;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import android.accounts.Account;
@@ -418,7 +420,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.resolve(uri);
     }
 
-
     public void setToken(Token token) {
         mCloudApi.setToken(token);
     }
@@ -447,12 +448,14 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mCloudApi.setDefaultContentType(contentType);
     }
 
-    @Override
     public HttpClient getHttpClient() {
         return mCloudApi.getHttpClient();
     }
 
-    @Override
+    public HttpResponse safeExecute(HttpHost target, HttpUriRequest request) throws IOException {
+        return mCloudApi.safeExecute(target, request);
+    }
+
     public Stream resolveStreamUrl(String uri, boolean skipLogging) throws IOException {
         return mCloudApi.resolveStreamUrl(uri, skipLogging);
     }
