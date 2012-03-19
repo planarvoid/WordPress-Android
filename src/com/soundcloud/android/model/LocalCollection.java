@@ -55,6 +55,7 @@ public class LocalCollection {
     }
 
     public boolean onSyncComplete(ApiSyncer.Result result, ContentResolver resolver) {
+        if (result == null) return false;
         if (result.synced_at > 0) last_sync = result.synced_at;
         size = result.new_size;
         extra = result.extra;
@@ -166,13 +167,6 @@ public class LocalCollection {
     }
 
 
-    public static void deletePagesFrom(ContentResolver resolver, int collection_id, int page_index) {
-        resolver.delete(Content.COLLECTION_PAGES.uri,
-                DBHelper.CollectionPages.COLLECTION_ID + " = ? AND " + DBHelper.CollectionPages.PAGE_INDEX + " > ?",
-                new String[]{String.valueOf(collection_id), String.valueOf(page_index)});
-
-    }
-
     public void startObservingSelf(ContentResolver contentResolver) {
         mContentResolver = contentResolver;
         mChangeObserver = new ChangeObserver();
@@ -213,8 +207,8 @@ public class LocalCollection {
         if (size != that.size) return false;
         if (sync_state != that.sync_state) return false;
         if (extra != null ? !extra.equals(that.extra) : that.extra != null) return false;
+        //noinspection RedundantIfStatement
         if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
-
         return true;
     }
 

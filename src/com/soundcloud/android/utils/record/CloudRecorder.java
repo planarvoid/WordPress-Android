@@ -325,7 +325,7 @@ public class CloudRecorder {
                     if (readerThread != null) {
                         readerThread.join();
                     }
-                } catch (InterruptedException e) { }
+                } catch (InterruptedException ignored) { }
                 readerThread = null;
 
                 try {
@@ -340,8 +340,6 @@ public class CloudRecorder {
                     Log.e(TAG, "I/O exception occured while closing output file");
                     mState = State.ERROR;
                 }
-
-
             } else {
                 try {
                     mRecorder.stop();

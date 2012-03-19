@@ -110,7 +110,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     @Override public void onScreenChanging(View newScreen, int newScreenIndex) {}
 
     @Override public void onNextScreenVisible(View newScreen, int newScreenIndex) {
-        ((PlayerTrackView) newScreen).setOnScreen(true);
+        if (newScreen instanceof PlayerTrackView) {
+            ((PlayerTrackView) newScreen).setOnScreen(true);
+        }
     }
 
     @Override
