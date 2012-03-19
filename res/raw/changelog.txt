@@ -1,7 +1,8 @@
 $ 41
   % v current
   _ 2012-03
-  ! Undetermined
+  ! Maintenance
+    * Proxy crashes
     * Fixed incorrect track repeats after completion
     * Lockscreen and Notification playback control (still very rough)
     * Spanish

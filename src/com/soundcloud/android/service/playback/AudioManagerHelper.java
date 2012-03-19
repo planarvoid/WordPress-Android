@@ -47,9 +47,8 @@ public class AudioManagerHelper {
 
     private AudioManager mAudioManager;
     private Object mAudioFocusChangeListener, mRemoteControlClient;
-    private MusicFocusable mMusicFocusable;
+    private final MusicFocusable mMusicFocusable;
     private boolean mAudioFocusLost = false;
-    private Track mCurrentTrack;
 
     public static Class<? extends BroadcastReceiver> RECEIVER = RemoteControlReceiver.class;
 
@@ -81,14 +80,10 @@ public class AudioManagerHelper {
     }
 
     public AudioManagerHelper(Context context, MusicFocusable musicFocusable) {
-        if (sClassOnAudioFocusChangeListener != null) {
-            mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            mMusicFocusable = musicFocusable;
-            mAudioFocusChangeListener = createAudioFocusChangeListener();
-        }
+        mMusicFocusable = musicFocusable;
+        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        mAudioFocusChangeListener = createAudioFocusChangeListener();
     }
-
-
 
     public void setPlaybackState(boolean isPlaying) {
         setPlaybackStateCompat(mRemoteControlClient, isPlaying ? PLAYSTATE_PLAYING : PLAYSTATE_PAUSED);
@@ -115,7 +110,6 @@ public class AudioManagerHelper {
     }
 
     protected void applyRemoteMetadata(final Context context, final Track track, final Bitmap bitmap) {
-        mCurrentTrack = track;
         if (mRemoteControlClient == null) getRemoteControlClient();
         setRemoteMetadataCompat(mRemoteControlClient,track, bitmap);
     }
@@ -259,7 +253,7 @@ public class AudioManagerHelper {
         try {
             Constructor<?> c = sClassRemoteControlClient.getDeclaredConstructor(PendingIntent.class);
             c.setAccessible(true);
-            return c.newInstance(new Object[]{pendingIntent});
+            return c.newInstance(pendingIntent);
 
         } catch (NoSuchMethodException e) {
             Log.e(TAG, "unexpected", e);
@@ -279,11 +273,9 @@ public class AudioManagerHelper {
             sUnregisterMediaButtonEventReceiver.invoke(
                     context.getSystemService(Context.AUDIO_SERVICE),
                     new ComponentName(context, RECEIVER));
-            if (remoteControlClient != null){
-                sUnregisterRemoteControlClient.invoke(
-                        context.getSystemService(Context.AUDIO_SERVICE),
-                        remoteControlClient);
-            }
+            sUnregisterRemoteControlClient.invoke(
+                    context.getSystemService(Context.AUDIO_SERVICE),
+                    remoteControlClient);
         } catch (InvocationTargetException ite) {
             Throwable cause = ite.getCause();
             if (cause instanceof RuntimeException) {
@@ -412,7 +404,6 @@ public class AudioManagerHelper {
         } catch (IllegalAccessException e) {
             Log.e(TAG, "IllegalAccessException invoking setPlaybackState.");
         }
-        return;
     }
 
     private static void setTransportControlFlagsCompat(Object remoteControlClient, int flags) {
