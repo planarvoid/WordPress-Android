@@ -128,8 +128,8 @@ public class CreateController {
                 mLastSeekEventTime = 0;
             }
 
-            public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
-                if (!fromuser) return;
+            public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {
+                if (!fromUser || mCreateService == null) return;
                 long now = SystemClock.elapsedRealtime();
                 if ((now - mLastSeekEventTime) > 250) {
                     mLastSeekEventTime = now;

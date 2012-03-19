@@ -48,12 +48,13 @@ public final class IOUtils {
     public static long getDirSize(File dir) {
         long result = 0;
         File[] fileList = dir.listFiles();
-        if (fileList == null) return 0;
-        for (File aFileList : fileList) {
-            if (aFileList.isDirectory()) {
-                result += getDirSize(aFileList);
-            } else {
-                result += aFileList.length();
+        if (fileList != null) {
+            for (File aFileList : fileList) {
+                if (aFileList.isDirectory()) {
+                    result += getDirSize(aFileList);
+                } else {
+                    result += aFileList.length();
+                }
             }
         }
         return result;
@@ -76,18 +77,19 @@ public final class IOUtils {
         if ("file".equals(uri.getScheme())) {
             return new File(uri.getPath());
         } else if ("content".equals(uri.getScheme())) {
-            String[] filePathColumn = {MediaStore.MediaColumns.DATA};
-            Cursor cursor = resolver.query(uri, filePathColumn, null, null, null);
-            if (cursor != null) {
-                try {
-                    if (cursor.moveToFirst()) {
-                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                        String filePath = cursor.getString(columnIndex);
-                        return new File(filePath);
-                    }
-                } finally {
-                    cursor.close();
+            String[] filePathColumn = { MediaStore.MediaColumns.DATA };
+            Cursor cursor = null;
+            try {
+                cursor = resolver.query(uri, filePathColumn, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String filePath = cursor.getString(columnIndex);
+                    return new File(filePath);
                 }
+            } catch (SecurityException ignored) {
+                // nothing to be done
+            } finally {
+                if (cursor != null) cursor.close();
             }
         }
         return null;
@@ -168,12 +170,15 @@ public final class IOUtils {
     }
 
     public static boolean fileExistsCaseSensitive(final File f) {
-        return f.exists() && f.getParentFile() != null && f.getParentFile().listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.equals(f.getName());
-            }
-        }).length > 0;
+        if (f != null && f.exists() && f.getParentFile() != null) {
+            File[] files = f.getParentFile().listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.equals(f.getName());
+                }
+            });
+            return files != null && files.length > 0;
+        } else return false;
     }
 
     public static boolean nomedia(File dir) {

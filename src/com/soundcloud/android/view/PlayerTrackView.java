@@ -581,6 +581,8 @@ public class PlayerTrackView extends LinearLayout implements
             showUnplayable();
         } else if (action.equals(CloudPlaybackService.COMMENTS_LOADED)) {
             mWaveformController.setComments(mTrack.comments, true);
+        } else if (action.equals(CloudPlaybackService.SEEKING)) {
+            mWaveformController.onSeek(intent.getLongExtra(CloudPlaybackService.BroadcastExtras.position, -1));
         } else if (action.equals(CloudPlaybackService.SEEK_COMPLETE)) {
             mWaveformController.onSeekComplete();
         }

@@ -1206,9 +1206,11 @@ public final class ImageLoader {
 
         @Override
         protected Void doInBackground(ImageRequest... requests) {
-            for (ImageRequest request : requests) {
-                if (request.execute()) {
-                    publishProgress(request);
+            if (requests != null && requests.length > 0) {
+                for (ImageRequest request : requests) {
+                    if (request.execute()) {
+                        publishProgress(request);
+                    }
                 }
             }
             return null;
