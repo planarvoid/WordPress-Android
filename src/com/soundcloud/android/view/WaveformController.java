@@ -271,6 +271,14 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
+    public void onSeek(long seekTime){
+        setProgressInternal(seekTime);
+        setProgress(seekTime);
+        stopSmoothProgress();
+        mWaitingForSeekComplete = true;
+        showWaiting();
+    }
+
     public void onSeekComplete(){
         stopSmoothProgress();
         mWaitingForSeekComplete = false;
@@ -796,11 +804,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
 
                 case UI_SEND_SEEK:
                     if (mPlayer != null && mPlayer.isSeekable()){
-                        mWaitingForSeekComplete = true;
-                        seekTime = mPlayer.sendSeek(mSeekPercent);
-                        setProgressInternal(seekTime);
-                        setProgress(seekTime);
-                        stopSmoothProgress();
+                        mPlayer.sendSeek(mSeekPercent);
                     }
                     mPlayerTouchBar.clearSeek();
                     break;

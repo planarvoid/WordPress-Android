@@ -55,6 +55,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -444,7 +445,11 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
     public void safeShowDialog(int dialogId) {
         if (!isFinishing()) {
-            showDialog(dialogId);
+            try {
+                showDialog(dialogId);
+            } catch (WindowManager.BadTokenException ignored) {
+                // the !isFinishing() check should prevent these - but not always
+            }
         }
     }
 
