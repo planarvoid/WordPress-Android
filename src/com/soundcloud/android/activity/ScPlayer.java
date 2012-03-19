@@ -298,13 +298,16 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             setTrackDisplayFromService();
 
             if (getIntent().getBooleanExtra("commentMode", false)) {
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        toggleCommentMode(getCurrentTrackView().getPlayPosition());
-                    }
-                }, 200l);
-                getIntent().putExtra("commentMode", false);
+                final PlayerTrackView view = getCurrentTrackView();
+                if (view != null) {
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            toggleCommentMode(view.getPlayPosition());
+                        }
+                    }, 200l);
+                    getIntent().putExtra("commentMode", false);
+                }
             }
         }
     }
@@ -641,7 +644,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         if (mPlayingTrack != null) mTransportBar.setFavoriteStatus(mPlayingTrack.user_favorite);
     }
 
-    private PlayerTrackView getCurrentTrackView(){
+    private PlayerTrackView getCurrentTrackView() {
         return ((PlayerTrackView) mTrackWorkspace.getScreenAt(mTrackWorkspace.getCurrentScreen()));
     }
 
