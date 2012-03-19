@@ -105,7 +105,7 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public static final int MINIMUM_SMOOTH_PROGRESS_SDK = 9;
     private static final long MINIMUM_PROGRESS_PERIOD = 40;
     private boolean mShowingSmoothProgress;
-    private boolean mShowingWaiting, mIsBuffering, mWaitingForSeekComplete;
+    private boolean mIsBuffering, mWaitingForSeekComplete;
     private int mTouchSlop;
 
 
@@ -259,11 +259,9 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
         }
     }
 
-    public void onBufferingStart(){
+    public void onBufferingStart() {
         mIsBuffering = true;
-        if (!mShowingWaiting){
-            showWaiting();
-        }
+        showWaiting();
     }
 
     public void onBufferingStop(){
@@ -276,19 +274,17 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
     public void onSeekComplete(){
         stopSmoothProgress();
         mWaitingForSeekComplete = false;
-        if (mShowingWaiting && waveformResult != BindResult.LOADING){
+        if (waveformResult != BindResult.LOADING){
             hideWaiting();
         }
     }
 
     private void showWaiting() {
-        mShowingWaiting = true;
         mWaveformHolder.showWaitingLayout(true);
         invalidate();
     }
 
     private void hideWaiting() {
-        mShowingWaiting = false;
         mWaveformHolder.hideWaitingLayout();
         invalidate();
 
@@ -449,13 +445,13 @@ public class WaveformController extends RelativeLayout implements OnTouchListene
                 showWaveform(false);
                 break;
             case LOADING:
-                if (!mShowingWaiting) showWaiting();
+                showWaiting();
                 mOverlay.setVisibility(View.INVISIBLE);
                 //mProgressBar.setVisibility(View.INVISIBLE);
                 mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
                 break;
             case ERROR:
-                if (!mShowingWaiting) showWaiting();
+                showWaiting();
                 mOverlay.setVisibility(View.INVISIBLE);
                 //mProgressBar.setVisibility(View.INVISIBLE);
                 mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
