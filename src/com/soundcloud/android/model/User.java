@@ -15,6 +15,8 @@ import com.soundcloud.android.service.playback.PlaylistManager;
 import com.soundcloud.android.utils.ImageUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentResolver;
@@ -43,7 +45,6 @@ public class User extends ScModel implements  Refreshable, Origin {
     public String country;
 
     public String plan;      // free|lite|solo|pro|pro plus
-    public boolean primary_email_confirmed;
 
     public String website;
     public String website_title;
@@ -62,6 +63,8 @@ public class User extends ScModel implements  Refreshable, Origin {
     @JsonIgnore public boolean user_follower;  // is the user following the logged in user
     @JsonIgnore public boolean user_following; // is the user being followed by the logged in user
     @JsonIgnore public SignupVia via;          // used for tracking
+
+    private Boolean primary_email_confirmed;
 
     public User() {
     }
@@ -124,7 +127,7 @@ public class User extends ScModel implements  Refreshable, Origin {
                 cursor.moveToFirst();
                 String[] keys = cursor.getColumnNames();
                 for (String key : keys) {
-                    if (key.contentEquals("_id")) {
+                    if (key.equals("_id")) {
                         id = cursor.getLong(cursor.getColumnIndex(key));
                     } else {
                         try {
@@ -177,7 +180,7 @@ public class User extends ScModel implements  Refreshable, Origin {
         if (website_title != null) cv.put(Users.WEBSITE_TITLE, website_title);
         if (plan != null) cv.put(Users.PLAN, plan);
         if (private_tracks_count != NOT_SET) cv.put(Users.PRIVATE_TRACKS_COUNT, private_tracks_count);
-        cv.put(Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed  ? 1 : 0);
+        if (primary_email_confirmed != null) cv.put(Users.PRIMARY_EMAIL_CONFIRMED, primary_email_confirmed  ? 1 : 0);
 
         if (isCurrentUser) {
             if (description != null) cv.put(Users.DESCRIPTION, description);
@@ -247,6 +250,16 @@ public class User extends ScModel implements  Refreshable, Origin {
         u.permalink = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_PERMALINK));
         u.avatar_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.USER_AVATAR_URL));
         return u;
+    }
+
+    // setter for deserialization, we want it null if it doesn't exist and to keep it private
+    @JsonProperty("primary_email_confirmed")
+    public void setPrimaryEmailConfirmed(boolean val){
+        primary_email_confirmed = val;
+    }
+
+    public boolean isPrimaryEmailConfirmed() {
+        return primary_email_confirmed == null || primary_email_confirmed;
     }
 
 
@@ -336,6 +349,7 @@ public class User extends ScModel implements  Refreshable, Origin {
         if (user.discogs_name != null) this.discogs_name = user.discogs_name;
         if (user.myspace_name != null) this.myspace_name = user.myspace_name;
         if (user.description != null) this.description = user.description;
+        if (user.primary_email_confirmed != null) this.primary_email_confirmed = user.primary_email_confirmed;
         return this;
     }
 

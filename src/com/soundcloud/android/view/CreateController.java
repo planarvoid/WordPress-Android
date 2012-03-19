@@ -394,7 +394,7 @@ public class CreateController {
     public void onRecordingError() {
         mSampleInterrupted = true;
         mRecordErrorMessage = mActivity.getResources().getString(R.string.error_recording_message);
-        if (mRecordFile.exists()) mRecordFile.delete();
+        IOUtils.deleteFile(mRecordFile);
         mRecordFile = null;
         mCurrentState = CreateState.IDLE_RECORD;
         updateUi(true);
@@ -515,12 +515,12 @@ public class CreateController {
 
         final boolean hiQ = PreferenceManager.getDefaultSharedPreferences(mActivity)
             .getString("defaultRecordingQuality", "high")
-            .contentEquals("high");
+            .equals("high");
 
         if (hiQ && SoundCloudApplication.DEV_MODE
                 && !PreferenceManager.getDefaultSharedPreferences(mActivity)
                         .getString("dev.defaultRecordingHighQualityType", "compressed")
-                        .contentEquals("compressed")) {
+                        .equals("compressed")) {
             //force raw for developer mode
             mAudioProfile = CloudRecorder.Profile.RAW;
         } else  {
@@ -632,7 +632,7 @@ public class CreateController {
             if (mCreateService != null && mRecordFile != null) {
                 // might be loaded and paused already
                 if (TextUtils.isEmpty(mCreateService.getPlaybackPath()) ||
-                    !mCreateService.getPlaybackPath().contentEquals(mRecordFile.getAbsolutePath())) {
+                    !mCreateService.getPlaybackPath().equals(mRecordFile.getAbsolutePath())) {
                     mCreateService.loadPlaybackTrack(mRecordFile.getAbsolutePath());
                 }
                 configurePlaybackInfo();
@@ -858,14 +858,14 @@ public class CreateController {
     }
 
     public static long getPrivateUserIdFromPath(String path){
-        if (!path.contains("_") || path.indexOf("_") + 1 >= path.length()){
+        if (!path.contains("_") || path.indexOf("_") + 1 >= path.length()) {
             return -1;
         } else {
             try {
                 return Long.valueOf(path.substring(path.indexOf("_")+1,path.contains(".") ? path.indexOf(".") : path.length()));
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException ignored) {
 
-            } catch (StringIndexOutOfBoundsException e){
+            } catch (StringIndexOutOfBoundsException ignored) {
 
             }
             return -1;

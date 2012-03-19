@@ -2,6 +2,7 @@ package com.soundcloud.android.cache;
 
 import com.google.android.filecache.ScFileCacheResponse;
 import com.google.android.filecache.FileResponseCache;
+import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.os.AsyncTask;
@@ -12,7 +13,6 @@ import java.net.ResponseCache;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -172,18 +172,7 @@ public class FileCache extends FileResponseCache {
 
             final File[] files = cache.dir.listFiles();
             if (files != null) {
-                Arrays.sort(files, new Comparator<File>() {
-                    public int compare(File f1, File f2) {
-                        long result = f2.lastModified() - f1.lastModified();
-                        if (result > 0) {
-                            return -1;
-                        } else if (result < 0) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
-                    }
-                });
+                Arrays.sort(files, new FiletimeComparator(true));
 
                 int i = 0;
                 while (toTrim > 0 && i < files.length){

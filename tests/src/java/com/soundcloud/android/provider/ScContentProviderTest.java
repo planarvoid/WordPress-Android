@@ -13,16 +13,20 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.accounts.Account;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.PeriodicSync;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.BaseColumns;
 
 import java.io.File;
@@ -384,5 +388,37 @@ public class ScContentProviderTest {
         expect(c.getCount()).toEqual(1);
         expect(c.moveToNext()).toBeTrue();
         expect(c.getLong(c.getColumnIndex(DBHelper.ActivityView.TRACK_ID))).toEqual(cachedId);
+    }
+
+
+    @Test
+    public void shouldEnableSyncing() throws Exception {
+        RobolectricTestRunner.setStaticValue(Build.VERSION.class, "SDK_INT", 8);
+        Account account = new Account("name", "type");
+        ScContentProvider.enableSyncing(account, 3600);
+
+        expect(ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY)).toBeTrue();
+
+        List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, ScContentProvider.AUTHORITY);
+        expect(syncs.size()).toEqual(1);
+
+        final PeriodicSync sync = syncs.get(0);
+        expect(sync.account).toEqual(account);
+        expect(sync.period).toEqual(3600l);
+    }
+
+    @Test
+    public void shouldDisableSyncing() throws Exception {
+        RobolectricTestRunner.setStaticValue(Build.VERSION.class, "SDK_INT", 8);
+        Account account = new Account("name", "type");
+        ScContentProvider.enableSyncing(account, 3600);
+        List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, ScContentProvider.AUTHORITY);
+        expect(syncs.size()).toEqual(1);
+
+        ScContentProvider.disableSyncing(account);
+
+        syncs = ContentResolver.getPeriodicSyncs(account, ScContentProvider.AUTHORITY);
+        expect(syncs.isEmpty()).toBeTrue();
+        expect(ContentResolver.getSyncAutomatically(account, ScContentProvider.AUTHORITY)).toBeFalse();
     }
 }

@@ -206,7 +206,8 @@ public final class DevSettings {
                     context,
                     CloudPlaybackService.class)
                     .setAction(CloudPlaybackService.PLAY)
-                    .setData(uri));
+                    .setData(uri)
+                    .putExtra(CloudPlaybackService.EXTRA_UNMUTE, true));
         }
 
         private Time getAlarmTime(Time now) {

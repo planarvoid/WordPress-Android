@@ -12,7 +12,7 @@ public class Capitalizer implements TextWatcher {
 
     public void afterTextChanged(Editable s) {
         if (s.length() == 1
-        && !s.toString().toUpperCase().contentEquals(s.toString())) {
+        && !s.toString().toUpperCase().equals(s.toString())) {
             text.setTextKeepState(s.toString().toUpperCase());
         }
     }

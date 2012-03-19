@@ -15,6 +15,7 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -114,8 +115,8 @@ public class ApiSyncer {
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
             try {
                 activities = Activities.fetch(mApi, request);
-            } catch (IllegalArgumentException e){
-                // TODO : 10k crashes in 2 weeks, figure out why
+            } catch (ApiWrapper.BrokenHttpClientException e) {
+                SoundCloudApplication.handleSilentException("error during fetch", e);
             }
             if (activities == null || (activities.size() == 1 && activities.get(0).equals(lastActivity))) {
                 // this can happen at the end of the list

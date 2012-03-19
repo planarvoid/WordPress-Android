@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -203,23 +202,5 @@ public class StreamStorageTest {
     public void shouldReturnMissingIndexes() throws Exception {
         Index index = storage.getMissingChunksForItem(item.url.toString(), item.chunkRange(storage.chunkSize));
         expect(index.size()).toEqual(51);
-    }
-
-
-    /** @noinspection ResultOfMethodCallIgnored*/
-    @Test
-    public void testLastModfifiedFileComparator() throws Exception {
-        File f1 = File.createTempFile("test_f1", null);
-        File f2 = File.createTempFile("test_f2", null);
-
-        f1.setLastModified(System.currentTimeMillis());
-        f2.setLastModified(f1.lastModified() + 3000);
-
-        List<File> files = Arrays.asList(f2, f1);
-
-        Collections.sort(files, StreamStorage.FileLastModifiedComparator.INSTANCE);
-
-        expect(files.get(0)).toEqual(f1);
-        expect(files.get(1)).toEqual(f2);
     }
 }

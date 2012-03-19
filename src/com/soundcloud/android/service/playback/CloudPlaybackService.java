@@ -74,6 +74,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     public static final String STOP_ACTION        = "com.soundcloud.android.musicservicecommand.stop";
 
     public static final String EXTRA_FROM_NOTIFICATION  = "com.soundcloud.android.musicserviceextra.fromNotification";
+    public static final String EXTRA_UNMUTE             = "com.soundcloud.android.musicserviceextra.unmute";
 
     public static final String ADD_FAVORITE       = "com.soundcloud.android.favorite.add";
     public static final String REMOVE_FAVORITE    = "com.soundcloud.android.favorite.remove";
@@ -944,6 +945,15 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "handlePlayAction("+intent+")");
         }
+
+        if (intent.getBooleanExtra(EXTRA_UNMUTE, false)) {
+            final int volume = (int) Math.round(
+                    mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+                    * 0.75d);
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setting volume to "+volume);
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
+        }
+
         Track track = intent.getParcelableExtra("track");
         if (track != null) {
             mPlaylistManager.setTrack(track);
@@ -1105,7 +1115,10 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onCompletion(state="+state+")");
             }
-            final long targetPosition = (mSeekPos == -1) ? mMediaPlayer.getCurrentPosition() : mSeekPos;
+            // mediaplayer seems to reset itself to 0 before this is called in certain builds, so if so,
+            // pretend it's finished
+            final long targetPosition = (mp.getCurrentPosition() <= 0 && state == PLAYING) ? getDuration()
+                                        : (mSeekPos == -1) ? mp.getCurrentPosition()  : mSeekPos;
             // premature track end ?
             if (isSeekable() && getDuration() - targetPosition > 3000) {
                 Log.w(TAG, "premature end of track (targetpos="+targetPosition+")");

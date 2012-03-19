@@ -136,11 +136,9 @@ public class UserlistLayout extends RelativeLayout {
     }
 
     private TabLabel findLabel(String tag) {
-        if (tag != null) {
-            for (TabLabel tl : tabLabels) {
-                if (tl != null && tl.tag != null && tl.tag.contentEquals(tag)) {
-                    return tl;
-                }
+        for (TabLabel tl : tabLabels) {
+            if (tl != null && tl.tag != null && tl.tag.equals(tag)) {
+                return tl;
             }
         }
         return null;

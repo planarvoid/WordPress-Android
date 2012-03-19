@@ -104,8 +104,7 @@ public class SyncAdapterService extends Service {
         }
 
         Looper.prepare();
-        syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
-                new ServiceResultReceiver(app, syncResult, extras));
+        syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ServiceResultReceiver(app, syncResult, extras));
         app.startService(syncIntent);
         Looper.loop();
         return syncIntent;
