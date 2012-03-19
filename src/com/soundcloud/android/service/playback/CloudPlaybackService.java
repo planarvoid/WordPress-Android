@@ -1058,7 +1058,10 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onCompletion(state="+state+")");
             }
-            final long targetPosition = (mSeekPos == -1) ? mMediaPlayer.getCurrentPosition() : mSeekPos;
+            // mediaplayer seems to reset itself to 0 before this is called in certain builds, so if so,
+            // pretend it's finished
+            final long targetPosition = (mp.getCurrentPosition() <= 0 && state == PLAYING) ? getDuration()
+                                        : (mSeekPos == -1) ? mp.getCurrentPosition()  : mSeekPos;
             // premature track end ?
             if (isSeekable() && getDuration() - targetPosition > 3000) {
                 Log.w(TAG, "premature end of track (targetpos="+targetPosition+")");
