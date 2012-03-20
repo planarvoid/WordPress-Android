@@ -1,5 +1,13 @@
-$ 38
+$ 40
   % v current
+  _ 2012-03-16
+  ! Maintenance
+    * Fixed crashes for certain versions of HTTPClient
+    * Fixed email confirmation nag
+    - Upgraded java-api-wrapper
+
+$ 39
+  % v 2.2.4
   _ 2012-03-12
   ! Maintenance
     * refreshing streams to get rid of incorrect items
@@ -32,7 +40,7 @@ $ 35
     * Push notifications for followers
     - AT Internet tracking
 
-$ 34
+$ 34                                                                                                                  x
   % v 2.2.0
   _ 2012-02-14
   ! Valentine's special

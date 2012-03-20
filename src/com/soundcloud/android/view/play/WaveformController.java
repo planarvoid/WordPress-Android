@@ -98,7 +98,7 @@ public class WaveformController extends TouchLayout {
     public static final int MINIMUM_SMOOTH_PROGRESS_SDK = 9;
     private static final long MINIMUM_PROGRESS_PERIOD = 40;
     private boolean mShowingSmoothProgress;
-    private boolean mShowingWaiting, mIsBuffering, mWaitingForSeekComplete;
+    private boolean mIsBuffering, mWaitingForSeekComplete;
     private int mTouchSlop;
 
 
@@ -244,11 +244,9 @@ public class WaveformController extends TouchLayout {
         }
     }
 
-    public void onBufferingStart(){
+    public void onBufferingStart() {
         mIsBuffering = true;
-        if (!mShowingWaiting){
-            showWaiting();
-        }
+        showWaiting();
     }
 
     public void onBufferingStop(){
@@ -258,22 +256,30 @@ public class WaveformController extends TouchLayout {
         }
     }
 
+    public void onSeek(long seekTime){
+        setProgressInternal(seekTime);
+        setProgress(seekTime);
+        stopSmoothProgress();
+        mWaitingForSeekComplete = true;
+        mHandler.postDelayed(mShowWaiting,500);
+    }
+
     public void onSeekComplete(){
         stopSmoothProgress();
         mWaitingForSeekComplete = false;
-        if (mShowingWaiting && waveformResult != BindResult.LOADING){
+        if (waveformResult != BindResult.LOADING){
             hideWaiting();
         }
     }
 
     private void showWaiting() {
-        mShowingWaiting = true;
         mWaveformHolder.showWaitingLayout(true);
+        mHandler.removeCallbacks(mShowWaiting);
         invalidate();
     }
 
     private void hideWaiting() {
-        mShowingWaiting = false;
+        mHandler.removeCallbacks(mShowWaiting);
         mWaveformHolder.hideWaitingLayout();
         invalidate();
 
@@ -434,13 +440,13 @@ public class WaveformController extends TouchLayout {
                 showWaveform(false);
                 break;
             case LOADING:
-                if (!mShowingWaiting) showWaiting();
+                showWaiting();
                 mOverlay.setVisibility(View.INVISIBLE);
                 //mProgressBar.setVisibility(View.INVISIBLE);
                 mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
                 break;
             case ERROR:
-                if (!mShowingWaiting) showWaiting();
+                showWaiting();
                 mOverlay.setVisibility(View.INVISIBLE);
                 //mProgressBar.setVisibility(View.INVISIBLE);
                 mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
@@ -506,6 +512,12 @@ public class WaveformController extends TouchLayout {
     protected void cancelAutoCloseComment() {
         mHandler.removeCallbacks(mAutoCloseComment);
     }
+
+    final Runnable mShowWaiting = new Runnable() {
+        public void run() {
+            showWaiting();
+        }
+    };
 
     final Runnable mAutoCloseComment = new Runnable() {
         public void run() {
@@ -750,11 +762,7 @@ public class WaveformController extends TouchLayout {
 
                 case UI_SEND_SEEK:
                     if (mPlayer != null && mPlayer.isSeekable()){
-                        mWaitingForSeekComplete = true;
-                        seekTime = mPlayer.sendSeek(mSeekPercent);
-                        setProgressInternal(seekTime);
-                        setProgress(seekTime);
-                        stopSmoothProgress();
+                        mPlayer.sendSeek(mSeekPercent);
                     }
                     mPlayerTouchBar.clearSeek();
                     break;

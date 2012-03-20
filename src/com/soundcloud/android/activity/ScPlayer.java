@@ -110,7 +110,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     @Override public void onScreenChanging(View newScreen, int newScreenIndex) {}
 
     @Override public void onNextScreenVisible(View newScreen, int newScreenIndex) {
-        ((PlayerTrackView) newScreen).setOnScreen(true);
+        if (newScreen instanceof PlayerTrackView) {
+            ((PlayerTrackView) newScreen).setOnScreen(true);
+        }
     }
 
     @Override
@@ -298,13 +300,16 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             setTrackDisplayFromService();
 
             if (getIntent().getBooleanExtra("commentMode", false)) {
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        toggleCommentMode(getCurrentTrackView().getPlayPosition());
-                    }
-                }, 200l);
-                getIntent().putExtra("commentMode", false);
+                final PlayerTrackView view = getCurrentTrackView();
+                if (view != null) {
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            toggleCommentMode(view.getPlayPosition());
+                        }
+                    }, 200l);
+                    getIntent().putExtra("commentMode", false);
+                }
             }
         }
     }
@@ -521,6 +526,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         f.addAction(CloudPlaybackService.BUFFERING);
         f.addAction(CloudPlaybackService.BUFFERING_COMPLETE);
         f.addAction(CloudPlaybackService.COMMENTS_LOADED);
+        f.addAction(CloudPlaybackService.SEEKING);
         f.addAction(CloudPlaybackService.SEEK_COMPLETE);
         f.addAction(CloudPlaybackService.FAVORITE_SET);
         f.addAction(Actions.COMMENT_ADDED);
@@ -641,7 +647,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         if (mPlayingTrack != null) mTransportBar.setFavoriteStatus(mPlayingTrack.user_favorite);
     }
 
-    private PlayerTrackView getCurrentTrackView(){
+    private PlayerTrackView getCurrentTrackView() {
         return ((PlayerTrackView) mTrackWorkspace.getScreenAt(mTrackWorkspace.getCurrentScreen()));
     }
 

@@ -12,9 +12,8 @@ public class FriendFinderAdapter extends SectionedUserlistAdapter {
         super(activity);
     }
     @Override public void addItem(int index, Parcelable newItem) {
-        if (!FollowStatus.get().isFollowing(newItem instanceof Friend ? ((Friend)newItem).user.id : ((User) newItem).id)){
+        if (!FollowStatus.get().isFollowing(newItem instanceof Friend ? ((Friend)newItem).user : ((User) newItem))) {
             getData(index).add(newItem);
         }
     }
-
 }

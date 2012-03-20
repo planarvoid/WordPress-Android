@@ -3,6 +3,7 @@ package com.soundcloud.android.streaming;
 import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 
@@ -368,7 +369,7 @@ public class StreamStorage {
         if (spaceToClean > 0) {
             if (Log.isLoggable(LOG_TAG, Log.DEBUG))
                 Log.d(LOG_TAG, String.format("performing cleanup, need to free %.1f mb", spaceToClean/(1024d*1024d)));
-            final List<File> files = allFiles(FileLastModifiedComparator.INSTANCE);
+            final List<File> files = allFiles(new FiletimeComparator(true));
             long cleanedSpace = 0;
             for (File f : files) {
                 final long length = f.length();
@@ -438,14 +439,6 @@ public class StreamStorage {
 
             Log.w(LOG_TAG, "eTag don't match, removing cached data");
             removeAllDataForItem(item.url.toString());
-        }
-    }
-
-    /* package */ static class FileLastModifiedComparator implements Comparator<File> {
-        static final FileLastModifiedComparator INSTANCE = new FileLastModifiedComparator();
-        @Override
-        public int compare(File f1, File f2) {
-            return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
         }
     }
 

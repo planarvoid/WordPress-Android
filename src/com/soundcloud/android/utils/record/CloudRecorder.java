@@ -171,7 +171,6 @@ public class CloudRecorder {
                     mWriter.close();
                     mWriter = null;
                 }
-
             } catch (IOException e) {
                 Log.e(TAG, "I/O exception occured while closing output file");
                 mState = State.ERROR;

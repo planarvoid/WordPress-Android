@@ -127,8 +127,12 @@ public class SignupDetails extends Activity {
             }
 
             @Override protected void onPostExecute(User user) {
-                if (!isFinishing()){
-                    if (dialog != null) dialog.dismiss();
+                if (!isFinishing()) {
+                    try {
+                        if (dialog != null) dialog.dismiss();
+                    } catch (IllegalArgumentException ignored) {
+                    }
+
                     if (user != null) {
                         finishSignup();
                     } else {

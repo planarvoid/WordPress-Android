@@ -84,7 +84,7 @@ public class Main extends TabActivity implements
         if (IOUtils.isConnected(this) &&
             app.getAccount() != null &&
             app.getToken().valid() &&
-            !app.getLoggedInUser().primary_email_confirmed &&
+            !app.getLoggedInUser().isPrimaryEmailConfirmed() &&
             !justAuthenticated(getIntent()))
         {
                 checkEmailConfirmed(app);
@@ -140,7 +140,7 @@ public class Main extends TabActivity implements
     private void checkEmailConfirmed(final SoundCloudApplication app) {
         (new FetchUserTask(app) {
             @Override protected void onPostExecute(User user) {
-                if (user == null || user.primary_email_confirmed) {
+                if (user == null || user.isPrimaryEmailConfirmed()) {
                     dismissSplash();
                 } else {
                     startActivityForResult(
@@ -269,8 +269,8 @@ public class Main extends TabActivity implements
             // TODO put this code under test
             // only handle the first 2 path segments (resource only for now, actions to be implemented later)
             int cutoff = 0;
-            if (data.getPathSegments().size() > 1 && (data.getPathSegments().get(1).contentEquals("follow")
-                    || data.getPathSegments().get(1).contentEquals("favorite"))){
+            if (data.getPathSegments().size() > 1 && (data.getPathSegments().get(1).equals("follow")
+                    || data.getPathSegments().get(1).equals("favorite"))){
                 cutoff = 1;
             } else if (data.getPathSegments().size() > 2){
                 cutoff = 2;

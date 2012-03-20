@@ -15,6 +15,7 @@ import com.soundcloud.api.Token;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.module.SimpleModule;
@@ -132,6 +133,7 @@ public interface AndroidCloudAPI extends CloudAPI {
             return new ObjectMapper() {
                 {
                     configure(SerializationConfig.Feature.DEFAULT_VIEW_INCLUSION, false);
+                    configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                     setDateFormat(new CloudDateFormat());
                 }
             };
