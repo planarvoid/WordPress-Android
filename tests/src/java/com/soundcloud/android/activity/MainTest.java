@@ -63,13 +63,13 @@ public class MainTest {
 
     @Test
     public void shouldHandleViewUrlIntent() throws Exception {
-        addHttpResponseRule("GET", "/resolve?url=https%3A%2F%2Fsoundcloud.com%2Ftracks%2Fsometrack",
+        addHttpResponseRule("GET", "/resolve?url=http%3A%2F%2Fsoundcloud.com%2Ftracks%2Fsometrack",
                 new TestHttpResponse(302, "", new BasicHeader("Location", "https://api.soundcloud.com/tracks/12345")));
 
         TestHelper.addCannedResponse(getClass(), "/tracks/12345", "track.json");
 
         main.handleViewUrl(new Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://soundcloud.com/tracks/sometrack")));
+                Uri.parse("http://soundcloud.com/tracks/sometrack")));
 
         expect(error).toBeFalse();
         expect(resolved.toString()).toEqual("https://api.soundcloud.com/tracks/12345");
@@ -139,16 +139,16 @@ public class MainTest {
     @Test
     public void shouldResolveTrackUrlsWithSecretToken() throws Exception {
 
-        addHttpResponseRule("GET", "/resolve?url=https%3A%2F%2Fsoundcloud.com%2Ftracks%2Fsometrack%2Fs-SECRET",
-                new TestHttpResponse(302, "", new BasicHeader("Location", "https://api.soundcloud.com/tracks/12345")));
+        addHttpResponseRule("GET", "/resolve?url=http%3A%2F%2Fsoundcloud.com%2Ftracks%2Fsometrack%2Fs-SECRET",
+                new TestHttpResponse(302, "", new BasicHeader("Location", "https://api.soundcloud.com/tracks/12345?secret_token=s-SECRET")));
 
-        TestHelper.addCannedResponse(getClass(), "/tracks/12345", "track.json");
+        TestHelper.addCannedResponse(getClass(), "/tracks/12345?secret_token=s-SECRET", "track.json");
 
         main.handleViewUrl(new Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://soundcloud.com/tracks/sometrack/s-SECRET")));
+                Uri.parse("http://soundcloud.com/tracks/sometrack/s-SECRET")));
 
         expect(error).toBeFalse();
-        expect(resolved.toString()).toEqual("https://api.soundcloud.com/tracks/12345");
+        expect(resolved.toString()).toEqual("https://api.soundcloud.com/tracks/12345?secret_token=s-SECRET");
         expect(action).toBeNull();
         expect(track).not.toBeNull();
         expect(track.id).toEqual(12345L);
