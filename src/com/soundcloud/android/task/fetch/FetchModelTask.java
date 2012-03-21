@@ -52,8 +52,8 @@ public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Re
     @Override
     protected void onPostExecute(Model result) {
         if (result != null) {
-            if (mListenerWeakReferences != null){
-                for (WeakReference<FetchModelListener> listenerRef : mListenerWeakReferences){
+            if (mListenerWeakReferences != null) {
+                for (WeakReference<FetchModelListener> listenerRef : mListenerWeakReferences) {
                     FetchModelListener listener = listenerRef.get();
                     if (listener != null){
                         listener.onSuccess(result, action);
@@ -62,7 +62,7 @@ public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Re
             }
         } else {
             if (mListenerWeakReferences != null){
-                for (WeakReference<FetchModelListener> listenerRef : mListenerWeakReferences){
+                for (WeakReference<FetchModelListener> listenerRef : mListenerWeakReferences) {
                     FetchModelListener listener = listenerRef.get();
                     if (listener != null){
                         listener.onError(mModelId);

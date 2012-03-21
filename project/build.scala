@@ -33,6 +33,7 @@ object AndroidBuild extends Build {
 
   val testDependencies = Seq(
     "com.pivotallabs" % "robolectric" % "1.1-SNAPSHOT" % "test",
+    "com.google.android" % "support-v4" % "r6" % "test",
     "junit" % "junit-dep" % "4.9" % "test",
     "org.mockito" % "mockito-core" % "1.8.5" % "test",
     "org.hamcrest" % "hamcrest-core" % "1.1" % "test",
@@ -42,6 +43,10 @@ object AndroidBuild extends Build {
     "org.scala-lang" % "scala-compiler" % "2.9.1" % "test"
   )
 
+  val integrationTestDependencies = Seq(
+    "com.jayway.android.robotium" % "robotium-solo" % "3.1" % "int"
+  )
+
   val repos = Seq(
     MavenRepository("sc int repo", "http://files.int.s-cloud.net/maven/"),
     MavenRepository("acra release repository", "http://acra.googlecode.com/svn/repository/releases"),
@@ -49,24 +54,48 @@ object AndroidBuild extends Build {
     MavenRepository("sonatype releases", "https://oss.sonatype.org/content/repositories/releases")
   )
 
+  // the main project
   lazy val soundcloud_android = Project (
     "soundcloud-android",
     file("."),
     settings = General.androidProjectSettings ++ Seq (
-      keyalias in Android := "jons keystore",
-      keystorePath in Android <<= (baseDirectory) (_ / "soundcloud_sign" / "soundcloud.ks"),
-      githubRepo in Android := "soundcloud/SoundCloud-Android",
-      cachePasswords in Android := true,
-      unmanagedBase <<= baseDirectory / "lib-unmanaged",
       libraryDependencies ++= coreDependencies ++ testDependencies,
-      resolvers ++= repos,
-      compileOrder := CompileOrder.JavaThenScala,
-      javaSource in Test <<= (baseDirectory) (_ / "tests" / "src" / "java"),
-      scalaSource in Test <<= (baseDirectory) (_ / "tests" / "src" / "scala"),
-      resourceDirectory in Test <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
-      parallelExecution in Test := false,
-      unmanagedClasspath in Test <<= (unmanagedClasspath in Test) map (cp => Seq.empty)
+      resolvers          ++= repos,
+      compileOrder       := CompileOrder.JavaThenScala,
+      keyalias           in Android := "jons keystore",
+      keystorePath       in Android <<= (baseDirectory) (_ / "soundcloud_sign" / "soundcloud.ks"),
+      githubRepo         in Android := "soundcloud/SoundCloud-Android",
+      cachePasswords     in Android := true,
+      javaSource         in Test <<= (baseDirectory) (_ / "tests" / "src" / "java"),
+      scalaSource        in Test <<= (baseDirectory) (_ / "tests" / "src" / "scala"),
+      resourceDirectory  in Test <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
+      parallelExecution  in Test := false,
+      unmanagedClasspath in Test := Seq.empty,
+      unmanagedBase      <<= baseDirectory / "lib-unmanaged" // make sure dl'ed libs don't get picked up
     ) ++ AndroidInstall.settings
       ++ Mavenizer.settings
   )
-}
+
+  // integration tests
+  lazy val Integration = config("int")
+  lazy val soundcloud_android_tests = Project (
+    "soundcloud-android-tests",
+    file("tests-integration"),
+    settings = General.settings ++
+               AndroidTest.settings ++ Seq(
+      name:= "Integration tests",
+      libraryDependencies ++= integrationTestDependencies,
+      resolvers ++= repos,
+      javaSource     in Compile <<= (baseDirectory) (_ / "src" / "java"),
+      mainResPath    in Android <<= (baseDirectory, resDirectoryName in Android) (_ / _) map (x=>x),
+      manifestPath   in Android <<= (baseDirectory, manifestName in Android) map((s,m) => Seq(s / m)) map (x=>x),
+      useProguard    in Android := false,
+      proguardInJars in Android := Seq.empty,
+      dxInputs in Android <<= (compile in Compile, managedClasspath in Integration, classDirectory in Compile) map {
+          (_, managedClasspath, classDirectory) => managedClasspath.map(_.data) :+ classDirectory
+      },
+      managedClasspath in Compile <<= managedClasspath in Integration
+    )
+  ).configs(Integration)
+   .settings(inConfig(Integration)(Defaults.testSettings) : _*)
+   .dependsOn(soundcloud_android) }
