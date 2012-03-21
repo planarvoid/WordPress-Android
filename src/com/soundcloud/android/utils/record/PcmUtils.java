@@ -15,4 +15,16 @@ public class PcmUtils {
     public static long byteToMs(long bytePos, int bytesPerSecond){
         return (1000*bytePos)/(bytesPerSecond);
     }
+
+    public static long msToByte(long ms){
+        return msToByte(ms, HIGH_QUALITY_STEREO_BYTES_PER_SECOND);
+    }
+
+    public static long msToByte(long ms, int sampleRate, int bytesPerSample, int numChannels){
+        return msToByte(ms,sampleRate*bytesPerSample*numChannels);
+    }
+
+    public static long msToByte(long ms, int bytesPerSecond){
+        return ms*bytesPerSecond/1000;
+    }
 }

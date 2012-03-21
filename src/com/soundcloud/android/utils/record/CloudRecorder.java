@@ -178,7 +178,6 @@ public class CloudRecorder {
             }
         }
 
-
         // stop reading as well, since we will go into playback mode now
         // this takes ~300 ms, so thread it low priority
         Thread stopThread = new Thread(new Runnable() {

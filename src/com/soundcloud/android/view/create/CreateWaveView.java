@@ -12,6 +12,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Shader;
+import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -53,6 +54,7 @@ public class CreateWaveView extends View{
     private double[] mRealAmplitudes;
 
     private TransitionListener mTransitionListener;
+
     public interface TransitionListener {
         void onFull();
         void onZoom();
@@ -116,9 +118,7 @@ public class CreateWaveView extends View{
         nextBufferX = 0;
         mMode = MODE_ZOOM;
         mInEditMode = false;
-
-        mTrimLeft = -1;
-        mTrimRight = getWidth();
+        resetTrim();
 
         if (bitmap != null) {
             bitmap.recycle();
@@ -127,6 +127,12 @@ public class CreateWaveView extends View{
 
         postInvalidate();
     }
+
+    public void resetTrim() {
+        mTrimLeft = -1;
+        mTrimRight = getWidth();
+    }
+
 
     public void setInEditMode(boolean inEditMode) {
         mInEditMode = inEditMode;
@@ -200,7 +206,6 @@ public class CreateWaveView extends View{
     }
 
     private void drawFullWave(Canvas c) {
-
         float normalizedTime = Math.min(1.0f,(((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
 

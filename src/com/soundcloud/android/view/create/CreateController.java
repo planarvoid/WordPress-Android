@@ -33,6 +33,7 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -227,36 +228,42 @@ public class CreateController implements CreateWaveDisplay.Listener {
         mSaveButton = (Button) vg.findViewById(R.id.btn_save);
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mActivity.track(Click.Record_next);
-                if (mRecording == null) {
-                    Recording r = new Recording(mRecordFile);
-                    r.user_id = mActivity.getCurrentUserId();
-                    if (mPrivateUser != null) {
-                        SoundCloudDB.upsertUser(mActivity.getContentResolver(),
-                                mPrivateUser
-                        );
-                        r.private_user_id = mPrivateUser.id;
-                        r.is_private = true;
-                    }
-
-                    try { // set duration because ogg files report incorrect
-                        // duration in mediaplayer if playback is attempted
-                        // after encoding
-                        r.duration = mActivity.getCreateService().getPlaybackDuration();
-                    } catch (RemoteException ignored) {
-                    }
-
-                    Uri newRecordingUri = mActivity.getContentResolver().insert(Content.RECORDINGS.uri, r.buildContentValues());
-                    mRecording = r;
-                    mRecording.id = Long.parseLong(newRecordingUri.getLastPathSegment());
-
-                    if (mCreateListener != null) {
-                        mCreateListener.onSave(newRecordingUri, mRecording, true);
-                    }
+                if (isInEditState()) {
+                    mCurrentState = CreateState.IDLE_PLAYBACK;
+                    updateUi(true);
                 } else {
-                    //start for result, because if an upload starts, finish, playback should not longer be possible
-                    if (mCreateListener != null) {
-                        mCreateListener.onSave(mRecording.toUri(), mRecording, false);
+
+                    mActivity.track(Click.Record_next);
+                    if (mRecording == null) {
+                        Recording r = new Recording(mRecordFile);
+                        r.user_id = mActivity.getCurrentUserId();
+                        if (mPrivateUser != null) {
+                            SoundCloudDB.upsertUser(mActivity.getContentResolver(),
+                                    mPrivateUser
+                            );
+                            r.private_user_id = mPrivateUser.id;
+                            r.is_private = true;
+                        }
+
+                        try { // set duration because ogg files report incorrect
+                            // duration in mediaplayer if playback is attempted
+                            // after encoding
+                            r.duration = mActivity.getCreateService().getPlaybackDuration();
+                        } catch (RemoteException ignored) {
+                        }
+
+                        Uri newRecordingUri = mActivity.getContentResolver().insert(Content.RECORDINGS.uri, r.buildContentValues());
+                        mRecording = r;
+                        mRecording.id = Long.parseLong(newRecordingUri.getLastPathSegment());
+
+                        if (mCreateListener != null) {
+                            mCreateListener.onSave(newRecordingUri, mRecording, true);
+                        }
+                    } else {
+                        //start for result, because if an upload starts, finish, playback should not longer be possible
+                        if (mCreateListener != null) {
+                            mCreateListener.onSave(mRecording.toUri(), mRecording, false);
+                        }
                     }
                 }
             }
@@ -516,6 +523,9 @@ public class CreateController implements CreateWaveDisplay.Listener {
                     switch (mLastState) {
                         case RECORD: stopRecording(); break;
                         case PLAYBACK:
+                        case EDIT:
+                        case EDIT_PLAYBACK:
+                            mWaveDisplay.resetTrim();
                             try {
                                 if (mCreateService != null && mCreateService.isPlayingBack())  {
                                     mCreateService.pausePlayback();
@@ -686,7 +696,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                     break;
             }
 
-            mCurrentState = CreateState.IDLE_PLAYBACK;
+            mCurrentState = mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK;
             updateUi(true);
             return;
         }
@@ -765,7 +775,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
     private void onPlaybackComplete(){
         mHandler.removeCallbacks(mSmoothProgress);
         if (mCurrentState == CreateState.PLAYBACK || mCurrentState == CreateState.EDIT_PLAYBACK) {
-            mCurrentState = mCurrentState == CreateState.PLAYBACK ? CreateState.IDLE_PLAYBACK : CreateState.EDIT;
+            mCurrentState = mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK;
             loadPlaybackTrack();
             updateUi(true);
         }
@@ -991,7 +1001,10 @@ public class CreateController implements CreateWaveDisplay.Listener {
             } else if (action.equals(CloudCreateService.RECORD_ERROR)) {
                 onRecordingError();
             } else if (action.equals(CloudCreateService.PLAYBACK_STARTED)) {
+                mLastTrackTime = intent.getLongExtra("position",0);
+                mLastProgressTimestamp = System.currentTimeMillis();
                 mHandler.postDelayed(mSmoothProgress, 0);
+
             } else if (action.equals(CloudCreateService.PLAYBACK_COMPLETE) || action.equals(CloudCreateService.PLAYBACK_ERROR)) {
                 if (shouldReactToPath(intent.getStringExtra("path"))) {
                     onPlaybackComplete();

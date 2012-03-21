@@ -21,6 +21,7 @@ public class RawAudioPlayer {
     private static final int SAMPLE_RATE = 44100;
     private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_CONFIGURATION_STEREO;
     private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    public static final int TRIM_PREVIEW_LENGTH = 500;
 
     private PlayRawAudioTask mPlayRawAudioTask;
     private File mFile;
@@ -45,6 +46,11 @@ public class RawAudioPlayer {
         return mCurrentProgress;
     }
 
+    public void resetPlaybackBounds() {
+        mStartPos = 0;
+        mEndPos = mTotalBytes;
+    }
+
     public interface PlaybackListener {
         void onPlaybackStart();
         void onPlaybackStopped();
@@ -62,9 +68,11 @@ public class RawAudioPlayer {
             FileInputStream fin = new FileInputStream(f);
             WaveHeader waveHeader = new WaveHeader();
             waveHeader.read(fin);
-            mEndPos = mTotalBytes = waveHeader.getNumBytes();
-            mFile = f;
-
+            if (mFile == f || mTotalBytes != waveHeader.getNumBytes() ){
+                mTotalBytes = waveHeader.getNumBytes();
+                mFile = f;
+                resetPlaybackBounds();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             mFile = null;
@@ -176,12 +184,16 @@ public class RawAudioPlayer {
 
     public void onNewStartPosition(float percent) {
         mStartPos = getValidBytePos((long) (percent * mTotalBytes));
-        if (mCurrentProgress < mStartPos && mPlaying) seekTo(mStartPos);
+        if (mPlaying){
+            seekTo(mStartPos);
+        }
     }
 
     public void onNewEndPosition(float percent) {
         mEndPos = getValidBytePos((long) (percent * mTotalBytes));
-        if (mCurrentProgress > mEndPos && mPlaying) stop();
+        if (mPlaying){
+            seekTo(Math.max(mStartPos, mEndPos - PcmUtils.msToByte(TRIM_PREVIEW_LENGTH)));
+        }
     }
 
     private long getValidBytePos(long in){

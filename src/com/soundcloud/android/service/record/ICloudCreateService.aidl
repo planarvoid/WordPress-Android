@@ -21,6 +21,8 @@ interface ICloudCreateService
   void seekTo(float position);
   String getPlaybackPath();
   long getPlaybackLocalId();
+  void processFile();
+  void revertFile();
   boolean startUpload(in Upload upload);
   boolean isUploading();
   void cancelUpload();

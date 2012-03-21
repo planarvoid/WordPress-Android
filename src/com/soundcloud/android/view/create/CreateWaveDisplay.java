@@ -299,6 +299,12 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         mWaveformView.gotoPlaybackMode();
     }
 
+    public void resetTrim(){
+        trimPercentLeft = 0.0f;
+        trimPercentRight = 1.0f;
+        mWaveformView.resetTrim();
+    }
+
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
         mWaveformView.updateAmplitude(maxAmplitude, isRecording);
     }

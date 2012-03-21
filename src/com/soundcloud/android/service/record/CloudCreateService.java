@@ -339,6 +339,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     public void onPlaybackStart() {
         Intent i = new Intent(PLAYBACK_STARTED);
         i.putExtra("path", mPlaybackFile.getAbsolutePath());
+        i.putExtra("position", mPlayer.getCurrentPlaybackPosition());
         sendBroadcast(i);
     }
 
@@ -430,6 +431,21 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         return mPlayer.getCurrentProgressPercent();
     }
 
+    /**
+     * Process trimming, normalization, fades, etc
+     */
+    public void processFile() {
+        // for now just revert trim
+        mPlayer.resetPlaybackBounds();
+    }
+
+    /**
+     * Revert edited file to original form
+     */
+    public void revertFile() {
+        mPlayer.resetPlaybackBounds();
+    }
+
     @SuppressWarnings("unchecked")
     /* package */  boolean startUpload(final Upload upload) {
         if (mCurrentUpload!= null && mCurrentUpload.upload_status == Upload.UploadStatus.UPLOADING) return false;
@@ -482,8 +498,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         startForeground(UPLOAD_NOTIFY_ID, mUploadNotification);
         return true;
     }
-
-
 
     private class EncodeOggTask extends OggEncoderTask<UploadTask.Params, UploadTask.Params> {
         private String eventString;

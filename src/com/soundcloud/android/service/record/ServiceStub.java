@@ -162,4 +162,16 @@ class ServiceStub extends ICloudCreateService.Stub {
         return service != null ? service.getPlaybackLocalId() : 0;
     }
 
+    @Override
+    public void processFile() throws RemoteException {
+        final CloudCreateService service = mService.get();
+        if (service != null) service.processFile();
+    }
+
+    @Override
+    public void revertFile() throws RemoteException {
+        final CloudCreateService service = mService.get();
+        if (service != null) service.revertFile();
+    }
+
 }
