@@ -27,7 +27,7 @@ Based on `build.scala` you can regenerate the `pom.xml` using `sbt mavenize`. To
 actually download the dependencies to your working directory use `mvn
 process-resources -U`, this will populate `lib/` and `tests/lib`.
 
-## Releasing
+## Releasing (Android market)
 
   * Make sure build is green (cf [Builder][])
   * For major releases - install previous market version and test upgrade process
@@ -40,6 +40,26 @@ process-resources -U`, this will populate `lib/` and `tests/lib`.
   * Upload `target/soundcloud-android-x.y.z-market.apk` to the market
   * Important: upload apk to github for archival: `sbt android:github-upload`
   * Release a beta with the same version code used in the release process
+
+## Releasing (Amazon Appstore)
+
+Amazon requires an unsigned apk - they then add some DRM/monitoring/lolcat code to the binary
+and require us to sign the processed apk with our private key.
+
+To create an unsigned apk:
+
+    $ sbt android:package-release
+    ...
+    [info] Packaging /Users/jan/projects/soundcloud-android/target/soundcloud-android-2.2.5.apk
+
+The processed apk from Amazon needs to be signed and zipaligned before uploading to Amazon.
+Copy apk received from Amzazon to `target/soundcloud-android-x.y.z.apk`, then run:
+
+    $ sbt android:prepare-amazon
+    [info] Aligned /Users/jan/projects/soundcloud-android/target/soundcloud-android-2.2.5-market.apk
+    [info] Signed /Users/jan/projects/soundcloud-android/target/soundcloud-android-2.2.5.apk
+
+`soundcloud-android-x.y.z-market.apk` can now be uploaded to the Appstore.
 
 ## Releasing betas
 
