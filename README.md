@@ -48,7 +48,7 @@ and require us to sign the processed apk with our private key.
 
 To create an unsigned apk:
 
-    $ sbt android:package-release
+    $ sbt clean android:package-release
     ...
     [info] Packaging /Users/jan/projects/soundcloud-android/target/soundcloud-android-2.2.5.apk
 
@@ -56,8 +56,9 @@ The processed apk from Amazon needs to be signed and zipaligned before uploading
 Copy apk received from Amzazon to `target/soundcloud-android-x.y.z.apk`, then run:
 
     $ sbt android:prepare-amazon
-    [info] Aligned /Users/jan/projects/soundcloud-android/target/soundcloud-android-2.2.5-market.apk
-    [info] Signed /Users/jan/projects/soundcloud-android/target/soundcloud-android-2.2.5.apk
+    ...
+    Ready for Amazon appstore:
+    target/soundcloud-android-2.2.5-market.apk
 
 `soundcloud-android-x.y.z-market.apk` can now be uploaded to the Appstore.
 

@@ -33,7 +33,6 @@ object AndroidBuild extends Build {
 
   val testDependencies = Seq(
     "com.pivotallabs" % "robolectric" % "1.1-SNAPSHOT" % "test",
-    "com.google.android" % "support-v4" % "r6" % "test",
     "junit" % "junit-dep" % "4.9" % "test",
     "org.mockito" % "mockito-core" % "1.8.5" % "test",
     "org.hamcrest" % "hamcrest-core" % "1.1" % "test",
