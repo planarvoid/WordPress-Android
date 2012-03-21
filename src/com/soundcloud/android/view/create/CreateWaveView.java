@@ -87,8 +87,8 @@ public class CreateWaveView extends View{
     }
 
     public void gotoPlaybackMode(){
-        mCurrentProgress = -1;
         if (mMode != MODE_FULL){
+            mCurrentProgress = -1;
             mMode = MODE_FULL;
             mAnimationStartTime = System.currentTimeMillis();
             postInvalidate();
@@ -239,7 +239,6 @@ public class CreateWaveView extends View{
 
             } else {
                 final int currentProgressIndex = (int) (getWidth() * mCurrentProgress);
-
                 if (!mInEditMode) {
                     // just draw progress (full orange if no current progress)
                     if (currentProgressIndex < 0) {

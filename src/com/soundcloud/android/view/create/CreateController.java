@@ -53,7 +53,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-public class CreateController implements CreateWaveDisplay.TrimListener {
+public class CreateController implements CreateWaveDisplay.Listener {
 
     private ScActivity mActivity;
     private ICloudCreateService mCreateService;
@@ -146,15 +146,12 @@ public class CreateController implements CreateWaveDisplay.TrimListener {
                     switch (mCurrentState) {
                         case IDLE_RECORD:
                         case IDLE_PLAYBACK:
+                        case PLAYBACK:
                             mActivity.track(Click.Record_rec);
                             mCurrentState = CreateState.RECORD;
                             break;
                         case RECORD:
                             mActivity.track(Click.Record_rec_stop);
-                            mCurrentState = CreateState.IDLE_PLAYBACK;
-                            break;
-                        case PLAYBACK:
-                            mActivity.track(Click.Record_play_stop);
                             mCurrentState = CreateState.IDLE_PLAYBACK;
                             break;
                     }
@@ -287,6 +284,16 @@ public class CreateController implements CreateWaveDisplay.TrimListener {
         mWaveDisplay.reset();
         updateUi(true);
         setResetState();
+    }
+
+    @Override
+    public void onSeek(float pos) {
+        if (mCreateService != null) try {
+            mHandler.removeCallbacks(mRefreshPositionFromService);
+            mHandler.removeCallbacks(mSmoothProgress);
+            mLastTrackTime = -1;
+            mCreateService.seekTo(pos);
+        } catch (RemoteException ignored) {}
     }
 
     @Override
@@ -475,7 +482,7 @@ public class CreateController implements CreateWaveDisplay.TrimListener {
                 mEditButton.setVisibility(View.GONE);
 
                 btnAction.setVisibility(View.VISIBLE);
-                btnAction.setImageDrawable(btn_rec_stop_states_drawable);
+                btnAction.setImageDrawable(btn_rec_states_drawable);
                 txtRecordStatus.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.INVISIBLE);
                 mChrono.setVisibility(View.INVISIBLE);
@@ -546,7 +553,7 @@ public class CreateController implements CreateWaveDisplay.TrimListener {
                 txtInstructions.setVisibility(View.GONE);
                 mChrono.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.VISIBLE);
-                btnAction.setImageDrawable(btn_rec_stop_states_drawable);
+                btnAction.setImageDrawable(btn_rec_states_drawable);
 
                 setResetState();
 
@@ -739,10 +746,10 @@ public class CreateController implements CreateWaveDisplay.TrimListener {
         try {
             mCurrentDurationString =  CloudUtils.formatTimestamp(getDuration());
             final long currentPlaybackPosition = mCreateService.getCurrentPlaybackPosition();
-            if (currentPlaybackPosition > 0 && currentPlaybackPosition < getDuration()) {
+            if (currentPlaybackPosition >= 0 && currentPlaybackPosition < getDuration()) {
                 mWaveDisplay.setProgress(((float) currentPlaybackPosition) / getDuration());
             } else {
-                mWaveDisplay.setProgress(0.0f);
+                mWaveDisplay.setProgress(-1f);
             }
         } catch (RemoteException ignored) {}
     }
@@ -814,6 +821,7 @@ public class CreateController implements CreateWaveDisplay.TrimListener {
     };
 
     protected void setProgressInternal(long pos) {
+
         try {
             final long duration = getDuration();
             if (duration != 0){

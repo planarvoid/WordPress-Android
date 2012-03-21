@@ -38,7 +38,7 @@ public class RawAudioPlayer {
     }
 
     public long getCurrentPlaybackPosition() {
-        return PcmUtils.byteToMs(mCurrentProgress);
+        return mCurrentProgress == -1 ? -1 : PcmUtils.byteToMs(mCurrentProgress);
     }
 
     public long getCurrentPlaybackBytePosition() {
@@ -95,7 +95,7 @@ public class RawAudioPlayer {
 
     public void stop(){
         stopPlayback();
-        mCurrentProgress = 0;
+        mCurrentProgress = -1;
     }
 
     public float getCurrentProgressPercent(){
@@ -135,35 +135,42 @@ public class RawAudioPlayer {
         }
     };
 
-    private void doSeek(){
+    private void doSeek() {
         mCurrentProgress = mNextSeek;
-            mLastSeekAt = System.currentTimeMillis();
-            if (mPlaying){
-                // TODO, stop and start just to seek. this is lazy
-                stopPlayback();
-                play();
+        mLastSeekAt = System.currentTimeMillis();
+        if (mPlaying) {
+            // TODO, stop and start just to seek. this is lazy
+            stopPlayback();
+            play();
+        }
+    }
+
+    private void onPlaybackStart(PlayRawAudioTask task) {
+        if (mPlayRawAudioTask == task) {
+            mPlaying = true;
+            if (mListener != null) {
+                mListener.onPlaybackStart();
             }
+        }
+
     }
 
-    private void onPlaybackStart() {
-        mPlaying = true;
-        if (mListener != null){
-            mListener.onPlaybackStart();
+    private void onPlaybackStopped(PlayRawAudioTask task) {
+        if (mPlayRawAudioTask == task) {
+            mPlaying = false;
+            if (mListener != null) {
+                mListener.onPlaybackStopped();
+            }
         }
     }
 
-    private void onPlaybackStopped() {
-        mPlaying = false;
-        if (mListener != null){
-            mListener.onPlaybackStopped();
-        }
-    }
-
-    private void onPlaybackComplete() {
-        mPlaying = false;
-        mCurrentProgress = 0;
-        if (mListener != null){
-            mListener.onPlaybackComplete();
+    private void onPlaybackComplete(PlayRawAudioTask task) {
+        if (mPlayRawAudioTask == task) {
+            mPlaying = false;
+            mCurrentProgress = -1;
+            if (mListener != null) {
+                mListener.onPlaybackComplete();
+            }
         }
     }
 
@@ -244,7 +251,7 @@ public class RawAudioPlayer {
         @Override
         protected void onPreExecute() {
             if (rawAudioPlayerWeakReference != null && rawAudioPlayerWeakReference.get() != null){
-                rawAudioPlayerWeakReference.get().onPlaybackStart();
+                rawAudioPlayerWeakReference.get().onPlaybackStart(this);
             }
             mAudioTrack.play();
             isPlaying = true;
@@ -257,9 +264,9 @@ public class RawAudioPlayer {
 
             if (rawAudioPlayerWeakReference != null && rawAudioPlayerWeakReference.get() != null){
                 if (mLastPlayedPos + headerLength >= mEndPos){
-                    rawAudioPlayerWeakReference.get().onPlaybackComplete();
+                    rawAudioPlayerWeakReference.get().onPlaybackComplete(this);
                 } else {
-                    rawAudioPlayerWeakReference.get().onPlaybackStopped();
+                    rawAudioPlayerWeakReference.get().onPlaybackStopped(this);
                 }
 
             }

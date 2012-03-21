@@ -345,7 +345,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     @Override
     public void onPlaybackStopped() {
         Intent i = new Intent(PLAYBACK_STOPPED);
-        i.putExtra("path", mPlaybackFile.getAbsolutePath());
+        if (mPlaybackFile != null) i.putExtra("path", mPlaybackFile.getAbsolutePath());
         sendBroadcast(i);
 
         nm.cancel(PLAYBACK_NOTIFY_ID);
@@ -359,7 +359,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
             i.putExtra("path", mPlaybackFile.getAbsolutePath());
             sendBroadcast(i);
         }
-
         mPlaybackFile = null;
         mPlaybackLocal = null;
 
@@ -407,7 +406,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         startForeground(PLAYBACK_NOTIFY_ID, mPlaybackNotification);
     }
 
-    public void seekTo(int position) {
+    public void seekTo(float position) {
         mPlayer.seekTo(position);
     }
 

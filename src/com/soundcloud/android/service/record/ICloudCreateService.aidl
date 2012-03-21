@@ -18,7 +18,7 @@ interface ICloudCreateService
   long getCurrentPlaybackPosition();
   float getCurrentProgressPercent();
   long getPlaybackDuration();
-  void seekTo(int position);
+  void seekTo(float position);
   String getPlaybackPath();
   long getPlaybackLocalId();
   boolean startUpload(in Upload upload);

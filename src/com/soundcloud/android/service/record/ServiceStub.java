@@ -108,7 +108,7 @@ class ServiceStub extends ICloudCreateService.Stub {
     }
 
     @Override
-    public void seekTo(int position) {
+    public void seekTo(float position) {
         final CloudCreateService service = mService.get();
         if (service != null) service.seekTo(position);
     }

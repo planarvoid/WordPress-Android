@@ -1,6 +1,5 @@
 package com.soundcloud.android.view.create;
 
-import com.soundcloud.android.activity.CreateEditor;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.utils.record.RawAudioPlayer;
 import com.soundcloud.android.view.TouchLayout;
@@ -49,13 +48,14 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
 
     private View rightHandle, leftHandle;
     private LayoutParams rightLp, leftLp;
-    private TrimListener mTrimListener;
+    private Listener mListener;
 
     private float trimPercentLeft, trimPercentRight;
     private int waveformWidth;
     private int dragOffsetX;
 
-    public static interface TrimListener {
+    public static interface Listener {
+        void onSeek(float pos);
         void onAdjustTrimLeft(float pos);
         void onAdjustTrimRight(float pos);
     }
@@ -117,8 +117,8 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         return mWaveformView;
     }
 
-    public void setTrimListener(TrimListener trimListener) {
-        mTrimListener = trimListener;
+    public void setTrimListener(Listener trimListener) {
+        mListener = trimListener;
     }
 
     @Override
@@ -143,7 +143,7 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
             waveformWidth = mWaveformView.getWidth();
 
 
-            //mTrimListener.onWaveWidth(waveformWidth);
+            //mListener.onWaveWidth(waveformWidth);
         }
     }
 
@@ -247,7 +247,9 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
                 case UI_UPDATE_SEEK:
                     final float seekPercent = ((float) lastTouchX) / waveformWidth;
                     if (mWaveformView != null) mWaveformView.setCurrentProgress(seekPercent);
-                    if (mRawAudioPlayer != null) mRawAudioPlayer.seekTo(seekPercent);
+                    if (mListener != null) {
+                        mListener.onSeek(seekPercent);
+                    }
                     break;
 
                 case UI_UPDATE_TRIM_LEFT:
@@ -255,8 +257,8 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
                     mWaveformView.setTrimLeft((int) lastTouchX);
                     trimPercentLeft = Math.max(0,((float) lastTouchX  / waveformWidth));
                     leftHandle.requestLayout();
-                    if (mTrimListener != null) {
-                        mTrimListener.onAdjustTrimLeft(trimPercentLeft);
+                    if (mListener != null) {
+                        mListener.onAdjustTrimLeft(trimPercentLeft);
                     }
                     break;
 
@@ -265,8 +267,8 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
                     rightLp.rightMargin = (waveformWidth - (int) lastTouchX);
                     trimPercentRight = Math.min(1, ((float) lastTouchX / waveformWidth));
                     rightHandle.requestLayout();
-                    if (mTrimListener != null) {
-                        mTrimListener.onAdjustTrimRight(trimPercentRight);
+                    if (mListener != null) {
+                        mListener.onAdjustTrimRight(trimPercentRight);
                     }
                     break;
 
