@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
+import android.renderscript.RenderScript;
 import android.util.Log;
 import com.soundcloud.android.view.create.CreateController;
 
@@ -177,8 +178,18 @@ public class CloudRecorder {
             }
         }
 
+
         // stop reading as well, since we will go into playback mode now
-        mAudioRecord.stop();
+        // this takes ~300 ms, so thread it low priority
+        Thread stopThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mAudioRecord.stop();
+            }
+        });
+        stopThread.setPriority(Thread.MIN_PRIORITY);
+        stopThread.start();
+
         mState = State.IDLE;
     }
 
