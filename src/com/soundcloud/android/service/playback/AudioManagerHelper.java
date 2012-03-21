@@ -268,11 +268,12 @@ public class AudioManagerHelper {
     }
 
     public static void unregisterRemoteControl(Context context, Object remoteControlClient) {
-        if (sUnregisterMediaButtonEventReceiver == null || remoteControlClient == null) return;
         try {
+            if (sUnregisterMediaButtonEventReceiver == null) return;
             sUnregisterMediaButtonEventReceiver.invoke(
                     context.getSystemService(Context.AUDIO_SERVICE),
                     new ComponentName(context, RECEIVER));
+            if (sUnregisterRemoteControlClient == null || remoteControlClient == null) return;
             sUnregisterRemoteControlClient.invoke(
                     context.getSystemService(Context.AUDIO_SERVICE),
                     remoteControlClient);

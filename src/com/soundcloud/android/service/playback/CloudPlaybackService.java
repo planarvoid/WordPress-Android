@@ -326,7 +326,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         if (SoundCloudApplication.useRichNotifications()) {
             if (what.equals(PLAYSTATE_CHANGED)) {
                 mFocus.setPlaybackState(isPlaying());
-                if (status != null) ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
+                setPlayingNotification(mCurrentTrack);
             } else if (what.equals(META_CHANGED)) {
                 applyCurrentMetadata(mCurrentTrack);
             }
@@ -581,13 +581,9 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         mPlayerHandler.removeMessages(FADE_IN);
         mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
         scheduleServiceShutdownCheck();
-        if (SoundCloudApplication.useRichNotifications()){
+        if (SoundCloudApplication.useRichNotifications() && mCurrentTrack != null){
             stopForeground(false);
-            if (status != null){
-                ((PlaybackRemoteViews) status.contentView).setPlaybackStatus(isPlaying());
-                NotificationManager mManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                mManager.notify(PLAYBACKSERVICE_STATUS_ID, status);
-            }
+            setPlayingNotification(mCurrentTrack);
         } else {
             stopForeground(true);
         }
