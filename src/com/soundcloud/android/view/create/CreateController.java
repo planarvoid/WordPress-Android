@@ -6,15 +6,16 @@ import static com.soundcloud.android.utils.IOUtils.mkdirs;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.record.RemainingTimeCalculator;
@@ -33,13 +34,13 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -56,6 +57,8 @@ import java.util.List;
 
 public class CreateController implements CreateWaveDisplay.Listener {
 
+    public static final String TEMP_PLAY = "Play";
+    public static final String TEMP_STOP = "Stop";
     private ScActivity mActivity;
     private ICloudCreateService mCreateService;
     private Recording mRecording;
@@ -447,7 +450,6 @@ public class CreateController implements CreateWaveDisplay.Listener {
         updateUi(true);
     }
 
-
     void updateUi(boolean takeAction) {
         switch (mCurrentState) {
             case IDLE_RECORD:
@@ -458,15 +460,16 @@ public class CreateController implements CreateWaveDisplay.Listener {
                     txtRecordStatus.setText(null);
                 }
 
-                mPlayButton.setVisibility(View.GONE);
-                mEditButton.setVisibility(View.GONE);
-
-                btnAction.setVisibility(View.VISIBLE);
                 btnAction.setImageDrawable(btn_rec_states_drawable);
-                txtRecordStatus.setVisibility(View.VISIBLE);
-                mFileLayout.setVisibility(View.INVISIBLE);
-                mChrono.setVisibility(View.INVISIBLE);
-                txtInstructions.setVisibility(View.VISIBLE);
+
+                hideView(mPlayButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mEditButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mFileLayout, mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
+                hideView(mChrono, false, View.INVISIBLE);
+
+                showView(btnAction, false);
+                showView(txtInstructions, mLastState != CreateState.IDLE_RECORD);
+                showView(txtRecordStatus, mLastState != CreateState.IDLE_RECORD);
 
                 mHandler.post(new Runnable() {
                     @Override
@@ -484,12 +487,12 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
             case IDLE_STANDBY_REC:
             case IDLE_STANDBY_PLAY:
-
                 mPlayButton.setVisibility(View.GONE);
                 mEditButton.setVisibility(View.GONE);
 
                 btnAction.setVisibility(View.VISIBLE);
                 btnAction.setImageDrawable(btn_rec_states_drawable);
+
                 txtRecordStatus.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.INVISIBLE);
                 mChrono.setVisibility(View.INVISIBLE);
@@ -499,18 +502,18 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 break;
 
             case RECORD:
+                hideView(mPlayButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mEditButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mFileLayout, mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
+                hideView(txtInstructions, false, View.GONE);
 
-                mPlayButton.setVisibility(View.GONE);
-                mEditButton.setVisibility(View.GONE);
+                showView(mChrono,mLastState == CreateState.IDLE_RECORD);
+                showView(btnAction, false);
+                showView(txtRecordStatus,false);
 
-                btnAction.setVisibility(View.VISIBLE);
                 btnAction.setImageDrawable(btn_rec_stop_states_drawable);
-                txtInstructions.setVisibility(View.GONE);
                 txtRecordStatus.setText("");
-                txtRecordStatus.setVisibility(View.VISIBLE);
-                mChrono.setVisibility(View.VISIBLE);
                 mChrono.setText("");
-                mFileLayout.setVisibility(View.INVISIBLE);
 
                 if (takeAction) {
                     stopPlayback();
@@ -536,33 +539,39 @@ public class CreateController implements CreateWaveDisplay.Listener {
                     }
                 }
 
-                mPlayButton.setVisibility(View.VISIBLE);
-                mEditButton.setVisibility(View.VISIBLE);
+                boolean animate = mLastState == CreateState.RECORD
+                        || mLastState == CreateState.EDIT
+                        || mLastState == CreateState.EDIT_PLAYBACK;
 
-                mPlayButton.setText("P");
+                mPlayButton.setVisibility(View.GONE); // just to fool the animation
+                showView(mPlayButton,(mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
+                showView(mEditButton,(mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
+                showView(btnAction,(mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
+                showView(mFileLayout,(mLastState == CreateState.RECORD));
+                showView(mChrono,false);
 
+                hideView(txtInstructions,false,View.GONE);
+                hideView(txtRecordStatus,false,View.INVISIBLE);
+
+                mPlayButton.setText(TEMP_PLAY);
                 mChrono.setText(mCurrentDurationString);
-                btnAction.setVisibility(View.VISIBLE);
                 btnAction.setImageDrawable(btn_rec_states_drawable);
-                txtInstructions.setVisibility(View.GONE);
-                mWaveDisplay.gotoPlaybackMode();
-                mChrono.setVisibility(View.VISIBLE);
-                mFileLayout.setVisibility(View.VISIBLE);
-                txtRecordStatus.setVisibility(View.INVISIBLE);
 
+                mWaveDisplay.gotoPlaybackMode();
                 setResetState();
                 break;
 
             case PLAYBACK:
-                btnAction.setVisibility(View.VISIBLE);
-                mPlayButton.setVisibility(View.VISIBLE);
-                mEditButton.setVisibility(View.VISIBLE);
-                mPlayButton.setText("S");
+                showView(btnAction,false);
+                showView(mPlayButton,false);
+                showView(mEditButton,false);
+                showView(mFileLayout,false);
+                showView(mChrono,false);
 
-                txtRecordStatus.setVisibility(View.INVISIBLE);
-                txtInstructions.setVisibility(View.GONE);
-                mChrono.setVisibility(View.VISIBLE);
-                mFileLayout.setVisibility(View.VISIBLE);
+                hideView(txtInstructions,false,View.GONE);
+                hideView(txtRecordStatus,false,View.INVISIBLE);
+
+                mPlayButton.setText(TEMP_STOP);
                 btnAction.setImageDrawable(btn_rec_states_drawable);
 
                 setResetState();
@@ -572,10 +581,16 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
             case EDIT:
             case EDIT_PLAYBACK:
-                btnAction.setVisibility(View.GONE);
-                mEditButton.setVisibility(View.GONE);
-                mPlayButton.setVisibility(View.VISIBLE);
-                mPlayButton.setText(mCurrentState == CreateState.EDIT ? "P" : "S");
+                mPlayButton.setVisibility(View.GONE); // just to fool the animation
+                showView(mPlayButton, (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+                showView(mResetButton,false);
+                showView(mFileLayout,false);
+
+                hideView(btnAction, false, View.GONE);
+                hideView(mEditButton, false, View.GONE);
+                hideView(mDeleteButton,false, View.GONE);
+
+                mPlayButton.setText(mCurrentState == CreateState.EDIT ? TEMP_PLAY : TEMP_STOP);
 
                 if (takeAction) {
                     if (mCurrentState == CreateState.EDIT_PLAYBACK) {
@@ -591,10 +606,6 @@ public class CreateController implements CreateWaveDisplay.Listener {
                         break;
                     }
                 }
-
-                mResetButton.setVisibility(View.VISIBLE);
-                mDeleteButton.setVisibility(View.GONE);
-                mFileLayout.setVisibility(View.VISIBLE);
                 break;
         }
 
@@ -917,7 +928,32 @@ public class CreateController implements CreateWaveDisplay.Listener {
         }
     }
 
+    private void showView(final View v, boolean animate) {
+        if (v.getVisibility() != View.VISIBLE) {
+            v.setVisibility(View.VISIBLE);
+            if (animate) AnimUtils.runFadeInAnimationOn(mActivity, v);
+        }
+    }
 
+    private void hideView(final View v, boolean animate, final int visibilityOnComplete){
+        if (v.getVisibility() == View.VISIBLE){
+            if (animate){
+                v.setEnabled(false);
+                AnimUtils.runFadeOutAnimationOn(mActivity, v);
+                v.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                    @Override public void onAnimationStart(Animation animation) {}
+                    @Override public void onAnimationRepeat(Animation animation) {}
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        v.setVisibility(visibilityOnComplete);
+                        v.setEnabled(true);
+                    }
+                });
+            } else {
+                v.setVisibility(visibilityOnComplete);
+            }
+        }
+    }
 
     /* package */ void setRecordFile(File f) {
         mRecordFile = f;
