@@ -47,6 +47,13 @@ import java.util.List;
 public class LocationPicker extends ListActivity {
     public static final int PICK_VENUE = 9003;     // Intent request code
 
+    public static final String EXTRA_LATITUDE  = "latitude";
+    public static final String EXTRA_LONGITUDE = "longitude";
+    public static final String EXTRA_NAME      = "name";
+    public static final String EXTRA_4SQ_ID    = "id";
+    public static final String EXTRA_LOCATION  = "location";
+    public static final String EXTRA_VENUES    = "venues";
+
     private static final float MIN_ACCURACY = 60f; // stop updating when accuracy is MIN_ACCURACY meters
     private static final float MIN_DISTANCE = 10f; // get notified when location changes MIN_DISTANCE meters
     private static final long MIN_TIME = 5 * 1000; // request updates every 5sec
@@ -56,6 +63,7 @@ public class LocationPicker extends ListActivity {
     private String mProvider;
     private Location mPreloadedLocation;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +71,7 @@ public class LocationPicker extends ListActivity {
         setContentView(R.layout.location_picker);
 
         final EditText where = (EditText) findViewById(R.id.where);
+        final FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
 
         where.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -72,8 +81,13 @@ public class LocationPicker extends ListActivity {
                     Intent data = new Intent();
 
                     data.setData(Uri.parse("location://manual"));
-                    data.putExtra("name", v.getText().toString());
+                    data.putExtra(EXTRA_NAME, v.getText().toString());
 
+                    Location loc = adapter.getLocation();
+                    if (loc != null) {
+                        data.putExtra(EXTRA_LONGITUDE, loc.getLongitude());
+                        data.putExtra(EXTRA_LATITUDE, loc.getLatitude());
+                    }
                     setResult(RESULT_OK, data);
                     finish();
                 }
@@ -82,28 +96,29 @@ public class LocationPicker extends ListActivity {
         });
 
         where.addTextChangedListener(new Capitalizer(where));
-
-        final FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
-        final Intent intent = getIntent();
-
-        if (intent.hasExtra("name")) where.setText(intent.getStringExtra("name"));
-        if (intent.hasExtra("location")) mPreloadedLocation = intent.getParcelableExtra("location");
-
         mProvider = getBestProvider(true);
         String alternativeProvider = getBestProvider(false);
-        if (alternativeProvider != null &&
-            !alternativeProvider.equals(mProvider)) {
+        if (alternativeProvider != null && !alternativeProvider.equals(mProvider)) {
             // request updates in case provider gets enabled later
             requestLocationUpdates(alternativeProvider, adapter);
         }
 
-        if (mPreloadedLocation != null && intent.hasExtra("venues")) {
-            ArrayList<FoursquareVenue> venues =
-                    intent.getParcelableArrayListExtra("venues");
+        final Intent intent = getIntent();
+        if (intent != null) {
+            if (intent.hasExtra(EXTRA_NAME)) where.setText(intent.getStringExtra(EXTRA_NAME));
 
-            if (!venues.isEmpty()) adapter.setVenues(venues);
-            adapter.setLocation(mPreloadedLocation);
-        } else if  (mProvider != null) {
+            if (intent.hasExtra(EXTRA_LOCATION)) {
+                mPreloadedLocation = intent.getParcelableExtra(EXTRA_LOCATION);
+                adapter.setLocation(mPreloadedLocation);
+            }
+
+            if (intent.hasExtra(EXTRA_VENUES)) {
+                ArrayList<FoursquareVenue> venues = intent.getParcelableArrayListExtra(EXTRA_VENUES);
+                adapter.setVenues(venues);
+            }
+        }
+
+        if (mPreloadedLocation == null && mProvider != null) {
             Log.v(TAG, "best provider: " + mProvider);
             Location loc = getManager().getLastKnownLocation(mProvider);
             if (loc == null) {
@@ -165,13 +180,13 @@ public class LocationPicker extends ListActivity {
 
         Intent data = new Intent();
         data.setData(Uri.parse("foursquare://venue/" + venue.id));
-        data.putExtra("id", venue.id);
-        data.putExtra("name", venue.name);
+        data.putExtra(EXTRA_4SQ_ID, venue.id);
+        data.putExtra(EXTRA_NAME, venue.name);
 
         final Location loc = adapter.getLocation();
         if (loc != null) {
-            data.putExtra("longitude", loc.getLongitude());
-            data.putExtra("latitude", loc.getLatitude());
+            data.putExtra(EXTRA_LONGITUDE, loc.getLongitude());
+            data.putExtra(EXTRA_LATITUDE, loc.getLatitude());
         }
         setResult(RESULT_OK, data);
         finish();
