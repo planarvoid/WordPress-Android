@@ -26,7 +26,7 @@ public class CloudRecorder {
     }
 
     private static final int REFRESH = 1;
-    private static final float MAX_ADJUSTED_AMPLITUDE = (float) Math.log(32768.0) -4;
+    private static final float MAX_ADJUSTED_AMPLITUDE = (float) Math.sqrt(Math.sqrt(32768.0));
     public static final int TIMER_INTERVAL = 20;
 
     private AudioRecord mAudioRecord = null;
@@ -260,7 +260,7 @@ public class CloudRecorder {
 
                         try {
                             service.onRecordFrameUpdate((float) Math.max(.1f,
-                                    ((float) Math.log(mCurrentAdjustedMaxAmplitude) - 4)
+                                    ((float) Math.sqrt(Math.sqrt(mCurrentAdjustedMaxAmplitude)))
                                     / MAX_ADJUSTED_AMPLITUDE), mState != State.RECORDING ? -1 : PcmUtils.byteToMs(mWriter.length()));
                         } catch (IOException e) {
                             Log.e(TAG,"Error accessing writer on frame update",e);

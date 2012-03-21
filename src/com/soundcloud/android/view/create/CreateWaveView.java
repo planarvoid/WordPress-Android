@@ -5,7 +5,6 @@ import com.soundcloud.android.task.create.CalculateAmplitudesTask;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -22,7 +21,7 @@ import java.util.List;
 
 public class CreateWaveView extends View{
 
-    private static long ANIMATION_ZOOM_TIME = 500;
+    private static long ANIMATION_ZOOM_TIME = 400;
 
     private Bitmap bitmap;
     private int nextBufferX;
@@ -140,7 +139,7 @@ public class CreateWaveView extends View{
                 drawZoomWave(canvas);
                 break;
             case MODE_FULL:
-                drawFullWave2(canvas);
+                drawFullWave(canvas);
                 break;
             default:
                 break;
@@ -200,7 +199,7 @@ public class CreateWaveView extends View{
         invalidate();
     }
 
-    private void drawFullWave2(Canvas c) {
+    private void drawFullWave(Canvas c) {
 
         float normalizedTime = Math.min(1.0f,(((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
@@ -242,7 +241,7 @@ public class CreateWaveView extends View{
                 if (!mInEditMode) {
                     // just draw progress (full orange if no current progress)
                     if (currentProgressIndex < 0) {
-                        drawPointsOnCanvas(c,points,mPlayedPaint);
+                        drawPointsOnCanvas(c, points, mPlayedPaint);
                     } else {
                         drawPointsOnCanvas(c, points, mPlayedPaint, 0, currentProgressIndex);
                         drawPointsOnCanvas(c, points, mUnplayedPaint, currentProgressIndex, -1);
@@ -338,8 +337,7 @@ public class CreateWaveView extends View{
         int ptIndex = 0;
 
         for (int x = firstDrawX; x < lastDrawX; x++) {
-            final float a = directSelect ? amplitudesArray.get(x - firstDrawX) :
-                    amplitudesArray.get((int) Math.min(amplitudesSize - 1, ((float) (x - firstDrawX)) / (lastDrawX - firstDrawX) * amplitudesSize));
+            final float a = directSelect ? amplitudesArray.get(x - firstDrawX) : getInterpolatedAmpValue(amplitudesArray,amplitudesSize,x,firstDrawX,lastDrawX);
             pts[ptIndex] = x;
             pts[ptIndex + 1] = height / 2 - a * mMaxWaveHeight / 2;
             pts[ptIndex + 2] = x;
@@ -347,6 +345,19 @@ public class CreateWaveView extends View{
             ptIndex += 4;
         }
         return pts;
+    }
+
+    private float getInterpolatedAmpValue(List<Float> amplitudesArray, int size, int x, int firstDrawX, int lastDrawX){
+        if (size > lastDrawX - firstDrawX) {
+            // scaling down, nearest neighbor is fine
+            return amplitudesArray.get((int) Math.min(size - 1, ((float) (x - firstDrawX)) / (lastDrawX - firstDrawX) * size));
+        } else {
+            // scaling up, do interpolation
+            final float fIndex = Math.min(size - 1, size * ((float) (x - firstDrawX)) / (lastDrawX - firstDrawX));
+            final float v1 = amplitudesArray.get((int) Math.floor(fIndex));
+            final float v2 = amplitudesArray.get((int) Math.ceil(fIndex));
+            return v1 + (v2 - v1) * (fIndex - ((int) fIndex));
+        }
     }
 
     private static class Configuration {
