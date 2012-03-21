@@ -45,7 +45,7 @@ public class StreamItem implements Parcelable {
 
     private File mCachedFile;
 
-    private static final Pattern STREAM_PATTERN = Pattern.compile("/(\\d+)/stream$");
+    private static final Pattern STREAM_PATTERN = Pattern.compile("/(\\d+)/stream(\\?secret_token=s-\\w+)?$");
 
     public StreamItem(String url) {
         if (TextUtils.isEmpty(url)) throw new IllegalArgumentException();

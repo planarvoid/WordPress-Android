@@ -1,0 +1,12 @@
+<manifest package="com.soundcloud.android.tests" xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-sdk android:minSdkVersion="7"/>
+
+    <application>
+        <uses-library android:name="android.test.runner"/>
+    </application>
+
+
+    <instrumentation android:label="Tests"
+                     android:targetPackage="com.soundcloud.android"
+                     android:name="android.test.InstrumentationTestRunner"/>
+</manifest>
