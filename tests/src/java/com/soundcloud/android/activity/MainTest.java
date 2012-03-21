@@ -137,6 +137,24 @@ public class MainTest {
     }
 
     @Test
+    public void shouldResolveTrackUrlsWithSecretToken() throws Exception {
+
+        addHttpResponseRule("GET", "/resolve?url=https%3A%2F%2Fsoundcloud.com%2Ftracks%2Fsometrack%2Fs-SECRET",
+                new TestHttpResponse(302, "", new BasicHeader("Location", "https://api.soundcloud.com/tracks/12345")));
+
+        TestHelper.addCannedResponse(getClass(), "/tracks/12345", "track.json");
+
+        main.handleViewUrl(new Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://soundcloud.com/tracks/sometrack/s-SECRET")));
+
+        expect(error).toBeFalse();
+        expect(resolved.toString()).toEqual("https://api.soundcloud.com/tracks/12345");
+        expect(action).toBeNull();
+        expect(track).not.toBeNull();
+        expect(track.id).toEqual(12345L);
+    }
+
+    @Test
     public void shouldGoToRecordAfterLoggingIn() throws Exception {
         Main main = new Main();
         main.setIntent(new Intent().putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, "sth"));
