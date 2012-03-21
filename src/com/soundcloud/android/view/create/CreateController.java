@@ -772,7 +772,6 @@ public class CreateController implements CreateWaveDisplay.TrimListener {
                 mActivity.track(Click.Record_play);
                 mCreateService.startPlayback(); //might already be playing back if activity just created
             }
-            mHandler.postDelayed(mSmoothProgress, 0);
         } catch (RemoteException ignores) { }
 
     }
@@ -780,24 +779,21 @@ public class CreateController implements CreateWaveDisplay.TrimListener {
     private Runnable mSmoothProgress = new Runnable() {
         public void run() {
             if (mCurrentState == CreateState.PLAYBACK || mCurrentState == CreateState.EDIT_PLAYBACK) {
-                long posMs;
                 if (mLastTrackTime == -1) {
                     mHandler.post(mRefreshPositionFromService);
-                    posMs = 0;
                 } else {
-                    posMs = mLastTrackTime + System.currentTimeMillis() - mLastProgressTimestamp;
-                }
+                    final long posMs = mLastTrackTime + System.currentTimeMillis() - mLastProgressTimestamp;
+                    final long pos = posMs / 1000;
 
-                final long pos = posMs / 1000;
-
-                if (mLastPos != pos) {
-                    mLastPos = pos;
-                    mChrono.setText(new StringBuilder()
-                            .append(CloudUtils.formatTimestamp(posMs))
-                            .append(" / ")
-                            .append(mCurrentDurationString));
+                    if (mLastPos != pos) {
+                        mLastPos = pos;
+                        mChrono.setText(new StringBuilder()
+                                .append(CloudUtils.formatTimestamp(posMs))
+                                .append(" / ")
+                                .append(mCurrentDurationString));
+                    }
+                    setProgressInternal(posMs);
                 }
-                setProgressInternal(posMs);
                 mHandler.postDelayed(this, mProgressPeriod);
             }
         }
@@ -925,6 +921,7 @@ public class CreateController implements CreateWaveDisplay.TrimListener {
         uploadFilter.addAction(CloudCreateService.UPLOAD_ERROR);
         uploadFilter.addAction(CloudCreateService.UPLOAD_CANCELLED);
         uploadFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
+        uploadFilter.addAction(CloudCreateService.PLAYBACK_STARTED);
         uploadFilter.addAction(CloudCreateService.PLAYBACK_COMPLETE);
         uploadFilter.addAction(CloudCreateService.PLAYBACK_ERROR);
         mActivity.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
@@ -985,6 +982,8 @@ public class CreateController implements CreateWaveDisplay.TrimListener {
 
             } else if (action.equals(CloudCreateService.RECORD_ERROR)) {
                 onRecordingError();
+            } else if (action.equals(CloudCreateService.PLAYBACK_STARTED)) {
+                mHandler.postDelayed(mSmoothProgress, 0);
             } else if (action.equals(CloudCreateService.PLAYBACK_COMPLETE) || action.equals(CloudCreateService.PLAYBACK_ERROR)) {
                 if (shouldReactToPath(intent.getStringExtra("path"))) {
                     onPlaybackComplete();
