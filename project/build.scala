@@ -56,10 +56,10 @@ object AndroidBuild extends Build {
   // the main project
   val prepareAmazon = TaskKey[File]("prepare-amazon")
 
-  lazy val soundcloud_android = Project (
+  lazy val soundcloud_android = Project(
     "soundcloud-android",
     file("."),
-    settings = General.androidProjectSettings ++ Seq (
+    settings = General.androidProjectSettings ++ Seq(
       libraryDependencies ++= coreDependencies ++ testDependencies,
       resolvers          ++= repos,
       compileOrder       := CompileOrder.JavaThenScala,
@@ -73,21 +73,20 @@ object AndroidBuild extends Build {
         s.log.success("Ready for Amazon appstore:\n"+path)
         path
       } dependsOn (AndroidMarketPublish.signReleaseTask, AndroidMarketPublish.zipAlignTask)
-      ))
-      ++ inConfig(Test)(Seq(
+    )) ++ inConfig(Test)(Seq(
       javaSource         <<= (baseDirectory) (_ / "tests" / "src" / "java"),
       scalaSource        <<= (baseDirectory) (_ / "tests" / "src" / "scala"),
       resourceDirectory  <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
       parallelExecution  := false,
       unmanagedClasspath := Seq.empty
-      ))
-      ++ AndroidInstall.settings
-      ++ Mavenizer.settings
+    ))
+    ++ AndroidInstall.settings
+    ++ Mavenizer.settings
   )
 
   // integration tests
   lazy val Integration = config("int")
-  lazy val soundcloud_android_tests = Project (
+  lazy val soundcloud_android_tests = Project(
     "soundcloud-android-tests",
     file("tests-integration"),
     settings = General.settings ++
