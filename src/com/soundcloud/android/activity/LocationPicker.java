@@ -63,7 +63,6 @@ public class LocationPicker extends ListActivity {
     private String mProvider;
     private Location mLocation;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,7 +133,7 @@ public class LocationPicker extends ListActivity {
                         .setNegativeButton(android.R.string.cancel, null)
                         .create()
                         .show();
-                }
+            }
         } else {
             adapter.onLocationChanged(mLocation);
         }
@@ -320,9 +319,9 @@ public class LocationPicker extends ListActivity {
         @Override
         public void onProviderEnabled(String name) {
             LocationProvider provider = getManager().getProvider(name);
-            if (provider != null && mProvider != null &&
-                getManager().getProvider(mProvider).getAccuracy() >
-                provider.getAccuracy()) {
+            if (provider != null &&
+                mProvider != null &&
+                getManager().getProvider(mProvider).getAccuracy() > provider.getAccuracy()) {
                 // this provider is better, use it
                 requestLocationUpdates(name, this);
                 mProvider = name;
@@ -336,7 +335,6 @@ public class LocationPicker extends ListActivity {
                 requestLocationUpdates(mProvider, this);
             }
         }
-
     }
 
     @Override
