@@ -47,6 +47,13 @@ import java.util.List;
 public class LocationPicker extends ListActivity {
     public static final int PICK_VENUE = 9003;     // Intent request code
 
+    public static final String EXTRA_LATITUDE  = "latitude";
+    public static final String EXTRA_LONGITUDE = "longitude";
+    public static final String EXTRA_NAME      = "name";
+    public static final String EXTRA_4SQ_ID    = "id";
+    public static final String EXTRA_LOCATION  = "location";
+    public static final String EXTRA_VENUES    = "venues";
+
     private static final float MIN_ACCURACY = 60f; // stop updating when accuracy is MIN_ACCURACY meters
     private static final float MIN_DISTANCE = 10f; // get notified when location changes MIN_DISTANCE meters
     private static final long MIN_TIME = 5 * 1000; // request updates every 5sec
@@ -54,7 +61,7 @@ public class LocationPicker extends ListActivity {
     private static final int LOADING = 0;
 
     private String mProvider;
-    private Location mPreloadedLocation;
+    private Location mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +69,8 @@ public class LocationPicker extends ListActivity {
 
         setContentView(R.layout.location_picker);
 
+        final FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
         final EditText where = (EditText) findViewById(R.id.where);
-
         where.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE ||
@@ -72,61 +79,63 @@ public class LocationPicker extends ListActivity {
                     Intent data = new Intent();
 
                     data.setData(Uri.parse("location://manual"));
-                    data.putExtra("name", v.getText().toString());
+                    data.putExtra(EXTRA_NAME, v.getText().toString());
 
+                    if (mLocation != null) {
+                        data.putExtra(EXTRA_LONGITUDE, mLocation.getLongitude());
+                        data.putExtra(EXTRA_LATITUDE, mLocation.getLatitude());
+                    }
                     setResult(RESULT_OK, data);
                     finish();
                 }
                 return true;
             }
         });
-
         where.addTextChangedListener(new Capitalizer(where));
-
-        final FoursquareVenueAdapter adapter = new FoursquareVenueAdapter();
-        final Intent intent = getIntent();
-
-        if (intent.hasExtra("name")) where.setText(intent.getStringExtra("name"));
-        if (intent.hasExtra("location")) mPreloadedLocation = intent.getParcelableExtra("location");
 
         mProvider = getBestProvider(true);
         String alternativeProvider = getBestProvider(false);
-        if (alternativeProvider != null &&
-            !alternativeProvider.equals(mProvider)) {
+        if (alternativeProvider != null && !alternativeProvider.equals(mProvider)) {
             // request updates in case provider gets enabled later
             requestLocationUpdates(alternativeProvider, adapter);
         }
 
-        if (mPreloadedLocation != null && intent.hasExtra("venues")) {
-            ArrayList<FoursquareVenue> venues =
-                    intent.getParcelableArrayListExtra("venues");
-
-            if (!venues.isEmpty()) adapter.setVenues(venues);
-            adapter.setLocation(mPreloadedLocation);
-        } else if  (mProvider != null) {
-            Log.v(TAG, "best provider: " + mProvider);
-            Location loc = getManager().getLastKnownLocation(mProvider);
-            if (loc == null) {
-                loc = getManager().getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        final Intent intent = getIntent();
+        if (intent != null) {
+            if (intent.hasExtra(EXTRA_NAME)) where.setText(intent.getStringExtra(EXTRA_NAME));
+            if (intent.hasExtra(EXTRA_LOCATION)) {
+                mLocation = intent.getParcelableExtra(EXTRA_LOCATION);
             }
-            adapter.onLocationChanged(loc);
-        } else {
-            // no location provider enabled, display warning
-            new AlertDialog.Builder(this)
-                    .setMessage(R.string.location_picker_no_providers_enabled)
-                    .setPositiveButton(R.string.location_picker_go_to_settings, new Dialog.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            try {
-                                startActivity(
-                                        new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                            } catch (ActivityNotFoundException ignored) {
+            if (intent.hasExtra(EXTRA_VENUES)) {
+                ArrayList<FoursquareVenue> venues = intent.getParcelableArrayListExtra(EXTRA_VENUES);
+                adapter.setVenues(venues);
+            }
+        }
+
+        if (mLocation == null) {
+            if (Log.isLoggable(TAG, Log.VERBOSE)) Log.v(TAG, "best provider: " + mProvider);
+            mLocation = getManager().getLastKnownLocation(mProvider);
+        }
+
+        if (mLocation == null) {
+            if (LocationManager.PASSIVE_PROVIDER.equals(mProvider)) {
+                // no location & no location provider enabled, display warning
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.location_picker_no_providers_enabled)
+                        .setPositiveButton(R.string.location_picker_go_to_settings, new Dialog.OnClickListener() {
+                            @Override public void onClick(DialogInterface dialog, int which) {
+                                try {
+                                    startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                                } catch (ActivityNotFoundException ignored) {
+                                }
                             }
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .create()
-                    .show();
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .create()
+                        .show();
+            }
+        } else {
+            adapter.onLocationChanged(mLocation);
         }
         setListAdapter(adapter);
     }
@@ -165,13 +174,12 @@ public class LocationPicker extends ListActivity {
 
         Intent data = new Intent();
         data.setData(Uri.parse("foursquare://venue/" + venue.id));
-        data.putExtra("id", venue.id);
-        data.putExtra("name", venue.name);
+        data.putExtra(EXTRA_4SQ_ID, venue.id);
+        data.putExtra(EXTRA_NAME, venue.name);
 
-        final Location loc = adapter.getLocation();
-        if (loc != null) {
-            data.putExtra("longitude", loc.getLongitude());
-            data.putExtra("latitude", loc.getLatitude());
+        if (mLocation != null) {
+            data.putExtra(EXTRA_LONGITUDE, mLocation.getLongitude());
+            data.putExtra(EXTRA_LATITUDE, mLocation.getLatitude());
         }
         setResult(RESULT_OK, data);
         finish();
@@ -195,12 +203,12 @@ public class LocationPicker extends ListActivity {
     private String getBestProvider(boolean enabled) {
         Criteria c = new Criteria();
         c.setAccuracy(Criteria.ACCURACY_FINE);
-        return getManager().getBestProvider(c, enabled);
+        final String provider = getManager().getBestProvider(c, enabled);
+        return provider == null ? LocationManager.PASSIVE_PROVIDER : provider;
     }
 
     class FoursquareVenueAdapter extends BaseAdapter implements LocationListener {
         private List<FoursquareVenue> mVenues;
-        private Location mLocation;
 
         @Override
         public int getCount() {
@@ -263,32 +271,36 @@ public class LocationPicker extends ListActivity {
         @Override
         public void onLocationChanged(Location location) {
             if (location != null) {
-                if (mPreloadedLocation != null &&
-                    mPreloadedLocation.distanceTo(location) < MIN_DISTANCE) {
+                if (mLocation != null &&
+                   !mLocation.equals(location) &&
+                    mLocation.distanceTo(location) < MIN_DISTANCE) {
                     // the preloaded location was good enough, stop here
                     getManager().removeUpdates(this);
-                    return;
-                }
+                } else {
+                    mLocation = location;
+                    loadVenues(mLocation, FoursquareVenueTask.VENUE_LIMIT);
 
-                this.mLocation = location;
-                loadVenues(FoursquareVenueTask.VENUE_LIMIT);
+                    // stop requesting updates when we have a recent update with good accuracy
+                    if (System.currentTimeMillis() - location.getTime() < 60 * 1000 &&
+                            location.hasAccuracy() &&
+                            location.getAccuracy() <= MIN_ACCURACY) {
 
-                // stop requesting updates when we have a recent update with good accuracy
-                if (System.currentTimeMillis() - location.getTime() < 60 * 1000 &&
-                        location.hasAccuracy() &&
-                        location.getAccuracy() <= MIN_ACCURACY) {
-
-                    Log.d(TAG, "stop requesting updates, accuracy <= " + MIN_ACCURACY);
-                    getManager().removeUpdates(this);
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "stop requesting updates, accuracy <= " + MIN_ACCURACY);
+                        }
+                        getManager().removeUpdates(this);
+                    }
                 }
             }
         }
 
-        private void loadVenues(int max) {
-            if (mLocation == null) return;
+        private void loadVenues(Location loc, int max) {
+            if (loc == null) return;
             new FoursquareVenueTask(max) {
                 @Override protected void onPreExecute() {
-                    showDialog(LOADING);
+                    if (mVenues == null || mVenues.isEmpty()) {
+                        showDialog(LOADING);
+                    }
                 }
                 @Override protected void onPostExecute(List<FoursquareVenue> venues) {
                     try {
@@ -297,7 +309,7 @@ public class LocationPicker extends ListActivity {
                     }
                     setVenues(venues);
                 }
-            }.execute(mLocation);
+            }.execute(loc);
         }
 
         @Override
@@ -307,9 +319,9 @@ public class LocationPicker extends ListActivity {
         @Override
         public void onProviderEnabled(String name) {
             LocationProvider provider = getManager().getProvider(name);
-            if (provider != null && mProvider != null &&
-                getManager().getProvider(mProvider).getAccuracy() >
-                provider.getAccuracy()) {
+            if (provider != null &&
+                mProvider != null &&
+                getManager().getProvider(mProvider).getAccuracy() > provider.getAccuracy()) {
                 // this provider is better, use it
                 requestLocationUpdates(name, this);
                 mProvider = name;
@@ -323,14 +335,6 @@ public class LocationPicker extends ListActivity {
                 requestLocationUpdates(mProvider, this);
             }
         }
-
-        public Location getLocation() {
-            return mLocation;
-        }
-
-        public void setLocation(Location location) {
-            mLocation = location;
-        }
     }
 
     @Override
@@ -343,7 +347,7 @@ public class LocationPicker extends ListActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case Consts.OptionsMenu.REFRESH:
-                getListAdapter().loadVenues(FoursquareVenueTask.VENUE_LIMIT_MAX);
+                getListAdapter().loadVenues(mLocation, FoursquareVenueTask.VENUE_LIMIT_MAX);
                 return true;
 
             default:

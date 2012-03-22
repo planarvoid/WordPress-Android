@@ -42,6 +42,10 @@ object AndroidBuild extends Build {
     "org.scala-lang" % "scala-compiler" % "2.9.1" % "test"
   )
 
+  val integrationTestDependencies = Seq(
+    "com.jayway.android.robotium" % "robotium-solo" % "3.1" % "int"
+  )
+
   val repos = Seq(
     MavenRepository("sc int repo", "http://files.int.s-cloud.net/maven/"),
     MavenRepository("acra release repository", "http://acra.googlecode.com/svn/repository/releases"),
@@ -49,24 +53,59 @@ object AndroidBuild extends Build {
     MavenRepository("sonatype releases", "https://oss.sonatype.org/content/repositories/releases")
   )
 
-  lazy val soundcloud_android = Project (
+  // the main project
+  val prepareAmazon = TaskKey[File]("prepare-amazon")
+
+  lazy val soundcloud_android = Project(
     "soundcloud-android",
     file("."),
-    settings = General.androidProjectSettings ++ Seq (
-      keyalias in Android := "jons keystore",
-      keystorePath in Android <<= (baseDirectory) (_ / "soundcloud_sign" / "soundcloud.ks"),
-      githubRepo in Android := "soundcloud/SoundCloud-Android",
-      cachePasswords in Android := true,
-      unmanagedBase <<= baseDirectory / "lib-unmanaged",
+    settings = General.androidProjectSettings ++ Seq(
       libraryDependencies ++= coreDependencies ++ testDependencies,
-      resolvers ++= repos,
-      compileOrder := CompileOrder.JavaThenScala,
-      javaSource in Test <<= (baseDirectory) (_ / "tests" / "src" / "java"),
-      scalaSource in Test <<= (baseDirectory) (_ / "tests" / "src" / "scala"),
-      resourceDirectory in Test <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
-      parallelExecution in Test := false,
-      unmanagedClasspath in Test <<= (unmanagedClasspath in Test) map (cp => Seq.empty)
-    ) ++ AndroidInstall.settings
-      ++ Mavenizer.settings
+      resolvers          ++= repos,
+      compileOrder       := CompileOrder.JavaThenScala,
+      unmanagedBase      <<= baseDirectory / "lib-unmanaged" // make sure dl'ed libs don't get picked up
+    ) ++ inConfig(Android)(Seq(
+      keyalias           := "jons keystore",
+      keystorePath       <<= (baseDirectory) (_ / "soundcloud_sign" / "soundcloud.ks"),
+      githubRepo         := "soundcloud/SoundCloud-Android",
+      cachePasswords     := true,
+      prepareAmazon      <<= (packageAlignedPath, streams) map { (path, s) =>
+        s.log.success("Ready for Amazon appstore:\n"+path)
+        path
+      } dependsOn (AndroidMarketPublish.signReleaseTask, AndroidMarketPublish.zipAlignTask)
+    )) ++ inConfig(Test)(Seq(
+      javaSource         <<= (baseDirectory) (_ / "tests" / "src" / "java"),
+      scalaSource        <<= (baseDirectory) (_ / "tests" / "src" / "scala"),
+      resourceDirectory  <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
+      parallelExecution  := false,
+      unmanagedClasspath := Seq.empty
+    ))
+    ++ AndroidInstall.settings
+    ++ Mavenizer.settings
   )
+
+  // integration tests
+  lazy val Integration = config("int")
+  lazy val soundcloud_android_tests = Project(
+    "soundcloud-android-tests",
+    file("tests-integration"),
+    settings = General.settings ++
+               AndroidTest.settings ++ Seq(
+      name:= "Integration tests",
+      libraryDependencies ++= integrationTestDependencies,
+      resolvers ++= repos,
+      javaSource       in Compile <<= (baseDirectory) (_ / "src" / "java"),
+      managedClasspath in Compile <<= managedClasspath in Integration
+    ) ++ inConfig(Android)(Seq(
+      useProguard    := false,
+      proguardInJars := Seq.empty,
+      mainResPath    <<= (baseDirectory, resDirectoryName) (_ / _) map (x=>x),
+      manifestPath   <<= (baseDirectory, manifestName) (_ / _) map (Seq(_)),
+      dxInputs       <<= (compile in Compile, managedClasspath in Integration, classDirectory in Compile) map {
+          (_, managedClasspath, classDirectory) => managedClasspath.map(_.data) :+ classDirectory
+      }
+    ))
+  ).configs(Integration)
+   .settings(inConfig(Integration)(Defaults.testSettings) : _*)
+   .dependsOn(soundcloud_android)
 }

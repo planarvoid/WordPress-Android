@@ -267,19 +267,22 @@ public class Main extends TabActivity implements
         // not a client url (e.g. soundcloud:tracks:123456)
         if (!data.getPathSegments().isEmpty()) {
             // TODO put this code under test
-            // only handle the first 2 path segments (resource only for now, actions to be implemented later)
-            int cutoff = 0;
-            if (data.getPathSegments().size() > 1 && (data.getPathSegments().get(1).equals("follow")
-                    || data.getPathSegments().get(1).equals("favorite"))){
+            // only handle the first 3 path segments (resource only for now, actions to be implemented later)
+            final int cutoff;
+            final int segments = data.getPathSegments().size();
+            if (segments > 1 &&
+                ("follow".equals(data.getPathSegments().get(1)) ||
+                 "favorite".equals(data.getPathSegments().get(1)))) {
                 cutoff = 1;
-            } else if (data.getPathSegments().size() > 2){
-                cutoff = 2;
+            } else {
+                cutoff = segments;
             }
+
             if (cutoff > 0) {
                 data = data.buildUpon().path(TextUtils.join("/", data.getPathSegments().subList(0, cutoff))).build();
             }
 
-            mResolveTask = new ResolveTask(getApp()) ;
+            mResolveTask = new ResolveTask(getApp());
             mResolveTask.setListener(this);
             mResolveTask.execute(data);
             return true;
@@ -384,15 +387,18 @@ public class Main extends TabActivity implements
     public void onUrlResolved(Uri uri, String action) {
         List<String> params = uri.getPathSegments();
         if (params.size() >= 2) {
-            if (params.get(0).equalsIgnoreCase("tracks")) {
+            final Request request = Request.to(uri.getPath() +
+                    (uri.getQuery() != null ? ("?"+uri.getQuery()) : ""));
+
+            if ("tracks".equalsIgnoreCase(params.get(0))) {
                 mFetchTrackTask = new FetchTrackTask(getApp(), 0);
                 mFetchTrackTask.addListener(onFetchTrackListener);
                 mFetchTrackTask.action = action;
-                mFetchTrackTask.execute(Request.to(uri.getPath()));
-            } else if (params.get(0).equalsIgnoreCase("users")) {
+                mFetchTrackTask.execute(request);
+            } else if ("users".equalsIgnoreCase(params.get(0))) {
                 mFetchUserTask = new FetchUserTask(getApp(), 0);
                 mFetchUserTask.addListener(onFetchUserListener);
-                mFetchUserTask.execute(Request.to(uri.getPath()));
+                mFetchUserTask.execute(request);
             }
         }
     }
