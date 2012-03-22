@@ -70,8 +70,11 @@ object AndroidBuild extends Build {
       githubRepo         := "soundcloud/SoundCloud-Android",
       cachePasswords     := true,
       prepareAmazon      <<= (packageAlignedPath, streams) map { (path, s) =>
-        s.log.success("Ready for Amazon appstore:\n"+path)
-        path
+        if (AmazonHelper.isAmazon(path)) {
+          val amazon = AmazonHelper.copy(path)
+          s.log.success("Ready for Amazon appstore:\n"+amazon)
+          amazon
+        } else sys.error(path.getName+" is not an Amazon processed APK!")
       } dependsOn (AndroidMarketPublish.signReleaseTask, AndroidMarketPublish.zipAlignTask)
     )) ++ inConfig(Test)(Seq(
       javaSource         <<= (baseDirectory) (_ / "tests" / "src" / "java"),
@@ -108,4 +111,16 @@ object AndroidBuild extends Build {
   ).configs(Integration)
    .settings(inConfig(Integration)(Defaults.testSettings) : _*)
    .dependsOn(soundcloud_android)
+}
+
+object AmazonHelper {
+    import collection.JavaConverters._
+    import java.util.zip.ZipFile
+
+    def isAmazon(f: File) = new ZipFile(f).entries.asScala.exists(_.getName.contains("com.amazon.content.id"))
+    def copy(f: File) = {
+        val amazon = new File(f.getParent, f.getName.replace(".apk", "-amazon.apk"))
+        IO.copyFile(f, amazon)
+        amazon
+    }
 }
