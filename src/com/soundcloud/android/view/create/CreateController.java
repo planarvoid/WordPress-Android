@@ -64,7 +64,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
     private Recording mRecording;
     private User mPrivateUser;
 
-    private TextView txtInstructions, txtRecordStatus, mChrono;
+    private TextView txtInstructions, txtRecordMessage, mChrono;
     private ViewGroup mFileLayout;
     private CreateWaveDisplay mWaveDisplay;
     private ImageButton btnAction;
@@ -129,7 +129,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
 
         txtInstructions = (TextView) vg.findViewById(R.id.txt_instructions);
-        txtRecordStatus = (TextView) vg.findViewById(R.id.txt_record_status);
+        txtRecordMessage = (TextView) vg.findViewById(R.id.txt_record_message);
 
         mChrono = (TextView) vg.findViewById(R.id.chronometer);
         mChrono.setVisibility(View.INVISIBLE);
@@ -455,9 +455,9 @@ public class CreateController implements CreateWaveDisplay.Listener {
             case IDLE_RECORD:
                 if (takeAction) stopPlayback();
                 if (!TextUtils.isEmpty(mRecordErrorMessage)) {
-                    txtRecordStatus.setText(mRecordErrorMessage);
+                    txtRecordMessage.setText(mRecordErrorMessage);
                 } else {
-                    txtRecordStatus.setText(null);
+                    txtRecordMessage.setText(getRandomSuggestion());
                 }
 
                 btnAction.setImageDrawable(btn_rec_states_drawable);
@@ -469,7 +469,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
                 showView(btnAction, false);
                 showView(txtInstructions, mLastState != CreateState.IDLE_RECORD);
-                showView(txtRecordStatus, mLastState != CreateState.IDLE_RECORD);
+                showView(txtRecordMessage, mLastState != CreateState.IDLE_RECORD);
 
                 mHandler.post(new Runnable() {
                     @Override
@@ -493,11 +493,11 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 btnAction.setVisibility(View.VISIBLE);
                 btnAction.setImageDrawable(btn_rec_states_drawable);
 
-                txtRecordStatus.setVisibility(View.VISIBLE);
+                txtRecordMessage.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.INVISIBLE);
                 mChrono.setVisibility(View.INVISIBLE);
                 txtInstructions.setVisibility(View.VISIBLE);
-                txtRecordStatus.setText(mCurrentState == CreateState.IDLE_STANDBY_REC ?
+                txtRecordMessage.setText(mCurrentState == CreateState.IDLE_STANDBY_REC ?
                         mActivity.getString(R.string.recording_in_progress) : mActivity.getString(R.string.playback_in_progress));
                 break;
 
@@ -509,10 +509,10 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
                 showView(mChrono,mLastState == CreateState.IDLE_RECORD);
                 showView(btnAction, false);
-                showView(txtRecordStatus,false);
+                showView(txtRecordMessage,false);
 
                 btnAction.setImageDrawable(btn_rec_stop_states_drawable);
-                txtRecordStatus.setText("");
+                txtRecordMessage.setText("");
                 mChrono.setText("");
 
                 if (takeAction) {
@@ -551,7 +551,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 showView(mChrono,false);
 
                 hideView(txtInstructions,false,View.GONE);
-                hideView(txtRecordStatus,false,View.INVISIBLE);
+                hideView(txtRecordMessage,false,View.INVISIBLE);
 
                 mPlayButton.setText(TEMP_PLAY);
                 mChrono.setText(mCurrentDurationString);
@@ -569,7 +569,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 showView(mChrono,false);
 
                 hideView(txtInstructions,false,View.GONE);
-                hideView(txtRecordStatus,false,View.INVISIBLE);
+                hideView(txtRecordMessage,false,View.INVISIBLE);
 
                 mPlayButton.setText(TEMP_STOP);
                 btnAction.setImageDrawable(btn_rec_states_drawable);
@@ -618,6 +618,10 @@ public class CreateController implements CreateWaveDisplay.Listener {
         btnAction.setEnabled(true);
     }
 
+    private CharSequence getRandomSuggestion() {
+        return "Why don't you record your flatmate snoring?";
+    }
+
     private boolean isInEditState(){
         return mCurrentState == CreateState.EDIT || mCurrentState == CreateState.EDIT_PLAYBACK;
     }
@@ -632,6 +636,8 @@ public class CreateController implements CreateWaveDisplay.Listener {
         mChrono.setText("0.00");
 
         mRemainingTimeCalculator.reset();
+        updateTimeRemaining();
+
         mWaveDisplay.gotoRecordMode();
 
         if (!IOUtils.isSDCardAvailable()) {
@@ -712,17 +718,17 @@ public class CreateController implements CreateWaveDisplay.Listener {
             return;
         }
 
-        Resources res = mActivity.getResources();
-        String timeStr = "";
-
-        if (t < 60) {
-            timeStr = res.getQuantityString(R.plurals.seconds_available, (int) t, t);
-        } else if (t < 300) {
-            timeStr = res.getQuantityString(R.plurals.minutes_available, (int) (t / 60 + 1),
-                    (t / 60 + 1));
+        if (t < 300){
+            if (t < 60) {
+                txtRecordMessage.setText(mActivity.getResources().getQuantityString(R.plurals.seconds_available, (int) t, t));
+            } else {
+                txtRecordMessage.setText(mActivity.getResources().getQuantityString(R.plurals.minutes_available, (int) (t / 60 + 1),
+                        (t / 60 + 1)));
+            }
+            txtRecordMessage.setVisibility(View.VISIBLE);
+        } else {
+            txtRecordMessage.setVisibility(View.INVISIBLE);
         }
-        txtRecordStatus.setText(timeStr);
-
     }
 
     public SoundCloudApplication.RecordListener recListener = new SoundCloudApplication.RecordListener() {

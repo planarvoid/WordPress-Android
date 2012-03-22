@@ -72,12 +72,13 @@
                 android:layout_centerVertical="true"/>
     </RelativeLayout>
 
-    <TextView android:id="@+id/txt_record_status"
-              android:layout_width="200dp"
+    <TextView android:id="@+id/txt_record_message"
+              android:layout_width="match_parent"
               android:layout_margin="5dip"
               style="@style/txt_record_message"
-              android:singleLine="true"
-              android:layout_height="30dp"/>
+              android:text="Why not capture the sound of your flatmate snoring?"
+              android:lines="2"
+              android:layout_height="wrap_content"/>
 
     <LinearLayout android:id="@+id/file_layout"
                   android:paddingBottom="5dip"

@@ -198,9 +198,10 @@
 
     <style name="txt_record_message">
         <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">#FF111111</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:paddingLeft">5dip</item>
-        <item name="android:paddingRight">5dip</item>
+        <item name="android:padding">5dip</item>
     </style>
 
     <style name="txt_connection_footer">
