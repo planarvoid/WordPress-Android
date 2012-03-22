@@ -27,7 +27,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecordingMetaData extends RelativeLayout{
+public class RecordingMetaData extends RelativeLayout {
 
     private Activity mActivity;
     private Recording mRecording;
@@ -59,7 +59,7 @@ public class RecordingMetaData extends RelativeLayout{
         init();
     }
 
-    private void init(){
+    private void init() {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.metadata, this);
 
@@ -72,7 +72,7 @@ public class RecordingMetaData extends RelativeLayout{
         if (mLocation == null) preloadLocations();
     }
 
-    public void setActivity(Activity activity){
+    public void setActivity(Activity activity) {
         mActivity = activity;
 
          mWhereText.setOnClickListener(new View.OnClickListener() {

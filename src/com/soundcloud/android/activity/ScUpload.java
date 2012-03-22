@@ -273,12 +273,12 @@ public class ScUpload extends ScActivity {
                 }
                 break;
             case LocationPicker.PICK_VENUE:
-                if (resultCode == RESULT_OK && result != null && result.hasExtra("name")) {
+                if (resultCode == RESULT_OK && result != null && result.hasExtra(LocationPicker.EXTRA_NAME)) {
                     // XXX candidate for model?
-                mRecordingMetadata.    setWhere(result.getStringExtra("name"),
-                            result.getStringExtra("id"),
-                            result.getDoubleExtra("longitude", 0),
-                            result.getDoubleExtra("latitude", 0));
+                mRecordingMetadata.setWhere(result.getStringExtra(LocationPicker.EXTRA_NAME),
+                            result.getStringExtra(LocationPicker.EXTRA_4SQ_ID),
+                            result.getDoubleExtra(LocationPicker.EXTRA_LONGITUDE, 0),
+                            result.getDoubleExtra(LocationPicker.EXTRA_LATITUDE, 0));
                 }
                 break;
             case Connect.MAKE_CONNECTION:
