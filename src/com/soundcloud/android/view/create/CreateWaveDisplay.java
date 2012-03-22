@@ -343,7 +343,6 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         state.putBoolean(prepend + "_inEditMode", mIsEditing);
         state.putFloat(prepend+"_trimPercentLeft",trimPercentLeft);
         state.putFloat(prepend + "_trimPercentRight", trimPercentRight);
-        mWaveformView.onSaveInstanceState(state);
     }
 
     public void onRestoreInstanceState(Bundle state) {
@@ -352,7 +351,6 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         mIsEditing = state.getBoolean(prepend + "_inEditMode", mIsEditing);
         trimPercentLeft = state.getFloat(prepend + "_trimPercentLeft", trimPercentLeft);
         trimPercentRight = state.getFloat(prepend + "_trimPercentRight", trimPercentRight);
-        mWaveformView.onRestoreInstanceState(state);
         mWaveformView.setMode(mMode,false);
         mWaveformView.setIsEditing(mIsEditing);
     }

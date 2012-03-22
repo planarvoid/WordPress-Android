@@ -18,6 +18,7 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.android.utils.record.RemainingTimeCalculator;
 
 import android.app.AlertDialog;
@@ -326,7 +327,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     public void onCreateServiceBound(ICloudCreateService createService) {
         mCreateService = createService;
-        mActivity.getApp().setRecordListener(recListener);
+        CloudRecorder.getInstance().setRecordListener(recListener);
         if (mActive) configureState();
     }
 
@@ -354,8 +355,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 if (shouldReactToRecording()) {
                     mCurrentState = CreateState.RECORD;
                     setRecordFile(new File(mCreateService.getRecordingPath()));
-                    mActivity.getApp().setRecordListener(recListener);
-                    mActivity.setRequestedOrientation(mActivity.getResources().getConfiguration().orientation);
+                    CloudRecorder.getInstance().setRecordListener(recListener);
                 } else {
                     mCurrentState = CreateState.IDLE_STANDBY_REC;
                 }
@@ -680,7 +680,6 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 mRemainingTimeCalculator.setFileSizeLimit(mRecordFile, PCM_REC_MAX_FILE_SIZE);
             }
 
-            mActivity.setRequestedOrientation(mActivity.getResources().getConfiguration().orientation);
             try {
                 mCreateService.startRecording(mRecordFile.getAbsolutePath());
                 //noinspection ResultOfMethodCallIgnored
@@ -732,7 +731,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         }
     }
 
-    public SoundCloudApplication.RecordListener recListener = new SoundCloudApplication.RecordListener() {
+    public CloudRecorder.RecordListener recListener = new CloudRecorder.RecordListener() {
         @Override
         public void onFrameUpdate(float maxAmplitude, long elapsed) {
             synchronized (this) {
@@ -745,7 +744,6 @@ public class CreateController implements CreateWaveDisplay.Listener {
     };
 
     private void stopRecording() {
-        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         try {
             if (mCreateService != null) {
                 mCreateService.stopRecording();
@@ -1007,12 +1005,11 @@ public class CreateController implements CreateWaveDisplay.Listener {
     public void onStop() {
         mHandler.removeCallbacks(mSmoothProgress);
         mActivity.unregisterReceiver(mUploadStatusListener);
-        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     public void onDestroy() {
-        if (mActivity.getApp().getRecordListener() == recListener) {
-            mActivity.getApp().setRecordListener(null);
+        if (CloudRecorder.getInstance().getRecordListener() == recListener) {
+            CloudRecorder.getInstance().setRecordListener(null);
         }
     }
 

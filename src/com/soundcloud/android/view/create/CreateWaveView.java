@@ -2,6 +2,7 @@ package com.soundcloud.android.view.create;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.task.create.CalculateAmplitudesTask;
+import com.soundcloud.android.utils.record.CloudRecorder;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -46,7 +47,7 @@ public class CreateWaveView extends View{
     private boolean mSized;
     private Paint mTrimLinePaint, mPlayedPaint, mUnplayedPaint,mDarkUnplayedPaint,mDarkPlayedPaint;
 
-    private List<Float> mAllAmplitudes = new ArrayList<Float>();
+    private List<Float> mAllAmplitudes;
     private int mRecordStartIndex = -1;
 
     private TransitionListener mTransitionListener;
@@ -114,9 +115,9 @@ public class CreateWaveView extends View{
     }
 
     public void reset() {
-        mAllAmplitudes.clear();
-
+        mAllAmplitudes = null;
         mRecordStartIndex = -1;
+
         mCurrentProgress = -1f;
         mAnimationStartTime = -1l;
         nextBufferX = 0;
@@ -140,26 +141,6 @@ public class CreateWaveView extends View{
 
     public void setIsEditing(boolean isEditing) {
         mIsEditing = isEditing;
-    }
-
-    public void onSaveInstanceState(Bundle state) {
-        final String prepend = this.getClass().getSimpleName();
-        final float[] floatArray = new float[mAllAmplitudes.size()];
-        for (int i = 0; i < mAllAmplitudes.size(); i++) {
-            Float f = mAllAmplitudes.get(i);
-            floatArray[i] = (f != null ? f : Float.NaN); // Or whatever default you want.
-        }
-        state.putFloatArray(prepend + "_amplitudes", floatArray);
-        state.putInt(prepend + "_recordIndex", mRecordStartIndex);
-    }
-
-    public void onRestoreInstanceState(Bundle state) {
-        final String prepend = this.getClass().getSimpleName();
-        mAllAmplitudes.clear();
-        for (float amp : state.getFloatArray(prepend + "_amplitudes")) {
-            mAllAmplitudes.add(amp);
-        }
-        mRecordStartIndex = state.getInt(prepend + "_recordIndex", mRecordStartIndex);
     }
 
     @Override
@@ -195,9 +176,8 @@ public class CreateWaveView extends View{
 
 
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
-        mAllAmplitudes.add(maxAmplitude);
          if (isRecording && mRecordStartIndex == -1) {
-            mRecordStartIndex = mAllAmplitudes.size()-1;
+            mRecordStartIndex = CloudRecorder.getInstance().writeIndex;
         }
         postInvalidate();
     }
@@ -222,6 +202,10 @@ public class CreateWaveView extends View{
     }
 
     private void drawFullWave(Canvas c) {
+
+        assertAmplitudeHistory();
+        if (mRecordStartIndex == -1) mRecordStartIndex = CloudRecorder.getInstance().writeIndex;
+
         float normalizedTime = Math.min(1.0f,(((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
 
@@ -296,6 +280,8 @@ public class CreateWaveView extends View{
 
 
     private void drawZoomWave(Canvas c) {
+
+        assertAmplitudeHistory();
 
         float normalizedTime = Math.min(1.0f,(((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
@@ -379,6 +365,10 @@ public class CreateWaveView extends View{
             final float v2 = amplitudesArray.get((int) Math.ceil(fIndex));
             return v1 + (v2 - v1) * (fIndex - ((int) fIndex));
         }
+    }
+
+    private void assertAmplitudeHistory(){
+        if (mAllAmplitudes == null) mAllAmplitudes = CloudRecorder.getInstance().amplitudes;
     }
 
     private static class Configuration {

@@ -126,7 +126,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
 
     private void refreshRecorder(){
         if (mRecorder != null) mRecorder.onDestroy();
-        mRecorder = new CloudRecorder(MediaRecorder.AudioSource.MIC);
+        mRecorder = CloudRecorder.getInstance();
         mRecorder.setRecordService(CloudCreateService.this);
     }
 
@@ -208,14 +208,10 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
 
         Intent i;
         if (messageRecipient != -1) {
-            i = (new Intent(Actions.MESSAGE))
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            i = (new Intent(Actions.MESSAGE));
             i.putExtra("recipient",messageRecipient);
         } else {
-            i = (new Intent(Actions.RECORD))
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            i = (new Intent(Actions.RECORD));
         }
 
 
@@ -257,8 +253,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     }
 
 
-    public void onRecordFrameUpdate(float maxAmplitude, long recordTimeMs) {
-        ((SoundCloudApplication) this.getApplication()).onFrameUpdate(maxAmplitude,recordTimeMs);
+    public void onRecordFrameUpdate(long recordTimeMs) {
         // this should happen every second
         if (recordTimeMs > -1 && frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker(recordTimeMs);
     }

@@ -82,7 +82,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static final UserCache USER_CACHE = new UserCache();
 
     public static boolean DEV_MODE, BETA_MODE;
-    private RecordListener mRecListener;
     private ImageLoader mImageLoader;
 
     private ATTracker mTracker;
@@ -235,17 +234,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public void onFrameUpdate(float maxAmplitude, long elapsed) {
-        if (mRecListener != null) mRecListener.onFrameUpdate(maxAmplitude, elapsed);
-    }
 
-    public RecordListener getRecordListener() {
-        return mRecListener;
-    }
-
-    public void setRecordListener(RecordListener listener) {
-        this.mRecListener = listener;
-    }
 
     public Account getAccount() {
         Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));
@@ -490,10 +479,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             if (tracking.page() != Page.UNKNOWN) track(tracking.page(), args);
             if (tracking.click() != Click.UNKNOWN) track(tracking.click(), args);
         }
-    }
-
-    public static interface RecordListener {
-        void onFrameUpdate(float maxAmplitude, long elapsed);
     }
 
     @Override

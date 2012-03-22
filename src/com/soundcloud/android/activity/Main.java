@@ -59,6 +59,7 @@ public class Main extends TabActivity implements
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
 
+
     private ResolveTask mResolveTask;
     private FetchTrackTask mFetchTrackTask;
     private FetchUserTask mFetchUserTask;
@@ -223,6 +224,9 @@ public class Main extends TabActivity implements
         } else if (Actions.PLAYER.equals(intent.getAction())) {
             // start another activity to control history
             startActivity(new Intent(this, ScPlayer.class));
+        } else if (Actions.RECORD.equals(intent.getAction())) {
+            // start another activity to control history
+            startActivity(new Intent(this, ScCreate.class).setFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY));
         } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             getTabHost().setCurrentTabByTag(Main.Tab.SEARCH.tag);
             if (getCurrentActivity() instanceof ScSearch) {
@@ -300,7 +304,24 @@ public class Main extends TabActivity implements
             spec.setContent(tab.getIntent(this));
             host.addTab(spec);
         }
-        host.setCurrentTabByTag(app.getAccountData(User.DataKeys.DASHBOARD_IDX));
+
+        /* RECORD is no longer a tab, its a button. so suck on that */
+        final String lastTag = app.getAccountData(User.DataKeys.DASHBOARD_IDX);
+        if (lastTag == Tab.RECORD.tag || lastTag == null){
+            host.setCurrentTabByTag(Tab.DEFAULT.tag);
+        } else {
+            host.setCurrentTabByTag(lastTag);
+        }
+
+
+        getTabWidget().getChildAt(2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Main.this, ScCreate.class));
+            }
+        });
+
+        /* END RECORD is no longer a tab */
 
         if (ImageUtils.isScreenXL(this)){
             configureTabs(this, widget, 90, -1, false);
@@ -486,7 +507,7 @@ public class Main extends TabActivity implements
         final int labelId, drawableId;
         final Class<? extends android.app.Activity> activityClass;
 
-        static final Tab DEFAULT = UNKNOWN;
+        static final Tab DEFAULT = STREAM;
 
         Tab(String tag, Class<? extends android.app.Activity> activityClass, int labelId, int drawableId) {
             this.tag = tag;
@@ -508,8 +529,10 @@ public class Main extends TabActivity implements
         }
 
         public static Tab fromString(String s) {
-            for (Tab t : values()) {
-                if (t.tag.equalsIgnoreCase(s)) return t;
+            if (!s.equalsIgnoreCase(RECORD.tag)){
+                for (Tab t : values()) {
+                    if (t.tag.equalsIgnoreCase(s)) return t;
+                }
             }
             return UNKNOWN;
         }
@@ -518,10 +541,10 @@ public class Main extends TabActivity implements
             Tab tab;
             if (Actions.ACTIVITY.equals(action)) {
                 tab = ACTIVITY;
-            } else if (Actions.RECORD.equals(action)) {
-                tab = RECORD;
             } else if (Actions.SEARCH.equals(action)) {
                 tab = SEARCH;
+            } else if (Actions.RECORD.equals(action)) {
+                tab = UNKNOWN;
             } else if (Actions.STREAM.equals(action)) {
                 tab = STREAM;
             } else if (Actions.PROFILE.equals(action)) {
@@ -533,6 +556,7 @@ public class Main extends TabActivity implements
         }
 
         public Intent getIntent(Context context) {
+            if (ScCreate.class.equals(activityClass)) return null;
             Intent intent = new Intent(context, activityClass);
             if (Dashboard.class.equals(activityClass)) {
                 intent.putExtra(TAB_TAG, tag);

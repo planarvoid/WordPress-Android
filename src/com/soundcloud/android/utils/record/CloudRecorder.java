@@ -2,26 +2,29 @@
 package com.soundcloud.android.utils.record;
 
 import com.soundcloud.android.service.record.CloudCreateService;
+import com.soundcloud.android.view.create.CreateController;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.ContactsContract;
-import android.renderscript.RenderScript;
+import android.provider.MediaStore;
 import android.util.Log;
-import com.soundcloud.android.view.create.CreateController;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CloudRecorder {
     static final String TAG = CloudRecorder.class.getSimpleName();
 
+     private static CloudRecorder instance = null;
+
     private State mState;
+    private boolean destroyed;
+
     public enum State {
         IDLE, READING, RECORDING, ERROR
     }
@@ -43,17 +46,25 @@ public class CloudRecorder {
     private int framePeriod;
 
     private byte[] buffer;
+    private long mElapsedTime;
 
     private CloudCreateService service;
     private int mLastMax = 0;
     private int mCurrentAdjustedMaxAmplitude= 0;
 
-    /**
-     * Default constructor Instantiates a new recorder, in case of compressed
-     * recording the parameters can be left as 0. In case of errors, no
-     * exception is thrown, but the state is set to ERROR
-     */
-    public CloudRecorder(int audioSource) {
+    private RecordListener mRecListener;
+
+    public List<Float> amplitudes = new ArrayList<Float>();
+    public int writeIndex;
+
+    public static CloudRecorder getInstance() {
+      if(instance == null || instance.destroyed) {
+         instance = new CloudRecorder();
+      }
+      return instance;
+   }
+
+    protected CloudRecorder() {
         nChannels = 2;
         mSamples = 16;
         mSampleRate = CreateController.REC_SAMPLE_RATE;
@@ -71,7 +82,7 @@ public class CloudRecorder {
             framePeriod = bufferSize / (2 * mSamples * nChannels / 8);
             Log.w(TAG, "Increasing buffer size to " + bufferSize);
         }
-        mAudioRecord = new AudioRecord(audioSource, mSampleRate, nChannels + 1, audioFormat, bufferSize);
+        mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, mSampleRate, nChannels + 1, audioFormat, bufferSize);
         buffer = new byte[framePeriod * mSamples / 8 * nChannels];
         mFilepath = null;
         mState = State.IDLE;
@@ -97,9 +108,20 @@ public class CloudRecorder {
     /**
      * Starts reading microphone input, and sets the state to READING.
      */
+
     public void startReading() {
-        if (mState == State.IDLE) {
-            mState = State.READING;
+        amplitudes.clear();
+        writeIndex = -1;
+        startReadingInternal(false);
+    }
+
+    private void startReadingInternal(final boolean setToRecording) {
+
+        // check to see if we are already reading
+        final boolean startReading = (mState != State.READING && mState != State.RECORDING);
+        // avoid a race condition
+        mState = setToRecording ? State.RECORDING : State.READING;
+        if (startReading) {
             mAudioRecord.startRecording();
             readerThread = new Thread(new Runnable() {
                 @Override
@@ -112,17 +134,12 @@ public class CloudRecorder {
             readerThread.start();
             queueNextRefresh(TIMER_INTERVAL);
         }
-
     }
 
     // Sets output file path, call directly after construction/reset.
     public void recordToFile(String argPath) {
-        if (mState != State.READING) {
-            startReading();
-        }
-
         try {
-            if (mState == State.READING) {
+            if (mState != State.RECORDING){
                 mFilepath = argPath;
                 // write file header
                 mWriter = new RandomAccessFile(mFilepath, "rw");
@@ -145,7 +162,7 @@ public class CloudRecorder {
                 } else {
                     mWriter.seek(mWriter.length());
                 }
-                mState = State.RECORDING;
+                startReadingInternal(true);
             }
         } catch (Exception e) {
             if (e.getMessage() != null) {
@@ -228,8 +245,7 @@ public class CloudRecorder {
 
                 try {
                     buffer.wait(sleep);
-                } catch (InterruptedException e) {
-                }
+                } catch (InterruptedException ignore) {}
             }
         }
     }
@@ -268,12 +284,25 @@ public class CloudRecorder {
                             mCurrentAdjustedMaxAmplitude = (int) (mCurrentAdjustedMaxAmplitude * .4);
                         }
 
-                        try {
-                            service.onRecordFrameUpdate((float) Math.max(.1f,
-                                    ((float) Math.sqrt(Math.sqrt(mCurrentAdjustedMaxAmplitude)))
-                                    / MAX_ADJUSTED_AMPLITUDE), mState != State.RECORDING ? -1 : PcmUtils.byteToMs(mWriter.length()));
-                        } catch (IOException e) {
-                            Log.e(TAG,"Error accessing writer on frame update",e);
+
+                        if (mState == State.READING || mState == State.RECORDING) {
+                            try {
+
+                                if (mState == State.RECORDING && writeIndex == -1) {
+                                    writeIndex = amplitudes.size();
+                                }
+
+                                mElapsedTime = mState != State.RECORDING ? -1 : PcmUtils.byteToMs(mWriter.length());
+                                final float frameAmplitude = Math.max(.1f,
+                                        ((float) Math.sqrt(Math.sqrt(mCurrentAdjustedMaxAmplitude)))
+                                                / MAX_ADJUSTED_AMPLITUDE);
+
+                                amplitudes.add(frameAmplitude);
+                                if (mRecListener != null) mRecListener.onFrameUpdate(frameAmplitude, mElapsedTime);
+                                service.onRecordFrameUpdate(mElapsedTime);
+                            } catch (IOException e) {
+                                Log.e(TAG, "Error accessing writer on frame update", e);
+                            }
                         }
                     }
 
@@ -298,10 +327,23 @@ public class CloudRecorder {
         }
         mAudioRecord.release();
         refreshHandler.removeMessages(REFRESH);
+        destroyed = true;
     }
 
     // Converts a byte[2] to a short, in LITTLE_ENDIAN format
     private short getShort(byte argB1, byte argB2) {
         return (short) (argB1 | (argB2 << 8));
+    }
+
+    public RecordListener getRecordListener() {
+        return mRecListener;
+    }
+
+    public void setRecordListener(RecordListener listener) {
+        this.mRecListener = listener;
+    }
+
+    public static interface RecordListener {
+        void onFrameUpdate(float maxAmplitude, long elapsed);
     }
 }
