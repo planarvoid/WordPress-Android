@@ -299,7 +299,9 @@ public class LocationPicker extends ListActivity {
             if (loc == null) return;
             new FoursquareVenueTask(max) {
                 @Override protected void onPreExecute() {
-                    showDialog(LOADING);
+                    if (mVenues == null || mVenues.isEmpty()) {
+                        showDialog(LOADING);
+                    }
                 }
                 @Override protected void onPostExecute(List<FoursquareVenue> venues) {
                     try {
