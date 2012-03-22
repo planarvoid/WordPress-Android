@@ -18,6 +18,8 @@ import android.widget.EditText;
 public class LocationPickerTest {
     @Test
     public void shouldSetNameAndLocationAfterUserEntersText() throws Exception {
+        Robolectric.addPendingHttpResponse(404, "Error");
+
         LocationPicker lp = new LocationPicker();
         Location loc = new Location(LocationManager.PASSIVE_PROVIDER);
         loc.setLatitude(12d);
@@ -35,7 +37,6 @@ public class LocationPickerTest {
         expect(result).not.toBeNull();
         expect(result.getData()).toEqual("location://manual");
         expect(result.getStringExtra(LocationPicker.EXTRA_NAME)).toEqual("Foo");
-
         expect(result.getDoubleExtra(LocationPicker.EXTRA_LATITUDE, -1d)).toEqual(12d);
         expect(result.getDoubleExtra(LocationPicker.EXTRA_LONGITUDE, -1d)).toEqual(13d);
     }
