@@ -12,7 +12,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Shader;
-import android.os.Debug;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -41,17 +41,13 @@ public class CreateWaveView extends View{
     private int mTrimLeft, mTrimRight;
 
     private int mMode;
-    private boolean mInEditMode;
-
-    private static final int MODE_ZOOM = 0;
-    private static final int MODE_FULL = 1;
+    private boolean mIsEditing;
 
     private boolean mSized;
     private Paint mTrimLinePaint, mPlayedPaint, mUnplayedPaint,mDarkUnplayedPaint,mDarkPlayedPaint;
 
-    private ArrayList<Float> mAllAmplitudes = new ArrayList<Float>();
+    private List<Float> mAllAmplitudes = new ArrayList<Float>();
     private int mRecordStartIndex = -1;
-    private double[] mRealAmplitudes;
 
     private TransitionListener mTransitionListener;
 
@@ -87,19 +83,27 @@ public class CreateWaveView extends View{
         mDarkPlayedPaint.setColor(WAVEFORM_DARK_ORANGE);
     }
 
-    public void gotoPlaybackMode(){
-        if (mMode != MODE_FULL){
-            mCurrentProgress = -1;
-            mMode = MODE_FULL;
-            mAnimationStartTime = System.currentTimeMillis();
-            postInvalidate();
+    public float[] getAmplitudes() {
+        float[] floatArray = new float[mAllAmplitudes.size()];
+        for (int i = 0; i < mAllAmplitudes.size(); i++) {
+            Float f = mAllAmplitudes.get(i);
+            floatArray[i] = (f != null ? f : Float.NaN); // Or whatever default you want.
+        }
+        return floatArray;
+    }
+
+    public void setAmplitudes(float[] amplitudes) {
+        mAllAmplitudes.clear();
+        for (float amp : amplitudes) {
+            mAllAmplitudes.add(amp);
         }
     }
 
-    public void gotoRecordMode(){
-        if (mMode != MODE_ZOOM){
-            mMode = MODE_ZOOM;
-            mAnimationStartTime = System.currentTimeMillis();
+    public void setMode(int mode, boolean animate){
+        if (mMode != mode){
+            mMode = mode;
+            mCurrentProgress = -1;
+            if (animate) mAnimationStartTime = System.currentTimeMillis();
             postInvalidate();
         }
     }
@@ -116,8 +120,8 @@ public class CreateWaveView extends View{
         mCurrentProgress = -1f;
         mAnimationStartTime = -1l;
         nextBufferX = 0;
-        mMode = MODE_ZOOM;
-        mInEditMode = false;
+        mMode = CreateWaveDisplay.MODE_REC;
+        mIsEditing = false;
         resetTrim();
 
         if (bitmap != null) {
@@ -134,17 +138,37 @@ public class CreateWaveView extends View{
     }
 
 
-    public void setInEditMode(boolean inEditMode) {
-        mInEditMode = inEditMode;
+    public void setIsEditing(boolean isEditing) {
+        mIsEditing = isEditing;
+    }
+
+    public void onSaveInstanceState(Bundle state) {
+        final String prepend = this.getClass().getSimpleName();
+        final float[] floatArray = new float[mAllAmplitudes.size()];
+        for (int i = 0; i < mAllAmplitudes.size(); i++) {
+            Float f = mAllAmplitudes.get(i);
+            floatArray[i] = (f != null ? f : Float.NaN); // Or whatever default you want.
+        }
+        state.putFloatArray(prepend + "_amplitudes", floatArray);
+        state.putInt(prepend + "_recordIndex", mRecordStartIndex);
+    }
+
+    public void onRestoreInstanceState(Bundle state) {
+        final String prepend = this.getClass().getSimpleName();
+        mAllAmplitudes.clear();
+        for (float amp : state.getFloatArray(prepend + "_amplitudes")) {
+            mAllAmplitudes.add(amp);
+        }
+        mRecordStartIndex = state.getInt(prepend + "_recordIndex", mRecordStartIndex);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         switch (mMode) {
-            case MODE_ZOOM :
+            case CreateWaveDisplay.MODE_REC :
                 drawZoomWave(canvas);
                 break;
-            case MODE_FULL:
+            case CreateWaveDisplay.MODE_PLAYBACK:
                 drawFullWave(canvas);
                 break;
             default:
@@ -185,14 +209,6 @@ public class CreateWaveView extends View{
 
     public float getCurrentProgress() {
         return mCurrentProgress;
-    }
-
-    public void setWave(double[] amplitudes, double sampleMax) {
-        mRealAmplitudes = amplitudes;
-        mSampleMax = sampleMax;
-        invalidate();
-        mTrimLeft = -1;
-        mTrimRight = getWidth();
     }
 
     public void setTrimLeft(int trimLeft) {
@@ -243,7 +259,7 @@ public class CreateWaveView extends View{
 
             } else {
                 final int currentProgressIndex = (int) (getWidth() * mCurrentProgress);
-                if (!mInEditMode) {
+                if (!mIsEditing) {
                     // just draw progress (full orange if no current progress)
                     if (currentProgressIndex < 0) {
                         drawPointsOnCanvas(c, points, mPlayedPaint);

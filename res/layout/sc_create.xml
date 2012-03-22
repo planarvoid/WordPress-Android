@@ -22,7 +22,6 @@
                       android:singleLine="true"/>
             <FrameLayout android:id="@+id/gauge_holder"
                          android:layout_below="@+id/chronometer"
-                         style="@style/txt_record_instructions"
                          android:layout_height="100dip"
                          android:layout_width="fill_parent"/>
         </LinearLayout>

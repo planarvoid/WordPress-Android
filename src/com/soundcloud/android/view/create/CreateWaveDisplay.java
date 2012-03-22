@@ -7,9 +7,11 @@ import com.soundcloud.android.view.TouchLayout;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.RelativeLayout;
@@ -18,9 +20,8 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
 
     private static long ANIMATION_ZOOM_TIME = 500;
 
-    public static final int MODE_GAUGE_IDLE = 0;
-    public static final int MODE_GAUGE_REC = 1;
-    public static final int MODE_PLAYBACK = 2;
+    public static final int MODE_REC = 0;
+    public static final int MODE_PLAYBACK = 1;
 
     private static final long MIN_SEEK_INTERVAL = 100;
     private static final int UI_UPDATE_SEEK = 1;
@@ -35,7 +36,7 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
     private int mMode;
     private int mTouchMode;
 
-    private boolean mInEditMode;
+    private boolean mIsEditing;
 
     private CreateWaveView mWaveformView;
     private RawAudioPlayer mRawAudioPlayer;
@@ -290,13 +291,17 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
     }
 
     public void gotoRecordMode() {
-        mMode = MODE_GAUGE_REC;
-        mWaveformView.gotoRecordMode();
+        if (mMode != MODE_REC) {
+            mMode = MODE_REC;
+            mWaveformView.setMode(mMode, true);
+        }
     }
 
     public void gotoPlaybackMode(){
-        mMode = MODE_PLAYBACK;
-        mWaveformView.gotoPlaybackMode();
+        if (mMode != MODE_PLAYBACK){
+            mMode = MODE_PLAYBACK;
+            mWaveformView.setMode(mMode, true);
+        }
     }
 
     public void resetTrim(){
@@ -317,11 +322,11 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         mWaveformView.reset();
     }
 
-    public void setInEditMode(boolean inEditMode) {
-        if (inEditMode != mInEditMode){
-            mInEditMode = inEditMode;
-            mWaveformView.setInEditMode(inEditMode);
-            if (mInEditMode){
+    public void setIsEditing(boolean isEditing) {
+        if (isEditing != mIsEditing){
+            mIsEditing = isEditing;
+            mWaveformView.setIsEditing(isEditing);
+            if (mIsEditing){
                 setTrimHandles();
                 mWaveformView.setBackgroundColor(Color.BLACK);
             } else {
@@ -330,5 +335,25 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
                 mWaveformView.setBackgroundDrawable(null);
             }
         }
+    }
+
+    public void onSaveInstanceState(Bundle state) {
+        final String prepend = this.getClass().getSimpleName();
+        state.putInt(prepend + "_mode", mMode);
+        state.putBoolean(prepend + "_inEditMode", mIsEditing);
+        state.putFloat(prepend+"_trimPercentLeft",trimPercentLeft);
+        state.putFloat(prepend + "_trimPercentRight", trimPercentRight);
+        mWaveformView.onSaveInstanceState(state);
+    }
+
+    public void onRestoreInstanceState(Bundle state) {
+        final String prepend = this.getClass().getSimpleName();
+        mMode = state.getInt(prepend + "_mode", mMode);
+        mIsEditing = state.getBoolean(prepend + "_inEditMode", mIsEditing);
+        trimPercentLeft = state.getFloat(prepend + "_trimPercentLeft", trimPercentLeft);
+        trimPercentRight = state.getFloat(prepend + "_trimPercentRight", trimPercentRight);
+        mWaveformView.onRestoreInstanceState(state);
+        mWaveformView.setMode(mMode,false);
+        mWaveformView.setIsEditing(mIsEditing);
     }
 }

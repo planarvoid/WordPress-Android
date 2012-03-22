@@ -1,90 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:background="@drawable/bg_rec">
 
-    <RelativeLayout android:id="@+id/bar_holder"
-                    android:layout_width="fill_parent"
-                    android:layout_height="60dip"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="15dip"
-                    android:layout_marginRight="15dip"
-                    android:layout_toRightOf="@+id/btn_action">
-        <FrameLayout android:id="@+id/gauge_holder"
-                     android:layout_width="fill_parent"
-                     android:layout_centerInParent="true"
-                     android:layout_height="fill_parent"/>
-        <SeekBar android:id="@+id/progress_bar"
-                 android:thumb="@drawable/empty"
+    <FrameLayout android:id="@+id/gauge_holder"
                  android:layout_width="fill_parent"
-                 android:layout_height="30dip"
                  android:layout_centerInParent="true"
-                 android:orientation="horizontal"
-                 style="@style/ScProgressBarRound"
-                />
-    </RelativeLayout>
+                 android:layout_marginBottom="-20dp"
+                 android:layout_height="100dp"/>
 
-
-    <RelativeLayout android:id="@+id/RelatieLayout03"
-                    android:layout_width="wrap_content"
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_margin="5dp"
                     android:layout_height="0dp"
-                    android:layout_toRightOf="@+id/btn_action"
-                    android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
-                    android:layout_above="@+id/bar_holder"
+                    android:layout_above="@+id/gauge_holder"
                     android:gravity="center">
-
-        <TextView android:id="@+id/chronometer"
-                  android:layout_centerInParent="true"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:keepScreenOn="true"
-                  style="@style/txt_record_chrono"/>
-    </RelativeLayout>
-
-    <RelativeLayout android:id="@+id/instructions_holder"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_toRightOf="@+id/btn_action"
-                    android:layout_centerVertical="true"
-                    android:layout_width="fill_parent">
-
-        <TextView android:id="@+id/txt_instructions"
-                  android:layout_centerHorizontal="true"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  style="@style/txt_record_instructions"
-                  android:text="@string/record_instructions"
-                  android:layout_centerInParent="true"
-                  android:gravity="center"/>
-    </RelativeLayout>
-
-    <ImageButton android:id="@+id/btn_action"
-                 android:background="@color/transparent"
+        <ImageButton android:id="@+id/btn_action"
+                 android:background="@null"
+                 android:adjustViewBounds="true"
                  android:src="@drawable/btn_rec_states"
+                 android:scaleType="centerInside"
                  android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_alignParentLeft="true"
-                 android:layout_centerVertical="true"
-                 android:layout_marginLeft="10dip"/>
+                 android:layout_height="fill_parent"
+                 android:layout_alignParentLeft="true"/>
+        <FrameLayout android:layout_width="0dp"
+                     android:layout_weight="1"
+                     android:layout_height="wrap_content">
+            <TextView android:id="@+id/chronometer"
+                      android:layout_centerInParent="true"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:keepScreenOn="true"
+                      style="@style/txt_record_chrono"/>
 
-    <TextView android:id="@+id/txt_record_status"
-              android:layout_width="fill_parent"
-              android:layout_toRightOf="@+id/btn_action"
+            <TextView android:id="@+id/txt_instructions"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      style="@style/txt_record_instructions"
+                      android:text="@string/record_instructions"
+                      android:layout_centerInParent="true"
+                      android:gravity="center"/>
+        </FrameLayout>
+         <Button android:id="@+id/btn_play"
+                style="@style/btn_dark"
+                android:text="Play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        <Button android:id="@+id/btn_edit"
+                style="@style/btn_dark"
+                android:text="Edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+
+    <TextView android:id="@+id/txt_record_message"
               android:layout_alignParentBottom="true"
-              android:layout_height="wrap_content"
-              android:gravity="center"
+              android:layout_width="match_parent"
+              android:layout_margin="5dip"
               style="@style/txt_record_message"
-              android:layout_marginBottom="10dip"/>
+              android:text="Why not capture the sound of your flatmate snoring?"
+              android:lines="2"
+              android:layout_height="wrap_content"/>
 
     <RelativeLayout android:layout_height="wrap_content"
                     android:layout_width="fill_parent"
                     android:paddingBottom="5dip"
                     android:layout_alignParentBottom="true"
-                    android:layout_toRightOf="@+id/btn_action"
-                    android:layout_below="@+id/progress_bar">
+                    android:layout_toRightOf="@+id/btn_action">
 
         <LinearLayout android:id="@+id/file_layout"
                       android:paddingBottom="5dip"
@@ -124,17 +108,5 @@
                     android:layout_marginLeft="15dip"
                     android:layout_marginRight="10dip"/>
         </LinearLayout>
-    </RelativeLayout>
-
-    <RelativeLayout android:id="@+id/progress_frame"
-                    android:layout_height="fill_parent"
-                    android:layout_width="fill_parent"
-                    android:background="@color/progressDarkAlphaBackground"
-                    android:visibility="gone">
-
-        <ProgressBar android:indeterminateOnly="true"
-                     android:layout_centerInParent="true"
-                     android:layout_width="40dip"
-                     android:layout_height="40dip"/>
     </RelativeLayout>
 </RelativeLayout>

@@ -28,7 +28,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
@@ -363,7 +362,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
             } else if ( mCreateService.isPlayingBack()) {
                 //if (recordingId == mCreateService.getPlaybackLocalId())
                 if (shouldReactToPlayback()) {
-                    mCurrentState = CreateState.PLAYBACK;
+                    if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
                     setRecordFile(new File(mCreateService.getPlaybackPath()));
                     configurePlaybackInfo();
                     mHandler.postDelayed(mSmoothProgress, 0);
@@ -429,9 +428,11 @@ public class CreateController implements CreateWaveDisplay.Listener {
     public void onSaveInstanceState(Bundle state) {
         state.putString("createCurrentCreateState", mCurrentState.toString());
         state.putString("createCurrentRecordFilePath", mRecordFile != null ? mRecordFile.getAbsolutePath() : "");
+        mWaveDisplay.onSaveInstanceState(state);
     }
 
     public void onRestoreInstanceState(Bundle state) {
+        if (state.isEmpty()) return;
         if (!TextUtils.isEmpty(state.getString("createCurrentRecordFilePath"))) {
             setRecordFile(new File(state.getString("createCurrentRecordFilePath")));
         }
@@ -439,6 +440,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
             mCurrentState = CreateState.valueOf(state.getString("createCurrentCreateState"));
             updateUi(false);
         }
+        mWaveDisplay.onRestoreInstanceState(state);
     }
 
     public void onRecordingError() {
@@ -462,14 +464,14 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
                 btnAction.setImageDrawable(btn_rec_states_drawable);
 
-                hideView(mPlayButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
-                hideView(mEditButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
-                hideView(mFileLayout, mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
+                hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
                 hideView(mChrono, false, View.INVISIBLE);
 
                 showView(btnAction, false);
-                showView(txtInstructions, mLastState != CreateState.IDLE_RECORD);
-                showView(txtRecordMessage, mLastState != CreateState.IDLE_RECORD);
+                showView(txtInstructions, takeAction && mLastState != CreateState.IDLE_RECORD);
+                showView(txtRecordMessage, takeAction && mLastState != CreateState.IDLE_RECORD);
 
                 mHandler.post(new Runnable() {
                     @Override
@@ -502,12 +504,12 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 break;
 
             case RECORD:
-                hideView(mPlayButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
-                hideView(mEditButton, mLastState != CreateState.IDLE_RECORD, View.GONE);
-                hideView(mFileLayout, mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
+                hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
                 hideView(txtInstructions, false, View.GONE);
 
-                showView(mChrono,mLastState == CreateState.IDLE_RECORD);
+                showView(mChrono, takeAction && mLastState == CreateState.IDLE_RECORD);
                 showView(btnAction, false);
                 showView(txtRecordMessage,false);
 
@@ -537,17 +539,14 @@ public class CreateController implements CreateWaveDisplay.Listener {
                             mHandler.removeCallbacks(mSmoothProgress);
                             break;
                     }
+                    mWaveDisplay.gotoPlaybackMode();
                 }
 
-                boolean animate = mLastState == CreateState.RECORD
-                        || mLastState == CreateState.EDIT
-                        || mLastState == CreateState.EDIT_PLAYBACK;
-
                 mPlayButton.setVisibility(View.GONE); // just to fool the animation
-                showView(mPlayButton,(mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
-                showView(mEditButton,(mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
-                showView(btnAction,(mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
-                showView(mFileLayout,(mLastState == CreateState.RECORD));
+                showView(mPlayButton, takeAction && (mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
+                showView(mEditButton, takeAction && (mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
+                showView(btnAction, takeAction && (mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
+                showView(mFileLayout, takeAction && (mLastState == CreateState.RECORD));
                 showView(mChrono,false);
 
                 hideView(txtInstructions,false,View.GONE);
@@ -557,7 +556,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 mChrono.setText(mCurrentDurationString);
                 btnAction.setImageDrawable(btn_rec_states_drawable);
 
-                mWaveDisplay.gotoPlaybackMode();
+
                 setResetState();
                 break;
 
@@ -582,13 +581,15 @@ public class CreateController implements CreateWaveDisplay.Listener {
             case EDIT:
             case EDIT_PLAYBACK:
                 mPlayButton.setVisibility(View.GONE); // just to fool the animation
-                showView(mPlayButton, (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+                showView(mPlayButton, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
                 showView(mResetButton,false);
                 showView(mFileLayout,false);
 
                 hideView(btnAction, false, View.GONE);
                 hideView(mEditButton, false, View.GONE);
                 hideView(mDeleteButton,false, View.GONE);
+                hideView(txtInstructions,false,View.GONE);
+                hideView(txtRecordMessage,false,View.INVISIBLE);
 
                 mPlayButton.setText(mCurrentState == CreateState.EDIT ? TEMP_PLAY : TEMP_STOP);
 
@@ -612,7 +613,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         final boolean inEditState = isInEditState();
         mResetButton.setText(inEditState ? mActivity.getResources().getString(R.string.btn_revert_to_original) : mActivity.getResources().getString(R.string.reset) );
         mSaveButton.setText(inEditState ? mActivity.getResources().getString(R.string.btn_save) : mActivity.getResources().getString(R.string.btn_next));
-        mWaveDisplay.setInEditMode(inEditState);
+        mWaveDisplay.setIsEditing(inEditState);
 
         mLastState = mCurrentState;
         btnAction.setEnabled(true);
