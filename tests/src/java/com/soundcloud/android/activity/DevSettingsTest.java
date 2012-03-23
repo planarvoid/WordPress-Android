@@ -50,7 +50,7 @@ public class DevSettingsTest {
 
         List<Toast> toasts = shadowOf(Robolectric.application).getShownToasts();
         expect(toasts.size()).toEqual(1);
-        expect(ShadowToast.getTextOfLatestToast()).toMatch("Alarm set to \\d+ (seconds|hours|minutes)");
+        expect(ShadowToast.getTextOfLatestToast()).toMatch("Alarm in \\d+ (seconds|hours|minutes)");
     }
 
 

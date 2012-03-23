@@ -25,9 +25,11 @@
     <string name='pref_dev_http_proxy_summary'>Use a proxy to connect to the API</string>
     <string name='pref_dev_http_proxy_invalid_url'>Invalid URL</string>
 
+    <string name="pref_dev_extras">Extras</string>
 
     <!-- alarm clock -->
     <string name="dev_alarm_set">Alarm set to %s</string>
+    <string name="dev_alarm_in">Alarm in %s</string>
     <string name='pref_dev_alarm_clock'>Alarm clock</string>
     <string name='pref_dev_alarm_clock_summary'>Set an alarm</string>
     <string name='pref_dev_alarm_play_uri'>Alarm playlist</string>

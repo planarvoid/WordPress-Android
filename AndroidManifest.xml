@@ -168,7 +168,7 @@
         <activity android:name=".activity.TrackComments" />
         <activity android:name=".activity.TracksByTag" />
         <activity android:name=".activity.ScSearch"/>
-        <activity android:name=".activity.Settings" android:label="Settings" />
+        <activity android:name=".activity.Settings" android:label="Settings"/>
         <activity android:name=".activity.AccountPreferences" />
         <activity android:name=".activity.NotificationSettings" android:label="Notifications Settings" />
         <activity android:name=".activity.UserBrowser" android:label="Profile"/>
@@ -246,6 +246,11 @@
             <intent-filter>
                 <action android:name="com.soundcloud.android.actions.ALARM"/>
                 <action android:name="com.soundcloud.android.actions.CANCEL_ALARM"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SECRET_CODE" />
+                <data android:scheme="android_secret_code" android:host="25276"/>
             </intent-filter>
         </receiver>
 

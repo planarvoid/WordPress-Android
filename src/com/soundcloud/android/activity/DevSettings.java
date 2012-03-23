@@ -20,6 +20,7 @@ import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.PowerManager;
 import android.preference.Preference;
@@ -37,11 +38,19 @@ import java.net.URL;
 public final class DevSettings {
     public static final String PREF_KEY = "dev-settings";
 
+    public static final String DEV_CLEAR_NOTIFICATIONS = "dev.clearNotifications";
+    public static final String DEV_REWIND_NOTIFICATIONS = "dev.rewindNotifications";
+    public static final String DEV_SYNC_NOW = "dev.syncNow";
+    public static final String DEV_CRASH = "dev.crash";
+    public static final String DEV_HTTP_PROXY = "dev.http.proxy";
+    public static final String DEV_ALARM_CLOCK = "dev.alarmClock";
+    public static final String DEV_ALARM_CLOCK_URI = "dev.alarmClock.uri";
+
     private DevSettings() {
     }
 
     public static void setup(final PreferenceActivity activity, final SoundCloudApplication app) {
-        activity.findPreference("dev.clearNotifications").setOnPreferenceClickListener(
+        activity.findPreference(DEV_CLEAR_NOTIFICATIONS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
@@ -50,7 +59,7 @@ public final class DevSettings {
                     }
                 });
 
-        activity.findPreference("dev.rewindNotifications").setOnPreferenceClickListener(
+        activity.findPreference(DEV_REWIND_NOTIFICATIONS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
@@ -60,7 +69,7 @@ public final class DevSettings {
                 });
 
 
-        activity.findPreference("dev.syncNow").setOnPreferenceClickListener(
+        activity.findPreference(DEV_SYNC_NOW).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
@@ -70,7 +79,7 @@ public final class DevSettings {
                 });
 
 
-        activity.findPreference("dev.crash").setOnPreferenceClickListener(
+        activity.findPreference(DEV_CRASH).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
@@ -82,7 +91,7 @@ public final class DevSettings {
                     }
                 });
 
-        activity.findPreference("dev.http.proxy").setOnPreferenceChangeListener(
+        activity.findPreference(DEV_HTTP_PROXY).setOnPreferenceChangeListener(
                 new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object s) {
@@ -106,30 +115,33 @@ public final class DevSettings {
                 }
         );
 
-        activity.findPreference("dev.alarmClock").setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        new AlarmClock(activity).showDialog();
-                        return true;
-                    }
-                }
-        );
 
-        SharedPreferencesUtils.listWithLabel(activity,
-                R.string.pref_dev_alarm_play_uri,
-                "dev.alarmClock.uri");
+        if (AlarmClock.isEnabled(activity)) {
+            activity.findPreference(DEV_ALARM_CLOCK).setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        public boolean onPreferenceClick(Preference preference) {
+                            new AlarmClock(activity).showDialog();
+                            return true;
+                        }
+                    }
+            );
+            SharedPreferencesUtils.listWithLabel(activity,
+                    R.string.pref_dev_alarm_play_uri,
+                    DEV_ALARM_CLOCK_URI);
+        }
+
     }
 
     public static final class AlarmClock {
         public static final String TAG = AlarmClock.class.getSimpleName();
-        public static final String PREF_URI      = "dev.alarmClock.uri";
-        public static final String DEFAULT_URI = Content.ME_TRACKS.uri.toString();
-        public static final int NOTIFICATION_ID = 9999;
+        public static final String DEFAULT_URI   = Content.ME_SOUND_STREAM.uri.toString();
+        public static final int NOTIFICATION_ID  = 9999;
 
-        public static final String KEY = "dev.alarm";
+        public static final String KEY     = "dev.alarm";
         public static final String DEFAULT = "10:00";
 
         public static final String EXTRA_URI = "uri";
+        public static final String PREF_ALARM_CLOCK_ENABLED = "dev.alarmClock.enabled";
 
         private Context mContext;
         private int mHour, mMinute;
@@ -156,7 +168,7 @@ public final class DevSettings {
             Log.d(TAG, "setting alarm to: " + alarm.format2445());
             mgr.set(AlarmManager.RTC_WAKEUP, alarm.toMillis(false), getAlarmIntent(null));
             double in = (alarm.toMillis(false) - now.toMillis(false)) / 1000d;
-            CloudUtils.showToast(mContext, R.string.dev_alarm_set,
+            CloudUtils.showToast(mContext, R.string.dev_alarm_in,
                     CloudUtils.getTimeString(mContext.getResources(), in, false));
 
             final String message = mContext.getString(R.string.dev_alarm_set, alarm.format("%k:%M"));
@@ -208,6 +220,10 @@ public final class DevSettings {
                     .setAction(CloudPlaybackService.PLAY)
                     .setData(uri)
                     .putExtra(CloudPlaybackService.EXTRA_UNMUTE, true));
+        }
+
+        public static boolean isEnabled(Context context) {
+            return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREF_ALARM_CLOCK_ENABLED, false);
         }
 
         private Time getAlarmTime(Time now) {
@@ -269,7 +285,7 @@ public final class DevSettings {
 
         private Uri getPlayUri() {
             String uri = PreferenceManager.getDefaultSharedPreferences(mContext)
-                    .getString(PREF_URI, DEFAULT_URI);
+                    .getString(DEV_ALARM_CLOCK_URI, DEFAULT_URI);
             return Uri.parse(uri);
         }
 
@@ -313,40 +329,61 @@ public final class DevSettings {
         }
 
         public static final class Receiver extends BroadcastReceiver {
+            public static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
+
             @Override
             public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+
+                if (SECRET_CODE_ACTION.equals(action)) {
+                    toggleAlarmClockEnabled(context);
+                } else if (Actions.ALARM.equals(action)) {
+                    onAlarm(context, intent);
+                } else if (Actions.CANCEL_ALARM.equals(action)) {
+                    onAlarmCancel(context);
+                } else {
+                    Log.w(TAG, "unhandled intent: "+intent);
+                }
+            }
+
+            private void onAlarm(Context context, Intent intent) {
                 PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
                 PowerManager.WakeLock lock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
                 if (lock != null) lock.acquire();
                 try {
                     final AlarmClock alarm = new AlarmClock(context);
-                    if (Actions.ALARM.equals(intent.getAction())) {
-                        alarm.cancel();
-                        if (alarm.disableAirplaneMode()) {
-                            // if we had to disable airplane mode reschedule the alarm
-                            // with a slight delay to allow the connection to come up
-                            alarm.rescheduleDelayed(15);
-                        } else {
-                            Uri uri = intent.getParcelableExtra(EXTRA_URI);
-                            if (uri == null) {
-                                uri = alarm.getPlayUri();
-                            }
-                            if (uri != null) {
-                                Log.d(TAG, "alarm with uri=" + uri);
-                                alarm.play(context, uri);
-                            } else {
-                                // TODO: should have some fallback here
-                                Log.w(TAG, "no uri found, no alarm");
-                            }
-                        }
-                    } else if (Actions.CANCEL_ALARM.equals(intent.getAction())) {
-                        alarm.cancel();
+                    alarm.cancel();
+                    if (alarm.disableAirplaneMode()) {
+                        // if we had to disable airplane mode reschedule the alarm
+                        // with a slight delay to allow the connection to come up
+                        alarm.rescheduleDelayed(15);
                     } else {
-                        Log.w(TAG, "unhandled intent: "+intent);
+                        Uri uri = intent.getParcelableExtra(EXTRA_URI);
+                        if (uri == null) {
+                            uri = alarm.getPlayUri();
+                        }
+                        if (uri != null) {
+                            Log.d(TAG, "alarm with uri=" + uri);
+                            alarm.play(context, uri);
+                        } else {
+                            // TODO: should have some fallback here
+                            Log.w(TAG, "no uri found, no alarm");
+                        }
                     }
                 } finally {
                     if (lock != null) lock.release();
                 }
+            }
+
+            private void onAlarmCancel(Context context) {
+                new AlarmClock(context).cancel();
+            }
+
+            private void toggleAlarmClockEnabled(Context context) {
+                final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                boolean newState = !prefs.getBoolean(PREF_ALARM_CLOCK_ENABLED, false);
+                prefs.edit().putBoolean(PREF_ALARM_CLOCK_ENABLED, newState).commit();
+                CloudUtils.showToast(context, "SC AlarmClock " + (newState ? "enabled" : "disabled"));
             }
         }
     }
