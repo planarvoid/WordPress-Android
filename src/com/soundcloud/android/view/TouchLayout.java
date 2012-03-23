@@ -1,6 +1,5 @@
 package com.soundcloud.android.view;
 
-import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.utils.InputObject;
 
 import android.content.Context;
@@ -71,16 +70,22 @@ public abstract class TouchLayout extends RelativeLayout  implements View.OnTouc
     }
 
     private void processInputObject(InputObject input) {
+
         switch (input.action) {
             case InputObject.ACTION_TOUCH_DOWN:
                 processDownInput(input);
                 break;
-
             case InputObject.ACTION_TOUCH_MOVE:
                 processMoveInput(input);
                 break;
             case InputObject.ACTION_TOUCH_UP:
                 processUpInput(input);
+                break;
+            case InputObject.ACTION_TOUCH_POINTER_DOWN:
+                processPointer1DownInput(input);
+                break;
+            case InputObject.ACTION_TOUCH_POINTER_UP:
+                processPointer1UpInput(input);
                 break;
         }
     }
@@ -88,6 +93,8 @@ public abstract class TouchLayout extends RelativeLayout  implements View.OnTouc
     protected abstract void processDownInput(InputObject input);
     protected abstract void processMoveInput(InputObject input);
     protected abstract void processUpInput(InputObject input);
+    protected abstract void processPointer1DownInput(InputObject input);
+    protected abstract void processPointer1UpInput(InputObject input);
 
     public void onDestroy() {
         if (mTouchThread != null) {

@@ -740,6 +740,14 @@ public class WaveformController extends TouchLayout {
         mode = TOUCH_MODE_NONE;
     }
 
+    @Override
+    protected void processPointer1DownInput(InputObject input) {
+    }
+
+    @Override
+    protected void processPointer1UpInput(InputObject input) {
+    }
+
     private boolean isOnTouchBar(int y){
         return (y > mPlayerTouchBar.getTop() - mTouchSlop && y < mPlayerTouchBar.getBottom() + mTouchSlop);
     }

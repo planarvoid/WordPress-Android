@@ -380,7 +380,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 }
 
                 if (mRecordFile != null) {
-                    mCurrentState = CreateState.IDLE_PLAYBACK;
+                    if (mCurrentState != CreateState.EDIT) mCurrentState = CreateState.IDLE_PLAYBACK;
                     loadPlaybackTrack();
                 } else {
                     mCurrentState = CreateState.IDLE_RECORD;
@@ -530,10 +530,14 @@ public class CreateController implements CreateWaveDisplay.Listener {
                         case PLAYBACK:
                         case EDIT:
                         case EDIT_PLAYBACK:
+
                             mWaveDisplay.resetTrim();
                             try {
-                                if (mCreateService != null && mCreateService.isPlayingBack())  {
-                                    mCreateService.pausePlayback();
+                                if (mCreateService != null) {
+                                    mCreateService.revertFile();
+                                    if (mCreateService.isPlayingBack()) {
+                                        mCreateService.pausePlayback();
+                                    }
                                 }
                             } catch (RemoteException ignored) {}
                             mHandler.removeCallbacks(mSmoothProgress);
@@ -620,7 +624,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
     }
 
     private CharSequence getRandomSuggestion() {
-        return "Why don't you record your flatmate snoring?";
+        return "Why don't you record the sounds of your street?";
     }
 
     private boolean isInEditState(){

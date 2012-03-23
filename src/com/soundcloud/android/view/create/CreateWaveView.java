@@ -162,6 +162,7 @@ public class CreateWaveView extends View{
         mMaxWaveHeight = h - mGlowHeight;
         mTrimRight = w;
 
+
         LinearGradient lg =  new LinearGradient(0, 0, 0, mMaxWaveHeight,
             new int[]{
                     getResources().getColor(R.color.cloudProgressStart),
@@ -204,6 +205,7 @@ public class CreateWaveView extends View{
     private void drawFullWave(Canvas c) {
 
         assertAmplitudeHistory();
+
         if (mRecordStartIndex == -1) mRecordStartIndex = CloudRecorder.getInstance().writeIndex;
 
         float normalizedTime = Math.min(1.0f,(((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
@@ -267,8 +269,8 @@ public class CreateWaveView extends View{
                     }
 
                     // right handle
-                    drawPointsOnCanvas(c, points, mTrimLinePaint, mTrimRight - 1, Math.min(width, mTrimRight));
-                    drawPointsOnCanvas(c, points, mDarkUnplayedPaint, Math.min(width, mTrimRight), -1);
+                    drawPointsOnCanvas(c, points, mTrimLinePaint, mTrimRight - 1, Math.min(width-1, mTrimRight));
+                    drawPointsOnCanvas(c, points, mDarkUnplayedPaint, Math.min(width-1, mTrimRight), -1);
                 }
             }
 
@@ -342,7 +344,6 @@ public class CreateWaveView extends View{
 
         int currentProgressIndex = (int) (getWidth() * mCurrentProgress);
         int ptIndex = 0;
-
         for (int x = firstDrawX; x < lastDrawX; x++) {
             final float a = directSelect ? amplitudesArray.get(x - firstDrawX) : getInterpolatedAmpValue(amplitudesArray,amplitudesSize,x,firstDrawX,lastDrawX);
             pts[ptIndex] = x;

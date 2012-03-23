@@ -25,16 +25,13 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
 
     private static final long MIN_SEEK_INTERVAL = 100;
     private static final int UI_UPDATE_SEEK = 1;
-    private static final int UI_UPDATE_TRIM_RIGHT = 2;
-    private static final int UI_UPDATE_TRIM_LEFT = 3;
+    private static final int UI_UPDATE_TRIM = 2;
 
-    static final int TOUCH_MODE_NONE = 0;
-    static final int TOUCH_MODE_SEEK_DRAG = 1;
-    static final int TOUCH_MODE_RIGHT_DRAG = 2;
-    static final int TOUCH_MODE_LEFT_DRAG = 3;
+    private int mLeftHandleTouchIndex;
+    private int mRightHandleTouchIndex;
+    private boolean mSeekMode;
 
     private int mMode;
-    private int mTouchMode;
 
     private boolean mIsEditing;
 
@@ -44,7 +41,7 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
     private Rect mWaveformRect;
 
     private long lastSeekTime;
-    private long lastTouchX = -1;
+    private long lastSeekX = -1;
     private int touchSlop;
 
     private View rightHandle, leftHandle;
@@ -53,7 +50,8 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
 
     private float trimPercentLeft, trimPercentRight;
     private int waveformWidth;
-    private int dragOffsetX;
+
+    private int leftDragOffsetX, rightDragOffsetX, lastTrimLeftX, lastTrimRightX;
 
     public static interface Listener {
         void onSeek(float pos);
@@ -97,7 +95,8 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         rightLp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,1);
         trimPercentRight = 1.0f;
 
-        mTouchMode = TOUCH_MODE_NONE;
+        mSeekMode = false;
+        mLeftHandleTouchIndex = mRightHandleTouchIndex = -1;
 
         refreshWaveView();
     }
@@ -142,57 +141,81 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
 
             // dimension caching
             waveformWidth = mWaveformView.getWidth();
-
-
-            //mListener.onWaveWidth(waveformWidth);
+            mWaveformView.setTrimLeft((int) (trimPercentLeft * waveformWidth));
+            mWaveformView.setTrimRight((int) (trimPercentRight * waveformWidth));
         }
     }
 
     @Override
     protected void processDownInput(InputObject input) {
-        switch (setTouchMode(input)){
-            case TOUCH_MODE_SEEK_DRAG :
-                seekTouch(input.x);
-                break;
-            case TOUCH_MODE_LEFT_DRAG :
-                dragOffsetX = input.x - leftHandle.getLeft();
-                break;
-            case TOUCH_MODE_RIGHT_DRAG :
-                dragOffsetX = input.x - rightHandle.getRight();
-                break;
+        setTouchMode(input);
+        final int x = input.actionIndex == 0 ? input.x : input.pointerX;
+        final int y = input.actionIndex == 0 ? input.y : input.pointerY;
+
+        if (mSeekMode) {
+            seekTouch(input.x);
+        } else if (mLeftHandleTouchIndex > -1 && input.actionIndex == mLeftHandleTouchIndex) {
+            leftDragOffsetX = x - leftHandle.getLeft();
+        } else if (mRightHandleTouchIndex > -1 && input.actionIndex == mRightHandleTouchIndex) {
+            rightDragOffsetX = x - rightHandle.getRight();
         }
     }
 
-
-
     @Override
     protected void processMoveInput(InputObject input) {
-        switch(mTouchMode){
-            case TOUCH_MODE_SEEK_DRAG :
-                seekTouch(input.x);
-                break;
-            case TOUCH_MODE_LEFT_DRAG :
-                lastTouchX = Math.max(0,Math.min(rightHandle.getLeft() - leftHandle.getWidth(),input.x - dragOffsetX));
-                queueUnique(UI_UPDATE_TRIM_LEFT);
-                break;
-            case TOUCH_MODE_RIGHT_DRAG :
-                lastTouchX = Math.min(getWidth(),Math.max(leftHandle.getRight() + rightHandle.getWidth(), input.x - dragOffsetX));
-                queueUnique(UI_UPDATE_TRIM_RIGHT);
-                break;
+        if (mSeekMode){
+               seekTouch(input.x);
+        } else {
+            if (mLeftHandleTouchIndex > -1){
+                lastTrimLeftX = Math.max(0,Math.min(rightHandle.getLeft() - leftHandle.getWidth(),
+                        (mLeftHandleTouchIndex == 0 ? input.x : input.pointerX) - leftDragOffsetX));
+
+            }
+
+            if (mRightHandleTouchIndex > -1){
+                lastTrimRightX = Math.min(getWidth(), Math.max(leftHandle.getRight() + rightHandle.getWidth(),
+                        (mRightHandleTouchIndex == 0 ? input.x : input.pointerX) - rightDragOffsetX));
+            }
+
+            queueUnique(UI_UPDATE_TRIM);
         }
+
     }
 
     @Override
     protected void processUpInput(InputObject input) {
+        processHandleUpFromPointer(input.actionIndex);
         mTouchHandler.removeMessages(UI_UPDATE_SEEK);
-        lastTouchX = -1;
-        dragOffsetX = 0;
-        mTouchMode = TOUCH_MODE_NONE;
+        lastSeekX = -1;
+        mSeekMode = false;
+    }
+
+    @Override
+    protected void processPointer1DownInput(InputObject input) {
+        setTouchMode(input);
+    }
+
+    @Override
+    protected void processPointer1UpInput(InputObject input) {
+        processHandleUpFromPointer(input.actionIndex);
+    }
+
+    private void processHandleUpFromPointer(int pointerIndex){
+        if (mLeftHandleTouchIndex == pointerIndex) {
+            mLeftHandleTouchIndex = -1;
+            leftDragOffsetX = 0;
+            if (mRightHandleTouchIndex > pointerIndex) mRightHandleTouchIndex--;
+        }
+        if (mRightHandleTouchIndex == pointerIndex) {
+            mRightHandleTouchIndex = -1;
+            rightDragOffsetX = 0;
+            if (mLeftHandleTouchIndex > pointerIndex) mLeftHandleTouchIndex--;
+        }
     }
 
     private void seekTouch(int x) {
-        if ((lastTouchX == -1 || Math.abs(x - lastTouchX) > touchSlop)) {
-            lastTouchX = x;
+        if ((lastSeekX == -1 || Math.abs(x - lastSeekX) > touchSlop)) {
+            lastSeekX = x;
             queueUnique(UI_UPDATE_SEEK);
         }
     }
@@ -201,7 +224,9 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         if (!mTouchHandler.hasMessages(what)) mTouchHandler.sendEmptyMessage(what);
     }
 
-    private int setTouchMode(InputObject input) {
+    private void setTouchMode(InputObject input) {
+        if (input.actionIndex > 1) return;
+
         Rect leftHandleRect = null, rightHandleRect = null;
         if (leftHandle.getParent() == this) {
             leftHandleRect = new Rect();
@@ -220,16 +245,17 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
                                 rightHandleRect.bottom + touchSlop);
         }
 
-        if (leftHandleRect != null && leftHandleRect.contains(input.x,input.y)) {
-            mTouchMode = TOUCH_MODE_LEFT_DRAG;
-        } else if (rightHandleRect != null && rightHandleRect.contains(input.x,input.y)) {
-            mTouchMode = TOUCH_MODE_RIGHT_DRAG;
-        } else if (mWaveformRect != null && mWaveformRect.contains(input.x,input.y)){
-            mTouchMode = TOUCH_MODE_SEEK_DRAG;
-        } else {
-            mTouchMode = TOUCH_MODE_NONE;
+        final int x = input.actionIndex == 0 ? input.x : input.pointerX;
+        final int y = input.actionIndex == 0 ? input.y : input.pointerY;
+        if (leftHandleRect != null && leftHandleRect.contains(x,y)) {
+            mLeftHandleTouchIndex = input.actionIndex;
+        } else if (rightHandleRect != null && rightHandleRect.contains(x,y)) {
+            mRightHandleTouchIndex = input.actionIndex;
+        } else if (input.action == InputObject.ACTION_TOUCH_DOWN){
+            if (mWaveformRect != null && mWaveformRect.contains(x,y)){
+                mSeekMode = true;
+            }
         }
-        return mTouchMode;
     }
 
 
@@ -246,34 +272,36 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UI_UPDATE_SEEK:
-                    final float seekPercent = ((float) lastTouchX) / waveformWidth;
+                    final float seekPercent = ((float) lastSeekX) / waveformWidth;
                     if (mWaveformView != null) mWaveformView.setCurrentProgress(seekPercent);
                     if (mListener != null) {
                         mListener.onSeek(seekPercent);
                     }
                     break;
 
-                case UI_UPDATE_TRIM_LEFT:
-                    leftLp.leftMargin = (int) lastTouchX;
-                    mWaveformView.setTrimLeft((int) lastTouchX);
-                    trimPercentLeft = Math.max(0,((float) lastTouchX  / waveformWidth));
-                    leftHandle.requestLayout();
-                    if (mListener != null) {
-                        mListener.onAdjustTrimLeft(trimPercentLeft);
+                case UI_UPDATE_TRIM:
+                    if (leftLp.leftMargin != lastTrimLeftX){
+                        leftLp.leftMargin = (int) lastTrimLeftX;
+                        leftHandle.requestLayout();
+
+                        mWaveformView.setTrimLeft((int) lastTrimLeftX);
+                        trimPercentLeft = Math.max(0,((float) lastTrimLeftX  / waveformWidth));
+                        if (mListener != null) {
+                            mListener.onAdjustTrimLeft(trimPercentLeft);
+                        }
+                    }
+
+                    if (rightLp.rightMargin != (waveformWidth - lastTrimRightX)) {
+                        rightLp.rightMargin = (waveformWidth - lastTrimRightX);
+                        rightHandle.requestLayout();
+
+                        mWaveformView.setTrimRight((int) lastTrimRightX);
+                        trimPercentRight = Math.min(1, ((float) lastTrimRightX / waveformWidth));
+                        if (mListener != null) {
+                            mListener.onAdjustTrimRight(trimPercentRight);
+                        }
                     }
                     break;
-
-                case UI_UPDATE_TRIM_RIGHT:
-                    mWaveformView.setTrimRight((int) lastTouchX);
-                    rightLp.rightMargin = (waveformWidth - (int) lastTouchX);
-                    trimPercentRight = Math.min(1, ((float) lastTouchX / waveformWidth));
-                    rightHandle.requestLayout();
-                    if (mListener != null) {
-                        mListener.onAdjustTrimRight(trimPercentRight);
-                    }
-                    break;
-
-                default:
             }
         }
     };
@@ -348,10 +376,9 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
     public void onRestoreInstanceState(Bundle state) {
         final String prepend = this.getClass().getSimpleName();
         mMode = state.getInt(prepend + "_mode", mMode);
-        mIsEditing = state.getBoolean(prepend + "_inEditMode", mIsEditing);
         trimPercentLeft = state.getFloat(prepend + "_trimPercentLeft", trimPercentLeft);
         trimPercentRight = state.getFloat(prepend + "_trimPercentRight", trimPercentRight);
+        setIsEditing(state.getBoolean(prepend + "_inEditMode", mIsEditing));
         mWaveformView.setMode(mMode,false);
-        mWaveformView.setIsEditing(mIsEditing);
     }
 }

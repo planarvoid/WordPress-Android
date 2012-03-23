@@ -110,6 +110,7 @@ public class CloudRecorder {
      */
 
     public void startReading() {
+
         amplitudes.clear();
         writeIndex = -1;
         startReadingInternal(false);

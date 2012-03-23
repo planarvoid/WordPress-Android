@@ -160,6 +160,14 @@ public class EditWaveformLayout extends TouchLayout {
         mTouchMode = TOUCH_MODE_NONE;
     }
 
+    @Override
+    protected void processPointer1DownInput(InputObject input) {
+    }
+
+    @Override
+    protected void processPointer1UpInput(InputObject input) {
+    }
+
     private void seekTouch(int x) {
         if ((lastTouchX == -1 || Math.abs(x - lastTouchX) > touchSlop)) {
             lastTouchX = x;
