@@ -58,7 +58,7 @@ Copy apk received from Amzazon to `target/soundcloud-android-x.y.z.apk`, then ru
     $ sbt android:prepare-amazon
     ...
     Ready for Amazon appstore:
-    target/soundcloud-android-2.2.5-market.apk
+    target/soundcloud-android-2.2.5-market-amazon.apk
 
 `soundcloud-android-x.y.z-market.apk` can now be uploaded to the Appstore.
 
