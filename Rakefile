@@ -116,7 +116,7 @@ namespace :beta do
 
   desc "build beta"
   task :build do
-    sh "sbt 'project soundcloud-android-beta' android:prepare-market"
+    sh "sbt 'project soundcloud-android-beta' clean android:prepare-market"
   end
 
   desc "install beta on device"
