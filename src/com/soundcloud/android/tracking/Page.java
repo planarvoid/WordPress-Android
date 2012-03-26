@@ -76,17 +76,22 @@ public enum Page implements Event {
 
     static final String user_permalink  = "user_permalink";
     static final String track_permalink = "track_permalink";
+    static final String level_2         = "level2";
 
     Page(String name, Level2 level2) {
         this.name = name;
         this.level2 = level2;
     }
 
-    public ATParams atParams(Object... args) {
+    @Override public ATParams atParams(Object... args) {
         ATParams atp = new ATParams();
         if (level2 != null) atp.setLevel2(String.valueOf(level2.id));
         atp.setPage(expandPage(args));
         return atp;
+    }
+
+    @Override public Level2 level2() {
+        return level2;
     }
 
     @Override public String toString() {
@@ -106,6 +111,8 @@ public enum Page implements Event {
             return expandVariables(template, (Track)o);
         } else if (o instanceof User) {
             return expandVariables(template, (User)o);
+        } else if (o instanceof Level2) {
+            return expandVariables(template, (Level2)o);
         } else if (o != null) {
             return String.format(template, o);
         } else {
@@ -126,6 +133,13 @@ public enum Page implements Event {
     private static String expandVariables(String template, User user) {
         if (template.contains(user_permalink) && user.permalink != null) {
             template = template.replace(user_permalink, user.permalink);
+        }
+        return template;
+    }
+
+    private static String expandVariables(String template, Level2 level2) {
+        if (template.contains(level_2)) {
+            template = template.replace(level_2, level2.name());
         }
         return template;
     }

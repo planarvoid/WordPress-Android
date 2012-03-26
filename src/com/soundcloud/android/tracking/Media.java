@@ -23,7 +23,7 @@ public class Media implements Event {
         return new Media(track);
     }
 
-    public ATParams atParams(Object... args) {
+    @Override public ATParams atParams(Object... args) {
         if (args == null || args.length == 0) throw new IllegalArgumentException("need action");
         ATParams.mediaAction maction;
         final Object arg = args[0];
@@ -55,6 +55,10 @@ public class Media implements Event {
                 ATParams.mediaExtension.mp3
                 );
         return params;
+    }
+
+    @Override public Level2 level2() {
+        return null;
     }
 
     /**
