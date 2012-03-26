@@ -1,13 +1,18 @@
 package com.soundcloud.android.tracking;
 
+import static com.soundcloud.android.utils.NetworkConnectivityListener.State;
+
 import com.at.ATParams;
 import com.at.ATTag;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Plan;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.utils.NetworkConnectivityListener;
 
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -49,8 +54,26 @@ public class ATTracker {
             context.getString(R.string.at_tracking_siteid),
             null
         );
-
+        atTag.setOfflineMode(ATTag.OfflineMode.OfflineModeRequired);
         this.app = context;
+
+        final Handler handler = new Handler() {
+            @Override public void handleMessage(Message msg) {
+                State old = State.values()[msg.arg1];
+                State current = State.values()[msg.arg2];
+                if (old != State.CONNECTED && current == State.CONNECTED) {
+                    try {
+                        ATTag.sendNow();
+                    } catch (Exception e) {
+                        SoundCloudApplication.handleSilentException("error in ATTag#sendNow()", e);
+                    }
+                }
+            }
+        };
+
+        NetworkConnectivityListener connectivity = new NetworkConnectivityListener();
+        connectivity.registerHandler(handler, 0);
+        connectivity.startListening(context);
     }
 
     public void track(Event event, Object... args) {
@@ -138,4 +161,5 @@ public class ATTracker {
             }
         }
     }
+
 }

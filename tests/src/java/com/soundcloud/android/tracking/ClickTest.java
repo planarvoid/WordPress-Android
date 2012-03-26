@@ -22,4 +22,13 @@ public class ClickTest {
 
         expect(Click.Like.expandClick(t)).toEqual("Like::user::foo");
     }
+
+    @Test
+    public void shouldExpandLevel2InArgs() throws Exception {
+        User user = new User();
+        user.permalink = "a_user";
+
+        expect(Click.Follow.expandClick(Level2.Search, user)).toEqual("Follow::Search::a_user");
+        expect(Click.Unfollow.expandClick(Level2.Search, user)).toEqual("Unfollow::Search::a_user");
+    }
 }

@@ -54,12 +54,15 @@ public class TransportBar extends LinearLayout{
     public void setOnNextListener(OnClickListener listener) {
         mNextButton.setOnClickListener(listener);
     }
+
     public void setOnPauseListener(OnClickListener listener) {
         mPauseButton.setOnClickListener(listener);
     }
+
     public void setOnPrevListener(OnClickListener listener) {
         mPrevButton.setOnClickListener(listener);
     }
+
     public void setOnCommentListener(OnClickListener listener) {
         if (mCommentButton != null) mCommentButton.setOnClickListener(listener);
     }

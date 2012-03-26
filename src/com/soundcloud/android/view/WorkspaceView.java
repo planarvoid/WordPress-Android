@@ -221,10 +221,11 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
 
     void notifyScreenChangeListener(int whichScreen, boolean changeComplete) {
         if (mOnScreenChangeListener != null) {
-            if (changeComplete)
+            if (changeComplete) {
                 mOnScreenChangeListener.onScreenChanged(getScreenAt(whichScreen), whichScreen);
-            else
+            } else {
                 mOnScreenChangeListener.onScreenChanging(getScreenAt(whichScreen), whichScreen);
+            }
         }
         if (mOnScrollListener != null) {
             mOnScrollListener.onScroll(getCurrentScreenFraction());

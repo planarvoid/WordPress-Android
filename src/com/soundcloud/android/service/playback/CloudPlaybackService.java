@@ -371,6 +371,10 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
 
     /* package */ void openCurrent() {
+        openCurrent(Media.Action.Stop);
+    }
+
+    /* package */ void openCurrent(Media.Action action) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "openCurrent(state="+state+")");
         }
@@ -385,7 +389,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                 notifyChange(META_CHANGED);
                 startTrack(track);
             } else { // new track
-                track(Media.fromTrack(mCurrentTrack), "stop");
+                track(Media.fromTrack(mCurrentTrack), action);
                 mCurrentTrack = track;
                 notifyChange(META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts
@@ -519,7 +523,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
     /* package */ void play() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "play(state=" + state + ")");
-        track(Media.fromTrack(mCurrentTrack), "play");
+        track(Media.fromTrack(mCurrentTrack), Media.Action.Play);
         mLastRefresh = System.currentTimeMillis();
 
         if (mCurrentTrack != null && mFocus.requestMusicFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
@@ -545,7 +549,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "pause(state="+state+")");
         }
-        track(Media.fromTrack(mCurrentTrack), "pause");
+        track(Media.fromTrack(mCurrentTrack), Media.Action.Pause);
 
         if (mMediaPlayer != null && state != PAUSED) {
             if (state.isPausable() && mMediaPlayer.isPlaying()) {
@@ -594,11 +598,11 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     }
 
     /* package */ void prev() {
-        if (mPlaylistManager.prev()) openCurrent();
+        if (mPlaylistManager.prev()) openCurrent(Media.Action.Backward);
     }
 
     /* package */ void next() {
-        if (mPlaylistManager.next()) openCurrent();
+        if (mPlaylistManager.next()) openCurrent(Media.Action.Forward);
     }
 
     private void setPlayingNotification(final Track track) {
@@ -1060,7 +1064,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                             if (refresh > 0) {
                                 long now = System.currentTimeMillis();
                                 if (now - mLastRefresh > refresh) {
-                                    track(Media.fromTrack(mCurrentTrack), "refresh");
+                                    track(Media.fromTrack(mCurrentTrack), Media.Action.Refresh);
                                     mLastRefresh = now;
                                 }
                             }
@@ -1148,7 +1152,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                 mResumeTime = targetPosition;
                 errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
             } else if (!state.isError()) {
-                track(Media.fromTrack(mCurrentTrack), "stop");
+                track(Media.fromTrack(mCurrentTrack), Media.Action.Stop);
                 mPlayerHandler.sendEmptyMessage(TRACK_ENDED);
             } else {
                 // onComplete must have been called in error state
@@ -1233,7 +1237,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
             }
         }
     };
-
 
     public void track(Event event, Object... args) {
         getApp().track(event, args);

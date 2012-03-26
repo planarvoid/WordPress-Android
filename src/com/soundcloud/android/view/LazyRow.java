@@ -19,15 +19,14 @@ import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.utils.ImageUtils;
 
 public abstract class LazyRow extends FrameLayout {
-
     public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
+
+    private ImageLoader.Options mIconOptions;
+
     protected IScAdapter mAdapter;
     protected ImageLoader mImageLoader;
     protected ImageView mIcon;
-    protected String mCurrentImageUri;
-
     protected int mCurrentPosition;
-    protected ImageLoader.Options mIconOptions;
     protected long mCurrentUserId;
 
     public LazyRow(Context context, IScAdapter adapter) {
@@ -35,7 +34,7 @@ public abstract class LazyRow extends FrameLayout {
         mAdapter = adapter;
 
         if (mIconOptions == null) mIconOptions = new ImageLoader.Options();
-        if (context != null) mImageLoader = ImageLoader.get(context);
+        mImageLoader = ImageLoader.get(context);
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(getRowResourceId(), this);

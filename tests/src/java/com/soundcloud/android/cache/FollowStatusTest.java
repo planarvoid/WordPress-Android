@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
+import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,11 +52,11 @@ public class FollowStatusTest extends ApiTests {
     @Test
     public void testToggleFollowingWithApiCall() throws Exception {
         FollowStatus status = new FollowStatus();
-        Robolectric.addPendingHttpResponse(200, "OK");
+        Robolectric.addPendingHttpResponse(201, "CREATED");
         status.toggleFollowing(10, api, new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                assertThat(msg.arg1, is(1));
+                assertThat(msg.what, is(1));
             }
         });
         assertThat(status.isFollowing(10), is(true));
