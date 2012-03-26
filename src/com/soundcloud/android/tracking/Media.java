@@ -28,13 +28,15 @@ public class Media implements Event {
         if (args == null || args.length == 0) throw new IllegalArgumentException("need action");
         ATParams.mediaAction maction;
         final Object arg = args[0];
-        if (arg instanceof String) {
+        if (arg instanceof Action) {
+            maction = ((Action)arg).action;
+        } else if (arg instanceof String) {
             try {
                 maction = ATParams.mediaAction.valueOf((String) arg);
             } catch (IllegalArgumentException e) {
                 return null;
             }
-        } else if (arg instanceof  ATParams.mediaAction) {
+        } else if (arg instanceof ATParams.mediaAction) {
             maction = (ATParams.mediaAction) arg;
         } else {
             throw new IllegalArgumentException("Illegal action parameter: "+ arg);
@@ -78,6 +80,21 @@ public class Media implements Event {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()+":"+track.userTrackPermalink();
+        return getClass().getSimpleName()+":"+getMediaName(track);
+    }
+
+    public enum Action {
+        forward(ATParams.mediaAction.forward),
+        backward(ATParams.mediaAction.backward),
+        pause(ATParams.mediaAction.pause),
+        play(ATParams.mediaAction.play),
+        stop(ATParams.mediaAction.stop),
+        refresh(ATParams.mediaAction.refresh);
+
+        public final ATParams.mediaAction action;
+
+        Action(ATParams.mediaAction action) {
+            this.action = action;
+        }
     }
 }

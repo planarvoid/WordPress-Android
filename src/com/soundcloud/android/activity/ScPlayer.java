@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.FocusHelper;
+import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.view.PlayerTrackView;
 import com.soundcloud.android.view.TransportBar;
 import com.soundcloud.android.view.WaveformController;
@@ -33,10 +34,12 @@ import android.widget.RelativeLayout;
 
 public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
     private static final String TAG = "ScPlayer";
+
+    public static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
+    public static final int REFRESH_DELAY = 1000;
+
     private static final int REFRESH = 1;
     private static final int SEND_CURRENT_QUEUE_POSITION = 2;
-
-    public static final int REFRESH_DELAY = 1000;
     private static final long TRACK_SWIPE_UPDATE_DELAY = 1000;
     private static final long TRACK_NAV_DELAY = 500;
 
@@ -170,7 +173,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     public void toggleShowingComments() {
         mShouldShowComments = !mShouldShowComments;
-        getApp().setAccountData("playerShowingComments", mShouldShowComments);
+        getApp().setAccountData(PLAYER_SHOWING_COMMENTS, mShouldShowComments);
     }
 
     public boolean shouldShowComments() {
@@ -355,9 +358,13 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private final View.OnClickListener mPrevListener = new View.OnClickListener() {
         public void onClick(View v) {
             if (mPlaybackService == null) return;
+
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
             try {
                 if (mPlaybackService.getPosition() < 2000 && mCurrentQueuePosition > 0) {
+                    if (mPlayingTrack != null) {
+                        track(Media.fromTrack(mPlayingTrack), Media.Action.backward);
+                    }
                     mChangeTrackFast = true;
                     mTrackWorkspace.scrollLeft();
                 } else if (isSeekable()) {
@@ -375,17 +382,19 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private final View.OnClickListener mNextListener = new View.OnClickListener() {
         public void onClick(View v) {
             if (mPlaybackService == null) return;
+            if (mPlayingTrack != null) {
+                track(Media.fromTrack(mPlayingTrack), Media.Action.forward);
+            }
+
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
             try {
                 if (mPlaybackService.getQueueLength() > mCurrentQueuePosition + 1) {
-                        mChangeTrackFast = true;
-                        mTrackWorkspace.scrollRight();
+                    mChangeTrackFast = true;
+                    mTrackWorkspace.scrollRight();
                 }
             } catch (RemoteException e) {
                 Log.e(TAG, "error", e);
             }
-
-
             mTrackWorkspace.scrollRight();
         }
     };
