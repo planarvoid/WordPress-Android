@@ -2,6 +2,7 @@ package com.soundcloud.android.tracking;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.at.ATParams;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -27,7 +28,16 @@ public class MediaTest {
         track.duration = 4000;
         final Media media = Media.fromTrack(track);
         expect(media).not.toBeNull();
-        expect(media.atParams("play")).not.toBeNull();
+    }
+
+    @Test
+    public void shouldAcceptDifferentMediaActionTypes() throws Exception {
+        Track track = new Track();
+        final Media media = Media.fromTrack(track);
+
+        expect(media.atParams(Media.Action.Play)).not.toBeNull();
+        expect(media.atParams(ATParams.mediaAction.Play)).not.toBeNull();
+        expect(media.atParams("Play")).not.toBeNull();
     }
 
     @Test
