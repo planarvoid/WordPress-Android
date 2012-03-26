@@ -27,7 +27,7 @@ object AndroidBuild extends Build {
     "com.google.android" % "filecache" % "r153",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
     "org.xiph" % "libvorbis" % "1.0.0-beta",
-    "com.at" % "ATInternet" % "1.0",
+    "com.at" % "ATInternet" % "1.1.003",
     "com.google.android" % "android" % "2.3.3" % "provided"
   )
 

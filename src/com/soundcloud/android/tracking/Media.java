@@ -84,12 +84,12 @@ public class Media implements Event {
     }
 
     public enum Action {
-        forward(ATParams.mediaAction.forward),
-        backward(ATParams.mediaAction.backward),
-        pause(ATParams.mediaAction.pause),
-        play(ATParams.mediaAction.play),
-        stop(ATParams.mediaAction.stop),
-        refresh(ATParams.mediaAction.refresh);
+        Forward(ATParams.mediaAction.Forward),
+        Backward(ATParams.mediaAction.Backward),
+        Pause(ATParams.mediaAction.Pause),
+        Play(ATParams.mediaAction.Play),
+        Stop(ATParams.mediaAction.Stop),
+        Refresh(ATParams.mediaAction.Refresh);
 
         public final ATParams.mediaAction action;
 

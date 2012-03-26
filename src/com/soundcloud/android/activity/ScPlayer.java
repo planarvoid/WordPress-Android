@@ -363,7 +363,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             try {
                 if (mPlaybackService.getPosition() < 2000 && mCurrentQueuePosition > 0) {
                     if (mPlayingTrack != null) {
-                        track(Media.fromTrack(mPlayingTrack), Media.Action.backward);
+                        track(Media.fromTrack(mPlayingTrack), Media.Action.Backward);
                     }
                     mChangeTrackFast = true;
                     mTrackWorkspace.scrollLeft();
@@ -383,7 +383,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         public void onClick(View v) {
             if (mPlaybackService == null) return;
             if (mPlayingTrack != null) {
-                track(Media.fromTrack(mPlayingTrack), Media.Action.forward);
+                track(Media.fromTrack(mPlayingTrack), Media.Action.Forward);
             }
 
             mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);

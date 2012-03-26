@@ -185,7 +185,7 @@
         <dependency>
             <groupId>com.at</groupId>
             <artifactId>ATInternet</artifactId>
-            <version>1.0</version>
+            <version>1.1.003</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

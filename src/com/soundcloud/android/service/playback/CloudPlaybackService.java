@@ -324,7 +324,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ void openCurrent() {
-        openCurrent(Media.Action.stop);
+        openCurrent(Media.Action.Stop);
     }
 
     /* package */ void openCurrent(Media.Action action) {
@@ -474,7 +474,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     /* package */ void play() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "play(state=" + state + ")");
-        track(Media.fromTrack(mCurrentTrack), Media.Action.play);
+        track(Media.fromTrack(mCurrentTrack), Media.Action.Play);
         mLastRefresh = System.currentTimeMillis();
 
         if (mCurrentTrack != null && mFocus.requestMusicFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
@@ -500,7 +500,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "pause(state="+state+")");
         }
-        track(Media.fromTrack(mCurrentTrack), Media.Action.pause);
+        track(Media.fromTrack(mCurrentTrack), Media.Action.Pause);
 
         if (mMediaPlayer != null && state != PAUSED) {
             if (state.isPausable() && mMediaPlayer.isPlaying()) {
@@ -546,11 +546,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ void prev() {
-        if (mPlaylistManager.prev()) openCurrent(Media.Action.backward);
+        if (mPlaylistManager.prev()) openCurrent(Media.Action.Backward);
     }
 
     /* package */ void next() {
-        if (mPlaylistManager.next()) openCurrent(Media.Action.forward);
+        if (mPlaylistManager.next()) openCurrent(Media.Action.Forward);
     }
 
     private void setPlayingNotification(final Track track) {
@@ -1011,7 +1011,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                             if (refresh > 0) {
                                 long now = System.currentTimeMillis();
                                 if (now - mLastRefresh > refresh) {
-                                    track(Media.fromTrack(mCurrentTrack), Media.Action.refresh);
+                                    track(Media.fromTrack(mCurrentTrack), Media.Action.Refresh);
                                     mLastRefresh = now;
                                 }
                             }
@@ -1099,7 +1099,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mResumeTime = targetPosition;
                 errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
             } else if (!state.isError()) {
-                track(Media.fromTrack(mCurrentTrack), Media.Action.stop);
+                track(Media.fromTrack(mCurrentTrack), Media.Action.Stop);
                 mPlayerHandler.sendEmptyMessage(TRACK_ENDED);
             } else {
                 // onComplete must have been called in error state
