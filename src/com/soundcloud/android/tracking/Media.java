@@ -2,6 +2,7 @@ package com.soundcloud.android.tracking;
 
 import com.at.ATParams;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 
 public class Media implements Event {
     public static final int REFRESH_MIN = 5000; // milliseconds
@@ -43,7 +44,7 @@ public class Media implements Event {
         params.xt_rm(ATParams.mediaType.mediaTypeAudio,
                 String.valueOf(Level2.Sounds.id),
                 "",         /* player id */
-                track.userTrackPermalink(),
+                getMediaName(track),
                 maction,
                 String.valueOf(refreshInSeconds),
                 String.valueOf(durationInSeconds),
@@ -59,6 +60,12 @@ public class Media implements Event {
 
     @Override public Level2 level2() {
         return null;
+    }
+
+    /* package */ static String getMediaName(Track track) {
+        User user = track.getUser();
+        String userTrack = track.userTrackPermalink();
+        return user == null ? userTrack  : user.permalink + "::" + userTrack;
     }
 
     /**
