@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.File;
@@ -41,8 +42,18 @@ public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
-    private ProgressDialog mDeleteDialog;
+    public static final String TOUR = "tour";
+    public static final String CHANGE_LOG = "changeLog";
+    public static final String LOGOUT = "logout";
+    public static final String HELP = "help";
+    public static final String CLEAR_CACHE = "clearCache";
+    public static final String CLEAR_STREAM_CACHE = "clearStreamCache";
+    public static final String WIRELESS = "wireless";
+    public static final String ABOUT = "about";
+    public static final String EXTRAS = "extras";
+    public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
 
+    private ProgressDialog mDeleteDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,7 +64,11 @@ public class Settings extends PreferenceActivity {
             BetaPreferences.add(this, getPreferenceScreen());
         }
 
-        findPreference("accountSyncSettings").setOnPreferenceClickListener(
+        if (!DevSettings.AlarmClock.isEnabled(this)) {
+            getPreferenceScreen().removePreference(findPreference(EXTRAS));
+        }
+
+        findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
@@ -62,7 +77,7 @@ public class Settings extends PreferenceActivity {
                     }
         });
 
-        findPreference("tour").setOnPreferenceClickListener(
+        findPreference(TOUR).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         Intent intent = new Intent(Settings.this, Tour.class);
@@ -73,7 +88,7 @@ public class Settings extends PreferenceActivity {
 
 
         final ChangeLog cl = new ChangeLog(this);
-        findPreference("changeLog").setOnPreferenceClickListener(
+        findPreference(CHANGE_LOG).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         getApp().track(Page.Settings_change_log);
@@ -82,7 +97,7 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        findPreference("logout").setOnPreferenceClickListener(
+        findPreference(LOGOUT).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         if (!CloudUtils.isUserAMonkey()) {
@@ -93,7 +108,7 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        findPreference("help").setOnPreferenceClickListener(
+        findPreference(HELP).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://help.soundcloud.com/"));
@@ -102,7 +117,7 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        findPreference("clearCache").setOnPreferenceClickListener(
+        findPreference(CLEAR_CACHE).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         new FileCache.DeleteCacheTask(false) {
@@ -130,7 +145,7 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        findPreference("clearStreamCache").setOnPreferenceClickListener(
+        findPreference(CLEAR_STREAM_CACHE).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         new FileCache.DeleteCacheTask(true) {
@@ -159,7 +174,7 @@ public class Settings extends PreferenceActivity {
                 });
 
 
-        findPreference("wireless").setOnPreferenceClickListener(
+        findPreference(WIRELESS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         try { // rare phones have no wifi settings
@@ -172,7 +187,7 @@ public class Settings extends PreferenceActivity {
                 });
 
 
-        findPreference("about").setOnPreferenceClickListener(
+        findPreference(ABOUT).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         startActivity(new Intent(Settings.this, About.class));
@@ -198,8 +213,8 @@ public class Settings extends PreferenceActivity {
     }
 
     private void updateClearCacheTitles() {
-        setClearCacheTitle("clearCache", R.string.pref_clear_cache, IOUtils.getCacheDir(this));
-        setClearCacheTitle("clearStreamCache", R.string.pref_clear_stream_cache, Consts.EXTERNAL_STREAM_DIRECTORY);
+        setClearCacheTitle(CLEAR_CACHE, R.string.pref_clear_cache, IOUtils.getCacheDir(this));
+        setClearCacheTitle(CLEAR_STREAM_CACHE, R.string.pref_clear_stream_cache, Consts.EXTERNAL_STREAM_DIRECTORY);
     }
 
     private SoundCloudApplication getApp() {

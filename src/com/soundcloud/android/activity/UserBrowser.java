@@ -23,6 +23,9 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.EventAware;
+import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -60,8 +63,12 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-/** @noinspection unchecked*/
-public class UserBrowser extends ScActivity implements ParcelCache.Listener<Connection>, FollowStatus.Listener, FetchUserTask.FetchUserListener {
+public class UserBrowser extends ScActivity implements
+        ParcelCache.Listener<Connection>,
+        FollowStatus.Listener,
+        FetchUserTask.FetchUserListener,
+        EventAware {
+
     /* package */ User mUser;
 
     private TextView mUsername, mLocation, mFullName, mWebsite, mDiscogsName, mMyspaceName, mDescription, mFollowerCount, mTrackCount;
@@ -87,7 +94,6 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
     private Object mAdapterStates[];
 
     public enum Tab {
-
         tracks(Page.Users_sounds, Page.You_sounds),
         favorites(Page.Users_likes, Page.You_likes),
         details(Page.Users_info, Page.You_info),
@@ -153,13 +159,17 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         mFollowBtn = (Button) findViewById(R.id.btn_followState);
         mFollowingBtn = (Button) findViewById(R.id.btn_followingState);
 
-        final View.OnClickListener toggleFollowing = new View.OnClickListener() {
-            public void onClick(View view) {
-                toggleFollowing();
+        mFollowBtn.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                follow(mUser);
             }
-        };
-        mFollowBtn.setOnClickListener(toggleFollowing);
-        mFollowingBtn.setOnClickListener(toggleFollowing);
+        });
+
+        mFollowingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                unfollow(mUser);
+            }
+        });
 
         Intent intent = getIntent();
         // XXX in case user is already loaded - should be handled here, not in caller
@@ -211,6 +221,16 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
+    private void follow(User user) {
+        getApp().track(Click.Follow, user, Level2.Users);
+        toggleFollowing(user);
+    }
+
+    private void unfollow(User user) {
+        getApp().track(Click.Unfollow, user, Level2.Users);
+        toggleFollowing(user);
+    }
+
     public void setTab(String tag) {
         mUserlistBrowser.setCurrentScreenByTag(tag);
     }
@@ -219,14 +239,14 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         return mUserlistBrowser.getCurrentTag().equals(tabTag.name());
     }
 
+
     @Override
     protected void onResume() {
         if (getApp().getAccount() != null && mAdapterStates != null){
             restoreAdapterStates(mAdapterStates);
             mAdapterStates = null;
         }
-
-        trackScreen(mUserlistBrowser.getCurrentTag());
+        trackScreen();
 
         super.onResume();
         if (mMessager != null) mMessager.onResume();
@@ -354,9 +374,13 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
         setFollowingButton();
     }
 
-    private void trackScreen(String tag) {
-        Tab current = Tab.valueOf(tag);
-        track(isMe() ? current.you : current.user, mUser);
+    private void trackScreen() {
+        track(getEvent(), mUser);
+    }
+
+    public Page getEvent() {
+        Tab current = Tab.valueOf(mUserlistBrowser.getCurrentTag());
+        return isMe() ? current.you : current.user;
     }
 
     private void build() {
@@ -541,7 +565,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
 
         mUserlistBrowser.setOnScreenChangedListener(new WorkspaceView.OnScreenChangeListener() {
             @Override public void onScreenChanged(View newScreen, int newScreenIndex) {
-                trackScreen(mUserlistBrowser.getCurrentTag());
+                trackScreen();
 
                 if (isMe) {
                     getApp().setAccountData(User.DataKeys.PROFILE_IDX, Integer.toString(newScreenIndex));
@@ -564,16 +588,16 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
        return mUser != null && mUser.id == getCurrentUserId();
     }
 
-    private void toggleFollowing() {
+    private void toggleFollowing(User user) {
         mFollowBtn.setEnabled(false);
         mFollowingBtn.setEnabled(false);
 
-        FollowStatus.get().toggleFollowing(mUser.id, getApp(), new Handler() {
+        FollowStatus.get().toggleFollowing(user.id, getApp(), new Handler() {
             @Override public void handleMessage(Message msg) {
                 mFollowBtn.setEnabled(true);
                 mFollowingBtn.setEnabled(true);
 
-                if (msg.arg1 == 0) {
+                if (msg.what == 0) {
                     setFollowingButton();
                     CloudUtils.showToast(UserBrowser.this, R.string.error_change_following_status);
                 }
@@ -812,6 +836,7 @@ public class UserBrowser extends ScActivity implements ParcelCache.Listener<Conn
                         }
                     }
                 }
+            //noinspection fallthrough
             default:
                 if (mMessager != null) {
                     mMessager.onActivityResult(requestCode,resultCode,result);

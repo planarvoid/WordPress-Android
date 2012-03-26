@@ -5,11 +5,6 @@ require 'pp'
 require 'csv'
 require 'yaml'
 
-build_xml = "build.xml"
-file build_xml do
-  sh "android update project -p #{Rake.original_dir} -n soundcloud"
-end
-
 c2dm_credentials = 'c2dm.credentials'
 file c2dm_credentials => 'c2dm:login'
 
@@ -115,22 +110,25 @@ namespace :beta do
   BUCKET = "soundcloud-android-beta"
   DEST="s3://#{BUCKET}/#{package}-#{versionCode}.apk"
   CURRENT="s3://#{BUCKET}/#{package}-current.apk"
-  APK = "bin/soundcloud-release.apk"
+  BETA_APK = "target/soundcloud-android-beta-#{versionName}-market.apk"
+
+  file BETA_APK => 'beta:build'
 
   desc "build beta"
-  task :build => build_xml do
-    sh "ant clean release -Dkey.alias=beta-key"
+  task :build do
+    sh "sbt 'project soundcloud-android-beta' clean android:prepare-market"
   end
 
   desc "install beta on device"
-  task :install => :build do
-    sh "adb -d install -r #{APK}"
+  task :install => BETA_APK do
+    sh "adb -d install -r #{BETA_APK}"
   end
 
   task :verify do
-    raise "Missing file: #{APK}" unless File.exists?(APK)
+    raise "Missing file: #{BETA_APK}" unless File.exists?(BETA_APK)
+    raise "#{BETA_APK} does not contain -BETA" unless BETA_APK.match(/-BETA/)
 
-    output = `jarsigner -verify -certs -verbose #{APK}`
+    output = `jarsigner -verify -certs -verbose #{BETA_APK}`
     raise unless $?.success?
     if output !~ /CN=SoundCloud Android Beta/
       raise "Wrong signature"
@@ -146,7 +144,7 @@ namespace :beta do
       'android-versioncode' => versionCode,
       'git-sha1'            => gitsha1
     }
-    sh "s3cmd -P put #{APK} " +
+    sh "s3cmd -P put #{BETA_APK} " +
        "--mime-type=application/vnd.android.package-archive " +
        metadata.inject([]) { |m,(k,v)|
          m << "--add-header=x-amz-meta-#{k}:#{v}"

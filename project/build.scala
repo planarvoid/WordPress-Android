@@ -27,7 +27,7 @@ object AndroidBuild extends Build {
     "com.google.android" % "filecache" % "r153",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
     "org.xiph" % "libvorbis" % "1.0.0-beta",
-    "com.at" % "ATInternet" % "1.0",
+    "com.at" % "ATInternet" % "1.1.003",
     "com.google.android" % "android" % "2.3.3" % "provided"
   )
 
@@ -56,10 +56,7 @@ object AndroidBuild extends Build {
   // the main project
   val prepareAmazon = TaskKey[File]("prepare-amazon")
 
-  lazy val soundcloud_android = Project(
-    "soundcloud-android",
-    file("."),
-    settings = General.androidProjectSettings ++ Seq(
+  val projectSettings = General.androidProjectSettings ++ Seq(
       libraryDependencies ++= coreDependencies ++ testDependencies,
       resolvers          ++= repos,
       compileOrder       := CompileOrder.JavaThenScala,
@@ -82,10 +79,23 @@ object AndroidBuild extends Build {
       resourceDirectory  <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
       parallelExecution  := false,
       unmanagedClasspath := Seq.empty
+    )) ++
+      AndroidInstall.settings ++
+      Mavenizer.settings
+
+  // main project
+  lazy val soundcloud_android = Project(
+    "soundcloud-android",
+    file("."),
+    settings = projectSettings)
+
+  // beta project
+  lazy val soundcloud_android_beta = Project(
+    "soundcloud-android-beta",
+    file("."),
+    settings = projectSettings ++ Seq(
+      keyalias in Android := "beta-key"
     ))
-    ++ AndroidInstall.settings
-    ++ Mavenizer.settings
-  )
 
   // integration tests
   lazy val Integration = config("int")

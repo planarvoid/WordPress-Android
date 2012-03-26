@@ -117,10 +117,16 @@ public class FollowStatus implements Parcelable {
                 try {
                     final int status = (addFollowing ? api.put(request) : api.delete(request))
                                       .getStatusLine().getStatusCode();
-                    return (status == HttpStatus.SC_OK ||
-                           status == HttpStatus.SC_CREATED ||
-                           status == HttpStatus.SC_NOT_FOUND);
-
+                    final boolean success;
+                    if (addFollowing) {
+                        success = status == HttpStatus.SC_CREATED;
+                    } else {
+                        success = status == HttpStatus.SC_OK || status == HttpStatus.SC_NOT_FOUND;
+                    }
+                    if (!success) {
+                        Log.w(TAG, "error changing following status, resp="+status);
+                    }
+                    return success;
                 } catch (IOException e) {
                     Log.e(TAG, "error", e);
                     return false;
@@ -138,10 +144,7 @@ public class FollowStatus implements Parcelable {
                 }
 
                 if (handler != null) {
-                    Message m = Message.obtain();
-                    if (m == null) m = new Message(); /* needed for robolectric */
-                    m.arg1 = success ? 1 : 0;
-                    handler.sendMessage(m);
+                    Message.obtain(handler, success ? 1 : 0).sendToTarget();
                 }
             }
         }.execute(userid);
