@@ -373,4 +373,10 @@ namespace :doc do
 
 end
 
+namespace :jni do
+  task :javah do
+    sh "javah -classpath target/classes -d jni/include/soundcloud com.soundcloud.android.jni.VorbisEncoder"
+  end
+end
+
 

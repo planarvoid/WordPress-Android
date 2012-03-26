@@ -11,6 +11,8 @@ soundcloud-android.iws
 bin/
 gen/
 lib/
+obj/
+libs/
 
 # keystore
 ks/

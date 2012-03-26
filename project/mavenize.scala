@@ -25,6 +25,9 @@ object Mavenizer {
             </sdk>
             <undeployBeforeDeploy>true</undeployBeforeDeploy>
             <deleteConflictingFiles>false</deleteConflictingFiles>
+            <target>soundcloud_audio</target>
+            <attachNativeArtifacts>true</attachNativeArtifacts>
+            <clearNativeArtifacts>false</clearNativeArtifacts>
             <zipalign>
               <outputApk>{Unparsed("${project.build.directory}/${project.artifactId}-${project.version}-market.apk")}</outputApk>
             </zipalign>
@@ -95,6 +98,8 @@ object Mavenizer {
             <filesets>
               <fileset> <directory>lib</directory> </fileset>
               <fileset> <directory>tests/lib</directory> </fileset>
+              <fileset> <directory>libs</directory> </fileset>
+              <fileset> <directory>obj</directory> </fileset>
             </filesets>
           </configuration>
       </plugin>

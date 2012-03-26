@@ -328,7 +328,6 @@ public final class IOUtils {
         }
     }
 
-
     /**
      * @param context context
      * @param info current network info
@@ -384,5 +383,16 @@ public final class IOUtils {
         ConnectivityManager mgr = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         return info != null && info.isConnectedOrConnecting();
+    }
+
+
+    public static void copy(InputStream is, File out) throws IOException {
+        FileOutputStream fos = new FileOutputStream(out);
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int n;
+        while ((n = is.read(buffer)) != -1) {
+            fos.write(buffer, 0, n);
+        }
+        fos.close();
     }
 }

@@ -1,6 +1,7 @@
 import sbt._
 import Keys._
 import AndroidKeys._
+import AndroidNdkKeys._
 
 object General {
   val settings = Defaults.defaultSettings ++ Seq(
@@ -19,6 +20,8 @@ object General {
 
 object AndroidBuild extends Build {
   val jacksonVersion = "1.8.5"
+  val junit_interface = "com.novocode" % "junit-interface" % "0.8" % "test" intransitive()
+
   val coreDependencies = Seq(
     "org.acra" % "acra" % "4.3.0-filter-SNAPSHOT",
     "org.codehaus.jackson" % "jackson-core-asl" % jacksonVersion,
@@ -37,13 +40,14 @@ object AndroidBuild extends Build {
     "org.mockito" % "mockito-core" % "1.8.5" % "test",
     "org.hamcrest" % "hamcrest-core" % "1.1" % "test",
     "com.github.xian" % "great-expectations" % "0.10" % "test",
-    "com.novocode" % "junit-interface" % "0.7" % "test" intransitive(),
     "org.scalatest" %% "scalatest" % "1.7.1" % "test",
-    "org.scala-lang" % "scala-compiler" % "2.9.1" % "test"
+    "org.scala-lang" % "scala-compiler" % "2.9.1" % "test",
+    junit_interface
   )
 
   val integrationTestDependencies = Seq(
-    "com.jayway.android.robotium" % "robotium-solo" % "3.1" % "int"
+    "com.jayway.android.robotium" % "robotium-solo" % "3.1" % "int",
+    junit_interface
   )
 
   val repos = Seq(
@@ -53,26 +57,16 @@ object AndroidBuild extends Build {
     MavenRepository("sonatype releases", "https://oss.sonatype.org/content/repositories/releases")
   )
 
-  // the main project
-  val prepareAmazon = TaskKey[File]("prepare-amazon")
-
   val projectSettings = General.androidProjectSettings ++ Seq(
       libraryDependencies ++= coreDependencies ++ testDependencies,
       resolvers          ++= repos,
-      compileOrder       := CompileOrder.JavaThenScala,
       unmanagedBase      <<= baseDirectory / "lib-unmanaged" // make sure dl'ed libs don't get picked up
     ) ++ inConfig(Android)(Seq(
       keyalias           := "jons keystore",
       keystorePath       <<= (baseDirectory) (_ / "soundcloud_sign" / "soundcloud.ks"),
       githubRepo         := "soundcloud/SoundCloud-Android",
       cachePasswords     := true,
-      prepareAmazon      <<= (packageAlignedPath, streams) map { (path, s) =>
-        if (AmazonHelper.isAmazon(path)) {
-          val amazon = AmazonHelper.copy(path)
-          s.log.success("Ready for Amazon appstore:\n"+amazon)
-          amazon
-        } else sys.error(path.getName+" is not an Amazon processed APK!")
-      } dependsOn (AndroidMarketPublish.signReleaseTask, AndroidMarketPublish.zipAlignTask)
+      nativeLibrariesPath <<= (baseDirectory) (_ / "libs")
     )) ++ inConfig(Test)(Seq(
       javaSource         <<= (baseDirectory) (_ / "tests" / "src" / "java"),
       scalaSource        <<= (baseDirectory) (_ / "tests" / "src" / "scala"),
@@ -87,7 +81,14 @@ object AndroidBuild extends Build {
   lazy val soundcloud_android = Project(
     "soundcloud-android",
     file("."),
-    settings = projectSettings)
+    settings = projectSettings ++ AndroidNdk.settings ++ AmazonHelper.settings ++ inConfig(Android)(Seq(
+      jniClasses := Seq(
+        "com.soundcloud.android.jni.VorbisEncoder",
+        "com.soundcloud.android.jni.VorbisDecoder"
+      ),
+      javahOutputDirectory <<= (baseDirectory) (_ / "jni" / "include" / "soundcloud")
+    ))
+  )
 
   // beta project
   lazy val soundcloud_android_beta = Project(
@@ -95,7 +96,7 @@ object AndroidBuild extends Build {
     file("."),
     settings = projectSettings ++ Seq(
       keyalias in Android := "beta-key"
-    ))
+   ))
 
   // integration tests
   lazy val Integration = config("int")
@@ -104,15 +105,19 @@ object AndroidBuild extends Build {
     file("tests-integration"),
     settings = General.settings ++
                AndroidTest.settings ++ Seq(
-      name:= "Integration tests",
+      name:= "tests",
       libraryDependencies ++= integrationTestDependencies,
-      resolvers ++= repos,
+      resolvers           ++= repos,
       javaSource       in Compile <<= (baseDirectory) (_ / "src" / "java"),
-      managedClasspath in Compile <<= managedClasspath in Integration
+      managedClasspath in Compile <<= managedClasspath in Integration,
+      // also compile in Test for test discovery
+      javaSource       in Test    <<= javaSource in Compile,
+      compile          in Test    <<= (compile in Test) triggeredBy (compile in Compile)
     ) ++ inConfig(Android)(Seq(
       useProguard    := false,
       proguardInJars := Seq.empty,
       mainResPath    <<= (baseDirectory, resDirectoryName) (_ / _) map (x=>x),
+      mainAssetsPath <<= (baseDirectory, assetsDirectoryName) (_ / _),
       manifestPath   <<= (baseDirectory, manifestName) (_ / _) map (Seq(_)),
       dxInputs       <<= (compile in Compile, managedClasspath in Integration, classDirectory in Compile) map {
           (_, managedClasspath, classDirectory) => managedClasspath.map(_.data) :+ classDirectory
@@ -121,16 +126,4 @@ object AndroidBuild extends Build {
   ).configs(Integration)
    .settings(inConfig(Integration)(Defaults.testSettings) : _*)
    .dependsOn(soundcloud_android)
-}
-
-object AmazonHelper {
-    import collection.JavaConverters._
-    import java.util.zip.ZipFile
-
-    def isAmazon(f: File) = new ZipFile(f).entries.asScala.exists(_.getName.contains("com.amazon.content.id"))
-    def copy(f: File) = {
-        val amazon = new File(f.getParent, f.getName.replace(".apk", "-amazon.apk"))
-        IO.copyFile(f, amazon)
-        amazon
-    }
 }

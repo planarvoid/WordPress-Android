@@ -64,8 +64,7 @@ public class CalculateAmplitudesTask extends AsyncTask<Void,Integer,Boolean>
         try {
             FileInputStream in = new FileInputStream(mFile);
 
-            WaveHeader waveHeader = new WaveHeader();
-            int headerLength = waveHeader.read(in);
+            WaveHeader waveHeader = new WaveHeader(in);
 
             final int samples = waveHeader.getNumBytes() / 2;
 

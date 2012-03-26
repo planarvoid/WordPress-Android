@@ -1,0 +1,9 @@
+[submodule "jni/ogg"]
+	path = jni/ogg
+	url = git@github.com:soundcloud/ogg.git
+[submodule "jni/vorbis"]
+	path = jni/vorbis
+	url = git@github.com:soundcloud/vorbis.git
+[submodule "jni/tremolo"]
+	path = jni/tremolo
+	url = git@github.com:soundcloud/tremor.git
