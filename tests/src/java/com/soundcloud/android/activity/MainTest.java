@@ -155,11 +155,11 @@ public class MainTest {
     }
 
     @Test
-    public void shouldGoToRecordAfterLoggingIn() throws Exception {
+    public void shouldGoToStreamAfterLoggingIn() throws Exception {
         Main main = new Main();
         main.setIntent(new Intent().putExtra(AuthenticatorService.KEY_ACCOUNT_RESULT, "sth"));
         main.onCreate(null);
-        expect(main.getTabHost().getCurrentTabTag()).toEqual(Main.Tab.RECORD.tag);
+        expect(main.getTabHost().getCurrentTabTag()).toEqual(Main.Tab.STREAM.tag);
     }
 
     @Test

@@ -61,8 +61,6 @@ public class CalculateAmplitudesTask extends AsyncTask<Void,Integer,Boolean>
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        super.onPreExecute();
-
         try {
             FileInputStream in = new FileInputStream(mFile);
 

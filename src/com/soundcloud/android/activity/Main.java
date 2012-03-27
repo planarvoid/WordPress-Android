@@ -242,7 +242,7 @@ public class Main extends TabActivity implements
             startActivity((new Intent(this,UserBrowser.class).putExtras(intent.getExtras())));
         } else if (Actions.ACCOUNT_PREF.equals(intent.getAction())) {
             startActivity(
-                new Intent(this, AccountPreferences.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    new Intent(this, AccountPreferences.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
             );
         } else if (justAuthenticated(intent)) {
             Log.d(TAG, "activity start after successful authentication");
@@ -307,21 +307,11 @@ public class Main extends TabActivity implements
 
         /* RECORD is no longer a tab, its a button. so suck on that */
         final String lastTag = app.getAccountData(User.DataKeys.DASHBOARD_IDX);
-        if (lastTag == Tab.RECORD.tag || lastTag == null){
+        if (Tab.RECORD.tag.equals(lastTag) || lastTag == null){
             host.setCurrentTabByTag(Tab.DEFAULT.tag);
         } else {
             host.setCurrentTabByTag(lastTag);
         }
-
-
-        getTabWidget().getChildAt(2).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(Main.this, ScCreate.class));
-            }
-        });
-
-        /* END RECORD is no longer a tab */
 
         if (ImageUtils.isScreenXL(this)){
             configureTabs(this, widget, 90, -1, false);
@@ -337,7 +327,7 @@ public class Main extends TabActivity implements
             widget.setRightStripDrawable(R.drawable.tab_bottom_right);
         }
 
-        // set record tab to just image
+        // set record tab to just image & handle clicks
         final int recordTabIdx =  Main.Tab.RECORD.ordinal();
         View view = recordTabIdx < widget.getChildCount() ? widget.getChildAt(recordTabIdx) : null;
         if (view instanceof RelativeLayout) {
@@ -347,6 +337,13 @@ public class Main extends TabActivity implements
                     relativeLayout.getChildAt(j).setVisibility(View.GONE);
                 }
             }
+
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(Main.this, ScCreate.class));
+                }
+            });
         }
 
         host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
