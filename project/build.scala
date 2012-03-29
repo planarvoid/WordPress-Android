@@ -82,6 +82,7 @@ object AndroidBuild extends Build {
     "soundcloud-android",
     file("."),
     settings = projectSettings ++ AndroidNdk.settings ++ AmazonHelper.settings ++ inConfig(Android)(Seq(
+      jniSourcePath <<= baseDirectory / "jni",
       jniClasses := Seq(
         "com.soundcloud.android.jni.VorbisEncoder",
         "com.soundcloud.android.jni.VorbisDecoder"
