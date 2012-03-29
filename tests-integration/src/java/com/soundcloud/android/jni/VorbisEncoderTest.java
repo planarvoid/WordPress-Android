@@ -17,7 +17,7 @@ public class VorbisEncoderTest extends TestBase {
     }
 
     public void testEncodeMedHighQuality() throws Exception {
-        encodeWav("med_test.wav", 18865, 0.99f);
+        encodeWav("med_test.wav", 18865, 1.0f);
     }
 
     public void testEncodeMedLowQuality() throws Exception {
@@ -33,8 +33,7 @@ public class VorbisEncoderTest extends TestBase {
         WaveHeader waveHeader = new WaveHeader(in, true);
 
         final String ogg = file.replace(".wav", ".ogg");
-        File out = new File(Environment.getExternalStorageDirectory(), ogg);
-        if (out.exists() && !out.delete()) fail("could not delete " + out);
+        File out = externalPath(ogg);
 
         final long start = System.currentTimeMillis();
         VorbisEncoder.encodeWav(in, out, quality);
