@@ -140,8 +140,7 @@ public class ScCreate extends ScActivity implements CreateController.CreateListe
     @Override
     public void onSave(Uri recordingUri, final Recording recording, boolean newRecording) {
         if (newRecording){
-            //startActivity(new Intent(this, ScUpload.class).setData(recordingUri));
-            startActivity(new Intent(this, CreateEditor.class).setData(recordingUri));
+            startActivity(new Intent(this, ScUpload.class).setData(recordingUri));
             mCreateController.reset();
         } else {
             startActivityForResult(new Intent(this, ScUpload.class).setData(recordingUri), 0);
