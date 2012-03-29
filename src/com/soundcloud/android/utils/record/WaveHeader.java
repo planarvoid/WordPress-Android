@@ -16,6 +16,7 @@
 
 package com.soundcloud.android.utils.record;
 
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -272,6 +273,29 @@ public class WaveHeader {
         /* data chunk */
         writeId(out, "data");
         writeInt(out, mNumBytes);
+
+        return HEADER_LENGTH;
+    }
+
+    public int write(DataOutput out) throws IOException {
+        /* RIFF header */
+        out.writeBytes("RIFF");
+        out.writeInt(36 + mNumBytes);
+        out.writeBytes("WAVE");
+
+        /* fmt chunk */
+        out.writeBytes("fmt ");
+        out.writeInt(Integer.reverseBytes(16));
+        out.writeShort(Short.reverseBytes((short) 1));
+        out.writeShort(Short.reverseBytes(mNumChannels));
+        out.writeInt(Integer.reverseBytes(mSampleRate));
+        out.writeInt(Integer.reverseBytes( mNumChannels * mSampleRate * mBitsPerSample / 8));
+        out.writeShort(Short.reverseBytes((short) (mNumChannels * mBitsPerSample / 8)));
+        out.writeShort(Short.reverseBytes(mBitsPerSample));
+
+        /* data chunk */
+        out.writeBytes("data");
+        out.writeInt(mNumBytes);
 
         return HEADER_LENGTH;
     }

@@ -1,26 +1,20 @@
 package com.soundcloud.android.activity;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewGroup;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
 import com.soundcloud.android.view.create.CreateController;
+
+import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.ViewGroup;
 
 @Tracking(page = Page.Record_main)
 public class ScCreate extends ScActivity implements CreateController.CreateListener {

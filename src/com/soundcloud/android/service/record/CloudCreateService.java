@@ -6,7 +6,6 @@ import static com.soundcloud.android.utils.CloudUtils.isTaskFinished;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.UserBrowser;
@@ -31,7 +30,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.IBinder;
@@ -188,35 +186,19 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         frameCount = 0;
 
         sendBroadcast(new Intent(RECORD_STARTED));
-        Thread t = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    mRecorder.recordToFile(mRecordFile.getAbsolutePath());
-                    if (mRecorder.getState() == CloudRecorder.State.ERROR){
-                        onRecordError();
-                    }
-                } catch (RuntimeException e) {
-                    // seems to get thrown in start()
-                    Log.w(TAG, e);
-                    onRecordError();
-                }
-            }
-        };
 
         final long messageRecipient = CreateController.getPrivateUserIdFromPath(path);
 
-        Intent i;
+        Intent intent = new Intent();
         if (messageRecipient != -1) {
-            i = (new Intent(Actions.MESSAGE));
-            i.putExtra("recipient",messageRecipient);
+            intent.setAction(Actions.MESSAGE)
+                  .putExtra("recipient", messageRecipient);
         } else {
-            i = (new Intent(Actions.RECORD));
+            intent.setAction(Actions.RECORD);
         }
 
-
         mRecordPendingIntent = PendingIntent.getActivity(
-                getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+                getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         mRecordNotification = createOngoingNotification(getApplicationContext().getResources()
                 .getString(R.string.cloud_recorder_notification_ticker), mRecordPendingIntent);
@@ -230,10 +212,16 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
                 CloudUtils.formatString(mRecordEventMessage, 0), mRecordPendingIntent);
 
         startForeground(RECORD_NOTIFY_ID, mRecordNotification);
-
         mRecording = true;
 
-        t.start();
+        new Thread() {
+            @Override
+            public void run() {
+                if (mRecorder.startRecording(mRecordFile.getAbsolutePath()) == CloudRecorder.State.ERROR) {
+                    onRecordError();
+                }
+            }
+        }.start();
     }
 
     public String getRecordingPath() {
