@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.soundcloud.android.utils.record;
+package com.soundcloud.android.record;
 
 import java.io.DataOutput;
 import java.io.IOException;

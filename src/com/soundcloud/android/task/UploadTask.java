@@ -3,10 +3,8 @@ package com.soundcloud.android.task;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.model.Upload;
-import com.soundcloud.android.utils.record.CloudRecorder;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
 
 import org.apache.http.HttpResponse;
@@ -40,7 +38,6 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
         public File artworkFile;
         public File encodedFile;
         public File trackFile;
-        public boolean encode;
         public File resizedFile;
         public boolean is_native_recording;
 
@@ -50,7 +47,6 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
 
         public Params(Upload upload) {
             map = upload.toTrackMap();
-            encode = upload.encode;
             trackFile = new File(upload.trackPath);
             encodedFile = upload.encodedFile;
             is_native_recording = upload.is_native_recording;
@@ -88,7 +84,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
                 final String title = map.get(com.soundcloud.api.Params.Track.TITLE) == null ? "unknown" :
                                      map.get(com.soundcloud.api.Params.Track.TITLE).toString();
 
-                fileName = String.format("%s.%s", URLEncoder.encode(title.replace(" ", "_")), encode ? "ogg" : "mp4");
+                fileName = String.format("%s.%s", URLEncoder.encode(title.replace(" ", "_")), "ogg");
             } else {
                 fileName = file.getName();
             }
@@ -103,7 +99,7 @@ public class UploadTask extends AsyncTask<UploadTask.Params, Long, UploadTask.Pa
     @Override
     protected Params doInBackground(final Params... params) {
         final Params param = params[0];
-        final File toUpload = param.encode ? param.encodedFile : param.trackFile;
+        final File toUpload = param.encodedFile != null ? param.encodedFile : param.trackFile;
 
         if (!toUpload.exists()) {
             throw new IllegalArgumentException("File to be uploaded does not exist");

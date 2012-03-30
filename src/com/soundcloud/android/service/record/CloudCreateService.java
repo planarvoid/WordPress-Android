@@ -11,14 +11,13 @@ import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.task.create.OggEncoderTask;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.task.UploadTask.Params;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.utils.record.CloudRecorder;
-import com.soundcloud.android.utils.record.RawAudioPlayer;
+import com.soundcloud.android.record.CloudRecorder;
+import com.soundcloud.android.record.RawAudioPlayer;
 import com.soundcloud.android.view.create.CreateController;
 import com.soundcloud.api.CloudAPI;
 
@@ -68,9 +67,8 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
 
     private boolean mRecording = false;
 
-    private OggEncoderTask<Params, ?> mOggTask;
     private ImageResizeTask mResizeTask;
-    private UploadTask mUploadTask;
+    private UploadTrackTask mUploadTask;
     private PendingIntent mRecordPendingIntent;
     private RemoteViews mUploadNotificationView;
     private Notification mRecordNotification, mUploadNotification;
@@ -188,7 +186,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
 
         releaseWakeLock();
 
-        if (mOggTask != null)    mOggTask.cancel(true);
         if (mUploadTask != null) mUploadTask.cancel(true);
         if (mResizeTask != null) mResizeTask.cancel(true);
 
@@ -235,7 +232,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         new Thread() {
             @Override
             public void run() {
-                if (mRecorder.startRecording(mRecordFile.getAbsolutePath()) == CloudRecorder.State.ERROR) {
+                if (mRecorder.startRecording(mRecordFile) == CloudRecorder.State.ERROR) {
                     onRecordError();
                 }
             }
@@ -472,8 +469,14 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         i.putExtra("upload_id", mCurrentUpload.id);
         sendBroadcast(i);
 
-        mOggTask = new EncodeOggTask();
-        mOggTask.execute(new Params(upload));
+        Params params = new Params(upload);
+        mUploadTask = new UploadTrackTask((CloudAPI) getApplication());
+        if (params.artworkFile == null) {
+            mUploadTask.execute(params);
+        } else {
+            mResizeTask = new ImageResizeTask(mUploadTask);
+            mResizeTask.execute(params);
+        }
         return true;
     }
 
@@ -495,79 +498,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
 
         startForeground(UPLOAD_NOTIFY_ID, mUploadNotification);
         return true;
-    }
-
-    private class EncodeOggTask extends OggEncoderTask<UploadTask.Params, UploadTask.Params> {
-        @Override
-        protected void onPreExecute() {
-            mUploadNotificationView.setTextViewText(R.id.percentage, getString(R.string.cloud_uploader_event_encoding, 0));
-        }
-
-        @Override
-        protected UploadTask.Params doInBackground(UploadTask.Params... params) {
-            UploadTask.Params param = params[0];
-            if (param.encode && !encode(param.trackFile, param.encodedFile)) {
-                if (param.encodedFile.exists()) param.encodedFile.delete();
-                param.fail();
-            }
-            return param;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            if (!isCancelled()) {
-                final int currentProgress = Math.min(100, (100 * progress[0]) / progress[1]);
-                mUploadNotificationView.setProgressBar(R.id.progress_bar, progress[1], progress[0], false);
-                mUploadNotificationView.setTextViewText(R.id.percentage, getString(R.string.cloud_uploader_event_encoding, currentProgress));
-                nm.notify(UPLOAD_NOTIFY_ID, mUploadNotification);
-
-                Intent i = new Intent(UPLOAD_PROGRESS);
-                i.putExtra("upload_id", mCurrentUpload.id);
-                i.putExtra("progress", currentProgress);
-                i.putExtra("encoding", true);
-                sendBroadcast(i);
-            }
-        }
-
-        @Override
-        protected void onPostExecute(UploadTask.Params param) {
-            mOggTask = null;
-            if (!isCancelled() && !mCurrentUpload.cancelled && param.isSuccess()) {
-                if (param.encode && param.trackFile.exists()) {
-
-                    //in case upload doesn't finish, maintain the timestamp (unnecessary now but might be if we change titling)
-                    param.encodedFile.setLastModified(param.trackFile.lastModified());
-
-                    File newEncodedFile = new File(param.trackFile.getParentFile(), param.encodedFile.getName());
-                    if (param.encodedFile.renameTo(newEncodedFile)) {
-                        param.encodedFile = newEncodedFile;
-                    }
-
-                    ContentValues cv = new ContentValues();
-                    cv.put(Recordings.AUDIO_PATH, param.encodedFile.getAbsolutePath());
-                    int x = getContentResolver().update(Content.RECORDINGS.uri,cv,Recordings._ID+"="+ mCurrentUpload.local_recording_id, null);
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, x + " row(s) audio path updated.");
-
-                    mCurrentUpload.trackPath = mCurrentUpload.encodedFile.getAbsolutePath();
-                    mCurrentUpload.encode = false;
-
-                    // resend uploading notification with updated upload parcelable
-                    sendUploadingNotification();
-
-                    // XXX always delete here?
-                    param.trackFile.delete();
-                }
-
-                mUploadTask = new UploadTrackTask((CloudAPI) getApplication());
-
-                if (param.artworkFile == null) {
-                    mUploadTask.execute(param);
-                } else {
-                    mResizeTask = new ImageResizeTask(mUploadTask);
-                    mResizeTask.execute(param);
-                }
-            } else if (!mCurrentUpload.cancelled) notifyUploadCurrentUploadFinished(param);
-        }
     }
 
     private class ImageResizeTask extends AsyncTask<UploadTask.Params, Integer, UploadTask.Params> {
@@ -719,7 +649,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
 
 
     public boolean isUploading() {
-        return (mOggTask != null || mResizeTask != null || mUploadTask != null);
+        return (mResizeTask != null || mUploadTask != null);
     }
 
     public void cancelUploadById(long id) {
@@ -733,11 +663,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         if (mCurrentUpload == null) return;
 
         mCurrentUpload.cancelled = true;
-
-        if (mOggTask != null && !isTaskFinished(mOggTask)) {
-            mOggTask.cancel(true);
-            mOggTask = null;
-        }
 
         if (mResizeTask != null && !isTaskFinished(mResizeTask)) {
             mResizeTask.cancel(true);

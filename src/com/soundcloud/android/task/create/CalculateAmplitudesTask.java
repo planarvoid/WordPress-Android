@@ -3,7 +3,7 @@ package com.soundcloud.android.task.create;
 import android.os.AsyncTask;
 import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.utils.record.WaveHeader;
+import com.soundcloud.android.record.WaveHeader;
 
 import java.io.File;
 import java.io.FileInputStream;

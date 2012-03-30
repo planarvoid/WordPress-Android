@@ -1,11 +1,10 @@
-package com.soundcloud.android.utils.record;
+package com.soundcloud.android.record;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
 
@@ -61,6 +60,8 @@ public class RawAudioPlayer {
 
     public void setFile(File f) throws IOException {
         if (mPlaying) stop();
+
+        if (!f.exists()) throw new IOException("file "+f+" does not exist");
 
         mFile = f;
         FileInputStream fin = new FileInputStream(f);

@@ -1,4 +1,4 @@
-package com.soundcloud.android.utils.record;
+package com.soundcloud.android.record;
 
 public class PcmUtils {
 

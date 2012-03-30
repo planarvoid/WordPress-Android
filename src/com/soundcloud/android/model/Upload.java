@@ -1,16 +1,19 @@
 package com.soundcloud.android.model;
 
-import android.content.res.Resources;
-import android.os.Parcel;
-import android.provider.ContactsContract;
-import android.text.TextUtils;
 import com.soundcloud.api.Params;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-import java.io.File;
-import java.util.*;
+import android.content.res.Resources;
+import android.os.Parcel;
+import android.text.TextUtils;
 
-import static com.soundcloud.android.utils.IOUtils.mkdirs;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -102,6 +105,7 @@ public class Upload extends ScModel {
         streamable = true;
 
         trackPath = r.audio_path.getAbsolutePath();
+        encodedFile = r.encoded_path;
 
         if (r.artwork_path != null) artworkPath = r.artwork_path.getAbsolutePath();
 
@@ -161,24 +165,9 @@ public class Upload extends ScModel {
         tag_list = TextUtils.join(" ", tags);
 
         if (!r.external_upload) {
-            encodedFile = new File(encodeDir(r.audio_path),
-                    String.format("%s.%s",
-                            r.audio_path.getName().contains(".") ? r.audio_path.getName().substring(0,
-                                    r.audio_path.getName().lastIndexOf(".")) : r.audio_path.getName(), "ogg"));
-            encode = true;
-
             is_native_recording = true;
         }
     }
-
-    private File encodeDir(File trackFile) {
-        File encodeDir = new File(trackFile.getParentFile(), ".encode");
-        if (!encodeDir.exists()) {
-            mkdirs(encodeDir);
-        }
-        return encodeDir;
-    }
-
 
     public Map<String, ?> toTrackMap() {
 

@@ -1,6 +1,7 @@
 
-package com.soundcloud.android.utils.record;
+package com.soundcloud.android.record;
 
+import com.soundcloud.android.jni.VorbisEncoder;
 import com.soundcloud.android.view.create.CreateController;
 
 import android.media.AudioFormat;
@@ -11,6 +12,7 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -36,7 +38,8 @@ public class CloudRecorder {
 
     private AudioRecord mAudioRecord = null;
     private RandomAccessFile mWriter;
-    private String mFilepath = null;
+    private VorbisEncoder mEncoder;
+    private File mFile = null;
 
     private int nChannels;
     private int mSampleRate;
@@ -79,7 +82,7 @@ public class CloudRecorder {
         mAudioRecord = new AudioRecord(audioSource, mSampleRate, channelConfig, audioFormat, bufferSize);
         buffer = ByteBuffer.allocateDirect(bufferSize);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-        mFilepath = null;
+        mFile = null;
         mState = State.IDLE;
     }
 
@@ -90,12 +93,14 @@ public class CloudRecorder {
     }
 
     // Sets output file path, call directly after construction/reset.
-    public State startRecording(String path) {
+    public State startRecording(File path) {
         try {
             if (mState != State.RECORDING) {
-                mFilepath = path;
+                mFile = path;
+                mWriter = new RandomAccessFile(mFile, "rw");
+                mEncoder = new VorbisEncoder(new File(path.getParentFile(), path.getName().concat(".ogg")),
+                        nChannels, mSampleRate, 1.0f);
 
-                mWriter = new RandomAccessFile(mFilepath, "rw");
                 if (mWriter.length() == 0) {
                     // new file
                     mWriter.setLength(0); // truncate
@@ -229,6 +234,7 @@ public class CloudRecorder {
                     if (mWriter != null) {
                         try {
                             final int written = mWriter.getChannel().write(buffer);
+
                             if (written < read) {
                                 Log.w(TAG, "partial write "+written);
                             }
@@ -237,6 +243,10 @@ public class CloudRecorder {
                             mState = CloudRecorder.State.ERROR;
                             break;
                         }
+                    }
+
+                    if (mEncoder != null) {
+                        mEncoder.addSamples(buffer, read);
                     }
 
                     buffer.rewind();
@@ -284,6 +294,10 @@ public class CloudRecorder {
                     }
                     mWriter.close();
                     mWriter = null;
+                }
+
+                if (mEncoder != null) {
+                    mEncoder.finish();
                 }
             } catch (IOException e) {
                 Log.e(TAG, "I/O exception occured while finalizing file", e);

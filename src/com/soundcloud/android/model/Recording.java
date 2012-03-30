@@ -36,9 +36,10 @@ public class Recording extends ScModel {
     public String what_text;
     public String where_text;
     public File audio_path;
+    public File artwork_path;
+    public File encoded_path;
     /** in msecs */
     public long duration;
-    public File artwork_path;
     public String four_square_venue_id; /* this is actually a hex id */
     public String shared_emails;
     public String shared_ids;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.view.create;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.record.CloudRecorder;
+import com.soundcloud.android.record.CloudRecorder;
 
 import android.content.Context;
 import android.graphics.Bitmap;

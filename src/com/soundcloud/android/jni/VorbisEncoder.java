@@ -1,6 +1,6 @@
 package com.soundcloud.android.jni;
 
-import com.soundcloud.android.utils.record.WaveHeader;
+import com.soundcloud.android.record.WaveHeader;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -14,6 +14,7 @@ public class VorbisEncoder {
     public final long channels;
     public final long rate;
     public final float quality;
+    public final File file;
 
     /**
      * Initialises the encoder for usage.
@@ -27,6 +28,7 @@ public class VorbisEncoder {
         if (ret != 0) {
             throw new EncoderException("Error initialising encoder", ret);
         }
+        this.file = file;
         this.channels = channels;
         this.rate = rate;
         this.quality = quality;

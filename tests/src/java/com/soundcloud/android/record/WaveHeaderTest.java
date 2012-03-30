@@ -1,4 +1,4 @@
-package com.soundcloud.android.utils.record;
+package com.soundcloud.android.record;
 
 import static com.soundcloud.android.Expect.expect;
 

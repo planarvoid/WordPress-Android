@@ -16,8 +16,8 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.record.CloudRecorder;
-import com.soundcloud.android.utils.record.RemainingTimeCalculator;
+import com.soundcloud.android.record.CloudRecorder;
+import com.soundcloud.android.record.RemainingTimeCalculator;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -234,7 +234,9 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
                     mActivity.track(Click.Record_next);
                     if (mRecording == null) {
+                        // XXX hack
                         Recording r = new Recording(mRecordFile);
+                        r.encoded_path = new File(mRecordFile.getParentFile(), mRecordFile.getName()+".ogg");
                         r.user_id = mActivity.getCurrentUserId();
                         if (mPrivateUser != null) {
                             SoundCloudDB.upsertUser(mActivity.getContentResolver(),
