@@ -270,13 +270,17 @@ public class CloudRecorder {
         private void finalizeFile() {
             try {
                 if (mWriter != null) {
-                    long length = mWriter.length();
+                    final long length = mWriter.length();
                     Log.d(TAG, "finalising recording file (length="+length+")");
-                    // fill in missing header bytes
-                    mWriter.seek(4);
-                    mWriter.writeInt(Integer.reverseBytes((int) (length - 8)));
-                    mWriter.seek(40);
-                    mWriter.writeInt(Integer.reverseBytes((int) (length - 44)));
+                    if (length > 0) {
+                        // fill in missing header bytes
+                        mWriter.seek(4);
+                        mWriter.writeInt(Integer.reverseBytes((int) (length - 8)));
+                        mWriter.seek(40);
+                        mWriter.writeInt(Integer.reverseBytes((int) (length - 44)));
+                    } else {
+                        Log.w(TAG, "file length is zero");
+                    }
                     mWriter.close();
                     mWriter = null;
                 }
