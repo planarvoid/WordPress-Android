@@ -21,7 +21,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.ICloudPlaybackService;
 import com.soundcloud.android.service.record.CloudCreateService;
-import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
@@ -67,7 +66,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
     protected Object[] mPreviousState;
     protected ICloudPlaybackService mPlaybackService;
-    protected ICloudCreateService mCreateService;
+    protected CloudCreateService mCreateService;
     protected NetworkConnectivityListener connectivityListener;
 
     protected List<ScListView> mLists;
@@ -116,10 +115,9 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     protected void onCreateServiceBound() {
         if (mLists == null || mLists.size() == 0 || !(this instanceof UserBrowser)) return;
         for (ScListView lv : mLists){
-            if (lv.getBaseAdapter() instanceof MyTracksAdapter && mCreateService != null)
-                try {
-                    ((MyTracksAdapter) lv.getBaseAdapter()).checkUploadStatus(mCreateService.getUploadLocalId());
-                } catch (RemoteException ignored) {}
+            if (lv.getBaseAdapter() instanceof MyTracksAdapter && mCreateService != null) {
+                ((MyTracksAdapter) lv.getBaseAdapter()).checkUploadStatus(mCreateService.getUploadLocalId());
+            }
         }
     }
 
@@ -148,8 +146,10 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
     private final ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            mCreateService = (ICloudCreateService) binder;
-            onCreateServiceBound();
+            if (binder instanceof CloudCreateService.LocalBinder) {
+                mCreateService = ((CloudCreateService.LocalBinder) binder).getService();
+                onCreateServiceBound();
+            }
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -342,17 +342,16 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
     // WTF? why is this in ScActivity?
     // called from UserBrowser XXX replace with intent
-    public boolean startUpload(Recording r) {
-        if (mCreateService == null) return false;
+    public Upload startUpload(Recording r) {
+        if (mCreateService == null) return null;
 
-        try {
-            if (mCreateService.startUpload(new Upload(r, getResources()))) return true;
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
+        final Upload upload = new Upload(r, getResources());
+        if (mCreateService.startUpload(upload)) {
+            return upload;
+        } else {
+            showToast(R.string.wait_for_upload_to_finish);
+            return null;
         }
-
-        showToast(R.string.wait_for_upload_to_finish);
-        return false;
     }
 
     public void showToast(int stringId) {
@@ -481,12 +480,8 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
                         .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
                                 android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                try {
-                                    // XXX this should be handled by ScCreate
-                                    mCreateService.cancelUpload();
-                                } catch (RemoteException ignored) {
-                                    Log.w(TAG, ignored);
-                                }
+                                // XXX this should be handled by ScCreate
+                                mCreateService.cancelUpload();
                                 removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                             }
                         }).setNegativeButton(android.R.string.no,
@@ -560,9 +555,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean uploading = false;
-        try {
-            if (mCreateService != null) uploading = mCreateService.isUploading();
-        } catch (RemoteException ignored) {}
+        if (mCreateService != null) uploading = mCreateService.isUploading();
         menuCurrentUploadingItem.setVisible(uploading);
         return true;
     }
@@ -678,7 +671,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         }
     };
 
-    public ICloudCreateService getCreateService() {
+    public CloudCreateService getCreateService() {
         return mCreateService;
     }
 

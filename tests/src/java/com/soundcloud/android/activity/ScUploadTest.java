@@ -1,28 +1,20 @@
 package com.soundcloud.android.activity;
 
-import static junit.framework.Assert.*;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.service.record.ICloudCreateService;
+import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.api.Params;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 
-import android.content.Intent;
-import android.net.Uri;
+import android.content.ComponentName;
 
 import java.io.File;
 import java.util.Arrays;
@@ -30,18 +22,20 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings({"ALL"})
 @RunWith(DefaultTestRunner.class)
-public class ScUploadTest implements Params.Track {
+public class ScUploadTest  {
     ScUpload create;
-    ICloudCreateService service;
 
     @Before
     public void setup() {
-        service = mock(ICloudCreateService.class);
+        Robolectric.shadowOf(Robolectric.application).setComponentNameAndServiceForBindService(
+                new ComponentName(Robolectric.application, CloudCreateService.class),
+                new CloudCreateService().getBinder()
+        );
+
         create = new ScUpload();
-        create.mCreateService = service;
         create.onCreate(null);
+        create.onStart();
     }
 
     private Upload upload() throws Exception {
@@ -52,7 +46,9 @@ public class ScUploadTest implements Params.Track {
         // 14:31:01, 15/02/2011
         File f = File.createTempFile("upload-test", "test");
         Calendar c = Calendar.getInstance();
+        //noinspection MagicConstant
         c.set(2001, 1, 15, 14, 31, 1);
+        //noinspection ResultOfMethodCallIgnored
         f.setLastModified(c.getTimeInMillis());
 
         Recording r = new Recording(f);
@@ -65,34 +61,30 @@ public class ScUploadTest implements Params.Track {
             c1.id = 1000;
             create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1));
         }
-
-        create.startUpload();
-
-        ArgumentCaptor<Upload> captor = ArgumentCaptor.forClass(Upload.class);
-        verify(service).startUpload(captor.capture());
-        return captor.getValue();
+        return create.startUpload();
     }
-
 
     @Test
     public void shouldOnlyGenerateSharingNoteWhenSharingPublicly() throws Exception {
         Upload upload = upload();
-        assertNull("A sharing note should not be present", upload.sharing_note);
+        expect(upload).not.toBeNull();
+        expect(upload.sharing_note).toBeNull();
     }
 
     @Test
     public void shouldPassThroughAllRequiredTrackParams() throws Exception {
         Upload upload = upload();
 
-        assertThat(upload.type, equalTo("recording"));
-        assertNotNull(upload.title);
+        expect(upload).not.toBeNull();
+        expect(upload.type).toEqual("recording");
+        expect(upload.title).not.toBeNull();
 
-        assertNull(upload.service_ids);
-        assertThat(upload.post_to_empty, equalTo(""));
-        assertEquals(PUBLIC, upload.sharing);
+        expect(upload.service_ids).toBeNull();
+        expect(upload.post_to_empty).toEqual("");
+        expect(upload.sharing).toEqual(Params.Track.PUBLIC);
 
-        assertNotNull(upload.trackPath);
-        assertNull(upload.artworkPath);
+        expect(upload.trackPath).not.toBeNull();
+        expect(upload.artworkPath).toBeNull();
     }
 
     @Test @DisableStrictI18n
@@ -115,12 +107,14 @@ public class ScUploadTest implements Params.Track {
 
         create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1, c2, c3));
 
-        Map args = upload().toTrackMap();
-        assertTrue(args.get(POST_TO) instanceof List);
-        List ids = (List) args.get(POST_TO);
+        final Upload upload = upload();
+        expect(upload).not.toBeNull();
+        Map args = upload.toTrackMap();
+        expect(args.get(Params.Track.POST_TO) instanceof List).toBeTrue();
+        List ids = (List) args.get(Params.Track.POST_TO);
 
-        assertEquals(2, ids.size());
-        assertEquals("1000", ids.get(0).toString());
-        assertEquals("1001", ids.get(1).toString());
+        expect(ids.size()).toEqual(2);
+        expect(ids.get(0).toString()).toEqual("1000");
+        expect(ids.get(1).toString()).toEqual("1001");
     }
 }

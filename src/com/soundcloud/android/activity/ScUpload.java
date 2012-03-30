@@ -4,6 +4,7 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -16,8 +17,6 @@ import com.soundcloud.android.view.create.ShareUserHeader;
 
 import android.content.Intent;
 import android.database.DataSetObserver;
-import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -29,7 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -126,7 +124,7 @@ public class ScUpload extends ScActivity {
                     saveRecording(mRecording);
                 }
 
-                if (startUpload()) {
+                if (startUpload() != null) {
                     mRecording = null;
                     mRecordingMetadata.setRecording(null);
                     setResult(RESULT_OK);
@@ -188,8 +186,8 @@ public class ScUpload extends ScActivity {
         });
     }
 
-    /* package */ boolean startUpload() {
-        return mRecording != null && startUpload(mRecording);
+    /* package */ Upload startUpload() {
+        return mRecording != null ? startUpload(mRecording) : null;
     }
 
     private void errorOut(int error) {

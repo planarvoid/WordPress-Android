@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -74,7 +75,20 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     private RawAudioPlayer mPlayer;
     private Uri mPlaybackLocal;
     private Upload mCurrentUpload;
-    private HashMap<Long,Upload> mUploadMap;
+    private final HashMap<Long,Upload> mUploadMap = new HashMap<Long, Upload>();
+
+    public class LocalBinder extends Binder {
+        public CloudCreateService getService() {
+            return CloudCreateService.this;
+        }
+    }
+
+    private final IBinder mBinder = new LocalBinder();
+
+    /** Accessor only for testing purposes */
+    public IBinder getBinder() {
+        return mBinder;
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -118,7 +132,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         mPlayer = new RawAudioPlayer();
         mPlayer.setListener(this);
         refreshRecorder();
-        mUploadMap = new HashMap<Long, Upload>();
     }
 
 
@@ -177,7 +190,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         Log.i(TAG, "upload Service shutdown complete.");
     }
 
-    /* package */ void startRecording(String path) {
+    public void startRecording(String path) {
         Log.v(TAG, "startRecording(" + path + ")");
 
         acquireWakeLock();
@@ -246,7 +259,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         if (recordTimeMs > -1 && frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker(recordTimeMs);
     }
 
-    /* package */ void stopRecording() {
+    public void stopRecording() {
         if (mRecorder != null) {
             mRecorder.stop();
         }
@@ -259,9 +272,11 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         mRecorder.startReading();
     }
 
-    /* package */ boolean isRecording() {
+    public boolean isRecording() {
         return mRecording;
     }
+
+
 
     /* package */ void updateRecordTicker(long recordTimeMs) {
 
@@ -272,13 +287,13 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     }
 
 
-    public void loadPlaybackTrack(String playbackPath) {
-        mPlaybackFile = new File(playbackPath);
-        mPlayer.setFile(mPlaybackFile);
+    public void loadPlaybackTrack(File file) throws IOException {
+        mPlaybackFile = file;
+        mPlayer.setFile(file);
 
         String[] columns = { Recordings._ID, Recordings.WHERE_TEXT, Recordings.WHAT_TEXT };
         Cursor cursor = getContentResolver().query(Content.RECORDINGS.uri,
-                columns, Recordings.AUDIO_PATH + "= ?",new String[]{playbackPath}, null);
+                columns, Recordings.AUDIO_PATH + "= ?",new String[]{file.getAbsolutePath()}, null);
 
         if (cursor != null && cursor.moveToFirst()) {
             mPlaybackLocal = Content.RECORDINGS.buildUpon().appendPath(
@@ -429,8 +444,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         mPlayer.resetPlaybackBounds();
     }
 
-    @SuppressWarnings("unchecked")
-    /* package */  boolean startUpload(final Upload upload) {
+    public boolean startUpload(final Upload upload) {
         if (mCurrentUpload!= null && mCurrentUpload.upload_status == Upload.UploadStatus.UPLOADING) return false;
         acquireWakeLock();
 
@@ -483,12 +497,9 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     }
 
     private class EncodeOggTask extends OggEncoderTask<UploadTask.Params, UploadTask.Params> {
-        private String eventString;
-
         @Override
         protected void onPreExecute() {
-            eventString = getString(R.string.cloud_uploader_event_encoding);
-            mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, 0));
+            mUploadNotificationView.setTextViewText(R.id.percentage, getString(R.string.cloud_uploader_event_encoding, 0));
         }
 
         @Override
@@ -506,7 +517,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
             if (!isCancelled()) {
                 final int currentProgress = Math.min(100, (100 * progress[0]) / progress[1]);
                 mUploadNotificationView.setProgressBar(R.id.progress_bar, progress[1], progress[0], false);
-                mUploadNotificationView.setTextViewText(R.id.percentage, String.format(eventString, currentProgress));
+                mUploadNotificationView.setTextViewText(R.id.percentage, getString(R.string.cloud_uploader_event_encoding, currentProgress));
                 nm.notify(UPLOAD_NOTIFY_ID, mUploadNotification);
 
                 Intent i = new Intent(UPLOAD_PROGRESS);
@@ -710,7 +721,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         return (mOggTask != null || mResizeTask != null || mUploadTask != null);
     }
 
-    /* package */  void cancelUploadById(long id) {
+    public void cancelUploadById(long id) {
         if (mCurrentUpload == null) return;
         // eventually add support for cancelling queued uploads, but not necessary yet
         if (id == mCurrentUpload.id) cancelUpload();
@@ -760,7 +771,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
                 ? mCurrentUpload.local_recording_id : 0;
     }
 
-    /* package */ Upload getUploadById(long id) {
+    public Upload getUploadById(long id) {
         return mUploadMap.get(id);
     }
 
@@ -773,17 +784,15 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     }
 
     private void acquireWakeLock() {
-        if (!mWakeLock.isHeld()) {
+        if (mWakeLock != null && !mWakeLock.isHeld()) {
             mWakeLock.acquire();
         }
     }
 
     private void releaseWakeLock() {
-        if (mWakeLock.isHeld()) {
+        if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.release();
         }
     }
-
-    private final IBinder mBinder = new ServiceStub(this);
 }
 

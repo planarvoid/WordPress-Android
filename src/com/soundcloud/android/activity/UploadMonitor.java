@@ -1,11 +1,8 @@
 package com.soundcloud.android.activity;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.service.record.CloudCreateService;
-import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -19,9 +16,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -32,7 +27,7 @@ import android.widget.Toast;
 import java.io.File;
 
 public class UploadMonitor extends Activity {
-    private ICloudCreateService mCreateService;
+    private CloudCreateService mCreateService;
     private long mUploadId;
     private Upload mUpload;
 
@@ -72,11 +67,7 @@ public class UploadMonitor extends Activity {
             @Override
             public void onClick(View v) {
                 if (mCreateService != null) {
-                    try {
-                        mCreateService.cancelUploadById(mUploadId);
-                    } catch (RemoteException ignored) {
-                        Log.e(TAG, "error", ignored);
-                    }
+                    mCreateService.cancelUploadById(mUploadId);
                 }
             }
         });
@@ -93,11 +84,7 @@ public class UploadMonitor extends Activity {
             public void onClick(View v) {
                 if (mCreateService == null) return;
                 mControlLayout.setVisibility(View.GONE);
-                try {
-                    if (mCreateService.startUpload(mUpload)) return;
-                } catch (RemoteException e) {
-                    Log.e(TAG, "error", e);
-                }
+                if (mCreateService.startUpload(mUpload)) return;
                 Toast.makeText(UploadMonitor.this, getString(R.string.wait_for_upload_to_finish), Toast.LENGTH_LONG);
             }
         });
@@ -141,15 +128,11 @@ public class UploadMonitor extends Activity {
 
      private ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            mCreateService = (ICloudCreateService) binder;
+            mCreateService = ((CloudCreateService.LocalBinder) binder).getService();
             if (mUpload == null) {
-                try {
-                    mUpload = mCreateService.getUploadById(mUploadId);
-                    if (mUpload != null) {
-                        fillDataFromUpload(mUpload);
-                    }
-                } catch (RemoteException ignored) {
-                    Log.e(TAG, "error", ignored);
+                mUpload = mCreateService.getUploadById(mUploadId);
+                if (mUpload != null) {
+                    fillDataFromUpload(mUpload);
                 }
             }
         }

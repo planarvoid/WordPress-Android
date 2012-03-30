@@ -163,9 +163,12 @@ import java.util.Random;
                         }
                     }
                 }
-                if (Math.round(100 * blocks / blocksTotal) > lastPercentReported) {
-                    lastPercentReported = Math.round(100 * blocks / blocksTotal);
-                    publishProgress(blocks, blocksTotal);
+
+                if (blocksTotal > 0) {
+                    if (Math.round(100 * blocks / blocksTotal) > lastPercentReported) {
+                        lastPercentReported = Math.round(100 * blocks / blocksTotal);
+                        publishProgress(blocks, blocksTotal);
+                    }
                 }
             }
 

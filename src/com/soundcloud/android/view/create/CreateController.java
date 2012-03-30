@@ -5,7 +5,6 @@ import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
@@ -13,7 +12,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.record.CloudCreateService;
-import com.soundcloud.android.service.record.ICloudCreateService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
@@ -28,14 +26,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -60,7 +55,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
     public static final String TEMP_PLAY = "Play";
     public static final String TEMP_STOP = "Stop";
     private ScActivity mActivity;
-    private ICloudCreateService mCreateService;
+    private CloudCreateService mCreateService;
     private Recording mRecording;
     private User mPrivateUser;
 
@@ -70,17 +65,18 @@ public class CreateController implements CreateWaveDisplay.Listener {
     private ImageButton btnAction;
     private File mRecordFile, mRecordDir;
     private CreateState mLastState, mCurrentState;
-    private long mLastDisplayedTime,mDuration, mLastSeekEventTime;
+    private long mLastDisplayedTime;
+    private long mDuration;
     private String mRecordErrorMessage, mCurrentDurationString;
     private boolean mSampleInterrupted, mActive;
     private RemainingTimeCalculator mRemainingTimeCalculator;
-    private Thread mProgressThread;
     private List<Recording> mUnsavedRecordings;
     private Button mResetButton, mDeleteButton, mPlayButton, mEditButton, mSaveButton;
 
     private android.os.Handler mHandler;
     private long mLastPos, mLastProgressTimestamp, mLastTrackTime;
-    private long mProgressPeriod = 1000 / 60; // aim for 60 fps.
+
+    private static final long PROGRESS_PERIOD = 1000 / 60; // aim for 60 fps.
 
     private CreateListener mCreateListener;
 
@@ -248,12 +244,10 @@ public class CreateController implements CreateWaveDisplay.Listener {
                             r.is_private = true;
                         }
 
-                        try { // set duration because ogg files report incorrect
-                            // duration in mediaplayer if playback is attempted
-                            // after encoding
-                            r.duration = mActivity.getCreateService().getPlaybackDuration();
-                        } catch (RemoteException ignored) {
-                        }
+                        // set duration because ogg files report incorrect
+                        // duration in mediaplayer if playback is attempted
+                        // after encoding
+                        r.duration = mActivity.getCreateService().getPlaybackDuration();
 
                         Uri newRecordingUri = mActivity.getContentResolver().insert(Content.RECORDINGS.uri, r.buildContentValues());
                         mRecording = r;
@@ -298,22 +292,22 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     @Override
     public void onSeek(float pos) {
-        if (mCreateService != null) try {
+        if (mCreateService != null) {
             mHandler.removeCallbacks(mRefreshPositionFromService);
             mHandler.removeCallbacks(mSmoothProgress);
             mLastTrackTime = -1;
             mCreateService.seekTo(pos);
-        } catch (RemoteException ignored) {}
+        }
     }
 
     @Override
     public void onAdjustTrimLeft(float pos) {
-        if (mCreateService != null) try { mCreateService.setPlaybackStart(pos); } catch (RemoteException ignored) {}
+        if (mCreateService != null) { mCreateService.setPlaybackStart(pos); }
     }
 
     @Override
     public void onAdjustTrimRight(float pos) {
-        if (mCreateService != null) try { mCreateService.setPlaybackEnd(pos); } catch (RemoteException ignored) {}
+        if (mCreateService != null) { mCreateService.setPlaybackEnd(pos); }
     }
 
     private void setResetState(){
@@ -325,7 +319,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         txtInstructions.setText(s);
     }
 
-    public void onCreateServiceBound(ICloudCreateService createService) {
+    public void onCreateServiceBound(CloudCreateService createService) {
         mCreateService = createService;
         CloudRecorder.getInstance().setRecordListener(recListener);
         if (mActive) configureState();
@@ -344,52 +338,47 @@ public class CreateController implements CreateWaveDisplay.Listener {
         if (mCreateService == null) return;
 
         boolean takeAction = false;
-        try {
 
-            if (mRecording != null) {
-                setRecordFile(mRecording.audio_path);
-                mDuration = mRecording.duration;
-            }
+        if (mRecording != null) {
+            setRecordFile(mRecording.audio_path);
+            mDuration = mRecording.duration;
+        }
 
-            if (mCreateService.isRecording() && mRecording == null){
-                if (shouldReactToRecording()) {
-                    mCurrentState = CreateState.RECORD;
-                    setRecordFile(new File(mCreateService.getRecordingPath()));
-                    CloudRecorder.getInstance().setRecordListener(recListener);
-                } else {
-                    mCurrentState = CreateState.IDLE_STANDBY_REC;
-                }
-            } else if ( mCreateService.isPlayingBack()) {
-                //if (recordingId == mCreateService.getPlaybackLocalId())
-                if (shouldReactToPlayback()) {
-                    if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
-                    setRecordFile(new File(mCreateService.getPlaybackPath()));
-                    configurePlaybackInfo();
-                    mHandler.postDelayed(mSmoothProgress, 0);
-                    takeAction = true;
-                } else {
-                    mCurrentState = CreateState.IDLE_STANDBY_PLAY;
-                }
-            } else if (!mRecordDir.exists()) {
-                // can happen when there's no mounted sd card
-                btnAction.setEnabled(false);
+        if (mCreateService.isRecording() && mRecording == null){
+            if (shouldReactToRecording()) {
+                mCurrentState = CreateState.RECORD;
+                setRecordFile(new File(mCreateService.getRecordingPath()));
+                CloudRecorder.getInstance().setRecordListener(recListener);
             } else {
-
-                if (mRecordFile == null && mPrivateUser != null) {
-                    checkForUnusedPrivateFile();
-                }
-
-                if (mRecordFile != null) {
-                    if (mCurrentState != CreateState.EDIT) mCurrentState = CreateState.IDLE_PLAYBACK;
-                    loadPlaybackTrack();
-                } else {
-                    mCurrentState = CreateState.IDLE_RECORD;
-                    takeAction = true;
-                }
+                mCurrentState = CreateState.IDLE_STANDBY_REC;
             }
-        } catch (RemoteException e) {
-            Log.e(TAG, "error", e);
-            mCurrentState = CreateState.IDLE_RECORD;
+        } else if ( mCreateService.isPlaying()) {
+            //if (recordingId == mCreateService.getPlaybackLocalId())
+            if (shouldReactToPlayback()) {
+                if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
+                setRecordFile(new File(mCreateService.getCurrentPlaybackPath()));
+                configurePlaybackInfo();
+                mHandler.postDelayed(mSmoothProgress, 0);
+                takeAction = true;
+            } else {
+                mCurrentState = CreateState.IDLE_STANDBY_PLAY;
+            }
+        } else if (!mRecordDir.exists()) {
+            // can happen when there's no mounted sd card
+            btnAction.setEnabled(false);
+        } else {
+
+            if (mRecordFile == null && mPrivateUser != null) {
+                checkForUnusedPrivateFile();
+            }
+
+            if (mRecordFile != null) {
+                if (mCurrentState != CreateState.EDIT) mCurrentState = CreateState.IDLE_PLAYBACK;
+                loadPlaybackTrack();
+            } else {
+                mCurrentState = CreateState.IDLE_RECORD;
+                takeAction = true;
+            }
         }
 
         if (!(mCurrentState == CreateState.RECORD || mCurrentState == CreateState.IDLE_STANDBY_REC || mCurrentState == CreateState.IDLE_STANDBY_PLAY)
@@ -402,21 +391,11 @@ public class CreateController implements CreateWaveDisplay.Listener {
     }
 
     private boolean shouldReactToRecording(){
-        boolean react = false;
-        try {
-            react = shouldReactToPath(mCreateService.getRecordingPath());
-        } catch (RemoteException ignored) {
-        }
-        return react;
+        return shouldReactToPath(mCreateService.getRecordingPath());
     }
 
     private boolean shouldReactToPlayback(){
-        boolean react = false;
-        try {
-            react = shouldReactToPath(mCreateService.getPlaybackPath());
-        } catch (RemoteException ignored) {
-        }
-        return react;
+        return shouldReactToPath(mCreateService.getCurrentPlaybackPath());
     }
 
     private boolean shouldReactToPath(String path) {
@@ -477,10 +456,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                     @Override
                     public void run() {
                         if (mRecordFile == null && mCreateService != null) {
-                            try {
-                                mCreateService.startReading();
-                            } catch (RemoteException ignored1) {
-                            }
+                            mCreateService.startReading();
                         }
                     }
                 });
@@ -532,14 +508,12 @@ public class CreateController implements CreateWaveDisplay.Listener {
                         case EDIT_PLAYBACK:
 
                             mWaveDisplay.resetTrim();
-                            try {
-                                if (mCreateService != null) {
-                                    mCreateService.revertFile();
-                                    if (mCreateService.isPlayingBack()) {
-                                        mCreateService.pausePlayback();
-                                    }
+                            if (mCreateService != null) {
+                                mCreateService.revertFile();
+                                if (mCreateService.isPlaying()) {
+                                    mCreateService.pausePlayback();
                                 }
-                            } catch (RemoteException ignored) {}
+                            }
                             mHandler.removeCallbacks(mSmoothProgress);
                             break;
                     }
@@ -601,11 +575,8 @@ public class CreateController implements CreateWaveDisplay.Listener {
                     if (mCurrentState == CreateState.EDIT_PLAYBACK) {
                         startPlayback();
                     } else {
-                        try {
-                            if (mCreateService != null && mCreateService.isPlayingBack()) {
-                                mCreateService.pausePlayback();
-                            }
-                        } catch (RemoteException ignored) {
+                        if (mCreateService != null && mCreateService.isPlaying()) {
+                            mCreateService.pausePlayback();
                         }
                         mHandler.removeCallbacks(mSmoothProgress);
                         break;
@@ -653,20 +624,6 @@ public class CreateController implements CreateWaveDisplay.Listener {
             mRecordErrorMessage = mActivity.getResources().getString(R.string.record_storage_is_full);
         }
 
-        final boolean hiQ = PreferenceManager.getDefaultSharedPreferences(mActivity)
-            .getString("defaultRecordingQuality", "high")
-            .equals("high");
-        /*
-        if (hiQ && SoundCloudApplication.DEV_MODE
-                && !PreferenceManager.getDefaultSharedPreferences(mActivity)
-                        .getString("dev.defaultRecordingHighQualityType", "compressed")
-                        .equals("compressed")) {
-            //force raw for developer mode
-            mAudioProfile = CloudRecorder.Profile.RAW;
-        } else  {
-            mAudioProfile = hiQ ? CloudRecorder.Profile.best() : CloudRecorder.Profile.low();
-        }  */
-
         if (mRecordFile == null){
             if (mPrivateUser != null) {
                 mRecordFile = new File(mRecordDir, System.currentTimeMillis() + "_" + mPrivateUser.id);
@@ -684,11 +641,9 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 mRemainingTimeCalculator.setFileSizeLimit(mRecordFile, PCM_REC_MAX_FILE_SIZE);
             }
 
-            try {
-                mCreateService.startRecording(mRecordFile.getAbsolutePath());
-                //noinspection ResultOfMethodCallIgnored
-                mRecordFile.setLastModified(System.currentTimeMillis());
-            } catch (RemoteException ignored) {}
+            mCreateService.startRecording(mRecordFile.getAbsolutePath());
+            //noinspection ResultOfMethodCallIgnored
+            mRecordFile.setLastModified(System.currentTimeMillis());
         }
     }
 
@@ -748,11 +703,9 @@ public class CreateController implements CreateWaveDisplay.Listener {
     };
 
     private void stopRecording() {
-        try {
-            if (mCreateService != null) {
-                mCreateService.stopRecording();
-            }
-        } catch (RemoteException ignored) { }
+        if (mCreateService != null) {
+            mCreateService.stopRecording();
+        }
 
         // disable actions during processing and playback preparation
         btnAction.setEnabled(false);
@@ -763,17 +716,18 @@ public class CreateController implements CreateWaveDisplay.Listener {
         try {
             if (mCreateService != null && mRecordFile != null) {
                 // might be loaded and paused already
-                if (TextUtils.isEmpty(mCreateService.getPlaybackPath()) ||
-                    !mCreateService.getPlaybackPath().equals(mRecordFile.getAbsolutePath())) {
-                    mCreateService.loadPlaybackTrack(mRecordFile.getAbsolutePath());
+                if (TextUtils.isEmpty(mCreateService.getCurrentPlaybackPath()) ||
+                    !mCreateService.getCurrentPlaybackPath().equals(mRecordFile.getAbsolutePath())) {
+                    mCreateService.loadPlaybackTrack(mRecordFile);
                 }
                 configurePlaybackInfo();
             }
-        } catch (RemoteException ignored) { }
+        } catch (IOException e) {
+            Log.w(TAG, e);
+        }
     }
 
     private void configurePlaybackInfo(){
-        try {
             mCurrentDurationString =  CloudUtils.formatTimestamp(getDuration());
             final long currentPlaybackPosition = mCreateService.getCurrentPlaybackPosition();
             if (currentPlaybackPosition >= 0 && currentPlaybackPosition < getDuration()) {
@@ -781,10 +735,9 @@ public class CreateController implements CreateWaveDisplay.Listener {
             } else {
                 mWaveDisplay.setProgress(-1f);
             }
-        } catch (RemoteException ignored) {}
     }
 
-    private long getDuration() throws RemoteException{
+    private long getDuration() {
         if (mDuration <= 0){
             mDuration = mCreateService.getPlaybackDuration();
         }
@@ -804,13 +757,10 @@ public class CreateController implements CreateWaveDisplay.Listener {
     private void startPlayback() {
         mLastPos = -1;
         mLastTrackTime = -1;
-        try {
-            if (!mCreateService.isPlayingBack()) {
-                mActivity.track(Click.Record_play);
-                mCreateService.startPlayback(); //might already be playing back if activity just created
-            }
-        } catch (RemoteException ignores) { }
-
+        if (!mCreateService.isPlaying()) {
+            mActivity.track(Click.Record_play);
+            mCreateService.startPlayback(); //might already be playing back if activity just created
+        }
     }
 
     private Runnable mSmoothProgress = new Runnable() {
@@ -831,7 +781,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                     }
                     setProgressInternal(posMs);
                 }
-                mHandler.postDelayed(this, mProgressPeriod);
+                mHandler.postDelayed(this, PROGRESS_PERIOD);
             }
         }
     };
@@ -840,33 +790,24 @@ public class CreateController implements CreateWaveDisplay.Listener {
         @Override
         public void run() {
             final boolean stillPlaying;
-            try {
-                stillPlaying = mCreateService.isPlayingBack();
-                mLastTrackTime = stillPlaying ? mCreateService.getCurrentPlaybackPosition() : getDuration();
-                mLastProgressTimestamp = System.currentTimeMillis();
-                if (stillPlaying) mHandler.postDelayed(this, 500);
-
-            } catch (RemoteException ignored) {}
+            stillPlaying = mCreateService.isPlaying();
+            mLastTrackTime = stillPlaying ? mCreateService.getCurrentPlaybackPosition() : getDuration();
+            mLastProgressTimestamp = System.currentTimeMillis();
+            if (stillPlaying) mHandler.postDelayed(this, 500);
         }
     };
 
     protected void setProgressInternal(long pos) {
-
-        try {
-            final long duration = getDuration();
-            if (duration != 0){
-                mWaveDisplay.setProgress(((float) Math.max(0,Math.min(pos,duration))) / duration);
-            }
-
-        } catch (RemoteException ignored) { }
+        final long duration = getDuration();
+        if (duration != 0){
+            mWaveDisplay.setProgress(((float) Math.max(0,Math.min(pos,duration))) / duration);
+        }
     }
 
     private void stopPlayback() {
         mHandler.removeCallbacks(mSmoothProgress);
         mDuration = 0;
-        try {
-            mCreateService.stopPlayback();
-        } catch (RemoteException ignored) { }
+        mCreateService.stopPlayback();
     }
 
 
@@ -971,7 +912,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     public void onRecProgressUpdate(long elapsed) {
         if (elapsed - mLastDisplayedTime > 1000) {
-            mChrono.setText(CloudUtils.formatTimestamp(elapsed).toString());
+            mChrono.setText(CloudUtils.formatTimestamp(elapsed));
             updateTimeRemaining();
             mLastDisplayedTime = (elapsed / 1000)*1000;
         }
@@ -993,9 +934,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
     public void onPause() {
         mActive = false;
         if (mCurrentState != CreateState.RECORD && mCreateService != null){
-            try {
-                mCreateService.stopRecording(); // this will stop the amplitude reading loop
-            } catch (RemoteException ignored) {}
+            mCreateService.stopRecording(); // this will stop the amplitude reading loop
         }
     }
 
@@ -1139,6 +1078,4 @@ public class CreateController implements CreateWaveDisplay.Listener {
         void onCancel();
         void onDelete();
     }
-
-
 }

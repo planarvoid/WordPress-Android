@@ -14,7 +14,7 @@ import com.soundcloud.android.activity.LocationPicker;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.record.ICloudCreateService;
+import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -136,8 +136,8 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
         mRecordingMetadata.onRestoreInstanceState(state);
     }
 
-    public void onCreateServiceBound(ICloudCreateService mCreateService) {
-        mCreateController.onCreateServiceBound(mCreateService);
+    public void onCreateServiceBound(CloudCreateService service) {
+        mCreateController.onCreateServiceBound(service);
     }
 
     public Dialog onCreateDialog(int which) {

@@ -61,20 +61,17 @@ public class RawAudioPlayer {
         mListener = listener;
     }
 
-    public void setFile(File f){
+    public void setFile(File f) throws IOException {
         if (mPlaying) stop();
-        try {
-            FileInputStream fin = new FileInputStream(f);
-            WaveHeader waveHeader = new WaveHeader(fin);
-            if (mFile == f || mTotalBytes != waveHeader.getNumBytes() ){
-                mTotalBytes = waveHeader.getNumBytes();
-                mFile = f;
-                resetPlaybackBounds();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            mFile = null;
+
+        FileInputStream fin = new FileInputStream(f);
+        WaveHeader waveHeader = new WaveHeader(fin);
+        if (mFile == f || mTotalBytes != waveHeader.getNumBytes() ) {
+            mTotalBytes = waveHeader.getNumBytes();
+            mFile = f;
+            resetPlaybackBounds();
         }
+
         mDuration = PcmUtils.byteToMs(mEndPos); //ms, sample rate * 2 bytes per sample * 2 channels
     }
 
@@ -90,8 +87,8 @@ public class RawAudioPlayer {
         }
     }
 
-    public void play(){
-        if (!mPlaying){
+    public void play() {
+        if (!mPlaying) {
             mPlaying = true;
             mPlayRawAudioTask = new PlayRawAudioTask(this, mFile, SAMPLE_RATE,CHANNEL_CONFIG,ENCODING);
             mPlayRawAudioTask.setBounds(mStartPos,mEndPos);
@@ -200,7 +197,7 @@ public class RawAudioPlayer {
 
 
     private static class PlayRawAudioTask extends AsyncTask<Long, Long, Boolean> {
-        private File mFile;
+        private File mFileToPlay;
         private AudioTrack mAudioTrack;
         private int minSize;
         private boolean isPlaying;
@@ -208,14 +205,12 @@ public class RawAudioPlayer {
         private WeakReference<RawAudioPlayer> rawAudioPlayerWeakReference;
 
         public PlayRawAudioTask(RawAudioPlayer rawAudioPlayer, File f, int sampleRate, int channelConfiguration, int encoding) {
-            mFile = f;
+            if (f == null) throw new IllegalArgumentException("file is null");
+
+            mFileToPlay = f;
             minSize = AudioTrack.getMinBufferSize(sampleRate, channelConfiguration, encoding);
             mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelConfiguration, encoding,
                     minSize, AudioTrack.MODE_STREAM);
-            setRawAudioPlayer(rawAudioPlayer);
-        }
-
-        public void setRawAudioPlayer(RawAudioPlayer rawAudioPlayer){
             rawAudioPlayerWeakReference = new WeakReference<RawAudioPlayer>(rawAudioPlayer);
         }
 
@@ -230,7 +225,7 @@ public class RawAudioPlayer {
             int i;
             byte[] s = new byte[bufferSize];
             try {
-                FileInputStream fin = new FileInputStream(mFile);
+                FileInputStream fin = new FileInputStream(mFileToPlay);
                 WaveHeader waveHeader = new WaveHeader(fin);
 
                 // round to the nearest buffer size to ensure valid audio data (TODO can this be more precise?)
