@@ -5,7 +5,9 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Message;
+import android.util.Log;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -41,10 +43,6 @@ public class RawAudioPlayer {
         return mCurrentProgress == -1 ? -1 : PcmUtils.byteToMs(mCurrentProgress);
     }
 
-    public long getCurrentPlaybackBytePosition() {
-        return mCurrentProgress;
-    }
-
     public void resetPlaybackBounds() {
         mStartPos = 0;
         mEndPos = mTotalBytes;
@@ -64,14 +62,13 @@ public class RawAudioPlayer {
     public void setFile(File f) throws IOException {
         if (mPlaying) stop();
 
+        mFile = f;
         FileInputStream fin = new FileInputStream(f);
         WaveHeader waveHeader = new WaveHeader(fin);
-        if (mFile == f || mTotalBytes != waveHeader.getNumBytes() ) {
+        if (mTotalBytes != waveHeader.getNumBytes() ) {
             mTotalBytes = waveHeader.getNumBytes();
-            mFile = f;
             resetPlaybackBounds();
         }
-
         mDuration = PcmUtils.byteToMs(mEndPos); //ms, sample rate * 2 bytes per sample * 2 channels
     }
 
@@ -90,7 +87,7 @@ public class RawAudioPlayer {
     public void play() {
         if (!mPlaying) {
             mPlaying = true;
-            mPlayRawAudioTask = new PlayRawAudioTask(this, mFile, SAMPLE_RATE,CHANNEL_CONFIG,ENCODING);
+            mPlayRawAudioTask = new PlayRawAudioTask(this, mFile, SAMPLE_RATE, CHANNEL_CONFIG, ENCODING);
             mPlayRawAudioTask.setBounds(mStartPos,mEndPos);
             mPlayRawAudioTask.execute(mCurrentProgress);
         }
@@ -195,7 +192,6 @@ public class RawAudioPlayer {
         return (in / mMinBufferSize) * mMinBufferSize;
     }
 
-
     private static class PlayRawAudioTask extends AsyncTask<Long, Long, Boolean> {
         private File mFileToPlay;
         private AudioTrack mAudioTrack;
@@ -209,8 +205,7 @@ public class RawAudioPlayer {
 
             mFileToPlay = f;
             minSize = AudioTrack.getMinBufferSize(sampleRate, channelConfiguration, encoding);
-            mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelConfiguration, encoding,
-                    minSize, AudioTrack.MODE_STREAM);
+            mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelConfiguration, encoding, minSize, AudioTrack.MODE_STREAM);
             rawAudioPlayerWeakReference = new WeakReference<RawAudioPlayer>(rawAudioPlayer);
         }
 
@@ -220,14 +215,14 @@ public class RawAudioPlayer {
 
         @Override
         protected Boolean doInBackground(Long... params) {
-            Long offset = Math.max(params[0],mStartPos);
+            long offset = Math.max(params[0], mStartPos);
+            Log.d("RawAudioPlayer", "playing "+mFileToPlay+ " at offset "+offset);
+
             int bufferSize = 1024;
             int i;
             byte[] s = new byte[bufferSize];
             try {
                 FileInputStream fin = new FileInputStream(mFileToPlay);
-                WaveHeader waveHeader = new WaveHeader(fin);
-
                 // round to the nearest buffer size to ensure valid audio data (TODO can this be more precise?)
                 offset = (offset / minSize) * minSize;
 

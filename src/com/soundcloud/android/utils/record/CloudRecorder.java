@@ -1,7 +1,6 @@
 
 package com.soundcloud.android.utils.record;
 
-import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.view.create.CreateController;
 
 import android.media.AudioFormat;
@@ -9,10 +8,13 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,12 +42,10 @@ public class CloudRecorder {
     private int mSampleRate;
     private int mBitsPerSample;
 
-    private int mCurrentMaxAmplitude = 0;
+    final private ByteBuffer buffer;
 
-    private byte[] buffer;
-
-    private CloudCreateService service;
     private int mLastMax = 0;
+    private int mCurrentMaxAmplitude = 0;
     private int mCurrentAdjustedMaxAmplitude= 0;
 
     private RecordListener mRecListener;
@@ -75,25 +75,12 @@ public class CloudRecorder {
 
         final int audioFormat = bitsPerSample == 16 ? AudioFormat.ENCODING_PCM_16BIT : AudioFormat.ENCODING_PCM_8BIT;
         final int channelConfig = channels == 2 ? AudioFormat.CHANNEL_IN_STEREO : AudioFormat.CHANNEL_IN_MONO;
-        final int minBufferSize = AudioRecord.getMinBufferSize(mSampleRate, channelConfig, audioFormat);
-
-        int framePeriod = mSampleRate * TIMER_INTERVAL / 1000;
-        int bufferSize = framePeriod * 2 * mBitsPerSample * nChannels / 8;
-        if (bufferSize < minBufferSize) {
-            // Check to make sure buffer size is not smaller than the smallest allowed one
-            bufferSize = minBufferSize;
-            // Set frame period and timer interval accordingly
-            framePeriod = bufferSize / (2 * mBitsPerSample * nChannels / 8);
-            Log.w(TAG, "Increasing buffer size to " + bufferSize);
-        }
+        final int bufferSize = AudioRecord.getMinBufferSize(mSampleRate, channelConfig, audioFormat)  * 3;
         mAudioRecord = new AudioRecord(audioSource, mSampleRate, channelConfig, audioFormat, bufferSize);
-        buffer = new byte[framePeriod * mBitsPerSample / 8 * nChannels];
+        buffer = ByteBuffer.allocateDirect(bufferSize);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
         mFilepath = null;
         mState = State.IDLE;
-    }
-
-    public void setRecordService(CloudCreateService service) {
-        this.service = service;
     }
 
     public void startReading() {
@@ -169,41 +156,40 @@ public class CloudRecorder {
 
                     int mCurrentMax = mCurrentMaxAmplitude;
                     mCurrentMaxAmplitude = 0;
-                    if (service != null) {
-                        // max amplitude returns false 0's sometimes, so just
-                        // use the last value. It is usually only for a frame
-                        if (mCurrentMax == 0) {
-                            mCurrentMax = mLastMax;
-                        } else {
-                            mLastMax = mCurrentMax;
-                        }
 
-                        // Simple peak follower, cf. http://www.musicdsp.org/showone.php?id=19
-                        if ( mCurrentMax >= mCurrentAdjustedMaxAmplitude ) {
-                            /* When we hit a peak, ride the peak to the top. */
-                            mCurrentAdjustedMaxAmplitude = mCurrentMax;
-                        } else {
-                            /*  decay of output when signal is low. */
-                            mCurrentAdjustedMaxAmplitude = (int) (mCurrentAdjustedMaxAmplitude * .4);
-                        }
-
-                        try {
-                            if (mState == State.RECORDING && writeIndex == -1) {
-                                writeIndex = amplitudes.size();
-                            }
-                            long elapsedTime = mState != State.RECORDING ? -1 : PcmUtils.byteToMs(mWriter.length());
-                            final float frameAmplitude = Math.max(.1f,
-                                    ((float) Math.sqrt(Math.sqrt(mCurrentAdjustedMaxAmplitude)))
-                                            / MAX_ADJUSTED_AMPLITUDE);
-
-                            amplitudes.add(frameAmplitude);
-                            if (mRecListener != null) mRecListener.onFrameUpdate(frameAmplitude, elapsedTime);
-
-                            service.onRecordFrameUpdate(elapsedTime);
-                        } catch (IOException e) {
-                            Log.e(TAG, "Error accessing writer on frame update", e);
-                        }
+                    // max amplitude returns false 0's sometimes, so just
+                    // use the last value. It is usually only for a frame
+                    if (mCurrentMax == 0) {
+                        mCurrentMax = mLastMax;
+                    } else {
+                        mLastMax = mCurrentMax;
                     }
+
+                    // Simple peak follower, cf. http://www.musicdsp.org/showone.php?id=19
+                    if ( mCurrentMax >= mCurrentAdjustedMaxAmplitude ) {
+                        /* When we hit a peak, ride the peak to the top. */
+                        mCurrentAdjustedMaxAmplitude = mCurrentMax;
+                    } else {
+                        /*  decay of output when signal is low. */
+                        mCurrentAdjustedMaxAmplitude = (int) (mCurrentAdjustedMaxAmplitude * .4);
+                    }
+
+                    try {
+                        if (mState == State.RECORDING && writeIndex == -1) {
+                            writeIndex = amplitudes.size();
+                        }
+                        long elapsedTime = mState != State.RECORDING ? -1 : PcmUtils.byteToMs(mWriter.length());
+                        final float frameAmplitude = Math.max(.1f,
+                                ((float) Math.sqrt(Math.sqrt(mCurrentAdjustedMaxAmplitude)))
+                                        / MAX_ADJUSTED_AMPLITUDE);
+
+                        amplitudes.add(frameAmplitude);
+
+                        if (mRecListener != null) mRecListener.onFrameUpdate(frameAmplitude, elapsedTime);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error accessing writer on frame update", e);
+                    }
+
                     queueNextRefresh(TIMER_INTERVAL);
                     break;
                 default:
@@ -224,41 +210,54 @@ public class CloudRecorder {
         }
 
         @Override
-        public synchronized void run() {
+        public void run() {
             Log.d(TAG, "starting reader thread");
 
             mAudioRecord.startRecording();
             while (mState == CloudRecorder.State.READING || mState == CloudRecorder.State.RECORDING) {
                 final long start = System.currentTimeMillis();
-                final int read = mAudioRecord.read(buffer, 0, buffer.length);
-                if (mWriter != null) {
-                    try {
-                        mWriter.write(buffer, 0, read);
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
-                        mState = CloudRecorder.State.ERROR;
-                        break;
-                    }
-                }
-                for (int i = 0; i < buffer.length / (mBitsPerSample/8); i++) {
-                    int value;
-                    switch (mBitsPerSample) {
-                        case 16:
-                            value = Math.abs((short) (buffer[i * 2] | (buffer[i * 2 + 1] << 8)));
-                            break;
-                        case 8:
-                           value = Math.abs(buffer[i]);
-                            break;
-                        default:
-                            value = 0;
-                    }
-                    if (value > mCurrentMaxAmplitude) mCurrentMaxAmplitude = value;
-                }
 
-                // ???
-                try {
-                    wait(Math.max(5, TIMER_INTERVAL - (System.currentTimeMillis() - start)));
-                } catch (InterruptedException ignore) {}
+                buffer.rewind();
+                final int read = mAudioRecord.read(buffer, buffer.capacity());
+
+                if (read < 0) {
+                    Log.w(TAG, "AudioRecord.read() returned erro: " + read);
+                    mState = CloudRecorder.State.ERROR;
+                } else if (read == 0) {
+                    Log.w(TAG, "AudioRecord.read() returned no data");
+                } else {
+                    if (mWriter != null) {
+                        try {
+                            final int written = mWriter.getChannel().write(buffer);
+                            if (written < read) {
+                                Log.w(TAG, "partial write "+written);
+                            }
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
+                            mState = CloudRecorder.State.ERROR;
+                            break;
+                        }
+                    }
+
+                    buffer.rewind();
+                    buffer.limit(read);
+                    while (buffer.position() < buffer.limit()) {
+                        int value;
+                        switch (mBitsPerSample) {
+                            case 16:
+                                value = buffer.getShort();
+                                break;
+                            case 8:
+                                value = buffer.get();
+                                break;
+                            default:
+                                value = 0;
+                        }
+                        if (value > mCurrentMaxAmplitude) mCurrentMaxAmplitude = value;
+                    }
+                }
+                SystemClock.sleep(Math.max(5,
+                        TIMER_INTERVAL - (System.currentTimeMillis() - start)));
             }
             Log.d(TAG, "exiting reader loop, stopping recording (mState="+mState+")");
 
@@ -272,14 +271,16 @@ public class CloudRecorder {
                 if (mWriter != null) {
                     final long length = mWriter.length();
                     Log.d(TAG, "finalising recording file (length="+length+")");
-                    if (length > 0) {
+                    if (length == 0) {
+                        Log.w(TAG, "file length is zero");
+                    } else if (length > WaveHeader.HEADER_LENGTH) {
                         // fill in missing header bytes
                         mWriter.seek(4);
                         mWriter.writeInt(Integer.reverseBytes((int) (length - 8)));
                         mWriter.seek(40);
                         mWriter.writeInt(Integer.reverseBytes((int) (length - 44)));
                     } else {
-                        Log.w(TAG, "file length is zero");
+                        Log.w(TAG, "data length is zero");
                     }
                     mWriter.close();
                     mWriter = null;

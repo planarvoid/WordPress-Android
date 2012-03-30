@@ -11,6 +11,12 @@ import android.os.StatFs;
  * optionally a maximum recording file size. The reason why this is not trivial
  * is that the file grows in blocks every few seconds or so, while we want a
  * smooth countdown.
+ *
+ * Based on com.android.soundrecorder.SoundRecorder
+ *
+ * @see <a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android-apps/2.0_r1/com/android/soundrecorder/SoundRecorder.java?av=h">
+ *  com.android.soundrecorder.SoundRecorder
+ * </a>
  */
 
 public class RemainingTimeCalculator {
@@ -53,7 +59,7 @@ public class RemainingTimeCalculator {
      * If called, the calculator will return the minimum of two estimates: how
      * long until we run out of disk space and how long until the file reaches
      * the specified size.
-     * 
+     *
      * @param file the file to watch
      * @param maxBytes the limit
      */
@@ -148,7 +154,7 @@ public class RemainingTimeCalculator {
 
     /**
      * Sets the bit rate used in the interpolation.
-     * 
+     *
      * @param bitRate the bit rate to set in bits/sec.
      */
     public void setBitRate(int bitRate) {

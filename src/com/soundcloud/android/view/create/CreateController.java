@@ -347,7 +347,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         if (mCreateService.isRecording() && mRecording == null){
             if (shouldReactToRecording()) {
                 mCurrentState = CreateState.RECORD;
-                setRecordFile(new File(mCreateService.getRecordingPath()));
+                setRecordFile(mCreateService.getRecordingPath());
                 CloudRecorder.getInstance().setRecordListener(recListener);
             } else {
                 mCurrentState = CreateState.IDLE_STANDBY_REC;
@@ -356,7 +356,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
             //if (recordingId == mCreateService.getPlaybackLocalId())
             if (shouldReactToPlayback()) {
                 if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
-                setRecordFile(new File(mCreateService.getCurrentPlaybackPath()));
+                setRecordFile(mCreateService.getCurrentPlaybackPath());
                 configurePlaybackInfo();
                 mHandler.postDelayed(mSmoothProgress, 0);
                 takeAction = true;
@@ -398,9 +398,9 @@ public class CreateController implements CreateWaveDisplay.Listener {
         return shouldReactToPath(mCreateService.getCurrentPlaybackPath());
     }
 
-    private boolean shouldReactToPath(String path) {
-        if (TextUtils.isEmpty(path)) return false;
-        final long userIdFromPath = getPrivateUserIdFromPath(path);
+    private boolean shouldReactToPath(File file) {
+        if (file == null) return false;
+        final long userIdFromPath = getPrivateUserIdFromPath(file);
         return ((userIdFromPath == -1 && mPrivateUser == null) || (mPrivateUser != null && userIdFromPath == mPrivateUser.id));
     }
 
@@ -641,7 +641,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 mRemainingTimeCalculator.setFileSizeLimit(mRecordFile, PCM_REC_MAX_FILE_SIZE);
             }
 
-            mCreateService.startRecording(mRecordFile.getAbsolutePath());
+            mCreateService.startRecording(mRecordFile);
             //noinspection ResultOfMethodCallIgnored
             mRecordFile.setLastModified(System.currentTimeMillis());
         }
@@ -690,7 +690,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         }
     }
 
-    public CloudRecorder.RecordListener recListener = new CloudRecorder.RecordListener() {
+    public final CloudRecorder.RecordListener recListener = new CloudRecorder.RecordListener() {
         @Override
         public void onFrameUpdate(float maxAmplitude, long elapsed) {
             synchronized (this) {
@@ -716,8 +716,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         try {
             if (mCreateService != null && mRecordFile != null) {
                 // might be loaded and paused already
-                if (TextUtils.isEmpty(mCreateService.getCurrentPlaybackPath()) ||
-                    !mCreateService.getCurrentPlaybackPath().equals(mRecordFile.getAbsolutePath())) {
+                if (!mRecordFile.equals(mCreateService.getCurrentPlaybackPath())) {
                     mCreateService.loadPlaybackTrack(mRecordFile);
                 }
                 configurePlaybackInfo();
@@ -757,9 +756,15 @@ public class CreateController implements CreateWaveDisplay.Listener {
     private void startPlayback() {
         mLastPos = -1;
         mLastTrackTime = -1;
-        if (!mCreateService.isPlaying()) {
+        if (!mCreateService.isPlaying()) {  //might already be playing back if activity just created
             mActivity.track(Click.Record_play);
-            mCreateService.startPlayback(); //might already be playing back if activity just created
+
+            try {
+                mCreateService.startPlayback(mRecordFile);
+            } catch (IOException e) {
+                CloudUtils.showToast(mCreateService, "Could not start playback");
+               Log.w(TAG, e);
+            }
         }
     }
 
@@ -825,7 +830,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 return Recording.isRawFilename(name) || Recording.isCompressedFilename(name);
             }
         })) {
-            if (f.equals(mRecordFile) || getPrivateUserIdFromPath(f.getAbsolutePath()) != -1) continue; // ignore current file
+            if (f.equals(mRecordFile) || getPrivateUserIdFromPath(f) != -1) continue; // ignore current file
 
             cursor = mActivity.getContentResolver().query(Content.RECORDINGS.uri,
                     columns,
@@ -870,7 +875,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         })) {
             if (f.equals(mRecordFile)) continue; // ignore current file
 
-            final long filePrivateUserId = getPrivateUserIdFromPath(f.getAbsolutePath());
+            final long filePrivateUserId = getPrivateUserIdFromPath(f);
             if (mPrivateUser != null && filePrivateUserId == mPrivateUser.id) {
                 setRecordFile(f);
                 break;
@@ -956,7 +961,9 @@ public class CreateController implements CreateWaveDisplay.Listener {
         }
     }
 
-    public static long getPrivateUserIdFromPath(String path){
+    public static long getPrivateUserIdFromPath(File file) {
+        final String path = file.getAbsolutePath();
+
         if (!path.contains("_") || path.indexOf("_") + 1 >= path.length()) {
             return -1;
         } else {
@@ -965,7 +972,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
             } catch (NumberFormatException ignored) {
 
             } catch (StringIndexOutOfBoundsException ignored) {
-
+                // LAZY XXX
             }
             return -1;
         }
@@ -989,14 +996,12 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 mHandler.postDelayed(mSmoothProgress, 0);
 
             } else if (action.equals(CloudCreateService.PLAYBACK_COMPLETE) || action.equals(CloudCreateService.PLAYBACK_ERROR)) {
-                if (shouldReactToPath(intent.getStringExtra("path"))) {
+                if (intent.hasExtra("path") && shouldReactToPath(new File(intent.getStringExtra("path")))) {
                     onPlaybackComplete();
                 } else if (mCurrentState == CreateState.IDLE_STANDBY_PLAY) {
                     configureState();
                 }
             }
-
-
         }
     };
 

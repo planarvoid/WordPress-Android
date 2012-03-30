@@ -43,7 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class CloudCreateService extends Service implements RawAudioPlayer.PlaybackListener {
+public class CloudCreateService extends Service implements RawAudioPlayer.PlaybackListener, CloudRecorder.RecordListener {
     private static final String TAG = "CloudUploaderService";
 
     public static final String RECORD_STARTED      = "com.soundcloud.android.recordstarted";
@@ -58,10 +58,16 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_ERROR    = "com.soundcloud.android.playbackerror";
 
-    private static WakeLock mWakeLock;
+
+    private WakeLock mWakeLock;
+
     private CloudRecorder mRecorder;
+    private RawAudioPlayer mPlayer;
+
     private File mRecordFile, mPlaybackFile;
+
     private boolean mRecording = false;
+
     private OggEncoderTask<Params, ?> mOggTask;
     private ImageResizeTask mResizeTask;
     private UploadTask mUploadTask;
@@ -72,7 +78,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     private NotificationManager nm;
     private int mServiceStartId = -1;
     private int frameCount;
-    private RawAudioPlayer mPlayer;
+
     private Uri mPlaybackLocal;
     private Upload mCurrentUpload;
     private final HashMap<Long,Upload> mUploadMap = new HashMap<Long, Upload>();
@@ -138,7 +144,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     private void refreshRecorder(){
         if (mRecorder != null) mRecorder.onDestroy();
         mRecorder = CloudRecorder.getInstance();
-        mRecorder.setRecordService(CloudCreateService.this);
     }
 
     @Override
@@ -190,12 +195,12 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         Log.i(TAG, "upload Service shutdown complete.");
     }
 
-    public void startRecording(String path) {
+    public void startRecording(File path) {
         Log.v(TAG, "startRecording(" + path + ")");
 
         acquireWakeLock();
 
-        mRecordFile = new File(path);
+        mRecordFile = path;
         frameCount = 0;
 
         sendBroadcast(new Intent(RECORD_STARTED));
@@ -237,8 +242,8 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         }.start();
     }
 
-    public String getRecordingPath() {
-        return mRecordFile == null ? "" : mRecordFile.getAbsolutePath();
+    public File getRecordingPath() {
+        return mRecordFile == null ? null : mRecordFile;
     }
 
     public void onRecordError(){
@@ -253,8 +258,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
 
     }
 
-
-    public void onRecordFrameUpdate(long recordTimeMs) {
+    public void onFrameUpdate(float maxAmplitude, long recordTimeMs) {
         // this should happen every second
         if (recordTimeMs > -1 && frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker(recordTimeMs);
     }
@@ -276,8 +280,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         return mRecording;
     }
 
-
-
     /* package */ void updateRecordTicker(long recordTimeMs) {
 
         mRecordNotification.setLatestEventInfo(getApplicationContext(), mRecordEventTitle, CloudUtils
@@ -288,6 +290,8 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
 
 
     public void loadPlaybackTrack(File file) throws IOException {
+        if (file == null || !file.exists()) throw new IOException("file "+file+" does not exist");
+
         mPlaybackFile = file;
         mPlayer.setFile(file);
 
@@ -373,7 +377,8 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         onPlaybackComplete();
     }
 
-    public void startPlayback() {
+    public void startPlayback(File file) throws IOException {
+        loadPlaybackTrack(file);
         mPlayer.play();
 
         Intent i;
@@ -417,16 +422,12 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         return mPlayer.getDuration();
     }
 
-    public String getCurrentPlaybackPath() {
-        return mPlaybackFile == null ? "" : mPlaybackFile.getAbsolutePath();
+    public File getCurrentPlaybackPath() {
+        return mPlaybackFile == null ? null : mPlaybackFile;
     }
 
     public long getCurrentPlaybackPosition() {
         return mPlayer.getCurrentPlaybackPosition();
-    }
-
-    public float getCurrentProgressPercent() {
-        return mPlayer.getCurrentProgressPercent();
     }
 
     /**
