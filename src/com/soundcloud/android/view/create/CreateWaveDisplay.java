@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.create;
 
 import com.soundcloud.android.utils.InputObject;
-import com.soundcloud.android.utils.record.RawAudioPlayer;
 import com.soundcloud.android.view.TouchLayout;
 
 import android.content.Context;
@@ -11,19 +10,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.RelativeLayout;
 
-public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.TransitionListener{
-
-    private static long ANIMATION_ZOOM_TIME = 500;
-
+public class CreateWaveDisplay extends TouchLayout {
     public static final int MODE_REC = 0;
     public static final int MODE_PLAYBACK = 1;
 
-    private static final long MIN_SEEK_INTERVAL = 100;
     private static final int UI_UPDATE_SEEK = 1;
     private static final int UI_UPDATE_TRIM = 2;
 
@@ -36,11 +30,9 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
     private boolean mIsEditing;
 
     private CreateWaveView mWaveformView;
-    private RawAudioPlayer mRawAudioPlayer;
 
     private Rect mWaveformRect;
 
-    private long lastSeekTime;
     private long lastSeekX = -1;
     private int touchSlop;
 
@@ -64,11 +56,13 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         init();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public CreateWaveDisplay(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public CreateWaveDisplay(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
@@ -108,7 +102,7 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
             removeView(mWaveformView);
         }
 
-        mWaveformView = new CreateWaveView(getContext(), this);
+        mWaveformView = new CreateWaveView(getContext());
 
         LayoutParams viewParams = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
         //viewParams.rightMargin = viewParams.leftMargin = (int) (getContext().getResources().getDisplayMetrics().density * 15);
@@ -121,13 +115,6 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
         mListener = trimListener;
     }
 
-    @Override
-    public void onFull() {
-    }
-
-    @Override
-    public void onZoom() {
-    }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -150,7 +137,6 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
     protected void processDownInput(InputObject input) {
         setTouchMode(input);
         final int x = input.actionIndex == 0 ? input.x : input.pointerX;
-        final int y = input.actionIndex == 0 ? input.y : input.pointerY;
 
         if (mSeekMode) {
             seekTouch(input.x);
@@ -281,10 +267,10 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
 
                 case UI_UPDATE_TRIM:
                     if (leftLp.leftMargin != lastTrimLeftX){
-                        leftLp.leftMargin = (int) lastTrimLeftX;
+                        leftLp.leftMargin = lastTrimLeftX;
                         leftHandle.requestLayout();
 
-                        mWaveformView.setTrimLeft((int) lastTrimLeftX);
+                        mWaveformView.setTrimLeft(lastTrimLeftX);
                         trimPercentLeft = Math.max(0,((float) lastTrimLeftX  / waveformWidth));
                         if (mListener != null) {
                             mListener.onAdjustTrimLeft(trimPercentLeft);
@@ -295,7 +281,7 @@ public class CreateWaveDisplay extends TouchLayout implements CreateWaveView.Tra
                         rightLp.rightMargin = (waveformWidth - lastTrimRightX);
                         rightHandle.requestLayout();
 
-                        mWaveformView.setTrimRight((int) lastTrimRightX);
+                        mWaveformView.setTrimRight(lastTrimRightX);
                         trimPercentRight = Math.min(1, ((float) lastTrimRightX / waveformWidth));
                         if (mListener != null) {
                             mListener.onAdjustTrimRight(trimPercentRight);

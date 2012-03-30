@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.create;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.task.create.CalculateAmplitudesTask;
 import com.soundcloud.android.utils.record.CloudRecorder;
 
 import android.content.Context;
@@ -9,28 +8,19 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Shader;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class CreateWaveView extends View{
-
+public class CreateWaveView extends View {
     private static long ANIMATION_ZOOM_TIME = 400;
 
     private Bitmap bitmap;
-    private int nextBufferX;
     private int mGlowHeight;
     private int mMaxWaveHeight;
-    private final Matrix m = new Matrix();
-    private final Path mPath = new Path();
 
     private static final int WAVEFORM_DARK_UNPLAYED = 0xff444444;
     private static final int WAVEFORM_UNPLAYED = 0xffffffff;
@@ -38,34 +28,23 @@ public class CreateWaveView extends View{
     private static final int WAVEFORM_ORANGE = 0xffff8000;
 
     private float mCurrentProgress;
-    private double mSampleMax;
     private int mTrimLeft, mTrimRight;
 
     private int mMode;
     private boolean mIsEditing;
 
-    private boolean mSized;
     private Paint mTrimLinePaint, mPlayedPaint, mUnplayedPaint,mDarkUnplayedPaint,mDarkPlayedPaint;
 
     private List<Float> mAllAmplitudes;
     private int mRecordStartIndex = -1;
 
-    private TransitionListener mTransitionListener;
-
-    public interface TransitionListener {
-        void onFull();
-        void onZoom();
-    }
 
     private long mAnimationStartTime;
 
-    private int mFrameCount;
     private static AccelerateDecelerateInterpolator SHOW_FULL_INTERPOLATOR = new AccelerateDecelerateInterpolator();
 
-    public CreateWaveView(Context context, TransitionListener listener) {
+    public CreateWaveView(Context context) {
         super(context);
-
-        mTransitionListener = listener;
 
         mGlowHeight = (int) (5 * getContext().getResources().getDisplayMetrics().density);
 
@@ -82,22 +61,6 @@ public class CreateWaveView extends View{
 
         mDarkPlayedPaint = new Paint();
         mDarkPlayedPaint.setColor(WAVEFORM_DARK_ORANGE);
-    }
-
-    public float[] getAmplitudes() {
-        float[] floatArray = new float[mAllAmplitudes.size()];
-        for (int i = 0; i < mAllAmplitudes.size(); i++) {
-            Float f = mAllAmplitudes.get(i);
-            floatArray[i] = (f != null ? f : Float.NaN); // Or whatever default you want.
-        }
-        return floatArray;
-    }
-
-    public void setAmplitudes(float[] amplitudes) {
-        mAllAmplitudes.clear();
-        for (float amp : amplitudes) {
-            mAllAmplitudes.add(amp);
-        }
     }
 
     public void setMode(int mode, boolean animate){
@@ -120,7 +83,6 @@ public class CreateWaveView extends View{
 
         mCurrentProgress = -1f;
         mAnimationStartTime = -1l;
-        nextBufferX = 0;
         mMode = CreateWaveDisplay.MODE_REC;
         mIsEditing = false;
         resetTrim();
@@ -186,10 +148,6 @@ public class CreateWaveView extends View{
     public void setCurrentProgress(float currentProgress) {
         mCurrentProgress = currentProgress;
         invalidate();
-    }
-
-    public float getCurrentProgress() {
-        return mCurrentProgress;
     }
 
     public void setTrimLeft(int trimLeft) {
@@ -342,7 +300,6 @@ public class CreateWaveView extends View{
         final float[] pts = new float[(lastDrawX - firstDrawX + 1) * 4];
         final boolean directSelect = amplitudesSize == (lastDrawX - firstDrawX);
 
-        int currentProgressIndex = (int) (getWidth() * mCurrentProgress);
         int ptIndex = 0;
         for (int x = firstDrawX; x < lastDrawX; x++) {
             final float a = directSelect ? amplitudesArray.get(x - firstDrawX) : getInterpolatedAmpValue(amplitudesArray,amplitudesSize,x,firstDrawX,lastDrawX);
@@ -370,11 +327,6 @@ public class CreateWaveView extends View{
 
     private void assertAmplitudeHistory(){
         if (mAllAmplitudes == null) mAllAmplitudes = CloudRecorder.getInstance().amplitudes;
-    }
-
-    private static class Configuration {
-        CalculateAmplitudesTask calculateAmplitudesTask;
-        Bitmap bitmap;
     }
 }
 
