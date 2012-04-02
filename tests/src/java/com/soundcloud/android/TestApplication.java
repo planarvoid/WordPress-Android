@@ -1,13 +1,20 @@
 package com.soundcloud.android;
 
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
+import com.xtremelabs.robolectric.Robolectric;
 
 import android.accounts.Account;
 import android.content.Intent;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,4 +72,22 @@ public class TestApplication extends SoundCloudApplication {
         broadcasts.add(intent);
         super.sendBroadcast(intent);
     }
+
+    // object mother
+    public static Upload getValidUpload() throws IOException {
+        return new Upload(getValidRecording(), Robolectric.application.getResources());
+    }
+
+    public static Recording getValidRecording() throws IOException {
+        return new Recording(getTestFile());
+    }
+
+    public static File getTestFile() throws IOException {
+        File tmp = File.createTempFile("temp", ".ogg");
+        PrintWriter pw = new PrintWriter(new FileOutputStream(tmp));
+        pw.print("123");
+        pw.close();
+        return tmp;
+    }
+
 }

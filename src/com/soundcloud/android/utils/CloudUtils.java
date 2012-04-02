@@ -54,7 +54,6 @@ import java.util.regex.Pattern;
 public final class CloudUtils {
     private static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
     private static final String DURATION_FORMAT_LONG  = "%1$d.%3$02d.%5$02d";
-    private static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.ENGLISH);
 
     private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
             "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}" +
@@ -204,37 +203,6 @@ public final class CloudUtils {
         else if (secs < 3600) return 4;
         else if (secs < 36000) return 5;
         else return 6;
-    }
-
-    public static String generateRecordingSharingNote(Resources res, CharSequence what, CharSequence where, long created_at) {
-        String note;
-        if (!TextUtils.isEmpty(what)) {
-            if (!TextUtils.isEmpty(where)) {
-                note =  res.getString(R.string.recorded_at, what, where);
-            } else {
-                note = what.toString();
-            }
-        } else {
-            note = res.getString(R.string.sounds_from, !TextUtils.isEmpty(where) ? where :
-                    recordingDateString(res, created_at));
-        }
-        return note;
-    }
-
-    public static String recordingDateString(Resources res, long modified) {
-        final Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(modified);
-        final int id;
-        if (cal.get(Calendar.HOUR_OF_DAY) <= 12) {
-            id = R.string.recorded_morning;
-        } else if (cal.get(Calendar.HOUR_OF_DAY) <= 17) {
-            id = R.string.recorded_afternoon;
-        } else if (cal.get(Calendar.HOUR_OF_DAY) <= 21) {
-           id = R.string.recorded_evening;
-        } else {
-           id = R.string.recorded_night;
-        }
-        return res.getString(id, DAY_FORMAT.format(cal.getTime()));
     }
 
 

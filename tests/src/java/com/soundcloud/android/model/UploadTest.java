@@ -1,10 +1,6 @@
 package com.soundcloud.android.model;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
-import static org.junit.matchers.JUnitMatchers.hasItem;
+import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.api.Params;
@@ -22,6 +18,7 @@ import java.util.List;
 @RunWith(DefaultTestRunner.class)
 public class UploadTest {
     Recording r;
+
     @Before
     public void setup() throws Exception {
         r = new Recording(new File("/tmp/foo"));
@@ -41,35 +38,34 @@ public class UploadTest {
     public void shouldAddTagsToUploadData() throws Exception {
         r.tags = new String[] { "foo baz", "bar", "baz" };
         String tags = String.valueOf(upload().tag_list);
-        assertThat(tags, equalTo("\"foo baz\" bar baz soundcloud:source=android-record"));
+        expect(tags).toEqual("\"foo baz\" bar baz soundcloud:source=android-record");
 
         r.private_user_id = 12;
-        assertThat(tags, equalTo("\"foo baz\" bar baz soundcloud:source=android-record"));
+        expect(tags).toEqual("\"foo baz\" bar baz soundcloud:source=android-record");
     }
 
     @Test
     public void shouldAddDedicatedTagIfPrivateMessage() throws Exception {
         r.private_user_id = 10;
-        assertThat(String.valueOf(upload().tag_list),
-                containsString("soundcloud:recording-type=dedicated"));
+        expect(String.valueOf(upload().tag_list)).toMatch("soundcloud:recording-type=dedicated");
     }
 
     @Test
     public void shouldAddDescriptionToUploadData() throws Exception {
         r.description = "foo";
-        assertThat(upload().toTrackMap().get(Params.Track.DESCRIPTION).toString(), equalTo("foo"));
+        expect(upload().toTrackMap().get(Params.Track.DESCRIPTION).toString()).toEqual("foo");
     }
 
     @Test
     public void shouldAddGenreToUploadData() throws Exception {
         r.genre = "foo";
-        assertThat(upload().toTrackMap().get(Params.Track.GENRE).toString(), equalTo("foo"));
+        expect(upload().toTrackMap().get(Params.Track.GENRE).toString()).toEqual("foo");
     }
 
     @Test
     public void shouldAddFoursquareMachineTags() throws Exception {
         r.four_square_venue_id = "abcdef";
-        assertThat(upload().getTags(), hasItem("foursquare:venue=abcdef"));
+        expect(upload().getTags()).toContain("foursquare:venue=abcdef");
     }
 
     @Test
@@ -77,13 +73,13 @@ public class UploadTest {
         r.external_upload = true;
         String tags = String.valueOf(upload().toTrackMap().get(Params.Track.TAG_LIST));
         List<String> tagList = Arrays.asList(tags.split("\\s+"));
-        assertThat(tagList, hasItem("soundcloud:source=android-3rdparty-upload"));
-        assertThat(tagList, not(hasItem("soundcloud:source=android-record")));
+        expect(tagList).toContain("soundcloud:source=android-3rdparty-upload");
+        expect(tagList).not.toContain("soundcloud:source=android-record");
     }
 
     @Test
     public void shouldSetSourceMachineTag() throws Exception {
-        assertThat(upload().getTags(), hasItem("soundcloud:source=android-record"));
+        expect(upload().getTags()).toContain("soundcloud:source=android-record");
     }
 
     @Test
@@ -91,7 +87,32 @@ public class UploadTest {
         r.longitude = 0.1d;
         r.latitude = 0.2d;
         List<String> tags = upload().getTags();
-        assertThat(tags, hasItem("geo:lon=0.1"));
-        assertThat(tags, hasItem("geo:lat=0.2"));
+        expect(tags).toContain("geo:lon=0.1");
+        expect(tags).toContain("geo:lat=0.2");
+    }
+
+    @Test
+    public void shouldPassThroughAllRequiredTrackParams() throws Exception {
+        Upload upload = upload();
+
+        expect(upload).not.toBeNull();
+        expect(upload.type).toEqual("recording");
+        expect(upload.title).not.toBeNull();
+
+        expect(upload.service_ids).toEqual("1,2,3");
+        expect(upload.post_to_empty).toBeNull();
+        expect(upload.sharing).toEqual(Params.Track.PUBLIC);
+
+        expect(upload.soundFile).not.toBeNull();
+        expect(upload.artworkFile).toBeNull();
+    }
+
+
+    @Test
+    public void shouldOnlyGenerateSharingNoteWhenSharingPublicly() throws Exception {
+        r.is_private = true;
+        Upload upload = upload();
+        expect(upload).not.toBeNull();
+        expect(upload.sharing_note).toBeNull();
     }
 }

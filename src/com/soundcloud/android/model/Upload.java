@@ -1,6 +1,10 @@
 package com.soundcloud.android.model;
 
+import com.soundcloud.android.task.UploadTask;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
+import com.soundcloud.api.Request;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.res.Resources;
@@ -8,6 +12,8 @@ import android.os.Parcel;
 import android.text.TextUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,20 +36,23 @@ public class Upload extends ScModel {
     public String service_ids;
     public String shared_emails;
     public String shared_ids;
+
     public boolean encode;
     public boolean downloadable;
     public boolean streamable;
     public boolean is_native_recording;
 
-    public int upload_status;
-    public boolean upload_error;
-    public boolean cancelled;
+    public int status;
 
-    // XXX should be File
-    public String trackPath;
-    public String artworkPath;
+    // files
+    public File soundFile;
+    public File encodedSoundFile;
+    public File artworkFile;
+    public File resizedArtworkFile;
 
-    public File encodedFile;
+    // state
+    private boolean mSuccess;
+    private IOException mUploadException;
 
     public static final String LOCAL_RECORDING_ID = "local_recording_id";
     public static final String SOURCE_PATH = "source_path";
@@ -55,46 +64,20 @@ public class Upload extends ScModel {
     public static final String TAG_RECORDING_TYPE_DEDICATED = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
 
-    public static interface UploadStatus {
+    public void cleanup() {
+        // XXX make really, really sure 3rd party uploads don't get deleted
+        if (is_native_recording) IOUtils.deleteFile(soundFile);
+        IOUtils.deleteFile(encodedSoundFile);
+    }
+
+    public boolean isError() {
+        return mUploadException != null;
+    }
+
+    public static interface Status {
         int NOT_YET_UPLOADED    = 0;
         int UPLOADING           = 1;
         int UPLOADED            = 2;
-    }
-
-    public Upload(Map<String, ?> uploadData) {
-
-        id = System.currentTimeMillis();
-
-        if (!uploadData.containsKey(SOURCE_PATH)) {
-            throw new IllegalArgumentException("Need to specify " + SOURCE_PATH);
-        }
-
-        trackPath = String.valueOf(uploadData.get(SOURCE_PATH));
-        artworkPath = String.valueOf(uploadData.get(ARTWORK_PATH));
-
-        title = String.valueOf(uploadData.get(Params.Track.TITLE));
-        type = String.valueOf(uploadData.get(Params.Track.TYPE));
-        tag_list = String.valueOf(uploadData.get(Params.Track.TAG_LIST));
-        sharing = String.valueOf(uploadData.get(Params.Track.SHARING));
-        sharing_note = String.valueOf(uploadData.get(Params.Track.SHARING_NOTE));
-        description = String.valueOf(uploadData.get(Params.Track.DESCRIPTION));
-        genre = String.valueOf(uploadData.get(Params.Track.GENRE));
-
-        downloadable = Boolean.getBoolean(String.valueOf(uploadData.get(Params.Track.DOWNLOADABLE)));
-        streamable = Boolean.getBoolean(String.valueOf(uploadData.get(Params.Track.STREAMABLE)));
-
-        if (uploadData.containsKey(Params.Track.POST_TO)) {
-            service_ids = TextUtils.join(",",(List<Integer>) uploadData.get(Params.Track.POST_TO));
-        }
-        if (uploadData.containsKey(Params.Track.SHARED_EMAILS)) {
-            shared_emails = TextUtils.join(",",(List<String>) uploadData.get(Params.Track.SHARED_EMAILS));
-        }
-        if (uploadData.containsKey(Params.Track.SHARED_IDS)) {
-            shared_ids = TextUtils.join(",",(List<String>) uploadData.get(Params.Track.SHARED_IDS));
-        }
-
-        post_to_empty = uploadData.get(Params.Track.POST_TO_EMPTY) != null ? "" : null;
-
     }
 
     public Upload(Recording r, Resources res) {
@@ -104,10 +87,10 @@ public class Upload extends ScModel {
         downloadable = false;
         streamable = true;
 
-        trackPath = r.audio_path.getAbsolutePath();
-        encodedFile = r.encoded_path;
+        soundFile = r.audio_path;
+        encodedSoundFile = r.encoded_path;
 
-        if (r.artwork_path != null) artworkPath = r.artwork_path.getAbsolutePath();
+        if (r.artwork_path != null) artworkFile = r.artwork_path;
 
         title = r.sharingNote(res);
         type = "recording";
@@ -226,4 +209,126 @@ public class Upload extends ScModel {
         }
         return tags;
     }
+
+    public boolean isSuccess() {
+        return mSuccess;
+    }
+
+    public Upload succeed() {
+        mSuccess = true;
+        return this;
+    }
+
+    public boolean isPrivate() {
+        return Params.Track.PRIVATE.equals(sharing);
+    }
+
+    public Upload setUploadException(IOException e) {
+        mUploadException = e;
+        mSuccess = false;
+        return this;
+    }
+
+    public IOException getUploadException() {
+        return mUploadException;
+    }
+
+    public Request getRequest(File file, Request.TransferProgressListener listener) {
+        final Request request = new Request(Endpoints.TRACKS);
+
+        for (Map.Entry<String, ?> entry : toTrackMap().entrySet()) {
+            if (entry.getValue() instanceof Iterable) {
+                for (Object o : (Iterable)entry.getValue()) {
+                    request.add(entry.getKey(), o.toString());
+                }
+            } else {
+                request.add(entry.getKey(), entry.getValue().toString());
+            }
+        }
+
+        final String fileName;
+        if (is_native_recording) {
+            final String newTitle = title == null ? "unknown" : title;
+            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), "ogg");
+        } else {
+            fileName = file.getName();
+        }
+
+        return request.withFile(com.soundcloud.api.Params.Track.ASSET_DATA, file, fileName)
+                .withFile(com.soundcloud.api.Params.Track.ARTWORK_DATA, artworkFile)
+                .setProgressListener(listener);
+    }
+
+    public boolean isCancelled() {
+        return mUploadException instanceof UploadTask.CanceledUploadException;
+    }
+
+
+    // XXX get rid of this class, use Upload
+    /*
+    public static class XParams {
+
+        private boolean failed;
+        private final Map<String, ?> map;
+
+        public File artworkFile;
+        public File encodedFile;
+        public File trackFile;
+        public File resizedFile;
+        public boolean is_native_recording;
+
+        public String get(String s) {
+            return map.get(s).toString();
+        }
+
+        public XParams(Upload upload) {
+            map = upload.toTrackMap();
+            trackFile = new File(upload.soundFile);
+            encodedFile = upload.encodedFile;
+            is_native_recording = upload.is_native_recording;
+            if (!TextUtils.isEmpty(upload.artworkFile)) artworkFile = new File(upload.artworkFile);
+        }
+
+        public XParams fail() {
+            this.failed = true;
+            return this;
+        }
+
+        public boolean isSuccess() {
+            return !failed;
+        }
+
+        public File artworkFile() {
+            return resizedFile != null ? resizedFile :
+                   artworkFile != null ? artworkFile : null;
+        }
+
+        public Request getRequest(File file, Request.TransferProgressListener listener) {
+            final Request request = new Request(Endpoints.TRACKS);
+            for (Map.Entry<String, ?> entry : map.entrySet()) {
+                 if (entry.getValue() instanceof Iterable) {
+                     for (Object o : (Iterable)entry.getValue()) {
+                         request.add(entry.getKey(), o.toString());
+                     }
+                 } else {
+                    request.add(entry.getKey(), entry.getValue().toString());
+                 }
+            }
+
+            final String fileName;
+            if (is_native_recording) {
+                final String title = map.get(com.soundcloud.api.Params.Track.TITLE) == null ? "unknown" :
+                                     map.get(com.soundcloud.api.Params.Track.TITLE).toString();
+
+                fileName = String.format("%s.%s", URLEncoder.encode(title.replace(" ", "_")), "ogg");
+            } else {
+                fileName = file.getName();
+            }
+
+            return request.withFile(com.soundcloud.api.Params.Track.ASSET_DATA, file, fileName)
+                          .withFile(com.soundcloud.api.Params.Track.ARTWORK_DATA, artworkFile())
+                          .setProgressListener(listener);
+        }
+    }
+    */
 }

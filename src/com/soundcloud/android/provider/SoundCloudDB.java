@@ -1,6 +1,7 @@
 package com.soundcloud.android.provider;
 
 import com.soundcloud.android.model.Origin;
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -106,8 +107,6 @@ public class SoundCloudDB {
         return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
-
-
     public static User getUserById(ContentResolver resolver, long id) {
         if (id >= 0) {
             return getUserByUri(resolver, Content.USERS.forId(id));
@@ -203,6 +202,16 @@ public class SoundCloudDB {
             if (Log.isLoggable(TAG, Log.DEBUG))Log.d(TAG, itemsInserted + " collection items bulk inserted");
         }
         return usersInserted + tracksInserted;
+    }
+
+    public static Recording insertRecording(ContentResolver resolver, Recording r) {
+        Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
+        if (uri != null) {
+            r.id = Long.parseLong(uri.getLastPathSegment());
+            return r;
+        } else {
+            return null;
+        }
     }
 
     private static long getUserId(ContentResolver resolver) {

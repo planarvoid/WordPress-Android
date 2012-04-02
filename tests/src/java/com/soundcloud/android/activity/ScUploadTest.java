@@ -61,6 +61,8 @@ public class ScUploadTest  {
             c1.id = 1000;
             create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1));
         }
+        // don't actually try to upload
+        Robolectric.getBackgroundScheduler().pause();
         return create.startUpload();
     }
 
@@ -69,22 +71,6 @@ public class ScUploadTest  {
         Upload upload = upload();
         expect(upload).not.toBeNull();
         expect(upload.sharing_note).toBeNull();
-    }
-
-    @Test
-    public void shouldPassThroughAllRequiredTrackParams() throws Exception {
-        Upload upload = upload();
-
-        expect(upload).not.toBeNull();
-        expect(upload.type).toEqual("recording");
-        expect(upload.title).not.toBeNull();
-
-        expect(upload.service_ids).toBeNull();
-        expect(upload.post_to_empty).toEqual("");
-        expect(upload.sharing).toEqual(Params.Track.PUBLIC);
-
-        expect(upload.trackPath).not.toBeNull();
-        expect(upload.artworkPath).toBeNull();
     }
 
     @Test @DisableStrictI18n

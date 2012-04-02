@@ -16,15 +16,12 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.File;
 
 public class UploadMonitor extends Activity {
     private CloudCreateService mCreateService;
@@ -113,15 +110,15 @@ public class UploadMonitor extends Activity {
         mUploadId = upload.id;
 
         ((TextView) findViewById(R.id.track)).setText(upload.title);
-        if (!TextUtils.isEmpty(upload.artworkPath)) {
-            ImageUtils.setImage(new File(upload.artworkPath), ((ImageView) findViewById(R.id.icon)),
+        if (upload.artworkFile != null) {
+            ImageUtils.setImage(upload.artworkFile, ((ImageView) findViewById(R.id.icon)),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_width),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_height));
         }
 
-        if (upload.upload_status == Upload.UploadStatus.UPLOADED) {
+        if (upload.status == Upload.Status.UPLOADED) {
             onUploadFinished(true);
-        } else if (upload.upload_status != Upload.UploadStatus.UPLOADING && upload.upload_error) {
+        } else if (upload.status != Upload.Status.UPLOADING && upload.isError()) {
             onUploadFinished(false);
         }
     }

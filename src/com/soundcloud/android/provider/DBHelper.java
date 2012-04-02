@@ -472,25 +472,25 @@ public class DBHelper extends SQLiteOpenHelper {
      * {@link DBHelper.DATABASE_CREATE_RECORDINGS}
      */
     public static final class Recordings implements BaseColumns {
-        public static final String USER_ID = "user_id";
-        public static final String TIMESTAMP = "timestamp";
-        public static final String LONGITUDE = "longitude";
-        public static final String LATITUDE = "latitude";
-        public static final String WHAT_TEXT = "what_text";
-        public static final String WHERE_TEXT = "where_text";
-        public static final String AUDIO_PATH = "audio_path";
-        public static final String DURATION = "duration";
-        public static final String ARTWORK_PATH = "artwork_path";
-        public static final String FOUR_SQUARE_VENUE_ID = "four_square_venue_id";
-        public static final String SHARED_EMAILS = "shared_emails";
-        public static final String SHARED_IDS = "shared_ids";
+        public static final String USER_ID         = "user_id";
+        public static final String TIMESTAMP       = "timestamp";
+        public static final String LONGITUDE       = "longitude";
+        public static final String LATITUDE        = "latitude";
+        public static final String WHAT_TEXT       = "what_text";
+        public static final String WHERE_TEXT      = "where_text";
+        public static final String AUDIO_PATH      = "audio_path";
+        public static final String DURATION        = "duration";
+        public static final String ARTWORK_PATH    = "artwork_path";
+        public static final String SHARED_EMAILS   = "shared_emails";
+        public static final String SHARED_IDS      = "shared_ids";
         public static final String PRIVATE_USER_ID = "private_user_id";
-        public static final String SERVICE_IDS = "service_ids";
-        public static final String IS_PRIVATE = "is_private";
+        public static final String SERVICE_IDS     = "service_ids";
+        public static final String IS_PRIVATE      = "is_private";
         public static final String EXTERNAL_UPLOAD = "external_upload";
-        public static final String AUDIO_PROFILE = "audio_profile";
-        public static final String UPLOAD_STATUS = "upload_status";
-        public static final String UPLOAD_ERROR = "upload_error";
+        public static final String AUDIO_PROFILE   = "audio_profile";
+        public static final String UPLOAD_STATUS   = "upload_status";
+        public static final String UPLOAD_ERROR    = "upload_error";
+        public static final String FOUR_SQUARE_VENUE_ID = "four_square_venue_id";
     }
 
     /**

@@ -18,12 +18,14 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.provider.ContactsContract;
+import android.text.TextUtils;
 
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -59,33 +61,14 @@ public class Recording extends ScModel {
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
     private static final Pattern COMPRESSED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
+    public static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.ENGLISH);
 
     public String private_username;
-
-    public File generateImageFile(File imageDir) {
-        if (audio_path == null) {
-            return null;
-        } else {
-            if (audio_path.getName().contains(".")) {
-                return new File(imageDir, audio_path.getName().substring(0, audio_path.getName().lastIndexOf(".")) + ".bmp");
-            } else {
-                return new File(imageDir, audio_path.getName()+".bmp");
-            }
-        }
-    }
-
-    public boolean exists() {
-        return audio_path.exists();
-    }
 
     public Recording(File f) {
         if (f == null) throw new IllegalArgumentException("file is null");
         audio_path = f;
         timestamp = f.lastModified();
-    }
-
-    public Recording(Parcel in) {
-        readFromParcel(in);
     }
 
     public Recording(Cursor c) {
@@ -123,6 +106,27 @@ public class Recording extends ScModel {
         }
     }
 
+    public Recording(Parcel in) {
+        readFromParcel(in);
+    }
+
+    public File generateImageFile(File imageDir) {
+        if (audio_path == null) {
+            return null;
+        } else {
+            if (audio_path.getName().contains(".")) {
+                return new File(imageDir, audio_path.getName().substring(0, audio_path.getName().lastIndexOf(".")) + ".bmp");
+            } else {
+                return new File(imageDir, audio_path.getName()+".bmp");
+            }
+        }
+    }
+
+    public boolean exists() {
+        return audio_path.exists();
+    }
+
+
     public static Recording fromUri(Uri uri, ContentResolver resolver) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         try {
@@ -135,7 +139,7 @@ public class Recording extends ScModel {
     public static Recording pendingFromPrivateUserId(long id, ContentResolver resolver) {
         Cursor cursor = resolver.query(Content.RECORDINGS.uri, null,
                 Recordings.PRIVATE_USER_ID + " = ? AND " + Recordings.UPLOAD_STATUS + " = ?",
-                new String[]{ Long.toString(id), String.valueOf(Upload.UploadStatus.NOT_YET_UPLOADED)}, null);
+                new String[]{ Long.toString(id), String.valueOf(Upload.Status.NOT_YET_UPLOADED)}, null);
 
         try {
             return cursor != null && cursor.moveToFirst() ? new Recording(cursor) : null;
@@ -187,7 +191,7 @@ public class Recording extends ScModel {
     }
 
     public String sharingNote(Resources res) {
-        return CloudUtils.generateRecordingSharingNote(
+        return generateRecordingSharingNote(
                 res,
                 what_text,
                 where_text,
@@ -292,5 +296,43 @@ public class Recording extends ScModel {
             return Recording.fromUri(intent.getData(), resolver);
         }
         return null;
+    }
+
+    public static boolean updateStatus(ContentResolver resolver, Upload upload) {
+        ContentValues cv = new ContentValues();
+        cv.put(Recordings.UPLOAD_STATUS, upload.status);
+        cv.put(Recordings.UPLOAD_ERROR, upload.status == Upload.Status.NOT_YET_UPLOADED);
+        return resolver.update(Content.RECORDINGS.uri,cv, Recordings._ID+"="+ upload.local_recording_id, null) > 0;
+    }
+
+    public static String generateRecordingSharingNote(Resources res, CharSequence what, CharSequence where, long created_at) {
+        String note;
+        if (!TextUtils.isEmpty(what)) {
+            if (!TextUtils.isEmpty(where)) {
+                note =  res.getString(R.string.recorded_at, what, where);
+            } else {
+                note = what.toString();
+            }
+        } else {
+            note = res.getString(R.string.sounds_from, !TextUtils.isEmpty(where) ? where :
+                    recordingDateString(res, created_at));
+        }
+        return note;
+    }
+
+    public static String recordingDateString(Resources res, long modified) {
+        final Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(modified);
+        final int id;
+        if (cal.get(Calendar.HOUR_OF_DAY) <= 12) {
+            id = R.string.recorded_morning;
+        } else if (cal.get(Calendar.HOUR_OF_DAY) <= 17) {
+            id = R.string.recorded_afternoon;
+        } else if (cal.get(Calendar.HOUR_OF_DAY) <= 21) {
+            id = R.string.recorded_evening;
+        } else {
+            id = R.string.recorded_night;
+        }
+        return res.getString(id, DAY_FORMAT.format(cal.getTime()));
     }
 }

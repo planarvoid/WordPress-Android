@@ -251,12 +251,10 @@ public class CreateController implements CreateWaveDisplay.Listener {
                         // after encoding
                         r.duration = mActivity.getCreateService().getPlaybackDuration();
 
-                        Uri newRecordingUri = mActivity.getContentResolver().insert(Content.RECORDINGS.uri, r.buildContentValues());
-                        mRecording = r;
-                        mRecording.id = Long.parseLong(newRecordingUri.getLastPathSegment());
+                        mRecording = SoundCloudDB.insertRecording(mActivity.getContentResolver(), r);
 
                         if (mCreateListener != null) {
-                            mCreateListener.onSave(newRecordingUri, mRecording, true);
+                            mCreateListener.onSave(mRecording.toUri(), mRecording, true);
                         }
                     } else {
                         //start for result, because if an upload starts, finish, playback should not longer be possible
@@ -349,7 +347,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         if (mCreateService.isRecording() && mRecording == null){
             if (shouldReactToRecording()) {
                 mCurrentState = CreateState.RECORD;
-                setRecordFile(mCreateService.getRecordingPath());
+                setRecordFile(mCreateService.getRecordingFile());
                 CloudRecorder.getInstance().setRecordListener(recListener);
             } else {
                 mCurrentState = CreateState.IDLE_STANDBY_REC;
@@ -393,7 +391,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
     }
 
     private boolean shouldReactToRecording(){
-        return shouldReactToPath(mCreateService.getRecordingPath());
+        return shouldReactToPath(mCreateService.getRecordingFile());
     }
 
     private boolean shouldReactToPlayback(){
@@ -1031,8 +1029,8 @@ public class CreateController implements CreateWaveDisplay.Listener {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 if (mUnsavedRecordings != null) {
                                     for (int i = 0; i < mUnsavedRecordings.size(); i++){
-                                        if (checked[i]){
-                                            mActivity.getContentResolver().insert(Content.RECORDINGS.uri, mUnsavedRecordings.get(i).buildContentValues());
+                                        if (checked[i]) {
+                                            SoundCloudDB.insertRecording(mActivity.getContentResolver(), mUnsavedRecordings.get(i));
                                         } else {
                                             mUnsavedRecordings.get(i).delete(null);
                                         }

@@ -801,7 +801,7 @@ public class UserBrowser extends ScActivity implements
 
     @Override
     protected void handleRecordingClick(Recording recording) {
-        if (recording.upload_status == Upload.UploadStatus.UPLOADING)
+        if (recording.upload_status == Upload.Status.UPLOADING)
             safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
         else {
             if (recording.private_user_id <= 0) {
