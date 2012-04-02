@@ -20,10 +20,8 @@ import android.os.StatFs;
  */
 
 public class RemainingTimeCalculator {
-    public static final int UNKNOWN_LIMIT = 0;
-
+    public static final int UNKNOWN_LIMIT   = 0;
     public static final int FILE_SIZE_LIMIT = 1;
-
     public static final int DISK_SPACE_LIMIT = 2;
 
     // which of the two limits we will hit (or have fit) first
@@ -37,7 +35,7 @@ public class RemainingTimeCalculator {
     private long mMaxBytes;
 
     // Rate at which the file grows
-    private int mBytesPerSecond;
+    private final int mBytesPerSecond;
 
     // time at which number of free blocks last changed
     private long mBlocksChangedTime;
@@ -51,8 +49,9 @@ public class RemainingTimeCalculator {
     // size of the file at that time
     private long mLastFileSize;
 
-    public RemainingTimeCalculator() {
+    public RemainingTimeCalculator(int bytesPerSecond) {
         mSDCardDirectory = Environment.getExternalStorageDirectory();
+        mBytesPerSecond = bytesPerSecond;
     }
 
     /**
@@ -92,10 +91,6 @@ public class RemainingTimeCalculator {
         if (mBlocksChangedTime == -1 || blocks != mLastBlocks) {
             mBlocksChangedTime = now;
             mLastBlocks = blocks;
-        }
-
-        if (mBytesPerSecond == 0) {
-            mBytesPerSecond = 1411200; // just in case, 44100xstereox16 bit
         }
 
         /*
@@ -150,14 +145,5 @@ public class RemainingTimeCalculator {
         StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
         // keep one free block
         return fs.getAvailableBlocks() > 1;
-    }
-
-    /**
-     * Sets the bit rate used in the interpolation.
-     *
-     * @param bitRate the bit rate to set in bits/sec.
-     */
-    public void setBitRate(int bitRate) {
-        mBytesPerSecond = bitRate / 8;
     }
 }

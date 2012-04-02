@@ -1,9 +1,6 @@
 package com.soundcloud.android.model;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.provider.Content;
@@ -225,12 +222,12 @@ public class RecordingTest {
                 ;
 
         Recording r = Recording.fromIntent(i, Robolectric.application.getContentResolver(),-1);
-        assertThat(r, notNullValue());
-        assertThat(r.description, equalTo("description"));
-        assertThat(r.genre, equalTo("genre"));
+        expect(r).not.toBeNull();
+        expect(r.description).toEqual("description");
+        expect(r.genre).toEqual("genre");
 //        assertThat(r.is_private, is(false));
-        assertThat(r.where_text, equalTo("where"));
-        assertThat(r.what_text, equalTo("title"));
+        expect(r.where_text).toEqual("where");
+        expect(r.what_text).toEqual("title");
 //        assertThat(r.tags, equalTo(new String[] { "tags" } ));
     }
 }

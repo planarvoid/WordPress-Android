@@ -149,7 +149,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
     }
 
     @Override
-    public void onSave(Uri recordingUri, Recording recording, boolean newRecording) {
+    public void onSave(Recording recording, boolean isNew) {
         mRecording = recording;
         mRecordingMetadata.setRecording(mRecording, true);
         mViewFlipper.setInAnimation(AnimUtils.inFromBottomAnimation(500));
@@ -184,7 +184,7 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
             case LocationPicker.PICK_VENUE:
                 if (resultCode == Activity.RESULT_OK && result != null && result.hasExtra("name")) {
                     // XXX candidate for model?
-                mRecordingMetadata.setWhere(result.getStringExtra("name"),
+                    mRecordingMetadata.setWhere(result.getStringExtra("name"),
                             result.getStringExtra("id"),
                             result.getDoubleExtra("longitude", 0),
                             result.getDoubleExtra("latitude", 0));

@@ -86,9 +86,7 @@ public class Upload extends ScModel {
         // defaults
         downloadable = false;
         streamable = true;
-
-        soundFile = r.audio_path;
-        encodedSoundFile = r.encoded_path;
+        soundFile  = r.audio_path;
 
         if (r.artwork_path != null) artworkFile = r.artwork_path;
 
@@ -262,73 +260,4 @@ public class Upload extends ScModel {
     public boolean isCancelled() {
         return mUploadException instanceof UploadTask.CanceledUploadException;
     }
-
-
-    // XXX get rid of this class, use Upload
-    /*
-    public static class XParams {
-
-        private boolean failed;
-        private final Map<String, ?> map;
-
-        public File artworkFile;
-        public File encodedFile;
-        public File trackFile;
-        public File resizedFile;
-        public boolean is_native_recording;
-
-        public String get(String s) {
-            return map.get(s).toString();
-        }
-
-        public XParams(Upload upload) {
-            map = upload.toTrackMap();
-            trackFile = new File(upload.soundFile);
-            encodedFile = upload.encodedFile;
-            is_native_recording = upload.is_native_recording;
-            if (!TextUtils.isEmpty(upload.artworkFile)) artworkFile = new File(upload.artworkFile);
-        }
-
-        public XParams fail() {
-            this.failed = true;
-            return this;
-        }
-
-        public boolean isSuccess() {
-            return !failed;
-        }
-
-        public File artworkFile() {
-            return resizedFile != null ? resizedFile :
-                   artworkFile != null ? artworkFile : null;
-        }
-
-        public Request getRequest(File file, Request.TransferProgressListener listener) {
-            final Request request = new Request(Endpoints.TRACKS);
-            for (Map.Entry<String, ?> entry : map.entrySet()) {
-                 if (entry.getValue() instanceof Iterable) {
-                     for (Object o : (Iterable)entry.getValue()) {
-                         request.add(entry.getKey(), o.toString());
-                     }
-                 } else {
-                    request.add(entry.getKey(), entry.getValue().toString());
-                 }
-            }
-
-            final String fileName;
-            if (is_native_recording) {
-                final String title = map.get(com.soundcloud.api.Params.Track.TITLE) == null ? "unknown" :
-                                     map.get(com.soundcloud.api.Params.Track.TITLE).toString();
-
-                fileName = String.format("%s.%s", URLEncoder.encode(title.replace(" ", "_")), "ogg");
-            } else {
-                fileName = file.getName();
-            }
-
-            return request.withFile(com.soundcloud.api.Params.Track.ASSET_DATA, file, fileName)
-                          .withFile(com.soundcloud.api.Params.Track.ARTWORK_DATA, artworkFile())
-                          .setProgressListener(listener);
-        }
-    }
-    */
 }

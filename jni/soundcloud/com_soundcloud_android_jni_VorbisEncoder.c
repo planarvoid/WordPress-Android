@@ -34,7 +34,7 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj
     }
 
     const char *cOutFile = (*env)->GetStringUTFChars(env, outFile, 0);
-    file = fopen(cOutFile, "w+");
+    file = fopen(cOutFile, "a");
     __android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "writing to %s", cOutFile);
     (*env)->ReleaseStringUTFChars(env, outFile, cOutFile);
 

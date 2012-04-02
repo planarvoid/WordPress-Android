@@ -12,6 +12,7 @@ import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.record.RecordListener;
 import com.soundcloud.android.task.UploadTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -40,47 +41,51 @@ import android.widget.RemoteViews;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
-public class CloudCreateService extends Service implements RawAudioPlayer.PlaybackListener, CloudRecorder.RecordListener {
+public class CloudCreateService extends Service implements RawAudioPlayer.PlaybackListener, RecordListener {
     private static final String TAG = CloudCreateService.class.getSimpleName();
 
-    public static final String RECORD_STARTED      = "com.soundcloud.android.recordstarted";
+    public static final String RECORD_STARTED    = "com.soundcloud.android.recordstarted";
     public static final String RECORD_ERROR      = "com.soundcloud.android.recorderror";
     public static final String UPLOAD_STARTED    = "com.sound.android.fileuploadstarted";
-    public static final String UPLOAD_PROGRESS    = "com.sound.android.fileuploadprogress";
+    public static final String UPLOAD_PROGRESS   = "com.sound.android.fileuploadprogress";
     public static final String UPLOAD_SUCCESS    = "com.sound.android.fileuploadsuccessful";
     public static final String UPLOAD_ERROR      = "com.sound.android.fileuploaderror";
     public static final String UPLOAD_CANCELLED  = "com.sound.android.fileuploadcancelled";
-    public static final String PLAYBACK_STARTED = "com.soundcloud.android.playbackstarted";
-    public static final String PLAYBACK_STOPPED = "com.soundcloud.android.playbackstarted";
+    public static final String PLAYBACK_STARTED  = "com.soundcloud.android.playbackstarted";
+    public static final String PLAYBACK_STOPPED  = "com.soundcloud.android.playbackstarted";
     public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_ERROR    = "com.soundcloud.android.playbackerror";
 
-
-    private WakeLock mWakeLock;
-
+    // players
     private CloudRecorder mRecorder;
     private RawAudioPlayer mPlayer;
 
+    // files
     private File mRecordingFile, mPlaybackFile;
 
-    private boolean mRecording;
-
+    // tasks
     private ImageResizeTask mResizeTask;
     private UploadTrackTask mUploadTask;
 
+    // state
+    private boolean mRecording;
+    private Upload mCurrentUpload;
+    private final Map<Long,Upload> mUploadMap = new HashMap<Long, Upload>();
+    private int frameCount;
+    private int mServiceStartId = -1;
+    private Uri mPlaybackLocal;
+
+    // notifications
     private PendingIntent mRecordPendingIntent;
     private RemoteViews mUploadNotificationView;
     private Notification mRecordNotification, mUploadNotification;
     private NotificationManager nm;
     private String mRecordEventTitle, mRecordEventMessage, mPlaybackTitle;
-    private int mServiceStartId = -1;
-    private int frameCount;
 
-    private Uri mPlaybackLocal;
-    private Upload mCurrentUpload;
-
-    private final HashMap<Long,Upload> mUploadMap = new HashMap<Long, Upload>();
+    private WakeLock mWakeLock;
+    private final IBinder mBinder = new LocalBinder();
 
     public class LocalBinder extends Binder {
         public CloudCreateService getService() {
@@ -88,21 +93,17 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         }
     }
 
-    private final IBinder mBinder = new LocalBinder();
-
     /** Accessor only for testing purposes */
     public IBinder getBinder() {
         return mBinder;
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
+    @Override public IBinder onBind(Intent intent) {
         return mBinder;
     }
 
     @Override
-    public void onRebind(Intent intent) {
-    }
+    public void onRebind(Intent intent) {}
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -131,19 +132,12 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         // get notification manager
         nm = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
-                | PowerManager.ON_AFTER_RELEASE, TAG);
-
-        mPlayer = new RawAudioPlayer();
+        mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, TAG);
+        mPlayer = new RawAudioPlayer(CloudRecorder.DEFAULT_CONFIG);
         mPlayer.setListener(this);
         refreshRecorder();
     }
 
-
-    private void refreshRecorder(){
-        if (mRecorder != null) mRecorder.onDestroy();
-        mRecorder = CloudRecorder.getInstance();
-    }
 
     @Override
     public void onDestroy() {
@@ -166,23 +160,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         mWakeLock = null;
     }
 
-    private void gotoIdleState() {
-        if (!isUploading() && !isRecording() && !isPlaying()) {
-            mPlaybackLocal = null;
-            stopForeground(true);
-        }
-    }
 
-    private void shutdownService() {
-        Log.v(TAG, "upload Service stopped!!!");
-
-        releaseWakeLock();
-
-        if (mUploadTask != null) mUploadTask.cancel(true);
-        if (mResizeTask != null) mResizeTask.cancel(true);
-
-        Log.v(TAG, "upload Service shutdown complete.");
-    }
 
     public void startRecording(File path) {
         Log.v(TAG, "startRecording(" + path + ")");
@@ -211,7 +189,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         mRecordNotification.setLatestEventInfo(this, mRecordEventTitle, CloudUtils.formatString(mRecordEventMessage, 0), mRecordPendingIntent);
         startForeground(RECORD_NOTIFY_ID, mRecordNotification);
         mRecording = true;
-
         new Thread() {
             @Override
             public void run() {
@@ -226,16 +203,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         return mRecordingFile;
     }
 
-    public void onRecordError() {
-        sendBroadcast(new Intent(RECORD_ERROR));
-
-        //already in an error state, so just call these in case
-        refreshRecorder();
-        mRecording = false;
-
-        nm.cancel(RECORD_NOTIFY_ID);
-        gotoIdleState();
-    }
 
     public void onFrameUpdate(float maxAmplitude, long recordTimeMs) {
         // this should happen every second
@@ -257,13 +224,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
 
     public boolean isRecording() {
         return mRecording;
-    }
-
-    /* package */ void updateRecordTicker(long recordTimeMs) {
-        mRecordNotification.setLatestEventInfo(this, mRecordEventTitle,
-                CloudUtils.formatString(mRecordEventMessage, recordTimeMs / 1000), mRecordPendingIntent);
-
-        nm.notify(RECORD_NOTIFY_ID, mRecordNotification);
     }
 
     public void loadPlaybackTrack(File file) throws IOException {
@@ -301,9 +261,9 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     }
 
     public void pausePlayback() {
-       if (mPlayer.isPlaying()) mPlayer.togglePlayback();
+        if (mPlayer.isPlaying()) mPlayer.togglePlayback();
         nm.cancel(PLAYBACK_NOTIFY_ID);
-       gotoIdleState();
+        gotoIdleState();
     }
 
     public void setPlaybackStart(float pos) {
@@ -314,41 +274,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         mPlayer.onNewEndPosition(pos);
     }
 
-    @Override
-    public void onPlaybackStart() {
-        Intent i = new Intent(PLAYBACK_STARTED)
-            .putExtra("path", mPlaybackFile.getAbsolutePath())
-            .putExtra("position", mPlayer.getCurrentPlaybackPosition());
-        sendBroadcast(i);
-    }
-
-    @Override
-    public void onPlaybackStopped() {
-        Intent i = new Intent(PLAYBACK_STOPPED);
-        if (mPlaybackFile != null) i.putExtra("path", mPlaybackFile.getAbsolutePath());
-        sendBroadcast(i);
-
-        nm.cancel(PLAYBACK_NOTIFY_ID);
-        gotoIdleState();
-    }
-
-    @Override
-    public void onPlaybackComplete() {
-        if (mPlaybackFile != null) {
-            sendBroadcast(new Intent(PLAYBACK_COMPLETE).putExtra("path", mPlaybackFile.getAbsolutePath()));
-        }
-        mPlaybackFile = null;
-        mPlaybackLocal = null;
-
-        nm.cancel(PLAYBACK_NOTIFY_ID);
-        gotoIdleState();
-    }
-
-    @Override
-    public void onPlaybackError() {
-        sendBroadcast(new Intent(PLAYBACK_ERROR).putExtra("path", mPlaybackFile.getAbsolutePath()));
-        onPlaybackComplete();
-    }
 
     public void startPlayback(File file) throws IOException {
         loadPlaybackTrack(file);
@@ -396,7 +321,7 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
     }
 
     public File getCurrentPlaybackPath() {
-        return mPlaybackFile == null ? null : mPlaybackFile;
+        return mPlaybackFile;
     }
 
     public long getCurrentPlaybackPosition() {
@@ -446,6 +371,122 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
             mResizeTask.execute(upload);
         }
         return true;
+    }
+
+    public boolean isUploading() {
+        return (mResizeTask != null || mUploadTask != null);
+    }
+
+    public void cancelUploadById(long id) {
+        if (mCurrentUpload == null) return;
+        // eventually add support for cancelling queued uploads, but not necessary yet
+        if (id == mCurrentUpload.id) cancelUpload();
+    }
+
+
+    public void cancelUpload() {
+        if (mCurrentUpload == null) return;
+
+        if (mResizeTask != null && !isTaskFinished(mResizeTask)) {
+            mResizeTask.cancel(true);
+            mResizeTask = null;
+        }
+
+        if (mUploadTask != null && !isTaskFinished(mUploadTask)) {
+            mUploadTask.cancel(true);
+            mUploadTask = null;
+        }
+
+        if (mCurrentUpload != null){
+            mCurrentUpload.status = Upload.Status.NOT_YET_UPLOADED;
+            Recording.updateStatus(getContentResolver(), mCurrentUpload);
+        }
+
+        mCurrentUpload = null;
+        nm.cancel(RECORD_NOTIFY_ID);
+        gotoIdleState();
+        sendBroadcast(new Intent(UPLOAD_CANCELLED));
+    }
+
+    public long getUploadLocalId() {
+        return (mCurrentUpload != null && mCurrentUpload.status == Upload.Status.UPLOADING)
+                ? mCurrentUpload.local_recording_id : 0;
+    }
+
+    public Upload getUploadById(long id) {
+        return mUploadMap.get(id);
+    }
+
+    @Override
+    public void onPlaybackStart() {
+        Intent i = new Intent(PLAYBACK_STARTED)
+                .putExtra("path", mPlaybackFile.getAbsolutePath())
+                .putExtra("position", mPlayer.getCurrentPlaybackPosition());
+        sendBroadcast(i);
+    }
+
+    @Override
+    public void onPlaybackStopped() {
+        Intent i = new Intent(PLAYBACK_STOPPED);
+        if (mPlaybackFile != null) i.putExtra("path", mPlaybackFile.getAbsolutePath());
+        sendBroadcast(i);
+
+        nm.cancel(PLAYBACK_NOTIFY_ID);
+        gotoIdleState();
+    }
+
+    @Override
+    public void onPlaybackComplete() {
+        if (mPlaybackFile != null) {
+            sendBroadcast(new Intent(PLAYBACK_COMPLETE).putExtra("path", mPlaybackFile.getAbsolutePath()));
+        }
+        mPlaybackFile = null;
+        mPlaybackLocal = null;
+
+        nm.cancel(PLAYBACK_NOTIFY_ID);
+        gotoIdleState();
+    }
+
+    @Override
+    public void onPlaybackError() {
+        sendBroadcast(new Intent(PLAYBACK_ERROR).putExtra("path", mPlaybackFile.getAbsolutePath()));
+        onPlaybackComplete();
+    }
+
+
+    private void gotoIdleState() {
+        if (!isUploading() && !isRecording() && !isPlaying()) {
+            mPlaybackLocal = null;
+            stopForeground(true);
+        }
+    }
+
+    private void shutdownService() {
+        Log.v(TAG, "upload Service stopped!!!");
+
+        releaseWakeLock();
+
+        if (mUploadTask != null) mUploadTask.cancel(true);
+        if (mResizeTask != null) mResizeTask.cancel(true);
+
+        Log.v(TAG, "upload Service shutdown complete.");
+    }
+    private void onRecordError() {
+        sendBroadcast(new Intent(RECORD_ERROR));
+
+        //already in an error state, so just call these in case
+        refreshRecorder();
+        mRecording = false;
+
+        nm.cancel(RECORD_NOTIFY_ID);
+        gotoIdleState();
+    }
+
+    /* package */ void updateRecordTicker(long recordTimeMs) {
+        mRecordNotification.setLatestEventInfo(this, mRecordEventTitle,
+                CloudUtils.formatString(mRecordEventMessage, recordTimeMs / 1000), mRecordPendingIntent);
+
+        nm.notify(RECORD_NOTIFY_ID, mRecordNotification);
     }
 
     private boolean sendUploadingNotification(){
@@ -594,49 +635,9 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         releaseWakeLock();
     }
 
-
-    public boolean isUploading() {
-        return (mResizeTask != null || mUploadTask != null);
-    }
-
-    public void cancelUploadById(long id) {
-        if (mCurrentUpload == null) return;
-        // eventually add support for cancelling queued uploads, but not necessary yet
-        if (id == mCurrentUpload.id) cancelUpload();
-    }
-
-
-    public void cancelUpload() {
-        if (mCurrentUpload == null) return;
-
-        if (mResizeTask != null && !isTaskFinished(mResizeTask)) {
-            mResizeTask.cancel(true);
-            mResizeTask = null;
-        }
-
-        if (mUploadTask != null && !isTaskFinished(mUploadTask)) {
-            mUploadTask.cancel(true);
-            mUploadTask = null;
-        }
-
-        if (mCurrentUpload != null){
-            mCurrentUpload.status = Upload.Status.NOT_YET_UPLOADED;
-            Recording.updateStatus(getContentResolver(), mCurrentUpload);
-        }
-
-        mCurrentUpload = null;
-        nm.cancel(RECORD_NOTIFY_ID);
-        gotoIdleState();
-        sendBroadcast(new Intent(UPLOAD_CANCELLED));
-    }
-
-    public long getUploadLocalId() {
-        return (mCurrentUpload != null && mCurrentUpload.status == Upload.Status.UPLOADING)
-                ? mCurrentUpload.local_recording_id : 0;
-    }
-
-    public Upload getUploadById(long id) {
-        return mUploadMap.get(id);
+    private void refreshRecorder(){
+        if (mRecorder != null) mRecorder.onDestroy();
+        mRecorder = CloudRecorder.getInstance();
     }
 
     private Notification createOngoingNotification(CharSequence tickerText, PendingIntent pendingIntent) {
@@ -659,4 +660,3 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         }
     }
 }
-

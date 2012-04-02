@@ -2,9 +2,7 @@
 package com.soundcloud.android.record;
 
 import com.soundcloud.android.jni.VorbisEncoder;
-import com.soundcloud.android.view.create.CreateController;
 
-import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Handler;
@@ -21,9 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CloudRecorder {
-    static final String TAG = CloudRecorder.class.getSimpleName();
-
+    private static final String TAG = CloudRecorder.class.getSimpleName();
+    public static AudioConfig DEFAULT_CONFIG = AudioConfig.PCM16_44100_1;
+    public static float ENCODING_QUALITY = 0.5f;
     private static CloudRecorder instance;
+
+    // XXX memory
+    public List<Float> amplitudes = new ArrayList<Float>();
+    public int writeIndex;
+
 
     private State mState;
     private boolean destroyed;
@@ -36,54 +40,35 @@ public class CloudRecorder {
     private static final float MAX_ADJUSTED_AMPLITUDE = (float) Math.sqrt(Math.sqrt(32768.0));
     public static final int TIMER_INTERVAL = 20;
 
-    private AudioRecord mAudioRecord = null;
-    private RandomAccessFile mWriter;
+    private AudioRecord mAudioRecord;
     private VorbisEncoder mEncoder;
-    private File mFile = null;
+    private File mFile;
+    private RandomAccessFile mWriter;
 
-    private int nChannels;
-    private int mSampleRate;
-    private int mBitsPerSample;
-
+    final private AudioConfig mConfig;
     final private ByteBuffer buffer;
 
-    private int mLastMax = 0;
-    private int mCurrentMaxAmplitude = 0;
-    private int mCurrentAdjustedMaxAmplitude= 0;
+    private int mLastMax;
+    private int mCurrentMaxAmplitude;
+    private int mCurrentAdjustedMaxAmplitude;
 
     private RecordListener mRecListener;
 
-    // XXX memory
-    public List<Float> amplitudes = new ArrayList<Float>();
-    public int writeIndex;
-
-    public static interface RecordListener {
-        void onFrameUpdate(float maxAmplitude, long elapsed);
-    }
-
     public static CloudRecorder getInstance() {
         if (instance == null || instance.destroyed) {
-            instance = new CloudRecorder(MediaRecorder.AudioSource.MIC, CreateController.REC_SAMPLE_RATE, 2, 16);
+            instance = new CloudRecorder(MediaRecorder.AudioSource.MIC, DEFAULT_CONFIG);
         }
         return instance;
     }
 
-    private CloudRecorder(int audioSource, int sampleRate, int channels, int bitsPerSample) {
-        if (bitsPerSample != 8 && bitsPerSample != 16) throw new IllegalArgumentException("invalid bitsPerSample:"+bitsPerSample);
-        if (channels < 1 || channels > 2) throw new IllegalArgumentException("invalid channels:"+channels);
-
-        nChannels      = channels;
-        mBitsPerSample = bitsPerSample;
-        mSampleRate    = sampleRate;
-
-        final int audioFormat = bitsPerSample == 16 ? AudioFormat.ENCODING_PCM_16BIT : AudioFormat.ENCODING_PCM_8BIT;
-        final int channelConfig = channels == 2 ? AudioFormat.CHANNEL_IN_STEREO : AudioFormat.CHANNEL_IN_MONO;
-        final int bufferSize = AudioRecord.getMinBufferSize(mSampleRate, channelConfig, audioFormat)  * 3;
-        mAudioRecord = new AudioRecord(audioSource, mSampleRate, channelConfig, audioFormat, bufferSize);
+    private CloudRecorder(int audioSource, AudioConfig config) {
+        final int bufferSize = config.getMinBufferSize() * 3;
+        mAudioRecord = config.createAudioRecord(audioSource, bufferSize);
         buffer = ByteBuffer.allocateDirect(bufferSize);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         mFile = null;
         mState = State.IDLE;
+        mConfig = config;
     }
 
     public void startReading() {
@@ -98,15 +83,16 @@ public class CloudRecorder {
             if (mState != State.RECORDING) {
                 mFile = path;
                 mWriter = new RandomAccessFile(mFile, "rw");
-                mEncoder = new VorbisEncoder(new File(path.getParentFile(), path.getName().concat(".ogg")),
-                        nChannels, mSampleRate, 1.0f);
+                mEncoder = new VorbisEncoder(new File(path.getParentFile(), path.getName().concat(".ogg")), mConfig, ENCODING_QUALITY       );
 
                 if (mWriter.length() == 0) {
+                    Log.d(TAG, "creating new WAV file");
                     // new file
                     mWriter.setLength(0); // truncate
-                    WaveHeader wh = new WaveHeader(WaveHeader.FORMAT_PCM, (short)nChannels, mSampleRate, (short)mBitsPerSample, 0);
+                    WaveHeader wh = mConfig.createHeader();
                     wh.write(mWriter);
                 } else {
+                    Log.d(TAG, "appending to existing WAV file");
                     mWriter.seek(mWriter.length());
                 }
                 startReadingInternal(true);
@@ -183,7 +169,7 @@ public class CloudRecorder {
                         if (mState == State.RECORDING && writeIndex == -1) {
                             writeIndex = amplitudes.size();
                         }
-                        long elapsedTime = mState != State.RECORDING ? -1 : PcmUtils.byteToMs(mWriter.length());
+                        long elapsedTime = mState != State.RECORDING ? -1 : mConfig.byteToMs(mWriter.length());
                         final float frameAmplitude = Math.max(.1f,
                                 ((float) Math.sqrt(Math.sqrt(mCurrentAdjustedMaxAmplitude)))
                                         / MAX_ADJUSTED_AMPLITUDE);
@@ -226,7 +212,7 @@ public class CloudRecorder {
                 final int read = mAudioRecord.read(buffer, buffer.capacity());
 
                 if (read < 0) {
-                    Log.w(TAG, "AudioRecord.read() returned erro: " + read);
+                    Log.w(TAG, "AudioRecord.read() returned error: " + read);
                     mState = CloudRecorder.State.ERROR;
                 } else if (read == 0) {
                     Log.w(TAG, "AudioRecord.read() returned no data");
@@ -253,7 +239,7 @@ public class CloudRecorder {
                     buffer.limit(read);
                     while (buffer.position() < buffer.limit()) {
                         int value;
-                        switch (mBitsPerSample) {
+                        switch (mConfig.bitsPerSample) {
                             case 16:
                                 value = buffer.getShort();
                                 break;

@@ -39,7 +39,7 @@ public class Recording extends ScModel {
     public String where_text;
     public File audio_path;
     public File artwork_path;
-    public File encoded_path;
+
     /** in msecs */
     public long duration;
     public String four_square_venue_id; /* this is actually a hex id */
@@ -259,10 +259,12 @@ public class Recording extends ScModel {
     }
 
     public static Recording fromIntent(Intent intent, ContentResolver resolver, long userId) {
-        if ((Intent.ACTION_SEND.equals(intent.getAction()) ||
-                Actions.SHARE.equals(intent.getAction()) ||
-                Actions.EDIT.equals(intent.getAction())) &&
-                intent.hasExtra(Intent.EXTRA_STREAM)) {
+        final String action = intent.getAction();
+
+        if (intent.hasExtra(Intent.EXTRA_STREAM) &&
+                (Intent.ACTION_SEND.equals(action) ||
+                Actions.SHARE.equals(action) ||
+                Actions.EDIT.equals(action))) {
 
             Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             File file = IOUtils.getFromMediaUri(resolver, stream);
@@ -335,4 +337,5 @@ public class Recording extends ScModel {
         }
         return res.getString(id, DAY_FORMAT.format(cal.getTime()));
     }
+
 }

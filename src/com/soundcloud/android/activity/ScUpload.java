@@ -49,6 +49,7 @@ public class ScUpload extends ScActivity {
 
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent,getContentResolver(),getCurrentUserId())) != null) {
+
             mRecordingMetadata.setRecording(mRecording);
             if (mRecording.external_upload) {
                 // 3rd party upload, disable "record another sound button"
@@ -63,7 +64,6 @@ public class ScUpload extends ScActivity {
                 errorOut(R.string.recording_not_found);
             }
         }
-
     }
 
     @Override

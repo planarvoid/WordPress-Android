@@ -11,6 +11,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.RecordListener;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.AnimUtils;
@@ -31,6 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -54,26 +56,30 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     public static final String TEMP_PLAY = "Play";
     public static final String TEMP_STOP = "Stop";
+
     private ScActivity mActivity;
     private CloudCreateService mCreateService;
     private Recording mRecording;
+    private File mRecordFile;
     private User mPrivateUser;
 
-    private TextView txtInstructions, txtRecordMessage, mChrono;
-    private ViewGroup mFileLayout;
-    private CreateWaveDisplay mWaveDisplay;
-    private ImageButton btnAction;
-    private File mRecordFile, mRecordDir;
+    private File mRecordDir;
     private CreateState mLastState, mCurrentState;
     private long mLastDisplayedTime;
     private long mDuration;
+
+    private TextView txtInstructions, txtRecordMessage, mChrono;
+    private ViewGroup mFileLayout;
+    private ImageButton btnAction;
+    private CreateWaveDisplay mWaveDisplay;
+    private Button mResetButton, mDeleteButton, mPlayButton, mEditButton, mSaveButton;
     private String mRecordErrorMessage, mCurrentDurationString;
+
     private boolean mSampleInterrupted, mActive;
     private RemainingTimeCalculator mRemainingTimeCalculator;
     private List<Recording> mUnsavedRecordings;
-    private Button mResetButton, mDeleteButton, mPlayButton, mEditButton, mSaveButton;
 
-    private android.os.Handler mHandler;
+    private Handler mHandler;
     private long mLastPos, mLastProgressTimestamp, mLastTrackTime;
 
     private static final long PROGRESS_PERIOD = 1000 / 60; // aim for 60 fps.
@@ -92,12 +98,11 @@ public class CreateController implements CreateWaveDisplay.Listener {
         IDLE_PLAYBACK,
         PLAYBACK,
         EDIT,
-        EDIT_PLAYBACK
+        EDIT_PLAYBACK;
+
+        public boolean isEdit() { return this == EDIT || this == EDIT_PLAYBACK; }
     }
 
-    public static int REC_SAMPLE_RATE = 44100;
-    public static int PCM_REC_CHANNELS = 2;
-    public static int PCM_REC_BITS_PER_SAMPLE = 16;
     public static int PCM_REC_MAX_FILE_SIZE = -1;
 
     public CreateController(ScActivity c, ViewGroup vg, Uri recordingUri) {
@@ -121,8 +126,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         btn_rec_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_states);
         btn_rec_stop_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_pause_states);
 
-        mRemainingTimeCalculator = new RemainingTimeCalculator();
-        mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
+        mRemainingTimeCalculator = CloudRecorder.DEFAULT_CONFIG.createCalculator();
 
         txtInstructions = (TextView) vg.findViewById(R.id.txt_instructions);
         txtRecordMessage = (TextView) vg.findViewById(R.id.txt_record_message);
@@ -164,7 +168,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         mResetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isInEditState()){
+                if (mCurrentState.isEdit()){
                     mCurrentState = CreateState.IDLE_PLAYBACK;
                 } else {
                     mActivity.track(Click.Record_discard);
@@ -227,21 +231,17 @@ public class CreateController implements CreateWaveDisplay.Listener {
         mSaveButton = (Button) vg.findViewById(R.id.btn_save);
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (isInEditState()) {
+                if (mCurrentState.isEdit()) {
                     mCurrentState = CreateState.IDLE_PLAYBACK;
                     updateUi(true);
                 } else {
-
                     mActivity.track(Click.Record_next);
                     if (mRecording == null) {
-                        // XXX hack
                         Recording r = new Recording(mRecordFile);
-                        r.encoded_path = new File(mRecordFile.getParentFile(), mRecordFile.getName()+".ogg");
                         r.user_id = mActivity.getCurrentUserId();
+
                         if (mPrivateUser != null) {
-                            SoundCloudDB.upsertUser(mActivity.getContentResolver(),
-                                    mPrivateUser
-                            );
+                            SoundCloudDB.upsertUser(mActivity.getContentResolver(), mPrivateUser);
                             r.private_user_id = mPrivateUser.id;
                             r.is_private = true;
                         }
@@ -254,19 +254,18 @@ public class CreateController implements CreateWaveDisplay.Listener {
                         mRecording = SoundCloudDB.insertRecording(mActivity.getContentResolver(), r);
 
                         if (mCreateListener != null) {
-                            mCreateListener.onSave(mRecording.toUri(), mRecording, true);
+                            mCreateListener.onSave(mRecording, true);
                         }
                     } else {
                         //start for result, because if an upload starts, finish, playback should not longer be possible
                         if (mCreateListener != null) {
-                            mCreateListener.onSave(mRecording.toUri(), mRecording, false);
+                            mCreateListener.onSave(mRecording, false);
                         }
                     }
                 }
             }
         });
 
-        mRemainingTimeCalculator = new RemainingTimeCalculator();
         mWaveDisplay = new CreateWaveDisplay(mActivity);
         mWaveDisplay.setTrimListener(this);
         ((FrameLayout) vg.findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
@@ -282,8 +281,6 @@ public class CreateController implements CreateWaveDisplay.Listener {
     }
 
     public void reset() {
-        mRecordFile = null;
-        mRecording = null;
         mCurrentState = CreateState.IDLE_RECORD;
         mWaveDisplay.reset();
         updateUi(true);
@@ -353,7 +350,6 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 mCurrentState = CreateState.IDLE_STANDBY_REC;
             }
         } else if ( mCreateService.isPlaying()) {
-            //if (recordingId == mCreateService.getPlaybackLocalId())
             if (shouldReactToPlayback()) {
                 if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
                 setRecordFile(mCreateService.getCurrentPlaybackPath());
@@ -383,7 +379,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
         if (!(mCurrentState == CreateState.RECORD || mCurrentState == CreateState.IDLE_STANDBY_REC || mCurrentState == CreateState.IDLE_STANDBY_PLAY)
                 && mRecordDir != null && mRecordDir.exists() && mPrivateUser == null) {
-                checkUnsavedFiles();
+//                checkUnsavedFiles();
         }
 
         setResetState();
@@ -585,7 +581,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 break;
         }
 
-        final boolean inEditState = isInEditState();
+        final boolean inEditState = mCurrentState.isEdit();
         mResetButton.setText(inEditState ? mActivity.getResources().getString(R.string.btn_revert_to_original) : mActivity.getResources().getString(R.string.reset) );
         mSaveButton.setText(inEditState ? mActivity.getResources().getString(R.string.btn_save) : mActivity.getResources().getString(R.string.btn_next));
         mWaveDisplay.setIsEditing(inEditState);
@@ -596,10 +592,6 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     private CharSequence getRandomSuggestion() {
         return "Why don't you record the sounds of your street?";
-    }
-
-    private boolean isInEditState(){
-        return mCurrentState == CreateState.EDIT || mCurrentState == CreateState.EDIT_PLAYBACK;
     }
 
     private void startRecording() {
@@ -636,8 +628,8 @@ public class CreateController implements CreateWaveDisplay.Listener {
             mCurrentState = CreateState.IDLE_RECORD;
             updateUi(true);
         } else {
-            mRemainingTimeCalculator.setBitRate(REC_SAMPLE_RATE * PCM_REC_CHANNELS * PCM_REC_BITS_PER_SAMPLE);
-            if (PCM_REC_MAX_FILE_SIZE != -1) {
+
+            if (PCM_REC_MAX_FILE_SIZE > 0) {
                 mRemainingTimeCalculator.setFileSizeLimit(mRecordFile, PCM_REC_MAX_FILE_SIZE);
             }
 
@@ -690,7 +682,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         }
     }
 
-    public final CloudRecorder.RecordListener recListener = new CloudRecorder.RecordListener() {
+    public final RecordListener recListener = new RecordListener() {
         @Override
         public void onFrameUpdate(float maxAmplitude, long elapsed) {
             synchronized (this) {
@@ -933,7 +925,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         uploadFilter.addAction(CloudCreateService.PLAYBACK_STARTED);
         uploadFilter.addAction(CloudCreateService.PLAYBACK_COMPLETE);
         uploadFilter.addAction(CloudCreateService.PLAYBACK_ERROR);
-        mActivity.registerReceiver(mUploadStatusListener, new IntentFilter(uploadFilter));
+        mActivity.registerReceiver(mStatusListener, new IntentFilter(uploadFilter));
     }
 
     public void onPause() {
@@ -952,7 +944,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     public void onStop() {
         mHandler.removeCallbacks(mSmoothProgress);
-        mActivity.unregisterReceiver(mUploadStatusListener);
+        mActivity.unregisterReceiver(mStatusListener);
     }
 
     public void onDestroy() {
@@ -978,24 +970,23 @@ public class CreateController implements CreateWaveDisplay.Listener {
         }
     }
 
-    private BroadcastReceiver mUploadStatusListener = new BroadcastReceiver() {
+    private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(CloudCreateService.RECORD_STARTED) &&
+            if (CloudCreateService.RECORD_STARTED.equals(action) &&
                     (mCurrentState == CreateState.IDLE_PLAYBACK || mCurrentState == CreateState.PLAYBACK)) {
                 // this will happen if recording starts from somewhere else. just reset as the player will have to be reloaded anyway
                 stopPlayback();
                 reset();
 
-            } else if (action.equals(CloudCreateService.RECORD_ERROR)) {
+            } else if (CloudCreateService.RECORD_ERROR.equals(action)) {
                 onRecordingError();
-            } else if (action.equals(CloudCreateService.PLAYBACK_STARTED)) {
+            } else if (CloudCreateService.PLAYBACK_STARTED.equals(action)) {
                 mLastTrackTime = intent.getLongExtra("position",0);
                 mLastProgressTimestamp = System.currentTimeMillis();
                 mHandler.postDelayed(mSmoothProgress, 0);
-
-            } else if (action.equals(CloudCreateService.PLAYBACK_COMPLETE) || action.equals(CloudCreateService.PLAYBACK_ERROR)) {
+            } else if (CloudCreateService.PLAYBACK_COMPLETE.equals(action) || CloudCreateService.PLAYBACK_ERROR.equals(action)) {
                 if (intent.hasExtra("path") && shouldReactToPath(new File(intent.getStringExtra("path")))) {
                     onPlaybackComplete();
                 } else if (mCurrentState == CreateState.IDLE_STANDBY_PLAY) {
@@ -1079,7 +1070,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
     }
 
     public interface CreateListener {
-        void onSave(Uri recordingUri, Recording recording, boolean newRecording);
+        void onSave(Recording recording, boolean isNew);
         void onCancel();
         void onDelete();
     }

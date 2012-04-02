@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 
 @Tracking(page = Page.Record_main)
 public class ScCreate extends ScActivity implements CreateController.CreateListener {
-
     public static final int REQUEST_UPLOAD_FILE = 1;
     private CreateController mCreateController;
 
@@ -83,8 +82,6 @@ public class ScCreate extends ScActivity implements CreateController.CreateListe
         super.onRestoreInstanceState(state);
     }
 
-
-
     @Override
     protected Dialog onCreateDialog(int which) {
         Dialog created = null;
@@ -93,7 +90,6 @@ public class ScCreate extends ScActivity implements CreateController.CreateListe
         }
         return created == null ? super.onCreateDialog(which) : created;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -104,7 +100,6 @@ public class ScCreate extends ScActivity implements CreateController.CreateListe
             default:
                 return super.onOptionsItemSelected(item);
         }
-
     }
 
     @Override
@@ -132,12 +127,12 @@ public class ScCreate extends ScActivity implements CreateController.CreateListe
     }
 
     @Override
-    public void onSave(Uri recordingUri, final Recording recording, boolean newRecording) {
-        if (newRecording){
-            startActivity(new Intent(this, ScUpload.class).setData(recordingUri));
+    public void onSave(final Recording recording, boolean isNew) {
+        if (isNew){
+            startActivity(new Intent(this, ScUpload.class).setData(recording.toUri()));
             mCreateController.reset();
         } else {
-            startActivityForResult(new Intent(this, ScUpload.class).setData(recordingUri), 0);
+            startActivityForResult(new Intent(this, ScUpload.class).setData(recording.toUri()), 0);
         }
     }
 
@@ -153,9 +148,7 @@ public class ScCreate extends ScActivity implements CreateController.CreateListe
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file).setIcon(
-                R.drawable.ic_menu_incoming);
-
+        menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file).setIcon(R.drawable.ic_menu_incoming);
         return super.onCreateOptionsMenu(menu);
     }
 }
