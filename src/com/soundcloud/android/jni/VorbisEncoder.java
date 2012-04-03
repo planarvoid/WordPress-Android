@@ -17,15 +17,19 @@ public class VorbisEncoder {
     public final float quality;
     public final File file;
 
+    @SuppressWarnings("UnusedDeclaration") // used in JNI code
+    private int encoder_state;
+
     /**
      * Initialises the encoder for usage.
      * @param file      output file
+     * @param mode      the file mode ('w', 'a', ...)
      * @param channels  number of channels
      * @param rate      sampleRate (44100)
      * @param quality   desired encoding quality (0-1.0)
      */
-    public VorbisEncoder(File file, long channels, long rate, float quality) throws EncoderException {
-        final int ret = init(file.getAbsolutePath(), channels, rate, quality);
+    public VorbisEncoder(File file, String mode, long channels, long rate, float quality) throws EncoderException {
+        final int ret = init(file.getAbsolutePath(), mode, channels, rate, quality);
         if (ret != 0) {
             throw new EncoderException("Error initialising encoder", ret);
         }
@@ -35,8 +39,8 @@ public class VorbisEncoder {
         this.quality = quality;
     }
 
-    public VorbisEncoder(File file, AudioConfig config, float quality) throws EncoderException {
-        this(file, config.channels, config.sampleRate, quality);
+    public VorbisEncoder(File file, String mode, AudioConfig config, float quality) throws EncoderException {
+        this(file, mode, config.channels, config.sampleRate, quality);
     }
 
     /**
@@ -68,6 +72,7 @@ public class VorbisEncoder {
 
         WaveHeader header = new WaveHeader(wav);
         VorbisEncoder encoder = new VorbisEncoder(out,
+                "w",
                 header.getNumChannels(),
                 header.getSampleRate(),
                 quality);
@@ -77,7 +82,7 @@ public class VorbisEncoder {
     }
 
     // native methods
-    native public int init(String output, long channels, long rate, float quality);
+    native public int init(String output, String mode, long channels, long rate, float quality);
     native public int addSamples(ByteBuffer samples, long length);
     native public int finish();
 

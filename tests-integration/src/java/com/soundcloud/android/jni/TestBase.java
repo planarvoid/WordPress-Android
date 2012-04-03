@@ -56,6 +56,7 @@ public abstract class TestBase extends AndroidTestCase {
 
     protected void checkAudioFile(File file, int expectedDuration) throws IOException {
         assertTrue("file should exist", file.exists());
+        assertTrue("file should not be empty", file.length() > 0);
 
         // read encoded file with mediaplayer
         MediaPlayer mp = null;

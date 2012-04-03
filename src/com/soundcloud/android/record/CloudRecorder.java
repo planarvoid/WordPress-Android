@@ -83,7 +83,7 @@ public class CloudRecorder {
             if (mState != State.RECORDING) {
                 mFile = path;
                 mWriter = new RandomAccessFile(mFile, "rw");
-                mEncoder = new VorbisEncoder(new File(path.getParentFile(), path.getName().concat(".ogg")), mConfig, ENCODING_QUALITY       );
+                mEncoder = new VorbisEncoder(new File(path.getParentFile(), path.getName().concat(".ogg")), "a", mConfig, ENCODING_QUALITY);
 
                 if (mWriter.length() == 0) {
                     Log.d(TAG, "creating new WAV file");

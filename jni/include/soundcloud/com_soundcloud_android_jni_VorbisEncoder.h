@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_soundcloud_android_jni_VorbisEncoder
  * Method:    init
- * Signature: (Ljava/lang/String;JJF)I
+ * Signature: (Ljava/lang/String;Ljava/lang/String;JJF)I
  */
 JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_init
-  (JNIEnv *, jobject, jstring, jlong, jlong, jfloat);
+  (JNIEnv *, jobject, jstring, jstring, jlong, jlong, jfloat);
 
 /*
  * Class:     com_soundcloud_android_jni_VorbisEncoder

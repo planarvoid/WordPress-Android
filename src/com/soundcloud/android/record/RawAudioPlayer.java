@@ -204,7 +204,7 @@ public class RawAudioPlayer {
 
         @Override
         protected Boolean doInBackground(Long... params) {
-            long offset = mConfig.startPosition(Math.max(params[0], mStartPos));
+            final long offset = mConfig.startPosition(Math.max(params[0], mStartPos));
             Log.d("RawAudioPlayer", "playing "+mFileToPlay+ " at offset "+offset);
 
             final int bufferSize = 1024;
