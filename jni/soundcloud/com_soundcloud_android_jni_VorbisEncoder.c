@@ -32,13 +32,9 @@ typedef struct {
 
 static jfieldID encoder_state_field;
 
-/*
- * Class:     com_soundcloud_android_jni_VorbisEncoder
- * Method:    init
- * Signature: (JJF)Z
- */
+
 jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj, jstring outFile, jstring fileMode, jlong channels, jlong rate, jfloat quality) {
-    __android_log_print(ANDROID_LOG_DEBUG, DEBUG_TAG, "init(channels=%ld, rate=%ld, quality=%f)", (long)channels, (long)rate, quality);
+    LOG_D("init(channels=%ld, rate=%ld, quality=%f)", (long)channels, (long)rate, quality);
     encoder_state *state = malloc(sizeof(encoder_state));
     state->eos = 0;
 
@@ -94,11 +90,6 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj
     return 0;
 }
 
-/*
- * Class:     com_soundcloud_android_jni_VorbisEncoder
- * Method:    addSamples
- * Signature: ([SII)I
- */
 jint Java_com_soundcloud_android_jni_VorbisEncoder_addSamples(JNIEnv* env, jobject obj, jobject samples, jlong length) {
     /* get state from instance */
     encoder_state *state = (encoder_state*) (*env)->GetIntField(env, obj, encoder_state_field);
@@ -139,13 +130,9 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_addSamples(JNIEnv* env, jobje
     return 0;
 }
 
-/*
- * Class:     com_soundcloud_android_jni_VorbisEncoder
- * Method:    finish
- * Signature: ()Z
- */
+
 jint Java_com_soundcloud_android_jni_VorbisEncoder_finish(JNIEnv *env, jobject obj) {
-   __android_log_write(ANDROID_LOG_DEBUG, DEBUG_TAG, "finish");
+   LOG_D("finish");
 
    /* get state from instance */
    encoder_state *state = (encoder_state*) (*env)->GetIntField(env, obj, encoder_state_field);
