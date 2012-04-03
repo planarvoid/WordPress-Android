@@ -75,7 +75,6 @@
               android:layout_width="match_parent"
               android:layout_margin="5dip"
               style="@style/txt_record_message"
-              android:text="Why not capture the sound of your flatmate snoring?"
               android:lines="2"
               android:layout_height="wrap_content"/>
 

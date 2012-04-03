@@ -284,6 +284,7 @@ public class CloudRecorder {
 
                 if (mEncoder != null) {
                     mEncoder.finish();
+                    mEncoder = null;
                 }
             } catch (IOException e) {
                 Log.e(TAG, "I/O exception occured while finalizing file", e);

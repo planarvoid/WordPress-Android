@@ -143,7 +143,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
         mWaveDisplay = new CreateWaveDisplay(mActivity);
         mWaveDisplay.setTrimListener(this);
-        ((FrameLayout) vg.findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
+        ((ViewGroup) vg.findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
 
         mCurrentState = CreateState.IDLE_RECORD;
         mRecordDir = IOUtils.ensureUpdatedDirectory(
@@ -296,6 +296,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     public void reset() {
         mCurrentState = CreateState.IDLE_RECORD;
+        mRecordFile = null;
         mWaveDisplay.reset();
         updateUi(true);
         setResetState();
