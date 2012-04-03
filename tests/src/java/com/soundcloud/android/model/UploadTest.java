@@ -107,7 +107,6 @@ public class UploadTest {
         expect(upload.artworkFile).toBeNull();
     }
 
-
     @Test
     public void shouldOnlyGenerateSharingNoteWhenSharingPublicly() throws Exception {
         r.is_private = true;

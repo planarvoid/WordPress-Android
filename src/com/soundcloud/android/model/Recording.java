@@ -26,10 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Pattern;
 
-@SuppressWarnings({"UnusedDeclaration"})
 public class Recording extends ScModel {
     public long user_id;
     public long timestamp;
@@ -56,9 +54,6 @@ public class Recording extends ScModel {
     public String[] tags;
     public String description, genre;
 
-    private Map<String,Object> mUpload_data;
-
-    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
     private static final Pattern COMPRESSED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
     public static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.ENGLISH);
@@ -304,6 +299,9 @@ public class Recording extends ScModel {
         ContentValues cv = new ContentValues();
         cv.put(Recordings.UPLOAD_STATUS, upload.status);
         cv.put(Recordings.UPLOAD_ERROR, upload.status == Upload.Status.NOT_YET_UPLOADED);
+        if (upload.encodedSoundFile != null) {
+            cv.put(Recordings.AUDIO_PATH, upload.encodedSoundFile.getAbsolutePath());
+        }
         return resolver.update(Content.RECORDINGS.uri,cv, Recordings._ID+"="+ upload.local_recording_id, null) > 0;
     }
 
@@ -337,5 +335,4 @@ public class Recording extends ScModel {
         }
         return res.getString(id, DAY_FORMAT.format(cal.getTime()));
     }
-
 }

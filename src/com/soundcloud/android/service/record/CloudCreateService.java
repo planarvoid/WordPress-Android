@@ -266,14 +266,13 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         gotoIdleState();
     }
 
-    public void setPlaybackStart(float pos) {
+    public void setPlaybackStart(double pos) {
         mPlayer.onNewStartPosition(pos);
     }
 
-    public void setPlaybackEnd(float pos) {
+    public void setPlaybackEnd(double pos) {
         mPlayer.onNewEndPosition(pos);
     }
-
 
     public void startPlayback(File file) throws IOException {
         loadPlaybackTrack(file);
@@ -453,7 +452,6 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
         onPlaybackComplete();
     }
 
-
     private void gotoIdleState() {
         if (!isUploading() && !isRecording() && !isPlaying()) {
             mPlaybackLocal = null;
@@ -603,13 +601,12 @@ public class CloudCreateService extends Service implements RawAudioPlayer.Playba
             title = getString(R.string.cloud_uploader_notification_finished_title);
             message = getString(R.string.cloud_uploader_notification_finished_message, upload.title);
 
-            upload.cleanup();
-
             Intent broadcastIntent = new Intent(UPLOAD_SUCCESS);
             broadcastIntent.putExtra("upload_id", upload.id);
             broadcastIntent.putExtra("isPrivate", upload.isPrivate());
             sendBroadcast(broadcastIntent);
             Recording.updateStatus(getContentResolver(), upload);
+            upload.onUploaded();
             mCurrentUpload = null;
         } else {
             upload.status = Upload.Status.NOT_YET_UPLOADED;

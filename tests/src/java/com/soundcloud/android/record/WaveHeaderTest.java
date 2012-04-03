@@ -22,7 +22,7 @@ public class WaveHeaderTest {
         expect(header.getNumChannels()).toEqual((short) 1);
         expect(header.getFormat()).toEqual((short)1);
         expect(header.getBitsPerSample()).toEqual((short)16);
-        expect(header.getNumBytes()).toEqual((int) file.length() - WaveHeader.HEADER_LENGTH);
+        expect(header.getNumBytes()).toEqual((int) file.length() - WaveHeader.LENGTH);
     }
 
     @Test

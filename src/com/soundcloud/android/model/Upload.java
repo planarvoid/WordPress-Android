@@ -1,14 +1,11 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.task.UploadTask;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import android.content.res.Resources;
-import android.os.Parcel;
 import android.text.TextUtils;
 
 import java.io.File;
@@ -21,10 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 
-@SuppressWarnings({"UnusedDeclaration"})
-@JsonIgnoreProperties(ignoreUnknown=true)
-public class Upload extends ScModel {
-    public long local_recording_id;
+public class Upload {
+    public long   id;
+    public long   local_recording_id;
     public String sharing;
     public String sharing_note;
     public String post_to_empty;
@@ -42,8 +38,6 @@ public class Upload extends ScModel {
     public boolean streamable;
     public boolean is_native_recording;
 
-    public int status;
-
     // files
     public File soundFile;
     public File encodedSoundFile;
@@ -51,24 +45,13 @@ public class Upload extends ScModel {
     public File resizedArtworkFile;
 
     // state
+    public int status;
     private boolean mSuccess;
     private IOException mUploadException;
-
-    public static final String LOCAL_RECORDING_ID = "local_recording_id";
-    public static final String SOURCE_PATH = "source_path";
-    public static final String OGG_FILENAME = "ogg_filename";
-    public static final String ARTWORK_PATH = "artwork_path";
-    public static final String DELETE_AFTER = "delete_after";
 
     public static final String TAG_SOURCE_ANDROID_RECORD    = "soundcloud:source=android-record";
     public static final String TAG_RECORDING_TYPE_DEDICATED = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
-
-    public void cleanup() {
-        // XXX make really, really sure 3rd party uploads don't get deleted
-        if (is_native_recording) IOUtils.deleteFile(soundFile);
-        IOUtils.deleteFile(encodedSoundFile);
-    }
 
     public boolean isError() {
         return mUploadException != null;
@@ -186,19 +169,11 @@ public class Upload extends ScModel {
         return data;
     }
 
-    public Upload(Parcel in) {
-        readFromParcel(in);
+    /**
+     * Gets called after successful upload. Clean any tmp files here.
+     */
+    public void onUploaded() {
     }
-
-    public static final Creator<Upload> CREATOR = new Creator<Upload>() {
-        public Upload createFromParcel(Parcel in) {
-            return new Upload(in);
-        }
-
-        public Upload[] newArray(int size) {
-            return new Upload[size];
-        }
-    };
 
     public List<String> getTags() {
         List<String> tags = new ArrayList<String>();

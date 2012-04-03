@@ -103,7 +103,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
     protected void onServiceBound() {
         if (getApp().getToken() == null) {
-            pause();
+            pausePlayback();
         } else {
             setPlayingTrackFromService();
         }
@@ -330,7 +330,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         mIgnorePlaybackStatus = true;
     }
 
-    public void pause() {
+    public void pausePlayback() {
         try {
             if (mPlaybackService != null) {
                 mPlaybackService.pause();

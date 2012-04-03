@@ -1,34 +1,34 @@
 package com.soundcloud.android.record;
 
+import com.soundcloud.android.utils.IOUtils;
+
 import android.media.AudioTrack;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
+import java.io.RandomAccessFile;
 
 public class RawAudioPlayer {
+    private static final String TAG = RawAudioPlayer.class.getSimpleName();
+
     private static final long SEEK_INTERVAL = 200;
     public static final int TRIM_PREVIEW_LENGTH = 500;
 
     private PlayRawAudioTask mPlayRawAudioTask;
     private File mFile;
     private long mCurrentProgress, mTotalBytes, mStartPos, mEndPos, mNextSeek, mLastSeekAt, mDuration;
-    private int mMinBufferSize;
     private boolean mPlaying;
     private final AudioConfig mConfig;
 
     private PlaybackListener mListener;
 
     public RawAudioPlayer(AudioConfig config) {
-        mConfig =  config;
-        mMinBufferSize = config.getMinBufferSize();
+        mConfig = config;
     }
 
     public long getDuration() {
@@ -36,7 +36,7 @@ public class RawAudioPlayer {
     }
 
     public long getCurrentPlaybackPosition() {
-        return mCurrentProgress == -1 ? -1 :  mConfig.byteToMs(mCurrentProgress);
+        return mCurrentProgress == -1 ? -1 :  mConfig.bytesToMs(mCurrentProgress);
     }
 
     public void resetPlaybackBounds() {
@@ -57,7 +57,6 @@ public class RawAudioPlayer {
 
     public void setFile(File f) throws IOException {
         if (mPlaying) stop();
-
         if (!f.exists()) throw new IOException("file "+f+" does not exist");
 
         mFile = f;
@@ -67,7 +66,7 @@ public class RawAudioPlayer {
             mTotalBytes = waveHeader.getNumBytes();
             resetPlaybackBounds();
         }
-        mDuration =  mConfig.byteToMs(mEndPos);
+        mDuration =  mConfig.bytesToMs(mEndPos);
     }
 
     public boolean isPlaying(){
@@ -86,7 +85,7 @@ public class RawAudioPlayer {
         if (!mPlaying) {
             mPlaying = true;
             mPlayRawAudioTask = new PlayRawAudioTask(this, mFile, mConfig);
-            mPlayRawAudioTask.setBounds(mStartPos,mEndPos);
+            mPlayRawAudioTask.setBounds(mStartPos, mEndPos);
             mPlayRawAudioTask.execute(mCurrentProgress);
         }
     }
@@ -108,7 +107,7 @@ public class RawAudioPlayer {
     }
 
     public void seekTo(float percentage) {
-        seekTo(getValidBytePos((long) (percentage * mTotalBytes)));
+        seekTo(mConfig.startPosition((long) (percentage * mTotalBytes)));
     }
 
     public void seekTo(long position) {
@@ -167,30 +166,27 @@ public class RawAudioPlayer {
         }
     }
 
-    public void onNewStartPosition(float percent) {
-        mStartPos = getValidBytePos((long) (percent * mTotalBytes));
-        if (mPlaying){
+    public void onNewStartPosition(double percent) {
+        mStartPos = mConfig.startPosition((long) (percent * mTotalBytes));
+        if (mPlaying) {
             seekTo(mStartPos);
         }
     }
 
-    public void onNewEndPosition(float percent) {
-        mEndPos = getValidBytePos((long) (percent * mTotalBytes));
-        if (mPlaying){
+    public void onNewEndPosition(double percent) {
+        mStartPos = mConfig.startPosition((long) (percent * mTotalBytes));
+        if (mPlaying) {
             seekTo(Math.max(mStartPos, mEndPos - mConfig.msToByte(TRIM_PREVIEW_LENGTH)));
         }
     }
 
-    private long getValidBytePos(long in){
-        return (in / mMinBufferSize) * mMinBufferSize;
-    }
 
     private static class PlayRawAudioTask extends AsyncTask<Long, Long, Boolean> {
         private File mFileToPlay;
         private boolean isPlaying;
         private AudioTrack mAudioTrack;
         private long mEndPos, mStartPos, mLastPlayedPos;
-        private WeakReference<RawAudioPlayer> rawAudioPlayerWeakReference;
+        private RawAudioPlayer player;
         private AudioConfig mConfig;
 
         public PlayRawAudioTask(RawAudioPlayer rawAudioPlayer, File f, AudioConfig config) {
@@ -198,7 +194,7 @@ public class RawAudioPlayer {
 
             mFileToPlay = f;
             mAudioTrack = config.createAudioTrack();
-            rawAudioPlayerWeakReference = new WeakReference<RawAudioPlayer>(rawAudioPlayer);
+            player = rawAudioPlayer;
             mConfig = config;
         }
 
@@ -208,43 +204,41 @@ public class RawAudioPlayer {
 
         @Override
         protected Boolean doInBackground(Long... params) {
-            long offset = Math.max(params[0], mStartPos);
+            long offset = mConfig.startPosition(Math.max(params[0], mStartPos));
             Log.d("RawAudioPlayer", "playing "+mFileToPlay+ " at offset "+offset);
 
-            int minSize = mConfig.getMinBufferSize();
-            int bufferSize = 1024;
-            int i;
-            byte[] s = new byte[bufferSize];
+            final int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+            RandomAccessFile file = null;
             try {
-                FileInputStream fin = new FileInputStream(mFileToPlay);
-                // round to the nearest buffer size to ensure valid audio data (TODO can this be more precise?)
-                offset = (offset / minSize) * minSize;
-
-                DataInputStream dis = new DataInputStream(fin);
-                dis.skip(WaveHeader.HEADER_LENGTH + offset);
-
-                long written = 0;
-                while ((i = dis.read(s, 0, bufferSize)) > -1 && (written + offset < mEndPos) && isPlaying) {
-                    written += mAudioTrack.write(s, 0, i);
-                    publishProgress(written+offset);
+                file = new RandomAccessFile(mFileToPlay, "r");
+                final long dataStart = offset + WaveHeader.LENGTH;
+                if (dataStart < file.length()) {
+                    file.seek(dataStart);
+                    long written = 0;
+                    int n;
+                    while (isPlaying && (n = file.read(buffer, 0, bufferSize)) > -1 && (written + offset < mEndPos)) {
+                        written += mAudioTrack.write(buffer, 0, n);
+                        publishProgress(written+offset);
+                    }
+                    mLastPlayedPos = written + offset;
+                    return true;
+                } else {
+                    Log.w(TAG, "dataStart > length: "+dataStart+">"+file.length());
+                    return false;
                 }
-                mLastPlayedPos = written + offset;
-                dis.close();
-                fin.close();
-                return true;
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.w(TAG, "error during playback", e);
+            } finally {
+                IOUtils.close(file);
             }
             return false;
         }
 
         @Override
         protected void onPreExecute() {
-            if (rawAudioPlayerWeakReference != null && rawAudioPlayerWeakReference.get() != null){
-                rawAudioPlayerWeakReference.get().onPlaybackStart(this);
+            if (player != null){
+                player.onPlaybackStart(this);
             }
             mAudioTrack.play();
             isPlaying = true;
@@ -255,20 +249,18 @@ public class RawAudioPlayer {
             mAudioTrack.stop();
             mAudioTrack.release();
 
-            if (rawAudioPlayerWeakReference != null && rawAudioPlayerWeakReference.get() != null){
-                if (mLastPlayedPos + WaveHeader.HEADER_LENGTH >= mEndPos){
-                    rawAudioPlayerWeakReference.get().onPlaybackComplete(this);
+            if (player != null) {
+                if (mLastPlayedPos + WaveHeader.LENGTH >= mEndPos){
+                    player.onPlaybackComplete(this);
                 } else {
-                    rawAudioPlayerWeakReference.get().onPlaybackStopped(this);
+                    player.onPlaybackStopped(this);
                 }
-
             }
         }
-
         @Override
         protected void onProgressUpdate(Long... values){
-            if (isPlaying && rawAudioPlayerWeakReference != null && rawAudioPlayerWeakReference.get() != null){
-                rawAudioPlayerWeakReference.get().setCurrentProgress(values[0]);
+            if (isPlaying && player != null){
+                player.setCurrentProgress(values[0]);
             }
         }
 

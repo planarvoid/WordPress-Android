@@ -123,7 +123,6 @@ public final class CloudUtils {
                 (new Intent()).setClass(context, service),
                 callback,
                 0);
-
         if (!success) Log.w(TAG, "BIND TO SERVICE " + service.getSimpleName() + " FAILED");
         return success;
     }

@@ -12,6 +12,7 @@ import android.graphics.Paint;
 import android.graphics.Shader;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Interpolator;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class CreateWaveView extends View {
 
     private long mAnimationStartTime;
 
-    private static AccelerateDecelerateInterpolator SHOW_FULL_INTERPOLATOR = new AccelerateDecelerateInterpolator();
+    private static final Interpolator SHOW_FULL_INTERPOLATOR = new AccelerateDecelerateInterpolator();
 
     public CreateWaveView(Context context) {
         super(context);
@@ -166,7 +167,7 @@ public class CreateWaveView extends View {
 
         if (mRecordStartIndex == -1) mRecordStartIndex = CloudRecorder.getInstance().writeIndex;
 
-        float normalizedTime = Math.min(1.0f,(((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
+        float normalizedTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
 
         boolean animating = (normalizedTime < 1.0f);

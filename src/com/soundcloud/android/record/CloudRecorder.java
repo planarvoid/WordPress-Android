@@ -169,7 +169,7 @@ public class CloudRecorder {
                         if (mState == State.RECORDING && writeIndex == -1) {
                             writeIndex = amplitudes.size();
                         }
-                        long elapsedTime = mState != State.RECORDING ? -1 : mConfig.byteToMs(mWriter.length());
+                        long elapsedTime = mState != State.RECORDING ? -1 : mConfig.bytesToMs(mWriter.length());
                         final float frameAmplitude = Math.max(.1f,
                                 ((float) Math.sqrt(Math.sqrt(mCurrentAdjustedMaxAmplitude)))
                                         / MAX_ADJUSTED_AMPLITUDE);
@@ -269,7 +269,7 @@ public class CloudRecorder {
                     Log.d(TAG, "finalising recording file (length="+length+")");
                     if (length == 0) {
                         Log.w(TAG, "file length is zero");
-                    } else if (length > WaveHeader.HEADER_LENGTH) {
+                    } else if (length > WaveHeader.LENGTH) {
                         // fill in missing header bytes
                         mWriter.seek(4);
                         mWriter.writeInt(Integer.reverseBytes((int) (length - 8)));

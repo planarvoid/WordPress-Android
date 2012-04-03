@@ -37,7 +37,7 @@ import java.io.OutputStream;
  */
 @SuppressWarnings({"PointlessBitwiseExpression", "UnusedDeclaration"})
 public class WaveHeader {
-    public static final int HEADER_LENGTH = 44;
+    public static final int LENGTH = 44;
 
     /** Indicates PCM format. */
     public static final short FORMAT_PCM = 1;
@@ -70,7 +70,7 @@ public class WaveHeader {
     public WaveHeader(InputStream is, boolean rewind) throws IOException {
         if (rewind) {
             if (is.markSupported()) {
-                is.mark(HEADER_LENGTH + 32);
+                is.mark(LENGTH + 32);
             } else {
                 throw new IOException("asked to rewind but "+ is.getClass() + " does not support it");
             }
@@ -231,7 +231,7 @@ public class WaveHeader {
         readId(in, "data");
         mNumBytes = readInt(in);
 
-        return HEADER_LENGTH;
+        return LENGTH;
     }
 
     private static void readId(InputStream in, String id) throws IOException {
@@ -274,7 +274,7 @@ public class WaveHeader {
         writeId(out, "data");
         writeInt(out, mNumBytes);
 
-        return HEADER_LENGTH;
+        return LENGTH;
     }
 
     public int write(DataOutput out) throws IOException {
@@ -297,7 +297,7 @@ public class WaveHeader {
         out.writeBytes("data");
         out.writeInt(mNumBytes);
 
-        return HEADER_LENGTH;
+        return LENGTH;
     }
 
     private static void writeId(OutputStream out, String id) throws IOException {

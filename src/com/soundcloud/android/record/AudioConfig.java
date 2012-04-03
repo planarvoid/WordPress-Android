@@ -22,7 +22,7 @@ public enum AudioConfig {
         this.bitsPerSample = bitsPerSample;
         this.sampleRate = sampleRate;
         this.channels = channels;
-        bytesPerSecond = sampleRate * (bitsPerSample / 2) * channels;
+        bytesPerSecond = sampleRate * (bitsPerSample / 8) * channels;
     }
 
     public int getChannelConfig() {
@@ -61,7 +61,11 @@ public enum AudioConfig {
         return ms * bytesPerSecond / 1000;
     }
 
-    public long byteToMs(long bytePos){
+    public long bytesToMs(long bytePos){
         return (1000*bytePos)/(bytesPerSecond);
+    }
+
+    public long startPosition(long offset) {
+       return offset - (offset % ((bitsPerSample / 8) * channels));
     }
 }

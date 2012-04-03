@@ -70,7 +70,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     private TextView txtInstructions, txtRecordMessage, mChrono;
     private ViewGroup mFileLayout;
-    private ImageButton btnAction;
+    private ImageButton mActionButton;
     private CreateWaveDisplay mWaveDisplay;
     private Button mResetButton, mDeleteButton, mPlayButton, mEditButton, mSaveButton;
     private String mRecordErrorMessage, mCurrentDurationString;
@@ -86,9 +86,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     private CreateListener mCreateListener;
 
-    private Drawable
-            btn_rec_states_drawable,
-            btn_rec_stop_states_drawable;
+    private Drawable btn_rec_states_drawable, btn_rec_stop_states_drawable;
 
     public enum CreateState {
         IDLE_STANDBY_REC,
@@ -106,7 +104,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
     public static int PCM_REC_MAX_FILE_SIZE = -1;
 
     public CreateController(ScActivity c, ViewGroup vg, Uri recordingUri) {
-        this(c,vg,recordingUri, null);
+        this(c, vg, recordingUri, null);
     }
 
     public CreateController(ScActivity c, ViewGroup vg, Uri recordingUri, User privateUser) {
@@ -136,8 +134,45 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
         mFileLayout = (ViewGroup) vg.findViewById(R.id.file_layout);
 
-        btnAction = (ImageButton) vg.findViewById(R.id.btn_action);
-        btnAction.setOnClickListener(new View.OnClickListener() {
+        mActionButton = setupActionButton(vg);
+        mResetButton  = setupResetButton(vg);
+        mDeleteButton = setupDeleteButton(vg);
+        mPlayButton = setupPlaybutton(vg);
+        mEditButton = setupEditButton(vg);
+        mSaveButton = setupSaveButton(vg);
+
+        mWaveDisplay = new CreateWaveDisplay(mActivity);
+        mWaveDisplay.setTrimListener(this);
+        ((FrameLayout) vg.findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
+
+        mCurrentState = CreateState.IDLE_RECORD;
+        mRecordDir = IOUtils.ensureUpdatedDirectory(
+                new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
+                new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
+        mkdirs(mRecordDir);
+        setResetState();
+        updateUi(false);
+    }
+
+    private Button setupResetButton(ViewGroup vg) {
+        final Button button = ((Button) vg.findViewById(R.id.btn_reset));
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCurrentState.isEdit()) {
+                    mCurrentState = CreateState.IDLE_PLAYBACK;
+                } else {
+                    mActivity.track(Click.Record_discard);
+                    mActivity.showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
+                }
+                updateUi(true);
+            }
+        });
+        return button;
+    }
+    private ImageButton setupActionButton(ViewGroup vg) {
+        final ImageButton button = (ImageButton) vg.findViewById(R.id.btn_action);
+        button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (mCurrentState == CreateState.IDLE_STANDBY_REC) {
                     stopRecording();
@@ -163,35 +198,22 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 }
             }
         });
-
-        mResetButton = ((Button) vg.findViewById(R.id.btn_reset));
-        mResetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mCurrentState.isEdit()){
-                    mCurrentState = CreateState.IDLE_PLAYBACK;
-                } else {
-                    mActivity.track(Click.Record_discard);
-                    mActivity.showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
-
-                }
-                updateUi(true);
-            }
-        });
-
-        mDeleteButton = ((Button) vg.findViewById(R.id.btn_delete));
-        mDeleteButton.setOnClickListener(new View.OnClickListener() {
+        return button;
+    }
+    private Button setupDeleteButton(ViewGroup vg) {
+        final Button button = ((Button) vg.findViewById(R.id.btn_delete));
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mActivity.track(Click.Record_delete);
                 mActivity.showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
             }
         });
-
-        setResetState();
-
-        mPlayButton = ((Button) vg.findViewById(R.id.btn_play));
-        mPlayButton.setOnClickListener(new View.OnClickListener() {
+        return button;
+    }
+    private Button setupPlaybutton(ViewGroup vg) {
+        final Button button = ((Button) vg.findViewById(R.id.btn_play));
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 switch (mCurrentState) {
@@ -217,9 +239,11 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
             }
         });
-
-        mEditButton = ((Button) vg.findViewById(R.id.btn_edit));
-        mEditButton.setOnClickListener(new View.OnClickListener() {
+        return button;
+    }
+    private Button setupEditButton(ViewGroup vg) {
+        Button button = ((Button) vg.findViewById(R.id.btn_edit));
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mActivity.track(Click.Record_edit);
@@ -227,9 +251,11 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 updateUi(true);
             }
         });
-
-        mSaveButton = (Button) vg.findViewById(R.id.btn_save);
-        mSaveButton.setOnClickListener(new View.OnClickListener() {
+        return button;
+    }
+    private Button setupSaveButton(ViewGroup vg) {
+        final Button button = (Button) vg.findViewById(R.id.btn_save);
+        button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (mCurrentState.isEdit()) {
                     mCurrentState = CreateState.IDLE_PLAYBACK;
@@ -265,19 +291,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 }
             }
         });
-
-        mWaveDisplay = new CreateWaveDisplay(mActivity);
-        mWaveDisplay.setTrimListener(this);
-        ((FrameLayout) vg.findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
-
-        mCurrentState = CreateState.IDLE_RECORD;
-        mRecordDir = IOUtils.ensureUpdatedDirectory(
-                new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
-                new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
-        mkdirs(mRecordDir);
-        mRecordErrorMessage = "";
-
-        updateUi(false);
+        return button;
     }
 
     public void reset() {
@@ -361,7 +375,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
             }
         } else if (!mRecordDir.exists()) {
             // can happen when there's no mounted sd card
-            btnAction.setEnabled(false);
+            mActionButton.setEnabled(false);
         } else {
 
             if (mRecordFile == null && mPrivateUser != null) {
@@ -437,14 +451,14 @@ public class CreateController implements CreateWaveDisplay.Listener {
                     txtRecordMessage.setText(getRandomSuggestion());
                 }
 
-                btnAction.setImageDrawable(btn_rec_states_drawable);
+                mActionButton.setImageDrawable(btn_rec_states_drawable);
 
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
                 hideView(mChrono, false, View.INVISIBLE);
 
-                showView(btnAction, false);
+                showView(mActionButton, false);
                 showView(txtInstructions, takeAction && mLastState != CreateState.IDLE_RECORD);
                 showView(txtRecordMessage, takeAction && mLastState != CreateState.IDLE_RECORD);
 
@@ -464,8 +478,8 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 mPlayButton.setVisibility(View.GONE);
                 mEditButton.setVisibility(View.GONE);
 
-                btnAction.setVisibility(View.VISIBLE);
-                btnAction.setImageDrawable(btn_rec_states_drawable);
+                mActionButton.setVisibility(View.VISIBLE);
+                mActionButton.setImageDrawable(btn_rec_states_drawable);
 
                 txtRecordMessage.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.INVISIBLE);
@@ -482,10 +496,10 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 hideView(txtInstructions, false, View.GONE);
 
                 showView(mChrono, takeAction && mLastState == CreateState.IDLE_RECORD);
-                showView(btnAction, false);
+                showView(mActionButton, false);
                 showView(txtRecordMessage,false);
 
-                btnAction.setImageDrawable(btn_rec_stop_states_drawable);
+                mActionButton.setImageDrawable(btn_rec_stop_states_drawable);
                 txtRecordMessage.setText("");
                 mChrono.setText("");
 
@@ -519,7 +533,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 mPlayButton.setVisibility(View.GONE); // just to fool the animation
                 showView(mPlayButton, takeAction && (mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
                 showView(mEditButton, takeAction && (mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
-                showView(btnAction, takeAction && (mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
+                showView(mActionButton, takeAction && (mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
                 showView(mFileLayout, takeAction && (mLastState == CreateState.RECORD));
                 showView(mChrono,false);
 
@@ -528,14 +542,14 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
                 mPlayButton.setText(TEMP_PLAY);
                 mChrono.setText(mCurrentDurationString);
-                btnAction.setImageDrawable(btn_rec_states_drawable);
+                mActionButton.setImageDrawable(btn_rec_states_drawable);
 
 
                 setResetState();
                 break;
 
             case PLAYBACK:
-                showView(btnAction,false);
+                showView(mActionButton,false);
                 showView(mPlayButton,false);
                 showView(mEditButton,false);
                 showView(mFileLayout,false);
@@ -545,7 +559,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 hideView(txtRecordMessage,false,View.INVISIBLE);
 
                 mPlayButton.setText(TEMP_STOP);
-                btnAction.setImageDrawable(btn_rec_states_drawable);
+                mActionButton.setImageDrawable(btn_rec_states_drawable);
 
                 setResetState();
 
@@ -559,7 +573,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 showView(mResetButton,false);
                 showView(mFileLayout,false);
 
-                hideView(btnAction, false, View.GONE);
+                hideView(mActionButton, false, View.GONE);
                 hideView(mEditButton, false, View.GONE);
                 hideView(mDeleteButton,false, View.GONE);
                 hideView(txtInstructions,false,View.GONE);
@@ -587,22 +601,20 @@ public class CreateController implements CreateWaveDisplay.Listener {
         mWaveDisplay.setIsEditing(inEditState);
 
         mLastState = mCurrentState;
-        btnAction.setEnabled(true);
+        mActionButton.setEnabled(true);
     }
 
     private CharSequence getRandomSuggestion() {
+        // XXX
         return "Why don't you record the sounds of your street?";
     }
 
     private void startRecording() {
-        mActivity.pause();
-
-        mRecordErrorMessage = "";
+        mActivity.pausePlayback();
+        mRecordErrorMessage = null;
         mSampleInterrupted = false;
-
         mLastDisplayedTime = 0;
         mChrono.setText("0.00");
-
         mRemainingTimeCalculator.reset();
         updateTimeRemaining();
 
@@ -700,7 +712,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         }
 
         // disable actions during processing and playback preparation
-        btnAction.setEnabled(false);
+        mActionButton.setEnabled(false);
         loadPlaybackTrack();
     }
 
@@ -760,7 +772,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         }
     }
 
-    private Runnable mSmoothProgress = new Runnable() {
+    private final Runnable mSmoothProgress = new Runnable() {
         public void run() {
             if (mCurrentState == CreateState.PLAYBACK || mCurrentState == CreateState.EDIT_PLAYBACK) {
                 if (mLastTrackTime == -1) {
@@ -783,7 +795,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         }
     };
 
-    private Runnable mRefreshPositionFromService = new Runnable() {
+    private final Runnable mRefreshPositionFromService = new Runnable() {
         @Override
         public void run() {
             final boolean stillPlaying;
@@ -794,7 +806,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         }
     };
 
-    protected void setProgressInternal(long pos) {
+    private void setProgressInternal(long pos) {
         final long duration = getDuration();
         if (duration != 0){
             mWaveDisplay.setProgress(((float) Math.max(0,Math.min(pos,duration))) / duration);
@@ -907,7 +919,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
     }
 
 
-    public void onRecProgressUpdate(long elapsed) {
+    private void onRecProgressUpdate(long elapsed) {
         if (elapsed - mLastDisplayedTime > 1000) {
             mChrono.setText(CloudUtils.formatTimestamp(elapsed));
             updateTimeRemaining();
