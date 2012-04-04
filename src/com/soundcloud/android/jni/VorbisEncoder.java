@@ -39,8 +39,8 @@ public class VorbisEncoder {
         this.quality = quality;
     }
 
-    public VorbisEncoder(File file, String mode, AudioConfig config, float quality) throws EncoderException {
-        this(file, mode, config.channels, config.sampleRate, quality);
+    public VorbisEncoder(File file, String mode, AudioConfig config) throws EncoderException {
+        this(file, mode, config.channels, config.sampleRate, config.quality);
     }
 
     /**

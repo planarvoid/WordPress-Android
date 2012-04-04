@@ -141,7 +141,7 @@ public class CreateWaveView extends View {
 
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
          if (isRecording && mRecordStartIndex == -1) {
-            mRecordStartIndex = CloudRecorder.getInstance().writeIndex;
+            mRecordStartIndex = CloudRecorder.getInstance(getContext()).writeIndex;
         }
         postInvalidate();
     }
@@ -165,7 +165,7 @@ public class CreateWaveView extends View {
 
         assertAmplitudeHistory();
 
-        if (mRecordStartIndex == -1) mRecordStartIndex = CloudRecorder.getInstance().writeIndex;
+        if (mRecordStartIndex == -1) mRecordStartIndex = CloudRecorder.getInstance(getContext()).writeIndex;
 
         float normalizedTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
@@ -327,7 +327,7 @@ public class CreateWaveView extends View {
     }
 
     private void assertAmplitudeHistory(){
-        if (mAllAmplitudes == null) mAllAmplitudes = CloudRecorder.getInstance().amplitudes;
+        if (mAllAmplitudes == null) mAllAmplitudes = CloudRecorder.getInstance(getContext()).amplitudes;
     }
 }
 

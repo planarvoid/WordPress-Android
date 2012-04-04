@@ -186,15 +186,15 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.xiph</groupId>
-            <artifactId>libvorbis</artifactId>
-            <version>1.0.0-beta</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.at</groupId>
             <artifactId>ATInternet</artifactId>
             <version>1.1.003</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>support-v4</artifactId>
+            <version>r6</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -234,12 +234,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.novocode</groupId>
-            <artifactId>junit-interface</artifactId>
-            <version>0.7</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.9.1</artifactId>
             <version>1.7.1</version>
@@ -249,6 +243,12 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-compiler</artifactId>
             <version>2.9.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.novocode</groupId>
+            <artifactId>junit-interface</artifactId>
+            <version>0.8</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -4,24 +4,28 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
+import android.media.MediaRecorder;
 
 public enum AudioConfig {
-    PCM16_44100_2(16, 44100, 2),
-    PCM16_44100_1(16, 44100, 1),
+    PCM16_44100_2(16, 44100, 2, .5f),
+    PCM16_44100_1(16, 44100, 1, .5f),
     ;
 
     public final int sampleRate;
     public final int channels;
     public final int bitsPerSample;
     public final int bytesPerSecond;
+    public final float quality;
+    public final int source = MediaRecorder.AudioSource.MIC;
 
-    private AudioConfig(int bitsPerSample, int sampleRate, int channels) {
+    private AudioConfig(int bitsPerSample, int sampleRate, int channels, float quality) {
         if (bitsPerSample != 8 && bitsPerSample != 16) throw new IllegalArgumentException("invalid bitsPerSample:"+bitsPerSample);
         if (channels < 1 || channels > 2) throw new IllegalArgumentException("invalid channels:"+channels);
 
         this.bitsPerSample = bitsPerSample;
         this.sampleRate = sampleRate;
         this.channels = channels;
+        this.quality = quality;
         bytesPerSecond = sampleRate * (bitsPerSample / 8) * channels;
     }
 
@@ -41,8 +45,8 @@ public enum AudioConfig {
         return AudioTrack.getMinBufferSize(sampleRate, getChannelConfig(), getFormat());
     }
 
-    public AudioTrack createAudioTrack() {
-        return new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, getChannelConfig(), getFormat(), getMinBufferSize(), AudioTrack.MODE_STREAM);
+    public AudioTrack createAudioTrack(int bufferSize) {
+        return new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, getChannelConfig(), getFormat(), bufferSize, AudioTrack.MODE_STREAM);
     }
 
     public AudioRecord createAudioRecord(int source, int bufferSize) {
