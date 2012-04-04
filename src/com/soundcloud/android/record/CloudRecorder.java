@@ -55,7 +55,7 @@ public class CloudRecorder {
     private int mLastMax;
     private int mCurrentMaxAmplitude;
     private int mCurrentAdjustedMaxAmplitude;
-    private long mCurrentPosition, mTotalBytes, mStartPos, mEndPos, mNextSeek, mDuration;
+    private long mCurrentPosition, mTotalBytes, mStartPos, mEndPos, mDuration;
 
     private LocalBroadcastManager mBroadcastManager;
 
@@ -203,7 +203,7 @@ public class CloudRecorder {
 
     public void togglePlayback() {
         if (isPlaying()) {
-            stopRecording();
+            stopPlayback();
         } else {
             play();
         }
@@ -216,11 +216,11 @@ public class CloudRecorder {
     }
 
     public void seekToPercentage(float percentage) {
-        seekTo(mConfig.startPosition((long) (percentage * mTotalBytes)));
+        seekTo((long) (percentage * mTotalBytes));
     }
 
     public void seekTo(long position) {
-        mNextSeek = position;
+        mStartPos = position;
         mState = State.SEEKING;
     }
 
@@ -238,6 +238,15 @@ public class CloudRecorder {
         }
     }
 
+    private void broadcast(String action) {
+        final Intent intent = new Intent(action)
+                .putExtra(CloudCreateService.EXTRA_POSITION, mCurrentPosition)
+                .putExtra(CloudCreateService.EXTRA_STATE, mState.name())
+                .putExtra(CloudCreateService.EXTRA_PATH, mRecordStream == null ? null : mRecordStream.file.getAbsolutePath());
+        Log.d(TAG, "broadcast "+intent);
+        mBroadcastManager.sendBroadcast(intent);
+    }
+
     private class PlayerThread extends Thread {
         PlayerThread() {
             super("PlayerThread");
@@ -245,20 +254,23 @@ public class CloudRecorder {
         }
 
         private void play(RandomAccessFile file, long pos) throws IOException {
-            if (pos < file.length()) {
-                final int bufferSize = (int) (mConfig.bytesPerSecond / 0.25);
+            if (pos >= 0 && pos < file.length()) {
+                final int bufferSize = 8192;
                 byte[] buffer = new byte[bufferSize];
                 file.seek(pos);
                 mCurrentPosition = pos;
                 mState = CloudRecorder.State.PLAYING;
                 int n;
-
-                broadcast(CloudCreateService.PLAYBACK_STARTED);
-
                 while (mState == CloudRecorder.State.PLAYING && (n = file.read(buffer, 0, bufferSize)) > -1 && (mCurrentPosition < mEndPos)) {
-                    mCurrentPosition += mAudioTrack.write(buffer, 0, n);
-                    mDuration = mConfig.bytesToMs(mCurrentPosition);
-                    broadcast(CloudCreateService.PLAYBACK_PROGRESS);
+                    int written = mAudioTrack.write(buffer, 0, n);
+                    if (written < 0) {
+                        Log.d(TAG, "write() returned "+written);
+                        mState = CloudRecorder.State.ERROR;
+                    } else {
+                        mCurrentPosition += written;
+                        mDuration = mConfig.bytesToMs(mCurrentPosition);
+                        broadcast(CloudCreateService.PLAYBACK_PROGRESS);
+                    }
                 }
             } else {
                 Log.w(TAG, "dataStart > length: " + pos + ">" + file.length());
@@ -268,14 +280,15 @@ public class CloudRecorder {
 
         public void run() {
             synchronized (mAudioRecord) {
-                Log.d(TAG, String.format("starting player thread (%d)", mNextSeek));
+                Log.d(TAG, String.format("starting player thread (%d)", mStartPos));
                 mAudioTrack.play();
 
                 RandomAccessFile file = null;
                 try {
                     file = new RandomAccessFile(mRecordStream.file, "r");
+                    broadcast(CloudCreateService.PLAYBACK_STARTED);
                     do {
-                        play(file, mNextSeek);
+                        play(file, mConfig.startPosition(mStartPos)+WaveHeader.LENGTH);
                     } while (mState == CloudRecorder.State.SEEKING);
 
                 } catch (IOException e) {
@@ -296,12 +309,6 @@ public class CloudRecorder {
             }
         }
 
-        private void broadcast(String action) {
-            mBroadcastManager.sendBroadcast(new Intent(action)
-                    .putExtra(CloudCreateService.EXTRA_POSITION, mCurrentPosition)
-                    .putExtra(CloudCreateService.EXTRA_STATE, mState.name())
-                    .putExtra(CloudCreateService.EXTRA_PATH, mRecordStream == null ? null : mRecordStream.file.getAbsolutePath()));
-        }
     }
 
     private class ReaderThread extends Thread {
@@ -315,6 +322,7 @@ public class CloudRecorder {
             synchronized (mAudioRecord) {
                 Log.d(TAG, "starting reader thread");
 
+                broadcast(CloudCreateService.RECORD_STARTED);
                 mAudioRecord.startRecording();
                 queueNextRefresh(0); // start polling for data
                 while (mState == CloudRecorder.State.READING || mState == CloudRecorder.State.RECORDING) {
@@ -377,15 +385,7 @@ public class CloudRecorder {
                 mState = CloudRecorder.State.IDLE;
             }
         }
-
-        private void broadcast(String action) {
-            mBroadcastManager.sendBroadcast(new Intent(action)
-                    .putExtra(CloudCreateService.EXTRA_POSITION, mCurrentPosition)
-                    .putExtra(CloudCreateService.EXTRA_STATE, mState.name())
-                    .putExtra(CloudCreateService.EXTRA_PATH, mRecordStream == null ? null : mRecordStream.file.getAbsolutePath()));
-        }
     }
-
 
     public static IntentFilter getIntentFilter() {
         IntentFilter filter = new IntentFilter();

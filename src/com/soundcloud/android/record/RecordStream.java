@@ -44,7 +44,7 @@ public class RecordStream implements Closeable {
     }
 
     public long finalizeStream() {
-        if (!initialised) throw new IllegalStateException("stream not initialised");
+        if (!initialised) return -1;
 
         try {
             final long length = mWriter.length();

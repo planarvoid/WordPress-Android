@@ -203,8 +203,6 @@ public class CloudCreateService extends Service  {
         mRecordingFile = path;
         frameCount = 0;
 
-        sendBroadcast(new Intent(RECORD_STARTED));
-
         final long messageRecipient = CreateController.getPrivateUserIdFromPath(path);
 
         Intent intent = new Intent();
