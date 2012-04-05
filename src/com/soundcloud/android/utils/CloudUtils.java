@@ -3,7 +3,6 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
-import org.json.JSONException;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -20,8 +19,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -39,21 +36,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.BigInteger;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 public final class CloudUtils {
-    private static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
-    private static final String DURATION_FORMAT_LONG  = "%1$d.%3$02d.%5$02d";
 
     private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
             "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}" +
@@ -64,10 +52,6 @@ public final class CloudUtils {
                     "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
                     ")+"
     );
-
-    private static StringBuilder sBuilder = new StringBuilder();
-    private static Formatter sFormatter = new Formatter(sBuilder, Locale.getDefault());
-    private static final Object[] sTimeArgs = new Object[5];
 
     private static HashMap<Context, HashMap<Class<? extends Service>, ServiceConnection>> sConnectionMap
             = new HashMap<Context,HashMap<Class<? extends Service>, ServiceConnection>>();
@@ -143,39 +127,26 @@ public final class CloudUtils {
     }
 
     /**
-     * NOT THREAD-SAFE
-     * @param stringFormat the format string
-     * @param arg obj to be formatted
-     * @return the formatted string
-     */
-    public static String formatString(String stringFormat, Object arg) {
-        sBuilder.setLength(0);
-        return sFormatter.format(stringFormat, arg).toString();
-    }
-
-    /**
-     * NOT THREAD-SAFE
-     * @param pos play position
-     * @return formatted time string
+     * @param pos play position in ms
+     * @return formatted time string in the form of 0.05 or 2.12.04
      */
     public static String formatTimestamp(long pos){
-        return makeTimeString(pos < 3600000 ? DURATION_FORMAT_SHORT
-                : DURATION_FORMAT_LONG, pos / 1000);
+        StringBuilder builder = new StringBuilder();
+        int secs = (int) (pos / 1000);
+        int minutes = secs  / 60;
+        int hours = minutes / 60;
+        if (hours > 0) {
+            builder.append(hours);
+            builder.append('.');
+        }
+        minutes = minutes % 60;
+        if (hours > 0 && minutes < 10) builder.append('0');
+        secs = secs % 60;
+        builder.append(minutes).append('.');
+        if (secs < 10) builder.append('0');
+        builder.append(secs);
+        return builder.toString();
     }
-
-    /* package */ static String makeTimeString(String durationformat, long secs) {
-        sBuilder.setLength(0);
-        final Object[] timeArgs = sTimeArgs;
-        timeArgs[0] = ((int) secs / 3600);
-        timeArgs[1] = ((int) secs / 60);
-        timeArgs[2] = ((int) (secs / 60) % 60);
-        timeArgs[3] = ((int) secs);
-        timeArgs[4] = ((int) secs % 60);
-
-        // performance optimise - run in player loop
-        return sFormatter.format(durationformat, timeArgs).toString();
-    }
-
 
     public static CharSequence getElapsedTimeString(Resources r, long start, boolean longerText) {
         double elapsed = Double.valueOf(Math.ceil((System.currentTimeMillis() - start) / 1000d)).longValue();

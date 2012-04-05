@@ -68,15 +68,31 @@ public class CloudRecorder {
 
     private CloudRecorder(Context context, AudioConfig config) {
         final int bufferSize = config.getMinBufferSize() * 3;
+        mConfig = config;
         mAudioRecord = config.createAudioRecord(config.source, bufferSize);
+        mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
+            @Override public void onMarkerReached(AudioRecord audioRecord) {
+            }
+            @Override public void onPeriodicNotification(AudioRecord audioRecord) {
+                queueNextRefresh(0);
+            }
+        });
+        mAudioRecord.setPositionNotificationPeriod(mConfig.sampleRate / 50 /* fps */);
         mAudioTrack = config.createAudioTrack(bufferSize);
+        mAudioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
+            @Override public void onMarkerReached(AudioTrack track) {
+            }
+            @Override public void onPeriodicNotification(AudioTrack track) {
+                broadcast(CloudCreateService.PLAYBACK_PROGRESS);
+            }
+        });
+        mAudioTrack.setPositionNotificationPeriod(mConfig.sampleRate);
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
 
         buffer = ByteBuffer.allocateDirect(bufferSize);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
         mState = State.IDLE;
-        mConfig = config;
     }
 
     public void startReading() {
@@ -255,7 +271,7 @@ public class CloudRecorder {
 
         private void play(RandomAccessFile file, long pos) throws IOException {
             if (pos >= 0 && pos < file.length()) {
-                final int bufferSize = 8192;
+                final int bufferSize = mConfig.getMinBufferSize();
                 byte[] buffer = new byte[bufferSize];
                 file.seek(pos);
                 mCurrentPosition = pos;
@@ -268,8 +284,6 @@ public class CloudRecorder {
                         mState = CloudRecorder.State.ERROR;
                     } else {
                         mCurrentPosition += written;
-                        mDuration = mConfig.bytesToMs(mCurrentPosition);
-                        broadcast(CloudCreateService.PLAYBACK_PROGRESS);
                     }
                 }
             } else {
@@ -372,7 +386,6 @@ public class CloudRecorder {
                             TIMER_INTERVAL - (System.currentTimeMillis() - start)));
                 }
                 Log.d(TAG, "exiting reader loop, stopping recording (mState="+mState+")");
-                refreshHandler.removeMessages(REFRESH);
                 mAudioRecord.stop();
 
                 if (mState != CloudRecorder.State.ERROR) {

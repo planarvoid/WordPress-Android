@@ -38,4 +38,11 @@ public class CloudUtilsTest {
         Settings.Secure.putString(Robolectric.application.getContentResolver(), Settings.Secure.ANDROID_ID, "foobar");
         expect(CloudUtils.getUniqueDeviceID(Robolectric.application)).toEqual("3858f62230ac3c915f300c664312c63f");
     }
+
+    @Test
+    public void shouldFormatTimeString() throws Exception {
+        expect(CloudUtils.formatTimestamp(5 * 1000)).toEqual("0.05");
+        expect(CloudUtils.formatTimestamp(60 * 1000 * 5)).toEqual("5.00");
+        expect(CloudUtils.formatTimestamp(60 * 1000 * 60 * 3)).toEqual("3.00.00");
+    }
 }

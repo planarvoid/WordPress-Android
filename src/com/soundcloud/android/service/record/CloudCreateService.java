@@ -14,7 +14,6 @@ import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.record.AudioConfig;
 import com.soundcloud.android.task.UploadTask;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.record.CloudRecorder;
@@ -96,7 +95,7 @@ public class CloudCreateService extends Service  {
     private RemoteViews mUploadNotificationView;
     private Notification mRecordNotification, mUploadNotification;
     private NotificationManager nm;
-    private String mRecordEventTitle, mRecordEventMessage, mPlaybackTitle;
+    private String mRecordEventTitle, mPlaybackTitle;
 
     private LocalBroadcastManager mBroadcastManager;
 
@@ -154,6 +153,7 @@ public class CloudCreateService extends Service  {
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
 
 
+        // TODO unregister
         mBroadcastManager.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -216,8 +216,10 @@ public class CloudCreateService extends Service  {
         mRecordPendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         mRecordNotification = createOngoingNotification(getString(R.string.cloud_recorder_notification_ticker), mRecordPendingIntent);
         mRecordEventTitle = getString(R.string.cloud_recorder_event_title);
-        mRecordEventMessage = getString(R.string.cloud_recorder_event_message);
-        mRecordNotification.setLatestEventInfo(this, mRecordEventTitle, CloudUtils.formatString(mRecordEventMessage, 0), mRecordPendingIntent);
+        mRecordNotification.setLatestEventInfo(this, mRecordEventTitle,
+                getString(R.string.cloud_recorder_event_message, 0),
+                mRecordPendingIntent);
+
         startForeground(RECORD_NOTIFY_ID, mRecordNotification);
         mRecording = true;
         if (mRecorder.startRecording(mRecordingFile) == CloudRecorder.State.ERROR) {
@@ -312,10 +314,7 @@ public class CloudCreateService extends Service  {
                 getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification mPlaybackNotification = createOngoingNotification(
-                CloudUtils.formatString(
-                        getApplicationContext()
-                                .getResources()
-                                .getString(R.string.cloud_recorder_playback_notification_ticker),
+                getString(R.string.cloud_recorder_playback_notification_ticker,
                         mPlaybackTitle),
                 pendingIntent);
 
@@ -467,7 +466,7 @@ public class CloudCreateService extends Service  {
 
     /* package */ void updateRecordTicker(long recordTimeMs) {
         mRecordNotification.setLatestEventInfo(this, mRecordEventTitle,
-                CloudUtils.formatString(mRecordEventMessage, recordTimeMs / 1000), mRecordPendingIntent);
+                getString(R.string.cloud_recorder_event_message, recordTimeMs / 1000), mRecordPendingIntent);
 
         nm.notify(RECORD_NOTIFY_ID, mRecordNotification);
     }
