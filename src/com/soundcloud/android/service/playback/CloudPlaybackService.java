@@ -343,7 +343,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
     private void applyCurrentMetadata(final Track track){
         if (SoundCloudApplication.useRichNotifications()) {
-            final String artworkUri = track.getListArtworkUrl(this);
+            final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
                 final Bitmap bmp = ImageLoader.get(this).getBitmap(artworkUri, null, new ImageLoader.Options(false));
                 if (bmp != null) {

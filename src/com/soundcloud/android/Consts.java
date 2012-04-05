@@ -89,8 +89,8 @@ public final class Consts {
             return Unknown;
         }
 
-        public static String formatUriForList(Context c, String url){
-            return getListItemGraphicSize(c).formatUri(url);
+        public static String formatUriForList(Context c, String uri){
+            return getListItemGraphicSize(c).formatUri(uri);
         }
 
         public static Consts.GraphicSize getListItemGraphicSize(Context c) {
@@ -103,6 +103,15 @@ public final class Consts {
                     return Consts.GraphicSize.BADGE;
                 }
             }
+        }
+
+        public static String formatUriForPlayer(Context c, String uri) {
+            return getPlayerGraphicSize(c).formatUri(uri);
+        }
+
+        public static Consts.GraphicSize getPlayerGraphicSize(Context c) {
+            // for now, just return T500. logic will come with more screen support
+            return GraphicSize.T500;
         }
 
         public String formatUri(String uri) {
@@ -131,6 +140,7 @@ public final class Consts {
             }
             return valid == null ? Unknown : valid;
         }
+
     }
 
     public interface ListId {
