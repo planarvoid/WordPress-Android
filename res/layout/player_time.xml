@@ -4,11 +4,14 @@
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:layout_marginTop="5dp"
+              android:layout_alignParentTop="true"
+              android:ellipsize="end"
+              android:layout_above="@+id/player_time_display"
               style="@style/txt_player_time_instructrions"
               android:text="@string/drag_waveform_comment"
               android:gravity="center"
               android:visibility="gone"/>
     <include layout="@layout/player_time_common"
              android:layout_centerHorizontal="true"
-            android:id="@+id/player_time_display"/>
+            android:id="@id/player_time_display"/>
 </merge>
