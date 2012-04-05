@@ -530,7 +530,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
             if (mMediaPlayer != null && state.isStartable()) {
                 // resume
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.start");
-
                 mMediaPlayer.start();
                 state = PLAYING;
                 setPlayingNotification(mCurrentTrack);
@@ -1093,8 +1092,12 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                     break;
 
                 case MediaPlayer.MEDIA_INFO_BUFFERING_END:
-                    mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
-                    mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
+                    if (mSeekPos != -1 && !mWaitingForSeek) {
+                        mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
+                        mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
+                    } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "Not clearing seek, waiting for seek to finish");
+                    }
 
                     state = PLAYING;
                     notifyChange(BUFFERING_COMPLETE);
@@ -1123,9 +1126,16 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
             }
 
             if (mMediaPlayer == mp) {
-                // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
-                mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
-                mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
+                // only clear seek if we are not buffering. If we are buffering, it will be cleard after buffering completes
+                if (state != State.PAUSED_FOR_BUFFERING){
+                    // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
+                    mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
+                    mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
+                } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Not clearing seek, waiting for buffer");
+                }
+
+
                 mWaitingForSeek = false;
                 notifyChange(SEEK_COMPLETE);
             }
@@ -1142,7 +1152,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
             final long targetPosition = (mSeekPos != -1) ? mSeekPos :
                                         (mResumeTime > -1 && mResumeTrackId == getTrackId()) ? mResumeTime :
                                         (mp.getCurrentPosition() <= 0 && state == PLAYING) ? getDuration() : mp.getCurrentPosition();
-
             // premature track end ?
             if (isSeekable() && getDuration() - targetPosition > 3000) {
                 Log.w(TAG, "premature end of track (targetpos="+targetPosition+")");
@@ -1174,9 +1183,12 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
                             Log.d(TAG, "resuming to "+mResumeTime);
                         }
+
+                        // play before seek to prevent ANR
+                        play();
                         seek(mResumeTime, true);
                         mResumeTime = mResumeTrackId = -1;
-                        play();
+
 
                     // normal play, unless first start (autopause=true)
                     } else {
