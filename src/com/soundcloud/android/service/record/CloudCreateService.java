@@ -152,7 +152,7 @@ public class CloudCreateService extends Service  {
         mRecorder = CloudRecorder.getInstance(this);
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
 
-
+        if (mBroadcastManager != null) // XXX robolectric, tmp
         // TODO unregister
         mBroadcastManager.registerReceiver(new BroadcastReceiver() {
             @Override
