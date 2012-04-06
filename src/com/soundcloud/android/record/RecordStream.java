@@ -34,13 +34,15 @@ public class RecordStream implements Closeable {
         if (!initialised) {
             initialise();
         }
+
         mWriter.getChannel().write(buffer);
         mEncoder.addSamples(buffer, length);
+
         return length;
     }
 
     public long length() {
-        return file.length();
+        return file == null ? 0 : file.length();
     }
 
     public long finalizeStream() {
@@ -74,6 +76,18 @@ public class RecordStream implements Closeable {
         }
     }
 
+    @Override public void close() throws IOException {
+        finalizeStream();
+    }
+
+    public Uri toUri() {
+        return Uri.fromFile(file);
+    }
+
+    public long elapsedTime() {
+        return config.bytesToMs(length());
+    }
+
     private void initialise() throws IOException {
         mWriter = new RandomAccessFile(file, "rw");
         mEncoder = new VorbisEncoder(new File(file.getParentFile(), file.getName().concat(".ogg")), "a", config);
@@ -87,14 +101,5 @@ public class RecordStream implements Closeable {
             mWriter.seek(mWriter.length());
         }
         initialised = true;
-    }
-
-    @Override
-    public void close() throws IOException {
-        finalizeStream();
-    }
-
-    public Uri toUri() {
-        return Uri.fromFile(file);
     }
 }

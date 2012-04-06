@@ -82,7 +82,7 @@ public class VorbisEncoder {
     }
 
     // native methods
-    native public int init(String output, String mode, long channels, long rate, float quality);
+    native private int init(String output, String mode, long channels, long rate, float quality);
     native public int addSamples(ByteBuffer samples, long length);
     native public int finish();
 

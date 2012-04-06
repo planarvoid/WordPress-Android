@@ -49,7 +49,7 @@ public enum AudioConfig {
         return new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, getChannelConfig(), getFormat(), bufferSize, AudioTrack.MODE_STREAM);
     }
 
-    public AudioRecord createAudioRecord(int source, int bufferSize) {
+    public AudioRecord createAudioRecord(int bufferSize) {
         return new AudioRecord(source, sampleRate, getChannelConfig(), getFormat(), bufferSize);
     }
 

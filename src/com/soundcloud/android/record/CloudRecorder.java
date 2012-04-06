@@ -26,13 +26,11 @@ import java.util.List;
 public class CloudRecorder {
     /* package */ static final String TAG = CloudRecorder.class.getSimpleName();
 
-    public static final int TIMER_INTERVAL = 20;
-    private static final int REFRESH = 1;
+    public static final int FPS = 50;
+    public static final int TIMER_INTERVAL = 1000 / FPS;
     private static final int TRIM_PREVIEW_LENGTH = 500;
-    private static final float MAX_ADJUSTED_AMPLITUDE = (float) Math.sqrt(Math.sqrt(32768.0));
 
     private static CloudRecorder instance;
-
 
     public enum State {
         IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING
@@ -48,13 +46,11 @@ public class CloudRecorder {
     private final AudioTrack mAudioTrack;
 
     private RecordStream mRecordStream;
+    private AmplitudeAnalyzer mAmplitudeAnalyzer;
 
     final private AudioConfig mConfig;
     final private ByteBuffer buffer;
 
-    private int mLastMax;
-    private int mCurrentMaxAmplitude;
-    private int mCurrentAdjustedMaxAmplitude;
     private long mCurrentPosition, mTotalBytes, mStartPos, mEndPos, mDuration;
 
     private LocalBroadcastManager mBroadcastManager;
@@ -69,15 +65,15 @@ public class CloudRecorder {
     private CloudRecorder(Context context, AudioConfig config) {
         final int bufferSize = config.getMinBufferSize() * 3;
         mConfig = config;
-        mAudioRecord = config.createAudioRecord(config.source, bufferSize);
+        mAudioRecord = config.createAudioRecord(bufferSize);
         mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
             @Override public void onMarkerReached(AudioRecord audioRecord) {
             }
             @Override public void onPeriodicNotification(AudioRecord audioRecord) {
-                queueNextRefresh(0);
+                refreshHandler.sendEmptyMessage(0);
             }
         });
-        mAudioRecord.setPositionNotificationPeriod(mConfig.sampleRate / 50 /* fps */);
+        mAudioRecord.setPositionNotificationPeriod(mConfig.sampleRate / FPS);
         mAudioTrack = config.createAudioTrack(bufferSize);
         mAudioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override public void onMarkerReached(AudioTrack track) {
@@ -91,7 +87,7 @@ public class CloudRecorder {
 
         buffer = ByteBuffer.allocateDirect(bufferSize);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-
+        mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
         mState = State.IDLE;
     }
 
@@ -146,59 +142,20 @@ public class CloudRecorder {
     private final Handler refreshHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case REFRESH:
-                    if (mState != State.RECORDING && mState != State.READING) {
-                        refreshHandler.removeMessages(REFRESH);
-                        return;
-                    }
-
-                    int mCurrentMax = mCurrentMaxAmplitude;
-                    mCurrentMaxAmplitude = 0;
-
-                    // max amplitude returns false 0's sometimes, so just
-                    // use the last value. It is usually only for a frame
-                    if (mCurrentMax == 0) {
-                        mCurrentMax = mLastMax;
-                    } else {
-                        mLastMax = mCurrentMax;
-                    }
-
-                    // Simple peak follower, cf. http://www.musicdsp.org/showone.php?id=19
-                    if ( mCurrentMax >= mCurrentAdjustedMaxAmplitude ) {
-                        /* When we hit a peak, ride the peak to the top. */
-                        mCurrentAdjustedMaxAmplitude = mCurrentMax;
-                    } else {
-                        /*  decay of output when signal is low. */
-                        mCurrentAdjustedMaxAmplitude = (int) (mCurrentAdjustedMaxAmplitude * .4);
-                    }
-
-                    if (mState == State.RECORDING && writeIndex == -1) {
-                        writeIndex = amplitudes.size();
-                    }
-                    long elapsedTime = mState != State.RECORDING ? -1 : mConfig.bytesToMs(mRecordStream.length());
-                    final float frameAmplitude = Math.max(.1f,
-                            ((float) Math.sqrt(Math.sqrt(mCurrentAdjustedMaxAmplitude)))
-                                    / MAX_ADJUSTED_AMPLITUDE);
-
-                    amplitudes.add(frameAmplitude);
-                    Intent intent = new Intent(CloudCreateService.RECORD_PROGRESS)
-                            .putExtra(CloudCreateService.EXTRA_AMPLITUDE, frameAmplitude)
-                            .putExtra(CloudCreateService.EXTRA_ELAPSEDTIME, elapsedTime);
-
-                    mBroadcastManager.sendBroadcast(intent);
-                    queueNextRefresh(TIMER_INTERVAL);
-                    break;
-                default:
+            if (mState == State.RECORDING && writeIndex == -1) {
+                writeIndex = amplitudes.size();
             }
+
+            final float frameAmplitude = mAmplitudeAnalyzer.frameAmplitude();
+            amplitudes.add(frameAmplitude);
+
+            Intent intent = new Intent(CloudCreateService.RECORD_PROGRESS)
+                    .putExtra(CloudCreateService.EXTRA_AMPLITUDE, frameAmplitude)
+                    .putExtra(CloudCreateService.EXTRA_ELAPSEDTIME, mRecordStream.elapsedTime());
+
+            mBroadcastManager.sendBroadcast(intent);
         }
     };
-
-    private void queueNextRefresh(long delay) {
-        Message msg = refreshHandler.obtainMessage(REFRESH);
-        refreshHandler.removeMessages(REFRESH);
-        refreshHandler.sendMessageDelayed(msg, delay);
-    }
 
     public long getDuration() {
         return mDuration;
@@ -322,7 +279,6 @@ public class CloudRecorder {
                 mState = CloudRecorder.State.IDLE;
             }
         }
-
     }
 
     private class ReaderThread extends Thread {
@@ -338,7 +294,6 @@ public class CloudRecorder {
 
                 broadcast(CloudCreateService.RECORD_STARTED);
                 mAudioRecord.startRecording();
-                queueNextRefresh(0); // start polling for data
                 while (mState == CloudRecorder.State.READING || mState == CloudRecorder.State.RECORDING) {
                     final long start = System.currentTimeMillis();
 
@@ -364,23 +319,7 @@ public class CloudRecorder {
                                 break;
                             }
                         }
-
-                        buffer.rewind();
-                        buffer.limit(read);
-                        while (buffer.position() < buffer.limit()) {
-                            int value;
-                            switch (mConfig.bitsPerSample) {
-                                case 16:
-                                    value = buffer.getShort();
-                                    break;
-                                case 8:
-                                    value = buffer.get();
-                                    break;
-                                default:
-                                    value = 0;
-                            }
-                            if (value > mCurrentMaxAmplitude) mCurrentMaxAmplitude = value;
-                        }
+                        mAmplitudeAnalyzer.updateCurrentMax(buffer, read);
                     }
                     SystemClock.sleep(Math.max(5,
                             TIMER_INTERVAL - (System.currentTimeMillis() - start)));
