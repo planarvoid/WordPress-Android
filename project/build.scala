@@ -30,8 +30,7 @@ object AndroidBuild extends Build {
     "com.google.android" % "filecache" % "r153",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
     "com.at" % "ATInternet" % "1.1.003",
-    "com.google.android" % "support-v4" % "r6",
-    "com.google.android" % "android" % "2.3.3" % "provided"
+    "com.google.android" % "support-v4" % "r6"
   )
 
   val testDependencies = Seq(
@@ -42,6 +41,7 @@ object AndroidBuild extends Build {
     "com.github.xian" % "great-expectations" % "0.10" % "test",
     "org.scalatest" %% "scalatest" % "1.7.1" % "test",
     "org.scala-lang" % "scala-compiler" % "2.9.1" % "test",
+    "com.google.android" % "android" % "2.3.3" % "test",
     junit_interface
   )
 
@@ -73,22 +73,20 @@ object AndroidBuild extends Build {
       resourceDirectory  <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
       parallelExecution  := false,
       unmanagedClasspath := Seq.empty
-    )) ++
-      AndroidInstall.settings ++
-      Mavenizer.settings
+    )) ++ AndroidInstall.settings ++ AndroidNdk.settings
 
   // main project
   lazy val soundcloud_android = Project(
     "soundcloud-android",
     file("."),
-    settings = projectSettings ++ AndroidNdk.settings ++ AmazonHelper.settings ++ inConfig(Android)(Seq(
+    settings = projectSettings ++ inConfig(Android)(Seq(
       jniSourcePath <<= baseDirectory / "jni",
       jniClasses := Seq(
         "com.soundcloud.android.jni.VorbisEncoder",
         "com.soundcloud.android.jni.VorbisDecoder"
       ),
       javahOutputDirectory <<= (baseDirectory) (_ / "jni" / "include" / "soundcloud")
-    ))
+    )) ++ Mavenizer.settings ++ CopyLibs.settings ++ AmazonHelper.settings
   )
 
   // beta project
@@ -102,7 +100,7 @@ object AndroidBuild extends Build {
   // integration tests
   lazy val Integration = config("int")
   lazy val soundcloud_android_tests = Project(
-    "soundcloud-android-tests",
+    "tests-integration",
     file("tests-integration"),
     settings = General.settings ++
                AndroidTest.settings ++ Seq(
@@ -123,7 +121,7 @@ object AndroidBuild extends Build {
       dxInputs       <<= (compile in Compile, managedClasspath in Integration, classDirectory in Compile) map {
           (_, managedClasspath, classDirectory) => managedClasspath.map(_.data) :+ classDirectory
       }
-    ))
+    )) ++ CopyLibs.settings
   ).configs(Integration)
    .settings(inConfig(Integration)(Defaults.testSettings) : _*)
    .dependsOn(soundcloud_android)
