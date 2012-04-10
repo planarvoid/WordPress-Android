@@ -11,6 +11,7 @@ Clone and build it:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git
     $ cd SoundCloud-Android
+    $ git submodule init && git submodule update
     $ mvn install
     $ adb install target/soundcloud-android-X.Y-SNAPSHOT.apk
 
