@@ -162,14 +162,18 @@ public class CloudCreateService extends Service  {
 
                 } else if (PLAYBACK_COMPLETE.equals(action) || PLAYBACK_ERROR.equals(action)) {
                     onPlaybackComplete();
-                } else if (RECORD_STARTED.equals(action)){
+                } else {
+                    if (RECORD_STARTED.equals(action)){
 
-                } else if (RECORD_PROGRESS.equals(action)) {
-                    onFrameUpdate(
-                            intent.getFloatExtra(CloudCreateService.EXTRA_AMPLITUDE, -1f),
-                            intent.getLongExtra(CloudCreateService.EXTRA_ELAPSEDTIME, -1l));
-                } else if (RECORD_FINISHED.equals(action)){
+                    } else if (RECORD_PROGRESS.equals(action)) {
+                        final long recordTimeMs = intent.getLongExtra(CloudCreateService.EXTRA_ELAPSEDTIME,-1l);
+                        if (recordTimeMs > -1 && frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) {
+                            updateRecordTicker(recordTimeMs);
+                        }
 
+                    } else if (RECORD_FINISHED.equals(action)){
+
+                    }
                 }
             }
         }, CloudRecorder.getIntentFilter());
@@ -231,11 +235,6 @@ public class CloudCreateService extends Service  {
         return mRecordingFile;
     }
 
-
-    public void onFrameUpdate(float maxAmplitude, long recordTimeMs) {
-        // this should happen every second
-        if (recordTimeMs > -1 && frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) updateRecordTicker(recordTimeMs);
-    }
 
     public void stopRecording() {
         if (mRecorder != null) {

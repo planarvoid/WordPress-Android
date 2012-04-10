@@ -151,7 +151,7 @@ public class CloudRecorder {
 
             Intent intent = new Intent(CloudCreateService.RECORD_PROGRESS)
                     .putExtra(CloudCreateService.EXTRA_AMPLITUDE, frameAmplitude)
-                    .putExtra(CloudCreateService.EXTRA_ELAPSEDTIME, mRecordStream.elapsedTime());
+                    .putExtra(CloudCreateService.EXTRA_ELAPSEDTIME, mRecordStream == null ? -1 : mRecordStream.elapsedTime());
 
             mBroadcastManager.sendBroadcast(intent);
         }
