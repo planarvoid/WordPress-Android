@@ -50,6 +50,7 @@ public class CloudRecorder {
 
     final private AudioConfig mConfig;
     final private ByteBuffer buffer;
+    final private int bufferReadSize;
 
     private long mCurrentPosition, mTotalBytes, mStartPos, mEndPos, mDuration;
 
@@ -63,17 +64,9 @@ public class CloudRecorder {
     }
 
     private CloudRecorder(Context context, AudioConfig config) {
-        final int bufferSize = config.getMinBufferSize() * 3;
+        final int bufferSize = config.getMinBufferSize();
         mConfig = config;
         mAudioRecord = config.createAudioRecord(bufferSize);
-        mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
-            @Override public void onMarkerReached(AudioRecord audioRecord) {
-            }
-            @Override public void onPeriodicNotification(AudioRecord audioRecord) {
-                refreshHandler.sendEmptyMessage(0);
-            }
-        });
-        mAudioRecord.setPositionNotificationPeriod(mConfig.sampleRate / FPS);
         mAudioTrack = config.createAudioTrack(bufferSize);
         mAudioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override public void onMarkerReached(AudioTrack track) {
@@ -87,6 +80,7 @@ public class CloudRecorder {
 
         buffer = ByteBuffer.allocateDirect(bufferSize);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
+        bufferReadSize =mConfig.sampleRate / (FPS);
         mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
         mState = State.IDLE;
     }
@@ -298,7 +292,7 @@ public class CloudRecorder {
                     final long start = System.currentTimeMillis();
 
                     buffer.rewind();
-                    final int read = mAudioRecord.read(buffer, buffer.capacity());
+                    final int read = mAudioRecord.read(buffer, bufferReadSize);
 
                     if (read < 0) {
                         Log.w(TAG, "AudioRecord.read() returned error: " + read);
@@ -320,6 +314,7 @@ public class CloudRecorder {
                             }
                         }
                         mAmplitudeAnalyzer.updateCurrentMax(buffer, read);
+                        refreshHandler.sendEmptyMessage(0);
                     }
                     SystemClock.sleep(Math.max(5,
                             TIMER_INTERVAL - (System.currentTimeMillis() - start)));
