@@ -794,6 +794,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     private void stopPlayback() {
         mHandler.removeCallbacks(mSmoothProgress);
+        mHandler.removeCallbacks(mRefreshPositionFromService);
         mDuration = 0;
         mCreateService.stopPlayback();
     }

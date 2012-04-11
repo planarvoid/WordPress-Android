@@ -212,7 +212,7 @@ public class CloudRecorder {
 
     private void broadcast(String action) {
         final Intent intent = new Intent(action)
-                .putExtra(CloudCreateService.EXTRA_POSITION, mCurrentPosition)
+                .putExtra(CloudCreateService.EXTRA_POSITION, getCurrentPlaybackPosition())
                 .putExtra(CloudCreateService.EXTRA_STATE, mState.name())
                 .putExtra(CloudCreateService.EXTRA_PATH, mRecordStream == null ? null : mRecordStream.file.getAbsolutePath());
         Log.d(TAG, "broadcast "+intent);
@@ -258,7 +258,8 @@ public class CloudRecorder {
                     file = new RandomAccessFile(mRecordStream.file, "r");
                     broadcast(CloudCreateService.PLAYBACK_STARTED);
                     do {
-                        play(file, mConfig.validBytePosition(mStartPos)+WaveHeader.LENGTH);
+                        final long start = mConfig.validBytePosition(mStartPos)+WaveHeader.LENGTH;
+                        play(file, mCurrentPosition > start && mCurrentPosition < mEndPos ? mCurrentPosition : start);
                     } while (mState == CloudRecorder.State.SEEKING);
 
                 } catch (IOException e) {
@@ -271,6 +272,7 @@ public class CloudRecorder {
 
                 Log.d(TAG, "player loop exit: state="+mState);
                 if (mState == CloudRecorder.State.PLAYING && mCurrentPosition >= mEndPos) {
+                    mCurrentPosition = -1;
                     broadcast(CloudCreateService.PLAYBACK_COMPLETE);
                 } else {
                     broadcast(CloudCreateService.PLAYBACK_STOPPED);
