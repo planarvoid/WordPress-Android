@@ -104,13 +104,15 @@ object AndroidBuild extends Build {
     file("tests-integration"),
     settings = General.settings ++
                AndroidTest.settings ++ Seq(
-      name:= "tests",
+      name := "tests-integration",
       libraryDependencies ++= integrationTestDependencies,
       resolvers           ++= repos,
+      unmanagedBase       <<= baseDirectory / "lib-unmanaged", // make sure dl'ed libs don't get picked up
       javaSource       in Compile <<= (baseDirectory) (_ / "src" / "java"),
       managedClasspath in Compile <<= managedClasspath in Integration,
       // also compile in Test for test discovery
       javaSource       in Test    <<= javaSource in Compile,
+      managedClasspath in Test    <<= managedClasspath in Compile,
       compile          in Test    <<= (compile in Test) triggeredBy (compile in Compile)
     ) ++ inConfig(Android)(Seq(
       useProguard    := false,
