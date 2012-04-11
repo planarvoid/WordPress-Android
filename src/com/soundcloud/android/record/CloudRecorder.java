@@ -104,8 +104,13 @@ public class CloudRecorder {
     }
 
     public void stopRecording() {
+        // by default, only stop if actually recording (writing)
+        stopRecording(false);
+    }
+
+    public void stopRecording(boolean stopIfReading) {
         if (mState == State.RECORDING ||
-            mState == State.READING) {
+            (mState == State.READING && stopIfReading)) {
             mState = State.STOPPING;
         }
     }
@@ -118,7 +123,7 @@ public class CloudRecorder {
 
     public void onDestroy() {
         stopPlayback();
-        stopRecording();
+        stopRecording(true);
 //        mAudioRecord.release();
 //        mAudioTrack.release();
     }
