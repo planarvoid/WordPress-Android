@@ -25,8 +25,12 @@ Dependencies should not be included in the repo, they are declared in the sbt
 build file `project/build.scala`, split in `coreDependencies` and `testDependencies`.
 
 Based on `build.scala` you can regenerate the `pom.xml` using `sbt mavenize`. To
-actually download the dependencies to your working directory use `mvn
-process-resources -U`, this will populate `lib/` and `tests/lib`.
+actually download and copy the dependencies to your working directory use
+`sbt android:copy-libs`, this will populate `lib/` and `tests/lib`.
+
+To download dependencies for the integration tests:
+`sbt 'project tests-integration' android:copy-libs'` (this will populate
+`tests-integration/lib`).
 
 ## Releasing (Android market)
 

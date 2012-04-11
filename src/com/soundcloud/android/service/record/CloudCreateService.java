@@ -162,18 +162,15 @@ public class CloudCreateService extends Service  {
 
                 } else if (PLAYBACK_COMPLETE.equals(action) || PLAYBACK_ERROR.equals(action)) {
                     onPlaybackComplete();
-                } else {
-                    if (RECORD_STARTED.equals(action)){
+                } else if (RECORD_STARTED.equals(action)) {
 
-                    } else if (RECORD_PROGRESS.equals(action)) {
-                        final long recordTimeMs = intent.getLongExtra(CloudCreateService.EXTRA_ELAPSEDTIME,-1l);
-                        if (recordTimeMs > -1 && frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL)  == 0) {
-                            updateRecordTicker(recordTimeMs);
-                        }
-
-                    } else if (RECORD_FINISHED.equals(action)){
-
+                } else if (RECORD_PROGRESS.equals(action)) {
+                    final long recordTimeMs = intent.getLongExtra(CloudCreateService.EXTRA_ELAPSEDTIME, -1l);
+                    if (mRecordNotification != null && recordTimeMs > -1 && frameCount++ % (1000 / CloudRecorder.TIMER_INTERVAL) == 0) {
+                        updateRecordTicker(mRecordNotification, recordTimeMs);
                     }
+                } else if (RECORD_FINISHED.equals(action)) {
+
                 }
             }
         }, CloudRecorder.getIntentFilter());
@@ -463,11 +460,10 @@ public class CloudCreateService extends Service  {
         gotoIdleState();
     }
 
-    /* package */ void updateRecordTicker(long recordTimeMs) {
-        mRecordNotification.setLatestEventInfo(this, mRecordEventTitle,
+    /* package */ void updateRecordTicker(Notification notification, long recordTimeMs) {
+        notification.setLatestEventInfo(this, mRecordEventTitle,
                 getString(R.string.cloud_recorder_event_message, recordTimeMs / 1000), mRecordPendingIntent);
-
-        nm.notify(RECORD_NOTIFY_ID, mRecordNotification);
+        nm.notify(RECORD_NOTIFY_ID, notification);
     }
 
     private boolean sendUploadingNotification(){
