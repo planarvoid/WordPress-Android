@@ -1,19 +1,18 @@
 package com.soundcloud.android.view.create;
 
-import android.graphics.Matrix;
-import com.soundcloud.android.R;
-import com.soundcloud.android.record.CloudRecorder;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
+import com.soundcloud.android.R;
+import com.soundcloud.android.record.CloudRecorder;
 
 import java.util.List;
 
@@ -156,6 +155,8 @@ public class CreateWaveView extends View {
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
          if (mMaxWaveHeight == 0) return;
 
+        assertAmplitudeHistory();
+
         if (mZoomBitmap != null) {
             // if the new line would go over the edge, copy the last half of the old bitmap into the first half of the new bitmap
             if (nextBufferX + 1 > mZoomBitmap.getWidth()) {
@@ -280,7 +281,7 @@ public class CreateWaveView extends View {
 
     private void drawZoomWave(Canvas c) {
 
-        assertAmplitudeHistory();
+        if (mAllAmplitudes == null) return;
 
         float normalizedTime = Math.min(1.0f,(((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
