@@ -304,8 +304,6 @@ public class CreateController implements CreateWaveDisplay.Listener {
     @Override
     public void onSeek(float pos) {
         if (mCreateService != null) {
-            mHandler.removeCallbacks(mRefreshPositionFromService);
-            mHandler.removeCallbacks(mSmoothProgress);
             mLastTrackTime = -1;
             mCreateService.seekTo(pos);
         }
@@ -794,6 +792,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     private void stopPlayback() {
         mHandler.removeCallbacks(mSmoothProgress);
+        mHandler.removeCallbacks(mRefreshPositionFromService);
         mDuration = 0;
         mCreateService.stopPlayback();
     }
@@ -978,7 +977,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
             } else if (CloudCreateService.PLAYBACK_STARTED.equals(action)) {
                 mLastTrackTime = intent.getLongExtra(CloudCreateService.EXTRA_POSITION,0);
                 mLastProgressTimestamp = System.currentTimeMillis();
-                mHandler.postDelayed(mSmoothProgress, 0);
+                mHandler.postDelayed(mSmoothProgress, 100);
             } else if (CloudCreateService.PLAYBACK_COMPLETE.equals(action) || CloudCreateService.PLAYBACK_ERROR.equals(action)) {
                 String path = intent.getStringExtra(CloudCreateService.EXTRA_PATH);
                 if (path != null && shouldReactToPath(new File(path))) {

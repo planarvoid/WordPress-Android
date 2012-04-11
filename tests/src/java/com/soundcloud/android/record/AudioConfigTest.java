@@ -8,15 +8,15 @@ public class AudioConfigTest {
 
     @Test
     public void shouldCalculateStartPosition() throws Exception {
-        expect(AudioConfig.PCM16_44100_1.startPosition(0)).toEqual(0l);
-        expect(AudioConfig.PCM16_44100_1.startPosition(1)).toEqual(0l);
-        expect(AudioConfig.PCM16_44100_1.startPosition(2)).toEqual(2l);
-        expect(AudioConfig.PCM16_44100_1.startPosition(3)).toEqual(2l);
+        expect(AudioConfig.PCM16_44100_1.validBytePosition(0)).toEqual(0l);
+        expect(AudioConfig.PCM16_44100_1.validBytePosition(1)).toEqual(0l);
+        expect(AudioConfig.PCM16_44100_1.validBytePosition(2)).toEqual(2l);
+        expect(AudioConfig.PCM16_44100_1.validBytePosition(3)).toEqual(2l);
 
-        expect(AudioConfig.PCM16_44100_2.startPosition(0)).toEqual(0l);
-        expect(AudioConfig.PCM16_44100_2.startPosition(1)).toEqual(0l);
-        expect(AudioConfig.PCM16_44100_2.startPosition(5)).toEqual(4l);
-        expect(AudioConfig.PCM16_44100_2.startPosition(8)).toEqual(8l);
+        expect(AudioConfig.PCM16_44100_2.validBytePosition(0)).toEqual(0l);
+        expect(AudioConfig.PCM16_44100_2.validBytePosition(1)).toEqual(0l);
+        expect(AudioConfig.PCM16_44100_2.validBytePosition(5)).toEqual(4l);
+        expect(AudioConfig.PCM16_44100_2.validBytePosition(8)).toEqual(8l);
     }
 
     @Test
