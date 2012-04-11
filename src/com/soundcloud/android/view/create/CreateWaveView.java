@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.create;
 
+import android.graphics.Matrix;
 import com.soundcloud.android.R;
 import com.soundcloud.android.record.CloudRecorder;
 
@@ -19,22 +20,16 @@ import java.util.List;
 public class CreateWaveView extends View {
     private static long ANIMATION_ZOOM_TIME = 400;
 
-    private Bitmap bitmap;
+    private Bitmap mZoomBitmap;
+    private int nextBufferX;
     private int mGlowHeight;
     private int mMaxWaveHeight;
-
-    private static final int WAVEFORM_DARK_UNPLAYED = 0xff444444;
-    private static final int WAVEFORM_UNPLAYED = 0xffffffff;
-    private static final int WAVEFORM_DARK_ORANGE = 0xff662000;
-    private static final int WAVEFORM_ORANGE = 0xffff8000;
 
     private float mCurrentProgress;
     private int mTrimLeft, mTrimRight;
 
     private int mMode;
     private boolean mIsEditing;
-
-    private Paint mTrimLinePaint, mPlayedPaint, mUnplayedPaint,mDarkUnplayedPaint,mDarkPlayedPaint;
 
     private List<Float> mAllAmplitudes;
     private int mRecordStartIndex = -1;
@@ -44,38 +39,59 @@ public class CreateWaveView extends View {
 
     private static final Interpolator SHOW_FULL_INTERPOLATOR = new AccelerateDecelerateInterpolator();
 
+    private static Paint TRIM_LINE_PAINT;
+    private static Paint PLAYED_PAINT;
+    private static Paint UNPLAYED_PAINT;
+    private static Paint DARK_UNPLAYED_PAINT;
+    private static Paint DARK_PLAYED_PAINT;
+    private static Paint BITMAP_PAINT;
+
+    private static final int WAVEFORM_DARK_UNPLAYED = 0xff444444;
+    private static final int WAVEFORM_UNPLAYED = 0xffffffff;
+    private static final int WAVEFORM_DARK_ORANGE = 0xff662000;
+
+    static {
+        BITMAP_PAINT = new Paint();
+        BITMAP_PAINT.setAntiAlias(true);
+
+        TRIM_LINE_PAINT = new Paint();
+        TRIM_LINE_PAINT.setColor(Color.GRAY);
+
+        PLAYED_PAINT = new Paint();
+
+        UNPLAYED_PAINT = new Paint();
+        UNPLAYED_PAINT.setColor(WAVEFORM_UNPLAYED);
+
+        DARK_UNPLAYED_PAINT = new Paint();
+        DARK_UNPLAYED_PAINT.setColor(WAVEFORM_DARK_UNPLAYED);
+
+        DARK_PLAYED_PAINT = new Paint();
+        DARK_PLAYED_PAINT.setColor(WAVEFORM_DARK_ORANGE);
+    }
+
     public CreateWaveView(Context context) {
         super(context);
-
         mGlowHeight = (int) (5 * getContext().getResources().getDisplayMetrics().density);
-
-        mTrimLinePaint = new Paint();
-        mTrimLinePaint.setColor(Color.GRAY);
-
-        mPlayedPaint = new Paint();
-
-        mUnplayedPaint = new Paint();
-        mUnplayedPaint.setColor(WAVEFORM_UNPLAYED);
-
-        mDarkUnplayedPaint = new Paint();
-        mDarkUnplayedPaint.setColor(WAVEFORM_DARK_UNPLAYED);
-
-        mDarkPlayedPaint = new Paint();
-        mDarkPlayedPaint.setColor(WAVEFORM_DARK_ORANGE);
     }
 
     public void setMode(int mode, boolean animate){
         if (mMode != mode){
             mMode = mode;
+            if (mZoomBitmap != null){
+                mZoomBitmap.recycle();
+                mZoomBitmap = null;
+            }
             mCurrentProgress = -1;
+
             if (animate) mAnimationStartTime = System.currentTimeMillis();
-            postInvalidate();
+            invalidate();
+
         }
     }
 
     public void setPlaybackProgress(float progress){
         mCurrentProgress = progress;
-        postInvalidate();
+        invalidate();
     }
 
     public void reset() {
@@ -88,12 +104,12 @@ public class CreateWaveView extends View {
         mIsEditing = false;
         resetTrim();
 
-        if (bitmap != null) {
-            bitmap.recycle();
-            bitmap = null;
+        if (mZoomBitmap != null) {
+            mZoomBitmap.recycle();
+            mZoomBitmap = null;
         }
 
-        postInvalidate();
+        invalidate();
     }
 
     public void resetTrim() {
@@ -124,8 +140,6 @@ public class CreateWaveView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         mMaxWaveHeight = h - mGlowHeight;
         mTrimRight = w;
-
-
         LinearGradient lg =  new LinearGradient(0, 0, 0, mMaxWaveHeight,
             new int[]{
                     getResources().getColor(R.color.cloudProgressStart),
@@ -135,15 +149,38 @@ public class CreateWaveView extends View {
             new float[]{0.0f,0.5f,1.0f},
             Shader.TileMode.MIRROR);
 
-        mPlayedPaint.setShader(lg);
+        PLAYED_PAINT.setShader(lg);
     }
 
 
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
-         if (isRecording && mRecordStartIndex == -1) {
+         if (mMaxWaveHeight == 0) return;
+
+        if (mZoomBitmap != null) {
+            // if the new line would go over the edge, copy the last half of the old bitmap into the first half of the new bitmap
+            if (nextBufferX + 1 > mZoomBitmap.getWidth()) {
+
+                final Bitmap old = mZoomBitmap;
+                mZoomBitmap = Bitmap.createBitmap(getWidth() * 2, getHeight(), Bitmap.Config.ARGB_8888);
+
+                final Matrix mat = new Matrix();
+                mat.setTranslate(-old.getWidth() / 2, 0);
+
+                final Canvas c = new Canvas(mZoomBitmap);
+                c.drawBitmap(old, mat, new Paint());
+
+                nextBufferX = nextBufferX - old.getWidth() / 2;
+                old.recycle();
+            }
+
+            drawAmplitude(new Canvas(mZoomBitmap), nextBufferX,maxAmplitude, isRecording ? PLAYED_PAINT : DARK_UNPLAYED_PAINT);
+            nextBufferX++;
+        }
+
+        if (isRecording && mRecordStartIndex == -1) {
             mRecordStartIndex = CloudRecorder.getInstance(getContext()).writeIndex;
         }
-        postInvalidate();
+        invalidate();
     }
 
     public void setCurrentProgress(float currentProgress) {
@@ -190,52 +227,53 @@ public class CreateWaveView extends View {
             float[] points = getAmplitudePoints(amplitudesSubArray, 0, lastDrawX);
             if (animating) {
                 if (mRecordStartIndex == -1) {
-                    c.drawLines(points, mDarkUnplayedPaint);
+                    c.drawLines(points, DARK_UNPLAYED_PAINT);
                 } else if (mRecordStartIndex <= subArrayStart) {
-                    c.drawLines(points, mPlayedPaint);
+                    c.drawLines(points, PLAYED_PAINT);
                 } else {
                     final int gap = (mRecordStartIndex - subArrayStart);
                     final int recordStartIndex = (recordedAmplitudeSize >= width) ? gap * 4
                             : Math.round(gap * ((float) lastDrawX) / amplitudesSubArray.size()) * 4; // incorporate the scaling
 
-                    c.drawLines(points, 0, recordStartIndex, mDarkUnplayedPaint);
-                    c.drawLines(points, recordStartIndex, points.length - recordStartIndex, mPlayedPaint);
+                    c.drawLines(points, 0, recordStartIndex, DARK_UNPLAYED_PAINT);
+                    c.drawLines(points, recordStartIndex, points.length - recordStartIndex, PLAYED_PAINT);
                 }
 
             } else {
+
                 final int currentProgressIndex = (int) (getWidth() * mCurrentProgress);
                 if (!mIsEditing) {
                     // just draw progress (full orange if no current progress)
                     if (currentProgressIndex < 0) {
-                        drawPointsOnCanvas(c, points, mPlayedPaint);
+                        drawPointsOnCanvas(c, points, PLAYED_PAINT);
                     } else {
-                        drawPointsOnCanvas(c, points, mPlayedPaint, 0, currentProgressIndex);
-                        drawPointsOnCanvas(c, points, mUnplayedPaint, currentProgressIndex, -1);
+                        drawPointsOnCanvas(c, points, PLAYED_PAINT, 0, currentProgressIndex);
+                        drawPointsOnCanvas(c, points, UNPLAYED_PAINT, currentProgressIndex, -1);
                     }
                 } else {
 
                     // left handle
-                    drawPointsOnCanvas(c, points, mDarkPlayedPaint, 0, Math.max(mTrimLeft - 1, 0));
-                    drawPointsOnCanvas(c, points, mTrimLinePaint, Math.max(mTrimLeft - 1, 0), Math.max(mTrimLeft, 1));
+                    drawPointsOnCanvas(c, points, DARK_PLAYED_PAINT, 0, Math.max(mTrimLeft - 1, 0));
+                    drawPointsOnCanvas(c, points, TRIM_LINE_PAINT, Math.max(mTrimLeft - 1, 0), Math.max(mTrimLeft, 1));
 
                     // progress inside handles
                     if (currentProgressIndex < 0) {
-                        drawPointsOnCanvas(c, points, mPlayedPaint, Math.max(mTrimLeft, 1), mTrimRight - 1);
+                        drawPointsOnCanvas(c, points, PLAYED_PAINT, Math.max(mTrimLeft, 1), mTrimRight - 1);
                     } else {
                         final int playMin = Math.max(mTrimLeft + 1, currentProgressIndex);
-                        drawPointsOnCanvas(c, points, mPlayedPaint, mTrimLeft + 1, playMin);
-                        drawPointsOnCanvas(c, points, mUnplayedPaint, Math.min(mTrimRight - 1, Math.max(playMin, currentProgressIndex)), mTrimRight - 1);
+                        drawPointsOnCanvas(c, points, PLAYED_PAINT, mTrimLeft + 1, playMin);
+                        drawPointsOnCanvas(c, points, UNPLAYED_PAINT, Math.min(mTrimRight - 1, Math.max(playMin, currentProgressIndex)), mTrimRight - 1);
                     }
 
                     // right handle
-                    drawPointsOnCanvas(c, points, mTrimLinePaint, mTrimRight - 1, Math.min(width-1, mTrimRight));
-                    drawPointsOnCanvas(c, points, mDarkUnplayedPaint, Math.min(width-1, mTrimRight), -1);
+                    drawPointsOnCanvas(c, points, TRIM_LINE_PAINT, mTrimRight - 1, Math.min(width-1, mTrimRight));
+                    drawPointsOnCanvas(c, points, DARK_UNPLAYED_PAINT, Math.min(width-1, mTrimRight), -1);
                 }
             }
 
         }
 
-        if (animating) postInvalidate();
+        if (animating) invalidate();
     }
 
 
@@ -246,45 +284,68 @@ public class CreateWaveView extends View {
 
         float normalizedTime = Math.min(1.0f,(((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
+        final int width = getWidth();
+        final int totalAmplitudeSize = mAllAmplitudes.size();
+
 
         boolean animating = (normalizedTime < 1.0f);
 
-        final int width = getWidth();
-        final int totalAmplitudeSize = mAllAmplitudes.size();
-        final int recordedAmplitudeSize = mAllAmplitudes.size() - (mRecordStartIndex);
-
-        int subArrayStart;
-        if (totalAmplitudeSize < width) {
-            subArrayStart = (int) (mRecordStartIndex - mRecordStartIndex * interpolatedTime);
-        } else if (recordedAmplitudeSize < width) {
-            subArrayStart = mRecordStartIndex - (int) ((width - recordedAmplitudeSize) * interpolatedTime);
-        } else {
-            subArrayStart = Math.max(0,mRecordStartIndex + (int) (interpolatedTime * (recordedAmplitudeSize - width)));
-        }
-
-        final List<Float> amplitudesSubArray = mAllAmplitudes.subList(subArrayStart, mAllAmplitudes.size());
-        if (amplitudesSubArray.size() > 0){
-            final int lastDrawX = (totalAmplitudeSize < width) ? (int) (width - (width - totalAmplitudeSize) * interpolatedTime) : width;
-            float[] points = getAmplitudePoints(amplitudesSubArray,0,lastDrawX);
-
-            if (mRecordStartIndex == -1) {
-                c.drawLines(points, mDarkUnplayedPaint);
-            } else if (mRecordStartIndex <= subArrayStart){
-                c.drawLines(points,mPlayedPaint);
+        if (animating){
+            final int recordedAmplitudeSize = mAllAmplitudes.size() - (mRecordStartIndex);
+            int subArrayStart;
+            if (totalAmplitudeSize < width) {
+                subArrayStart = (int) (mRecordStartIndex - mRecordStartIndex * interpolatedTime);
+            } else if (recordedAmplitudeSize < width) {
+                subArrayStart = mRecordStartIndex - (int) ((width - recordedAmplitudeSize) * interpolatedTime);
             } else {
-                final int gap = (mRecordStartIndex - subArrayStart);
-                final int recordStartIndex = (recordedAmplitudeSize >= width) ? gap * 4
-                        : Math.round(gap * ((float) lastDrawX) / amplitudesSubArray.size()) * 4; // incorporate the scaling
-
-                c.drawLines(points,0,recordStartIndex,mDarkUnplayedPaint);
-                c.drawLines(points,recordStartIndex,points.length-recordStartIndex, mPlayedPaint);
+                subArrayStart = Math.max(0,mRecordStartIndex + (int) (interpolatedTime * (recordedAmplitudeSize - width)));
             }
+
+            final List<Float> amplitudesSubArray = mAllAmplitudes.subList(subArrayStart, mAllAmplitudes.size());
+            if (amplitudesSubArray.size() > 0){
+                final int lastDrawX = (totalAmplitudeSize < width) ? (int) (width - (width - totalAmplitudeSize) * interpolatedTime) : width;
+                float[] points = getAmplitudePoints(amplitudesSubArray,0,lastDrawX);
+
+                if (mRecordStartIndex == -1) {
+                    c.drawLines(points, DARK_UNPLAYED_PAINT);
+                } else if (mRecordStartIndex <= subArrayStart){
+                    c.drawLines(points, PLAYED_PAINT);
+                } else {
+                    final int gap = (mRecordStartIndex - subArrayStart);
+                    final int recordStartIndex = (recordedAmplitudeSize >= width) ? gap * 4
+                            : Math.round(gap * ((float) lastDrawX) / amplitudesSubArray.size()) * 4; // incorporate the scaling
+
+                    c.drawLines(points,0,recordStartIndex, DARK_UNPLAYED_PAINT);
+                    c.drawLines(points,recordStartIndex,points.length-recordStartIndex, PLAYED_PAINT);
+                }
+            }
+            invalidate();
+        } else {
+            if (mZoomBitmap == null){
+                // draw current amplitudes
+                mZoomBitmap = Bitmap.createBitmap(width * 2, getHeight(), Bitmap.Config.ARGB_8888);
+                Canvas bitmapCanvas = new Canvas(mZoomBitmap);
+                final int drawCount = Math.min(width,totalAmplitudeSize);
+
+                for (nextBufferX = 0; nextBufferX < drawCount; nextBufferX++){
+                    final int index = totalAmplitudeSize - drawCount + nextBufferX;
+                    drawAmplitude(bitmapCanvas, nextBufferX,mAllAmplitudes.get(index),
+                            (mRecordStartIndex == -1) || (index < mRecordStartIndex) ? DARK_UNPLAYED_PAINT : PLAYED_PAINT);
+                }
+            }
+            // draw amplitudes cached to canvas
+            Matrix m = new Matrix();
+            if (nextBufferX > getWidth()) {
+                m.setTranslate(getWidth() - nextBufferX, 0);
+            } else {
+                m.setTranslate(0, 0);
+            }
+            c.drawBitmap(mZoomBitmap, m, BITMAP_PAINT);
         }
-        if (animating) postInvalidate();
     }
 
     private void drawPointsOnCanvas(Canvas c, float[] points, Paint paint){
-        drawPointsOnCanvas(c,points,paint, 0,-1);
+        drawPointsOnCanvas(c, points, paint, 0, -1);
     }
 
     private void drawPointsOnCanvas(Canvas c, float[] points, Paint paint, int offsetLineIndex, int lastLineIndex){
@@ -328,6 +389,12 @@ public class CreateWaveView extends View {
 
     private void assertAmplitudeHistory(){
         if (mAllAmplitudes == null) mAllAmplitudes = CloudRecorder.getInstance(getContext()).amplitudes;
+    }
+
+    private void drawAmplitude(Canvas c, int xIndex, float amplitude, Paint p) {
+        // draw amplitude
+        c.drawLine(xIndex, this.getHeight() / 2 - amplitude * mMaxWaveHeight / 2,
+                xIndex, this.getHeight() / 2 + amplitude * mMaxWaveHeight / 2, p);
     }
 }
 
