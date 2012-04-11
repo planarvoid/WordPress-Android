@@ -26,7 +26,7 @@ import java.util.List;
 public class CloudRecorder {
     /* package */ static final String TAG = CloudRecorder.class.getSimpleName();
 
-    public static final int FPS = 50;
+    public static final int FPS = 60;
     public static final int TIMER_INTERVAL = 1000 / FPS;
     private static final int TRIM_PREVIEW_LENGTH = 500;
 
@@ -80,7 +80,7 @@ public class CloudRecorder {
 
         buffer = ByteBuffer.allocateDirect(bufferSize);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-        bufferReadSize =mConfig.sampleRate / (FPS);
+        bufferReadSize = (int) config.validBytePosition(mConfig.sampleRate / (FPS));
         mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
         mState = State.IDLE;
     }
@@ -192,14 +192,14 @@ public class CloudRecorder {
     }
 
     public void onNewStartPosition(double percent) {
-        mStartPos = mConfig.startPosition((long) (percent * mTotalBytes));
+        mStartPos = mConfig.validBytePosition((long) (percent * mTotalBytes));
         if (mState == State.PLAYING) {
             seekTo(mStartPos);
         }
     }
 
     public void onNewEndPosition(double percent) {
-        mEndPos = mConfig.startPosition((long) (percent * mTotalBytes));
+        mEndPos = mConfig.validBytePosition((long) (percent * mTotalBytes));
         if (mState == State.PLAYING) {
             seekTo(Math.max(mStartPos, mEndPos - mConfig.msToByte(TRIM_PREVIEW_LENGTH)));
         }
@@ -253,7 +253,7 @@ public class CloudRecorder {
                     file = new RandomAccessFile(mRecordStream.file, "r");
                     broadcast(CloudCreateService.PLAYBACK_STARTED);
                     do {
-                        play(file, mConfig.startPosition(mStartPos)+WaveHeader.LENGTH);
+                        play(file, mConfig.validBytePosition(mStartPos)+WaveHeader.LENGTH);
                     } while (mState == CloudRecorder.State.SEEKING);
 
                 } catch (IOException e) {
@@ -293,7 +293,6 @@ public class CloudRecorder {
 
                     buffer.rewind();
                     final int read = mAudioRecord.read(buffer, bufferReadSize);
-
                     if (read < 0) {
                         Log.w(TAG, "AudioRecord.read() returned error: " + read);
                         mState = CloudRecorder.State.ERROR;

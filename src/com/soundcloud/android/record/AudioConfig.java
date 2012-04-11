@@ -69,7 +69,7 @@ public enum AudioConfig {
         return (1000*bytePos)/(bytesPerSecond);
     }
 
-    public long startPosition(long offset) {
+    public long validBytePosition(long offset) {
        return offset - (offset % ((bitsPerSample / 8) * channels));
     }
 }
