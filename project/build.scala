@@ -15,7 +15,8 @@ object General {
     PlainJavaProject.settings ++
     AndroidMarketPublish.settings ++
     Github.settings ++
-    PasswordManager.settings
+    PasswordManager.settings ++
+    AndroidInstall.settings
 }
 
 object AndroidBuild extends Build {
@@ -57,7 +58,7 @@ object AndroidBuild extends Build {
     MavenRepository("sonatype releases", "https://oss.sonatype.org/content/repositories/releases")
   )
 
-  val projectSettings = General.androidProjectSettings ++ Seq(
+  val projectSettings = General.androidProjectSettings ++ AndroidNdk.settings ++ Seq(
       libraryDependencies ++= coreDependencies ++ testDependencies,
       resolvers          ++= repos,
       unmanagedBase      <<= baseDirectory / "lib-unmanaged" // make sure dl'ed libs don't get picked up
@@ -79,7 +80,7 @@ object AndroidBuild extends Build {
       resourceDirectory  <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
       parallelExecution  := false,
       unmanagedClasspath := Seq.empty
-    )) ++ AndroidInstall.settings ++ AndroidNdk.settings
+    ))
 
   // main project
   lazy val soundcloud_android = Project(
