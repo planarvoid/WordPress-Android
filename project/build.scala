@@ -15,7 +15,8 @@ object General {
     PlainJavaProject.settings ++
     AndroidMarketPublish.settings ++
     Github.settings ++
-    PasswordManager.settings
+    PasswordManager.settings ++
+    AndroidInstall.settings
 }
 
 object AndroidBuild extends Build {
@@ -57,7 +58,7 @@ object AndroidBuild extends Build {
     MavenRepository("sonatype releases", "https://oss.sonatype.org/content/repositories/releases")
   )
 
-  val projectSettings = General.androidProjectSettings ++ Seq(
+  val projectSettings = General.androidProjectSettings ++ AndroidNdk.settings ++ Seq(
       libraryDependencies ++= coreDependencies ++ testDependencies,
       resolvers          ++= repos,
       unmanagedBase      <<= baseDirectory / "lib-unmanaged" // make sure dl'ed libs don't get picked up
@@ -66,27 +67,26 @@ object AndroidBuild extends Build {
       keystorePath       <<= (baseDirectory) (_ / "soundcloud_sign" / "soundcloud.ks"),
       githubRepo         := "soundcloud/SoundCloud-Android",
       cachePasswords     := true,
-      nativeLibrariesPath <<= (baseDirectory) (_ / "libs")
-    )) ++ inConfig(Test)(Seq(
-      javaSource         <<= (baseDirectory) (_ / "tests" / "src" / "java"),
-      scalaSource        <<= (baseDirectory) (_ / "tests" / "src" / "scala"),
-      resourceDirectory  <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
-      parallelExecution  := false,
-      unmanagedClasspath := Seq.empty
-    )) ++ AndroidInstall.settings ++ AndroidNdk.settings
-
-  // main project
-  lazy val soundcloud_android = Project(
-    "soundcloud-android",
-    file("."),
-    settings = projectSettings ++ inConfig(Android)(Seq(
+      nativeLibrariesPath <<= (baseDirectory) (_ / "libs"),
       jniSourcePath <<= baseDirectory / "jni",
       jniClasses := Seq(
         "com.soundcloud.android.jni.VorbisEncoder",
         "com.soundcloud.android.jni.VorbisDecoder"
       ),
       javahOutputDirectory <<= (baseDirectory) (_ / "jni" / "include" / "soundcloud")
-    )) ++ Mavenizer.settings ++ CopyLibs.settings ++ AmazonHelper.settings
+    )) ++ inConfig(Test)(Seq(
+      javaSource         <<= (baseDirectory) (_ / "tests" / "src" / "java"),
+      scalaSource        <<= (baseDirectory) (_ / "tests" / "src" / "scala"),
+      resourceDirectory  <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
+      parallelExecution  := false,
+      unmanagedClasspath := Seq.empty
+    ))
+
+  // main project
+  lazy val soundcloud_android = Project(
+    "soundcloud-android",
+    file("."),
+    settings = projectSettings ++ Mavenizer.settings ++ CopyLibs.settings ++ AmazonHelper.settings
   )
 
   // beta project
@@ -121,7 +121,7 @@ object AndroidBuild extends Build {
       mainAssetsPath <<= (baseDirectory, assetsDirectoryName) (_ / _),
       manifestPath   <<= (baseDirectory, manifestName) (_ / _) map (Seq(_)),
       dxInputs       <<= (compile in Compile, managedClasspath in Integration, classDirectory in Compile) map {
-          (_, managedClasspath, classDirectory) => managedClasspath.map(_.data) :+ classDirectory
+          (_, cp, classes) => cp.map(_.data) :+ classes
       }
     )) ++ CopyLibs.settings
   ).configs(Integration)
