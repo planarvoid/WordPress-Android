@@ -26,7 +26,7 @@ import java.util.List;
 public class CloudRecorder {
     /* package */ static final String TAG = CloudRecorder.class.getSimpleName();
 
-    public static final int FPS = 60;
+    public static final int FPS = 40;
     public static final int TIMER_INTERVAL = 1000 / FPS;
     private static final int TRIM_PREVIEW_LENGTH = 500;
 
