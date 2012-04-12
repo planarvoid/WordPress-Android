@@ -52,7 +52,7 @@ public class CloudRecorder {
     final private ByteBuffer buffer;
     final private int bufferReadSize;
 
-    private long mCurrentPosition, mTotalBytes, mStartPos, mEndPos, mDuration, mSeekToPos;
+    private long mCurrentPosition, mTotalBytes, mStartPos, mEndPos, mDuration, mSeekToPos = -1;
 
     private LocalBroadcastManager mBroadcastManager;
 
@@ -183,6 +183,7 @@ public class CloudRecorder {
 
     public void play() {
         if (!isPlaying()) {
+            mSeekToPos = -1;
             new PlayerThread().start();
         }
     }
