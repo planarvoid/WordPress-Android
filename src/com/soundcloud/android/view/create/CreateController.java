@@ -295,6 +295,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     public void reset() {
         mCurrentState = CreateState.IDLE_RECORD;
+        mRecording = null;
         mRecordFile = null;
         mWaveDisplay.reset();
         updateUi(true);
@@ -346,7 +347,6 @@ public class CreateController implements CreateWaveDisplay.Listener {
         if (mCreateService == null) return;
 
         boolean takeAction = false;
-
         if (mRecording != null) {
             setRecordFile(mRecording.audio_path);
             mDuration = mRecording.duration;

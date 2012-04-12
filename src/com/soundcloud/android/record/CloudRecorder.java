@@ -26,7 +26,7 @@ import java.util.List;
 public class CloudRecorder {
     /* package */ static final String TAG = CloudRecorder.class.getSimpleName();
 
-    public static final int FPS = 60;
+    public static final int FPS = 40;
     public static final int TIMER_INTERVAL = 1000 / FPS;
     private static final int TRIM_PREVIEW_LENGTH = 500;
 
@@ -52,7 +52,7 @@ public class CloudRecorder {
     final private ByteBuffer buffer;
     final private int bufferReadSize;
 
-    private long mCurrentPosition, mTotalBytes, mStartPos, mEndPos, mDuration, mSeekToPos;
+    private long mCurrentPosition, mTotalBytes, mStartPos, mEndPos, mDuration, mSeekToPos = -1;
 
     private LocalBroadcastManager mBroadcastManager;
 
@@ -88,6 +88,8 @@ public class CloudRecorder {
     public void startReading() {
         amplitudes.clear();
         writeIndex = -1;
+        mRecordStream = null;
+
         startReadingInternal(State.READING);
     }
 
@@ -190,6 +192,7 @@ public class CloudRecorder {
 
     public void play() {
         if (!isPlaying()) {
+            mSeekToPos = -1;
             new PlayerThread().start();
         }
     }
