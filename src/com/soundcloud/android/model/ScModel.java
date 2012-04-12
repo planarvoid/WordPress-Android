@@ -119,12 +119,16 @@ public abstract class ScModel implements Parcelable {
             bundle.putInt(fieldName, (Integer) fieldValue);
         else if (fieldType == Long.TYPE || fieldType == Long.class)
             bundle.putLong(fieldName, (Long) fieldValue);
+        else if (fieldType == Double.TYPE || fieldType == Double.class)
+            bundle.putDouble(fieldName, (Double) fieldValue);
         else if (fieldType == boolean.class)
             bundle.putBoolean(fieldName, (Boolean) fieldValue);
         else if (fieldType == Date.class)
             bundle.putLong(fieldName, ((Date) fieldValue).getTime());
         else if (Parcelable.class.isAssignableFrom(fieldType)) {
             bundle.putParcelable(fieldName, (Parcelable) fieldValue);
+        } else if (File.class.isAssignableFrom(fieldType)) {
+            bundle.putString(fieldName, ((File)fieldValue).getAbsolutePath());
         } else {
             Log.i(TAG, "Ignoring " + fieldName + " of type " + fieldType);
         }
@@ -140,6 +144,8 @@ public abstract class ScModel implements Parcelable {
                     field.set(p, bundle.getLong(key));
                 } else if (field.getType() == Integer.TYPE || field.getType() == Integer.class) {
                     field.set(p, bundle.getInt(key));
+                } else if (field.getType() == Double.TYPE || field.getType() == Double.class) {
+                    field.set(p, bundle.getDouble(key));
                 } else if (field.getType() == Boolean.TYPE) {
                     field.set(p, bundle.getBoolean(key));
                 } else if (field.getType() == Date.class) {

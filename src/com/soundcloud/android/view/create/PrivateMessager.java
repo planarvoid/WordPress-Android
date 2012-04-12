@@ -72,9 +72,8 @@ public class PrivateMessager extends ScTabView implements CreateController.Creat
                 if (mRecording != null) {
                     mapToRecording(mRecording);
                     mActivity.track(Click.Dedicated_recording_details_send);
-
                     saveRecording(mRecording);
-                    mActivity.startUpload(mRecording);
+                    mRecording.upload(mActivity);
                     mRecording = null;
                     mRecordingMetadata.reset();
                     mCreateController.reset();

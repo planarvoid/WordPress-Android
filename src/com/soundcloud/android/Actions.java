@@ -34,4 +34,6 @@ public final class Actions {
     public static final String RESEND              = "com.soundcloud.android.RESEND";
     public static final String ALARM               = "com.soundcloud.android.actions.ALARM";
     public static final String CANCEL_ALARM        = "com.soundcloud.android.actions.CANCEL_ALARM";
+
+    public static final String UPLOAD              = "com.soundcloud.android.actions.upload";
 }

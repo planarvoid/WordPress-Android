@@ -1,12 +1,10 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
-import com.xtremelabs.robolectric.Robolectric;
 
 import android.accounts.Account;
 import android.content.Intent;
@@ -74,10 +72,6 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     // object mother
-    public static Upload getValidUpload() throws IOException {
-        return new Upload(getValidRecording(), Robolectric.application.getResources());
-    }
-
     public static Recording getValidRecording() throws IOException {
         return new Recording(getTestFile());
     }

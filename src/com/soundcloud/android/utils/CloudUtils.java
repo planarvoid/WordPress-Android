@@ -42,22 +42,16 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 public final class CloudUtils {
+    private CloudUtils() {}
 
     private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
-            "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}" +
-                    "@" +
-                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
-                    "(" +
-                    "\\." +
-                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
-                    ")+"
+        "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
     );
 
     private static HashMap<Context, HashMap<Class<? extends Service>, ServiceConnection>> sConnectionMap
-            = new HashMap<Context,HashMap<Class<? extends Service>, ServiceConnection>>();
+            = new HashMap<Context, HashMap<Class<? extends Service>, ServiceConnection>>();
 
 
-    private CloudUtils() {}
 
     public static ProgressDialog showProgress(Context context, int message) {
         return showProgress(context, message, 0);
@@ -153,7 +147,7 @@ public final class CloudUtils {
         return getTimeString(r, elapsed, longerText);
     }
 
-    public static CharSequence getTimeString(Resources r, double elapsedSeconds, boolean longerText) {
+    public static String getTimeString(Resources r, double elapsedSeconds, boolean longerText) {
         if (elapsedSeconds < 60)
             return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsedSeconds, (int) elapsedSeconds);
         else if (elapsedSeconds < 3600)
@@ -168,31 +162,8 @@ public final class CloudUtils {
             return r.getQuantityString(longerText ? R.plurals.elapsed_years_ago : R.plurals.elapsed_years, (int) (elapsedSeconds / 31536000), (int) (elapsedSeconds / 31536000));
     }
 
-    public static int getDigitsFromSeconds(int secs) {
-        if (secs < 600)  return 3;
-        else if (secs < 3600) return 4;
-        else if (secs < 36000) return 5;
-        else return 6;
-    }
-
-
-    public static String getTimeElapsed(android.content.res.Resources r, long eventTimestamp){
-        long elapsed = (System.currentTimeMillis() - eventTimestamp)/1000;
-        if (elapsed < 0) elapsed = 0;
-
-        if (elapsed < 60) {
-            return r.getQuantityString(R.plurals.elapsed_seconds, (int) elapsed,(int) elapsed);
-        } else if (elapsed < 3600) {
-            return r.getQuantityString(R.plurals.elapsed_minutes, (int) (elapsed/60),(int) (elapsed/60));
-        } else if (elapsed < 86400) {
-            return r.getQuantityString(R.plurals.elapsed_hours, (int) (elapsed/3600),(int) (elapsed/3600));
-        } else if (elapsed < 2592000) {
-            return r.getQuantityString(R.plurals.elapsed_days, (int) (elapsed/86400),(int) (elapsed/86400));
-        } else if (elapsed < 31536000) {
-            return r.getQuantityString(R.plurals.elapsed_months, (int) (elapsed/2592000),(int) (elapsed/2592000));
-        } else {
-            return r.getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000));
-        }
+    public static String getTimeElapsed(Resources r, long timestamp){
+        return getTimeString(r, Math.max(0, (System.currentTimeMillis() - timestamp)/1000), false);
     }
 
     /**

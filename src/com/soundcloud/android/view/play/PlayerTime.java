@@ -18,7 +18,6 @@ public class PlayerTime extends RelativeLayout {
     protected TextView mCurrentTime;
     protected TextView mTotalTime;
     protected int mDuration;
-    protected int mMaxTextWidth;
     protected int mMeasuredMaxWidth;
 
     private int mCommentingWidth;
@@ -31,7 +30,6 @@ public class PlayerTime extends RelativeLayout {
     private int mArc;
 
     private int mPlayheadOffset;
-    private boolean mPlayheadLeft;
     private int mPlayheadArrowWidth;
     private int mPlayheadArrowHeight;
     private boolean mCommenting;
@@ -133,13 +131,10 @@ public class PlayerTime extends RelativeLayout {
 
         if (playheadX < width / 2) {
             mPlayheadOffset = playheadX;
-            mPlayheadLeft = true;
         } else if (playheadX > parentWidth - width / 2) {
             mPlayheadOffset = playheadX - (parentWidth - width);
-            mPlayheadLeft = false;
         } else {
             mPlayheadOffset = (int) (.5 * width);
-            mPlayheadLeft = true;
         }
 
         if (mDuration > 0) {
@@ -147,7 +142,6 @@ public class PlayerTime extends RelativeLayout {
         } else {
             lp.leftMargin = 0;
         }
-
 
         lp.width = width;
         lp.height = mShowArrow ? height + mPlayheadArrowHeight : height;
@@ -173,7 +167,13 @@ public class PlayerTime extends RelativeLayout {
     }
 
     public void setDuration(int time) {
-        final int digits = CloudUtils.getDigitsFromSeconds(time / 1000);
+        int result;
+        if (time / 1000 < 600) result = 3;
+        else if (time / 1000 < 3600) result = 4;
+        else if (time / 1000 < 36000) result = 5;
+        else result = 6;
+
+        final int digits = result;
         final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < digits; i++) {
             sb.append("8");

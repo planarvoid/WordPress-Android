@@ -192,7 +192,6 @@ public class DBHelper extends SQLiteOpenHelper {
             "service_ids VARCHAR(255)," +
             "is_private BOOLEAN," +
             "external_upload BOOLEAN," +
-            "audio_profile INTEGER," +
             "upload_status INTEGER DEFAULT 0," +
             "upload_error BOOLEAN"+
             ");";

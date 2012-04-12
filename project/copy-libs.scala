@@ -7,7 +7,7 @@ import collection.JavaConverters._
 object CopyLibs {
     val copyLibs = TaskKey[Seq[File]]("copy-libs")
     lazy val settings = inConfig(Android)(Seq(
-        copyLibs      <<= (update, preinstalledModules in Android, streams) map { (update, preinstalled, s) =>
+        copyLibs      <<= (update, preinstalledModules, streams) map { (update, preinstalled, s) =>
           val deps = update.toSeq.foldLeft(Map.empty[String,Seq[(ModuleID, File)]]) { case (map, (conf, module, art, file)) =>
             map + ((conf, map.getOrElse(conf, Nil) :+ (module, file)))
           }

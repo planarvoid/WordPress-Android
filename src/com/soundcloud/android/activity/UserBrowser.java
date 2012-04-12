@@ -18,7 +18,6 @@ import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -801,7 +800,7 @@ public class UserBrowser extends ScActivity implements
 
     @Override
     protected void handleRecordingClick(Recording recording) {
-        if (recording.upload_status == Upload.Status.UPLOADING)
+        if (recording.upload_status == Recording.Status.UPLOADING)
             safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
         else {
             if (recording.private_user_id <= 0) {

@@ -17,7 +17,7 @@ public class CloudUtilsTest {
 
     @Test
     public void testHexString() throws Exception {
-        expect(CloudUtils.hexString(new byte[] { 0, 12, 32, 0, 16})).toEqual("000c200010");
+        expect(CloudUtils.hexString(new byte[]{0, 12, 32, 0, 16})).toEqual("000c200010");
     }
 
     @Test
@@ -44,5 +44,36 @@ public class CloudUtilsTest {
         expect(CloudUtils.formatTimestamp(5 * 1000)).toEqual("0.05");
         expect(CloudUtils.formatTimestamp(60 * 1000 * 5)).toEqual("5.00");
         expect(CloudUtils.formatTimestamp(60 * 1000 * 60 * 3)).toEqual("3.00.00");
+    }
+
+    @Test
+    public void shouldGetTimeString() throws Exception {
+        expectTime(1, "1 second");
+        expectTime(20, "20 seconds");
+        expectTime(60, "1 minute");
+        expectTime(60 * 60 * 2.5, "2 hours");
+        expectTime(60 * 60 * 24 * 2.5, "2 days");
+        expectTime(60 * 60 * 24 * 31, "1 month");
+        expectTime(60 * 60 * 24 * 31 * 12 * 2, "2 years");
+    }
+
+    @Test
+    public void shouldGetElapsedTime() throws Exception {
+        expect(CloudUtils.getTimeElapsed(
+                Robolectric.application.getResources(),
+                System.currentTimeMillis() - 1000 * 60)).toEqual("1 minute");
+    }
+
+    private void expectTime(double seconds, String text) {
+        expect(CloudUtils.getTimeString(Robolectric.application.getResources(), seconds, false)).toEqual(text);
+        expect(CloudUtils.getTimeString(Robolectric.application.getResources(), seconds, true)).toEqual(text + " ago");
+    }
+
+    @Test
+    public void shouldCheckEmail() throws Exception {
+        expect(CloudUtils.checkEmail("foo@bar.com")).toBeTrue();
+        expect(CloudUtils.checkEmail("Foo+special@bar.com")).toBeTrue();
+        expect(CloudUtils.checkEmail("foo@barcom")).toBeFalse();
+        expect(CloudUtils.checkEmail("foobar.com")).toBeFalse();
     }
 }

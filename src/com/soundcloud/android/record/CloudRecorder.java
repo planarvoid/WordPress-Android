@@ -26,7 +26,6 @@ public class CloudRecorder {
     /* package */ static final String TAG = CloudRecorder.class.getSimpleName();
 
     public static final int FPS = 40;
-    public static final int TIMER_INTERVAL = 1000 / FPS;
     private static final int TRIM_PREVIEW_LENGTH = 500;
 
     private static CloudRecorder instance;
@@ -51,6 +50,9 @@ public class CloudRecorder {
     final private ByteBuffer buffer;
     final private int bufferReadSize;
 
+
+    private ReaderThread mReaderThread;
+
     private long mCurrentPosition, mDuration, mSeekToPos = -1;
 
     private LocalBroadcastManager mBroadcastManager;
@@ -66,6 +68,18 @@ public class CloudRecorder {
         final int bufferSize = config.getMinBufferSize();
         mConfig = config;
         mAudioRecord = config.createAudioRecord(bufferSize * 4);
+        mAudioRecord.setPositionNotificationPeriod(config.sampleRate);
+        mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
+            @Override public void onMarkerReached(AudioRecord audioRecord) { }
+            @Override public void onPeriodicNotification(AudioRecord audioRecord) {
+                if (mState == State.RECORDING) {
+                    Intent intent = new Intent(CloudCreateService.RECORD_PROGRESS)
+                        .putExtra(CloudCreateService.EXTRA_ELAPSEDTIME,
+                                mRecordStream == null ? -1 : mRecordStream.elapsedTime());
+                    mBroadcastManager.sendBroadcast(intent);
+                }
+            }
+        });
         mAudioTrack = config.createAudioTrack(bufferSize);
         mAudioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override public void onMarkerReached(AudioTrack track) {
@@ -85,11 +99,13 @@ public class CloudRecorder {
     }
 
     public void startReading() {
-        amplitudes.clear();
-        writeIndex = -1;
-        mRecordStream = null;
+        if (mState == State.IDLE) {
+            amplitudes.clear();
+            writeIndex = -1;
+            mRecordStream = null;
 
-        startReadingInternal(State.READING);
+            startReadingInternal(State.READING);
+        }
     }
 
     // Sets output file path, call directly after construction/reset.
@@ -141,11 +157,13 @@ public class CloudRecorder {
     }
 
     private State startReadingInternal(State newState) {
+        Log.d(TAG, "startReading("+newState+")");
+
         // check to see if we are already reading
-        final boolean startReading = mState != State.READING && mState != State.RECORDING;
         mState = newState;
-        if (startReading) {
-            new ReaderThread().start();
+        if (mReaderThread == null) {
+            mReaderThread = new ReaderThread();
+            mReaderThread.start();
         }
         return mState;
     }
@@ -160,7 +178,7 @@ public class CloudRecorder {
             final float frameAmplitude = mAmplitudeAnalyzer.frameAmplitude();
             amplitudes.add(frameAmplitude);
 
-            Intent intent = new Intent(CloudCreateService.RECORD_PROGRESS)
+            Intent intent = new Intent(CloudCreateService.RECORD_SAMPLE)
                     .putExtra(CloudCreateService.EXTRA_AMPLITUDE, frameAmplitude)
                     .putExtra(CloudCreateService.EXTRA_ELAPSEDTIME, mRecordStream == null ? -1 : mRecordStream.elapsedTime());
 
@@ -320,13 +338,14 @@ public class CloudRecorder {
         @Override
         public void run() {
             synchronized (mAudioRecord) {
-                Log.d(TAG, "starting reader thread");
+                Log.d(TAG, "starting reader thread: state="+mState);
 
-                broadcast(CloudCreateService.RECORD_STARTED);
+                if (mState == CloudRecorder.State.RECORDING) {
+                    broadcast(CloudCreateService.RECORD_STARTED);
+                }
+
                 mAudioRecord.startRecording();
                 while (mState == CloudRecorder.State.READING || mState == CloudRecorder.State.RECORDING) {
-                    final long start = System.currentTimeMillis();
-
                     buffer.rewind();
                     final int read = mAudioRecord.read(buffer, bufferReadSize);
                     if (read < 0) {
@@ -355,30 +374,27 @@ public class CloudRecorder {
                 Log.d(TAG, "exiting reader loop, stopping recording (mState="+mState+")");
                 mAudioRecord.stop();
 
-                if (mState != CloudRecorder.State.ERROR) {
-                    mRecordStream.finalizeStream();
-                    resetPlaybackBounds();
-                    broadcast(CloudCreateService.RECORD_FINISHED);
-                } else {
-                    broadcast(CloudCreateService.RECORD_ERROR);
+                if (mRecordStream != null) {
+                    if (mState != CloudRecorder.State.ERROR) {
+                        mRecordStream.finalizeStream();
+                        resetPlaybackBounds();
+                        broadcast(CloudCreateService.RECORD_FINISHED);
+                    } else {
+                        broadcast(CloudCreateService.RECORD_ERROR);
+                    }
                 }
+
                 mState = CloudRecorder.State.IDLE;
+                mReaderThread = null;
             }
         }
     }
 
     public static IntentFilter getIntentFilter() {
         IntentFilter filter = new IntentFilter();
-
-        filter.addAction(CloudCreateService.RECORD_STARTED);
-        filter.addAction(CloudCreateService.RECORD_PROGRESS);
-        filter.addAction(CloudCreateService.RECORD_ERROR);
-
-        filter.addAction(CloudCreateService.PLAYBACK_STARTED);
-        filter.addAction(CloudCreateService.PLAYBACK_COMPLETE);
-        filter.addAction(CloudCreateService.PLAYBACK_PROGRESS);
-        filter.addAction(CloudCreateService.PLAYBACK_ERROR);
-
+        for (String action : CloudCreateService.ALL_ACTIONS) {
+            filter.addAction(action);
+        }
         return filter;
     }
 }

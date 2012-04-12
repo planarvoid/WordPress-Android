@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -212,6 +213,32 @@ public class SoundCloudDB {
         } else {
             return null;
         }
+    }
+
+    public static Recording getRecordingByUri(ContentResolver resolver, Uri uri) {
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        Recording recording = null;
+        if (cursor != null && cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            recording = new Recording(cursor);
+        }
+        if (cursor != null) cursor.close();
+        return recording;
+    }
+
+    public static Recording getRecordingByPath(ContentResolver resolver, File file) {
+        Cursor cursor = resolver.query(Content.RECORDINGS.uri,
+                null,
+                DBHelper.Recordings.AUDIO_PATH + "= ?",
+                new String[]{ file.getAbsolutePath() },
+                null);
+
+        Recording recording = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            recording = new Recording(cursor);
+        }
+        if (cursor != null) cursor.close();
+        return recording;
     }
 
     private static long getUserId(ContentResolver resolver) {

@@ -36,9 +36,9 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.ScLight"
         android:configChanges="keyboard|keyboardHidden"
-        android:name="SoundCloudApplication"
-        android:debuggable="false">
+        android:name="SoundCloudApplication">
 
+        <!-- activities -->
         <activity android:name=".activity.Main"
                   android:label="@string/app_name"
                   android:launchMode="singleTask"
@@ -194,24 +194,23 @@
 
         <activity android:name=".activity.About"/>
 
+        <!-- providers -->
         <provider android:name=".provider.ScContentProvider"
                   android:authorities="com.soundcloud.android.provider.ScContentProvider"/>
 
-        <service android:name=".service.sync.ApiSyncService" />
 
-        <service android:name=".service.playback.CloudPlaybackService"
-                 android:exported="true">
-            <!-- XXX needs to be exported? -->
-        </service>
-
-        <service
-            android:name=".service.record.CloudCreateService"
-            android:exported="true">
-            <!-- XXX needs to be exported? -->
+        <!-- services -->
+        <service android:name=".service.sync.ApiSyncService"/>
+        <service android:name=".service.playback.CloudPlaybackService"/>
+        <service android:name=".service.record.CloudCreateService"/>
+        <service android:name=".service.upload.UploadService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.actions.upload"/>
+            </intent-filter>
         </service>
 
         <service android:name=".service.auth.AuthenticatorService"
-                 android:exported="true">
+                 android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
@@ -220,7 +219,7 @@
                        android:resource="@xml/authenticator"/>
         </service>
 
-        <service android:name=".service.sync.SyncAdapterService" android:exported="true">
+        <service android:name=".service.sync.SyncAdapterService" android:exported="false">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
@@ -230,8 +229,9 @@
                 android:resource="@xml/sync" />
         </service>
 
-        <service android:name=".service.beta.BetaService" android:exported="false"/>
+        <service android:name=".service.beta.BetaService"/>
 
+        <!-- receivers -->
         <receiver android:label="SoundCloud Player"
                   android:name=".service.playback.PlayerAppWidgetProvider">
           <intent-filter>

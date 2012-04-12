@@ -16,6 +16,7 @@ import com.soundcloud.android.view.TrackInfoBar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MyTracksAdapter extends TracklistAdapter {
     private Cursor mCursor;
@@ -94,14 +95,14 @@ public class MyTracksAdapter extends TracklistAdapter {
     /*
      * fix false upload statuses that may have resulted from a crash
      */
-    public void checkUploadStatus(long uploadId) {
+    public void checkUploadStatus(Set<Long> uploadIds) {
         if (mRecordingData == null || mRecordingData.size() == 0) return;
 
         boolean changed = false;
         for (Recording r : mRecordingData) {
-            if (r.upload_status == 1 && uploadId != r.id) {
-                r.upload_status = 0;
-                mContext.getContentResolver().update(r.toUri(), r.buildContentValues(), null, null);
+            if (r.upload_status == Recording.Status.UPLOADING && !uploadIds.contains(r.id)) {
+                r.upload_status = Recording.Status.NOT_YET_UPLOADED;
+                r.updateStatus(mContext.getContentResolver());
                 changed = true;
             }
         }

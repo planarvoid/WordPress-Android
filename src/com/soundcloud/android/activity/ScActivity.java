@@ -16,11 +16,12 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.Upload;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.ICloudPlaybackService;
 import com.soundcloud.android.service.record.CloudCreateService;
+import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
@@ -67,6 +68,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     protected Object[] mPreviousState;
     protected ICloudPlaybackService mPlaybackService;
     protected CloudCreateService mCreateService;
+    protected UploadService mUploadService;
     protected NetworkConnectivityListener connectivityListener;
 
     protected List<ScListView> mLists;
@@ -113,10 +115,13 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     }
 
     protected void onCreateServiceBound() {
-        if (mLists == null || mLists.size() == 0 || !(this instanceof UserBrowser)) return;
+    }
+
+    protected void onUploadServiceBound() {
+        if (mLists == null || mLists.isEmpty() || !(this instanceof UserBrowser)) return;
         for (ScListView lv : mLists){
-            if (lv.getBaseAdapter() instanceof MyTracksAdapter && mCreateService != null) {
-                ((MyTracksAdapter) lv.getBaseAdapter()).checkUploadStatus(mCreateService.getUploadLocalId());
+            if (lv.getBaseAdapter() instanceof MyTracksAdapter && mUploadService != null) {
+                ((MyTracksAdapter) lv.getBaseAdapter()).checkUploadStatus(mUploadService.getUploadLocalIds());
             }
         }
     }
@@ -146,8 +151,8 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
     private final ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            if (binder instanceof CloudCreateService.LocalBinder) {
-                mCreateService = ((CloudCreateService.LocalBinder) binder).getService();
+            if (binder instanceof LocalBinder) {
+                mCreateService = (CloudCreateService) ((LocalBinder) binder).getService();
                 onCreateServiceBound();
             }
         }
@@ -155,6 +160,19 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         public void onServiceDisconnected(ComponentName className) {
         }
     };
+
+    private final ServiceConnection uploadOsc = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder binder) {
+            if (binder instanceof LocalBinder) {
+                mUploadService = (UploadService) ((LocalBinder) binder).getService();
+                onUploadServiceBound();
+            }
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,6 +242,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
         CloudUtils.bindToService(this, CloudPlaybackService.class, osc);
         CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
+        CloudUtils.bindToService(this, UploadService.class, uploadOsc);
         setPlayingTrackFromService();
     }
 
@@ -340,6 +359,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         }
     }
 
+    /*
     // WTF? why is this in ScActivity?
     // called from UserBrowser XXX replace with intent
     public Upload startUpload(Recording r) {
@@ -353,6 +373,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
             return null;
         }
     }
+    */
 
     public void showToast(int stringId) {
         CloudUtils.showToast(this, stringId);
@@ -481,7 +502,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
                                 android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 // XXX this should be handled by ScCreate
-                                mCreateService.cancelUpload();
+                                mUploadService.cancelUpload();
                                 removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                             }
                         }).setNegativeButton(android.R.string.no,
@@ -555,7 +576,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean uploading = false;
-        if (mCreateService != null) uploading = mCreateService.isUploading();
+        if (mCreateService != null) uploading = mUploadService.isUploading();
         menuCurrentUploadingItem.setVisible(uploading);
         return true;
     }

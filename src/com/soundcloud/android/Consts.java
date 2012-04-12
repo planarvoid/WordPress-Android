@@ -148,10 +148,13 @@ public final class Consts {
     public interface Notifications {
         int RECORD_NOTIFY_ID    = 0;
         int PLAYBACK_NOTIFY_ID  = 1;
-        int UPLOAD_NOTIFY_ID    = 2;
-        int DASHBOARD_NOTIFY_STREAM_ID = 3;
-        int DASHBOARD_NOTIFY_ACTIVITIES_ID = 4;
-        int BETA_NOTIFY_ID    = 5;
+
+        int UPLOADING_NOTIFY_ID = 2;
+        int UPLOADED_NOTIFY_ID  = 3;
+
+        int DASHBOARD_NOTIFY_STREAM_ID = 4;
+        int DASHBOARD_NOTIFY_ACTIVITIES_ID = 5;
+        int BETA_NOTIFY_ID    = 6;
     }
 
     public interface ResourceStaleTimes {

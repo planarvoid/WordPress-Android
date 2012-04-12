@@ -1,8 +1,10 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.Upload;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.CloudCreateService;
+import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -21,12 +23,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class UploadMonitor extends Activity {
-    private CloudCreateService mCreateService;
+    private UploadService mCreateService;
     private long mUploadId;
-    private Upload mUpload;
+    private Recording mUpload;
 
     private ProgressBar mProgressBar;
     private RelativeLayout mUploadingLayout;
@@ -41,11 +42,11 @@ public class UploadMonitor extends Activity {
         setContentView(R.layout.upload_monitor);
 
         IntentFilter playbackFilter = new IntentFilter();
-        playbackFilter.addAction(CloudCreateService.UPLOAD_STARTED);
-        playbackFilter.addAction(CloudCreateService.UPLOAD_PROGRESS);
-        playbackFilter.addAction(CloudCreateService.UPLOAD_CANCELLED);
-        playbackFilter.addAction(CloudCreateService.UPLOAD_ERROR);
-        playbackFilter.addAction(CloudCreateService.UPLOAD_SUCCESS);
+        playbackFilter.addAction(UploadService.UPLOAD_STARTED);
+        playbackFilter.addAction(UploadService.UPLOAD_PROGRESS);
+        playbackFilter.addAction(UploadService.UPLOAD_CANCELLED);
+        playbackFilter.addAction(UploadService.UPLOAD_ERROR);
+        playbackFilter.addAction(UploadService.UPLOAD_SUCCESS);
         registerReceiver(mUploadStatusListener, new IntentFilter(playbackFilter));
 
         mUploadingLayout = (RelativeLayout) findViewById(R.id.uploading_layout);
@@ -81,8 +82,7 @@ public class UploadMonitor extends Activity {
             public void onClick(View v) {
                 if (mCreateService == null) return;
                 mControlLayout.setVisibility(View.GONE);
-                if (mCreateService.startUpload(mUpload)) return;
-                Toast.makeText(UploadMonitor.this, getString(R.string.wait_for_upload_to_finish), Toast.LENGTH_LONG);
+                mUpload.upload(UploadMonitor.this);
             }
         });
 
@@ -111,7 +111,7 @@ public class UploadMonitor extends Activity {
         mCreateService = null;
     }
 
-    private void fillDataFromUpload(final Upload upload) {
+    private void fillDataFromUpload(final Recording upload) {
         if (upload == null) {
             finish();
             return;
@@ -119,26 +119,28 @@ public class UploadMonitor extends Activity {
         mUploadId = upload.id;
 
         ((TextView) findViewById(R.id.track)).setText(upload.title);
-        if (upload.artworkFile != null) {
-            ImageUtils.setImage(upload.artworkFile, ((ImageView) findViewById(R.id.icon)),
+        if (upload.artwork_path != null) {
+            ImageUtils.setImage(upload.artwork_path, ((ImageView) findViewById(R.id.icon)),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_width),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_height));
         }
 
-        if (upload.status == Upload.Status.UPLOADED) {
+        if (upload.status == Recording.Status.UPLOADED) {
             onUploadFinished(true);
-        } else if (upload.status != Upload.Status.UPLOADING && upload.isError()) {
+        } else if (upload.status != Recording.Status.UPLOADING && upload.isError()) {
             onUploadFinished(false);
         }
     }
 
     private final ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            mCreateService = ((CloudCreateService.LocalBinder) binder).getService();
-            if (mUpload == null) {
-                mUpload = mCreateService.getUploadById(mUploadId);
-                if (mUpload != null) {
-                    fillDataFromUpload(mUpload);
+            if (binder instanceof LocalBinder) {
+                mCreateService = (UploadService) ((LocalBinder) binder).getService();
+                if (mUpload == null) {
+                    mUpload = mCreateService.getUploadById(mUploadId);
+                    if (mUpload != null) {
+                        fillDataFromUpload(mUpload);
+                    }
                 }
             }
         }
@@ -151,14 +153,14 @@ public class UploadMonitor extends Activity {
             if (mCreateService == null) return;
 
             String action = intent.getAction();
-            if (CloudCreateService.UPLOAD_STARTED.equals(action)) {
+            if (UploadService.UPLOAD_STARTED.equals(action)) {
                 if (intent.getLongExtra("upload_id", -1) == mUploadId) {
                     // from a retry
                     mUploadingLayout.setVisibility(View.VISIBLE);
                     mFinishedLayout.setVisibility(View.GONE);
                     mProgressBar.setProgress(0);
                 }
-            } else if (CloudCreateService.UPLOAD_PROGRESS.equals(action)) {
+            } else if (UploadService.UPLOAD_PROGRESS.equals(action)) {
                 if (intent.getLongExtra("upload_id", -1) == mUploadId) {
                     mProgressBar.setProgress(intent.getIntExtra("progress", 0));
                 }
@@ -169,11 +171,11 @@ public class UploadMonitor extends Activity {
                     mProgressModeEncoding = false;
                     mProgressText.setText(R.string.share_uploading);
                 }
-            } else if (CloudCreateService.UPLOAD_SUCCESS.equals(action)) {
+            } else if (UploadService.UPLOAD_SUCCESS.equals(action)) {
                 onUploadFinished(true);
-            } else if (CloudCreateService.UPLOAD_ERROR.equals(action)) {
+            } else if (UploadService.UPLOAD_ERROR.equals(action)) {
                 onUploadFinished(false);
-            } else if (CloudCreateService.UPLOAD_CANCELLED.equals(action)) {
+            } else if (UploadService.UPLOAD_CANCELLED.equals(action)) {
                 finish();
             }
         }
