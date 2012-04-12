@@ -11,7 +11,6 @@ import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -66,7 +65,7 @@ public class CloudRecorder {
     private CloudRecorder(Context context, AudioConfig config) {
         final int bufferSize = config.getMinBufferSize();
         mConfig = config;
-        mAudioRecord = config.createAudioRecord(bufferSize);
+        mAudioRecord = config.createAudioRecord(bufferSize * 4);
         mAudioTrack = config.createAudioTrack(bufferSize);
         mAudioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override public void onMarkerReached(AudioTrack track) {
@@ -80,7 +79,7 @@ public class CloudRecorder {
 
         buffer = ByteBuffer.allocateDirect(bufferSize);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-        bufferReadSize = (int) config.validBytePosition(mConfig.sampleRate / (FPS));
+        bufferReadSize =  (int) config.validBytePosition(mConfig.bytesPerSecond / (FPS));
         mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
         mState = State.IDLE;
     }
@@ -133,8 +132,12 @@ public class CloudRecorder {
     public void onDestroy() {
         stopPlayback();
         stopRecording(true);
-//        mAudioRecord.release();
-//        mAudioTrack.release();
+        //release();
+    }
+
+    private void release() {
+        mAudioRecord.release();
+        mAudioTrack.release();
     }
 
     private State startReadingInternal(State newState) {
@@ -344,8 +347,6 @@ public class CloudRecorder {
                         mAmplitudeAnalyzer.updateCurrentMax(buffer, read);
                         refreshHandler.sendEmptyMessage(0);
                     }
-                    SystemClock.sleep(Math.max(5,
-                            TIMER_INTERVAL - (System.currentTimeMillis() - start)));
                 }
                 Log.d(TAG, "exiting reader loop, stopping recording (mState="+mState+")");
                 mAudioRecord.stop();
