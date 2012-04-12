@@ -96,7 +96,14 @@ public class CloudRecorder {
         if (path == null) throw new IllegalArgumentException("path is null");
 
         if (mState != State.RECORDING) {
-            mRecordStream = new RecordStream(path, mConfig);
+            if (mRecordStream != null && !mRecordStream.file.equals(path)) {
+                mRecordStream.release();
+                mRecordStream = null;
+            }
+
+            if (mRecordStream == null) {
+                mRecordStream = new RecordStream(path, mConfig);
+            }
             startReadingInternal(State.RECORDING);
         } else throw new IllegalStateException("cannot record to file, in state " + mState);
 

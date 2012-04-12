@@ -25,10 +25,26 @@ JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_addSamples
 
 /*
  * Class:     com_soundcloud_android_jni_VorbisEncoder
- * Method:    finish
+ * Method:    pause
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_finish
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_pause
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisEncoder
+ * Method:    release
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_release
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisEncoder
+ * Method:    getState
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_getState
   (JNIEnv *, jobject);
 
 #ifdef __cplusplus

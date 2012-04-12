@@ -65,9 +65,7 @@ public class RecordStream implements Closeable {
             mWriter.close();
             mWriter = null;
 
-            mEncoder.finish();
-            mEncoder = null;
-
+            mEncoder.pause();
             initialised = false;
             return length;
         } catch (IOException e) {
@@ -80,6 +78,11 @@ public class RecordStream implements Closeable {
         finalizeStream();
     }
 
+    public void release()  {
+        finalizeStream();
+        if (mEncoder != null) mEncoder.release();
+    }
+
     public Uri toUri() {
         return Uri.fromFile(file);
     }
@@ -90,7 +93,14 @@ public class RecordStream implements Closeable {
 
     private void initialise() throws IOException {
         mWriter = new RandomAccessFile(file, "rw");
-        mEncoder = new VorbisEncoder(new File(file.getParentFile(), file.getName().concat(".ogg")), "a", config);
+
+        if (mEncoder == null) {
+            // initialise a new encoder object
+            long start = System.currentTimeMillis();
+            mEncoder = new VorbisEncoder(new File(file.getParentFile(), file.getName().concat(".ogg")), "a", config);
+            Log.d(TAG, "init in "+(System.currentTimeMillis()-start) + " msecs");
+        }
+
         if (!file.exists() || mWriter.length() == 0) {
             Log.d(TAG, "creating new WAV file");
             mWriter.setLength(0); // truncate

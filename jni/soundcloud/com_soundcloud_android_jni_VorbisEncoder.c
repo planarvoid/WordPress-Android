@@ -15,6 +15,9 @@
 #define LOG_D(args, ...) LOG(ANDROID_LOG_DEBUG, args, ##__VA_ARGS__)
 #define LOG_E(args, ...) LOG(ANDROID_LOG_ERROR, args, ##__VA_ARGS__)
 
+#define READY  0
+#define PAUSED 1
+
 typedef struct {
     vorbis_info      vi; /* struct that stores all the static vorbis bitstream settings */
     vorbis_comment   vc; /* struct that stores all the user comments */
@@ -27,6 +30,7 @@ typedef struct {
     FILE *file;
     char *file_name;
     int eos;
+    int e_state;     /* READY / PAUSED */
 } encoder_state;
 
 
@@ -37,6 +41,7 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj
     LOG_D("init(channels=%ld, rate=%ld, quality=%f)", (long)channels, (long)rate, quality);
     encoder_state *state = malloc(sizeof(encoder_state));
     state->eos = 0;
+    state->e_state = READY;
 
     vorbis_info_init(&state->vi);
     int ret = vorbis_encode_init_vbr(&state->vi, channels, rate, quality);
@@ -93,6 +98,16 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj
 jint Java_com_soundcloud_android_jni_VorbisEncoder_addSamples(JNIEnv* env, jobject obj, jobject samples, jlong length) {
     /* get state from instance */
     encoder_state *state = (encoder_state*) (*env)->GetIntField(env, obj, encoder_state_field);
+    if (!state) {
+        LOG_E("addSamples() called in wrong state");
+        return -1;
+    }
+
+    if (state->e_state == PAUSED) {
+        state->file = fopen(state->file_name, "a");
+        state->e_state = READY;
+        state->eos = 0;
+    }
 
     jbyte* bbuf_in = (jbyte*) (*env)->GetDirectBufferAddress(env, samples);
     float **buffer = vorbis_analysis_buffer(&state->vd, length);
@@ -130,25 +145,44 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_addSamples(JNIEnv* env, jobje
     return 0;
 }
 
+jint Java_com_soundcloud_android_jni_VorbisEncoder_pause(JNIEnv *env, jobject obj) {
+    LOG_D("pause");
 
-jint Java_com_soundcloud_android_jni_VorbisEncoder_finish(JNIEnv *env, jobject obj) {
-   LOG_D("finish");
-
-   /* get state from instance */
-   encoder_state *state = (encoder_state*) (*env)->GetIntField(env, obj, encoder_state_field);
-
-   vorbis_analysis_wrote(&state->vd, 0);
-   ogg_stream_clear(&state->os);
-   vorbis_block_clear(&state->vb);
-   vorbis_dsp_clear(&state->vd);
-   vorbis_comment_clear(&state->vc);
-   vorbis_info_clear(&state->vi);
-   fclose(state->file);
-   free(state->file_name);
-   free(state);
-   return 0;
+    encoder_state *state = (encoder_state*) (*env)->GetIntField(env, obj, encoder_state_field);
+    if (!state || state->e_state != READY) {
+        LOG_E("pause() called in wrong state");
+        return -1;
+    } else {
+        fclose(state->file);
+        state->e_state = PAUSED;
+        return 0;
+    }
 }
 
+jint Java_com_soundcloud_android_jni_VorbisEncoder_getState(JNIEnv *env, jobject obj) {
+    encoder_state *state = (encoder_state*) (*env)->GetIntField(env, obj, encoder_state_field);
+    return state == NULL ? -1 : state->e_state;
+}
+
+void Java_com_soundcloud_android_jni_VorbisEncoder_release(JNIEnv *env, jobject obj) {
+   LOG_D("release");
+   /* get state from instance */
+   encoder_state *state = (encoder_state*) (*env)->GetIntField(env, obj, encoder_state_field);
+   if (!state) {
+       (*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/IllegalStateException"), "already released");
+   } else {
+       vorbis_analysis_wrote(&state->vd, 0);
+       ogg_stream_clear(&state->os);
+       vorbis_block_clear(&state->vb);
+       vorbis_dsp_clear(&state->vd);
+       vorbis_comment_clear(&state->vc);
+       vorbis_info_clear(&state->vi);
+       fclose(state->file);
+       free(state->file_name);
+       free(state);
+       (*env)->SetIntField(env, obj, encoder_state_field, (int) NULL);
+   }
+}
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     JNIEnv* env;

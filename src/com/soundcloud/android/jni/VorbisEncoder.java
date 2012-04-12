@@ -3,6 +3,8 @@ package com.soundcloud.android.jni;
 import com.soundcloud.android.record.AudioConfig;
 import com.soundcloud.android.record.WaveHeader;
 
+import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -78,13 +80,45 @@ public class VorbisEncoder {
                 quality);
 
         encoder.addSamples(wav);
-        return encoder.finish();
+        return encoder.pause();
     }
 
-    // native methods
+
     native private int init(String output, String mode, long channels, long rate, float quality);
+
+    /**
+     * Add some samples to the current file.
+     * @param samples
+     * @param length
+     * @return < 0 in error case
+     */
     native public int addSamples(ByteBuffer samples, long length);
-    native public int finish();
+
+
+    /**
+     * Pauses the current encoding process (closes the file).
+     */
+    native public int pause();
+
+    /**
+     * Call to free up resources. The encoder cannot be used after this method has been called.
+     * @throws IllegalStateException if the encoder has been released previously
+     */
+    native public void release();
+
+    /**
+     * @return the current state (0 = ready to encode, 1 = paused, < 0 uninitialised)
+     */
+    native int getState();
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        if (getState() >= 0) {
+            Log.w(TAG, "unreleased encoder in finalize() - call release() when done with encoder");
+            release();
+        }
+    }
 
     static {
         System.loadLibrary("soundcloud_audio");
