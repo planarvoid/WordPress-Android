@@ -80,7 +80,8 @@ public class VorbisEncoder {
                 quality);
 
         encoder.addSamples(wav);
-        return encoder.pause();
+        encoder.release();
+        return 0;
     }
 
 
