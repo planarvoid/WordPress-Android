@@ -51,37 +51,6 @@ object Mavenizer {
         </plugin>
 
         <plugin>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <version>2.4</version>
-          <executions>
-            <execution>
-              <phase>process-resources</phase>
-              <goals>
-                <goal>copy-dependencies</goal>
-              </goals>
-              <configuration>
-                <outputDirectory>lib</outputDirectory>
-                <excludeTransitive>false</excludeTransitive>
-                <includeScope>runtime</includeScope>
-              </configuration>
-            </execution>
-            <execution>
-              <id>test-libs</id>
-              <phase>process-resources</phase>
-              <goals>
-                <goal>copy-dependencies</goal>
-              </goals>
-              <configuration>
-                <outputDirectory>tests/lib</outputDirectory>
-                <excludeTransitive>false</excludeTransitive>
-                <includeScope>test</includeScope>
-                <excludeArtifactIds>soundcloud-android</excludeArtifactIds>
-                <overWriteSnapshots>true</overWriteSnapshots>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.9</version>
