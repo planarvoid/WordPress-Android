@@ -31,7 +31,8 @@ object AndroidBuild extends Build {
     "com.google.android" % "filecache" % "r153",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
     "com.at" % "ATInternet" % "1.1.003",
-    "com.google.android" % "support-v4" % "r6"
+    "com.google.android" % "support-v4" % "r6",
+    "com.google.android" % "android" % "2.3.3" % "provided"
   )
 
   val testDependencies = Seq(
@@ -42,7 +43,6 @@ object AndroidBuild extends Build {
     "com.github.xian" % "great-expectations" % "0.10" % "test",
     "org.scalatest" %% "scalatest" % "1.7.1" % "test",
     "org.scala-lang" % "scala-compiler" % "2.9.1" % "test",
-    "com.google.android" % "android" % "2.3.3" % "test",
     junit_interface
   )
 
