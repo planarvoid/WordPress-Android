@@ -41,7 +41,7 @@ public class UploadServiceTest {
     public void shouldNotifyAboutUploadSuccess() throws Exception {
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
         final Recording upload = TestApplication.getValidRecording();
-        upload.title = "testing";
+        upload.what_text = "testing";
 
         svc.onUpload(upload);
 
@@ -59,7 +59,7 @@ public class UploadServiceTest {
     public void shouldNotifyAboutUploadFailure() throws Exception {
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "ohnoez"));
         final Recording upload = TestApplication.getValidRecording();
-        upload.title = "testing";
+        upload.what_text = "testing";
 
         svc.onUpload(upload);
 

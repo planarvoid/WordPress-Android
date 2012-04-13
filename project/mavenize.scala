@@ -100,6 +100,7 @@ object Mavenizer {
               <fileset> <directory>tests/lib</directory> </fileset>
               <fileset> <directory>libs</directory> </fileset>
               <fileset> <directory>obj</directory> </fileset>
+              <fileset> <directory>tmp</directory> </fileset>
             </filesets>
           </configuration>
       </plugin>
