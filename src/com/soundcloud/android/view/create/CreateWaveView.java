@@ -261,6 +261,7 @@ public class CreateWaveView extends View {
                     if (currentProgressIndex < 0) {
                         drawPointsOnCanvas(c, points, PLAYED_PAINT, Math.max(mTrimLeft, 1), mTrimRight - 1);
                     } else {
+
                         final int playMin = Math.max(mTrimLeft + 1, currentProgressIndex);
                         drawPointsOnCanvas(c, points, PLAYED_PAINT, mTrimLeft + 1, playMin);
                         drawPointsOnCanvas(c, points, UNPLAYED_PAINT, Math.min(mTrimRight - 1, Math.max(playMin, currentProgressIndex)), mTrimRight - 1);

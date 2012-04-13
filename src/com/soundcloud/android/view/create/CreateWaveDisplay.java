@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.create;
 
+import android.util.Log;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
 
@@ -43,7 +44,7 @@ public class CreateWaveDisplay extends TouchLayout {
     private float trimPercentLeft, trimPercentRight;
     private int waveformWidth;
 
-    private int leftDragOffsetX, rightDragOffsetX, lastTrimLeftX, lastTrimRightX;
+    private int leftDragOffsetX, rightDragOffsetX, lastTrimLeftX = -1, lastTrimRightX = -1;
 
     public static interface Listener {
         void onSeek(float pos);
@@ -152,6 +153,7 @@ public class CreateWaveDisplay extends TouchLayout {
         if (mSeekMode){
                seekTouch(input.x);
         } else {
+
             if (mLeftHandleTouchIndex > -1){
                 lastTrimLeftX = Math.max(0,Math.min(rightHandle.getLeft() - leftHandle.getWidth(),
                         (mLeftHandleTouchIndex == 0 ? input.x : input.pointerX) - leftDragOffsetX));
@@ -277,10 +279,9 @@ public class CreateWaveDisplay extends TouchLayout {
                         }
                     }
 
-                    if (rightLp.rightMargin != (waveformWidth - lastTrimRightX)) {
+                    if (lastTrimRightX != -1 && rightLp.rightMargin != (waveformWidth - lastTrimRightX)) {
                         rightLp.rightMargin = (waveformWidth - lastTrimRightX);
                         rightHandle.requestLayout();
-
                         mWaveformView.setTrimRight(lastTrimRightX);
                         trimPercentRight = Math.min(1, ((float) lastTrimRightX / waveformWidth));
                         if (mListener != null) {

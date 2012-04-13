@@ -51,7 +51,7 @@ public class CloudRecorder {
     final private ByteBuffer buffer;
     final private int bufferReadSize;
 
-    private long mCurrentPosition, mTotalBytes, mStartPos, mEndPos, mDuration, mSeekToPos = -1;
+    private long mCurrentPosition, mDuration, mSeekToPos = -1;
 
     private LocalBroadcastManager mBroadcastManager;
 
@@ -177,8 +177,7 @@ public class CloudRecorder {
     }
 
     public void resetPlaybackBounds() {
-        mStartPos = 0;
-        mEndPos = mTotalBytes;
+        if (mRecordStream != null) mRecordStream.resetPlaybackBounds();
     }
 
     public boolean isPlaying() {
@@ -201,7 +200,7 @@ public class CloudRecorder {
     }
 
     public void seekToPercentage(float percentage) {
-        seekTo((long) (percentage * mTotalBytes));
+        seekTo((long) (percentage * mRecordStream.length()));
     }
 
     public void seekTo(long position) {
@@ -215,16 +214,16 @@ public class CloudRecorder {
     }
 
     public void onNewStartPosition(double percent) {
-        mStartPos = mConfig.validBytePosition((long) (percent * mTotalBytes));
+        mRecordStream.setStartPositionByPercent(percent);
         if (mState == State.PLAYING) {
-            seekTo(mStartPos);
+            seekTo(mRecordStream.startPosition);
         }
     }
 
     public void onNewEndPosition(double percent) {
-        mEndPos = mConfig.validBytePosition((long) (percent * mTotalBytes));
+        mRecordStream.setEndPositionByPercent(percent);
         if (mState == State.PLAYING) {
-            seekTo(Math.max(mStartPos, mEndPos - mConfig.msToByte(TRIM_PREVIEW_LENGTH)));
+            seekTo(Math.max(mRecordStream.startPosition, mRecordStream.endPosition - mConfig.msToByte(TRIM_PREVIEW_LENGTH)));
         }
     }
 
@@ -243,19 +242,18 @@ public class CloudRecorder {
             setPriority(Thread.MAX_PRIORITY);
         }
 
-        private void play(RandomAccessFile file, long pos) throws IOException {
-            if (pos >= 0 && pos < file.length()) {
+        private void play(RandomAccessFile file) throws IOException {
+            if (mCurrentPosition >= 0 && mCurrentPosition < file.length()) {
                 final int bufferSize = 1024; //arbitrary small buffer. makes for more accurate progress reporting
                 byte[] buffer = new byte[bufferSize];
 
-                file.seek(pos);
-                mCurrentPosition = pos;
+                file.seek(mCurrentPosition);
                 mState = CloudRecorder.State.PLAYING;
                 int n;
 
-                while (mState == CloudRecorder.State.PLAYING && (n = file.read(buffer, 0, bufferSize)) > -1 && (mCurrentPosition < mEndPos)) {
+                while (mState == CloudRecorder.State.PLAYING && (n = file.read(buffer, 0, bufferSize)) > -1 && (mCurrentPosition < mRecordStream.endPosition)) {
 
-                    int written = mAudioTrack.write(buffer, 0, n);
+                    int written = mAudioTrack.write(mRecordStream.applyMods(buffer,mCurrentPosition), 0, n);
                     if (written < 0) {
                         Log.d(TAG, "write() returned "+written);
                         mState = CloudRecorder.State.ERROR;
@@ -264,27 +262,33 @@ public class CloudRecorder {
                     }
                 }
             } else {
-                Log.w(TAG, "dataStart > length: " + pos + ">" + file.length());
-                throw new IOException("pos > length: " + pos + ">" + file.length());
+                Log.w(TAG, "dataStart > length: " + mCurrentPosition + ">" + file.length());
+                throw new IOException("pos > length: " + mCurrentPosition + ">" + file.length());
             }
         }
 
         public void run() {
             synchronized (mAudioRecord) {
-                Log.d(TAG, String.format("starting player thread (%d)", mStartPos));
+                Log.d(TAG, String.format("starting player thread (%d)", mRecordStream.startPosition));
                 mAudioTrack.play();
 
                 RandomAccessFile file = null;
                 try {
                     file = new RandomAccessFile(mRecordStream.file, "r");
+                    mState = CloudRecorder.State.PLAYING;
+
+                    final long start = mRecordStream.startPosition+WaveHeader.LENGTH;
+                    // resume from current position if it is valid, otherwise use start position. this is done before broadcast for reporting
+                    mCurrentPosition = mCurrentPosition > start && mCurrentPosition < mRecordStream.endPosition ? mCurrentPosition : start;
+
                     broadcast(CloudCreateService.PLAYBACK_STARTED);
+
                     do {
                         if (mState == CloudRecorder.State.SEEKING) {
                             mCurrentPosition = mSeekToPos;
                             mSeekToPos = -1;
                         }
-                        final long start = mConfig.validBytePosition(mStartPos)+WaveHeader.LENGTH;
-                        play(file, mCurrentPosition > start && mCurrentPosition < mEndPos ? mCurrentPosition : start);
+                        play(file);
                     } while (mState == CloudRecorder.State.SEEKING);
 
                 } catch (IOException e) {
@@ -295,8 +299,8 @@ public class CloudRecorder {
                     mAudioTrack.stop();
                 }
 
-                Log.d(TAG, "player loop exit: state="+mState+", position="+mCurrentPosition+" of " + mEndPos);
-                if (mState == CloudRecorder.State.PLAYING && mCurrentPosition >= mEndPos) {
+                Log.d(TAG, "player loop exit: state="+mState+", position="+mCurrentPosition+" of " +  mRecordStream.endPosition);
+                if (mState == CloudRecorder.State.PLAYING && mCurrentPosition >=  mRecordStream.endPosition) {
                     mCurrentPosition = -1;
                     broadcast(CloudCreateService.PLAYBACK_COMPLETE);
                 } else {
@@ -352,7 +356,7 @@ public class CloudRecorder {
                 mAudioRecord.stop();
 
                 if (mState != CloudRecorder.State.ERROR) {
-                    mTotalBytes = mRecordStream.finalizeStream();
+                    mRecordStream.finalizeStream();
                     resetPlaybackBounds();
                     broadcast(CloudCreateService.RECORD_FINISHED);
                 } else {
