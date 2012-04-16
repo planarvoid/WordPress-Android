@@ -4,7 +4,7 @@
 
 Make sure the [Android SDK][], [Android NDK][] and Maven are installed:
 
-    $ brew install android-sdk android-ndk # OSX - you'll also nned XCode CLI tools
+    $ brew install android-sdk android-ndk # OSX - you'll also need XCode CLI tools
     $ mvn -version
 
 Clone and build it:
