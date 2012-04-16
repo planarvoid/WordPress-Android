@@ -5,12 +5,13 @@ import static com.soundcloud.android.Consts.Notifications.UPLOADING_NOTIFY_ID;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.RecordStream;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.CloudCreateService;
-import com.soundcloud.api.CloudAPI;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -104,7 +105,11 @@ public class UploadService extends Service {
             if (recording.hasArtwork() && recording.resized_artwork_path == null) {
                 post(new ImageResizer(UploadService.this, recording));
             } else {
-                post(new Uploader((CloudAPI) getApplication(), (Recording) msg.obj));
+                if (recording.encoded_audio_path == null) {
+                    // TODO: queue for encoding if not encoded yet
+                    recording.encoded_audio_path = RecordStream.encodedFilename(recording.audio_path);
+                }
+                post(new Uploader((SoundCloudApplication) getApplication(), recording));
             }
         }
     }
@@ -197,9 +202,7 @@ public class UploadService extends Service {
                        UPLOAD_ERROR.equals(action) ||
                        UPLOAD_CANCELLED.equals(action)) {
 
-                recording.updateStatus(getContentResolver());
                 mUploads.remove(recording.id);
-
                 Notification n = notifyUploadCurrentUploadFinished(recording);
                 if (n != null) {
                     nm.cancel(UPLOADING_NOTIFY_ID);
@@ -207,10 +210,9 @@ public class UploadService extends Service {
                 } else {
                     nm.cancel(UPLOADING_NOTIFY_ID);
                 }
-
                 releaseLocks();
 
-                if (!isUploading()) { // last one switches of the lights
+                if (!isUploading()) { // last one switch off the lights
                     Log.d(TAG, "no more uploads, stopping service");
                     stopSelf();
                 }

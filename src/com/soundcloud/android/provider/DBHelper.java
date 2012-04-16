@@ -192,8 +192,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "service_ids VARCHAR(255)," +
             "is_private BOOLEAN," +
             "external_upload BOOLEAN," +
-            "upload_status INTEGER DEFAULT 0," +
-            "upload_error BOOLEAN"+
+            "upload_status INTEGER DEFAULT 0" +
             ");";
 
     static final String DATABASE_CREATE_COMMENTS = "("+
@@ -486,9 +485,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String SERVICE_IDS     = "service_ids";
         public static final String IS_PRIVATE      = "is_private";
         public static final String EXTERNAL_UPLOAD = "external_upload";
-        public static final String AUDIO_PROFILE   = "audio_profile";
         public static final String UPLOAD_STATUS   = "upload_status";
-        public static final String UPLOAD_ERROR    = "upload_error";
         public static final String FOUR_SQUARE_VENUE_ID = "four_square_venue_id";
     }
 

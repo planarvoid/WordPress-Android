@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class RecordStream implements Closeable {
     private VorbisEncoder mEncoder;
@@ -107,7 +106,7 @@ public class RecordStream implements Closeable {
         if (mEncoder == null) {
             // initialise a new encoder object
             long start = System.currentTimeMillis();
-            mEncoder = new VorbisEncoder(new File(file.getParentFile(), file.getName().concat(".ogg")), "a", config);
+            mEncoder = new VorbisEncoder(encodedFilename(file), "a", config);
             Log.d(TAG, "init in "+(System.currentTimeMillis()-start) + " msecs");
         }
 
@@ -164,5 +163,9 @@ public class RecordStream implements Closeable {
         final short s = (short) ((short) ((0xff & buffer[byteIndex + 1]) << 8 | (0xff & buffer[byteIndex])) * Math.pow(volChange, FADE_EXP_CURVE));
         buffer[byteIndex + 1] = (byte) ((s >> 8) & 0xff);
         buffer[byteIndex] = (byte) (s & 0xff);
+    }
+
+    public static File encodedFilename(File file) {
+        return new File(file.getParentFile(), file.getName().concat(".ogg"));
     }
 }

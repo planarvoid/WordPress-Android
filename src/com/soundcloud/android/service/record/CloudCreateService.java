@@ -11,6 +11,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.AudioConfig;
 import com.soundcloud.android.record.CloudRecorder;
+import com.soundcloud.android.record.RecordStream;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.utils.IOUtils;
 
@@ -175,7 +176,7 @@ public class CloudCreateService extends Service  {
     }
 
     private Notification createRecordingNotification(Recording recording) {
-        mRecordPendingIntent = PendingIntent.getActivity(this, 0, recording.getIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
+        mRecordPendingIntent = PendingIntent.getActivity(this, 0, recording.getViewIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
         mRecordNotification = createOngoingNotification(getString(R.string.cloud_recorder_notification_ticker), mRecordPendingIntent);
         mRecordNotification.setLatestEventInfo(this, getString(R.string.cloud_recorder_event_title),
                 getString(R.string.cloud_recorder_event_message, 0),

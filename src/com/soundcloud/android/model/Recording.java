@@ -80,8 +80,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
     private static final Pattern ENCODED_PATTERN = Pattern.compile("^.*\\.(0|1|mp4|ogg)$");
 
-    public static final String TAG_SOURCE_ANDROID_RECORD    = "soundcloud:source=android-record";
-    public static final String TAG_RECORDING_TYPE_DEDICATED = "soundcloud:recording-type=dedicated";
+    public static final String TAG_SOURCE_ANDROID_RECORD          = "soundcloud:source=android-record";
+    public static final String TAG_RECORDING_TYPE_DEDICATED       = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
 
 
@@ -92,17 +92,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
         int ERROR               = 3; // network / api error
     }
 
-    public long lastModified() {
-        return audio_path.lastModified();
-    }
-
-    public String getAbsolutePath() {
-        return audio_path.getAbsolutePath();
-    }
-
-    public boolean setLastModified(long l) {
-        return audio_path.setLastModified(l);
-    }
 
     public Recording(File f) {
         if (f == null) throw new IllegalArgumentException("file is null");
@@ -161,6 +150,14 @@ public class Recording extends ScModel implements Comparable<Recording> {
                 return new File(imageDir, audio_path.getName()+".bmp");
             }
         }
+    }
+
+    public long lastModified() {
+        return audio_path.lastModified();
+    }
+
+    public String getAbsolutePath() {
+        return audio_path.getAbsolutePath();
     }
 
     public List<String> getTags() {
@@ -334,13 +331,16 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public boolean updateStatus(ContentResolver resolver) {
-        ContentValues cv = new ContentValues();
-        cv.put(Recordings.UPLOAD_STATUS, status);
-        cv.put(Recordings.UPLOAD_ERROR, status == Recording.Status.NOT_YET_UPLOADED);
-        if (audio_path != null) {
-            cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
+        if (id > 0) {
+            ContentValues cv = new ContentValues();
+            cv.put(Recordings.UPLOAD_STATUS, status);
+            if (audio_path != null) {
+                cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
+            }
+            return resolver.update(toUri(), cv, null, null) > 0;
+        } else {
+            return false;
         }
-        return resolver.update(toUri(), cv, null, null) > 0;
     }
 
     private String recordingDateString(Resources res) {
@@ -379,6 +379,13 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return new Intent(Actions.UPLOAD_CANCEL).putExtra(UploadService.EXTRA_RECORDING, this);
     }
 
+    public Intent getViewIntent() {
+        if (private_user_id > 0) {
+            return new Intent(Actions.MESSAGE).putExtra("recipient", private_user_id);
+        } else {
+            return new Intent(Actions.RECORD);
+        }
+    }
 
     public Map<String, ?> toParamsMap(Context context) {
         Map<String, Object> data = new HashMap<String, Object>();
@@ -454,6 +461,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
      */
     public void onUploaded() {
         status = Status.UPLOADED;
+        IOUtils.deleteFile(resized_artwork_path);
     }
 
     public boolean isUploaded() {
@@ -523,16 +531,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     @Override public int compareTo(Recording recording) {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
-    }
-
-    public Intent getIntent() {
-        Intent intent;
-        if (private_user_id > 0) {
-            intent = new Intent(Actions.MESSAGE).putExtra("recipient", private_user_id);
-        } else {
-            intent = new Intent(Actions.RECORD);
-        }
-        return intent;
     }
 }
 

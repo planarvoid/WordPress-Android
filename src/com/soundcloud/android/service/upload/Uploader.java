@@ -2,8 +2,8 @@ package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -21,15 +21,16 @@ import java.io.File;
 import java.io.IOException;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
-    private CloudAPI api;
-    private Recording upload;
-    private boolean mCanceled;
+    private SoundCloudApplication app;
+    private Recording mUpload;
+    private volatile boolean mCanceled;
+
     private LocalBroadcastManager mBroadcastManager;
 
-    public Uploader(CloudAPI api, Recording recording) {
-        this.api = api;
-        this.upload = recording;
-        mBroadcastManager = LocalBroadcastManager.getInstance((Context) api);
+    public Uploader(SoundCloudApplication app, Recording recording) {
+        this.app = app;
+        mUpload = recording;
+        mBroadcastManager = LocalBroadcastManager.getInstance(app);
         mBroadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
     }
 
@@ -49,6 +50,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             onUploadFailed(e);
         } finally {
             mBroadcastManager.unregisterReceiver(this);
+            mUpload.updateStatus(app.getContentResolver());
         }
     }
 
@@ -56,12 +58,12 @@ public class Uploader extends BroadcastReceiver implements Runnable {
      * @throws IllegalArgumentException
      */
     private void upload() {
-        final File toUpload = upload.getAudio();
+        final File toUpload = mUpload.getAudio();
         if (toUpload == null || !toUpload.exists()) throw new IllegalArgumentException("File to be uploaded does not exist");
         if (toUpload.length() == 0) throw new IllegalArgumentException("File to be uploaded is empty");
 
         final FileBody soundBody = new FileBody(toUpload);
-        final FileBody artworkBody = upload.hasArtwork() ? new FileBody(upload.getArtwork()) : null;
+        final FileBody artworkBody = mUpload.hasArtwork() ? new FileBody(mUpload.getArtwork()) : null;
 
         final long totalTransfer = soundBody.getContentLength() + (artworkBody == null ? 0 : artworkBody.getContentLength());
 
@@ -70,8 +72,9 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             Log.v(TAG, "starting upload of " + toUpload);
 
             broadcast(UploadService.UPLOAD_STARTED);
-            HttpResponse response = api.post(upload.getRequest((Context) api, toUpload, new Request.TransferProgressListener() {
+            HttpResponse response = app.post(mUpload.getRequest(app, toUpload, new Request.TransferProgressListener() {
                 long lastPublished;
+
                 @Override
                 public void transferred(long transferred) throws IOException {
                     if (isCancelled()) throw new CanceledUploadException();
@@ -79,7 +82,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
                     if (System.currentTimeMillis() - lastPublished > 1000) {
                         final int progress = (int) Math.min(100, (100 * transferred) / totalTransfer);
                         mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_PROGRESS)
-                                .putExtra(UploadService.EXTRA_RECORDING, upload)
+                                .putExtra(UploadService.EXTRA_RECORDING, mUpload)
                                 .putExtra(UploadService.EXTRA_TRANSFERRED, transferred)
                                 .putExtra(UploadService.EXTRA_PROGRESS, progress)
                                 .putExtra(UploadService.EXTRA_TOTAL, totalTransfer));
@@ -108,32 +111,32 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     }
 
     protected void onUploadCancelled(CanceledUploadException e) {
-        upload.setUploadException(e);
+        mUpload.setUploadException(e);
         broadcast(UploadService.UPLOAD_CANCELLED);
     }
 
     protected void onUploadFailed(Exception e) {
         Log.e(TAG, "Error uploading", e);
-        upload.setUploadException(e);
+        mUpload.setUploadException(e);
         broadcast(UploadService.UPLOAD_ERROR);
     }
 
     protected void onUploadSuccess() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful");
-        upload.onUploaded();
+        mUpload.onUploaded();
         broadcast(UploadService.UPLOAD_SUCCESS);
     }
 
     protected void broadcast(String action) {
         mBroadcastManager.sendBroadcast(new Intent(action)
-                .putExtra(UploadService.EXTRA_RECORDING, upload));
+                .putExtra(UploadService.EXTRA_RECORDING, mUpload));
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-        if (upload.equals(recording)) {
-            Log.d(TAG, "canceling upload of "+upload);
+        if (mUpload.equals(recording)) {
+            Log.d(TAG, "canceling upload of "+ mUpload);
             cancel();
         }
     }
