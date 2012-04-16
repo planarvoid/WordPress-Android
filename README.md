@@ -2,9 +2,9 @@
 
 ## Building
 
-Make sure the [Android SDK][] and Maven are installed:
+Make sure the [Android SDK][], [Android NDK][] and Maven are installed:
 
-    $ brew install android-sdk  # OSX
+    $ brew install android-sdk android-ndk # OSX - you'll also nned XCode CLI tools
     $ mvn -version
 
 Clone and build it:
@@ -83,6 +83,7 @@ This is document elsewhere:
 
 
 [Android SDK]: http://developer.android.com/sdk/index.html
+[Android NDK]: http://developer.android.com/sdk/ndk/index.html
 [Builder]: http://builder.soundcloud.com/view/Android/job/soundcloud-android/
 [changelog.txt]: https://github.com/soundcloud/SoundCloud-Android/blob/master/res/raw/changelog.txt
 [Token Sharing]: https://github.com/soundcloud/android-token-sharing
