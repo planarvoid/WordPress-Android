@@ -5,7 +5,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.tracking.Click;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -51,33 +50,28 @@ public final class ImageUtils {
     private ImageUtils() {}
 
 
-    public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
-            int targetHeight) throws IOException {
-        return determineResizeOptions(imageUri, targetHeight, targetHeight, false);
-    }
-
-    public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
+    public static BitmapFactory.Options determineResizeOptions(File imageFile, int targetWidth,
                                                                int targetHeight, boolean crop) throws IOException {
         final BitmapFactory.Options options = new BitmapFactory.Options();
         if (targetWidth == 0 || targetHeight == 0) return options; // some devices report 0
 
         options.inJustDecodeBounds = true;
-        InputStream is = new FileInputStream(imageUri);
+        InputStream is = new FileInputStream(imageFile);
         BitmapFactory.decodeStream(is, null, options);
         is.close();
 
         int height = options.outHeight;
         int width = options.outWidth;
 
-        if (crop){
-        if (height > targetHeight || width > targetWidth) {
-            if (targetHeight / height < targetWidth / width) {
-                options.inSampleSize = Math.round(height / targetHeight);
-            } else {
-                options.inSampleSize = Math.round(width / targetWidth);
-            }
+        if (crop) {
+            if (height > targetHeight || width > targetWidth) {
+                if (targetHeight / height < targetWidth / width) {
+                    options.inSampleSize = Math.round(height / targetHeight);
+                } else {
+                    options.inSampleSize = Math.round(width / targetWidth);
+                }
 
-        }
+            }
         } else  if (targetHeight / height > targetWidth / width) {
             options.inSampleSize = Math.round(height / targetHeight);
         } else {
@@ -146,7 +140,7 @@ public final class ImageUtils {
     public static boolean setImage(File imageFile, ImageView imageView, int viewWidth, int viewHeight) {
         Bitmap bitmap;
         try {
-            BitmapFactory.Options opt = determineResizeOptions(imageFile, viewWidth, viewHeight);
+            BitmapFactory.Options opt = determineResizeOptions(imageFile, viewWidth, viewHeight, false);
 
             BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
             sampleOpt.inSampleSize = opt.inSampleSize;
@@ -187,7 +181,7 @@ public final class ImageUtils {
 
     public static boolean resizeImageFile(File inputFile, File outputFile, int width, int height)
             throws IOException {
-        BitmapFactory.Options options = determineResizeOptions(inputFile, width, height);
+        BitmapFactory.Options options = determineResizeOptions(inputFile, width, height, false);
         int sampleSize = options.inSampleSize;
         int degree = 0;
         ExifInterface exif = new ExifInterface(inputFile.getAbsolutePath());
@@ -232,13 +226,14 @@ public final class ImageUtils {
             FileOutputStream out = new FileOutputStream(outputFile);
             final boolean success = bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.close();
-            ImageUtils.clearBitmap(bitmap);
+            clearBitmap(bitmap);
             return success;
         } else {
             return false;
         }
     }
 
+    @SuppressWarnings("UnnecessaryLocalVariable")
     public static void drawBubbleOnCanvas(Canvas c,
                                           Paint bgPaint,
                                           Paint linePaint,
@@ -294,6 +289,7 @@ public final class ImageUtils {
 
         ctx.lineTo(Hx, Hy);
         ctx.lineTo(Ix, Iy);
+        //noinspection PointlessArithmeticExpression
         ctx.arcTo(new RectF(Ax - arc, Ay, Ix + arc, Iy), 180, 90); //F-A arc
         c.drawPath(ctx, bgPaint);
 
@@ -302,6 +298,7 @@ public final class ImageUtils {
         }
     }
 
+    @SuppressWarnings("UnnecessaryLocalVariable")
     public static void drawSquareBubbleOnCanvas(Canvas c, Paint bgPaint, Paint linePaint, int width, int height, int arrowWidth, int arrowHeight, int arrowOffset){
 
         /*
@@ -478,6 +475,4 @@ public final class ImageUtils {
             return imageLoader.getBitmap(targetUri,callback,options);
         }
     }
-
-
 }

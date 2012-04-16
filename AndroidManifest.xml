@@ -176,7 +176,14 @@
         <activity android:name=".activity.LocationPicker"/>
         <activity android:name=".activity.EmailConfirm"/>
         <activity android:name=".activity.ScCreate" android:theme="@style/Theme.ScNoBackground" />
-        <activity android:name=".activity.UploadMonitor" android:launchMode="singleTask" />
+
+        <activity android:name=".activity.UploadMonitor" android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.actions.upload.monitor"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name=".activity.ScUpload" android:windowSoftInputMode="adjustPan">
 
             <intent-filter>
@@ -203,9 +210,11 @@
         <service android:name=".service.sync.ApiSyncService"/>
         <service android:name=".service.playback.CloudPlaybackService"/>
         <service android:name=".service.record.CloudCreateService"/>
+
         <service android:name=".service.upload.UploadService" android:exported="false">
             <intent-filter>
                 <action android:name="com.soundcloud.android.actions.upload"/>
+                <action android:name="com.soundcloud.android.actions.upload.cancel"/>
             </intent-filter>
         </service>
 

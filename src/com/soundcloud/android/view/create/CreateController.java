@@ -105,7 +105,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         mRecording = recording;
         mPrivateUser = privateUser;
 
-        mHandler = mActivity.getHandler();
+        mHandler = new Handler();
 
         btn_rec_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_states);
         btn_rec_stop_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_pause_states);

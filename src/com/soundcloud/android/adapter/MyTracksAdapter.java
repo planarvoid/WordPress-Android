@@ -106,7 +106,7 @@ public class MyTracksAdapter extends TracklistAdapter {
                 changed = true;
             }
         }
-        if (changed)  onContentChanged();
+        if (changed) onContentChanged();
     }
 
     @Override

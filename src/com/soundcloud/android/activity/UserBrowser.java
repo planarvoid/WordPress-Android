@@ -39,7 +39,9 @@ import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -799,10 +801,21 @@ public class UserBrowser extends ScActivity implements
     }
 
     @Override
-    protected void handleRecordingClick(Recording recording) {
-        if (recording.upload_status == Recording.Status.UPLOADING)
-            safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
-        else {
+    protected void handleRecordingClick(final Recording recording) {
+        if (recording.upload_status == Recording.Status.UPLOADING) {
+            new AlertDialog.Builder(this)
+                .setTitle(null)
+                .setMessage(R.string.dialog_cancel_upload_message)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        recording.cancelUpload(UserBrowser.this);
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .create()
+                .show();
+        } else {
             if (recording.private_user_id <= 0) {
                 startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
             } else {

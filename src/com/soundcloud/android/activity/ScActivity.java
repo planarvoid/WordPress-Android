@@ -73,21 +73,13 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
     protected List<ScListView> mLists;
 
-    private MenuItem menuCurrentUploadingItem;
     private long mCurrentUserId;
     private boolean mIgnorePlaybackStatus;
 
     private static final int CONNECTIVITY_MSG = 0;
 
-    // Need handler for callbacks to the UI thread
-    protected final Handler mHandler = new Handler();
-
     public SoundCloudApplication getApp() {
         return (SoundCloudApplication) getApplication();
-    }
-
-    public Handler getHandler(){
-        return mHandler;
     }
 
     public boolean isConnected() {
@@ -237,7 +229,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     @Override
     protected void onStart() {
         super.onStart();
-
         connectivityListener.startListening(this);
 
         CloudUtils.bindToService(this, CloudPlaybackService.class, osc);
@@ -359,22 +350,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         }
     }
 
-    /*
-    // WTF? why is this in ScActivity?
-    // called from UserBrowser XXX replace with intent
-    public Upload startUpload(Recording r) {
-        if (mCreateService == null) return null;
-
-        final Upload upload = new Upload(r, getResources());
-        if (mCreateService.startUpload(upload)) {
-            return upload;
-        } else {
-            showToast(R.string.wait_for_upload_to_finish);
-            return null;
-        }
-    }
-    */
-
     public void showToast(int stringId) {
         CloudUtils.showToast(this, stringId);
     }
@@ -495,23 +470,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     @Override
     protected Dialog onCreateDialog(int which) {
         switch (which) {
-            case Consts.Dialogs.DIALOG_CANCEL_UPLOAD:
-                return new AlertDialog.Builder(this)
-                        .setTitle(null)
-                        .setMessage(R.string.dialog_cancel_upload_message).setPositiveButton(
-                                android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                // XXX this should be handled by ScCreate
-                                mUploadService.cancelUpload();
-                                removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
-                            }
-                        }).setNegativeButton(android.R.string.no,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        removeDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
-                                    }
-                                }).create();
-
             case Consts.Dialogs.DIALOG_UNAUTHORIZED:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_unauthorized_title)
                         .setMessage(R.string.error_unauthorized_message).setNegativeButton(
@@ -552,10 +510,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
                 menu.size(), R.string.menu_incoming).setIcon(R.drawable.ic_menu_incoming);
         }
 
-        menuCurrentUploadingItem = menu.add(menu.size(),
-                Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD, menu.size(),
-                R.string.menu_cancel_current_upload).setIcon(R.drawable.ic_menu_delete);
-
         menu.add(menu.size(), Consts.OptionsMenu.FRIEND_FINDER, menu.size(), R.string.menu_friend_finder)
                 .setIcon(R.drawable.ic_menu_friendfinder);
 
@@ -571,14 +525,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
                 .setIcon(android.R.drawable.ic_menu_preferences);
 
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean uploading = false;
-        if (mCreateService != null) uploading = mUploadService.isUploading();
-        menuCurrentUploadingItem.setVisible(uploading);
-        return true;
     }
 
     @Override
@@ -601,9 +547,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
                     .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     .putExtra("userBrowserTag", UserBrowser.Tab.friend_finder.name());
                 startActivity(intent);
-                return true;
-            case Consts.OptionsMenu.CANCEL_CURRENT_UPLOAD:
-                safeShowDialog(Consts.Dialogs.DIALOG_CANCEL_UPLOAD);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

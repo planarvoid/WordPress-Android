@@ -1,5 +1,7 @@
 package com.soundcloud.android.service.upload;
 
+import static com.soundcloud.android.service.upload.UploadService.TAG;
+
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -13,8 +15,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class ImageResizer implements Runnable {
-    private static final String TAG = ImageResizer.class.getSimpleName();
-
     private static final int RECOMMENDED_SIZE = 800;
     private final Recording recording;
     private Context context;
@@ -40,8 +40,14 @@ public class ImageResizer implements Runnable {
         try {
             broadcast(UploadService.RESIZE_STARTED);
             File resized = IOUtils.getCacheFile(context, "upload_tmp_"+recording.id+".png");
+            final long start = System.currentTimeMillis();
             if (ImageUtils.resizeImageFile(recording.artwork_path, resized, RECOMMENDED_SIZE, RECOMMENDED_SIZE)) {
                 recording.resized_artwork_path = resized;
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "resized "+recording.artwork_path+" => "+resized+" in "
+                            +(System.currentTimeMillis() - start)+" ms");
+                }
+                // XXX slow: 6secs on Galaxy Nexus 1
                 broadcast(UploadService.RESIZE_SUCCESS);
             } else {
                 Log.w(TAG, "did not resize image "+recording.artwork_path);

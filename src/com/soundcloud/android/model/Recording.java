@@ -7,6 +7,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.android.service.upload.Uploader;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
@@ -27,7 +28,6 @@ import android.text.TextUtils;
 import android.text.format.Time;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,7 +75,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     // upload state
     public int status;
-    private boolean mSuccess;
     private Exception mUploadException;
 
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
@@ -87,10 +86,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
 
     public static interface Status {
-        int NOT_YET_UPLOADED    = 0;
-        int UPLOADING           = 1;
-        int UPLOADED            = 2;
-        int ERROR               = 3;
+        int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
+        int UPLOADING           = 1; // currently uploading
+        int UPLOADED            = 2; // successfully uploaded
+        int ERROR               = 3; // network / api error
     }
 
     public long lastModified() {
@@ -289,7 +288,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         if (!external_upload && audio_path.exists()) {
             deleted = audio_path.delete();
         }
-        if (resolver != null) resolver.delete(toUri(), null, null);
+        if (id > 0 && resolver != null) resolver.delete(toUri(), null, null);
         return deleted;
     }
 
@@ -361,7 +360,23 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public void upload(Context context) {
-        context.startService(new Intent(Actions.UPLOAD).putExtra(UploadService.EXTRA_RECORDING, this));
+        context.startService(getUploadIntent());
+    }
+
+    public void cancelUpload(Context context) {
+        context.startService(getCancelIntent());
+    }
+
+    public Intent getMonitorIntent() {
+        return new Intent(Actions.UPLOAD_MONITOR).putExtra(UploadService.EXTRA_RECORDING, this);
+    }
+
+    private Intent getUploadIntent() {
+        return new Intent(Actions.UPLOAD).putExtra(UploadService.EXTRA_RECORDING, this);
+    }
+
+    private Intent getCancelIntent() {
+        return new Intent(Actions.UPLOAD_CANCEL).putExtra(UploadService.EXTRA_RECORDING, this);
     }
 
 
@@ -438,16 +453,20 @@ public class Recording extends ScModel implements Comparable<Recording> {
      * Gets called after successful upload. Clean any tmp files here.
      */
     public void onUploaded() {
-        mSuccess = true;
+        status = Status.UPLOADED;
     }
 
-    public boolean isSuccess() {
-        return mSuccess;
+    public boolean isUploaded() {
+        return status == Status.UPLOADED;
+    }
+
+    public boolean isCanceled() {
+        return mUploadException instanceof Uploader.CanceledUploadException;
     }
 
     public Recording setUploadException(Exception e) {
         mUploadException = e;
-        mSuccess = false;
+        status = e instanceof Uploader.CanceledUploadException ? Status.NOT_YET_UPLOADED : Status.ERROR;
         return this;
     }
 
@@ -455,10 +474,16 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return mUploadException;
     }
 
-
-
     public boolean hasArtwork() {
         return artwork_path != null && artwork_path.exists();
+    }
+
+    public File getArtwork() {
+        return resized_artwork_path != null && resized_artwork_path.exists() ? resized_artwork_path : artwork_path;
+    }
+
+    public File getAudio() {
+        return encoded_audio_path != null && encoded_audio_path.exists() ? encoded_audio_path : audio_path;
     }
 
     @Override

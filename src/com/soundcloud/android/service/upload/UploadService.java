@@ -1,12 +1,10 @@
 package com.soundcloud.android.service.upload;
 
-import static com.soundcloud.android.Consts.Notifications.RECORD_NOTIFY_ID;
 import static com.soundcloud.android.Consts.Notifications.UPLOADED_NOTIFY_ID;
 import static com.soundcloud.android.Consts.Notifications.UPLOADING_NOTIFY_ID;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.UploadMonitor;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -39,7 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class UploadService extends Service {
-    private static final String TAG = UploadService.class.getSimpleName();
+    /* package */ static final String TAG = UploadService.class.getSimpleName();
 
     public static final String EXTRA_RECORDING   = "recording";
     public static final String EXTRA_TRANSFERRED = "transferred";
@@ -75,25 +73,39 @@ public class UploadService extends Service {
     private PowerManager.WakeLock mWakeLock;
     private WifiManager.WifiLock mWifiLock;
 
-    private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
+    private UploadHandler mUploadHandler;
 
     // notifications
     private NotificationManager nm;
     private RemoteViews mUploadNotificationView;
-    private Notification mUploadNotification;
 
+    private Notification mUploadNotification;
     private LocalBroadcastManager mBroadcastManager;
 
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
             super(looper);
         }
-
         @Override
         public void handleMessage(Message msg) {
             onHandleIntent((Intent)msg.obj);
-//            stopSelf(msg.arg1);
+        }
+    }
+
+    private final class UploadHandler extends Handler {
+        public UploadHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            Recording recording = (Recording) msg.obj;
+            if (recording.hasArtwork() && recording.resized_artwork_path == null) {
+                post(new ImageResizer(UploadService.this, recording));
+            } else {
+                post(new Uploader((CloudAPI) getApplication(), (Recording) msg.obj));
+            }
         }
     }
 
@@ -102,12 +114,16 @@ public class UploadService extends Service {
         super.onCreate();
         Log.d(TAG, "upload service started");
 
-        HandlerThread thread = new HandlerThread("UploadService");
-        thread.start();
+        HandlerThread svcThread = new HandlerThread("UploadService");
+        svcThread.start();
+
+        HandlerThread uploadThread = new HandlerThread("Uploader");
+        uploadThread.start();
 
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
-        mServiceLooper = thread.getLooper();
-        mServiceHandler = new ServiceHandler(mServiceLooper);
+        mServiceHandler = new ServiceHandler(svcThread.getLooper());
+        mUploadHandler = new UploadHandler(uploadThread.getLooper());
+
         mBroadcastManager.registerReceiver(mReceiver, getIntentFilter());
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mWakeLock = ((PowerManager) getSystemService(Context.POWER_SERVICE))
@@ -116,60 +132,19 @@ public class UploadService extends Service {
                 .createWifiLock(Build.VERSION.SDK_INT >= 9 ? 3 /* WIFI_MODE_FULL_HIGH_PERF */ : WifiManager.WIFI_MODE_FULL, TAG);
     }
 
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            final Recording recording = intent.getParcelableExtra(EXTRA_RECORDING);
-
-            if (UPLOAD_STARTED.equals(action)) {
-                acquireLocks();
-                mUploads.put(recording.id, recording);
-                showUploadingNotification(recording);
-
-            } else if (UPLOAD_PROGRESS.equals(action)) {
-                int progress = intent.getIntExtra(EXTRA_PROGRESS, 0);
-                mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, progress, false);
-                mUploadNotificationView.setTextViewText(R.id.percentage, getString(R.string.cloud_uploader_event_uploading, progress));
-                nm.notify(UPLOADING_NOTIFY_ID, mUploadNotification);
-
-            } else if (UPLOAD_SUCCESS.equals(action) ||
-                       UPLOAD_ERROR.equals(action) ||
-                       UPLOAD_CANCELLED.equals(action)) {
-
-                mUploads.remove(recording.id);
-                notifyUploadCurrentUploadFinished(recording);
-                releaseLocks();
-
-                if (mUploads.isEmpty()) {
-                    Log.d(TAG, "no more uploads, stopping service");
-                    stopSelf();
-                }
-            } else if (RESIZE_STARTED.equals(action)) {
-               Log.d(TAG, "resizing started");
-                acquireLocks();
-
-            } else if (RESIZE_SUCCESS.equals(action)) {
-                onUpload(recording);
-                releaseLocks();
-            } else if (RESIZE_ERROR.equals(action)) {
-                releaseLocks();
-            }
-        }
-    };
-
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy()");
 
-        mServiceLooper.quit();
-        if (!mUploads.isEmpty()) {
+        mServiceHandler.getLooper().quit();
+        mUploadHandler.getLooper().quit();
+
+        if (isUploading()) {
             Log.w(TAG, "Service being destroyed while still uploading.");
-            // cancel?
-
-            releaseLocks();
+            for (Recording r : mUploads.values()) {
+                onCancel(r);
+            }
         }
-
         mBroadcastManager.unregisterReceiver(mReceiver);
         Log.d(TAG, "shutdown complete.");
     }
@@ -188,6 +163,13 @@ public class UploadService extends Service {
         return mBinder;
     }
 
+    public Set<Long> getUploadLocalIds() {
+        return mUploads.keySet();
+    }
+
+    public boolean isUploading() {
+        return mUploads.size() > 0 || mUploadHandler.hasMessages(0);
+    }
 
     private final IBinder mBinder = new LocalBinder<UploadService>() {
         public UploadService getService() {
@@ -195,57 +177,98 @@ public class UploadService extends Service {
         }
     };
 
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            final Recording recording = intent.getParcelableExtra(EXTRA_RECORDING);
+
+            if (UPLOAD_STARTED.equals(action)) {
+                acquireLocks();
+                showUploadingNotification(recording);
+
+            } else if (UPLOAD_PROGRESS.equals(action)) {
+                int progress = intent.getIntExtra(EXTRA_PROGRESS, 0);
+                mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, progress, false);
+                mUploadNotificationView.setTextViewText(R.id.percentage, getString(R.string.cloud_uploader_event_uploading, progress));
+                nm.notify(UPLOADING_NOTIFY_ID, mUploadNotification);
+
+            } else if (UPLOAD_SUCCESS.equals(action) ||
+                       UPLOAD_ERROR.equals(action) ||
+                       UPLOAD_CANCELLED.equals(action)) {
+
+                recording.updateStatus(getContentResolver());
+                mUploads.remove(recording.id);
+
+                Notification n = notifyUploadCurrentUploadFinished(recording);
+                if (n != null) {
+                    nm.cancel(UPLOADING_NOTIFY_ID);
+                    nm.notify(UPLOADED_NOTIFY_ID, n);
+                } else {
+                    nm.cancel(UPLOADING_NOTIFY_ID);
+                }
+
+                releaseLocks();
+
+                if (!isUploading()) { // last one switches of the lights
+                    Log.d(TAG, "no more uploads, stopping service");
+                    stopSelf();
+                }
+            } else if (RESIZE_STARTED.equals(action)) {
+                // XXX show notification?
+                acquireWakelock();
+            } else if (RESIZE_SUCCESS.equals(action)) {
+                releaseWakelock();
+                queueUpload(recording);
+            } else if (RESIZE_ERROR.equals(action)) {
+                releaseWakelock();
+            }
+        }
+    };
+
+
     private void onHandleIntent(Intent intent) {
+        Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
         if (Actions.UPLOAD.equals(intent.getAction())) {
-            Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
             if (r != null) {
                 onUpload(r);
             }
+        } else if (Actions.UPLOAD_CANCEL.equals(intent.getAction())) {
+            onCancel(r);
         }
     }
 
-    void onUpload(Recording recording) {
+    /* package */ void onUpload(Recording recording) {
         // make sure recording is saved before uploading
         if (!recording.isSaved() &&
             (recording = SoundCloudDB.insertRecording(getContentResolver(), recording)) == null) {
             Log.w(TAG, "could not insert "+recording);
-
-            return;
-        }
-        recording.status = Recording.Status.UPLOADING;
-        recording.updateStatus(getContentResolver());
-
-        if (recording.hasArtwork() && recording.resized_artwork_path == null) {
-            mServiceHandler.post(new ImageResizer(this, recording));
         } else {
-            mServiceHandler.post(new Uploader((CloudAPI) getApplication(), recording));
+            recording.status = Recording.Status.UPLOADING;
+            recording.updateStatus(getContentResolver());
+
+            queueUpload(recording);
         }
     }
 
-    public boolean isUploading() {
-        return !mUploads.isEmpty();
+    private void queueUpload(Recording recording) {
+        mUploads.put(recording.id, recording);
+        Message.obtain(mUploadHandler, 0, recording).sendToTarget();
     }
 
-    public void cancelUploadById(long id) {
-        nm.cancel(RECORD_NOTIFY_ID);
-        sendBroadcast(new Intent(UPLOAD_CANCEL).putExtra("id", id));
+    /* package */  void onCancel(Recording r) {
+        mUploadHandler.removeMessages(0, r);
+
+        if (mUploads.isEmpty()) {
+            Log.d(TAG, "onCancel() called without any active uploads");
+            stopSelf();
+        }  else {
+            mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_CANCEL).putExtra(EXTRA_RECORDING, r));
+        }
     }
 
-
-    public void cancelUpload() {
-    }
-
-    public Set<Long> getUploadLocalIds() {
-        return mUploads.keySet();
-    }
-
-    public Recording getUploadById(long id) {
-        return mUploads.get(id);
-    }
 
     private Notification showUploadingNotification(Recording recording) {
-        Intent monitor = new Intent(this, UploadMonitor.class).putExtra("upload_id", recording.id);
-
         mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.create_service_status_upload);
         mUploadNotificationView.setTextViewText(R.id.message, "");
         mUploadNotificationView.setTextViewText(R.id.percentage, "0");
@@ -253,64 +276,55 @@ public class UploadService extends Service {
 
         mUploadNotification = CloudCreateService.createOngoingNotification(
                 getString(R.string.cloud_uploader_notification_ticker),
-                PendingIntent.getActivity(this, 0, monitor, PendingIntent.FLAG_UPDATE_CURRENT));
+                PendingIntent.getActivity(this, 0, recording.getMonitorIntent(), PendingIntent.FLAG_UPDATE_CURRENT));
         mUploadNotification.contentView = mUploadNotificationView;
         startForeground(UPLOADING_NOTIFY_ID, mUploadNotification);
 
         return mUploadNotification;
     }
 
-    private void notifyUploadCurrentUploadFinished(Recording upload) {
-        nm.cancel(UPLOADING_NOTIFY_ID);
-
+    private Notification notifyUploadCurrentUploadFinished(Recording recording) {
         final CharSequence title;
         final CharSequence message;
         final CharSequence tickerText;
-
-        if (upload.isSuccess()) {
-            upload.status = Recording.Status.UPLOADED;
+        if (recording.isUploaded()) {
             title  = getString(R.string.cloud_uploader_notification_finished_title);
-            message = getString(R.string.cloud_uploader_notification_finished_message, upload.title);
+            message = getString(R.string.cloud_uploader_notification_finished_message, recording.title);
             tickerText = getString(R.string.cloud_uploader_notification_finished_ticker);
-            upload.onUploaded();
-        } else {
-            upload.status = Recording.Status.NOT_YET_UPLOADED;
+        } else if (!recording.isCanceled()) {
             title = getString(R.string.cloud_uploader_notification_error_title);
-            message = getString(R.string.cloud_uploader_notification_error_message, upload.title);
+            message = getString(R.string.cloud_uploader_notification_error_message, recording.title);
             tickerText = getString(R.string.cloud_uploader_notification_error_ticker);
+        } else { // upload canceled, don't notify
+            return null;
         }
-        upload.updateStatus(getContentResolver());
 
         Intent userTracks = (new Intent(Actions.MY_PROFILE).putExtra("userBrowserTag", UserBrowser.Tab.tracks));
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, userTracks, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = new Notification(R.drawable.ic_status, tickerText, System.currentTimeMillis());
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
         notification.setLatestEventInfo(this,title ,message , contentIntent);
-        nm.notify(UPLOADED_NOTIFY_ID, notification);
+
+        return notification;
     }
 
 
     private void acquireLocks() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "acquireLocks");
-
-        if (mWakeLock != null && !mWakeLock.isHeld()) {
-            mWakeLock.acquire();
-        }
-        if (mWifiLock != null && !mWifiLock.isHeld()) {
-            mWifiLock.acquire();
-        }
+        acquireWakelock();
+        acquireWifilock();
     }
 
     private void releaseLocks() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "releaseLocks");
-
-        if (mWakeLock != null && mWakeLock.isHeld()) {
-            mWakeLock.release();
-        }
-        if (mWifiLock != null && mWifiLock.isHeld())  {
-            mWifiLock.release();
-        }
+        releaseWakelock();
+        releaseWifilock();
     }
+
+    private void acquireWifilock() { if (mWifiLock != null && !mWifiLock.isHeld()) mWifiLock.acquire(); }
+    private void releaseWifilock() { if (mWifiLock != null && mWifiLock.isHeld()) mWifiLock.release(); }
+    private void acquireWakelock() { if (mWakeLock != null && !mWakeLock.isHeld()) mWakeLock.acquire(); }
+    private void releaseWakelock() { if (mWakeLock != null && mWakeLock.isHeld()) mWakeLock.release(); }
 
     public static IntentFilter getIntentFilter() {
         IntentFilter filter = new IntentFilter();
@@ -320,8 +334,12 @@ public class UploadService extends Service {
         return filter;
     }
 
-    /* package, for testing*/ Looper getServiceLooper() {
-        return mServiceLooper;
+    /* package, for testing*/ Handler getServiceHandler() {
+        return mServiceHandler;
+    }
+
+    /* package, for testing*/ Handler getUploadHandler() {
+        return mUploadHandler;
     }
 
     /* package, for testing */ WifiManager.WifiLock getWifiLock() {

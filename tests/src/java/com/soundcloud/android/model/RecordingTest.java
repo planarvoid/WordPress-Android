@@ -112,7 +112,7 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldDeterminedLastMofifiedFromFile() throws Exception {
+    public void shouldDeterminedLastModifiedFromFile() throws Exception {
         Recording r = createRecording();
         expect(r.lastModified()).toEqual(r.audio_path.lastModified());
     }
@@ -199,6 +199,7 @@ public class RecordingTest {
         expect(tmp.exists()).toBeTrue();
 
         Calendar c = Calendar.getInstance();
+        //noinspection MagicConstant
         c.set(2001, 1, 15, 14, 31, 1);  // 14:31:01, 15/02/2011
         tmp.setLastModified(c.getTimeInMillis());
 
@@ -316,5 +317,28 @@ public class RecordingTest {
         expect(r.private_user_id).toEqual(r2.private_user_id);
         expect(r.external_upload).toEqual(r2.external_upload);
         expect(r.status).toEqual(r2.status);
+    }
+
+
+    @Test
+    public void shouldGetAudio() throws Exception {
+        Recording r = createRecording();
+        expect(r.getAudio()).not.toBeNull();
+        expect(r.getAudio()).toBe(r.audio_path);
+
+        r.encoded_audio_path = File.createTempFile("encoded", "ogg");
+        expect(r.getAudio()).toEqual(r.encoded_audio_path);
+    }
+
+    @Test
+    public void shouldGetArtwork() throws Exception {
+        Recording r = createRecording();
+        expect(r.hasArtwork()).toBeTrue();
+        expect(r.getArtwork()).toBe(r.artwork_path);
+        r.resized_artwork_path = File.createTempFile("resized-artwork", "png");
+        expect(r.getArtwork()).toBe(r.resized_artwork_path);
+
+        r.artwork_path = r.resized_artwork_path = null;
+        expect(r.hasArtwork()).toBeFalse();
     }
 }

@@ -32,6 +32,18 @@ public class UploadServiceTest {
         svc.onCreate();
     }
 
+    private Scheduler getServiceScheduler() {
+        return Robolectric.shadowOf(svc.getServiceHandler().getLooper()).getScheduler();
+    }
+
+    private Scheduler getUploadScheduler() {
+        return Robolectric.shadowOf(svc.getUploadHandler().getLooper()).getScheduler();
+    }
+
+    private Scheduler getMainScheduler() {
+        return Robolectric.shadowOf(Robolectric.application.getMainLooper()).getScheduler();
+    }
+
     @Test
     public void shouldUseLocalService() throws Exception {
         expect(svc.onBind(null) instanceof LocalBinder).toBeTrue();
@@ -78,15 +90,14 @@ public class UploadServiceTest {
         Recording recording = TestApplication.getValidRecording();
 
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
-        Scheduler scheduler = Robolectric.shadowOf(svc.getServiceLooper()).getScheduler();
-        scheduler.pause();
+        getUploadScheduler().pause();
 
         svc.onUpload(recording);
 
         Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADING);
 
-        scheduler.unPause();
+        getUploadScheduler().unPause();
 
         updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
@@ -101,7 +112,7 @@ public class UploadServiceTest {
         svc.onUpload(recording);
 
         Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), recording.toUri());
-        expect(updated.upload_status).toEqual(Recording.Status.NOT_YET_UPLOADED);
+        expect(updated.upload_status).toEqual(Recording.Status.ERROR);
     }
 
     @Test
@@ -113,7 +124,7 @@ public class UploadServiceTest {
 
         svc.onUpload(upload);
 
-        expect(upload.isSuccess()).toBeTrue();
+        expect(upload.isUploaded()).toBeTrue();
         expect(upload.resized_artwork_path).toEqual(upload.artwork_path);
 
         Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), upload.toUri());
@@ -125,22 +136,39 @@ public class UploadServiceTest {
         Recording recording = TestApplication.getValidRecording();
 
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
-        Scheduler svcScheduler = Robolectric.shadowOf(svc.getServiceLooper()).getScheduler();
-        Scheduler mainScheduler = Robolectric.shadowOf(Robolectric.application.getMainLooper()).getScheduler();
 
-        svcScheduler.pause();
-        mainScheduler.pause();
+        getServiceScheduler().pause();
+        getMainScheduler().pause();
 
         svc.onUpload(recording);
 
         expect(svc.getWifiLock().isHeld()).toBeFalse();
         expect(svc.getWakeLock().isHeld()).toBeFalse();
 
-        svcScheduler.runOneTask();
-        mainScheduler.runOneTask();
+        getServiceScheduler().runOneTask();
+        getMainScheduler().runOneTask();
 
         expect(svc.getWifiLock().isHeld()).toBeFalse();
         expect(svc.getWakeLock().isHeld()).toBeFalse();
         // TODO needs BroadcastManager w/ step execution of queued runnables
+    }
+
+    @Test
+    public void cancelUploadShouldRemoveAllMessagesFromTheQueue() throws Exception {
+        Recording recording = TestApplication.getValidRecording();
+
+        getUploadScheduler().pause();
+        svc.onUpload(recording);
+        expect(svc.getUploadHandler().hasMessages(0)).toBeTrue();
+
+        svc.onCancel(recording);
+        expect(svc.getUploadHandler().hasMessages(0)).toBeFalse();
+
+        getUploadScheduler().unPause();
+    }
+
+    @Test
+    public void shouldRespectLifecycle() throws Exception {
+        svc.onDestroy();
     }
 }

@@ -20,7 +20,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 
-public class Uploader implements Runnable {
+public class Uploader extends BroadcastReceiver implements Runnable {
     private CloudAPI api;
     private Recording upload;
     private boolean mCanceled;
@@ -30,12 +30,7 @@ public class Uploader implements Runnable {
         this.api = api;
         this.upload = recording;
         mBroadcastManager = LocalBroadcastManager.getInstance((Context) api);
-        mBroadcastManager.registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                cancel();
-            }
-        }, new IntentFilter(UploadService.UPLOAD_CANCEL));
+        mBroadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
     }
 
     public boolean isCancelled() {
@@ -46,29 +41,27 @@ public class Uploader implements Runnable {
         mCanceled = true;
     }
 
-
     @Override
     public void run() {
         try {
             upload();
         } catch (IllegalArgumentException e) {
             onUploadFailed(e);
+        } finally {
+            mBroadcastManager.unregisterReceiver(this);
         }
     }
 
+    /**
+     * @throws IllegalArgumentException
+     */
     private void upload() {
-        final File toUpload = upload.encoded_audio_path != null ? upload.encoded_audio_path : upload.audio_path;
-
-        if (toUpload == null || !toUpload.exists()) {
-            throw new IllegalArgumentException("File to be uploaded does not exist");
-        }
-
-        if (toUpload.length() == 0) {
-            throw new IllegalArgumentException("File to be uploaded is empty");
-        }
+        final File toUpload = upload.getAudio();
+        if (toUpload == null || !toUpload.exists()) throw new IllegalArgumentException("File to be uploaded does not exist");
+        if (toUpload.length() == 0) throw new IllegalArgumentException("File to be uploaded is empty");
 
         final FileBody soundBody = new FileBody(toUpload);
-        final FileBody artworkBody = upload.artwork_path == null ? null : new FileBody(upload.artwork_path);
+        final FileBody artworkBody = upload.hasArtwork() ? new FileBody(upload.getArtwork()) : null;
 
         final long totalTransfer = soundBody.getContentLength() + (artworkBody == null ? 0 : artworkBody.getContentLength());
 
@@ -136,6 +129,14 @@ public class Uploader implements Runnable {
                 .putExtra(UploadService.EXTRA_RECORDING, upload));
     }
 
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
+        if (upload.equals(recording)) {
+            Log.d(TAG, "canceling upload of "+upload);
+            cancel();
+        }
+    }
 
     public static class CanceledUploadException extends IOException {}
 }

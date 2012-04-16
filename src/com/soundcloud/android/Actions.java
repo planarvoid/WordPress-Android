@@ -1,5 +1,7 @@
 package com.soundcloud.android;
 
+import android.content.Intent;
+
 public final class Actions {
     // public intent API (do not change)
     public static final String RECORD       = "com.soundcloud.android.action.RECORD";
@@ -36,4 +38,6 @@ public final class Actions {
     public static final String CANCEL_ALARM        = "com.soundcloud.android.actions.CANCEL_ALARM";
 
     public static final String UPLOAD              = "com.soundcloud.android.actions.upload";
+    public static final String UPLOAD_CANCEL       = "com.soundcloud.android.actions.upload.cancel";
+    public static final String UPLOAD_MONITOR      = "com.soundcloud.android.actions.upload.monitor";
 }

@@ -74,7 +74,6 @@ public class CloudCreateService extends Service  {
     // files
     private boolean mIsRecording;
     private Recording mRecording;
-//    private Uri mPlaybackLocal;
 
     // state
     private int mServiceStartId = -1;
@@ -283,14 +282,6 @@ public class CloudCreateService extends Service  {
 
     public long getCurrentPlaybackPosition() {
         return mRecorder.getCurrentPlaybackPosition();
-    }
-
-    /**
-     * Process trimming, normalization, fades, etc
-     */
-    public void processFile() {
-        // for now just revert trim
-        mRecorder.resetPlaybackBounds();
     }
 
     /**

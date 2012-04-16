@@ -40,7 +40,6 @@ public final class Consts {
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
         int DIALOG_UNAUTHORIZED = 2;
-        int DIALOG_CANCEL_UPLOAD = 3;
         int DIALOG_RESET_RECORDING = 5;
         int DIALOG_UNSAVED_RECORDING = 6;
         int DIALOG_DELETE_RECORDING = 7;
@@ -52,12 +51,10 @@ public final class Consts {
         int SETTINGS = 200;
         int VIEW_CURRENT_TRACK = 201;
         int REFRESH = 202;
-        int CANCEL_CURRENT_UPLOAD = 203;
         int STREAM = 204;
         int FRIEND_FINDER = 205;
-        int UPLOAD_FILE = 206;
-        int FILTER = 207;
-        int SELECT_FILE = 208;
+        int FILTER = 206;
+        int SELECT_FILE = 207;
     }
 
     public enum GraphicSize {

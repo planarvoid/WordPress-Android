@@ -66,6 +66,7 @@ file c2dm_credentials => 'c2dm:login'
                ScContentProvider
                ApiSyncService
                ATTracker
+               UploadService
               ).each do |tag|
               sh "adb #{flag} shell setprop log.tag.#{tag} #{level.upcase}"
             end
