@@ -119,4 +119,28 @@ public class UploadServiceTest {
         Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), upload.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
     }
+
+    @Test
+    public void shouldHoldWifiAndWakelockDuringUpload() throws Exception {
+        Recording recording = TestApplication.getValidRecording();
+
+        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
+        Scheduler svcScheduler = Robolectric.shadowOf(svc.getServiceLooper()).getScheduler();
+        Scheduler mainScheduler = Robolectric.shadowOf(Robolectric.application.getMainLooper()).getScheduler();
+
+        svcScheduler.pause();
+        mainScheduler.pause();
+
+        svc.onUpload(recording);
+
+        expect(svc.getWifiLock().isHeld()).toBeFalse();
+        expect(svc.getWakeLock().isHeld()).toBeFalse();
+
+        svcScheduler.runOneTask();
+        mainScheduler.runOneTask();
+
+        expect(svc.getWifiLock().isHeld()).toBeFalse();
+        expect(svc.getWakeLock().isHeld()).toBeFalse();
+        // TODO needs BroadcastManager w/ step execution of queued runnables
+    }
 }

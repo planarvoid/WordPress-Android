@@ -22,6 +22,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -71,6 +73,7 @@ public class UploadService extends Service {
     private final Map<Long, Recording> mUploads = new HashMap<Long, Recording>();
 
     private PowerManager.WakeLock mWakeLock;
+    private WifiManager.WifiLock mWifiLock;
 
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
@@ -109,6 +112,8 @@ public class UploadService extends Service {
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mWakeLock = ((PowerManager) getSystemService(Context.POWER_SERVICE))
                 .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+        mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
+                .createWifiLock(Build.VERSION.SDK_INT >= 9 ? 3 /* WIFI_MODE_FULL_HIGH_PERF */ : WifiManager.WIFI_MODE_FULL, TAG);
     }
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -118,7 +123,7 @@ public class UploadService extends Service {
             final Recording recording = intent.getParcelableExtra(EXTRA_RECORDING);
 
             if (UPLOAD_STARTED.equals(action)) {
-                acquireWakeLock();
+                acquireLocks();
                 mUploads.put(recording.id, recording);
                 showUploadingNotification(recording);
 
@@ -128,10 +133,13 @@ public class UploadService extends Service {
                 mUploadNotificationView.setTextViewText(R.id.percentage, getString(R.string.cloud_uploader_event_uploading, progress));
                 nm.notify(UPLOADING_NOTIFY_ID, mUploadNotification);
 
-            } else if (UPLOAD_SUCCESS.equals(action) || UPLOAD_ERROR.equals(action)) {
+            } else if (UPLOAD_SUCCESS.equals(action) ||
+                       UPLOAD_ERROR.equals(action) ||
+                       UPLOAD_CANCELLED.equals(action)) {
+
                 mUploads.remove(recording.id);
                 notifyUploadCurrentUploadFinished(recording);
-                releaseWakeLock();
+                releaseLocks();
 
                 if (mUploads.isEmpty()) {
                     Log.d(TAG, "no more uploads, stopping service");
@@ -139,13 +147,13 @@ public class UploadService extends Service {
                 }
             } else if (RESIZE_STARTED.equals(action)) {
                Log.d(TAG, "resizing started");
-                acquireWakeLock();
+                acquireLocks();
 
             } else if (RESIZE_SUCCESS.equals(action)) {
                 onUpload(recording);
-                releaseWakeLock();
+                releaseLocks();
             } else if (RESIZE_ERROR.equals(action)) {
-                releaseWakeLock();
+                releaseLocks();
             }
         }
     };
@@ -158,6 +166,8 @@ public class UploadService extends Service {
         if (!mUploads.isEmpty()) {
             Log.w(TAG, "Service being destroyed while still uploading.");
             // cancel?
+
+            releaseLocks();
         }
 
         mBroadcastManager.unregisterReceiver(mReceiver);
@@ -280,15 +290,25 @@ public class UploadService extends Service {
     }
 
 
-    private void acquireWakeLock() {
+    private void acquireLocks() {
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "acquireLocks");
+
         if (mWakeLock != null && !mWakeLock.isHeld()) {
             mWakeLock.acquire();
         }
+        if (mWifiLock != null && !mWifiLock.isHeld()) {
+            mWifiLock.acquire();
+        }
     }
 
-    private void releaseWakeLock() {
+    private void releaseLocks() {
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "releaseLocks");
+
         if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.release();
+        }
+        if (mWifiLock != null && mWifiLock.isHeld())  {
+            mWifiLock.release();
         }
     }
 
@@ -302,5 +322,13 @@ public class UploadService extends Service {
 
     /* package, for testing*/ Looper getServiceLooper() {
         return mServiceLooper;
+    }
+
+    /* package, for testing */ WifiManager.WifiLock getWifiLock() {
+        return mWifiLock;
+    }
+
+    /* package, for testing */ PowerManager.WakeLock getWakeLock() {
+        return mWakeLock;
     }
 }

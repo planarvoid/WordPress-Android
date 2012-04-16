@@ -76,7 +76,6 @@ public class Uploader implements Runnable {
             if (isCancelled()) throw new CanceledUploadException();
             Log.v(TAG, "starting upload of " + toUpload);
 
-            // TODO hold wifi lock during upload
             broadcast(UploadService.UPLOAD_STARTED);
             HttpResponse response = api.post(upload.getRequest((Context) api, toUpload, new Request.TransferProgressListener() {
                 long lastPublished;
