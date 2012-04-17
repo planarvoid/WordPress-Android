@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.settings;
 
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
@@ -7,6 +7,8 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.About;
+import com.soundcloud.android.activity.Tour;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.model.User;
@@ -32,7 +34,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.File;
@@ -53,19 +54,34 @@ public class Settings extends PreferenceActivity {
     public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
 
+    public static final String ALARM_CLOCK     = "dev.alarmClock";
+    public static final String ALARM_CLOCK_URI = "dev.alarmClock.uri";
+
     private ProgressDialog mDeleteDialog;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
         addPreferencesFromResource(R.xml.settings);
 
         if (SoundCloudApplication.BETA_MODE) {
             BetaPreferences.add(this, getPreferenceScreen());
         }
 
-        if (!DevSettings.AlarmClock.isEnabled(this)) {
+        if (!AlarmClock.isEnabled(this)) {
             getPreferenceScreen().removePreference(findPreference(EXTRAS));
+        } else {
+            findPreference(ALARM_CLOCK).setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        public boolean onPreferenceClick(Preference preference) {
+                            new AlarmClock(Settings.this).showDialog();
+                            return true;
+                        }
+                    }
+            );
+            SharedPreferencesUtils.listWithLabel(this,
+                    R.string.pref_dev_alarm_play_uri,
+                    ALARM_CLOCK_URI);
         }
 
         findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
@@ -266,7 +282,7 @@ public class Settings extends PreferenceActivity {
         return super.onCreateDialog(id);
     }
 
-    /* package */ static AlertDialog createLogoutDialog(final Activity a) {
+    public static AlertDialog createLogoutDialog(final Activity a) {
         final SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
         app.track(Click.Log_out_log_out);
         return new AlertDialog.Builder(a).setTitle(R.string.menu_clear_user_title)

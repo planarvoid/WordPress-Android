@@ -168,9 +168,9 @@
         <activity android:name=".activity.TrackComments" />
         <activity android:name=".activity.TracksByTag" />
         <activity android:name=".activity.ScSearch"/>
-        <activity android:name=".activity.Settings" android:label="Settings"/>
+        <activity android:name=".activity.settings.Settings" android:label="Settings"/>
         <activity android:name=".activity.AccountPreferences" />
-        <activity android:name=".activity.NotificationSettings" android:label="Notifications Settings" />
+        <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" />
         <activity android:name=".activity.UserBrowser" android:label="Profile"/>
         <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>
         <activity android:name=".activity.LocationPicker"/>
@@ -242,7 +242,7 @@
                      android:resource="@xml/widget_player" />
         </receiver>
 
-        <receiver android:name=".activity.DevSettings$AlarmClock$Receiver">
+        <receiver android:name=".activity.settings.AlarmClock$Receiver">
             <intent-filter>
                 <action android:name="com.soundcloud.android.actions.ALARM"/>
                 <action android:name="com.soundcloud.android.actions.CANCEL_ALARM"/>
