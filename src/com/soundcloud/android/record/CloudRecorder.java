@@ -68,7 +68,6 @@ public class CloudRecorder {
         final int bufferSize = config.getMinBufferSize();
         mConfig = config;
         mAudioRecord = config.createAudioRecord(bufferSize * 4);
-        mAudioRecord.setPositionNotificationPeriod(config.sampleRate);
         mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
             @Override public void onPeriodicNotification(AudioRecord audioRecord) {
@@ -343,8 +342,8 @@ public class CloudRecorder {
                 if (mState == CloudRecorder.State.RECORDING) {
                     broadcast(CloudCreateService.RECORD_STARTED);
                 }
-
                 mAudioRecord.startRecording();
+                mAudioRecord.setPositionNotificationPeriod(mConfig.sampleRate);
                 while (mState == CloudRecorder.State.READING || mState == CloudRecorder.State.RECORDING) {
                     buffer.rewind();
                     final int read = mAudioRecord.read(buffer, bufferReadSize);
