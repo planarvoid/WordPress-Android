@@ -7,21 +7,21 @@ import android.os.Environment;
 import java.io.File;
 import java.io.InputStream;
 
-public class VorbisEncoderTest extends TestBase {
+public class VorbisEncoderTest extends AudioTest {
     public void testEncodeShortHighQuality() throws Exception {
-        encodeWav("short_test.wav", 5548, 1.0f);
+        encodeWav("audio/short_test.wav", 5548, 1.0f);
     }
 
     public void testEncodeShortLowQuality() throws Exception {
-        encodeWav("short_test.wav", 5052, 0.1f);
+        encodeWav("audio/short_test.wav", 5052, 0.1f);
     }
 
     public void testEncodeMedHighQuality() throws Exception {
-        encodeWav("med_test.wav", 18865, 1.0f);
+        encodeWav("audio/med_test.wav", 18865, 1.0f);
     }
 
     public void testEncodeMedLowQuality() throws Exception {
-        encodeWav("med_test.wav", 18705, 0.4f);
+        encodeWav("audio/med_test.wav", 18705, 0.4f);
     }
 
     private void encodeWav(String file, int expectedDuration, float quality) throws Exception {

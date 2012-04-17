@@ -1,6 +1,5 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
@@ -45,6 +44,7 @@ import java.lang.ref.WeakReference;
 import java.util.EnumSet;
 
 public final class ImageUtils {
+    private static final String TAG = ImageUtils.class.getSimpleName();
     public static final int GRAPHIC_DIMENSIONS_BADGE = 47;
 
     private ImageUtils() {}
@@ -179,29 +179,26 @@ public final class ImageUtils {
         }
     }
 
-    public static boolean resizeImageFile(File inputFile, File outputFile, int width, int height)
-            throws IOException {
+    public static boolean resizeImageFile(File inputFile, File outputFile, int width, int height) throws IOException {
         BitmapFactory.Options options = determineResizeOptions(inputFile, width, height, false);
-        int sampleSize = options.inSampleSize;
-        int degree = 0;
-        ExifInterface exif = new ExifInterface(inputFile.getAbsolutePath());
-        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
-        if (orientation != -1) {
-            // We only recognize a subset of orientation tag values.
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    degree = 90;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    degree = 180;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    degree = 270;
-                    break;
-                default:
-                    degree = 0;
-                    break;
-            }
+        final int sampleSize = options.inSampleSize;
+        final int degree;
+        final ExifInterface exif = new ExifInterface(inputFile.getAbsolutePath());
+        final int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+        // We only recognize a subset of orientation tag values.
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                degree = 90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                degree = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                degree = 270;
+                break;
+            default:
+                degree = 0;
+                break;
         }
 
         if (sampleSize > 1 || degree > 0) {
@@ -227,8 +224,13 @@ public final class ImageUtils {
             final boolean success = bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.close();
             clearBitmap(bitmap);
+
+            if (!success) {
+                Log.w(TAG, "bitmap.compress returned false");
+            }
             return success;
         } else {
+            Log.w(TAG, String.format("not resizing: sampleSize %d, degree %d", sampleSize, degree));
             return false;
         }
     }
@@ -459,7 +461,7 @@ public final class ImageUtils {
 
         Bitmap targetBitmap = imageLoader.getBitmap(targetUri,null,new ImageLoader.Options(false));
         if (targetBitmap != null){
-            return imageLoader.getBitmap(uri,callback,options);
+            return imageLoader.getBitmap(uri, callback, options);
         } else {
             for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
                 final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri),null,new ImageLoader.Options(false));
@@ -468,11 +470,11 @@ public final class ImageUtils {
                         callback.onImageLoaded(tempBitmap, uri);
                     }
                     // get the normal one anyway, will be handled by the callback
-                    imageLoader.getBitmap(targetUri,callback,options);
+                    imageLoader.getBitmap(targetUri, callback, options);
                     return tempBitmap;
                 }
             }
-            return imageLoader.getBitmap(targetUri,callback,options);
+            return imageLoader.getBitmap(targetUri, callback, options);
         }
     }
 }

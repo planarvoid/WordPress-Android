@@ -6,10 +6,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class VorbisDecoderTest extends TestBase {
+public class VorbisDecoderTest extends AudioTest {
 
     public void testDecoding() throws Exception {
-        File wav = decode("med_test.ogg");
+        File wav = decode("audio/med_test.ogg");
         assertTrue("file does not exist", wav.exists());
 
         WaveHeader header = new WaveHeader(new FileInputStream(wav));
