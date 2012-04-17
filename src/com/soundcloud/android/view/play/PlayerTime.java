@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.*;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -149,6 +150,18 @@ public class PlayerTime extends RelativeLayout {
 
         requestLayout();
         invalidate();
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        final int commentHeight = mCommentInstructions.getMeasuredHeight();
+        if (commentHeight > 0) {
+            final int lineCount = commentHeight > 3 * mCommentInstructions.getLineHeight() ? 3 : commentHeight / mCommentInstructions.getLineHeight();
+            if (lineCount < mCommentInstructions.getLineCount()) {
+                mCommentInstructions.setMaxLines(lineCount);
+            }
+        }
     }
 
     @Override
