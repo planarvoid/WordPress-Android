@@ -39,7 +39,7 @@ public class ImageResizer implements Runnable {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "resizing "+recording.artwork_path);
         try {
             broadcast(UploadService.RESIZE_STARTED);
-            File resized = IOUtils.getCacheFile(context, "upload_tmp_"+recording.id+".png");
+            File resized = IOUtils.getCacheFile(context, "upload_tmp_"+recording.id+".jpg");
             final long start = System.currentTimeMillis();
             if (ImageUtils.resizeImageFile(recording.artwork_path, resized, RECOMMENDED_SIZE, RECOMMENDED_SIZE)) {
                 recording.resized_artwork_path = resized;

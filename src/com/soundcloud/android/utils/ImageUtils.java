@@ -50,54 +50,57 @@ public final class ImageUtils {
     private ImageUtils() {}
 
 
-    public static BitmapFactory.Options determineResizeOptions(File imageFile, int targetWidth,
-                                                               int targetHeight, boolean crop) throws IOException {
+    public static BitmapFactory.Options decode(File imageFile) throws IOException {
         final BitmapFactory.Options options = new BitmapFactory.Options();
-        if (targetWidth == 0 || targetHeight == 0) return options; // some devices report 0
-
-        options.inJustDecodeBounds = true;
+        options.inJustDecodeBounds = true;  /* don't allocate bitmap */
         InputStream is = new FileInputStream(imageFile);
-        BitmapFactory.decodeStream(is, null, options);
+        /* output ignored */ BitmapFactory.decodeStream(is, null, options);
         is.close();
+        return options;
+    }
 
-        int height = options.outHeight;
-        int width = options.outWidth;
+    public static BitmapFactory.Options determineResizeOptions(File imageFile,
+                                                               int targetWidth,
+                                                               int targetHeight,
+                                                               boolean crop) throws IOException {
+
+        if (targetWidth == 0 || targetHeight == 0) return new BitmapFactory.Options(); // some devices report 0
+        BitmapFactory.Options options = decode(imageFile);
+
+        final int height = options.outHeight;
+        final int width = options.outWidth;
 
         if (crop) {
             if (height > targetHeight || width > targetWidth) {
                 if (targetHeight / height < targetWidth / width) {
-                    options.inSampleSize = Math.round(height / targetHeight);
+                    options.inSampleSize = Math.round((float)height / (float)targetHeight);
                 } else {
-                    options.inSampleSize = Math.round(width / targetWidth);
+                    options.inSampleSize = Math.round((float)width / (float)targetWidth);
                 }
 
             }
-        } else  if (targetHeight / height > targetWidth / width) {
-            options.inSampleSize = Math.round(height / targetHeight);
+        } else if (targetHeight / height > targetWidth / width) {
+            options.inSampleSize = Math.round((float)height / (float)targetHeight);
         } else {
-            options.inSampleSize = Math.round(width / targetWidth);
+            options.inSampleSize = Math.round((float)width / (float)targetWidth);
         }
         return options;
     }
 
     public static int getExifRotation(String filepath){
-        ExifInterface exif;
         try {
-            exif = new ExifInterface(filepath);
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
-            if (orientation != -1) {
-                // We only recognize a subset of orientation tag values.
-                switch (orientation) {
-                    case ExifInterface.ORIENTATION_ROTATE_90: return 90;
-                    case ExifInterface.ORIENTATION_ROTATE_180: return 180;
-                    case ExifInterface.ORIENTATION_ROTATE_270: return 270;
-                    default: return 0;
-                }
+            ExifInterface exif = new ExifInterface(filepath);
+            // We only recognize a subset of orientation tag values.
+            switch (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)) {
+                case ExifInterface.ORIENTATION_ROTATE_90:  return 90;
+                case ExifInterface.ORIENTATION_ROTATE_180: return 180;
+                case ExifInterface.ORIENTATION_ROTATE_270: return 270;
+                default: return ExifInterface.ORIENTATION_UNDEFINED;
             }
         } catch (IOException e) {
             Log.e(TAG, "error", e);
+            return -1;
         }
-        return -1;
     }
 
     public static void clearBitmap(Bitmap bmp) {
@@ -181,25 +184,9 @@ public final class ImageUtils {
 
     public static boolean resizeImageFile(File inputFile, File outputFile, int width, int height) throws IOException {
         BitmapFactory.Options options = determineResizeOptions(inputFile, width, height, false);
+
         final int sampleSize = options.inSampleSize;
-        final int degree;
-        final ExifInterface exif = new ExifInterface(inputFile.getAbsolutePath());
-        final int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-        // We only recognize a subset of orientation tag values.
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                degree = 90;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                degree = 180;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                degree = 270;
-                break;
-            default:
-                degree = 0;
-                break;
-        }
+        final int degree = getExifRotation(inputFile.getAbsolutePath());
 
         if (sampleSize > 1 || degree > 0) {
             InputStream is = new FileInputStream(inputFile);
@@ -221,7 +208,7 @@ public final class ImageUtils {
             if (bitmap == null) throw new IOException("error decoding bitmap (bitmap == null)");
 
             FileOutputStream out = new FileOutputStream(outputFile);
-            final boolean success = bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+            final boolean success = bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
             out.close();
             clearBitmap(bitmap);
 
