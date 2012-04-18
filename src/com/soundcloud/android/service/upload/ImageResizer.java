@@ -43,12 +43,10 @@ public class ImageResizer implements Runnable {
             final long start = System.currentTimeMillis();
             if (ImageUtils.resizeImageFile(recording.artwork_path, resized, RECOMMENDED_SIZE, RECOMMENDED_SIZE)) {
                 recording.resized_artwork_path = resized;
-                final double factor = (double) resized.length() / (double) recording.artwork_path.length();
-                final String msg = String.format("resized %s => %s  in %d ms, factor= %.2f",
-                        recording.artwork_path, recording.resized_artwork_path,
-                        System.currentTimeMillis() - start, factor);
-                if (factor >= 1.0d) Log.w(TAG, msg); else if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, msg);
-                // XXX slow: 6secs on Galaxy Nexus 1
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, String.format("resized %s => %s  in %d ms", recording.artwork_path, recording.resized_artwork_path,
+                            System.currentTimeMillis() - start));
+                }
                 broadcast(UploadService.RESIZE_SUCCESS);
             } else {
                 Log.w(TAG, "did not resize image "+recording.artwork_path);
