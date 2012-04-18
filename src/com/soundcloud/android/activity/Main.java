@@ -6,6 +6,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.settings.AccountSettings;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.Track;
@@ -239,10 +240,10 @@ public class Main extends TabActivity implements
                 ((UserBrowser) getCurrentActivity()).setTab(intent.getStringExtra("userBrowserTag"));
             }
         } else if (Actions.USER_BROWSER.equals(intent.getAction())) {
-            startActivity((new Intent(this,UserBrowser.class).putExtras(intent.getExtras())));
+            startActivity((new Intent(this, UserBrowser.class).putExtras(intent.getExtras())));
         } else if (Actions.ACCOUNT_PREF.equals(intent.getAction())) {
             startActivity(
-                    new Intent(this, AccountPreferences.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                new Intent(this, AccountSettings.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
             );
         } else if (justAuthenticated(intent)) {
             Log.d(TAG, "activity start after successful authentication");
