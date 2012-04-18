@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.settings;
 
 import android.preference.*;
 import com.soundcloud.android.R;

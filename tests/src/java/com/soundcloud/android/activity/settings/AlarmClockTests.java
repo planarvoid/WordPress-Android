@@ -1,9 +1,10 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.settings;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.activity.settings.AlarmClock;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -27,15 +28,15 @@ import android.widget.Toast;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class DevSettingsTest {
+public class AlarmClockTests {
     ShadowAlarmManager shadowAlarmManager;
-    DevSettings.AlarmClock alarm;
+    AlarmClock alarm;
 
     @Before
     public void before() {
         AlarmManager amgr = (AlarmManager) Robolectric.application.getSystemService(Context.ALARM_SERVICE);
         shadowAlarmManager = shadowOf(amgr);
-        alarm = new DevSettings.AlarmClock(Robolectric.application);
+        alarm = new AlarmClock(Robolectric.application);
     }
 
     @Test
@@ -112,7 +113,7 @@ public class DevSettingsTest {
     public void receiverShouldScheduleAnotherAlarmIfFlightmodeSet() throws Exception {
         TestHelper.enableFlightmode(true);
 
-        BroadcastReceiver receiver = new DevSettings.AlarmClock.Receiver();
+        BroadcastReceiver receiver = new AlarmClock.Receiver();
         receiver.onReceive(Robolectric.application, new Intent(Actions.ALARM));
 
         expect(shadowOf(Robolectric.application).getNextStartedService()).toBeNull();
@@ -123,7 +124,7 @@ public class DevSettingsTest {
     public void receiverShouldPlayIfFlightmodeNotSet() throws Exception {
         TestHelper.enableFlightmode(false);
 
-        BroadcastReceiver receiver = new DevSettings.AlarmClock.Receiver();
+        BroadcastReceiver receiver = new AlarmClock.Receiver();
         receiver.onReceive(Robolectric.application, new Intent(Actions.ALARM));
 
         expect(shadowOf(Robolectric.application).getNextStartedService()).not.toBeNull();
@@ -134,7 +135,7 @@ public class DevSettingsTest {
     public void receiverShouldCancelAlarmOnCancelAction() throws Exception {
         alarm.set(10, 20);
 
-        BroadcastReceiver receiver = new DevSettings.AlarmClock.Receiver();
+        BroadcastReceiver receiver = new AlarmClock.Receiver();
         receiver.onReceive(Robolectric.application, new Intent(Actions.CANCEL_ALARM));
 
         expect(shadowAlarmManager.getScheduledAlarms().size()).toEqual(0);
