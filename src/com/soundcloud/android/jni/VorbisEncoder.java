@@ -2,11 +2,13 @@ package com.soundcloud.android.jni;
 
 import com.soundcloud.android.record.AudioConfig;
 import com.soundcloud.android.record.WaveHeader;
+import com.soundcloud.android.utils.IOUtils;
 
 import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -84,6 +86,15 @@ public class VorbisEncoder {
         return 0;
     }
 
+    public static int encodeWav(File in, File out, float quality) throws IOException {
+        FileInputStream inS = new FileInputStream(in);
+        try {
+            return encodeWav(inS, out, quality);
+        } finally {
+            IOUtils.close(inS);
+        }
+    }
+
 
     native private int init(String output, String mode, long channels, long rate, float quality);
 
@@ -122,6 +133,11 @@ public class VorbisEncoder {
     }
 
     static {
-        System.loadLibrary("soundcloud_audio");
+        try {
+            System.loadLibrary("soundcloud_audio");
+        } catch (UnsatisfiedLinkError e) {
+            // ignore exception in non-android env
+            if (android.os.Build.VERSION.SDK_INT > 0) throw e;
+        }
     }
 }

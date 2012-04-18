@@ -52,6 +52,11 @@ public class UploadService extends Service {
     public static final String UPLOAD_CANCELLED  = "com.soundcloud.android.service.upload.cancelled";
     public static final String UPLOAD_CANCEL     = "com.soundcloud.android.service.upload.cancel";
 
+    public static final String ENCODING_STARTED  = "com.soundcloud.android.service.upload.encoding_started";
+    public static final String ENCODING_SUCCESS  = "com.soundcloud.android.service.upload.encoding_success";
+    public static final String ENCODING_ERROR    = "com.soundcloud.android.service.upload.encoding_error";
+    public static final String ENCODING_PROGRESS = "com.soundcloud.android.service.upload.encoding_progress";
+
     public static final String RESIZE_STARTED    = "com.soundcloud.android.service.upload.resize_started";
     public static final String RESIZE_SUCCESS    = "com.soundcloud.android.service.upload.resize_success";
     public static final String RESIZE_ERROR      = "com.soundcloud.android.service.upload.resize_error";
@@ -63,6 +68,11 @@ public class UploadService extends Service {
             UPLOAD_ERROR,
             UPLOAD_CANCELLED,
             UPLOAD_CANCEL,
+
+            ENCODING_STARTED,
+            ENCODING_SUCCESS,
+            ENCODING_ERROR,
+            ENCODING_PROGRESS,
 
             RESIZE_STARTED,
             RESIZE_SUCCESS,

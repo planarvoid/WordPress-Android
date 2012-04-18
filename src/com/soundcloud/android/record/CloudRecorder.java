@@ -59,7 +59,7 @@ public class CloudRecorder {
 
     public static synchronized CloudRecorder getInstance(Context context) {
         if (instance == null) {
-            instance = new CloudRecorder(context, CloudCreateService.DEFAULT_CONFIG);
+            instance = new CloudRecorder(context, AudioConfig.DEFAULT);
         }
         return instance;
     }

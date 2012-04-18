@@ -8,8 +8,8 @@ import java.io.File;
 import java.io.InputStream;
 
 public class WaveHeaderTest {
-    public static final String SHORT_TEST_WAV = "/com/soundcloud/android/task/create/short_test.wav";
-    public static final String MED_TEST_WAV = "/com/soundcloud/android/task/create/med_test.wav";
+    public static final String SHORT_TEST_WAV = "/com/soundcloud/android/service/upload/short_test.wav";
+    public static final String MED_TEST_WAV = "/com/soundcloud/android/service/upload/med_test.wav";
 
     @Test
     public void shouldReadWaveHeaderFromInputStream() throws Exception {

@@ -110,24 +110,24 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         }
     }
 
-    protected void onUploadCancelled(CanceledUploadException e) {
+    private void onUploadCancelled(CanceledUploadException e) {
         mUpload.setUploadException(e);
         broadcast(UploadService.UPLOAD_CANCELLED);
     }
 
-    protected void onUploadFailed(Exception e) {
+    private void onUploadFailed(Exception e) {
         Log.e(TAG, "Error uploading", e);
         mUpload.setUploadException(e);
         broadcast(UploadService.UPLOAD_ERROR);
     }
 
-    protected void onUploadSuccess() {
+    private void onUploadSuccess() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful");
         mUpload.onUploaded();
         broadcast(UploadService.UPLOAD_SUCCESS);
     }
 
-    protected void broadcast(String action) {
+    private void broadcast(String action) {
         mBroadcastManager.sendBroadcast(new Intent(action)
                 .putExtra(UploadService.EXTRA_RECORDING, mUpload));
     }

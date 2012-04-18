@@ -18,6 +18,8 @@ public enum AudioConfig {
     public final float quality;
     public final int source = MediaRecorder.AudioSource.MIC;
 
+    public static AudioConfig DEFAULT = PCM16_44100_1;
+
     private AudioConfig(int bitsPerSample, int sampleRate, int channels, float quality) {
         if (bitsPerSample != 8 && bitsPerSample != 16) throw new IllegalArgumentException("invalid bitsPerSample:"+bitsPerSample);
         if (channels < 1 || channels > 2) throw new IllegalArgumentException("invalid channels:"+channels);
