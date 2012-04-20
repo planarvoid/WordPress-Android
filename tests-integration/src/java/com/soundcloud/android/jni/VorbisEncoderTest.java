@@ -36,7 +36,7 @@ public class VorbisEncoderTest extends AudioTest {
         File out = externalPath(ogg);
 
         final long start = System.currentTimeMillis();
-        VorbisEncoder.encodeWav(in, out, quality);
+        VorbisEncoder.encodeWav(in, out, -1, quality, null);
         final long duration = System.currentTimeMillis() - start;
         log("encoded '%s' in quality %f in %d ms, factor %.2f", file, quality, duration,
                 (double) duration / (double) waveHeader.getDuration());

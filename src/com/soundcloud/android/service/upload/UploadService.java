@@ -9,7 +9,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.RecordStream;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.CloudCreateService;
 
@@ -33,6 +32,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +55,7 @@ public class UploadService extends Service {
     public static final String ENCODING_STARTED  = "com.soundcloud.android.service.upload.encoding_started";
     public static final String ENCODING_SUCCESS  = "com.soundcloud.android.service.upload.encoding_success";
     public static final String ENCODING_ERROR    = "com.soundcloud.android.service.upload.encoding_error";
+    public static final String ENCODING_CANCELED = "com.soundcloud.android.service.upload.encoding_cancelled";
     public static final String ENCODING_PROGRESS = "com.soundcloud.android.service.upload.encoding_progress";
 
     public static final String RESIZE_STARTED    = "com.soundcloud.android.service.upload.resize_started";
@@ -86,6 +87,7 @@ public class UploadService extends Service {
 
     private ServiceHandler mServiceHandler;
     private UploadHandler mUploadHandler;
+    private EncodingHandler mEncodingHandler;
 
     // notifications
     private NotificationManager nm;
@@ -115,12 +117,20 @@ public class UploadService extends Service {
             if (recording.hasArtwork() && recording.resized_artwork_path == null) {
                 post(new ImageResizer(UploadService.this, recording));
             } else {
-                if (recording.encoded_audio_path == null) {
-                    // TODO: queue for encoding if not encoded yet
-                    recording.encoded_audio_path = RecordStream.encodedFilename(recording.audio_path);
+                File encoded = recording.encodedFilename();
+                if (!encoded.exists()) {
+                    mEncodingHandler.post(new Encoder(UploadService.this, recording, encoded));
+                } else {
+                    recording.encoded_audio_path = encoded;
+                    post(new Uploader((SoundCloudApplication) getApplication(), recording));
                 }
-                post(new Uploader((SoundCloudApplication) getApplication(), recording));
             }
+        }
+    }
+
+    private final class EncodingHandler extends Handler {
+        public EncodingHandler(Looper looper) {
+            super(looper);
         }
     }
 
@@ -129,15 +139,10 @@ public class UploadService extends Service {
         super.onCreate();
         Log.d(TAG, "upload service started");
 
-        HandlerThread svcThread = new HandlerThread("UploadService");
-        svcThread.start();
-
-        HandlerThread uploadThread = new HandlerThread("Uploader");
-        uploadThread.start();
-
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
-        mServiceHandler = new ServiceHandler(svcThread.getLooper());
-        mUploadHandler = new UploadHandler(uploadThread.getLooper());
+        mServiceHandler = new ServiceHandler(createLooper("UploadService"));
+        mUploadHandler = new UploadHandler(createLooper("Uploader"));
+        mEncodingHandler = new EncodingHandler(createLooper("Encoder"));
 
         mBroadcastManager.registerReceiver(mReceiver, getIntentFilter());
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -203,14 +208,12 @@ public class UploadService extends Service {
                 showUploadingNotification(recording);
 
             } else if (UPLOAD_PROGRESS.equals(action)) {
-                int progress = intent.getIntExtra(EXTRA_PROGRESS, 0);
-                mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, progress, false);
-                mUploadNotificationView.setTextViewText(R.id.percentage, getString(R.string.cloud_uploader_event_uploading, progress));
-                nm.notify(UPLOADING_NOTIFY_ID, mUploadNotification);
-
+                notifyProgress(intent.getIntExtra(EXTRA_PROGRESS, 0), R.string.cloud_uploader_event_uploading);
             } else if (UPLOAD_SUCCESS.equals(action) ||
                        UPLOAD_ERROR.equals(action) ||
                        UPLOAD_CANCELLED.equals(action)) {
+
+                // XXX retry on temp. error?
 
                 mUploads.remove(recording.id);
                 Notification n = notifyUploadCurrentUploadFinished(recording);
@@ -227,17 +230,30 @@ public class UploadService extends Service {
                     stopSelf();
                 }
             } else if (RESIZE_STARTED.equals(action)) {
-                // XXX show notification?
                 acquireWakelock();
             } else if (RESIZE_SUCCESS.equals(action)) {
                 releaseWakelock();
                 queueUpload(recording);
             } else if (RESIZE_ERROR.equals(action)) {
                 releaseWakelock();
+                // XXX notify
+            } else if (ENCODING_STARTED.equals(action)) {
+
+            } else if (ENCODING_PROGRESS.equals(action)) {
+                notifyProgress(intent.getIntExtra(EXTRA_PROGRESS, 0), R.string.cloud_uploader_event_encoding);
+            } else if (ENCODING_SUCCESS.equals(action)) {
+                queueUpload(recording);
+            } else if (ENCODING_ERROR.equals(action)) {
+                // XXX notify
             }
         }
     };
 
+    private void notifyProgress(int progress, int resId) {
+        mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, progress, false);
+        mUploadNotificationView.setTextViewText(R.id.percentage, getString(resId, progress));
+        nm.notify(UPLOADING_NOTIFY_ID, mUploadNotification);
+    }
 
     private void onHandleIntent(Intent intent) {
         Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
@@ -320,7 +336,6 @@ public class UploadService extends Service {
         return notification;
     }
 
-
     private void acquireLocks() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "acquireLocks");
         acquireWakelock();
@@ -360,5 +375,11 @@ public class UploadService extends Service {
 
     /* package, for testing */ PowerManager.WakeLock getWakeLock() {
         return mWakeLock;
+    }
+
+    private static Looper createLooper(String name) {
+        HandlerThread thread = new HandlerThread(name);
+        thread.start();
+        return thread.getLooper();
     }
 }

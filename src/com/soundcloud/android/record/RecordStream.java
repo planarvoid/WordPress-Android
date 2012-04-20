@@ -3,6 +3,7 @@ package com.soundcloud.android.record;
 import static com.soundcloud.android.record.CloudRecorder.TAG;
 
 import com.soundcloud.android.jni.VorbisEncoder;
+import com.soundcloud.android.model.Recording;
 
 import android.net.Uri;
 import android.util.Log;
@@ -106,7 +107,7 @@ public class RecordStream implements Closeable {
         if (mEncoder == null) {
             // initialise a new encoder object
             long start = System.currentTimeMillis();
-            mEncoder = new VorbisEncoder(encodedFilename(file), "a", config);
+            mEncoder = new VorbisEncoder(Recording.encodedFilename(file), "a", config);
             Log.d(TAG, "init in "+(System.currentTimeMillis()-start) + " msecs");
         }
 
@@ -163,9 +164,5 @@ public class RecordStream implements Closeable {
         final short s = (short) ((short) ((0xff & buffer[byteIndex + 1]) << 8 | (0xff & buffer[byteIndex])) * Math.pow(volChange, FADE_EXP_CURVE));
         buffer[byteIndex + 1] = (byte) ((s >> 8) & 0xff);
         buffer[byteIndex] = (byte) (s & 0xff);
-    }
-
-    public static File encodedFilename(File file) {
-        return new File(file.getParentFile(), file.getName().concat(".ogg"));
     }
 }

@@ -47,6 +47,9 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj
     int ret = vorbis_encode_init_vbr(&state->vi, channels, rate, quality);
     if (ret != 0) {
       LOG_D("error initialising encoder, returned %d", ret);
+      vorbis_info_clear(&state->vi);
+      free(state);
+      state = NULL;
       return ret;
     }
 
@@ -56,6 +59,11 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj
     state->file = fopen(c_outFile, c_fileMode);
     if (!state->file) {
         LOG_E("error opening file %s, errno=%d", c_outFile, errno);
+        (*env)->ReleaseStringUTFChars(env, outFile, c_outFile);
+        (*env)->ReleaseStringUTFChars(env, fileMode, c_fileMode);
+        vorbis_info_clear(&state->vi);
+        free(state);
+        state = NULL;
         return -1;
     }
 

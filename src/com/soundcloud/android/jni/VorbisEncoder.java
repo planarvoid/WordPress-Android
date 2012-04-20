@@ -52,14 +52,18 @@ public class VorbisEncoder {
      * @param is inputstream containing samples
      * @throws IOException
      */
-    public void addSamples(InputStream is) throws IOException {
+    public void encodeStream(InputStream is, long length, ProgressListener listener) throws IOException {
         ByteBuffer bbuffer = ByteBuffer.allocateDirect((int) (8192*channels*2));
         byte[] buffer = new byte[bbuffer.capacity()];
         int n;
+        long total = 0;
         while ((n = is.read(buffer)) != -1) {
             bbuffer.rewind();
             bbuffer.put(buffer, 0, n);
-            addSamples(bbuffer, n);
+            int ret = addSamples(bbuffer, n);
+            if (ret < 0) throw new EncoderException("addSamples returned error", ret);
+            total += n;
+            if (listener != null) listener.onProgress(total, length);
         }
     }
 
@@ -71,7 +75,7 @@ public class VorbisEncoder {
      * @return
      * @throws IOException
      */
-    public static int encodeWav(InputStream wav, File out, float quality) throws IOException {
+    public static int encodeWav(InputStream wav, File out, long length, float quality, ProgressListener listener) throws IOException {
         wav = new BufferedInputStream(wav);
 
         WaveHeader header = new WaveHeader(wav);
@@ -81,15 +85,18 @@ public class VorbisEncoder {
                 header.getSampleRate(),
                 quality);
 
-        encoder.addSamples(wav);
-        encoder.release();
+        try {
+            encoder.encodeStream(wav, length, listener);
+        } finally {
+            encoder.release();
+        }
         return 0;
     }
 
-    public static int encodeWav(File in, File out, float quality) throws IOException {
+    public static int encodeWav(File in, File out, float quality, ProgressListener listener) throws IOException {
         FileInputStream inS = new FileInputStream(in);
         try {
-            return encodeWav(inS, out, quality);
+            return encodeWav(inS, out, in.length(), quality, listener);
         } finally {
             IOUtils.close(inS);
         }
