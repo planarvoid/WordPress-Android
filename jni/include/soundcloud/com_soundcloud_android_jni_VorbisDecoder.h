@@ -9,11 +9,43 @@ extern "C" {
 #endif
 /*
  * Class:     com_soundcloud_android_jni_VorbisDecoder
+ * Method:    getInfo
+ * Signature: ()Lcom/soundcloud/android/jni/Info;
+ */
+JNIEXPORT jobject JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_getInfo
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisDecoder
+ * Method:    init
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_init
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisDecoder
+ * Method:    release
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_release
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisDecoder
  * Method:    decode
- * Signature: (Ljava/lang/String;Ljava/lang/String;)I
+ * Signature: (Ljava/nio/ByteBuffer;)I
  */
 JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_decode
-  (JNIEnv *, jobject, jstring, jstring);
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisDecoder
+ * Method:    decodeToFile
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_decodeToFile
+  (JNIEnv *, jobject, jstring);
 
 #ifdef __cplusplus
 }

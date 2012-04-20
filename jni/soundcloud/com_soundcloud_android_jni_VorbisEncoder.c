@@ -5,18 +5,13 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
-#include <android/log.h>
 
 #define DEBUG_TAG "VorbisEncoderNative"
-#define ENCODER_TAG "SoundCloud for Android"
-
-#define LOG(level, args, ...) __android_log_print(level, DEBUG_TAG, args,  ##__VA_ARGS__)
-#define LOG_W(args, ...) LOG(ANDROID_LOG_WARN, args, ##__VA_ARGS__)
-#define LOG_D(args, ...) LOG(ANDROID_LOG_DEBUG, args, ##__VA_ARGS__)
-#define LOG_E(args, ...) LOG(ANDROID_LOG_ERROR, args, ##__VA_ARGS__)
+#include <soundcloud/common.h>
 
 #define READY  0
 #define PAUSED 1
+#define ENCODER_TAG "SoundCloud for Android"
 
 typedef struct {
     vorbis_info      vi; /* struct that stores all the static vorbis bitstream settings */
