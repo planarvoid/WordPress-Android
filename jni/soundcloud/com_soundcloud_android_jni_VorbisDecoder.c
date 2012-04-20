@@ -88,6 +88,19 @@ jobject Java_com_soundcloud_android_jni_VorbisDecoder_getInfo(JNIEnv *env, jobje
     return info;
 }
 
+jint Java_com_soundcloud_android_jni_VorbisDecoder_pcmSeek(JNIEnv *env, jobject obj, jlong pos, jboolean align) {
+    LOG_D("pcmSeek(%ld, %d)", (long)pos, align);
+    decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
+    return align ? ov_pcm_seek_page(&state->vf, pos) : ov_pcm_seek(&state->vf, pos);
+}
+
+jint Java_com_soundcloud_android_jni_VorbisDecoder_decode(JNIEnv *env, jobject obj, jobject buffer, jint length) {
+    decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
+    int current_section;
+    jbyte* bbuffer = (jbyte*) (*env)->GetDirectBufferAddress(env, buffer);
+    int ret = ov_read(&state->vf, bbuffer, length, &current_section);
+    return ret;
+}
 
 void Java_com_soundcloud_android_jni_VorbisDecoder_release(JNIEnv *env, jobject obj) {
     decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
@@ -99,6 +112,12 @@ void Java_com_soundcloud_android_jni_VorbisDecoder_release(JNIEnv *env, jobject 
         state = NULL;
     }
 }
+
+jint Java_com_soundcloud_android_jni_VorbisDecoder_getState(JNIEnv *env, jobject obj) {
+    decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
+    return (state == NULL ? -1 : 0);
+}
+
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     JNIEnv* env;

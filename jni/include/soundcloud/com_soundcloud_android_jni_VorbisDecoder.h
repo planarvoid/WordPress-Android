@@ -7,6 +7,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef com_soundcloud_android_jni_VorbisDecoder_ALIGN_SEEK_ON_PAGE
+#define com_soundcloud_android_jni_VorbisDecoder_ALIGN_SEEK_ON_PAGE 0L
 /*
  * Class:     com_soundcloud_android_jni_VorbisDecoder
  * Method:    getInfo
@@ -14,14 +16,6 @@ extern "C" {
  */
 JNIEXPORT jobject JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_getInfo
   (JNIEnv *, jobject);
-
-/*
- * Class:     com_soundcloud_android_jni_VorbisDecoder
- * Method:    init
- * Signature: (Ljava/lang/String;)I
- */
-JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_init
-  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     com_soundcloud_android_jni_VorbisDecoder
@@ -34,10 +28,26 @@ JNIEXPORT void JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_release
 /*
  * Class:     com_soundcloud_android_jni_VorbisDecoder
  * Method:    decode
- * Signature: (Ljava/nio/ByteBuffer;)I
+ * Signature: (Ljava/nio/ByteBuffer;I)I
  */
 JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_decode
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jint);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisDecoder
+ * Method:    pcmSeek
+ * Signature: (JZ)I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_pcmSeek
+  (JNIEnv *, jobject, jlong, jboolean);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisDecoder
+ * Method:    init
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_init
+  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     com_soundcloud_android_jni_VorbisDecoder
@@ -46,6 +56,14 @@ JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_decode
  */
 JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_decodeToFile
   (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisDecoder
+ * Method:    getState
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_getState
+  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }
