@@ -88,6 +88,11 @@ public class VorbisDecoder {
     }
 
     static {
-        System.loadLibrary("soundcloud_audio_tremor");
+        try {
+            System.loadLibrary("soundcloud_audio_tremor");
+        } catch (UnsatisfiedLinkError e) {
+            // only ignore exception in non-android env
+            if ("Dalvik".equals(System.getProperty("java.vm.name"))) throw e;
+        }
     }
 }

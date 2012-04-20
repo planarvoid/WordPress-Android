@@ -143,8 +143,8 @@ public class VorbisEncoder {
         try {
             System.loadLibrary("soundcloud_audio");
         } catch (UnsatisfiedLinkError e) {
-            // ignore exception in non-android env
-            if (android.os.Build.VERSION.SDK_INT > 0) throw e;
+            // only ignore exception in non-android env
+            if ("Dalvik".equals(System.getProperty("java.vm.name"))) throw e;
         }
     }
 }
