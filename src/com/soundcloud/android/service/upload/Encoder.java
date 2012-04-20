@@ -19,14 +19,12 @@ import java.io.IOException;
 
 public class Encoder extends BroadcastReceiver implements Runnable, ProgressListener {
     private final Recording mRecording;
-    private final File mOut;
 
     private LocalBroadcastManager mBroadcastManager;
     private volatile boolean mCancelled;
 
-    public Encoder(Context context, Recording recording, File out) {
-        this.mRecording = recording;
-        this.mOut = out;
+    public Encoder(Context context, Recording recording) {
+        mRecording = recording;
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
         mBroadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
     }
@@ -36,8 +34,14 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
         try {
             final File in = mRecording.audio_path;
             broadcast(UploadService.ENCODING_STARTED);
-            VorbisEncoder.encodeWav(in, mOut, AudioConfig.DEFAULT.quality, this);
-            broadcast(UploadService.ENCODING_SUCCESS);
+            VorbisEncoder.encodeWav(in, mRecording.encodedFilename(), AudioConfig.DEFAULT.quality, this);
+
+            // double check
+            if (mRecording.encodedFilename().exists()) {
+                broadcast(UploadService.ENCODING_SUCCESS);
+            } else {
+                broadcast(UploadService.ENCODING_ERROR);
+            }
         } catch (UserCanceledException e) {
             broadcast(UploadService.ENCODING_CANCELED);
         } catch (IOException e) {

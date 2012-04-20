@@ -7,7 +7,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.service.upload.Uploader;
 import com.soundcloud.android.service.upload.UserCanceledException;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -138,7 +137,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
         if (audio_path == null) {
             throw new IllegalArgumentException("audio_path is null");
         }
-
     }
 
     public File generateImageFile(File imageDir) {

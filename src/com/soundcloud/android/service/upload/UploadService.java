@@ -32,7 +32,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -117,11 +116,9 @@ public class UploadService extends Service {
             if (recording.hasArtwork() && recording.resized_artwork_path == null) {
                 post(new ImageResizer(UploadService.this, recording));
             } else {
-                File encoded = recording.encodedFilename();
-                if (!encoded.exists()) {
-                    mEncodingHandler.post(new Encoder(UploadService.this, recording, encoded));
+                if (!recording.encodedFilename().exists()) {
+                    mEncodingHandler.post(new Encoder(UploadService.this, recording));
                 } else {
-                    recording.encoded_audio_path = encoded;
                     post(new Uploader((SoundCloudApplication) getApplication(), recording));
                 }
             }
