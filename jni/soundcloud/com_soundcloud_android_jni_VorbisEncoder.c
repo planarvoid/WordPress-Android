@@ -7,7 +7,7 @@
 #include <time.h>
 
 #define DEBUG_TAG "VorbisEncoderNative"
-#include <soundcloud/common.h>
+#include <common.h>
 
 #define READY  0
 #define PAUSED 1

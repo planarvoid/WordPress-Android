@@ -8,7 +8,7 @@
 #include <android/log.h>
 
 #define DEBUG_TAG "VorbisDecoderNative"
-#include <soundcloud/common.h>
+#include <common.h>
 
 char pcmout[4096]; /* take 4k out of the data segment, not the stack */
 
