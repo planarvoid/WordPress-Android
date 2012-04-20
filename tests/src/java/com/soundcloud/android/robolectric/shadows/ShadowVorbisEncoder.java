@@ -10,7 +10,6 @@ import java.io.IOException;
 
 @Implements(VorbisEncoder.class)
 public class ShadowVorbisEncoder {
-e
     @Implementation
     public static int encodeWav(File in, File out, float quality, ProgressListener l) throws IOException {
         return 0;
