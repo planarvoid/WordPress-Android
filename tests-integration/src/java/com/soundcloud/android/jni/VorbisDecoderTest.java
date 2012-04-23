@@ -1,6 +1,6 @@
 package com.soundcloud.android.jni;
 
-import com.soundcloud.android.record.WaveHeader;
+import com.soundcloud.android.audio.WaveHeader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,6 +52,23 @@ public class VorbisDecoderTest extends AudioTest {
         decoder.release();
     }
 
+
+    public void testTimeSeek() throws Exception {
+        VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
+        assertEquals(0, decoder.timeSeek(10000d));
+
+        ByteBuffer bb = ByteBuffer.allocateDirect(4096);
+        int n, total = 0;
+        while ((n = decoder.decode(bb, bb.capacity())) > 0) {
+            total += n;
+        }
+        assertEquals("non-zero return code: "+n, 0, n);
+        assertEquals(1549920, total);
+
+        decoder.release();
+    }
+
+
     public void testGetInfo() throws Exception {
         VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
         Info info = decoder.getInfo();
@@ -59,7 +76,9 @@ public class VorbisDecoderTest extends AudioTest {
         assertNotNull(info);
         assertEquals(44100, info.sampleRate);
         assertEquals(2, info.channels);
-        assertEquals(828480, info.numSamples);
+        assertEquals(828480,  info.numSamples);
+        assertEquals(330825,  info.bitrate);
+        assertEquals(18786.0, info.duration);
 
         decoder.release();
     }
@@ -76,6 +95,4 @@ public class VorbisDecoderTest extends AudioTest {
         decoder.release();
         return wav;
     }
-
-
 }

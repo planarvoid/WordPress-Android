@@ -1,4 +1,6 @@
-package com.soundcloud.android.record;
+package com.soundcloud.android.audio;
+
+import com.soundcloud.android.record.RemainingTimeCalculator;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;

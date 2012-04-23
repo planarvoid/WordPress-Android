@@ -8,7 +8,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.AudioConfig;
+import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.record.CloudRecorder;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.upload.UploadService;
@@ -279,10 +279,10 @@ public class CreateController implements CreateWaveDisplay.Listener {
     }
 
     @Override
-    public void onSeek(float pos) {
+    public void onSeek(float pct) {
         if (mCreateService != null) {
             mLastTrackTime = -1;
-            mCreateService.seekTo(pos);
+            mCreateService.seekTo(pct);
         }
     }
 

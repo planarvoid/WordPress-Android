@@ -2,6 +2,7 @@ package com.soundcloud.android.record;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.audio.AudioConfig;
 import org.junit.Test;
 
 public class AudioConfigTest {

@@ -20,9 +20,23 @@ public class VorbisDecoder {
         init(file.getAbsolutePath());
     }
 
-    public native Info getInfo();
+
+    /**
+     * @return the current state (0 = ready to decode, < 0 uninitialised)
+     */
+    public native int getState();
+
+    /**
+     * Releases native resources associated with this decoder object.
+     */
     public native void release();
 
+
+    /**
+     * Convenience method to decode vorbis stream to file.
+     * @param out
+     * @throws DecoderException
+     */
     public void decodeToFile(File out) throws DecoderException {
         int ret = decodeToFile(out.getAbsolutePath());
         if (ret < 0) {
@@ -31,8 +45,14 @@ public class VorbisDecoder {
     }
 
     /**
+     * @return vorbis metadata
+     */
+    public native Info getInfo();
+
+
+    /**
      * This is the main function used to decode a Vorbis file within a loop.
-     * t returns up to the specified number of bytes of decoded PCM audio in the requested endianness,
+     * It returns up to the specified number of bytes of decoded PCM audio in the requested endianness,
      * signedness, and word size. If the audio is multichannel, the channels are interleaved in the
      * output buffer. If the passed in buffer is large, ov_read() will not fill it; the passed in
      * buffer size is treated as a limit and not a request.
@@ -66,30 +86,46 @@ public class VorbisDecoder {
      */
     public native int pcmSeek(long pos, boolean alignOnPage);
 
+
+    /**
+     * @param pos position in milliseconds
+     * @param alignOnPage if yes, find closest sample on page boundary (faster)
+     * @return nonzero indicates failure, described by several error codes:
+     * <ul>
+     *     <li>{@link VorbisConstants.OV_ENOSEEK} - Bitstream is not seekable.</li>
+     *     <li>{@link VorbisConstants.OV_EINVAL} - Invalid argument value; possibly called with an OggVorbis_File structure that isn't open.</li>
+     *     <li>{@link VorbisConstants.OV_EREAD} - A read from media returned an error.</li>
+     *     <li>{@link VorbisConstants.OV_EFAULT} - Internal logic fault; indicates a bug or heap/stack corruption.</li>
+     *     <li>{@link VorbisConstants.OV_EBADLINK} - Invalid stream section supplied to libvorbisfile, or the requested link is corrupt.</li>
+     * </ul>
+     * @see <a href="http://xiph.org/vorbis/doc/vorbisfile/ov_pcm_seek.html">ov_pcm_seek</a>
+     */
+    public native int timeSeek(double pos, boolean alignOnPage);
+
+
     public int pcmSeek(long pos) {
         return pcmSeek(pos, ALIGN_SEEK_ON_PAGE);
+    }
+
+    public int timeSeek(double pos) {
+        return timeSeek(pos, ALIGN_SEEK_ON_PAGE);
     }
 
     // private methods
     private native int init(String file);
     private native int decodeToFile(String out);
 
-    /**
-     * @return the current state (0 = ready to decode, < 0 uninitialised)
-     */
-    public native int getState();
-
     @Override protected void finalize() throws Throwable {
         super.finalize();
         if (getState() >= 0) {
-            Log.w(TAG, "unreleased decoder in finalize() - call release() when done with encoder");
+            Log.w(TAG, "still unreleased in finalize() - call release() when done with decode");
             release();
         }
     }
 
     static {
         try {
-            System.loadLibrary("soundcloud_audio_tremor");
+            System.loadLibrary("soundcloud_audio_decoder");
         } catch (UnsatisfiedLinkError e) {
             // only ignore exception in non-android env
             if ("Dalvik".equals(System.getProperty("java.vm.name"))) throw e;

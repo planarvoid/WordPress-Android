@@ -1,6 +1,9 @@
 
 package com.soundcloud.android.record;
 
+import com.soundcloud.android.audio.AudioConfig;
+import com.soundcloud.android.audio.AudioFile;
+import com.soundcloud.android.audio.WaveHeader;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.utils.IOUtils;
 
@@ -16,7 +19,6 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -112,7 +114,7 @@ public class CloudRecorder {
         if (path == null) throw new IllegalArgumentException("path is null");
 
         if (mState != State.RECORDING) {
-            if (mRecordStream != null && !mRecordStream.file.equals(path)) {
+            if (mRecordStream != null && !mRecordStream.getFile().equals(path)) {
                 mRecordStream.release();
                 mRecordStream = null;
             }
@@ -190,7 +192,7 @@ public class CloudRecorder {
     }
 
     public long getCurrentPlaybackPosition() {
-        return mSeekToPos != -1 ? mConfig.bytesToMs(mSeekToPos) : mCurrentPosition == -1 ? -1 :  mConfig.bytesToMs(mCurrentPosition);
+        return mSeekToPos != -1 ? mSeekToPos : mCurrentPosition == -1 ? -1 :  mCurrentPosition;
     }
 
     public void resetPlaybackBounds() {
@@ -216,12 +218,8 @@ public class CloudRecorder {
         }
     }
 
-    public void seekToPercentage(float percentage) {
-        seekTo((long) (percentage * mRecordStream.length()));
-    }
-
-    public void seekTo(long position) {
-        position = mConfig.validBytePosition(position);
+    public void seekTo(float pct) {
+        long position = (long) (getDuration() * pct);
         if (isPlaying()) {
             mSeekToPos = position;
             mState = State.SEEKING;
@@ -248,7 +246,7 @@ public class CloudRecorder {
         final Intent intent = new Intent(action)
                 .putExtra(CloudCreateService.EXTRA_POSITION, getCurrentPlaybackPosition())
                 .putExtra(CloudCreateService.EXTRA_STATE, mState.name())
-                .putExtra(CloudCreateService.EXTRA_PATH, mRecordStream == null ? null : mRecordStream.file.getAbsolutePath());
+                .putExtra(CloudCreateService.EXTRA_PATH, mRecordStream == null ? null : mRecordStream.getFile().getAbsolutePath());
         Log.d(TAG, "broadcast "+intent);
         mBroadcastManager.sendBroadcast(intent);
     }
@@ -259,28 +257,30 @@ public class CloudRecorder {
             setPriority(Thread.MAX_PRIORITY);
         }
 
-        private void play(RandomAccessFile file) throws IOException {
-            if (mCurrentPosition >= 0 && mCurrentPosition < file.length()) {
+        private void play(AudioFile file) throws IOException {
+            if (mCurrentPosition >= 0 && mCurrentPosition < file.getDuration()) {
                 final int bufferSize = 1024; //arbitrary small buffer. makes for more accurate progress reporting
-                byte[] buffer = new byte[bufferSize];
+                ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
 
                 file.seek(mCurrentPosition);
                 mState = CloudRecorder.State.PLAYING;
                 int n;
+                while (mState == CloudRecorder.State.PLAYING
+                        && (n = file.read(buffer, bufferSize)) > -1
+                        && (mCurrentPosition < mRecordStream.endPosition)) {
 
-                while (mState == CloudRecorder.State.PLAYING && (n = file.read(buffer, 0, bufferSize)) > -1 && (mCurrentPosition < mRecordStream.endPosition)) {
-
-                    int written = mAudioTrack.write(mRecordStream.applyMods(buffer,mCurrentPosition), 0, n);
+                    int written = mAudioTrack.write(buffer.array(), 0, n);
                     if (written < 0) {
                         Log.d(TAG, "write() returned "+written);
                         mState = CloudRecorder.State.ERROR;
                     } else {
-                        mCurrentPosition += written;
+                        mCurrentPosition += file.getConfig().bytesToMs(written);
                     }
+                    buffer.rewind();
                 }
             } else {
-                Log.w(TAG, "dataStart > length: " + mCurrentPosition + ">" + file.length());
-                throw new IOException("pos > length: " + mCurrentPosition + ">" + file.length());
+                Log.w(TAG, "dataStart > length: " + mCurrentPosition + ">" + file.getDuration());
+                throw new IOException("pos > length: " + mCurrentPosition + ">" + file.getDuration());
             }
         }
 
@@ -289,14 +289,15 @@ public class CloudRecorder {
                 Log.d(TAG, String.format("starting player thread (%d)", mRecordStream.startPosition));
                 mAudioTrack.play();
 
-                RandomAccessFile file = null;
+                AudioFile file = null;
                 try {
-                    file = new RandomAccessFile(mRecordStream.file, "r");
+                    file =  mRecordStream.getAudioFile();
                     mState = CloudRecorder.State.PLAYING;
 
-                    final long start = mRecordStream.startPosition+WaveHeader.LENGTH;
+                    final long start = mRecordStream.startPosition+ WaveHeader.LENGTH;
                     // resume from current position if it is valid, otherwise use start position. this is done before broadcast for reporting
-                    mCurrentPosition = mCurrentPosition > start && mCurrentPosition < mRecordStream.endPosition ? mCurrentPosition : start;
+                    mCurrentPosition = (mCurrentPosition > start &&
+                                        mCurrentPosition < mRecordStream.endPosition) ? mCurrentPosition : start;
 
                     broadcast(CloudCreateService.PLAYBACK_STARTED);
 
@@ -327,6 +328,8 @@ public class CloudRecorder {
             }
         }
     }
+
+
 
     private class ReaderThread extends Thread {
         ReaderThread() {
@@ -359,7 +362,7 @@ public class CloudRecorder {
                                 if (written < read) {
                                     Log.w(TAG, "partial write "+written);
                                 }
-                                mDuration = mConfig.bytesToMs(mRecordStream.length() - WaveHeader.LENGTH);
+                                mDuration = mRecordStream.getDuration();
                             } catch (IOException e) {
                                 Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
                                 mState = CloudRecorder.State.ERROR;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.soundcloud.android.record;
+package com.soundcloud.android.audio;
 
 import java.io.DataOutput;
 import java.io.IOException;
@@ -162,6 +162,10 @@ public class WaveHeader {
         return mBitsPerSample;
     }
 
+    public int getBytesPerSample() {
+        return getBitsPerSample() / 8;
+    }
+
     /**
      * Set the number of bits per sample.
      * @param bitsPerSample number of bits per sample,
@@ -195,7 +199,7 @@ public class WaveHeader {
      * @return the duration, in ms
      */
     public long getDuration() {
-        return (long) ((mNumBytes / (mSampleRate * mNumChannels * mBitsPerSample / 8d)) * 1000l);
+        return Math.round((mNumBytes / (double) (mSampleRate * mNumChannels * getBytesPerSample())) * 1000l);
     }
 
     /**
@@ -220,10 +224,10 @@ public class WaveHeader {
         int byteRate = readInt(in);
         short blockAlign = readShort(in);
         mBitsPerSample = readShort(in);
-        if (byteRate != mNumChannels * mSampleRate * mBitsPerSample / 8) {
+        if (byteRate != mNumChannels * mSampleRate * getBytesPerSample()) {
             throw new IOException("fmt.ByteRate field inconsistent");
         }
-        if (blockAlign != mNumChannels * mBitsPerSample / 8) {
+        if (blockAlign != mNumChannels * getBytesPerSample()) {
             throw new IOException("fmt.BlockAlign field inconsistent");
         }
 
@@ -249,6 +253,23 @@ public class WaveHeader {
     }
 
     /**
+     * @param ms the time in milliseconds
+     * @return the byte offset into the file
+     */
+    public long offset(final long ms) {
+        if (ms < 0) {
+            return WaveHeader.LENGTH;
+        } else {
+            final long offset = (long) Math.min(mNumBytes,
+                    ms * getBytesPerSample()
+                       * mNumChannels
+                       * (mSampleRate / 1000d));
+
+            return LENGTH + getAudioConfig().validBytePosition(offset);
+         }
+    }
+
+    /**
      * Write a WAVE file header.
      * @param out {@link java.io.OutputStream} to receive the header.
      * @return number of bytes written.
@@ -266,8 +287,8 @@ public class WaveHeader {
         writeShort(out, mFormat);
         writeShort(out, mNumChannels);
         writeInt(out, mSampleRate);
-        writeInt(out, mNumChannels * mSampleRate * mBitsPerSample / 8);
-        writeShort(out, (short)(mNumChannels * mBitsPerSample / 8));
+        writeInt(out, mNumChannels * mSampleRate * getBytesPerSample());
+        writeShort(out, (short)(mNumChannels * getBytesPerSample()));
         writeShort(out, mBitsPerSample);
 
         /* data chunk */
@@ -289,8 +310,8 @@ public class WaveHeader {
         out.writeShort(Short.reverseBytes((short) 1));
         out.writeShort(Short.reverseBytes(mNumChannels));
         out.writeInt(Integer.reverseBytes(mSampleRate));
-        out.writeInt(Integer.reverseBytes( mNumChannels * mSampleRate * mBitsPerSample / 8));
-        out.writeShort(Short.reverseBytes((short) (mNumChannels * mBitsPerSample / 8)));
+        out.writeInt(Integer.reverseBytes( mNumChannels * mSampleRate * getBytesPerSample()));
+        out.writeShort(Short.reverseBytes((short) (mNumChannels * getBytesPerSample())));
         out.writeShort(Short.reverseBytes(mBitsPerSample));
 
         /* data chunk */
@@ -321,5 +342,15 @@ public class WaveHeader {
         return String.format(
                 "WaveHeader format=%d numChannels=%d sampleRate=%d bitsPerSample=%d numBytes=%d",
                 mFormat, mNumChannels, mSampleRate, mBitsPerSample, mNumBytes);
+    }
+
+    public AudioConfig getAudioConfig() {
+        if (mFormat == FORMAT_PCM && mSampleRate == 44100 && mBitsPerSample == 16) {
+            switch (mNumChannels) {
+                case 1: return AudioConfig.PCM16_44100_1;
+                case 2: return AudioConfig.PCM16_44100_2;
+                default: return null;
+            }
+        } else return null;
     }
 }

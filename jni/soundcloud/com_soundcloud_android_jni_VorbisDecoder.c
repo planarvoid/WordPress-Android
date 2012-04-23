@@ -17,6 +17,8 @@ typedef struct {
     OggVorbis_File vf;
     vorbis_info *vi;
     long numSamples;
+    long bitrate;
+    double duration;
 
 } decoder_state;
 
@@ -36,7 +38,9 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_init(JNIEnv *env, jobject obj
       return ret;
     }
     state->vi = ov_info(&state->vf, -1);
-    state->numSamples = (long)ov_pcm_total(&state->vf,-1);
+    state->numSamples = (long)ov_pcm_total(&state->vf, -1);
+    state->bitrate = ov_bitrate(&state->vf, -1);
+    state->duration = ov_time_total(&state->vf, -1);
 
     (*env)->SetIntField(env, obj, decoder_state_field, (int)state);
     return 0;
@@ -80,10 +84,14 @@ jobject Java_com_soundcloud_android_jni_VorbisDecoder_getInfo(JNIEnv *env, jobje
     jfieldID channels = (*env)->GetFieldID(env, infoCls,   "channels",   "I");
     jfieldID sampleRate = (*env)->GetFieldID(env, infoCls, "sampleRate", "I");
     jfieldID numSamples = (*env)->GetFieldID(env, infoCls, "numSamples", "J");
+    jfieldID bitrate = (*env)->GetFieldID(env, infoCls, "bitrate", "J");
+    jfieldID duration = (*env)->GetFieldID(env, infoCls, "duration", "D");
 
-    (*env)->SetIntField(env,  info, channels,   state->vi->channels);
-    (*env)->SetIntField(env,  info, sampleRate, state->vi->rate);
-    (*env)->SetLongField(env, info, numSamples, state->numSamples);
+    (*env)->SetIntField(env,    info, channels,   state->vi->channels);
+    (*env)->SetIntField(env,    info, sampleRate, state->vi->rate);
+    (*env)->SetLongField(env,   info, numSamples, state->numSamples);
+    (*env)->SetLongField(env,   info, bitrate,    state->bitrate);
+    (*env)->SetDoubleField(env, info, duration,   state->duration);
 
     return info;
 }
@@ -92,6 +100,12 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_pcmSeek(JNIEnv *env, jobject 
     LOG_D("pcmSeek(%ld, %d)", (long)pos, align);
     decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
     return align ? ov_pcm_seek_page(&state->vf, pos) : ov_pcm_seek(&state->vf, pos);
+}
+
+jint Java_com_soundcloud_android_jni_VorbisDecoder_timeSeek(JNIEnv *env, jobject obj, jdouble pos, jboolean align) {
+    LOG_D("timeSeek(%.2f, %d)", pos, align);
+    decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
+    return align ? ov_time_seek_page(&state->vf, pos) : ov_time_seek(&state->vf, pos);
 }
 
 jint Java_com_soundcloud_android_jni_VorbisDecoder_decode(JNIEnv *env, jobject obj, jobject buffer, jint length) {

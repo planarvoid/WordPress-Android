@@ -1,6 +1,6 @@
 package com.soundcloud.android.jni;
 
-import com.soundcloud.android.record.WaveHeader;
+import com.soundcloud.android.audio.WaveHeader;
 
 import android.os.Environment;
 
