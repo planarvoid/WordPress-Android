@@ -1,23 +1,5 @@
 package com.soundcloud.android.view.create;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.AudioConfig;
-import com.soundcloud.android.record.CloudRecorder;
-import com.soundcloud.android.service.record.CloudCreateService;
-import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.record.RemainingTimeCalculator;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -36,13 +18,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.AudioConfig;
+import com.soundcloud.android.record.CloudRecorder;
+import com.soundcloud.android.record.RemainingTimeCalculator;
+import com.soundcloud.android.service.record.CloudCreateService;
+import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class CreateController implements CreateWaveDisplay.Listener {
 
@@ -58,11 +59,12 @@ public class CreateController implements CreateWaveDisplay.Listener {
     private long mLastDisplayedTime;
 
     private TextView txtInstructions, txtRecordMessage, mChrono;
-    private ViewGroup mFileLayout;
+    private ViewGroup mRecControls, mEditControls, mFileLayout;
     private ImageButton mActionButton;
     private CreateWaveDisplay mWaveDisplay;
     private Button mResetButton, mDeleteButton, mPlayButton, mEditButton, mSaveButton;
     private String mRecordErrorMessage, mCurrentDurationString;
+
 
     private boolean mSampleInterrupted, mActive;
     private RemainingTimeCalculator mRemainingTimeCalculator;
@@ -120,13 +122,17 @@ public class CreateController implements CreateWaveDisplay.Listener {
         mChrono.setVisibility(View.INVISIBLE);
 
         mFileLayout = (ViewGroup) vg.findViewById(R.id.file_layout);
+        mRecControls = (ViewGroup) vg.findViewById(R.id.rec_controls);
+        mEditControls = (ViewGroup) vg.findViewById(R.id.edit_controls);
 
         mActionButton = setupActionButton(vg);
         mResetButton  = setupResetButton(vg);
         mDeleteButton = setupDeleteButton(vg);
-        mPlayButton = setupPlaybutton(vg);
         mEditButton = setupEditButton(vg);
         mSaveButton = setupSaveButton(vg);
+        mPlayButton = setupPlaybutton(vg, R.id.btn_play);
+        setupPlaybutton(vg,R.id.btn_play_edit);
+        setupToggleFade(vg);
 
         mWaveDisplay = new CreateWaveDisplay(mActivity);
         mWaveDisplay.setTrimListener(this);
@@ -195,8 +201,8 @@ public class CreateController implements CreateWaveDisplay.Listener {
         });
         return button;
     }
-    private Button setupPlaybutton(ViewGroup vg) {
-        final Button button = ((Button) vg.findViewById(R.id.btn_play));
+    private Button setupPlaybutton(ViewGroup vg, int id) {
+        final Button button = ((Button) vg.findViewById(id));
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -268,6 +274,17 @@ public class CreateController implements CreateWaveDisplay.Listener {
             }
         });
         return button;
+    }
+
+    private ToggleButton setupToggleFade(ViewGroup vg) {
+        final ToggleButton tb = (ToggleButton) vg.findViewById(R.id.toggle_fade);
+        tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+            }
+        });
+        return tb;
     }
 
     public void reset() {
@@ -432,6 +449,8 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
                 hideView(mChrono, false, View.INVISIBLE);
+                hideView(mEditControls, false, View.GONE);
+
 
                 showView(mActionButton, false);
                 showView(txtInstructions, takeAction && mLastState != CreateState.IDLE_RECORD);
@@ -468,11 +487,12 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
+                hideView(mEditControls, false, View.GONE);
                 hideView(txtInstructions, false, View.GONE);
 
                 showView(mChrono, takeAction && mLastState == CreateState.IDLE_RECORD);
                 showView(mActionButton, false);
-                showView(txtRecordMessage,false);
+                showView(txtRecordMessage, false);
 
                 mActionButton.setImageDrawable(btn_rec_stop_states_drawable);
                 txtRecordMessage.setText("");
@@ -510,10 +530,11 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 showView(mEditButton, takeAction && (mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
                 showView(mActionButton, takeAction && (mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
                 showView(mFileLayout, takeAction && (mLastState == CreateState.RECORD));
-                showView(mChrono,false);
+                showView(mChrono, false);
 
-                hideView(txtInstructions,false,View.GONE);
-                hideView(txtRecordMessage,false,View.INVISIBLE);
+                hideView(txtInstructions, false, View.GONE);
+                hideView(txtRecordMessage, false, View.INVISIBLE);
+                hideView(mEditControls, false, View.GONE);
 
                 mPlayButton.setText(TEMP_PLAY);
                 mChrono.setText(mCurrentDurationString);
@@ -531,6 +552,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 showView(mChrono,false);
 
                 hideView(txtInstructions,false,View.GONE);
+                hideView(mEditControls,false,View.GONE);
                 hideView(txtRecordMessage,false,View.INVISIBLE);
 
                 mPlayButton.setText(TEMP_STOP);
@@ -544,7 +566,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
             case EDIT:
             case EDIT_PLAYBACK:
                 mPlayButton.setVisibility(View.GONE); // just to fool the animation
-                showView(mPlayButton, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+                showView(mEditControls, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
                 showView(mResetButton,false);
                 showView(mFileLayout,false);
 
