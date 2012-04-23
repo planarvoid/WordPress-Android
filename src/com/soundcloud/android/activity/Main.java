@@ -220,8 +220,6 @@ public class Main extends TabActivity implements
                         .putExtra("userId", recipient)
                         .putExtra("userBrowserTag", UserBrowser.Tab.privateMessage.name()));
             }
-        } else if (tab != Main.Tab.UNKNOWN) {
-            getTabHost().setCurrentTabByTag(tab.tag);
         } else if (Actions.PLAYER.equals(intent.getAction())) {
             // start another activity to control history
             startActivity(new Intent(this, ScPlayer.class));
@@ -247,8 +245,11 @@ public class Main extends TabActivity implements
             );
         } else if (justAuthenticated(intent)) {
             Log.d(TAG, "activity start after successful authentication");
-            getTabHost().setCurrentTabByTag(Main.Tab.RECORD.tag);
+            getTabHost().setCurrentTabByTag(Tab.STREAM.tag);
+        }  else if (tab != Main.Tab.UNKNOWN) {
+            getTabHost().setCurrentTabByTag(tab.tag);
         }
+
         intent.setAction("");
         intent.setData(null);
         intent.removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
