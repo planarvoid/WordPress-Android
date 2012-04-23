@@ -1,5 +1,6 @@
 package com.soundcloud.android.jni;
 
+import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.WaveHeader;
 
 import android.os.Environment;
@@ -42,5 +43,12 @@ public class VorbisEncoderTest extends AudioTest {
                 (double) duration / (double) waveHeader.getDuration());
 
         checkAudioFile(out, expectedDuration);
+    }
+
+    public void testRelease() throws Exception {
+        VorbisEncoder enc = new VorbisEncoder(externalPath("test.ogg"), "w", AudioConfig.PCM16_44100_1);
+        assertEquals(0, enc.getState());
+        enc.release();
+        assertEquals(-1, enc.getState());
     }
 }

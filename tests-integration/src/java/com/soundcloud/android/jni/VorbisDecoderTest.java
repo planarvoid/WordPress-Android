@@ -83,6 +83,13 @@ public class VorbisDecoderTest extends AudioTest {
         decoder.release();
     }
 
+    public void testRelease() throws Exception {
+        VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
+        assertEquals(0, decoder.getState());
+        decoder.release();
+        assertEquals(-1, decoder.getState());
+    }
+
     private File decode(String in) throws IOException {
         File ogg = prepareAsset(in);
         VorbisDecoder decoder = new VorbisDecoder(ogg);
