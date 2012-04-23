@@ -23,7 +23,7 @@ typedef struct {
 
 static jfieldID decoder_state_field;
 
-jint Java_com_soundcloud_android_jni_VorbisDecoder_init(JNIEnv *env, jobject obj, jobject path) {
+jint Java_com_soundcloud_android_jni_VorbisDecoder_init(JNIEnv *env, jobject obj, jstring path) {
     const char *cPath = (*env)->GetStringUTFChars(env, path, 0);
     LOG_D("init(%s)", cPath);
 
