@@ -161,6 +161,10 @@ public class ApiSyncer {
             log("Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
             return result;
         }
+
+        result.wasChanged = true;
+        result.extra = "0"; // reset sync misses
+
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);
         itemDeletions.removeAll(remote);
