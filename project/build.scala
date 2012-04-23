@@ -27,12 +27,12 @@ object AndroidBuild extends Build {
     "com.google.android" % "filecache" % "r153",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
     "org.xiph" % "libvorbis" % "1.0.0-beta",
-    "com.at" % "ATInternet" % "1.0",
+    "com.at" % "ATInternet" % "1.1.003",
     "com.google.android" % "android" % "2.3.3" % "provided"
   )
 
   val testDependencies = Seq(
-    "com.pivotallabs" % "robolectric" % "1.1-SNAPSHOT" % "test",
+    "com.pivotallabs" % "robolectric" % "1.2-SNAPSHOT" % "test",
     "junit" % "junit-dep" % "4.9" % "test",
     "org.mockito" % "mockito-core" % "1.8.5" % "test",
     "org.hamcrest" % "hamcrest-core" % "1.1" % "test",
@@ -56,10 +56,7 @@ object AndroidBuild extends Build {
   // the main project
   val prepareAmazon = TaskKey[File]("prepare-amazon")
 
-  lazy val soundcloud_android = Project(
-    "soundcloud-android",
-    file("."),
-    settings = General.androidProjectSettings ++ Seq(
+  val projectSettings = General.androidProjectSettings ++ Seq(
       libraryDependencies ++= coreDependencies ++ testDependencies,
       resolvers          ++= repos,
       compileOrder       := CompileOrder.JavaThenScala,
@@ -70,8 +67,11 @@ object AndroidBuild extends Build {
       githubRepo         := "soundcloud/SoundCloud-Android",
       cachePasswords     := true,
       prepareAmazon      <<= (packageAlignedPath, streams) map { (path, s) =>
-        s.log.success("Ready for Amazon appstore:\n"+path)
-        path
+        if (AmazonHelper.isAmazon(path)) {
+          val amazon = AmazonHelper.copy(path)
+          s.log.success("Ready for Amazon appstore:\n"+amazon)
+          amazon
+        } else sys.error(path.getName+" is not an Amazon processed APK!")
       } dependsOn (AndroidMarketPublish.signReleaseTask, AndroidMarketPublish.zipAlignTask)
     )) ++ inConfig(Test)(Seq(
       javaSource         <<= (baseDirectory) (_ / "tests" / "src" / "java"),
@@ -79,10 +79,23 @@ object AndroidBuild extends Build {
       resourceDirectory  <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
       parallelExecution  := false,
       unmanagedClasspath := Seq.empty
+    )) ++
+      AndroidInstall.settings ++
+      Mavenizer.settings
+
+  // main project
+  lazy val soundcloud_android = Project(
+    "soundcloud-android",
+    file("."),
+    settings = projectSettings)
+
+  // beta project
+  lazy val soundcloud_android_beta = Project(
+    "soundcloud-android-beta",
+    file("."),
+    settings = projectSettings ++ Seq(
+      keyalias in Android := "beta-key"
     ))
-    ++ AndroidInstall.settings
-    ++ Mavenizer.settings
-  )
 
   // integration tests
   lazy val Integration = config("int")
@@ -108,4 +121,16 @@ object AndroidBuild extends Build {
   ).configs(Integration)
    .settings(inConfig(Integration)(Defaults.testSettings) : _*)
    .dependsOn(soundcloud_android)
+}
+
+object AmazonHelper {
+    import collection.JavaConverters._
+    import java.util.zip.ZipFile
+
+    def isAmazon(f: File) = new ZipFile(f).entries.asScala.exists(_.getName.contains("com.amazon.content.id"))
+    def copy(f: File) = {
+        val amazon = new File(f.getParent, f.getName.replace(".apk", "-amazon.apk"))
+        IO.copyFile(f, amazon)
+        amazon
+    }
 }

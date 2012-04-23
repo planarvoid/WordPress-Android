@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.settings;
 
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
@@ -7,6 +7,8 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.About;
+import com.soundcloud.android.activity.Tour;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.model.User;
@@ -41,19 +43,48 @@ public class Settings extends PreferenceActivity {
     private static final int DIALOG_CACHE_DELETING = 0;
     private static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
 
+    public static final String TOUR = "tour";
+    public static final String CHANGE_LOG = "changeLog";
+    public static final String LOGOUT = "logout";
+    public static final String HELP = "help";
+    public static final String CLEAR_CACHE = "clearCache";
+    public static final String CLEAR_STREAM_CACHE = "clearStreamCache";
+    public static final String WIRELESS = "wireless";
+    public static final String ABOUT = "about";
+    public static final String EXTRAS = "extras";
+    public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
+
+    public static final String ALARM_CLOCK     = "dev.alarmClock";
+    public static final String ALARM_CLOCK_URI = "dev.alarmClock.uri";
+
     private ProgressDialog mDeleteDialog;
 
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
         addPreferencesFromResource(R.xml.settings);
 
         if (SoundCloudApplication.BETA_MODE) {
             BetaPreferences.add(this, getPreferenceScreen());
         }
 
-        findPreference("accountSyncSettings").setOnPreferenceClickListener(
+        if (!AlarmClock.isEnabled(this)) {
+            getPreferenceScreen().removePreference(findPreference(EXTRAS));
+        } else {
+            findPreference(ALARM_CLOCK).setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener() {
+                        public boolean onPreferenceClick(Preference preference) {
+                            new AlarmClock(Settings.this).showDialog();
+                            return true;
+                        }
+                    }
+            );
+            SharedPreferencesUtils.listWithLabel(this,
+                    R.string.pref_dev_alarm_play_uri,
+                    ALARM_CLOCK_URI);
+        }
+
+        findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
@@ -62,7 +93,7 @@ public class Settings extends PreferenceActivity {
                     }
         });
 
-        findPreference("tour").setOnPreferenceClickListener(
+        findPreference(TOUR).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         Intent intent = new Intent(Settings.this, Tour.class);
@@ -73,7 +104,7 @@ public class Settings extends PreferenceActivity {
 
 
         final ChangeLog cl = new ChangeLog(this);
-        findPreference("changeLog").setOnPreferenceClickListener(
+        findPreference(CHANGE_LOG).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         getApp().track(Page.Settings_change_log);
@@ -82,7 +113,7 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        findPreference("logout").setOnPreferenceClickListener(
+        findPreference(LOGOUT).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         if (!CloudUtils.isUserAMonkey()) {
@@ -93,7 +124,7 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        findPreference("help").setOnPreferenceClickListener(
+        findPreference(HELP).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://help.soundcloud.com/"));
@@ -102,7 +133,7 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        findPreference("clearCache").setOnPreferenceClickListener(
+        findPreference(CLEAR_CACHE).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         new FileCache.DeleteCacheTask(false) {
@@ -130,7 +161,7 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        findPreference("clearStreamCache").setOnPreferenceClickListener(
+        findPreference(CLEAR_STREAM_CACHE).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         new FileCache.DeleteCacheTask(true) {
@@ -159,7 +190,7 @@ public class Settings extends PreferenceActivity {
                 });
 
 
-        findPreference("wireless").setOnPreferenceClickListener(
+        findPreference(WIRELESS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         try { // rare phones have no wifi settings
@@ -172,7 +203,7 @@ public class Settings extends PreferenceActivity {
                 });
 
 
-        findPreference("about").setOnPreferenceClickListener(
+        findPreference(ABOUT).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         startActivity(new Intent(Settings.this, About.class));
@@ -198,8 +229,8 @@ public class Settings extends PreferenceActivity {
     }
 
     private void updateClearCacheTitles() {
-        setClearCacheTitle("clearCache", R.string.pref_clear_cache, IOUtils.getCacheDir(this));
-        setClearCacheTitle("clearStreamCache", R.string.pref_clear_stream_cache, Consts.EXTERNAL_STREAM_DIRECTORY);
+        setClearCacheTitle(CLEAR_CACHE, R.string.pref_clear_cache, IOUtils.getCacheDir(this));
+        setClearCacheTitle(CLEAR_STREAM_CACHE, R.string.pref_clear_stream_cache, Consts.EXTERNAL_STREAM_DIRECTORY);
     }
 
     private SoundCloudApplication getApp() {
@@ -251,7 +282,7 @@ public class Settings extends PreferenceActivity {
         return super.onCreateDialog(id);
     }
 
-    /* package */ static AlertDialog createLogoutDialog(final Activity a) {
+    public static AlertDialog createLogoutDialog(final Activity a) {
         final SoundCloudApplication app = (SoundCloudApplication) a.getApplication();
         app.track(Click.Log_out_log_out);
         return new AlertDialog.Builder(a).setTitle(R.string.menu_clear_user_title)

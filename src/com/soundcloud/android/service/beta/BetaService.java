@@ -6,7 +6,7 @@ import static com.soundcloud.android.utils.CloudUtils.getElapsedTimeString;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.Settings;
+import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.utils.IOUtils;
 import org.apache.http.client.HttpClient;
 

@@ -324,6 +324,10 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ void openCurrent() {
+        openCurrent(Media.Action.Stop);
+    }
+
+    /* package */ void openCurrent(Media.Action action) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "openCurrent(state="+state+")");
         }
@@ -338,7 +342,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 notifyChange(META_CHANGED);
                 startTrack(track);
             } else { // new track
-                track(Media.fromTrack(mCurrentTrack), "stop");
+                track(Media.fromTrack(mCurrentTrack), action);
                 mCurrentTrack = track;
                 notifyChange(META_CHANGED);
                 mConnectRetries = 0; // new track, reset connection attempts
@@ -470,14 +474,13 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
 
     /* package */ void play() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "play(state=" + state + ")");
-        track(Media.fromTrack(mCurrentTrack), "play");
+        track(Media.fromTrack(mCurrentTrack), Media.Action.Play);
         mLastRefresh = System.currentTimeMillis();
 
         if (mCurrentTrack != null && mFocus.requestMusicFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             if (mMediaPlayer != null && state.isStartable()) {
                 // resume
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.start");
-
                 mMediaPlayer.start();
                 state = PLAYING;
                 setPlayingNotification(mCurrentTrack);
@@ -496,7 +499,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "pause(state="+state+")");
         }
-        track(Media.fromTrack(mCurrentTrack), "pause");
+        track(Media.fromTrack(mCurrentTrack), Media.Action.Pause);
 
         if (mMediaPlayer != null && state != PAUSED) {
             if (state.isPausable() && mMediaPlayer.isPlaying()) {
@@ -542,11 +545,11 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
     }
 
     /* package */ void prev() {
-        if (mPlaylistManager.prev()) openCurrent();
+        if (mPlaylistManager.prev()) openCurrent(Media.Action.Backward);
     }
 
     /* package */ void next() {
-        if (mPlaylistManager.next()) openCurrent();
+        if (mPlaylistManager.next()) openCurrent(Media.Action.Forward);
     }
 
     private void setPlayingNotification(final Track track) {
@@ -1007,7 +1010,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                             if (refresh > 0) {
                                 long now = System.currentTimeMillis();
                                 if (now - mLastRefresh > refresh) {
-                                    track(Media.fromTrack(mCurrentTrack), "refresh");
+                                    track(Media.fromTrack(mCurrentTrack), Media.Action.Refresh);
                                     mLastRefresh = now;
                                 }
                             }
@@ -1036,8 +1039,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                     break;
 
                 case MediaPlayer.MEDIA_INFO_BUFFERING_END:
-                    mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
-                    mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
+                    if (mSeekPos != -1 && !mWaitingForSeek) {
+                        mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
+                        mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
+                    } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "Not clearing seek, waiting for seek to finish");
+                    }
 
                     state = PLAYING;
                     notifyChange(BUFFERING_COMPLETE);
@@ -1066,9 +1073,16 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             }
 
             if (mMediaPlayer == mp) {
-                // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
-                mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
-                mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
+                // only clear seek if we are not buffering. If we are buffering, it will be cleard after buffering completes
+                if (state != State.PAUSED_FOR_BUFFERING){
+                    // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
+                    mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
+                    mPlayerHandler.sendEmptyMessageDelayed(CLEAR_LAST_SEEK, 3000);
+                } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Not clearing seek, waiting for buffer");
+                }
+
+
                 mWaitingForSeek = false;
                 notifyChange(SEEK_COMPLETE);
             }
@@ -1085,7 +1099,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             final long targetPosition = (mSeekPos != -1) ? mSeekPos :
                                         (mResumeTime > -1 && mResumeTrackId == getTrackId()) ? mResumeTime :
                                         (mp.getCurrentPosition() <= 0 && state == PLAYING) ? getDuration() : mp.getCurrentPosition();
-
             // premature track end ?
             if (isSeekable() && getDuration() - targetPosition > 3000) {
                 Log.w(TAG, "premature end of track (targetpos="+targetPosition+")");
@@ -1095,7 +1108,7 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                 mResumeTime = targetPosition;
                 errorListener.onError(mp, MediaPlayer.MEDIA_ERROR_UNKNOWN, Errors.STAGEFRIGHT_ERROR_BUFFER_EMPTY);
             } else if (!state.isError()) {
-                track(Media.fromTrack(mCurrentTrack), "stop");
+                track(Media.fromTrack(mCurrentTrack), Media.Action.Stop);
                 mPlayerHandler.sendEmptyMessage(TRACK_ENDED);
             } else {
                 // onComplete must have been called in error state
@@ -1117,9 +1130,12 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
                             Log.d(TAG, "resuming to "+mResumeTime);
                         }
+
+                        // play before seek to prevent ANR
+                        play();
                         seek(mResumeTime, true);
                         mResumeTime = mResumeTrackId = -1;
-                        play();
+
 
                     // normal play, unless first start (autopause=true)
                     } else {
@@ -1181,7 +1197,6 @@ public class CloudPlaybackService extends Service implements FocusHelper.MusicFo
             }
         }
     };
-
 
     public void track(Event event, Object... args) {
         getApp().track(event, args);

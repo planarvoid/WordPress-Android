@@ -47,9 +47,8 @@ public enum Click implements Event {
     Dedicated_recording_details_back("Dedicated_recording_details", "back",   Type.navigation, Level2.Record),
     Dedicated_recording_details_send("Dedicated_recording_details", "send",   Type.action,     Level2.Record),
 
-
-    /* NOT USED */ Follow_page_url  ("Follow",   "page_url", Type.action, null),
-    /* NOT USED */ Unfollow_page_url("Unfollow", "page_url", Type.action, null),
+    Follow  ("Follow",   "level2::user_permalink", Type.action, null /* read from args */),
+    Unfollow("Unfollow", "level2::user_permalink", Type.action, null /* read from args */),
 
     Log_out_log_out   ("Log_out",     "log_out",    Type.action, Level2.Settings),
     Log_out_box_ok    ("Log_out_box", "ok",         Type.action, Level2.Settings),
@@ -76,8 +75,26 @@ public enum Click implements Event {
 
     public ATParams atParams(Object... args) {
         ATParams atp = new ATParams();
-        atp.xt_click(level2 == null ? null : String.valueOf(level2.id), expandClick(args), type.atType);
+        atp.xt_click(getLevel2Id(args), expandClick(args), type.atType);
         return atp;
+    }
+
+    private String getLevel2Id(Object... args) {
+        Level2 l2 = level2;
+        if (l2 == null && args != null) {
+            for (Object arg : args) {
+                if (arg instanceof Level2) {
+                    l2 = (Level2) arg;
+                    break;
+                }
+            }
+        }
+        return l2 == null ? null : String.valueOf(l2.id);
+    }
+
+    @Override
+    public Level2 level2() {
+        return level2;
     }
 
     /* package */ String expandClick(Object... args) {
