@@ -29,7 +29,7 @@
                     </sdk>
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
                     <deleteConflictingFiles>false</deleteConflictingFiles>
-                    <target>all</target>
+                    <target>soundcloud_android_encoder</target>
                     <attachNativeArtifacts>true</attachNativeArtifacts>
                     <clearNativeArtifacts>false</clearNativeArtifacts>
                     <zipalign>
