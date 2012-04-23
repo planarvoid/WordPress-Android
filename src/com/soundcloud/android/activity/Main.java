@@ -523,7 +523,7 @@ public class Main extends TabActivity implements
             } else if (intent.getAction() != null) {
                 return fromAction(intent.getAction());
             } else {
-                return DEFAULT;
+                return UNKNOWN;
             }
         }
 

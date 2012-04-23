@@ -64,11 +64,12 @@ public class CreateController implements CreateWaveDisplay.Listener {
     private ViewGroup mFileLayout;
     private ImageButton mActionButton;
     private CreateWaveDisplay mWaveDisplay;
-    private Button mResetButton, mDeleteButton, mPlayButton, mEditButton, mSaveButton;
+    private Button mResetButton, mDeleteButton, mPlayButton, mEditButton, mSaveButton, mPlayEditButton;
+    private ToggleButton mToggleOptimize, mToggleFade;
     private String mRecordErrorMessage, mCurrentDurationString;
 
 
-    private boolean mSampleInterrupted, mActive;
+    private boolean mSampleInterrupted, mActive, mHasEditControlGroup;
     private RemainingTimeCalculator mRemainingTimeCalculator;
     private List<Recording> mUnsavedRecordings;
 
@@ -125,6 +126,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
         mFileLayout = (ViewGroup) vg.findViewById(R.id.file_layout);
         mEditControls = (ViewGroup) vg.findViewById(R.id.edit_controls);
+        mHasEditControlGroup = mEditControls != null;
 
         mActionButton = setupActionButton(vg);
         mResetButton  = setupResetButton(vg);
@@ -132,12 +134,14 @@ public class CreateController implements CreateWaveDisplay.Listener {
         mEditButton = setupEditButton(vg);
         mSaveButton = setupSaveButton(vg);
         mPlayButton = setupPlaybutton(vg, R.id.btn_play);
-        setupPlaybutton(vg,R.id.btn_play_edit);
-        setupToggleFade(vg);
+        mPlayEditButton = setupPlaybutton(vg,R.id.btn_play_edit);
+        mToggleFade = setupToggleFade(vg);
+        mToggleOptimize = setupToggleOptimize(vg);
 
         mWaveDisplay = new CreateWaveDisplay(mActivity);
         mWaveDisplay.setTrimListener(this);
         ((ViewGroup) vg.findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
+
 
         mCurrentState = CreateState.IDLE_RECORD;
 
@@ -204,32 +208,34 @@ public class CreateController implements CreateWaveDisplay.Listener {
     }
     private Button setupPlaybutton(ViewGroup vg, int id) {
         final Button button = ((Button) vg.findViewById(id));
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (mCurrentState) {
-                    case IDLE_PLAYBACK:
-                        mActivity.track(Click.Record_play);
-                        mCurrentState = CreateState.PLAYBACK;
-                        break;
-                    case PLAYBACK:
-                        mActivity.track(Click.Record_play_stop);
-                        mCurrentState = CreateState.IDLE_PLAYBACK;
-                        break;
-                    case EDIT:
-                        mActivity.track(Click.Record_play);
-                        mCurrentState = CreateState.EDIT_PLAYBACK;
-                        break;
-                    case EDIT_PLAYBACK:
-                        mActivity.track(Click.Record_play_stop);
-                        mCurrentState = CreateState.EDIT;
-                        break;
+        if (button != null){
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    switch (mCurrentState) {
+                        case IDLE_PLAYBACK:
+                            mActivity.track(Click.Record_play);
+                            mCurrentState = CreateState.PLAYBACK;
+                            break;
+                        case PLAYBACK:
+                            mActivity.track(Click.Record_play_stop);
+                            mCurrentState = CreateState.IDLE_PLAYBACK;
+                            break;
+                        case EDIT:
+                            mActivity.track(Click.Record_play);
+                            mCurrentState = CreateState.EDIT_PLAYBACK;
+                            break;
+                        case EDIT_PLAYBACK:
+                            mActivity.track(Click.Record_play_stop);
+                            mCurrentState = CreateState.EDIT;
+                            break;
+
+                    }
+                    updateUi(true);
 
                 }
-                updateUi(true);
-
-            }
-        });
+            });
+        }
         return button;
     }
     private Button setupEditButton(ViewGroup vg) {
@@ -288,6 +294,17 @@ public class CreateController implements CreateWaveDisplay.Listener {
         return tb;
     }
 
+    private ToggleButton setupToggleOptimize(ViewGroup vg) {
+        final ToggleButton tb = (ToggleButton) vg.findViewById(R.id.toggle_optimize);
+        tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+            }
+        });
+        return tb;
+    }
+
     public void reset() {
         mCurrentState = CreateState.IDLE_RECORD;
         mRecording = null;
@@ -314,9 +331,10 @@ public class CreateController implements CreateWaveDisplay.Listener {
         if (mCreateService != null) { mCreateService.setPlaybackEnd(pos); }
     }
 
-    private void setResetState(){
-        mResetButton.setVisibility(mRecording == null ? View.VISIBLE : View.GONE);
-        mDeleteButton.setVisibility(mRecording == null ? View.GONE : View.VISIBLE);
+    private void setResetState() {
+        final boolean saved = mRecording != null && mRecording.isSaved();
+        mResetButton.setVisibility(saved ? View.GONE : View.VISIBLE);
+        mDeleteButton.setVisibility(saved ? View.VISIBLE : View.GONE);
     }
 
     public void setInstructionsText(String s){
@@ -342,10 +360,10 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
         boolean takeAction = false;
 
-        if (mCreateService.isRecording() && mRecording == null){
+        if (mCreateService.isRecording()){
             if (shouldReactToRecording()) {
                 mCurrentState = CreateState.RECORD;
-                mRecording = mCreateService.getRecording();
+                if (mRecording == null) mRecording = mCreateService.getRecording();
             } else {
                 mCurrentState = CreateState.IDLE_STANDBY_REC;
             }
@@ -450,7 +468,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
                 hideView(mChrono, false, View.INVISIBLE);
-                hideView(mEditControls, false, View.GONE);
+                hideEditControls(false, View.GONE);
 
 
                 showView(mActionButton, false);
@@ -485,10 +503,11 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 break;
 
             case RECORD:
+
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
-                hideView(mEditControls, false, View.GONE);
+                hideEditControls(false, View.GONE);
                 hideView(txtInstructions, false, View.GONE);
 
                 showView(mChrono, takeAction && mLastState == CreateState.IDLE_RECORD);
@@ -535,7 +554,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
                 hideView(txtInstructions, false, View.GONE);
                 hideView(txtRecordMessage, false, View.INVISIBLE);
-                hideView(mEditControls, false, View.GONE);
+                hideEditControls(false, View.GONE);
 
                 mPlayButton.setText(TEMP_PLAY);
                 mChrono.setText(mCurrentDurationString);
@@ -553,7 +572,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 showView(mChrono,false);
 
                 hideView(txtInstructions,false,View.GONE);
-                hideView(mEditControls,false,View.GONE);
+                hideEditControls(false, View.GONE);
                 hideView(txtRecordMessage,false,View.INVISIBLE);
 
                 mPlayButton.setText(TEMP_STOP);
@@ -566,18 +585,27 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
             case EDIT:
             case EDIT_PLAYBACK:
-                mPlayButton.setVisibility(View.GONE); // just to fool the animation
-                showView(mEditControls, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+
                 showView(mResetButton,false);
                 showView(mFileLayout,false);
 
+                if (mHasEditControlGroup){
+                   // portrait
+                   showView(mEditControls, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+               } else {
+                   showView(mToggleFade, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+                   showView(mToggleOptimize, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+                   showView(mPlayEditButton, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+
+               }
+                hideView(mPlayButton, false, View.GONE);
                 hideView(mActionButton, false, View.GONE);
                 hideView(mEditButton, false, View.GONE);
                 hideView(mDeleteButton,false, View.GONE);
                 hideView(txtInstructions,false,View.GONE);
                 hideView(txtRecordMessage,false,View.INVISIBLE);
 
-                mPlayButton.setText(mCurrentState == CreateState.EDIT ? TEMP_PLAY : TEMP_STOP);
+                mPlayEditButton.setText(mCurrentState == CreateState.EDIT ? TEMP_PLAY : TEMP_STOP);
 
                 if (takeAction) {
                     if (mCurrentState == CreateState.EDIT_PLAYBACK) {
@@ -600,6 +628,17 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
         mLastState = mCurrentState;
         mActionButton.setEnabled(true);
+    }
+
+    private void hideEditControls(boolean animate, int finalState){
+       if (mHasEditControlGroup){
+           // portrait
+           hideView(mEditControls,animate,finalState);
+       } else {
+           hideView(mToggleFade,animate,finalState);
+           hideView(mToggleOptimize,animate,finalState);
+           hideView(mPlayEditButton,animate,finalState);
+       }
     }
 
     private CharSequence getRandomSuggestion() {
@@ -698,7 +737,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
     private void configurePlaybackInfo() {
         mCurrentDurationString = CloudUtils.formatTimestamp(getDuration());
         final long currentPlaybackPosition = mCreateService.getCurrentPlaybackPosition();
-        if (currentPlaybackPosition >= 0 && currentPlaybackPosition < getDuration()) {
+        if ((currentPlaybackPosition > 0 || mCreateService.isPlaying()) && currentPlaybackPosition < getDuration()) {
             mWaveDisplay.setProgress(((float) currentPlaybackPosition) / getDuration());
         } else {
             mWaveDisplay.setProgress(-1f);

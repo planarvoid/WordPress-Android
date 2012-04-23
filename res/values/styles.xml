@@ -175,6 +175,10 @@
         <item name="android:shadowRadius">1</item>
     </style>
 
+    <style name="toggle_record">
+        <item name="android:textColor">#ff000000</item>
+    </style>
+
     <style name="txt_record_dark">
         <item name="android:textColor">#ff000000</item>
         <item name="android:textStyle">bold</item>

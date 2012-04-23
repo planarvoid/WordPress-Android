@@ -8,6 +8,7 @@ import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -24,7 +25,7 @@ public class CreateWaveView extends View {
     private int mGlowHeight;
     private int mMaxWaveHeight;
 
-    private float mCurrentProgress;
+    private float mCurrentProgress = -1f;
     private int mTrimLeft, mTrimRight;
 
     private int mMode;
@@ -221,7 +222,6 @@ public class CreateWaveView extends View {
             final int gap = (totalAmplitudeSize - width) - mRecordStartIndex;
             subArrayStart = (int) Math.max(0,(totalAmplitudeSize - width) - gap * interpolatedTime);
         }
-
         final List<Float> amplitudesSubArray = mAllAmplitudes.subList(subArrayStart, mAllAmplitudes.size());
         if (amplitudesSubArray.size() > 0) {
             final int lastDrawX = (totalAmplitudeSize < width) ? (int) (totalAmplitudeSize + (width - totalAmplitudeSize) * interpolatedTime) : width;
@@ -390,6 +390,7 @@ public class CreateWaveView extends View {
     }
 
     private void assertAmplitudeHistory(){
+
         if (mAllAmplitudes == null) mAllAmplitudes = CloudRecorder.getInstance(getContext()).amplitudes;
     }
 
