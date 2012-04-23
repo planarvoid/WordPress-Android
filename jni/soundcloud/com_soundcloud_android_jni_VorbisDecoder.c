@@ -15,7 +15,6 @@ char pcmout[4096]; /* take 4k out of the data segment, not the stack */
 typedef struct {
     FILE *file;
     OggVorbis_File vf;
-    vorbis_info *vi;
     long numSamples;
     long bitrate;
     double duration;
@@ -37,7 +36,6 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_init(JNIEnv *env, jobject obj
       LOG_E("Error opening stream: %d", ret);
       return ret;
     }
-    state->vi = ov_info(&state->vf, -1);
     state->numSamples = (long)ov_pcm_total(&state->vf, -1);
     state->bitrate = ov_bitrate(&state->vf, -1);
     state->duration = ov_time_total(&state->vf, -1);
@@ -58,7 +56,7 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_decodeToFile(JNIEnv* env, job
     outFile = fopen(cOut, "w+");
     (*env)->ReleaseStringUTFChars(env, out, cOut);
 
-    writeWavHeader(outFile, state->numSamples, state->vi->channels, state->vi->rate, 16);
+    writeWavHeader(outFile, state->numSamples, state->vf.vi.channels, state->vf.vi.rate, 16);
     while (!eof) {
       long ret = ov_read(&state->vf, pcmout, sizeof(pcmout), &current_section);
       if (ret == 0) {
@@ -87,8 +85,8 @@ jobject Java_com_soundcloud_android_jni_VorbisDecoder_getInfo(JNIEnv *env, jobje
     jfieldID bitrate = (*env)->GetFieldID(env, infoCls, "bitrate", "J");
     jfieldID duration = (*env)->GetFieldID(env, infoCls, "duration", "D");
 
-    (*env)->SetIntField(env,    info, channels,   state->vi->channels);
-    (*env)->SetIntField(env,    info, sampleRate, state->vi->rate);
+    (*env)->SetIntField(env,    info, channels,   state->vf.vi.channels);
+    (*env)->SetIntField(env,    info, sampleRate, state->vf.vi.rate);
     (*env)->SetLongField(env,   info, numSamples, state->numSamples);
     (*env)->SetLongField(env,   info, bitrate,    state->bitrate);
     (*env)->SetDoubleField(env, info, duration,   state->duration);
@@ -120,10 +118,9 @@ void Java_com_soundcloud_android_jni_VorbisDecoder_release(JNIEnv *env, jobject 
     decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
     if (state) {
         ov_clear(&state->vf);
-        vorbis_info_clear(state->vi);
         fclose(state->file);
         free(state);
-        state = NULL;
+        (*env)->SetIntField(env, obj, decoder_state_field, (int) NULL);
     }
 }
 

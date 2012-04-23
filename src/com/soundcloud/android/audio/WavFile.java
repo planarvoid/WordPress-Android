@@ -11,8 +11,9 @@ public class WavFile implements AudioFile {
     private WaveHeader header;
 
     public WavFile(File backing) throws IOException {
-       file = new RandomAccessFile(backing, "r");
-       header = new WaveHeader(new FileInputStream(backing));
+        file = new RandomAccessFile(backing, "r");
+        file.seek(WaveHeader.LENGTH);
+        header = new WaveHeader(new FileInputStream(backing));
     }
 
     @Override
@@ -22,7 +23,7 @@ public class WavFile implements AudioFile {
 
     @Override
     public void seek(long pos) throws IOException {
-         file.seek(header.offset(pos));
+        file.seek(header.offset(pos));
     }
 
     public long getDuration() {

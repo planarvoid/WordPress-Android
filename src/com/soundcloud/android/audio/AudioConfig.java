@@ -3,7 +3,6 @@ package com.soundcloud.android.audio;
 import com.soundcloud.android.record.RemainingTimeCalculator;
 
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
@@ -49,8 +48,8 @@ public enum AudioConfig {
         return AudioTrack.getMinBufferSize(sampleRate, getChannelConfig(), getFormat());
     }
 
-    public AudioTrack createAudioTrack(int bufferSize) {
-        return new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, getChannelConfig(), getFormat(), bufferSize, AudioTrack.MODE_STREAM);
+    public ScAudioTrack createAudioTrack(int bufferSize) {
+        return new ScAudioTrack(this, bufferSize);
     }
 
     public AudioRecord createAudioRecord(int bufferSize) {

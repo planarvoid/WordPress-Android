@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public interface AudioFile extends Closeable {
+    int EOF = -1;
 
     /**
      * @return the audio config associated with this file, or null

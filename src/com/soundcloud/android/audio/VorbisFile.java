@@ -3,12 +3,19 @@ package com.soundcloud.android.audio;
 import com.soundcloud.android.jni.Info;
 import com.soundcloud.android.jni.VorbisDecoder;
 
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class VorbisFile implements AudioFile {
     private VorbisDecoder decoder;
     private Info info;
+
+
+    public VorbisFile(File file) {
+        this(new VorbisDecoder(file));
+    }
 
     public VorbisFile(VorbisDecoder decoder) {
         this.decoder = decoder;
@@ -36,7 +43,8 @@ public class VorbisFile implements AudioFile {
 
     @Override
     public int read(ByteBuffer buffer, int length) throws IOException {
-        return decoder.decode(buffer, length);
+        final int ret = decoder.decode(buffer, length);
+        return ret == 0 ? EOF : ret;
     }
 
     @Override

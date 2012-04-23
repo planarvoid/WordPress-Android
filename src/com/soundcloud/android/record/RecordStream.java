@@ -4,6 +4,7 @@ import static com.soundcloud.android.record.CloudRecorder.TAG;
 
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioFile;
+import com.soundcloud.android.audio.VorbisFile;
 import com.soundcloud.android.audio.WavFile;
 import com.soundcloud.android.audio.WavWriter;
 import com.soundcloud.android.jni.VorbisEncoder;
@@ -101,7 +102,6 @@ public class RecordStream implements Closeable {
     }
 
     /** Playback Bounds **/
-
     public void resetPlaybackBounds() {
         startPosition = 0;
         endPosition   = getDuration();
@@ -120,7 +120,7 @@ public class RecordStream implements Closeable {
     }
 
     public AudioFile getAudioFile() throws IOException {
-        return new WavFile(mWavWriter.file);
+        return new VorbisFile(encodedFile);
     }
 
     public byte[] applyMods(byte[] buffer, long bufferIndex) {
