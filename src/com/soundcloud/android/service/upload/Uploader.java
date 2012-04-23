@@ -68,7 +68,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         final long totalTransfer = soundBody.getContentLength() + (artworkBody == null ? 0 : artworkBody.getContentLength());
 
         try {
-            if (isCancelled()) throw new CanceledUploadException();
+            if (isCancelled()) throw new UserCanceledException();
             Log.v(TAG, "starting upload of " + toUpload);
 
             broadcast(UploadService.UPLOAD_STARTED);
@@ -77,7 +77,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
                 @Override
                 public void transferred(long transferred) throws IOException {
-                    if (isCancelled()) throw new CanceledUploadException();
+                    if (isCancelled()) throw new UserCanceledException();
 
                     if (System.currentTimeMillis() - lastPublished > 1000) {
                         final int progress = (int) Math.min(100, (100 * transferred) / totalTransfer);
@@ -103,31 +103,31 @@ public class Uploader extends BroadcastReceiver implements Runnable {
                 Log.w(TAG, message);
                 onUploadFailed(new IOException(message));
             }
-        } catch (CanceledUploadException e) {
+        } catch (UserCanceledException e) {
             onUploadCancelled(e);
         } catch (IOException e) {
             onUploadFailed(e);
         }
     }
 
-    protected void onUploadCancelled(CanceledUploadException e) {
+    private void onUploadCancelled(UserCanceledException e) {
         mUpload.setUploadException(e);
         broadcast(UploadService.UPLOAD_CANCELLED);
     }
 
-    protected void onUploadFailed(Exception e) {
+    private void onUploadFailed(Exception e) {
         Log.e(TAG, "Error uploading", e);
         mUpload.setUploadException(e);
         broadcast(UploadService.UPLOAD_ERROR);
     }
 
-    protected void onUploadSuccess() {
+    private void onUploadSuccess() {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful");
         mUpload.onUploaded();
         broadcast(UploadService.UPLOAD_SUCCESS);
     }
 
-    protected void broadcast(String action) {
+    private void broadcast(String action) {
         mBroadcastManager.sendBroadcast(new Intent(action)
                 .putExtra(UploadService.EXTRA_RECORDING, mUpload));
     }
@@ -140,6 +140,4 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             cancel();
         }
     }
-
-    public static class CanceledUploadException extends IOException {}
 }

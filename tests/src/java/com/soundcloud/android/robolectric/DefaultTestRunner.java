@@ -3,6 +3,7 @@ package com.soundcloud.android.robolectric;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.robolectric.shadows.ShadowVorbisEncoder;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
@@ -23,6 +24,10 @@ public class DefaultTestRunner extends RobolectricTestRunner {
                 return TestApplication.class.getSimpleName();
             }
         });
+
+        // remove native calls + replace with shadows
+        addClassOrPackageToInstrument("com.soundcloud.android.jni.VorbisEncoder");
+        addClassOrPackageToInstrument("com.soundcloud.android.jni.VorbisDecoder");
     }
 
     @Override
@@ -32,6 +37,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         ContentProvider provider = new ScContentProvider();
         provider.onCreate();
         ShadowContentResolver.registerProvider(ScContentProvider.AUTHORITY, provider);
+
     }
 
     @Override
@@ -43,5 +49,10 @@ public class DefaultTestRunner extends RobolectricTestRunner {
     @Override
     protected boolean globalI18nStrictEnabled() {
         return true;
+    }
+
+    @Override
+    protected void bindShadowClasses() {
+        Robolectric.bindShadowClass(ShadowVorbisEncoder.class);
     }
 }

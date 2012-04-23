@@ -1,19 +1,14 @@
 package com.soundcloud.android.streaming;
 
+import static com.soundcloud.android.Expect.expect;
+
+import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
-import com.xtremelabs.robolectric.tester.org.apache.http.RequestMatcher;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-
-import static com.soundcloud.android.Expect.expect;
-
-import java.awt.image.ImagingOpException;
 import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)

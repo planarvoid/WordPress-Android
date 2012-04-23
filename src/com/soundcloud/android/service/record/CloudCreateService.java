@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.record;
 
-import static com.soundcloud.android.Consts.Notifications.*;
+import static com.soundcloud.android.Consts.Notifications.PLAYBACK_NOTIFY_ID;
+import static com.soundcloud.android.Consts.Notifications.RECORD_NOTIFY_ID;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -9,9 +10,7 @@ import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.AudioConfig;
 import com.soundcloud.android.record.CloudRecorder;
-import com.soundcloud.android.record.RecordStream;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.utils.IOUtils;
 
@@ -58,7 +57,6 @@ public class CloudCreateService extends Service  {
     public static final String EXTRA_STATE       = "state";
     public static final String EXTRA_PATH        = "path";
 
-    public static AudioConfig DEFAULT_CONFIG = AudioConfig.PCM16_44100_1;
 
     public static final File RECORD_DIR = IOUtils.ensureUpdatedDirectory(
             new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),

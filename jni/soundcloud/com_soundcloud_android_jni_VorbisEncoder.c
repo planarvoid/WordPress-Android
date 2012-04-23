@@ -5,18 +5,13 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
-#include <android/log.h>
 
 #define DEBUG_TAG "VorbisEncoderNative"
-#define ENCODER_TAG "SoundCloud for Android"
-
-#define LOG(level, args, ...) __android_log_print(level, DEBUG_TAG, args,  ##__VA_ARGS__)
-#define LOG_W(args, ...) LOG(ANDROID_LOG_WARN, args, ##__VA_ARGS__)
-#define LOG_D(args, ...) LOG(ANDROID_LOG_DEBUG, args, ##__VA_ARGS__)
-#define LOG_E(args, ...) LOG(ANDROID_LOG_ERROR, args, ##__VA_ARGS__)
+#include <common.h>
 
 #define READY  0
 #define PAUSED 1
+#define ENCODER_TAG "SoundCloud for Android"
 
 typedef struct {
     vorbis_info      vi; /* struct that stores all the static vorbis bitstream settings */
@@ -47,6 +42,9 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj
     int ret = vorbis_encode_init_vbr(&state->vi, channels, rate, quality);
     if (ret != 0) {
       LOG_D("error initialising encoder, returned %d", ret);
+      vorbis_info_clear(&state->vi);
+      free(state);
+      state = NULL;
       return ret;
     }
 
@@ -56,6 +54,11 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj
     state->file = fopen(c_outFile, c_fileMode);
     if (!state->file) {
         LOG_E("error opening file %s, errno=%d", c_outFile, errno);
+        (*env)->ReleaseStringUTFChars(env, outFile, c_outFile);
+        (*env)->ReleaseStringUTFChars(env, fileMode, c_fileMode);
+        vorbis_info_clear(&state->vi);
+        free(state);
+        state = NULL;
         return -1;
     }
 

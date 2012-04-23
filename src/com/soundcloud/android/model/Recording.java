@@ -7,7 +7,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.service.upload.Uploader;
+import com.soundcloud.android.service.upload.UserCanceledException;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
@@ -131,13 +131,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public Recording(Parcel in) {
-        readFromParcel(in);
+            readFromParcel(in);
 
         // enforce proper construction
         if (audio_path == null) {
             throw new IllegalArgumentException("audio_path is null");
         }
-
     }
 
     public File generateImageFile(File imageDir) {
@@ -469,12 +468,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public boolean isCanceled() {
-        return mUploadException instanceof Uploader.CanceledUploadException;
+        return mUploadException instanceof UserCanceledException;
     }
 
     public Recording setUploadException(Exception e) {
         mUploadException = e;
-        status = e instanceof Uploader.CanceledUploadException ? Status.NOT_YET_UPLOADED : Status.ERROR;
+        status = e instanceof UserCanceledException ? Status.NOT_YET_UPLOADED : Status.ERROR;
         return this;
     }
 
@@ -531,6 +530,14 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     @Override public int compareTo(Recording recording) {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
+    }
+
+    public File encodedFilename() {
+        return encodedFilename(audio_path);
+    }
+
+    public static File encodedFilename(File file) {
+        return new File(file.getParentFile(), file.getName().concat(".ogg"));
     }
 }
 

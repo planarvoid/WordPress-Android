@@ -8,6 +8,7 @@ import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.AudioConfig;
 import com.soundcloud.android.record.CloudRecorder;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.upload.UploadService;
@@ -110,7 +111,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
         btn_rec_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_states);
         btn_rec_stop_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_pause_states);
 
-        mRemainingTimeCalculator = CloudCreateService.DEFAULT_CONFIG.createCalculator();
+        mRemainingTimeCalculator = AudioConfig.DEFAULT.createCalculator();
 
         txtInstructions = (TextView) vg.findViewById(R.id.txt_instructions);
         txtRecordMessage = (TextView) vg.findViewById(R.id.txt_record_message);

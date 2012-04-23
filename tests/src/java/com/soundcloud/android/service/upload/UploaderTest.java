@@ -93,7 +93,7 @@ public class UploaderTest {
         final Uploader uploader = uploader(recording);
         uploader.cancel();
         uploader.run();
-        expect(recording.getUploadException() instanceof Uploader.CanceledUploadException).toBeTrue();
+        expect(recording.getUploadException() instanceof UserCanceledException).toBeTrue();
         expect(recording.isCanceled()).toBeTrue();
         expect(recording.isUploaded()).toBeFalse();
     }
