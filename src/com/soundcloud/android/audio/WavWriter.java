@@ -25,7 +25,7 @@ public class WavWriter implements AudioWriter {
         if (!file.exists() || writer.length() == 0) {
             Log.d(TAG, "creating new WAV file");
             writer.setLength(0); // truncate
-            WaveHeader wh = config.createHeader();
+            WavHeader wh = config.createHeader();
             wh.write(writer);
         } else {
             Log.d(TAG, "appending to existing WAV file");
@@ -50,13 +50,13 @@ public class WavWriter implements AudioWriter {
         Log.d(TAG, "finalising recording file (length=" + fileLength + ")");
         if (fileLength == 0) {
             Log.w(TAG, "file length is zero");
-        } else if (fileLength > WaveHeader.LENGTH) {
+        } else if (fileLength > WavHeader.LENGTH) {
             // remaining bytes
             mWriter.seek(4);
             mWriter.writeInt(Integer.reverseBytes((int) (fileLength - 8)));
             // total bytes
-            mWriter.seek(WaveHeader.LENGTH - 4);
-            mWriter.writeInt(Integer.reverseBytes((int) (fileLength - WaveHeader.LENGTH)));
+            mWriter.seek(WavHeader.LENGTH - 4);
+            mWriter.writeInt(Integer.reverseBytes((int) (fileLength - WavHeader.LENGTH)));
         } else {
             Log.w(TAG, "data length is zero");
         }
@@ -70,7 +70,7 @@ public class WavWriter implements AudioWriter {
      * @return the duration, in ms
      */
     public long getDuration() {
-        return (file.length() - WaveHeader.LENGTH) / (config.sampleRate * config.channels * (config.bitsPerSample / 8)) * 1000l;
+        return (file.length() - WavHeader.LENGTH) / (config.sampleRate * config.channels * (config.bitsPerSample / 8)) * 1000l;
     }
 
     @Override

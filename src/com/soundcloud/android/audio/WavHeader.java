@@ -36,7 +36,7 @@ import java.io.OutputStream;
  * @see <a href="http://www.devdaily.com/java/jwarehouse/android/core/java/android/speech/srec/WaveHeader.java.shtml">WaveHeader.java</a>
  */
 @SuppressWarnings({"PointlessBitwiseExpression", "UnusedDeclaration"})
-public class WaveHeader {
+public class WavHeader {
     public static final int LENGTH = 44;
 
     /** Indicates PCM format. */
@@ -58,7 +58,7 @@ public class WaveHeader {
      * @param is the InputStream containing WAV data
      * @throws IOException
      */
-    public WaveHeader(InputStream is) throws IOException {
+    public WavHeader(InputStream is) throws IOException {
         this(is, false);
     }
 
@@ -67,7 +67,7 @@ public class WaveHeader {
      * @param rewind whether to rewind the stream after reading the header
      * @throws IOException
      */
-    public WaveHeader(InputStream is, boolean rewind) throws IOException {
+    public WavHeader(InputStream is, boolean rewind) throws IOException {
         if (rewind) {
             if (is.markSupported()) {
                 is.mark(LENGTH + 32);
@@ -89,7 +89,7 @@ public class WaveHeader {
      * @param bitsPerSample usually 16 for PCM, 8 for ULAW or 8 for ALAW.
      * @param numBytes size of audio data after this header, in bytes.
      */
-    public WaveHeader(short format, short numChannels, int sampleRate, short bitsPerSample, int numBytes) {
+    public WavHeader(short format, short numChannels, int sampleRate, short bitsPerSample, int numBytes) {
         mFormat = format;
         mSampleRate = sampleRate;
         mNumChannels = numChannels;
@@ -112,7 +112,7 @@ public class WaveHeader {
      * one of {@link #FORMAT_PCM}, {@link #FORMAT_ULAW}, or {@link #FORMAT_ALAW}.
      * @return reference to this WaveHeader instance.
      */
-    public WaveHeader setFormat(short format) {
+    public WavHeader setFormat(short format) {
         mFormat = format;
         return this;
     }
@@ -130,7 +130,7 @@ public class WaveHeader {
      * @param numChannels 1 for mono, 2 for stereo.
      * @return reference to this WaveHeader instance.
      */
-    public WaveHeader setNumChannels(short numChannels) {
+    public WavHeader setNumChannels(short numChannels) {
         mNumChannels = numChannels;
         return this;
     }
@@ -148,7 +148,7 @@ public class WaveHeader {
      * @param sampleRate sample rate, typically 8000, 11025, 16000, 22050, or 44100 hz.
      * @return reference to this WaveHeader instance.
      */
-    public WaveHeader setSampleRate(int sampleRate) {
+    public WavHeader setSampleRate(int sampleRate) {
         mSampleRate = sampleRate;
         return this;
     }
@@ -172,7 +172,7 @@ public class WaveHeader {
      * usually 16 for PCM, 8 for ULAW or 8 for ALAW.
      * @return reference to this WaveHeader instance.
      */
-    public WaveHeader setBitsPerSample(short bitsPerSample) {
+    public WavHeader setBitsPerSample(short bitsPerSample) {
         mBitsPerSample = bitsPerSample;
         return this;
     }
@@ -190,7 +190,7 @@ public class WaveHeader {
      * @param numBytes size of audio data after this header, in bytes.
      * @return reference to this WaveHeader instance.
      */
-    public WaveHeader setNumBytes(int numBytes) {
+    public WavHeader setNumBytes(int numBytes) {
         mNumBytes = numBytes;
         return this;
     }
@@ -258,7 +258,7 @@ public class WaveHeader {
      */
     public long offset(final long ms) {
         if (ms < 0) {
-            return WaveHeader.LENGTH;
+            return WavHeader.LENGTH;
         } else {
             final long offset = (long) Math.min(mNumBytes,
                     ms * getBytesPerSample()

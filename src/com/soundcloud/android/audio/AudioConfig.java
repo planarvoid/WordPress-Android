@@ -56,8 +56,8 @@ public enum AudioConfig {
         return new AudioRecord(source, sampleRate, getChannelConfig(), getFormat(), bufferSize);
     }
 
-    public WaveHeader createHeader() {
-        return new WaveHeader(WaveHeader.FORMAT_PCM, (short)channels, sampleRate, (short)bitsPerSample, 0);
+    public WavHeader createHeader() {
+        return new WavHeader(WavHeader.FORMAT_PCM, (short)channels, sampleRate, (short)bitsPerSample, 0);
     }
 
     public RemainingTimeCalculator createCalculator() {

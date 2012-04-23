@@ -8,12 +8,12 @@ import java.nio.ByteBuffer;
 
 public class WavFile implements AudioFile {
     private RandomAccessFile file;
-    private WaveHeader header;
+    private WavHeader header;
 
     public WavFile(File backing) throws IOException {
         file = new RandomAccessFile(backing, "r");
-        file.seek(WaveHeader.LENGTH);
-        header = new WaveHeader(new FileInputStream(backing));
+        file.seek(WavHeader.LENGTH);
+        header = new WavHeader(new FileInputStream(backing));
     }
 
     @Override

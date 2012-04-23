@@ -1,6 +1,6 @@
 package com.soundcloud.android.jni;
 
-import com.soundcloud.android.audio.WaveHeader;
+import com.soundcloud.android.audio.WavHeader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,7 +14,7 @@ public class VorbisDecoderTest extends AudioTest {
         File wav = decode(MED_TEST_OGG);
         assertTrue("file does not exist", wav.exists());
 
-        WaveHeader header = new WaveHeader(new FileInputStream(wav));
+        WavHeader header = new WavHeader(new FileInputStream(wav));
         assertEquals(16, header.getBitsPerSample());
         assertEquals(2, header.getNumChannels());
         assertEquals(44100, header.getSampleRate());

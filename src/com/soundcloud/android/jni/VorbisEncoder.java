@@ -1,7 +1,7 @@
 package com.soundcloud.android.jni;
 
 import com.soundcloud.android.audio.AudioConfig;
-import com.soundcloud.android.audio.WaveHeader;
+import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.util.Log;
@@ -78,7 +78,7 @@ public class VorbisEncoder {
     public static int encodeWav(InputStream wav, File out, long length, float quality, ProgressListener listener) throws IOException {
         wav = new BufferedInputStream(wav);
 
-        WaveHeader header = new WaveHeader(wav);
+        WavHeader header = new WavHeader(wav);
         VorbisEncoder encoder = new VorbisEncoder(out,
                 "w",
                 header.getNumChannels(),

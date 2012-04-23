@@ -1,7 +1,7 @@
 package com.soundcloud.android.jni;
 
 import com.soundcloud.android.audio.AudioConfig;
-import com.soundcloud.android.audio.WaveHeader;
+import com.soundcloud.android.audio.WavHeader;
 
 import android.os.Environment;
 
@@ -31,7 +31,7 @@ public class VorbisEncoderTest extends AudioTest {
 
         InputStream in = assets().open(file);
         assertNotNull(in);
-        WaveHeader waveHeader = new WaveHeader(in, true);
+        WavHeader wavHeader = new WavHeader(in, true);
 
         final String ogg = file.replace(".wav", ".ogg");
         File out = externalPath(ogg);
@@ -40,7 +40,7 @@ public class VorbisEncoderTest extends AudioTest {
         VorbisEncoder.encodeWav(in, out, -1, quality, null);
         final long duration = System.currentTimeMillis() - start;
         log("encoded '%s' in quality %f in %d ms, factor %.2f", file, quality, duration,
-                (double) duration / (double) waveHeader.getDuration());
+                (double) duration / (double) wavHeader.getDuration());
 
         checkAudioFile(out, expectedDuration);
     }
