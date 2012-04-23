@@ -6,6 +6,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.settings.AccountSettings;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.Track;
@@ -219,8 +220,6 @@ public class Main extends TabActivity implements
                         .putExtra("userId", recipient)
                         .putExtra("userBrowserTag", UserBrowser.Tab.privateMessage.name()));
             }
-        } else if (tab != Main.Tab.UNKNOWN) {
-            getTabHost().setCurrentTabByTag(tab.tag);
         } else if (Actions.PLAYER.equals(intent.getAction())) {
             // start another activity to control history
             startActivity(new Intent(this, ScPlayer.class));
@@ -239,15 +238,18 @@ public class Main extends TabActivity implements
                 ((UserBrowser) getCurrentActivity()).setTab(intent.getStringExtra("userBrowserTag"));
             }
         } else if (Actions.USER_BROWSER.equals(intent.getAction())) {
-            startActivity((new Intent(this,UserBrowser.class).putExtras(intent.getExtras())));
+            startActivity((new Intent(this, UserBrowser.class).putExtras(intent.getExtras())));
         } else if (Actions.ACCOUNT_PREF.equals(intent.getAction())) {
             startActivity(
-                    new Intent(this, AccountPreferences.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                new Intent(this, AccountSettings.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
             );
         } else if (justAuthenticated(intent)) {
             Log.d(TAG, "activity start after successful authentication");
-            getTabHost().setCurrentTabByTag(Main.Tab.RECORD.tag);
+            getTabHost().setCurrentTabByTag(Tab.STREAM.tag);
+        }  else if (tab != Main.Tab.UNKNOWN) {
+            getTabHost().setCurrentTabByTag(tab.tag);
         }
+
         intent.setAction("");
         intent.setData(null);
         intent.removeExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
@@ -504,7 +506,7 @@ public class Main extends TabActivity implements
         final int labelId, drawableId;
         final Class<? extends android.app.Activity> activityClass;
 
-        static final Tab DEFAULT = STREAM;
+        static final Tab DEFAULT = UNKNOWN;
 
         Tab(String tag, Class<? extends android.app.Activity> activityClass, int labelId, int drawableId) {
             this.tag = tag;

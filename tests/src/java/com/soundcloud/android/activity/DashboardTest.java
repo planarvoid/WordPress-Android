@@ -22,7 +22,7 @@ public class DashboardTest {
         expect(db.mListView).not.toBeNull();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void shouldNotThrowIfNoTabSpecified() throws Exception {
         new Dashboard().onCreate(null);
     }

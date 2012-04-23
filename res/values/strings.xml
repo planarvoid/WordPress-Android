@@ -2,4 +2,10 @@
     <string name="drag_waveform_comment">Drag along the waveform and release to make a comment at:</string>
     <string name="menu_select_file">Select File</string>
     <string name="btn_revert_to_original">Revert to original</string>
+
+    <string name="fade_toggle_on">Turn on Fading</string>
+    <string name="fade_toggle_off">Turn off Fading</string>
+
+    <string name="optimize_toggle_on">Optimize</string>
+    <string name="optimize_toggle_off">Optimized</string>
 </resources>
