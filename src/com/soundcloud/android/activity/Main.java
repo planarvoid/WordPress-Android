@@ -505,7 +505,7 @@ public class Main extends TabActivity implements
         final int labelId, drawableId;
         final Class<? extends android.app.Activity> activityClass;
 
-        static final Tab DEFAULT = STREAM;
+        static final Tab DEFAULT = UNKNOWN;
 
         Tab(String tag, Class<? extends android.app.Activity> activityClass, int labelId, int drawableId) {
             this.tag = tag;
