@@ -1,21 +1,18 @@
 package com.soundcloud.android.service.sync;
 
-import static com.soundcloud.android.Expect.expect;
-
+import android.content.ContentResolver;
+import android.net.Uri;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import sun.jkernel.Bundle;
-
-import android.content.ContentResolver;
-import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.soundcloud.android.Expect.expect;
 
 @RunWith(DefaultTestRunner.class)
 public class SyncContentTest {
@@ -30,7 +27,7 @@ public class SyncContentTest {
     public void shouldSyncAll() throws Exception {
         List<Uri> urisToSync = new ArrayList<Uri>();
         SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
-        expect(urisToSync.size()).toEqual(4);
+        expect(urisToSync.size()).toEqual(3);
 
     }
 
@@ -47,7 +44,7 @@ public class SyncContentTest {
         List<Uri> urisToSync = new ArrayList<Uri>();
         SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
 
-        expect(urisToSync.size()).toEqual(3);
+        expect(urisToSync.size()).toEqual(2);
 
     }
 
@@ -64,7 +61,7 @@ public class SyncContentTest {
         List<Uri> urisToSync = new ArrayList<Uri>();
         SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
 
-        expect(urisToSync.size()).toEqual(3);
+        expect(urisToSync.size()).toEqual(2);
     }
 
     @Test
@@ -80,7 +77,7 @@ public class SyncContentTest {
         List<Uri> urisToSync = new ArrayList<Uri>();
         SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
 
-        expect(urisToSync.size()).toEqual(4);
+        expect(urisToSync.size()).toEqual(3);
     }
 
     @Test
@@ -96,7 +93,7 @@ public class SyncContentTest {
         List<Uri> urisToSync = new ArrayList<Uri>();
         SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
 
-        expect(urisToSync.size()).toEqual(3);
+        expect(urisToSync.size()).toEqual(2);
     }
 
     @Test
@@ -112,7 +109,7 @@ public class SyncContentTest {
 
         List<Uri> urisToSync = new ArrayList<Uri>();
         SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
-        expect(urisToSync.size()).toEqual(4);
+        expect(urisToSync.size()).toEqual(3);
 
         android.os.Bundle syncResult = new android.os.Bundle();
         syncResult.putBoolean(SyncContent.MySounds.content.uri.toString(),false);
@@ -120,6 +117,6 @@ public class SyncContentTest {
 
         urisToSync = new ArrayList<Uri>();
         SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
-        expect(urisToSync.size()).toEqual(3);
+        expect(urisToSync.size()).toEqual(2);
     }
 }

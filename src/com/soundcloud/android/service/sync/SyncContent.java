@@ -35,9 +35,9 @@ enum SyncContent {
     public static List<Uri> configureSyncExtras(Context c, List<Uri> urisToSync, boolean force){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
         for (SyncContent sc : SyncContent.values()){
-            if (sp.getBoolean(sc.prefSyncEnabledKey, true)) {
+            // ignore automatic follower polling. we have push for it
+            if (sp.getBoolean(sc.prefSyncEnabledKey, true) && sc != MyFollowers) {
                 final long lastUpdated = LocalCollection.getLastSync(sc.content.uri, c.getContentResolver());
-
                 int syncMisses = 0;
                 try {
                    syncMisses = Integer.parseInt(LocalCollection.getExtraFromUri(sc.content.uri, c.getContentResolver()));

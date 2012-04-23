@@ -21,8 +21,8 @@ public class SyncConfig {
     public static final long USER_STALE_TIME = DEFAULT_STALE_TIME * 12;  // users aren't as crucial
     public static final long DEFAULT_SYNC_DELAY = 3600L;
 
-    public static int[] TRACK_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24, 48};
-    public static int[] USER_BACKOFF_MULTIPLIERS = new int[]{1, 2};
+    public static int[] TRACK_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24, 48, 72, 96};
+    public static int[] USER_BACKOFF_MULTIPLIERS = new int[]{1, 2, 3};
 
 
     public static boolean isNotificationsWifiOnlyEnabled(Context c) {
