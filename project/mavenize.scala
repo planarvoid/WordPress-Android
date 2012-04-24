@@ -21,7 +21,7 @@ object Mavenizer {
           <version>3.1.0</version>
           <configuration>
             <sdk>
-              <platform>10</platform>
+              <platform>11</platform>
             </sdk>
             <undeployBeforeDeploy>true</undeployBeforeDeploy>
             <deleteConflictingFiles>false</deleteConflictingFiles>
