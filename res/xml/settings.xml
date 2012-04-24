@@ -5,23 +5,15 @@
     <PreferenceCategory
             android:title="@string/pref_basic_settings">
 
-        <PreferenceScreen
+        <Preference
                 android:key="accountSyncSettings"
                 android:title="@string/pref_sync_settings"
-                android:summary="@string/pref_sync_settings_summary">
-            <intent android:action="android.intent.action.VIEW"
-                    android:targetPackage="com.soundcloud.android"
-                    android:targetClass="com.soundcloud.android.activity.AccountPreferences"/>
-        </PreferenceScreen>
+                android:summary="@string/pref_sync_settings_summary" />
 
-        <PreferenceScreen
+        <Preference
                 android:key="notificationSettings"
                 android:title="@string/pref_notifications"
-                android:summary="@string/pref_notifications_description">
-            <intent android:action="android.intent.action.VIEW"
-                    android:targetPackage="com.soundcloud.android"
-                    android:targetClass="com.soundcloud.android.activity.NotificationSettings"/>
-        </PreferenceScreen>
+                android:summary="@string/pref_notifications_description" />
 
         <ListPreference
                 android:title="@string/pref_record_quality"
