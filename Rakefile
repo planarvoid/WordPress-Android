@@ -100,7 +100,7 @@ namespace :release do
     if versionName.to_s =~ /-BETA(\d+)?\Z/
       raise "#{versionName}: Not a release version"
     else
-      sh "git tag -a #{versionName} -m #{versionName} && git push --tags"
+      sh "git tag -a #{versionName} -m #{versionName} && git push --tags && git push"
     end
   end
 end
