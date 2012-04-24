@@ -11,7 +11,7 @@
                 android:summary="@string/pref_sync_settings_summary">
             <intent android:action="android.intent.action.VIEW"
                     android:targetPackage="com.soundcloud.android"
-                    android:targetClass="com.soundcloud.android.activity.AccountPreferences"/>
+                    android:targetClass="com.soundcloud.android.activity.settings.AccountSettings"/>
         </PreferenceScreen>
 
         <PreferenceScreen
@@ -20,7 +20,7 @@
                 android:summary="@string/pref_notifications_description">
             <intent android:action="android.intent.action.VIEW"
                     android:targetPackage="com.soundcloud.android"
-                    android:targetClass="com.soundcloud.android.activity.NotificationSettings"/>
+                    android:targetClass="com.soundcloud.android.activity.settings.NotificationSettings"/>
         </PreferenceScreen>
 
         <ListPreference
