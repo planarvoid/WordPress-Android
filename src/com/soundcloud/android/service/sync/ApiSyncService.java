@@ -5,7 +5,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.api.CloudAPI;
 
 import android.app.Service;
 import android.content.Intent;
@@ -13,12 +12,9 @@ import android.content.SyncResult;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.ResultReceiver;
 import android.util.Log;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -44,9 +40,9 @@ public class ApiSyncService extends Service {
     public static final int MAX_TASK_LIMIT = 3;
     private int mActiveTaskCount;
 
-    /* package */ final List<ApiRequest> mRequests = new ArrayList<ApiRequest>();
-    /* package */ final LinkedList<UriRequest> mPendingUriRequests = new LinkedList<UriRequest>();
-    /* package */ final List<UriRequest> mRunningRequests = new ArrayList<UriRequest>();
+    /* package */ final List<ApiSyncRequest> mRequests = new ArrayList<ApiSyncRequest>();
+    /* package */ final LinkedList<UriSyncRequest> mPendingUriRequests = new LinkedList<UriSyncRequest>();
+    /* package */ final List<UriSyncRequest> mRunningRequests = new ArrayList<UriSyncRequest>();
 
     @Override
     public void onCreate() {
@@ -64,7 +60,7 @@ public class ApiSyncService extends Service {
         super.onStart(intent, startId);
         if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "onStart("+intent+")");
         if (intent != null){
-            enqueueRequest(new ApiRequest((SoundCloudApplication) getApplication(), intent));
+            enqueueRequest(new ApiSyncRequest((SoundCloudApplication) getApplication(), intent));
         }
         flushUriRequests();
     }
@@ -74,13 +70,13 @@ public class ApiSyncService extends Service {
         return null;
     }
 
-    /* package */ void enqueueRequest(ApiRequest apiRequest) {
+    /* package */ void enqueueRequest(ApiSyncRequest apiRequest) {
         mRequests.add(apiRequest);
 
-        for (UriRequest request : apiRequest.uriRequests){
+        for (UriSyncRequest request : apiRequest.uriRequests){
             // ghetto linked list search
-            UriRequest existingRequest = null;
-            for (UriRequest pendingRequest : mPendingUriRequests){
+            UriSyncRequest existingRequest = null;
+            for (UriSyncRequest pendingRequest : mPendingUriRequests){
                 if (pendingRequest.equals(request)) {
                     existingRequest = pendingRequest;
                     break;
@@ -100,8 +96,8 @@ public class ApiSyncService extends Service {
         }
     }
 
-    /* package */ void onUriSyncResult(UriRequest uriRequest){
-        for (ApiRequest apiRequest : new ArrayList<ApiRequest>(mRequests)){
+    /* package */ void onUriSyncResult(UriSyncRequest uriRequest){
+        for (ApiSyncRequest apiRequest : new ArrayList<ApiSyncRequest>(mRequests)){
             if (apiRequest.onUriResult(uriRequest)){
                 mRequests.remove(apiRequest);
             }
@@ -114,14 +110,14 @@ public class ApiSyncService extends Service {
             stopSelf();
         } else {
             while (mActiveTaskCount < MAX_TASK_LIMIT && !mPendingUriRequests.isEmpty()) {
-                final UriRequest syncRequest = mPendingUriRequests.poll();
+                final UriSyncRequest syncRequest = mPendingUriRequests.poll();
                 mRunningRequests.add(syncRequest);
                 new ApiTask().executeOnThreadPool(syncRequest);
             }
         }
     }
 
-    private static List<Uri> getUrisToSync(Intent intent) {
+    static List<Uri> getUrisToSync(Intent intent) {
         ArrayList<Uri> contents = intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS);
         if (contents == null) {
             contents = new ArrayList<Uri>();
@@ -132,132 +128,10 @@ public class ApiSyncService extends Service {
         return contents;
     }
 
-    /* package */ static class ApiRequest {
-        private final ResultReceiver resultReceiver;
-        private final String action;
-        private final Set<UriRequest> requestsRemaining;
+    private class ApiTask extends AsyncTask<UriSyncRequest, UriSyncRequest, Void> {
 
-        public final List<UriRequest> uriRequests;
-        public boolean isUIResponse;
-
-        // results
-        private final Bundle resultData = new Bundle();
-        private final SyncResult requestResult = new SyncResult();
-
-        public ApiRequest(SoundCloudApplication application, Intent intent) {
-            resultReceiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
-            isUIResponse = intent.getBooleanExtra(EXTRA_IS_UI_RESPONSE, false);
-            action = intent.getAction();
-
-            final List<Uri> urisToSync = getUrisToSync(intent);
-            uriRequests = new ArrayList<UriRequest>();
-            for (Uri uri : urisToSync){
-                uriRequests.add(new UriRequest(application,uri,action));
-            }
-            requestsRemaining = new HashSet<UriRequest>(uriRequests);
-        }
-
-        public boolean onUriResult(UriRequest uriRequest) {
-            if (requestsRemaining.contains(uriRequest)) {
-                requestsRemaining.remove(uriRequest);
-                resultData.putBoolean(uriRequest.uri.toString(), uriRequest.result.wasChanged);
-                if (!uriRequest.result.success) appendSyncStats(uriRequest.result.syncResult, this.requestResult);
-            }
-
-            if (requestsRemaining.isEmpty()) {
-                if (resultReceiver != null) {
-                    if (uriRequest.result.success) {
-                        resultReceiver.send(ACTION_APPEND.equals(action) ? STATUS_APPEND_FINISHED : STATUS_SYNC_FINISHED, resultData);
-                    } else {
-                        final Bundle bundle = new Bundle();
-                        bundle.putParcelable(EXTRA_SYNC_RESULT, requestResult);
-                        resultReceiver.send(ACTION_APPEND.equals(action) ? STATUS_APPEND_ERROR : STATUS_SYNC_ERROR, bundle);
-                    }
-                }
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
-
-    /* package */ static class UriRequest {
-        private final SoundCloudApplication app;
-        private final Uri uri;
-        private final String action;
-        private LocalCollection localCollection;
-
-        public ApiSyncer.Result result;
-        // results
-
-        public UriRequest(SoundCloudApplication application, Uri uri, String action){
-            this.app = application;
-            this.uri = uri;
-            this.action = action;
-        }
-
-        public void init(boolean setIsPending){
-            localCollection = LocalCollection.fromContentUri(uri,app.getContentResolver(),true);
-            if (setIsPending){
-                localCollection.updateSyncState(LocalCollection.SyncState.PENDING, app.getContentResolver());
-            }
-        }
-
-        public UriRequest execute() {
-            ApiSyncer syncer = new ApiSyncer(app);
-            localCollection.updateSyncState(LocalCollection.SyncState.SYNCING, app.getContentResolver());
-            try {
-                result = syncer.syncContent(uri, action);
-                localCollection.onSyncComplete(result, app.getContentResolver());
-                result.success = true;
-            } catch (CloudAPI.InvalidTokenException e) {
-                Log.e(LOG_TAG, "Problem while syncing", e);
-                localCollection.updateSyncState(LocalCollection.SyncState.IDLE, app.getContentResolver());
-                result = ApiSyncer.Result.fromAuthException(uri);
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Problem while syncing", e);
-                localCollection.updateSyncState(LocalCollection.SyncState.IDLE, app.getContentResolver());
-                result = ApiSyncer.Result.fromIOException(uri);
-            }
-            return this;
-        }
-
-        @Override @SuppressWarnings("RedundantIfStatement")
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            UriRequest that = (UriRequest) o;
-
-            if (action != null ? !action.equals(that.action) : that.action != null) return false;
-            if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = uri != null ? uri.hashCode() : 0;
-            result = 31 * result + (action != null ? action.hashCode() : 0);
-            return result;
-        }
-
-        public Uri getUri(){
-            return uri;
-        }
-
-        @Override
-        public String toString() {
-            return "UriRequest{" +
-                    "uri=" + uri +
-                    ", action='" + action + '\'' +
-                    '}';
-        }
-    }
-
-     private class ApiTask extends AsyncTask<UriRequest, UriRequest, Void> {
-
-        public final android.os.AsyncTask<UriRequest, UriRequest, Void> executeOnThreadPool(
-                UriRequest... params) {
+        public final android.os.AsyncTask<UriSyncRequest, UriSyncRequest, Void> executeOnThreadPool(
+                UriSyncRequest... params) {
             if (Build.VERSION.SDK_INT < 11) {
                 // The execute() method uses a thread pool
                 return execute(params);
@@ -289,16 +163,16 @@ public class ApiSyncService extends Service {
         }
 
         @Override
-        protected Void doInBackground(UriRequest... tasks) {
-            for (UriRequest task : tasks) {
+        protected Void doInBackground(UriSyncRequest... tasks) {
+            for (UriSyncRequest task : tasks) {
                 publishProgress(task.execute());
             }
             return null;
         }
 
         @Override
-        protected void onProgressUpdate(UriRequest... progress) {
-            for (UriRequest request : progress) {
+        protected void onProgressUpdate(UriSyncRequest... progress) {
+            for (UriSyncRequest request : progress) {
                 onUriSyncResult(request);
             }
         }

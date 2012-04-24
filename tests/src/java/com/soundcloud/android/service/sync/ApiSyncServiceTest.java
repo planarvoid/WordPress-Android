@@ -19,7 +19,6 @@ import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -84,9 +83,9 @@ public class ApiSyncServiceTest {
         urisToSync.add(Content.ME_FOLLOWERS.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
-        ApiSyncService.ApiRequest request1 = new ApiSyncService.ApiRequest(app, intent);
-        ApiSyncService.ApiRequest request2 = new ApiSyncService.ApiRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
-        ApiSyncService.ApiRequest request3 = new ApiSyncService.ApiRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
+        ApiSyncRequest request1 = new ApiSyncRequest(app, intent);
+        ApiSyncRequest request2 = new ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
+        ApiSyncRequest request3 = new ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
 
         svc.enqueueRequest(request1);
         expect(svc.mPendingUriRequests.size()).toBe(3);
@@ -99,7 +98,7 @@ public class ApiSyncServiceTest {
         expect(svc.mPendingUriRequests.size()).toBe(3);
 
         expect(svc.mPendingUriRequests.peek().getUri()).toBe(Content.ME_TRACKS.uri);
-        ApiSyncService.ApiRequest request4 = new ApiSyncService.ApiRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
+        ApiSyncRequest request4 = new ApiSyncRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
         svc.enqueueRequest(request4);
         expect(svc.mPendingUriRequests.peek().getUri()).toBe(Content.ME_FAVORITES.uri);
     }
@@ -110,13 +109,13 @@ public class ApiSyncServiceTest {
 
         SoundCloudApplication app = DefaultTestRunner.application;
 
-        svc.mRunningRequests.add(new ApiSyncService.UriRequest(app, Content.ME_FAVORITES.uri, null));
-        svc.mRunningRequests.add(new ApiSyncService.UriRequest(app, Content.ME_FOLLOWINGS.uri, null));
+        svc.mRunningRequests.add(new UriSyncRequest(app, Content.ME_FAVORITES.uri, null));
+        svc.mRunningRequests.add(new UriSyncRequest(app, Content.ME_FOLLOWINGS.uri, null));
 
         ApiSyncer.Result result = new ApiSyncer.Result(Content.ME_FAVORITES.uri);
         result.success = true;
 
-        svc.onUriSyncResult(new ApiSyncService.UriRequest(app, Content.ME_FAVORITES.uri, null));
+        svc.onUriSyncResult(new UriSyncRequest(app, Content.ME_FAVORITES.uri, null));
         expect(svc.mRunningRequests.size()).toBe(1);
     }
 

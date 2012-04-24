@@ -157,13 +157,20 @@ public class ApiSyncer {
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(),remote.size(),null);
 
-        if (local.equals(remote) && !(c == Content.ME_FOLLOWERS || c == Content.ME_FOLLOWINGS)) {
+        final boolean idsChanged = local.equals(remote);
+        if (idsChanged && !(c == Content.ME_FOLLOWERS || c == Content.ME_FOLLOWINGS)) {
             log("Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
             return result;
         }
 
-        result.wasChanged = true;
-        result.extra = "0"; // reset sync misses
+        // we have at the least changed the ordering
+        result.requiresUiRefresh = true;
+
+        if (!idsChanged){
+            // items have been added or removed (not just ordering) so this is a sync hit
+            result.wasChanged = true;
+            result.extra = "0"; // reset sync misses
+        }
 
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);
@@ -343,6 +350,7 @@ public class ApiSyncer {
     public static class Result {
         public final Uri uri;
         public final SyncResult syncResult = new SyncResult();
+        public boolean requiresUiRefresh;
         public boolean wasChanged;
         public boolean success;
 
