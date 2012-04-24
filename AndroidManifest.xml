@@ -169,7 +169,7 @@
         <activity android:name=".activity.TracksByTag" />
         <activity android:name=".activity.ScSearch"/>
         <activity android:name=".activity.settings.Settings" android:label="Settings"/>
-        <activity android:name=".activity.AccountPreferences" />
+        <activity android:name=".activity.settings.AccountSettings" />
         <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" />
         <activity android:name=".activity.UserBrowser" android:label="Profile"/>
         <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>
