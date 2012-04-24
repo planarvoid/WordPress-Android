@@ -9,7 +9,6 @@ import com.soundcloud.android.provider.DBHelper;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SyncResult;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
@@ -26,23 +25,23 @@ public class ApiSyncService extends Service {
 
     public static final String ACTION_APPEND = "com.soundcloud.android.sync.action.APPEND";
 
-    public static final String EXTRA_SYNC_URIS = "com.soundcloud.android.sync.extra.SYNC_URIS";
+    public static final String EXTRA_SYNC_URIS       = "com.soundcloud.android.sync.extra.SYNC_URIS";
     public static final String EXTRA_STATUS_RECEIVER = "com.soundcloud.android.sync.extra.STATUS_RECEIVER";
-    public static final String EXTRA_SYNC_RESULT = "com.soundcloud.android.sync.extra.SYNC_RESULT";
-    public static final String EXTRA_IS_UI_RESPONSE = "com.soundcloud.android.sync.extra.IS_UI_RESPONSE";
+    public static final String EXTRA_SYNC_RESULT     = "com.soundcloud.android.sync.extra.SYNC_RESULT";
+    public static final String EXTRA_IS_UI_REQUEST   = "com.soundcloud.android.sync.extra.IS_UI_REQUEST";
 
-    public static final int STATUS_SYNC_ERROR = 0x2;
-    public static final int STATUS_SYNC_FINISHED = 0x3;
+    public static final int STATUS_SYNC_ERROR      = 0x2;
+    public static final int STATUS_SYNC_FINISHED   = 0x3;
 
-    public static final int STATUS_APPEND_ERROR = 0x4;
+    public static final int STATUS_APPEND_ERROR    = 0x4;
     public static final int STATUS_APPEND_FINISHED = 0x5;
 
     public static final int MAX_TASK_LIMIT = 3;
     private int mActiveTaskCount;
 
-    /* package */ final List<ApiSyncRequest> mRequests = new ArrayList<ApiSyncRequest>();
-    /* package */ final LinkedList<UriSyncRequest> mPendingUriRequests = new LinkedList<UriSyncRequest>();
-    /* package */ final List<UriSyncRequest> mRunningRequests = new ArrayList<UriSyncRequest>();
+    /* package */ final List<ApiSyncServiceRequest> mRequests = new ArrayList<ApiSyncServiceRequest>();
+    /* package */ final LinkedList<CollectionSyncRequest> mPendingCollectionRequests = new LinkedList<CollectionSyncRequest>();
+    /* package */ final List<CollectionSyncRequest> mRunningRequests = new ArrayList<CollectionSyncRequest>();
 
     @Override
     public void onCreate() {
@@ -60,7 +59,7 @@ public class ApiSyncService extends Service {
         super.onStart(intent, startId);
         if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "onStart("+intent+")");
         if (intent != null){
-            enqueueRequest(new ApiSyncRequest((SoundCloudApplication) getApplication(), intent));
+            enqueueRequest(new ApiSyncServiceRequest((SoundCloudApplication) getApplication(), intent));
         }
         flushUriRequests();
     }
@@ -70,68 +69,59 @@ public class ApiSyncService extends Service {
         return null;
     }
 
-    /* package */ void enqueueRequest(ApiSyncRequest apiRequest) {
+    /* package */ void enqueueRequest(ApiSyncServiceRequest apiRequest) {
         mRequests.add(apiRequest);
 
-        for (UriSyncRequest request : apiRequest.uriRequests){
+        for (CollectionSyncRequest request : apiRequest.collectionSyncRequests){
             // ghetto linked list search
-            UriSyncRequest existingRequest = null;
-            for (UriSyncRequest pendingRequest : mPendingUriRequests){
+            CollectionSyncRequest existingRequest = null;
+            for (CollectionSyncRequest pendingRequest : mPendingCollectionRequests){
                 if (pendingRequest.equals(request)) {
                     existingRequest = pendingRequest;
                     break;
                 }
             }
             if (existingRequest == null && !mRunningRequests.contains(request)) {
-                request.init(true);
-                if (apiRequest.isUIResponse){
-                    mPendingUriRequests.add(0, request);
+                request.onQueued();
+
+                if (apiRequest.isUIRequest){
+                    mPendingCollectionRequests.add(0, request);
                 } else {
-                    mPendingUriRequests.add(request);
+                    mPendingCollectionRequests.add(request);
                 }
-            } else if (existingRequest != null && apiRequest.isUIResponse && !mPendingUriRequests.getFirst().equals(existingRequest)){
-                mPendingUriRequests.remove(existingRequest);
-                mPendingUriRequests.addFirst(existingRequest);
+            } else if (existingRequest != null && apiRequest.isUIRequest && !mPendingCollectionRequests.getFirst().equals(existingRequest)){
+                mPendingCollectionRequests.remove(existingRequest);
+                mPendingCollectionRequests.addFirst(existingRequest);
             }
         }
     }
 
-    /* package */ void onUriSyncResult(UriSyncRequest uriRequest){
-        for (ApiSyncRequest apiRequest : new ArrayList<ApiSyncRequest>(mRequests)){
-            if (apiRequest.onUriResult(uriRequest)){
+    /* package */ void onUriSyncResult(CollectionSyncRequest collectionRequest){
+        for (ApiSyncServiceRequest apiRequest : new ArrayList<ApiSyncServiceRequest>(mRequests)){
+            if (apiRequest.onUriResult(collectionRequest)){
                 mRequests.remove(apiRequest);
             }
         }
-        mRunningRequests.remove(uriRequest);
+        mRunningRequests.remove(collectionRequest);
     }
 
     void flushUriRequests() {
-        if (mPendingUriRequests.isEmpty() && mRunningRequests.isEmpty()){
+        if (mPendingCollectionRequests.isEmpty() && mRunningRequests.isEmpty()){
             stopSelf();
         } else {
-            while (mActiveTaskCount < MAX_TASK_LIMIT && !mPendingUriRequests.isEmpty()) {
-                final UriSyncRequest syncRequest = mPendingUriRequests.poll();
+            while (mActiveTaskCount < MAX_TASK_LIMIT && !mPendingCollectionRequests.isEmpty()) {
+                final CollectionSyncRequest syncRequest = mPendingCollectionRequests.poll();
                 mRunningRequests.add(syncRequest);
                 new ApiTask().executeOnThreadPool(syncRequest);
             }
         }
     }
 
-    static List<Uri> getUrisToSync(Intent intent) {
-        ArrayList<Uri> contents = intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS);
-        if (contents == null) {
-            contents = new ArrayList<Uri>();
-        }
-        if (intent.getData() != null) {
-            contents.add(intent.getData());
-        }
-        return contents;
-    }
 
-    private class ApiTask extends AsyncTask<UriSyncRequest, UriSyncRequest, Void> {
+    private class ApiTask extends AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
 
-        public final android.os.AsyncTask<UriSyncRequest, UriSyncRequest, Void> executeOnThreadPool(
-                UriSyncRequest... params) {
+        public final android.os.AsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> executeOnThreadPool(
+                CollectionSyncRequest... params) {
             if (Build.VERSION.SDK_INT < 11) {
                 // The execute() method uses a thread pool
                 return execute(params);
@@ -163,16 +153,16 @@ public class ApiSyncService extends Service {
         }
 
         @Override
-        protected Void doInBackground(UriSyncRequest... tasks) {
-            for (UriSyncRequest task : tasks) {
+        protected Void doInBackground(CollectionSyncRequest... tasks) {
+            for (CollectionSyncRequest task : tasks) {
                 publishProgress(task.execute());
             }
             return null;
         }
 
         @Override
-        protected void onProgressUpdate(UriSyncRequest... progress) {
-            for (UriSyncRequest request : progress) {
+        protected void onProgressUpdate(CollectionSyncRequest... progress) {
+            for (CollectionSyncRequest request : progress) {
                 onUriSyncResult(request);
             }
         }

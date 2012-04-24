@@ -92,7 +92,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             if (noMoreLocalItems){
                 mActivity.startService(new Intent(mActivity, ApiSyncService.class)
                         .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
-                        .putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE, true)
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                         .setAction(ApiSyncService.ACTION_APPEND)
                         .setData(mContent.uri));
             } else {

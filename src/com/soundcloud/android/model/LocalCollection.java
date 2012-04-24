@@ -181,7 +181,6 @@ public class LocalCollection {
         return (resolver.update(Content.COLLECTIONS.uri, cv, "uri = ?", new String[]{contentUri.toString()}) == 1) ? misses : -1;
     }
 
-
     public void startObservingSelf(ContentResolver contentResolver) {
         mContentResolver = contentResolver;
         mChangeObserver = new ChangeObserver();

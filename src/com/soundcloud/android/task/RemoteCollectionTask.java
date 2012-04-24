@@ -1,35 +1,39 @@
 package com.soundcloud.android.task;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.SoundCloudApplication.TRACK_CACHE;
+import static com.soundcloud.android.SoundCloudApplication.USER_CACHE;
+import static com.soundcloud.android.model.LocalCollection.insertLocalCollection;
+import static com.soundcloud.android.service.sync.ApiSyncer.getAdditionsFromIds;
+
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.RemoteCollectionAdapter;
+import com.soundcloud.android.model.CollectionHolder;
+import com.soundcloud.android.model.Friend;
+import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.LocalCollectionPage;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.api.Request;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.RemoteCollectionAdapter;
-import com.soundcloud.android.model.*;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.service.sync.ApiSyncer;
-import com.soundcloud.api.Http;
-import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.soundcloud.android.SoundCloudApplication.*;
-import static com.soundcloud.android.model.LocalCollection.insertLocalCollection;
-import static com.soundcloud.android.service.sync.ApiSyncer.getAdditionsFromIds;
 
 public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcelable>, Boolean>
                                   implements ILazyAdapterTask {
@@ -40,7 +44,6 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
     public boolean keepGoing;
     /* package */ List<Parcelable> mNewItems = new ArrayList<Parcelable>();
 
-    private long mLastRefresh;
     protected String mNextHref;
     protected int mResponseCode = HttpStatus.SC_OK;
 
@@ -176,7 +179,7 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
                 localCollection = insertLocalCollection(mParams.contentUri, contentResolver);
                  idList = new ArrayList<Long>();
             } else {
-                idList = Content.match(mParams.contentUri).getStoredIds(contentResolver,mParams.getLocalUri());
+                idList = Content.match(mParams.contentUri).getStoredIds(contentResolver, mParams.getLocalUri());
             }
         }
 
