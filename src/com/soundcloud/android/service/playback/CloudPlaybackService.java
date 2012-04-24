@@ -447,7 +447,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
     private void startTrack(Track track) {
         track(Page.Sounds_main, track);
-        setPlayingNotification(track);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "startTrack("+track.title+")");
@@ -477,8 +476,8 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                     break;
             }
         }
-
         state = PREPARING;
+        setPlayingNotification(track);
         try {
             if (mProxy == null) {
                 mProxy = new StreamProxy(getApp()).init().start();
@@ -608,9 +607,13 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
         if (track == null) return;
 
+        if (status != null && SoundCloudApplication.useRichNotifications()){
+            //((PlaybackRemoteViews) status.contentView)
+        }
+
         status = new Notification();
         status.flags |= Notification.FLAG_ONGOING_EVENT;
-        status.icon = R.drawable.ic_status;
+        status.icon = R.drawable.ic_notification_cloud;
 
         Intent intent = new Intent(Actions.PLAYER);
         intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
@@ -619,8 +622,9 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         if (!SoundCloudApplication.useRichNotifications()) {
             status.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
+
             PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11,
-                    android.R.drawable.ic_media_play,android.R.drawable.ic_media_pause);
+                    R.drawable.ic_notification_play_states,R.drawable.ic_notification_pause_states);
             view.setCurrentTrack(track.title, track.user.username);
             view.linkButtons(this,track.id,track.user_id,track.user_favorite, EXTRA_FROM_NOTIFICATION);
             view.setPlaybackStatus(state.isSupposedToBePlaying());

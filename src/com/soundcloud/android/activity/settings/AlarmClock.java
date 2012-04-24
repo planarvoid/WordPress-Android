@@ -166,7 +166,7 @@ public final class AlarmClock {
 
     private Notification createNotification(String message) {
         String title = "Alarm set";
-        final Notification n = new Notification(R.drawable.ic_status,
+        final Notification n = new Notification(R.drawable.ic_notification_cloud,
                 title, System.currentTimeMillis());
         n.setLatestEventInfo(mContext,
                 title,
