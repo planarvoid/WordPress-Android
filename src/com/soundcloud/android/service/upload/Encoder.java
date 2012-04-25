@@ -5,7 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.jni.ProgressListener;
 import com.soundcloud.android.jni.VorbisEncoder;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.record.AudioConfig;
+import com.soundcloud.android.audio.AudioConfig;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

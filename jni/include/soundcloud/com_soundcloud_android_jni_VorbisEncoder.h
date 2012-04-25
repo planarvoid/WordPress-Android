@@ -17,10 +17,10 @@ JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_init
 
 /*
  * Class:     com_soundcloud_android_jni_VorbisEncoder
- * Method:    addSamples
+ * Method:    write
  * Signature: (Ljava/nio/ByteBuffer;J)I
  */
-JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_addSamples
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_write
   (JNIEnv *, jobject, jobject, jlong);
 
 /*

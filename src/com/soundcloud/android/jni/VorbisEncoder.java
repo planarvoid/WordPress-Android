@@ -1,7 +1,7 @@
 package com.soundcloud.android.jni;
 
-import com.soundcloud.android.record.AudioConfig;
-import com.soundcloud.android.record.WaveHeader;
+import com.soundcloud.android.audio.AudioConfig;
+import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.util.Log;
@@ -60,7 +60,7 @@ public class VorbisEncoder {
         while ((n = is.read(buffer)) != -1) {
             bbuffer.rewind();
             bbuffer.put(buffer, 0, n);
-            int ret = addSamples(bbuffer, n);
+            int ret = write(bbuffer, n);
             if (ret < 0) throw new EncoderException("addSamples returned error", ret);
             total += n;
             if (listener != null) listener.onProgress(total, length);
@@ -78,7 +78,7 @@ public class VorbisEncoder {
     public static int encodeWav(InputStream wav, File out, long length, float quality, ProgressListener listener) throws IOException {
         wav = new BufferedInputStream(wav);
 
-        WaveHeader header = new WaveHeader(wav);
+        WavHeader header = new WavHeader(wav);
         VorbisEncoder encoder = new VorbisEncoder(out,
                 "w",
                 header.getNumChannels(),
@@ -102,7 +102,6 @@ public class VorbisEncoder {
         }
     }
 
-
     native private int init(String output, String mode, long channels, long rate, float quality);
 
     /**
@@ -111,7 +110,7 @@ public class VorbisEncoder {
      * @param length
      * @return < 0 in error case
      */
-    native public int addSamples(ByteBuffer samples, long length);
+    native public int write(ByteBuffer samples, long length);
 
 
     /**
@@ -141,7 +140,7 @@ public class VorbisEncoder {
 
     static {
         try {
-            System.loadLibrary("soundcloud_audio");
+            System.loadLibrary("soundcloud_audio_encoder");
         } catch (UnsatisfiedLinkError e) {
             // only ignore exception in non-android env
             if ("Dalvik".equals(System.getProperty("java.vm.name"))) throw e;

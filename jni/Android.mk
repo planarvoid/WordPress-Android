@@ -1,7 +1,7 @@
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
-LOCAL_MODULE    := soundcloud_audio
+LOCAL_MODULE    := soundcloud_audio_encoder
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/vorbis/lib $(LOCAL_PATH)/vorbis/include $(LOCAL_PATH)/ogg/include $(LOCAL_PATH)/include
 
 LOCAL_CFLAGS := $(LOCAL_C_INCLUDES:%=-I%) -O2 -Wall -D__ANDROID__ -DFIXED_POINT -D_ARM_ASSEM_ -D__ANDROID__ -DOPT_GENERIC -DHAVE_STRERROR
@@ -40,7 +40,7 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 
 # tremor/tremolo module
-LOCAL_MODULE := soundcloud_audio_tremor
+LOCAL_MODULE := soundcloud_audio_decoder
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/tremolo $(LOCAL_PATH)/include
 
 LOCAL_CFLAGS := $(LOCAL_C_INCLUDES:%=-I%) -O2 -Wall -D__ANDROID__ -DFIXED_POINT -D_ARM_ASSEM_ -D__ANDROID__ -DOPT_GENERIC -DHAVE_STRERROR

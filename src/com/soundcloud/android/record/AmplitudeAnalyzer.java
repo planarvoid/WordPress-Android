@@ -1,5 +1,7 @@
 package com.soundcloud.android.record;
 
+import com.soundcloud.android.audio.AudioConfig;
+
 import java.nio.ByteBuffer;
 
 public class AmplitudeAnalyzer {

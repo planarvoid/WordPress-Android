@@ -2,6 +2,11 @@ package com.soundcloud.android.record;
 
 import static com.soundcloud.android.record.CloudRecorder.TAG;
 
+import com.soundcloud.android.audio.AudioConfig;
+import com.soundcloud.android.audio.AudioFile;
+import com.soundcloud.android.audio.VorbisFile;
+import com.soundcloud.android.audio.WavFile;
+import com.soundcloud.android.audio.WavWriter;
 import com.soundcloud.android.jni.VorbisEncoder;
 import com.soundcloud.android.model.Recording;
 
@@ -11,32 +16,34 @@ import android.util.Log;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 public class RecordStream implements Closeable {
     private VorbisEncoder mEncoder;
-    private RandomAccessFile mWriter;
 
-    public final File file;
+    public final File encodedFile;
+
+    private WavWriter mWavWriter;
     private final AudioConfig config;
 
     private boolean initialised;
 
-    protected long startPosition;
-    protected long endPosition;
+    /* package */ long startPosition;
+    /* package */ long endPosition;
 
     private boolean applyFades = true;
 
     private static final int FADE_LENGTH_MS = 1000;
     private static final int FADE_EXP_CURVE = 2;
 
-    public RecordStream(File f, AudioConfig config) {
+    public RecordStream(File f, AudioConfig cfg) {
         if (f == null) throw new IllegalArgumentException("file is null");
-        if (config == null) throw new IllegalArgumentException("config is null");
+        if (cfg == null) throw new IllegalArgumentException("config is null");
 
-        this.file = f;
-        this.config = config;
+        config = cfg;
+        encodedFile = Recording.encodedFilename(f);
+        mWavWriter = new WavWriter(f, cfg);
+
     }
 
     public int write(ByteBuffer buffer, int length) throws IOException {
@@ -44,40 +51,23 @@ public class RecordStream implements Closeable {
             initialise();
         }
 
-        mWriter.getChannel().write(buffer);
-        mEncoder.addSamples(buffer, length);
+        mWavWriter.write(buffer, length);
+        mEncoder.write(buffer, length);
         return length;
     }
 
-    public long length() {
-
-        return file == null ? 0 : file.length();
+    public long getDuration() {
+        return mWavWriter == null ? 0 : mWavWriter.getDuration();
     }
 
     public long finalizeStream() {
         if (!initialised) return -1;
-
         try {
-            final long length = mWriter.length();
-            Log.d(TAG, "finalising recording file (length=" + length + ")");
-            if (length == 0) {
-                Log.w(TAG, "file length is zero");
-            } else if (length > WaveHeader.LENGTH) {
-                // fill in missing header bytes
-                mWriter.seek(4);
-                mWriter.writeInt(Integer.reverseBytes((int) (length - 8)));
-                mWriter.seek(40);
-                mWriter.writeInt(Integer.reverseBytes((int) (length - 44)));
-            } else {
-                Log.w(TAG, "data length is zero");
-            }
-            mWriter.close();
-            mWriter = null;
-
+            final long duration = mWavWriter.finalizeStream();
             mEncoder.pause();
             initialised = false;
-            endPosition = length;
-            return length;
+            endPosition = duration;
+            return duration;
         } catch (IOException e) {
             Log.e(TAG, "I/O exception occured while finalizing file", e);
             return -1;
@@ -94,48 +84,43 @@ public class RecordStream implements Closeable {
     }
 
     public Uri toUri() {
-        return Uri.fromFile(file);
+        return Uri.fromFile(mWavWriter.file);
     }
 
     public long elapsedTime() {
-        return config.bytesToMs(length());
+        return mWavWriter.getDuration();
     }
 
     private void initialise() throws IOException {
-        mWriter = new RandomAccessFile(file, "rw");
-
         if (mEncoder == null) {
             // initialise a new encoder object
             long start = System.currentTimeMillis();
-            mEncoder = new VorbisEncoder(Recording.encodedFilename(file), "a", config);
-            Log.d(TAG, "init in "+(System.currentTimeMillis()-start) + " msecs");
-        }
-
-        if (!file.exists() || mWriter.length() == 0) {
-            Log.d(TAG, "creating new WAV file");
-            mWriter.setLength(0); // truncate
-            WaveHeader wh = config.createHeader();
-            wh.write(mWriter);
-        } else {
-            Log.d(TAG, "appending to existing WAV file");
-            mWriter.seek(mWriter.length());
+            mEncoder = new VorbisEncoder(encodedFile, "a", config);
+            Log.d(TAG, "init in " + (System.currentTimeMillis() - start) + " msecs");
         }
         initialised = true;
     }
 
     /** Playback Bounds **/
-
     public void resetPlaybackBounds() {
         startPosition = 0;
-        endPosition = file.length();
+        endPosition   = getDuration();
     }
 
     public void setStartPositionByPercent(double percent) {
-        startPosition = config.validBytePosition((long) (percent * length()));
+        startPosition = (long) percent * getDuration();
     }
 
     public void setEndPositionByPercent(double percent) {
-        endPosition = config.validBytePosition((long) (percent * length()));
+        endPosition = (long) (percent * getDuration());
+    }
+
+    public File getFile() {
+        return mWavWriter.file;
+    }
+
+    public AudioFile getAudioFile() throws IOException {
+        return new VorbisFile(encodedFile);
     }
 
     public byte[] applyMods(byte[] buffer, long bufferIndex) {

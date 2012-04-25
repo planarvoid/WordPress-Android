@@ -98,11 +98,11 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj
     return 0;
 }
 
-jint Java_com_soundcloud_android_jni_VorbisEncoder_addSamples(JNIEnv* env, jobject obj, jobject samples, jlong length) {
+jint Java_com_soundcloud_android_jni_VorbisEncoder_write(JNIEnv* env, jobject obj, jobject samples, jlong length) {
     /* get state from instance */
     encoder_state *state = (encoder_state*) (*env)->GetIntField(env, obj, encoder_state_field);
     if (!state) {
-        LOG_E("addSamples() called in wrong state");
+        LOG_E("write() called in wrong state");
         return -1;
     }
 

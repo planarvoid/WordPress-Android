@@ -1,5 +1,23 @@
 package com.soundcloud.android.view.create;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.audio.AudioConfig;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.CloudRecorder;
+import com.soundcloud.android.record.RemainingTimeCalculator;
+import com.soundcloud.android.service.record.CloudCreateService;
+import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -22,28 +40,11 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.AudioConfig;
-import com.soundcloud.android.record.CloudRecorder;
-import com.soundcloud.android.record.RemainingTimeCalculator;
-import com.soundcloud.android.service.record.CloudCreateService;
-import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class CreateController implements CreateWaveDisplay.Listener {
 
@@ -59,7 +60,8 @@ public class CreateController implements CreateWaveDisplay.Listener {
     private long mLastDisplayedTime;
 
     private TextView txtInstructions, txtRecordMessage, mChrono;
-    private ViewGroup mRecControls, mEditControls, mFileLayout;
+    private ViewGroup mEditControls;
+    private ViewGroup mFileLayout;
     private ImageButton mActionButton;
     private CreateWaveDisplay mWaveDisplay;
     private Button mResetButton, mDeleteButton, mPlayButton, mEditButton, mSaveButton, mPlayEditButton;
@@ -123,7 +125,6 @@ public class CreateController implements CreateWaveDisplay.Listener {
         mChrono.setVisibility(View.INVISIBLE);
 
         mFileLayout = (ViewGroup) vg.findViewById(R.id.file_layout);
-        mRecControls = (ViewGroup) vg.findViewById(R.id.rec_controls);
         mEditControls = (ViewGroup) vg.findViewById(R.id.edit_controls);
         mHasEditControlGroup = mEditControls != null;
 
@@ -313,10 +314,10 @@ public class CreateController implements CreateWaveDisplay.Listener {
     }
 
     @Override
-    public void onSeek(float pos) {
+    public void onSeek(float pct) {
         if (mCreateService != null) {
             mLastTrackTime = -1;
-            mCreateService.seekTo(pos);
+            mCreateService.seekTo(pct);
         }
     }
 

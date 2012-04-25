@@ -11,10 +11,10 @@ extern "C" {
 #define com_soundcloud_android_jni_VorbisDecoder_ALIGN_SEEK_ON_PAGE 0L
 /*
  * Class:     com_soundcloud_android_jni_VorbisDecoder
- * Method:    getInfo
- * Signature: ()Lcom/soundcloud/android/jni/Info;
+ * Method:    getState
+ * Signature: ()I
  */
-JNIEXPORT jobject JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_getInfo
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_getState
   (JNIEnv *, jobject);
 
 /*
@@ -23,6 +23,14 @@ JNIEXPORT jobject JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_getInfo
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_release
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisDecoder
+ * Method:    getInfo
+ * Signature: ()Lcom/soundcloud/android/jni/Info;
+ */
+JNIEXPORT jobject JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_getInfo
   (JNIEnv *, jobject);
 
 /*
@@ -43,6 +51,14 @@ JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_pcmSeek
 
 /*
  * Class:     com_soundcloud_android_jni_VorbisDecoder
+ * Method:    timeSeek
+ * Signature: (DZ)I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_timeSeek
+  (JNIEnv *, jobject, jdouble, jboolean);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisDecoder
  * Method:    init
  * Signature: (Ljava/lang/String;)I
  */
@@ -56,14 +72,6 @@ JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_init
  */
 JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_decodeToFile
   (JNIEnv *, jobject, jstring);
-
-/*
- * Class:     com_soundcloud_android_jni_VorbisDecoder
- * Method:    getState
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_getState
-  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }

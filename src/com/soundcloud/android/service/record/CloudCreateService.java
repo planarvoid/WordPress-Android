@@ -263,8 +263,8 @@ public class CloudCreateService extends Service  {
         return notification;
     }
 
-    public void seekTo(float position) {
-        mRecorder.seekToPercentage(position);
+    public void seekTo(float pct) {
+        mRecorder.seekTo(pct);
     }
 
     public boolean isPlaying() {
