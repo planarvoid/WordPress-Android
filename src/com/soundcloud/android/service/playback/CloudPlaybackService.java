@@ -63,8 +63,8 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     public static final String SEEK_COMPLETE      = "com.soundcloud.android.seekcomplete";
     public static final String BUFFERING          = "com.soundcloud.android.buffering";
     public static final String BUFFERING_COMPLETE = "com.soundcloud.android.bufferingcomplete";
-    public static final String SERVICECMD         = "com.soundcloud.android.musicservicecommand";
 
+    public static final String UPDATE_WIDGET_ACTION = "com.soundcloud.android.musicservicecommand.updatewidgetaction";
     public static final String TOGGLEPAUSE_ACTION = "com.soundcloud.android.musicservicecommand.togglepause";
     public static final String PAUSE_ACTION       = "com.soundcloud.android.musicservicecommand.pause";
     public static final String PREVIOUS_ACTION    = "com.soundcloud.android.musicservicecommand.previous";
@@ -78,13 +78,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
     public static final String ADD_FAVORITE       = "com.soundcloud.android.favorite.add";
     public static final String REMOVE_FAVORITE    = "com.soundcloud.android.favorite.remove";
-
-    public static final String CMDNAME        = "command";
-    public static final String CMDTOGGLEPAUSE = "togglepause";
-    public static final String CMDSTOP        = "stop";
-    public static final String CMDPAUSE       = "pause";
-    public static final String CMDPREVIOUS    = "previous";
-    public static final String CMDNEXT        = "next";
 
     private static final int TRACK_ENDED      = 1;
     private static final int SERVER_DIED      = 2;
@@ -165,7 +158,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         IntentFilter commandFilter = new IntentFilter();
-        commandFilter.addAction(SERVICECMD);
         commandFilter.addAction(TOGGLEPAUSE_ACTION);
         commandFilter.addAction(PAUSE_ACTION);
         commandFilter.addAction(NEXT_ACTION);
@@ -911,15 +903,14 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         public void onReceive(Context context, Intent intent) {
 
             String action = intent.getAction();
-            String cmd = intent.getStringExtra("command");
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "BroadcastReceiver#onReceive("+action+", "+cmd+")");
+                Log.d(TAG, "BroadcastReceiver#onReceive("+action+")");
             }
-            if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
+            if (NEXT_ACTION.equals(action)) {
                 next();
-            } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
+            } else if (PREVIOUS_ACTION.equals(action)) {
                 prev();
-            } else if (CMDTOGGLEPAUSE.equals(cmd) || TOGGLEPAUSE_ACTION.equals(action)) {
+            } else if (TOGGLEPAUSE_ACTION.equals(action)) {
                 if (state.isSupposedToBePlaying()) {
                     pause();
                 } else if (mCurrentTrack != null) {
@@ -927,9 +918,9 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                 } else {
                     openCurrent();
                 }
-            } else if (CMDPAUSE.equals(cmd) || PAUSE_ACTION.equals(action)) {
+            } else if (PAUSE_ACTION.equals(action)) {
                 pause();
-            } else if (PlayerAppWidgetProvider.CMDAPPWIDGETUPDATE.equals(cmd)) {
+            } else if (UPDATE_WIDGET_ACTION.equals(action)) {
                 // Someone asked us to executeRefreshTask a set of specific widgets,
                 // probably because they were just added.
                 int[] appWidgetIds = intent
@@ -947,7 +938,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
             } else if (RESET_ALL.equals(action)) {
                 stop();
                 mPlaylistManager.clear();
-            } else if (CMDSTOP.equals(cmd) || STOP_ACTION.equals(action)) {
+            } else if (STOP_ACTION.equals(action)) {
                 if (state.isSupposedToBePlaying()) pause();
                 stop();
                 if (intent.getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
