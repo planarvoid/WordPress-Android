@@ -288,7 +288,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         if (getCurrentTrackId() != t.id) {
             Intent intent = new Intent(this, CloudPlaybackService.class)
                     .putExtra(CloudPlaybackService.PlayExtras.trackId, t.id)
-                    .setAction(CloudPlaybackService.PLAY);
+                    .setAction(CloudPlaybackService.PLAY_ACTION);
 
             if (info.uri != null) {
                 SoundCloudApplication.TRACK_CACHE.put(info.getTrack(), false);

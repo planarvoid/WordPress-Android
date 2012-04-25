@@ -111,7 +111,7 @@ public final class AlarmClock {
         context.startService(new Intent(
                 context,
                 CloudPlaybackService.class)
-                .setAction(CloudPlaybackService.PLAY)
+                .setAction(CloudPlaybackService.PLAY_ACTION)
                 .setData(uri)
                 .putExtra(CloudPlaybackService.EXTRA_UNMUTE, true));
     }

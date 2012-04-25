@@ -50,7 +50,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
         views.setViewVisibility(R.id.user_txt, View.GONE);
 
         // initialize controls
-        views.linkButtons(context, -1, -1, false);
+        views.linkButtonsWidget(context, -1, -1, false);
         pushUpdate(context, appWidgetIds, views);
     }
 
@@ -104,8 +104,7 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
                 views.setCurrentUsername(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.username));
             }
 
-            views.linkButtons(context, trackId,intent.getLongExtra(CloudPlaybackService.BroadcastExtras.user_id,-1),
-                    intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isFavorite,false)) ;
+            views.linkButtonsNotification(context);
 
             pushUpdate(context, appWidgetIds, views);
         }

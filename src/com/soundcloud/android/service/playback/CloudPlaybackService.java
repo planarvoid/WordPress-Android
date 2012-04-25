@@ -20,8 +20,8 @@ import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import android.app.Notification;
@@ -51,6 +51,20 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     public static final String TAG = "CloudPlaybackService";
     public static List<Playable> playlistXfer;
 
+    // public service actions TODO also declare in AndroidManifest.xml
+    public static final String PLAY_ACTION          = "com.soundcloud.android.musicservicecommand.play";
+    public static final String TOGGLEPAUSE_ACTION   = "com.soundcloud.android.musicservicecommand.togglepause";
+    public static final String NEXT_ACTION          = "com.soundcloud.android.musicservicecommand.next";
+    public static final String PREVIOUS_ACTION      = "com.soundcloud.android.musicservicecommand.previous";
+
+    public static final String RESET_ALL            = "com.soundcloud.android.musicservicecommand.resetall"; // used on logout
+    public static final String CLOSE_ACTION         = "com.soundcloud.android.musicservicecommand.close";    // from the notification
+    public static final String UPDATE_WIDGET_ACTION = "com.soundcloud.android.musicservicecommand.updatewidgetaction";
+
+    public static final String ADD_FAVORITE_ACTION    = "com.soundcloud.android.favorite.add";
+    public static final String REMOVE_FAVORITE_ACTION = "com.soundcloud.android.favorite.remove";
+
+    // broadcast notifications
     public static final String PLAYSTATE_CHANGED  = "com.soundcloud.android.playstatechanged";
     public static final String META_CHANGED       = "com.soundcloud.android.metachanged";
     public static final String PLAYLIST_CHANGED   = "com.soundcloud.android.playlistchanged";
@@ -64,21 +78,10 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     public static final String BUFFERING          = "com.soundcloud.android.buffering";
     public static final String BUFFERING_COMPLETE = "com.soundcloud.android.bufferingcomplete";
 
-    public static final String UPDATE_WIDGET_ACTION = "com.soundcloud.android.musicservicecommand.updatewidgetaction";
-    public static final String TOGGLEPAUSE_ACTION = "com.soundcloud.android.musicservicecommand.togglepause";
-    public static final String PAUSE_ACTION       = "com.soundcloud.android.musicservicecommand.pause";
-    public static final String PREVIOUS_ACTION    = "com.soundcloud.android.musicservicecommand.previous";
-    public static final String NEXT_ACTION        = "com.soundcloud.android.musicservicecommand.next";
-    public static final String PLAY               = "com.soundcloud.android.musicservicecommand.play";
-    public static final String RESET_ALL          = "com.soundcloud.android.musicservicecommand.resetall";
-    public static final String STOP_ACTION        = "com.soundcloud.android.musicservicecommand.stop";
+    // extras
+    public static final String EXTRA_UNMUTE       = "com.soundcloud.android.musicserviceextra.unmute"; // used by alarm clock
 
-    public static final String EXTRA_FROM_NOTIFICATION  = "com.soundcloud.android.musicserviceextra.fromNotification";
-    public static final String EXTRA_UNMUTE             = "com.soundcloud.android.musicserviceextra.unmute";
-
-    public static final String ADD_FAVORITE       = "com.soundcloud.android.favorite.add";
-    public static final String REMOVE_FAVORITE    = "com.soundcloud.android.favorite.remove";
-
+    // private stuff
     private static final int TRACK_ENDED      = 1;
     private static final int SERVER_DIED      = 2;
     private static final int FADE_IN          = 3;
@@ -89,7 +92,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     private static final int CHECK_TRACK_EVENT = 8;
     private static final int NOTIFY_META_CHANGED = 9;
 
-    public static final int PLAYBACKSERVICE_STATUS_ID = 1;
+    private static final int PLAYBACKSERVICE_STATUS_ID = 1;
     private static final int MINIMUM_SEEKABLE_SDK = Build.VERSION_CODES.ECLAIR_MR1; // 7, 2.1
 
     private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
@@ -98,7 +101,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     private int mLoadPercent = 0;       // track buffer indicator
     private boolean mAutoPause = true;  // used when svc is first created and playlist is resumed on start
     private boolean mAutoAdvance = true;// automatically skip to next track
-    protected NetworkConnectivityListener connectivityListener;
     /* package */ PlaylistManager mPlaylistManager;
     private Track mCurrentTrack;
     private AudioManager mAudioManager;
@@ -128,7 +130,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     private State state = STOPPED;
 
     private final IBinder mBinder = new ServiceStub(this);
-    public static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
+    private static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
     private Notification status;
 
     public interface PlayExtras{
@@ -159,13 +161,12 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(TOGGLEPAUSE_ACTION);
-        commandFilter.addAction(PAUSE_ACTION);
         commandFilter.addAction(NEXT_ACTION);
         commandFilter.addAction(PREVIOUS_ACTION);
-        commandFilter.addAction(ADD_FAVORITE);
-        commandFilter.addAction(REMOVE_FAVORITE);
+        commandFilter.addAction(ADD_FAVORITE_ACTION);
+        commandFilter.addAction(REMOVE_FAVORITE_ACTION);
         commandFilter.addAction(RESET_ALL);
-        commandFilter.addAction(STOP_ACTION);
+        commandFilter.addAction(CLOSE_ACTION);
         commandFilter.addAction(PLAYLIST_CHANGED);
 
         registerReceiver(mIntentReceiver, commandFilter);
@@ -617,7 +618,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
             PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11,
                     R.drawable.ic_notification_play_states,R.drawable.ic_notification_pause_states);
             view.setNotification(track, state.isSupposedToBePlaying());
-            view.linkButtons(this,track.id,track.user_id,track.user_favorite, EXTRA_FROM_NOTIFICATION);
+            view.linkButtonsNotification(this);
             view.setPlaybackStatus(state.isSupposedToBePlaying());
 
             final String artworkUri = track.getListArtworkUrl(this);
@@ -810,10 +811,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         }
     }
 
-    private boolean isConnected() {
-        return connectivityListener != null && connectivityListener.isConnected();
-    }
-
     private void addFavorite() {
         onFavoriteStatusSet(mCurrentTrack.id, true);
         FavoriteAddTask f = new FavoriteAddTask(getApp());
@@ -918,8 +915,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                 } else {
                     openCurrent();
                 }
-            } else if (PAUSE_ACTION.equals(action)) {
-                pause();
             } else if (UPDATE_WIDGET_ACTION.equals(action)) {
                 // Someone asked us to executeRefreshTask a set of specific widgets,
                 // probably because they were just added.
@@ -929,21 +924,19 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                 mAppWidgetProvider.performUpdate(CloudPlaybackService.this, appWidgetIds,
                         new Intent(PLAYSTATE_CHANGED));
 
-            } else if (ADD_FAVORITE.equals(action)) {
+            } else if (ADD_FAVORITE_ACTION.equals(action)) {
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
-            } else if (REMOVE_FAVORITE.equals(action)) {
+            } else if (REMOVE_FAVORITE_ACTION.equals(action)) {
                 setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
-            } else if (PLAY.equals(action)) {
+            } else if (PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
             } else if (RESET_ALL.equals(action)) {
                 stop();
                 mPlaylistManager.clear();
-            } else if (STOP_ACTION.equals(action)) {
+            } else if (CLOSE_ACTION.equals(action)) {
                 if (state.isSupposedToBePlaying()) pause();
                 stop();
-                if (intent.getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
-                    stopForeground(true);
-                }
+                stopForeground(true);
             } else if (PLAYLIST_CHANGED.equals(action)) {
                 if (state == EMPTY_PLAYLIST) {
                     openCurrent();
@@ -1220,7 +1213,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                 mMediaPlayer = null;
 
                 gotoIdleState(ERROR);
-                notifyChange(isConnected() ? PLAYBACK_ERROR : STREAM_DIED);
+                notifyChange(IOUtils.isConnected(CloudPlaybackService.this) ? PLAYBACK_ERROR : STREAM_DIED);
                 notifyChange(PLAYBACK_COMPLETE);
             }
             return true;
