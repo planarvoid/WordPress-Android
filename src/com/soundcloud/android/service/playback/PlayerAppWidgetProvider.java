@@ -106,8 +106,8 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
 
             if (mCurrentTrackId != trackId) {
                 mCurrentTrackId = trackId;
-                views.setCurrentTrack(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.title),
-                        intent.getStringExtra(CloudPlaybackService.BroadcastExtras.username));
+                views.setCurrentTrackTitle(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.title));
+                views.setCurrentUsername(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.username));
             }
 
             views.linkButtons(context, trackId,intent.getLongExtra(CloudPlaybackService.BroadcastExtras.user_id,-1),

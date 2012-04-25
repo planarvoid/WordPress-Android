@@ -22,6 +22,9 @@ public class PlaybackRemoteViews extends RemoteViews{
     private int mPlayBtnId;
     private int mPauseBtnId;
 
+    private Track mTrack;
+    private boolean mIsPlaying;
+
     public PlaybackRemoteViews(String packageName, int layoutId) {
         this(packageName,layoutId, R.drawable.ic_widget_play_states, R.drawable.ic_widget_pause_states);
     }
@@ -88,11 +91,29 @@ public class PlaybackRemoteViews extends RemoteViews{
         }
     }
 
-    public void setCurrentTrack(CharSequence title, CharSequence username) {
+    public void setNotification(Track track, boolean isPlaying){
+        mTrack = track;
+        mIsPlaying = isPlaying;
+        setCurrentTrackTitle(track.title);
+        setCurrentUsername(track.user.username);
+    }
+
+    public boolean isAlreadyNotifying(Track track, boolean isPlaying){
+        return track == mTrack && isPlaying == mIsPlaying;
+    }
+
+    public void setCurrentTrackTitle(CharSequence title) {
         setTextViewText(R.id.title_txt, title);
+    }
+
+    public void setCurrentUsername(CharSequence username) {
         setTextViewText(R.id.user_txt, username);
         setViewVisibility(R.id.by_txt, View.VISIBLE);
         setViewVisibility(R.id.user_txt, View.VISIBLE);
+    }
+
+    public void setPlaybackStatus(boolean playing) {
+        setImageViewResource(R.id.pause, playing ? mPauseBtnId : mPlayBtnId);
     }
 
     public void setIcon(Bitmap icon){
@@ -102,9 +123,5 @@ public class PlaybackRemoteViews extends RemoteViews{
 
     public void clearIcon(){
         setViewVisibility(R.id.icon,View.GONE);
-    }
-
-    public void setPlaybackStatus(boolean playing) {
-        setImageViewResource(R.id.pause, playing ? mPauseBtnId : mPlayBtnId);
     }
 }

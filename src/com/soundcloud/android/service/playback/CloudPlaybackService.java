@@ -25,7 +25,6 @@ import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
@@ -531,7 +530,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.start");
                 mMediaPlayer.start();
                 state = PLAYING;
-                setPlayingNotification(mCurrentTrack);
                 mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
                 mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
                 notifyChange(PLAYSTATE_CHANGED);
@@ -578,6 +576,8 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
 
     private void gotoIdleState(State newState) {
+        if (!newState.isInIdleState()) throw new IllegalArgumentException(newState + " is not a valid idle state");
+
         state = newState;
         mPlayerHandler.removeMessages(FADE_OUT);
         mPlayerHandler.removeMessages(FADE_IN);
@@ -605,10 +605,10 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
     private void setPlayingNotification(final Track track) {
 
-        if (track == null) return;
-
-        if (status != null && SoundCloudApplication.useRichNotifications()){
-            //((PlaybackRemoteViews) status.contentView)
+        if (track == null ||
+                (SoundCloudApplication.useRichNotifications() && status != null && status.contentView != null &&
+                    ((PlaybackRemoteViews) status.contentView).isAlreadyNotifying(track, state.isSupposedToBePlaying()))){
+            return;
         }
 
         status = new Notification();
@@ -622,10 +622,9 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         if (!SoundCloudApplication.useRichNotifications()) {
             status.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
-
             PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11,
                     R.drawable.ic_notification_play_states,R.drawable.ic_notification_pause_states);
-            view.setCurrentTrack(track.title, track.user.username);
+            view.setNotification(track, state.isSupposedToBePlaying());
             view.linkButtons(this,track.id,track.user_id,track.user_favorite, EXTRA_FROM_NOTIFICATION);
             view.setPlaybackStatus(state.isSupposedToBePlaying());
 
