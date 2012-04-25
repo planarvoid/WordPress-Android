@@ -24,6 +24,7 @@ import java.util.Set;
 public class TestHelper {
     private TestHelper() {}
 
+    // TODO: rename to addPendingHttpResponse
     public static void addCannedResponses(Class klazz, String... resources) throws IOException {
         for (String r : resources) {
             addPendingHttpResponse(200, resource(klazz, r));
@@ -87,6 +88,16 @@ public class TestHelper {
     public static void enableFlightmode(boolean enabled) {
         Settings.System.putInt(Robolectric.application.getContentResolver(),
                 Settings.System.AIRPLANE_MODE_ON, enabled ? 1 : 0);
+    }
 
+    public static void addIdResponse(String url, int... ids) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{ \"collection\": [");
+        for (int i = 0; i < ids.length; i++) {
+            sb.append(ids[i]);
+            if (i < ids.length - 1) sb.append(", ");
+        }
+        sb.append("] }");
+        Robolectric.addHttpResponseRule(url, new TestHttpResponse(200, sb.toString()));
     }
 }

@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -216,5 +217,16 @@ public class SoundCloudDB {
         } finally {
             if (c != null) c.close();
         }
+    }
+
+    public static List<Long> idCursorToList(Cursor c) {
+        List<Long> ids = new ArrayList<Long>();
+        if (c != null && c.moveToFirst()) {
+            do {
+                ids.add(c.getLong(0));
+            } while (c.moveToNext());
+        }
+        if (c != null) c.close();
+        return ids;
     }
 }
