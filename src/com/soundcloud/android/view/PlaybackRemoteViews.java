@@ -64,7 +64,7 @@ public class PlaybackRemoteViews extends RemoteViews{
                             CloudPlaybackService.REMOVE_FAVORITE_ACTION :
                             CloudPlaybackService.ADD_FAVORITE_ACTION)
                     .setComponent(name)
-                    .putExtra("trackId", trackId);
+                    .putExtra(CloudPlaybackService.EXTRA_TRACK_ID, trackId);
 
             // toggle like
             setOnClickPendingIntent(R.id.btn_favorite, PendingIntent.getService(context,

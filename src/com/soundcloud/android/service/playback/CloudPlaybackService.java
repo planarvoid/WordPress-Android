@@ -80,6 +80,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
     // extras
     public static final String EXTRA_UNMUTE       = "com.soundcloud.android.musicserviceextra.unmute"; // used by alarm clock
+    public static final String EXTRA_TRACK_ID     = "trackId";
 
     // private stuff
     private static final int TRACK_ENDED      = 1;
@@ -925,9 +926,9 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                         new Intent(PLAYSTATE_CHANGED));
 
             } else if (ADD_FAVORITE_ACTION.equals(action)) {
-                setFavoriteStatus(intent.getLongExtra("trackId", -1), true);
+                setFavoriteStatus(intent.getLongExtra(EXTRA_TRACK_ID, -1), true);
             } else if (REMOVE_FAVORITE_ACTION.equals(action)) {
-                setFavoriteStatus(intent.getLongExtra("trackId", -1), false);
+                setFavoriteStatus(intent.getLongExtra(EXTRA_TRACK_ID, -1), false);
             } else if (PLAY_ACTION.equals(action)) {
                 handlePlayAction(intent);
             } else if (RESET_ALL.equals(action)) {
