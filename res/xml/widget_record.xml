@@ -3,5 +3,5 @@
     android:minWidth="146dp"
     android:minHeight="146dp"
     android:updatePeriodMillis="0"
-    android:initialLayout="@layout/appwidgeta_record"
+    android:initialLayout="@layout/appwidget_record"
     android:previewImage="@drawable/widget_record_preview"/>
