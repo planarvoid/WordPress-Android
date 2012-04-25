@@ -12,7 +12,7 @@
               style="@style/txt_tour_title"
               android:layout_centerHorizontal="true"/>
     <Button android:layout_width="wrap_content"
-            style="@style/btn_round_dark"
+            style="@style/btn_dark"
             android:layout_margin="5dp"
             android:paddingRight="15dp"
             android:gravity="center"
@@ -25,7 +25,7 @@
             android:id="@+id/btn_done_dark"
             android:layout_height="wrap_content"/>
     <Button android:layout_width="wrap_content"
-            style="@style/btn_round_blue"
+            style="@style/btn_blue"
             android:layout_margin="5dp"
             android:paddingRight="15dp"
             android:gravity="center"
