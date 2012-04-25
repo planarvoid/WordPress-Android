@@ -15,6 +15,7 @@
 
     <EditText android:layout_height="wrap_content"
               android:id="@+id/txt_username"
+              android:inputType="text"
               android:layout_below="@+id/txt_msg"
               android:layout_alignLeft="@+id/txt_msg"
               android:layout_width="fill_parent"
