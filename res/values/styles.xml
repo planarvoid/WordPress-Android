@@ -177,6 +177,7 @@
 
     <style name="toggle_record">
         <item name="android:textColor">#ff000000</item>
+        <item name="android:background">@drawable/toggle_blue_states</item>
     </style>
 
     <style name="txt_record_dark">
