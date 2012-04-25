@@ -23,9 +23,7 @@
 	android:orientation="horizontal">
     <FrameLayout android:layout_gravity="left"
                  android:layout_width="65dip"
-                 android:layout_height="65dip"
-                 android:layout_alignParentLeft="true"
-                 android:layout_alignParentTop="true">
+                 android:layout_height="65dip">
         <ImageView
                 android:id="@+id/status_icon"
                 android:scaleType="center"

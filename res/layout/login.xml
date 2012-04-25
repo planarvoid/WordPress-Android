@@ -32,7 +32,7 @@
         <EditText android:id="@+id/txt_password"
                   android:layout_height="wrap_content"
                   android:layout_width="wrap_content"
-                  android:password="true"
+                  android:inputType="textPassword"
                   android:hint="@string/authentication_your_password"
                   android:layout_below="@id/txt_email_address"
                   android:imeOptions="actionDone"

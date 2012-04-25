@@ -27,9 +27,7 @@
 		android:scaleType="fitXY"
         android:src="@drawable/artwork_badge"
 		android:layout_width="65dip"
-		android:layout_height="65dip"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentTop="true" />
+		android:layout_height="65dip" />
 	<LinearLayout
 		android:layout_width="0dp"
 		android:layout_weight="4"
