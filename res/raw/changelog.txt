@@ -1,12 +1,14 @@
 $ 41
   % v current
   _ 2012-04
-  ! Maintenance
-    * Proxy crashes
-    * Fixed incorrect track repeats after completion
-    * Lockscreen and Notification playback control (still very rough)
+  ! More ICS controls and maintenance
+    * Lockscreen and Notification playback control
+    * Fixed incorrect repeats after track completion in certain ICS builds
     * Spanish
-    * Working on resume after playback failure logic
+    * Various bug fixes
+    - Proxy crashes
+    - fixed resume after playback failure logic
+    - sync backoff logic
 
 $ 40
   % v 2.2.5
