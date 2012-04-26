@@ -135,9 +135,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         final long nextTrackId;
 
         try {
-            prevTrackId = newQueuePos > 0
+            prevTrackId = mPlaybackService != null && newQueuePos > 0
                     ? mPlaybackService.getTrackIdAt(newQueuePos - 1) : -1;
-            nextTrackId = newQueuePos < mPlaybackService.getQueueLength() - 1
+            nextTrackId =  mPlaybackService != null && newQueuePos < mPlaybackService.getQueueLength() - 1
                     ? mPlaybackService.getTrackIdAt(newQueuePos + 1) : -1;
         } catch (RemoteException ignored) {
             return;
