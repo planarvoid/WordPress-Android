@@ -5,7 +5,7 @@ import AndroidKeys._
 object General {
   val settings = Defaults.defaultSettings ++ Seq(
     organization := "com.soundcloud",
-    platformName := "android-11"
+    platformName := "android-14"
   )
 
   val androidProjectSettings =

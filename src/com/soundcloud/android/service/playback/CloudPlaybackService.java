@@ -228,8 +228,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     public boolean onUnbind(Intent intent) {
         mServiceInUse = false;
 
-        mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
-
         if (state.isSupposedToBePlaying() || state == PAUSED_FOCUS_LOST) {
             // something is currently playing, or will be playing once
             // an in-progress call ends, so don't stop the service now.
@@ -242,6 +240,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         } else if (!mPlaylistManager.isEmpty() || mPlayerHandler.hasMessages(TRACK_ENDED)) {
             mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
             return true;
+
         } else {
             // No active playlist, OK to stop the service right now
             stopSelf(mServiceStartId);
@@ -326,12 +325,16 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         }
 
         if (what.equals(META_CHANGED) || what.equals(PLAYBACK_ERROR) || what.equals(PLAYBACK_COMPLETE)) {
-            mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
+            saveQueue();
         }
 
 
         // Share this notification directly with our widgets
         mAppWidgetProvider.notifyChange(this, i);
+    }
+
+    private void saveQueue(){
+        mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
     }
 
     private void applyCurrentMetadata(final Track track){
@@ -514,6 +517,8 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
 
     /* package */ void play() {
+        if (state.isSupposedToBePlaying()) return;
+
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "play(state=" + state + ")");
         track(Media.fromTrack(mCurrentTrack), Media.Action.Play);
         mLastRefresh = System.currentTimeMillis();
@@ -558,6 +563,12 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "stop(state="+state+")");
         }
+
+        if (state != STOPPED) {
+            saveQueue();
+            gotoIdleState(STOPPED);
+        }
+
         if (mMediaPlayer != null) {
             if (state.isStoppable()) {
                 mMediaPlayer.stop();
@@ -565,7 +576,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
-        gotoIdleState(STOPPED);
     }
 
 
@@ -577,7 +587,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         mPlayerHandler.removeMessages(FADE_IN);
         mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
         scheduleServiceShutdownCheck();
-        if (SoundCloudApplication.useRichNotifications() && mCurrentTrack != null){
+        if (SoundCloudApplication.useRichNotifications() && mCurrentTrack != null && state != STOPPED){
             stopForeground(false);
             setPlayingNotification(mCurrentTrack);
         } else {
@@ -890,7 +900,10 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                     Log.d(TAG, "DelayedStopHandler: stopping service");
                 }
 
-                mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
+                if (state != STOPPED) {
+                    saveQueue();
+                }
+
                 stopSelf(mServiceStartId);
             }
         }
@@ -936,8 +949,10 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                 mPlaylistManager.clear();
             } else if (CLOSE_ACTION.equals(action)) {
                 if (state.isSupposedToBePlaying()) pause();
+                mResumeTime = getPosition();
+                mResumeTrackId = mCurrentTrack.id;
                 stop();
-                stopForeground(true);
+
             } else if (PLAYLIST_CHANGED.equals(action)) {
                 if (state == EMPTY_PLAYLIST) {
                     openCurrent();
