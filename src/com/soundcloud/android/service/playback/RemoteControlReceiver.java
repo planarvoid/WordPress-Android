@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.view.KeyEvent;
 
 public class RemoteControlReceiver extends BroadcastReceiver {
-    public static final String AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY";
-
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
@@ -29,20 +27,11 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                         break;
                 }
             }
-        } else if (AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
-            // make sure service is actually running
-            if (peekService(context, new Intent(context, CloudPlaybackService.class)) != null) {
-                handlePause(context);
-            }
         }
     }
 
     @SuppressWarnings("UnusedParameters")
     private void handleRewind(Context context) {
-    }
-
-    private void handlePause(Context context)  {
-        context.startService(new Intent(CloudPlaybackService.PAUSE_ACTION));
     }
 
     private void handleToggle(Context context) {

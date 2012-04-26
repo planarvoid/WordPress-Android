@@ -287,11 +287,10 @@
                        android:resource="@xml/widget_record" />
         </receiver>
 
-        <!-- headphone remote control -->
+        <!-- headphone + remoteclient control -->
         <receiver android:name=".service.playback.RemoteControlReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
-                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
         </receiver>
 

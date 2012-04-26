@@ -47,7 +47,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.List;
 
-public class CloudPlaybackService extends Service implements AudioManagerHelper.MusicFocusable, Tracker {
+public class CloudPlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
     public static final String TAG = "CloudPlaybackService";
     public static List<Playable> playlistXfer;
 
@@ -98,6 +98,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     private static final int MINIMUM_SEEKABLE_SDK = Build.VERSION_CODES.ECLAIR_MR1; // 7, 2.1
 
     private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
+    private static final String AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY";
 
     private MediaPlayer mMediaPlayer;
     private int mLoadPercent = 0;       // track buffer indicator
@@ -126,7 +127,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     private TrackCache mCache;
 
     // audio focus related
-    private AudioManagerHelper mFocus;
+    private IAudioManager mFocus;
     private boolean mTransientFocusLoss;
 
     private State state = STOPPED;
@@ -173,8 +174,9 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         commandFilter.addAction(PLAYLIST_CHANGED);
 
         registerReceiver(mIntentReceiver, commandFilter);
+        registerReceiver(mNoisyReceiver, new IntentFilter(AUDIO_BECOMING_NOISY));
 
-        mFocus = new AudioManagerHelper(this, this);
+        mFocus = AudioManagerFactory.createAudioManager(this);
         if (!mFocus.isSupported()) {
             // setup call listening if not handled by audiofocus
             TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -208,6 +210,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
         mFocus.abandonMusicFocus(false);
         unregisterReceiver(mIntentReceiver);
+        unregisterReceiver(mNoisyReceiver);
         if (mProxy != null && mProxy.isRunning()) mProxy.stop();
     }
 
@@ -327,8 +330,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         if (what.equals(META_CHANGED) || what.equals(PLAYBACK_ERROR) || what.equals(PLAYBACK_COMPLETE)) {
             saveQueue();
         }
-
-
         // Share this notification directly with our widgets
         mAppWidgetProvider.notifyChange(this, i);
     }
@@ -338,21 +339,21 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     }
 
     private void applyCurrentMetadata(final Track track){
-        if (SoundCloudApplication.useRichNotifications()) {
+        if (mFocus.isSupported()) {
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap bmp = ImageLoader.get(this).getBitmap(artworkUri, null, new ImageLoader.Options(false));
-                if (bmp != null) {
+                final Bitmap cached = ImageLoader.get(this).getBitmap(artworkUri, null, new ImageLoader.Options(false));
+                if (cached != null) {
                     // use a copy of the bitmap because it is going to get recycled afterwards
                     try {
-                        mFocus.applyRemoteMetadata(track, bmp.copy(Bitmap.Config.ARGB_8888, false));
+                        mFocus.applyRemoteMetadata(track, cached.copy(Bitmap.Config.ARGB_8888, false));
                     } catch (OutOfMemoryError e) {
                         mFocus.applyRemoteMetadata(track, null);
                         System.gc();
                         // retry?
                     }
                 } else {
-                    mFocus.applyRemoteMetadata(track);
+                    mFocus.applyRemoteMetadata(track, null);
                     ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
                         public void onImageLoaded(Bitmap loadedBmp, String uri) {
                             if (track.equals(mCurrentTrack)) applyCurrentMetadata(track);
@@ -363,8 +364,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
             }
         }
     }
-
-
 
     /* package */ void openCurrent() {
         openCurrent(Media.Action.Stop);
@@ -523,7 +522,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         track(Media.fromTrack(mCurrentTrack), Media.Action.Play);
         mLastRefresh = System.currentTimeMillis();
 
-        if (mCurrentTrack != null && mFocus.requestMusicFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+        if (mCurrentTrack != null && mFocus.requestMusicFocus(this) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             if (mMediaPlayer != null && state.isStartable()) {
                 // resume
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.start");
@@ -910,6 +909,12 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         }
     };
 
+    private final BroadcastReceiver mNoisyReceiver = new BroadcastReceiver() {
+        @Override public void onReceive(Context context, Intent intent) {
+            pause();
+        }
+    };
+
     private final BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1201,7 +1206,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                         setVolume(0);
                         //  FADE_IN will call play()
                         notifyChange(BUFFERING_COMPLETE);
-                        if (!mAutoPause && mFocus.requestMusicFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                        if (!mAutoPause && mFocus.requestMusicFocus(CloudPlaybackService.this) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                             mPlayerHandler.sendEmptyMessage(FADE_IN);
                         }
                     }
