@@ -628,7 +628,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         if (!SoundCloudApplication.useRichNotifications()) {
             status.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
-            PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11,
+            final PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11,
                     R.drawable.ic_notification_play_states,R.drawable.ic_notification_pause_states);
             view.setNotification(track, state.isSupposedToBePlaying());
             view.linkButtonsNotification(this);
@@ -636,19 +636,18 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
             final String artworkUri = track.getListArtworkUrl(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
-                final Bitmap bmp = ImageLoader.get(this).getBitmap(artworkUri, null, ICON_OPTIONS);
-                if (bmp != null) {
-                    view.setIcon(bmp);
+                final Bitmap cachedBmp = ImageLoader.get(this).getBitmap(artworkUri, null, ICON_OPTIONS);
+                if (cachedBmp != null) {
+                    view.setIcon(cachedBmp);
                 } else {
                     view.clearIcon();
                     ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
-
-                        public void onImageLoaded(Bitmap mBitmap, String uri) {
-                            if (status.contentView instanceof PlaybackRemoteViews && mCurrentTrack == track) {
-                                ((PlaybackRemoteViews) status.contentView).setIcon(bmp);
+                        public void onImageLoaded(Bitmap bitmap, String uri) {
+                            if (mCurrentTrack == track) {
+                                view.setIcon(bitmap);
+                                startForeground(PLAYBACKSERVICE_STATUS_ID, status);
                             }
                         }
-
                         public void onImageError(String uri, Throwable error) {
                         }
                     });
