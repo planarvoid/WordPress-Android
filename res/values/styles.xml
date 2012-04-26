@@ -169,9 +169,14 @@
         <item name="android:shadowRadius">1</item>
     </style>
 
-    <style name="toggle_record">
-        <item name="android:textColor">#ff000000</item>
+    <style name="toggle_blue">
+        <item name="android:textColor">@drawable/txt_toggle_blue_states</item>
         <item name="android:background">@drawable/toggle_blue_states</item>
+    </style>
+
+    <style name="toggle_record_edit" parent="toggle_blue">
+        <item name="android:layout_width">150dp</item>
+        <item name="android:layout_height">100dp</item>
     </style>
 
     <style name="txt_record_dark">

@@ -48,9 +48,6 @@ import java.util.List;
 
 public class CreateController implements CreateWaveDisplay.Listener {
 
-    public static final String TEMP_PLAY = "Play";
-    public static final String TEMP_STOP = "Stop";
-
     private ScActivity mActivity;
     private CloudCreateService mCreateService;
     private Recording mRecording;
@@ -80,7 +77,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     private CreateListener mCreateListener;
 
-    private Drawable btn_rec_states_drawable, btn_rec_stop_states_drawable;
+    private Drawable mRecStatesDrawable, mRecStopStatesDrawable, mPlayBgDrawable, mPauseBgDrawable;
 
     public enum CreateState {
         IDLE_STANDBY_REC,
@@ -113,8 +110,8 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
         mHandler = new Handler();
 
-        btn_rec_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_states);
-        btn_rec_stop_states_drawable = c.getResources().getDrawable(R.drawable.btn_rec_pause_states);
+        mRecStatesDrawable = c.getResources().getDrawable(R.drawable.btn_rec_states);
+        mRecStopStatesDrawable = c.getResources().getDrawable(R.drawable.btn_rec_pause_states);
 
         mRemainingTimeCalculator = AudioConfig.DEFAULT.createCalculator();
 
@@ -462,7 +459,8 @@ public class CreateController implements CreateWaveDisplay.Listener {
                     txtRecordMessage.setText(getRandomSuggestion());
                 }
 
-                mActionButton.setImageDrawable(btn_rec_states_drawable);
+                setPlayButtonDrawable(false);
+                mActionButton.setImageDrawable(mRecStatesDrawable);
 
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
@@ -492,7 +490,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 mEditButton.setVisibility(View.GONE);
 
                 mActionButton.setVisibility(View.VISIBLE);
-                mActionButton.setImageDrawable(btn_rec_states_drawable);
+                mActionButton.setImageDrawable(mRecStatesDrawable);
 
                 txtRecordMessage.setVisibility(View.VISIBLE);
                 mFileLayout.setVisibility(View.INVISIBLE);
@@ -514,7 +512,7 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 showView(mActionButton, false);
                 showView(txtRecordMessage, false);
 
-                mActionButton.setImageDrawable(btn_rec_stop_states_drawable);
+                mActionButton.setImageDrawable(mRecStopStatesDrawable);
                 txtRecordMessage.setText("");
                 mChrono.setText("");
 
@@ -556,9 +554,9 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 hideView(txtRecordMessage, false, View.INVISIBLE);
                 hideEditControls(false, View.GONE);
 
-                mPlayButton.setText(TEMP_PLAY);
+                setPlayButtonDrawable(false);
                 mChrono.setText(mCurrentDurationString);
-                mActionButton.setImageDrawable(btn_rec_states_drawable);
+                mActionButton.setImageDrawable(mRecStatesDrawable);
 
 
                 setResetState();
@@ -575,8 +573,8 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 hideEditControls(false, View.GONE);
                 hideView(txtRecordMessage,false,View.INVISIBLE);
 
-                mPlayButton.setText(TEMP_STOP);
-                mActionButton.setImageDrawable(btn_rec_states_drawable);
+                setPlayButtonDrawable(true);
+                mActionButton.setImageDrawable(mRecStatesDrawable);
 
                 setResetState();
 
@@ -605,10 +603,11 @@ public class CreateController implements CreateWaveDisplay.Listener {
                 hideView(txtInstructions,false,View.GONE);
                 hideView(txtRecordMessage,false,View.INVISIBLE);
 
-                mPlayEditButton.setText(mCurrentState == CreateState.EDIT ? TEMP_PLAY : TEMP_STOP);
+                final boolean isPlaying = mCurrentState == CreateState.EDIT_PLAYBACK;
+                setPlayButtonDrawable(isPlaying);
 
                 if (takeAction) {
-                    if (mCurrentState == CreateState.EDIT_PLAYBACK) {
+                    if (isPlaying) {
                         startPlayback();
                     } else {
                         if (mCreateService != null && mCreateService.isPlaying()) {
@@ -628,6 +627,16 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
         mLastState = mCurrentState;
         mActionButton.setEnabled(true);
+    }
+
+    private void setPlayButtonDrawable(boolean playing){
+        if (playing){
+            if (mPlayBgDrawable == null) mPlayBgDrawable = mActivity.getResources().getDrawable(R.drawable.btn_rec_play_states);
+            mPlayButton.setBackgroundDrawable(mPlayBgDrawable);
+        } else {
+            if (mPauseBgDrawable == null) mPauseBgDrawable = mActivity.getResources().getDrawable(R.drawable.btn_rec_pause_states);
+            mPlayButton.setBackgroundDrawable(mPauseBgDrawable);
+        }
     }
 
     private void hideEditControls(boolean animate, int finalState){
