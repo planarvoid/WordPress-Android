@@ -27,7 +27,6 @@ import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -393,24 +392,39 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void shouldSyncLocalCollections() throws Exception {
-        SyncContent.setAllSyncEnabledPrefs(Robolectric.application, true);
+        SyncContent.MySounds.setEnabled(Robolectric.application, true);
 
-        for (int i=0; i<3; i++) {
-            addCannedActivities(
-                    "empty_events.json",
-                    "empty_events.json",
-                    "empty_events.json");
+        TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
+        TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
 
+        addCannedActivities(
+                "empty_events.json",
+                "empty_events.json",
+                "empty_events.json");
 
-            TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-            TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
-
-            doPerformSync(DefaultTestRunner.application, false, null);
-        }
+        doPerformSync(DefaultTestRunner.application, false, null);
 
         LocalCollection lc = LocalCollection.fromContent(Content.ME_TRACKS, Robolectric.application.getContentResolver(), false);
         expect(lc).not.toBeNull();
-        expect(lc.extra).toEqual("3");
+        expect(lc.extra).toEqual("0");
+        expect(lc.size).toEqual(3);
+        expect(lc.last_sync).not.toEqual(0L);
+
+        // reset sync time & rerun sync
+        addCannedActivities(
+                "empty_events.json",
+                "empty_events.json",
+                "empty_events.json");
+
+        lc.updateLastSyncTime(0, DefaultTestRunner.application.getContentResolver());
+
+        doPerformSync(DefaultTestRunner.application, false, null);
+
+        lc = LocalCollection.fromContent(Content.ME_TRACKS, Robolectric.application.getContentResolver(), false);
+        expect(lc).not.toBeNull();
+        expect(lc.extra).toEqual("1");    // 1 miss
+        expect(lc.size).toEqual(3);
+        expect(lc.last_sync).not.toEqual(0L);
     }
 
 

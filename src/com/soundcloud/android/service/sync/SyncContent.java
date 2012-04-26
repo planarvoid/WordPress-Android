@@ -35,7 +35,8 @@ enum SyncContent {
         return this != MyFollowers /* handled by push */ && prefs.getBoolean(prefSyncEnabledKey, true);
     }
 
-    public boolean setEnabled(SharedPreferences prefs, boolean enabled) {
+    public boolean setEnabled(Context context, boolean enabled) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.edit().putBoolean(prefSyncEnabledKey, enabled).commit();
     }
 
@@ -65,9 +66,8 @@ enum SyncContent {
     }
 
     public static void setAllSyncEnabledPrefs(Context c, boolean enabled) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
         for (SyncContent sc : SyncContent.values()) {
-            sc.setEnabled(sp, enabled);
+            sc.setEnabled(c, enabled);
         }
     }
 

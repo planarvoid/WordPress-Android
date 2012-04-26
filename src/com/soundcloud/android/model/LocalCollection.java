@@ -31,18 +31,18 @@ public class LocalCollection {
     private ContentResolver mContentResolver;
     private ContentObserver mChangeObserver;
 
+    public interface SyncState {
+        int PENDING = 0;
+        int SYNCING = 1;
+        int IDLE    = 2;
+    }
+
     public int syncMisses() {
         try {
             return Integer.parseInt(extra);
         } catch (NumberFormatException e) {
             return 0;
         }
-    }
-
-    public interface SyncState {
-        int PENDING = 0;
-        int SYNCING = 1;
-        int IDLE = 2;
     }
 
     public LocalCollection(Cursor c) {
@@ -74,7 +74,7 @@ public class LocalCollection {
         extra = result.extra;
         sync_state = SyncState.IDLE;
 
-        return (resolver.update(Content.COLLECTIONS.forId(id), buildContentValues(), null,null) == 1);
+        return resolver.update(Content.COLLECTIONS.forId(id), buildContentValues(), null,null) == 1;
     }
 
     public static LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
