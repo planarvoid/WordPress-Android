@@ -51,15 +51,16 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     public static final String TAG = "CloudPlaybackService";
     public static List<Playable> playlistXfer;
 
-    // public service actions TODO also declare in AndroidManifest.xml
-    public static final String PLAY_ACTION          = "com.soundcloud.android.musicservicecommand.play";
-    public static final String TOGGLEPAUSE_ACTION   = "com.soundcloud.android.musicservicecommand.togglepause";
-    public static final String NEXT_ACTION          = "com.soundcloud.android.musicservicecommand.next";
-    public static final String PREVIOUS_ACTION      = "com.soundcloud.android.musicservicecommand.previous";
+    // public service actions
+    public static final String PLAY_ACTION          = "com.soundcloud.android.playback.play";
+    public static final String TOGGLEPAUSE_ACTION   = "com.soundcloud.android.playback.togglepause";
+    public static final String PAUSE_ACTION         = "com.soundcloud.android.playback.pause";
+    public static final String NEXT_ACTION          = "com.soundcloud.android.playback.next";
+    public static final String PREVIOUS_ACTION      = "com.soundcloud.android.playback.previous";
 
-    public static final String RESET_ALL            = "com.soundcloud.android.musicservicecommand.resetall"; // used on logout
-    public static final String CLOSE_ACTION         = "com.soundcloud.android.musicservicecommand.close";    // from the notification
-    public static final String UPDATE_WIDGET_ACTION = "com.soundcloud.android.musicservicecommand.updatewidgetaction";
+    public static final String RESET_ALL            = "com.soundcloud.android.playback.reset"; // used on logout
+    public static final String CLOSE_ACTION         = "com.soundcloud.android.playback.close"; // from the notification
+    public static final String UPDATE_WIDGET_ACTION = "com.soundcloud.android.playback.updatewidgetaction";
 
     public static final String ADD_FAVORITE_ACTION    = "com.soundcloud.android.favorite.add";
     public static final String REMOVE_FAVORITE_ACTION = "com.soundcloud.android.favorite.remove";
@@ -79,8 +80,8 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
     public static final String BUFFERING_COMPLETE = "com.soundcloud.android.bufferingcomplete";
 
     // extras
-    public static final String EXTRA_UNMUTE       = "com.soundcloud.android.musicserviceextra.unmute"; // used by alarm clock
-    public static final String EXTRA_TRACK_ID     = "trackId";
+    public static final String EXTRA_UNMUTE       = "com.soundcloud.android.playback.extra.unmute"; // used by alarm clock
+    public static final String EXTRA_TRACK_ID     = "com.soundcloud.android.playback.extra.trackId";
 
     // private stuff
     private static final int TRACK_ENDED      = 1;
@@ -162,6 +163,7 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(TOGGLEPAUSE_ACTION);
+        commandFilter.addAction(PAUSE_ACTION);
         commandFilter.addAction(NEXT_ACTION);
         commandFilter.addAction(PREVIOUS_ACTION);
         commandFilter.addAction(ADD_FAVORITE_ACTION);
@@ -929,6 +931,8 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                 } else {
                     openCurrent();
                 }
+            } else if (PAUSE_ACTION.equals(action)) {
+                pause();
             } else if (UPDATE_WIDGET_ACTION.equals(action)) {
                 // Someone asked us to executeRefreshTask a set of specific widgets,
                 // probably because they were just added.
