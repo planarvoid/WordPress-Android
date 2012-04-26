@@ -30,8 +30,13 @@
     <!-- alarm clock -->
     <string name="dev_alarm_set">Alarm set to %s</string>
     <string name="dev_alarm_in">Alarm in %s</string>
-    <string name='pref_dev_alarm_clock'>Alarm clock</string>
+
+    <string name='pref_dev_alarm_clock'>Alarm at %1$02d:%2$02d</string>
     <string name='pref_dev_alarm_clock_summary'>Set an alarm</string>
+
+    <string name='pref_dev_alarm_clock_enabled'>Alarm clock</string>
+    <string name='pref_dev_alarm_clock_enabled_summary'>Enable Alarm</string>
+
     <string name='pref_dev_alarm_play_uri'>Alarm playlist</string>
     <string name='pref_dev_alarm_play_uri_summary'>What to play on alarm</string>
 
