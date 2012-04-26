@@ -9,20 +9,21 @@ import android.preference.PreferenceManager;
 
 public class SyncConfig {
     private static final long DEFAULT_NOTIFICATIONS_FREQUENCY = 60*60*1000*4L; // 4h
+
     public static final String PREF_NOTIFICATIONS_FREQUENCY = "notificationsFrequency";
     public static final String PREF_LAST_SYNC_CLEANUP       = "lastSyncCleanup";
     public static final String PREF_LAST_USER_SYNC          = "lastUserSync";
 
-    public static final long DEFAULT_STALE_TIME = 60*60*1000;         // 1 hr in ms
-    public static final long CLEANUP_DELAY    = DEFAULT_STALE_TIME * 24; // every 24 hours
+    public static final long DEFAULT_STALE_TIME  = 60*60*1000;         // 1 hr in ms
+    public static final long CLEANUP_DELAY       = DEFAULT_STALE_TIME * 24; // every 24 hours
 
     public static final long ACTIVITY_STALE_TIME = DEFAULT_STALE_TIME;
-    public static final long TRACK_STALE_TIME = DEFAULT_STALE_TIME;
-    public static final long USER_STALE_TIME = DEFAULT_STALE_TIME * 12;  // users aren't as crucial
-    public static final long DEFAULT_SYNC_DELAY = 3600L;
+    public static final long TRACK_STALE_TIME    = DEFAULT_STALE_TIME;
+    public static final long USER_STALE_TIME     = DEFAULT_STALE_TIME * 12;  // users aren't as crucial
 
+    public static final long DEFAULT_SYNC_DELAY   = 3600L; // interval between syncs
     public static int[] TRACK_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24, 48, 72, 96};
-    public static int[] USER_BACKOFF_MULTIPLIERS = new int[]{1, 2, 3};
+    public static int[] USER_BACKOFF_MULTIPLIERS  = new int[]{1, 2, 3};
 
 
     public static boolean isNotificationsWifiOnlyEnabled(Context c) {
@@ -75,11 +76,11 @@ public class SyncConfig {
     }
 
     public static boolean shouldUpdateDashboard(Context c) {
-        return (!isNotificationsWifiOnlyEnabled(c) || IOUtils.isWifiConnected(c));
+        return !isNotificationsWifiOnlyEnabled(c) || IOUtils.isWifiConnected(c);
     }
 
     public static boolean shouldSyncCollections(Context c) {
-        return (!isSyncWifiOnlyEnabled(c) || IOUtils.isWifiConnected(c));
+        return !isSyncWifiOnlyEnabled(c) || IOUtils.isWifiConnected(c);
     }
 
     public static boolean shouldSync(Context context, String prefKey, long max) {

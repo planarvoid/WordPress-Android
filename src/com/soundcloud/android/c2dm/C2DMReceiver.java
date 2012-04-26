@@ -239,6 +239,8 @@ public class C2DMReceiver extends BroadcastReceiver {
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "requesting sync (event="+event+")");
 
                     // force a sync if triggered by push
+                    extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+                    // equivalent?
                     extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_SETTINGS, true);
                     extras.putBoolean(ContentResolver.SYNC_EXTRAS_IGNORE_BACKOFF, true);
 

@@ -18,13 +18,26 @@ import com.soundcloud.android.service.sync.ApiSyncer;
 public class LocalCollection {
     public final int id;
     public final Uri uri;
+
+    /** timestamp of last sync */
     public long last_sync = -1;
+    /** see {@link SyncState}, for display/UI purposes ({@link com.soundcloud.android.adapter.RemoteCollectionAdapter}) */
     public int sync_state = -1;
+    /** collection size */
     public int size = -1;
+    /** collection specific data - future_href for activities, sync misses for rest */
     public String extra;
 
     private ContentResolver mContentResolver;
     private ContentObserver mChangeObserver;
+
+    public int syncMisses() {
+        try {
+            return Integer.parseInt(extra);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
 
     public interface SyncState {
         int PENDING = 0;
