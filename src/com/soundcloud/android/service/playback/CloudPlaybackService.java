@@ -517,6 +517,8 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
 
 
     /* package */ void play() {
+        if (state.isSupposedToBePlaying()) return;
+
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "play(state=" + state + ")");
         track(Media.fromTrack(mCurrentTrack), Media.Action.Play);
         mLastRefresh = System.currentTimeMillis();

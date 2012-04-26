@@ -301,7 +301,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
                     .putExtra(CloudPlaybackService.PlayExtras.playFromXferCache, true);
             }
             startService(intent);
-        } else if (!goToPlayer) {
+        } else {
             try {
                 mPlaybackService.play();
             } catch (RemoteException ignored) {
