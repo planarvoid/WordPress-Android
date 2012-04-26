@@ -1,17 +1,16 @@
 $ 41
   % v current
-  _ 2012-04
+  _ 2012-04-26
   ! More ICS controls and maintenance
     * Lockscreen and Notification playback control
     * Fixed incorrect repeats after track completion in certain ICS builds
-    * Spanish
     * Various bug fixes
     - Easter egg: alarm clock
     - Fixed notification close button action
     - Fixed empty stream at signup
     - Proxy crashes
-    - fixed resume after playback failure logic
-    - sync backoff logic
+    - Fixed resume after playback failure logic
+    - Sync backoff logic
 
 $ 40
   % v 2.2.5
@@ -19,7 +18,7 @@ $ 40
   ! Maintenance
     * Fixed crashes for certain versions of HTTPClient
     * Fixed email confirmation nag
-    - Upgraded java-api-wrapper
+    - Upgraded java-api-wrapper (safeExecute(...))
 
 $ 39
   % v 2.2.4
@@ -34,7 +33,6 @@ $ 37
   ! Maintenance
     * Fixes for background sync workflow
     * Fixed some missing sounds
-    - dev: Alarm Clock
     - Track metadata (counts + type + cached)
     - Force sync after push notification
     - More tracking variables (plan + likes)
