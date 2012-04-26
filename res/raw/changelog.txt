@@ -2,7 +2,7 @@ $ 41
   % v current
   _ 2012-04-26
   ! More ICS controls and maintenance
-    * Lockscreen and Notification playback control
+    * Lockscreen and notification playback control (ICS)
     * Fixed incorrect repeats after track completion in certain ICS builds
     * Various bug fixes
     - Easter egg: alarm clock
