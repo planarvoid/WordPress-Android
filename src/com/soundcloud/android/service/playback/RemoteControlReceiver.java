@@ -30,7 +30,10 @@ public class RemoteControlReceiver extends BroadcastReceiver {
                 }
             }
         } else if (AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
-            handlePause(context);
+            // make sure service is actually running
+            if (peekService(context, new Intent(context, CloudPlaybackService.class)) != null) {
+                handlePause(context);
+            }
         }
     }
 

@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
+import android.os.Build;
 import android.util.Log;
 
 import java.lang.reflect.Constructor;
@@ -189,28 +190,28 @@ public class AudioManagerHelper {
                         new Class[]{ComponentName.class});
             }
 
-            if (sRegisterRemoteControlClient == null && sClassRemoteControlClient != null) {
-                sRegisterRemoteControlClient = AudioManager.class.getMethod(
-                        "registerRemoteControlClient",
-                        new Class[]{sClassRemoteControlClient});
-            }
-
             if (sUnregisterMediaButtonEventReceiver == null) {
                 sUnregisterMediaButtonEventReceiver = AudioManager.class.getMethod(
                         "unregisterMediaButtonEventReceiver",
                         new Class[]{ComponentName.class});
             }
 
-             if (sUnregisterRemoteControlClient == null) {
+
+            if (sRegisterRemoteControlClient == null && sClassRemoteControlClient != null) {
+                sRegisterRemoteControlClient = AudioManager.class.getMethod(
+                        "registerRemoteControlClient",
+                        new Class[]{sClassRemoteControlClient});
+            }
+
+            if (sUnregisterRemoteControlClient == null) {
                 sUnregisterRemoteControlClient = AudioManager.class.getMethod(
                         "unregisterRemoteControlClient",
-                        new Class[]{ComponentName.class});
+                        new Class[]{sClassRemoteControlClient});
             }
         } catch (NoSuchMethodException ignored) {
-            // Android < 2.2
+            if (Build.VERSION.SDK_INT >= 8) Log.e(TAG, "unexpected", ignored);
         }
     }
-
 
 
     public static Object registerRemoteControlClient(Context context) {
@@ -286,7 +287,7 @@ public class AudioManagerHelper {
                 throw new RuntimeException(ite);
             }
         } catch (IllegalAccessException ie) {
-            Log.e(TAG, "unexpected", ie);
+            if (Build.VERSION.SDK_INT >= 8) Log.e(TAG, "unexpected", ie);
         }
     }
 

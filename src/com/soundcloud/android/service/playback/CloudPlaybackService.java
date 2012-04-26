@@ -173,8 +173,6 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         commandFilter.addAction(PLAYLIST_CHANGED);
 
         registerReceiver(mIntentReceiver, commandFilter);
-        registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        registerReceiver(mIntentReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 
         mFocus = new AudioManagerHelper(this, this);
         if (!mFocus.isSupported()) {
@@ -548,9 +546,10 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "pause(state="+state+")");
         }
+        if (!state.isSupposedToBePlaying()) return;
         track(Media.fromTrack(mCurrentTrack), Media.Action.Pause);
 
-        if (mMediaPlayer != null && state != PAUSED) {
+        if (mMediaPlayer != null) {
             if (state.isPausable() && mMediaPlayer.isPlaying()) {
                 mMediaPlayer.pause();
                 gotoIdleState(PAUSED);
