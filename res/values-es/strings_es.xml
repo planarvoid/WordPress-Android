@@ -367,7 +367,7 @@
   <string name="pref_sync_my_following_description">Mantener a las personas que sigo actualizadas localmente</string>
   <string name="pref_sync_my_sounds">Mis sonidos</string>
   <string name="pref_sync_my_sounds_description">Mantener mis sonidos actualizados localmente</string>
-  <string name="pref_sync_settings">Ajustes de sincronización de cuenta</string>
+  <string name="pref_sync_settings">Ajustes de sincronización</string>
   <string name="pref_sync_settings_summary">Gestionar recursos sincronizados</string>
   <string name="pref_sync_toggles">Recursos sincronizados</string>
   <string name="pref_sync_wifi_only">Sincronía solo por WIFI</string>
@@ -511,6 +511,6 @@
   <string name="what_hint">Qué</string>
   <string name="where_hint">Dónde</string>
   <string name="widget_touch_to_open">Toque para abrir SoundCloud</string>
-  <string name="wifi_settings">Configuración de la red inalámbrica y redes</string>
+  <string name="wifi_settings">Configuración de la red</string>
   <string name="wifi_settings_summary">Edite la configuración. Use WIFI para un mejor rendimiento.</string>
 </resources>
