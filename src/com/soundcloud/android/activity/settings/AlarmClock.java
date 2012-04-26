@@ -8,37 +8,64 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlaylistManager;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.PowerManager;
+import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
+import java.io.IOException;
+import java.lang.reflect.Constructor;
 
 public final class AlarmClock {
     public static final String TAG = AlarmClock.class.getSimpleName();
     public static final String DEFAULT_URI   = Content.ME_SOUND_STREAM.uri.toString();
-    public static final int NOTIFICATION_ID  = 9999;
 
     public static final String KEY     = "dev.alarm";
     public static final String DEFAULT = "10:00";
 
     public static final String EXTRA_URI = "uri";
-    public static final String PREF_ALARM_CLOCK_ENABLED = "dev.alarmClock.enabled";
+
+    private static final String PREF_ALARM_CLOCK_FEATURE_ENABLED = "dev.alarmClock.enabled";
+    private static final String PREF_ALARM_CLOCK_URI     = "dev.alarmClock.uri";
+
 
     private Context mContext;
     private int mHour, mMinute;
+
+    private static AlarmClock sInstance;
+
+    public static AlarmClock get(Context context) {
+        if (sInstance == null) {
+            sInstance = new AlarmClock(context.getApplicationContext());
+            sInstance.loadFromPrefs();
+        }
+        return sInstance;
+    }
 
     /* package */ AlarmClock(Context context) {
         this.mContext = context;
@@ -51,6 +78,10 @@ public final class AlarmClock {
         mHour = hour;
         mMinute = minute;
 
+        return setAlarm();
+    }
+
+    public boolean setAlarm() {
         // cancel any previous alarm
         cancel();
 
@@ -59,14 +90,15 @@ public final class AlarmClock {
         now.setToNow();
         Time alarm = getAlarmTime(now);
 
-        Log.d(TAG, "setting alarm to: " + alarm.format2445());
         mgr.set(AlarmManager.RTC_WAKEUP, alarm.toMillis(false), getAlarmIntent(null));
         double in = (alarm.toMillis(false) - now.toMillis(false)) / 1000d;
-        CloudUtils.showToast(mContext, R.string.dev_alarm_in,
-                CloudUtils.getTimeString(mContext.getResources(), in, false));
+
+        Toast toast = Toast.makeText(mContext, mContext.getString(R.string.dev_alarm_in,
+                CloudUtils.getTimeString(mContext.getResources(), in, false)), Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, toast.getXOffset() / 2, toast.getYOffset() / 2);
+        toast.show();
 
         final String message = mContext.getString(R.string.dev_alarm_set, alarm.format("%k:%M"));
-        getNotifications().notify(NOTIFICATION_ID, createNotification(message));
         setAlarmMessage(message);
         saveToPrefs();
         return true;
@@ -80,24 +112,26 @@ public final class AlarmClock {
     }
 
     public boolean cancel() {
-        getNotifications().cancel(NOTIFICATION_ID);
         getAlarmManager().cancel(getAlarmIntent(null));
         setAlarmMessage("");
         return true;
     }
 
-    public void showDialog() {
-        loadFromPrefs();
-
-        new TimePickerDialog(mContext, new TimePickerDialog.OnTimeSetListener() {
+    public void showDialog(Context context, final Runnable runnable) {
+        new TimePickerDialog(context, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                set(hourOfDay, minute);
+                mHour = hourOfDay;
+                mMinute = minute;
+                saveToPrefs();
+                if (isAlarmSet()) {
+                    setAlarm();
+                }
+                if (runnable != null) runnable.run();
             }
         }, mHour, mMinute, true)
         .show();
     }
-
 
     /* package */ void play(Context context, Uri uri) {
         // TODO: should be handled via intent parameter
@@ -116,8 +150,8 @@ public final class AlarmClock {
                 .putExtra(CloudPlaybackService.EXTRA_UNMUTE, true));
     }
 
-    public static boolean isEnabled(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREF_ALARM_CLOCK_ENABLED, false);
+    public static boolean isFeatureEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREF_ALARM_CLOCK_FEATURE_ENABLED, false);
     }
 
     private Time getAlarmTime(Time now) {
@@ -151,11 +185,6 @@ public final class AlarmClock {
                 .commit();
     }
 
-    private PendingIntent getCancelAlarmIntent() {
-        return PendingIntent.getBroadcast(mContext, 0,
-                new Intent(Actions.CANCEL_ALARM), 0);
-    }
-
     private PendingIntent getAlarmIntent(Uri uri) {
         return PendingIntent.getBroadcast(mContext, 0,
                 new Intent(Actions.ALARM)
@@ -164,22 +193,9 @@ public final class AlarmClock {
         // http://developer.android.com/reference/android/content/Intent.html#filterEquals%28android.content.Intent%29
     }
 
-    private Notification createNotification(String message) {
-        String title = "Alarm set";
-        final Notification n = new Notification(R.drawable.ic_notification_cloud,
-                title, System.currentTimeMillis());
-        n.setLatestEventInfo(mContext,
-                title,
-                message + ", tap to cancel.",
-                getCancelAlarmIntent());
-
-        n.flags = Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;
-        return n;
-    }
-
     private Uri getPlayUri() {
         String uri = PreferenceManager.getDefaultSharedPreferences(mContext)
-                .getString(Settings.ALARM_CLOCK_URI, DEFAULT_URI);
+                .getString(PREF_ALARM_CLOCK_URI, DEFAULT_URI);
         return Uri.parse(uri);
     }
 
@@ -189,6 +205,13 @@ public final class AlarmClock {
                 android.provider.Settings.System.NEXT_ALARM_FORMATTED, message);
 
         setStatusBarIcon(!TextUtils.isEmpty(message));
+    }
+
+    private boolean isAlarmSet() {
+        // could be set by another alarm app
+        return !TextUtils.isEmpty(
+                android.provider.Settings.System.getString(mContext.getContentResolver(),
+                android.provider.Settings.System.NEXT_ALARM_FORMATTED));
     }
 
     private void setStatusBarIcon(boolean enabled) {
@@ -218,8 +241,74 @@ public final class AlarmClock {
         return (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
     }
 
-    private NotificationManager getNotifications() {
-        return (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+    /* package */ PreferenceGroup addPrefs(final Context context, final PreferenceGroup group) {
+        boolean useICSSwitchPreference = false;
+        final boolean isAlarmSet = isAlarmSet();
+        Preference alarm = null;
+        final Preference.OnPreferenceChangeListener listener = new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if ((Boolean) newValue) {
+                    setAlarm();
+                } else {
+                    cancel();
+                }
+                return true;
+            }
+        };
+        if (Build.VERSION.SDK_INT >= 14) {
+            try {
+                Class switchPrefClass = Class.forName("com.soundcloud.android.activity.settings.ICSSwitchPreference");
+                Constructor ctor = switchPrefClass.getConstructor(Context.class, boolean.class);
+                alarm = (Preference) ctor.newInstance(context, isAlarmSet);
+                alarm.setOnPreferenceChangeListener(listener);
+                alarm.setPersistent(false);
+                useICSSwitchPreference = true;
+            } catch (Exception ignored) {
+                Log.w(TAG, ignored);
+            }
+        }
+        if (alarm == null) {
+            alarm = new Preference(context);
+        }
+
+        alarm.setTitle(context.getString(R.string.pref_dev_alarm_clock, mHour, mMinute));
+        alarm.setSummary(R.string.pref_dev_alarm_clock_summary);
+        final Preference theAlarm = alarm;
+        alarm.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                        showDialog(context, new Runnable() {
+                            @Override
+                            public void run() {
+                                theAlarm.setTitle(context.getString(R.string.pref_dev_alarm_clock, mHour, mMinute));
+                            }
+                        });
+                        return true;
+                    }
+                }
+        );
+        if (!useICSSwitchPreference) {
+            CheckBoxPreference enabled = new CheckBoxPreference(context);
+            enabled.setTitle(R.string.pref_dev_alarm_clock_enabled);
+            enabled.setSummary(R.string.pref_dev_alarm_clock_enabled_summary);
+            enabled.setPersistent(false);
+            enabled.setOnPreferenceChangeListener(listener);
+            enabled.setChecked(isAlarmSet);
+            group.addPreference(enabled);
+        }
+        ListPreference alarmUri = new ListPreference(context);
+        alarmUri.setValue(getPlayUri().toString());
+        alarmUri.setKey(PREF_ALARM_CLOCK_URI);
+        alarmUri.setTitle(R.string.pref_dev_alarm_play_uri);
+        alarmUri.setSummary(R.string.pref_dev_alarm_play_uri_summary);
+        alarmUri.setEntries(R.array.dev_alarmClock_uri_entries);
+        alarmUri.setEntryValues(R.array.dev_alarmClock_uri_values);
+        SharedPreferencesUtils.listWithLabel(alarmUri, R.string.pref_dev_alarm_play_uri);
+
+        group.addPreference(alarm);
+        group.addPreference(alarmUri);
+        return group;
     }
 
     public static final class Receiver extends BroadcastReceiver {
@@ -230,7 +319,7 @@ public final class AlarmClock {
             final String action = intent.getAction();
 
             if (SECRET_CODE_ACTION.equals(action)) {
-                toggleAlarmClockEnabled(context);
+                toggleAlarmClockFeatureEnabled(context);
             } else if (Actions.ALARM.equals(action)) {
                 onAlarm(context, intent);
             } else if (Actions.CANCEL_ALARM.equals(action)) {
@@ -260,8 +349,7 @@ public final class AlarmClock {
                         Log.d(TAG, "alarm with uri=" + uri);
                         alarm.play(context, uri);
                     } else {
-                        // TODO: should have some fallback here
-                        Log.w(TAG, "no uri found, no alarm");
+                        fallbackAlarm(context);
                     }
                 }
             } finally {
@@ -269,14 +357,51 @@ public final class AlarmClock {
             }
         }
 
+        private void fallbackAlarm(final Context context) {
+            new Thread() {
+                @Override
+                public void run() {
+                    Looper.prepare();
+                    playDefaultAlarm(context, 10);
+                    Looper.loop();
+                }
+            }.start();
+        }
+
+        private void playDefaultAlarm(Context context, final int timeout) {
+            Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+
+            final MediaPlayer mp = new MediaPlayer();
+            Handler handler = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    mp.stop();
+                    mp.release();
+
+                    Looper.myLooper().quit();
+                }
+            };
+            try {
+                mp.setDataSource(context, alert);
+                mp.setAudioStreamType(AudioManager.STREAM_ALARM);
+                mp.prepare();
+                mp.setLooping(true);
+                mp.start();
+
+                handler.sendEmptyMessageDelayed(0, 1000 * timeout);
+            } catch (IOException e) {
+                Log.w(TAG, e);
+            }
+        }
+
         private void onAlarmCancel(Context context) {
             new AlarmClock(context).cancel();
         }
 
-        private void toggleAlarmClockEnabled(Context context) {
+        private void toggleAlarmClockFeatureEnabled(Context context) {
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-            boolean newState = !prefs.getBoolean(PREF_ALARM_CLOCK_ENABLED, false);
-            prefs.edit().putBoolean(PREF_ALARM_CLOCK_ENABLED, newState).commit();
+            boolean newState = !prefs.getBoolean(PREF_ALARM_CLOCK_FEATURE_ENABLED, false);
+            prefs.edit().putBoolean(PREF_ALARM_CLOCK_FEATURE_ENABLED, newState).commit();
             CloudUtils.showToast(context, "SC AlarmClock " + (newState ? "enabled" : "disabled"));
         }
     }

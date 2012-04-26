@@ -44,25 +44,24 @@ public final class SharedPreferencesUtils {
 
     /**
      * Creates a preference which has the current value in the title
-     * @param a the preference activity
+     * @param list the list preference
      * @param titleId the title id string resource
      * @param key the preference key
      */
-    public static void listWithLabel(final PreferenceActivity a, final int titleId, String key) {
-        final ListPreference list = (ListPreference) a.findPreference(key);
+    public static void listWithLabel(final ListPreference list, final int titleId) {
         list.setOnPreferenceChangeListener(
                 new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
                         CharSequence label = list.getEntries()[list.findIndexOfValue(o.toString())];
-                        preference.setTitle(a.getString(titleId) + " (" + label + ")");
+                        preference.setTitle(list.getContext().getString(titleId) + " (" + label + ")");
                         return true;
                     }
                 }
         );
         CharSequence entry = list.getEntry();
         if (!TextUtils.isEmpty(entry)) {
-            list.setTitle(a.getString(titleId) + " (" + entry + ")");
+            list.setTitle(list.getContext().getString(titleId) + " (" + entry + ")");
         }
     }
 }
