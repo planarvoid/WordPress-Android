@@ -21,22 +21,21 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 public class AudioManagerHelper {
+    // fields copied from {@link android.media.RemoteControlClient}
+    private final static int PLAYSTATE_STOPPED            = 1;
+    private final static int PLAYSTATE_PAUSED             = 2;
+    private final static int PLAYSTATE_PLAYING            = 3;
 
-    public final static int PLAYSTATE_STOPPED            = 1;
-    public final static int PLAYSTATE_PAUSED             = 2;
-    public final static int PLAYSTATE_PLAYING            = 3;
+    private final static int FLAG_KEY_MEDIA_PREVIOUS     = 1;
+    private final static int FLAG_KEY_MEDIA_REWIND       = 1 << 1;
+    private final static int FLAG_KEY_MEDIA_PLAY         = 1 << 2;
+    private final static int FLAG_KEY_MEDIA_PLAY_PAUSE   = 1 << 3;
+    private final static int FLAG_KEY_MEDIA_PAUSE        = 1 << 4;
+    private final static int FLAG_KEY_MEDIA_STOP         = 1 << 5;
+    private final static int FLAG_KEY_MEDIA_FAST_FORWARD = 1 << 6;
+    private final static int FLAG_KEY_MEDIA_NEXT         = 1 << 7;
 
-    public final static int FLAG_KEY_MEDIA_PREVIOUS = 1 << 0;
-    public final static int FLAG_KEY_MEDIA_REWIND = 1 << 1;
-    public final static int FLAG_KEY_MEDIA_PLAY = 1 << 2;
-    public final static int FLAG_KEY_MEDIA_PLAY_PAUSE = 1 << 3;
-    public final static int FLAG_KEY_MEDIA_PAUSE = 1 << 4;
-    public final static int FLAG_KEY_MEDIA_STOP = 1 << 5;
-    public final static int FLAG_KEY_MEDIA_FAST_FORWARD = 1 << 6;
-
-    public final static int FLAG_KEY_MEDIA_NEXT = 1 << 7;
-
-     public final static int BITMAP_KEY_ARTWORK = 100;
+    private final static int BITMAP_KEY_ARTWORK = 100;
 
     public interface MusicFocusable {
         public void focusGained();
@@ -105,13 +104,13 @@ public class AudioManagerHelper {
         }
     }
 
-    protected void applyRemoteMetadata(final Context context, final Track track) {
-        applyRemoteMetadata(context,track,null);
+    public void applyRemoteMetadata(final Track track) {
+        applyRemoteMetadata(track, null);
     }
 
-    protected void applyRemoteMetadata(final Context context, final Track track, final Bitmap bitmap) {
+    public void applyRemoteMetadata(final Track track, final Bitmap bitmap) {
         if (mRemoteControlClient == null) getRemoteControlClient();
-        setRemoteMetadataCompat(mRemoteControlClient,track, bitmap);
+        setRemoteMetadataCompat(mRemoteControlClient, track, bitmap);
     }
 
     public boolean isSupported() {

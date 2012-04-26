@@ -347,14 +347,14 @@ public class CloudPlaybackService extends Service implements AudioManagerHelper.
                 if (bmp != null) {
                     // use a copy of the bitmap because it is going to get recycled afterwards
                     try {
-                        mFocus.applyRemoteMetadata(this, track, bmp.copy(Bitmap.Config.ARGB_8888, true));
+                        mFocus.applyRemoteMetadata(track, bmp.copy(Bitmap.Config.ARGB_8888, false));
                     } catch (OutOfMemoryError e) {
-                        mFocus.applyRemoteMetadata(this, track, null);
+                        mFocus.applyRemoteMetadata(track, null);
                         System.gc();
                         // retry?
                     }
                 } else {
-                    mFocus.applyRemoteMetadata(this, track);
+                    mFocus.applyRemoteMetadata(track);
                     ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
                         public void onImageLoaded(Bitmap loadedBmp, String uri) {
                             if (track.equals(mCurrentTrack)) applyCurrentMetadata(track);
