@@ -51,7 +51,7 @@ public class SyncAdapterService extends Service {
         mSyncAdapter = new AbstractThreadedSyncAdapter(this, false) {
             @Override
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-                performSync((SoundCloudApplication)getContext(), account, extras, syncResult);
+                performSync((SoundCloudApplication)getApplication(), account, extras, syncResult);
             }
         };
     }

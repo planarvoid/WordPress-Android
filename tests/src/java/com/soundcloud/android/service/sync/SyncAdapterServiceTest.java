@@ -391,7 +391,7 @@ public class SyncAdapterServiceTest {
     }
 
 
-    @Test @Ignore
+    @Test
     public void shouldSyncLocalCollections() throws Exception {
         SyncContent.setAllSyncEnabledPrefs(Robolectric.application, true);
 
