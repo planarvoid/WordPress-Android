@@ -549,8 +549,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     @Override
     protected void onResume() {
         super.onResume();
-        // TODO, can we delete this?
-        //AudioManagerHelper.registerHeadphoneRemoteControl(this);
         setPlaybackState();
     }
 
