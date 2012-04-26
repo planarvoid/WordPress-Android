@@ -1,19 +1,19 @@
 package com.soundcloud.android.provider;
 
-import com.soundcloud.android.model.Origin;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Log;
+import com.soundcloud.android.model.Origin;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -252,5 +252,16 @@ public class SoundCloudDB {
         } finally {
             if (c != null) c.close();
         }
+    }
+
+    public static List<Long> idCursorToList(Cursor c) {
+        List<Long> ids = new ArrayList<Long>();
+        if (c != null && c.moveToFirst()) {
+            do {
+                ids.add(c.getLong(0));
+            } while (c.moveToNext());
+        }
+        if (c != null) c.close();
+        return ids;
     }
 }

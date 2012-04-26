@@ -53,6 +53,8 @@ public class Settings extends PreferenceActivity {
     public static final String ABOUT = "about";
     public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
+    public static final String NOTIFICATION_SETTINGS = "notificationSettings";
+
 
     public static final String ALARM_CLOCK     = "dev.alarmClock";
     public static final String ALARM_CLOCK_URI = "dev.alarmClock.uri";
@@ -89,7 +91,20 @@ public class Settings extends PreferenceActivity {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         getApp().track(Page.Settings_account_sync);
-                        return false;
+                        Intent intent = new Intent(Settings.this, AccountSettings.class);
+                        startActivity(intent);
+                        return true;
+                    }
+        });
+
+        findPreference(NOTIFICATION_SETTINGS).setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        getApp().track(Page.Settings_notifications);
+                        Intent intent = new Intent(Settings.this, NotificationSettings.class);
+                        startActivity(intent);
+                        return true;
                     }
         });
 

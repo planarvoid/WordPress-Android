@@ -16,10 +16,8 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -84,24 +82,24 @@ public class ApiSyncServiceTest {
         urisToSync.add(Content.ME_FOLLOWERS.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
-        ApiSyncService.ApiRequest request1 = new ApiSyncService.ApiRequest(app, intent);
-        ApiSyncService.ApiRequest request2 = new ApiSyncService.ApiRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
-        ApiSyncService.ApiRequest request3 = new ApiSyncService.ApiRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
+        ApiSyncServiceRequest request1 = new ApiSyncServiceRequest(app, intent);
+        ApiSyncServiceRequest request2 = new ApiSyncServiceRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
+        ApiSyncServiceRequest request3 = new ApiSyncServiceRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
 
         svc.enqueueRequest(request1);
-        expect(svc.mPendingUriRequests.size()).toBe(3);
+        expect(svc.mPendingCollectionRequests.size()).toBe(3);
         svc.enqueueRequest(request2);
 
-        expect(svc.mPendingUriRequests.size()).toBe(3);
+        expect(svc.mPendingCollectionRequests.size()).toBe(3);
         svc.enqueueRequest(request3);
-        expect(svc.mPendingUriRequests.size()).toBe(4);
-        expect(svc.mPendingUriRequests.poll().getUri()).toBe(Content.ME_FOLLOWINGS.uri);
-        expect(svc.mPendingUriRequests.size()).toBe(3);
+        expect(svc.mPendingCollectionRequests.size()).toBe(4);
+        expect(svc.mPendingCollectionRequests.poll().contentUri).toBe(Content.ME_FOLLOWINGS.uri);
+        expect(svc.mPendingCollectionRequests.size()).toBe(3);
 
-        expect(svc.mPendingUriRequests.peek().getUri()).toBe(Content.ME_TRACKS.uri);
-        ApiSyncService.ApiRequest request4 = new ApiSyncService.ApiRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_RESPONSE,true));
+        expect(svc.mPendingCollectionRequests.peek().contentUri).toBe(Content.ME_TRACKS.uri);
+        ApiSyncServiceRequest request4 = new ApiSyncServiceRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
         svc.enqueueRequest(request4);
-        expect(svc.mPendingUriRequests.peek().getUri()).toBe(Content.ME_FAVORITES.uri);
+        expect(svc.mPendingCollectionRequests.peek().contentUri).toBe(Content.ME_FAVORITES.uri);
     }
 
     @Test
@@ -110,13 +108,13 @@ public class ApiSyncServiceTest {
 
         SoundCloudApplication app = DefaultTestRunner.application;
 
-        svc.mRunningRequests.add(new ApiSyncService.UriRequest(app, Content.ME_FAVORITES.uri, null));
-        svc.mRunningRequests.add(new ApiSyncService.UriRequest(app, Content.ME_FOLLOWINGS.uri, null));
+        svc.mRunningRequests.add(new CollectionSyncRequest(app, Content.ME_FAVORITES.uri, null));
+        svc.mRunningRequests.add(new CollectionSyncRequest(app, Content.ME_FOLLOWINGS.uri, null));
 
         ApiSyncer.Result result = new ApiSyncer.Result(Content.ME_FAVORITES.uri);
         result.success = true;
 
-        svc.onUriSyncResult(new ApiSyncService.UriRequest(app, Content.ME_FAVORITES.uri, null));
+        svc.onUriSyncResult(new CollectionSyncRequest(app, Content.ME_FAVORITES.uri, null));
         expect(svc.mRunningRequests.size()).toBe(1);
     }
 
@@ -385,16 +383,5 @@ public class ApiSyncServiceTest {
     private void serviceAction(ApiSyncService svc, String action, Content content, String... fixtures) throws IOException {
         TestHelper.addCannedResponses(SyncAdapterServiceTest.class, fixtures);
         svc.onStart(new Intent(action, content.uri), 1);
-    }
-
-    private void addIdResponse(String url, int... ids) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{ \"collection\": [");
-        for (int i = 0; i < ids.length; i++) {
-            sb.append(ids[i]);
-            if (i < ids.length - 1) sb.append(", ");
-        }
-        sb.append("] }");
-        Robolectric.addHttpResponseRule(url, new TestHttpResponse(200, sb.toString()));
     }
 }

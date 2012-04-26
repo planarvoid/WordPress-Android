@@ -1,10 +1,6 @@
 package com.soundcloud.android.provider;
 
-import android.app.SearchManager;
-import android.content.ContentResolver;
-import android.content.UriMatcher;
-import android.net.Uri;
-import android.os.Parcelable;
+import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
@@ -12,21 +8,20 @@ import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.sync.ApiSyncer;
 import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+
+import android.app.SearchManager;
+import android.content.ContentResolver;
+import android.content.UriMatcher;
+import android.net.Uri;
+import android.os.Parcelable;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FAVORITE;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWER;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FOLLOWING;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.FRIEND;
-import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.SUGGESTED_USER;
 
 public enum Content {
     ME("me", Endpoints.MY_DETAILS, 100, User.class, -1, Table.USERS),
@@ -225,13 +220,23 @@ public enum Content {
         return sUris.get(uri);
     }
 
-    public List<Long> getStoredIds(ContentResolver resolver, Uri localUri){
-        return ApiSyncer.idCursorToList(resolver.query(
-                        localUri,
-                        new String[]{DBHelper.CollectionItems.ITEM_ID},
-                        DBHelper.CollectionItems.COLLECTION_TYPE + " = ?",
-                        new String[]{String.valueOf(collectionType)},
-                        DBHelper.CollectionItems.SORT_ORDER));
+
+    public List<Long> getLocalIds(ContentResolver resolver, long userId) {
+        return SoundCloudDB.idCursorToList(resolver.query(
+                Content.COLLECTION_ITEMS.uri,
+                new String[] { DBHelper.CollectionItems.ITEM_ID },
+                DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
+                new String[] { String.valueOf(collectionType), String.valueOf(userId) },
+                DBHelper.CollectionItems.SORT_ORDER));
+    }
+
+    public List<Long> getStoredIds(ContentResolver resolver, Uri localUri) {
+        return SoundCloudDB.idCursorToList(resolver.query(
+                localUri,
+                new String[]{DBHelper.CollectionItems.ITEM_ID},
+                DBHelper.CollectionItems.COLLECTION_TYPE + " = ?",
+                new String[]{String.valueOf(collectionType)},
+                DBHelper.CollectionItems.SORT_ORDER));
 
     }
 

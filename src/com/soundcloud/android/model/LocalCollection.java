@@ -166,6 +166,20 @@ public class LocalCollection {
         return extra;
     }
 
+    public static int incrementSyncMiss(Uri contentUri, ContentResolver resolver) {
+        int misses = 0;
+        Cursor c = resolver.query(Content.COLLECTIONS.uri, new String[]{DBHelper.Collections.EXTRA}, "uri = ?", new String[]{contentUri.toString()}, null);
+        if (c != null && c.moveToFirst()) {
+            try {
+                misses = Integer.parseInt(c.getString(0));
+            } catch (NumberFormatException ignore){}
+        }
+        if (c != null) c.close();
+
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Collections.EXTRA, ++misses);
+        return (resolver.update(Content.COLLECTIONS.uri, cv, "uri = ?", new String[]{contentUri.toString()}) == 1) ? misses : -1;
+    }
 
     public void startObservingSelf(ContentResolver contentResolver) {
         mContentResolver = contentResolver;

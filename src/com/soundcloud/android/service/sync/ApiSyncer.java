@@ -25,7 +25,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -39,6 +38,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+
+/**
+ * Performs the actual sync with the API. Used by {@link CollectionSyncRequest}.
+ */
 public class ApiSyncer {
     public static final String TAG = ApiSyncService.LOG_TAG;
 
@@ -50,10 +53,10 @@ public class ApiSyncer {
     private static final int API_LOOKUP_BATCH_SIZE = 200;
     private static final int RESOLVER_BATCH_SIZE = 100;
 
-    public ApiSyncer(SoundCloudApplication app) {
-        mApi = app;
-        mResolver = app.getContentResolver();
-        mContext = app;
+    public ApiSyncer(Context context) {
+        mApi = (AndroidCloudAPI) context.getApplicationContext();
+        mResolver = context.getContentResolver();
+        mContext = context;
     }
 
     public Result syncContent(Uri uri, String action) throws IOException {
@@ -80,7 +83,7 @@ public class ApiSyncer {
                 case ME_FAVORITES:
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
-                    result = quickSync(c, SoundCloudApplication.getUserIdFromContext(mContext));
+                    result = syncContent(c, SoundCloudApplication.getUserIdFromContext(mContext));
                     break;
             }
         } else {
@@ -88,7 +91,9 @@ public class ApiSyncer {
                 case TRACK_CLEANUP:
                 case USERS_CLEANUP:
                     result = new Result(c.uri);
-                    result.wasChanged = mResolver.update(c.uri, null, null, null) > 0;
+                    if (mResolver.update(c.uri, null, null, null) > 0) {
+                        result.change = Result.CHANGED;
+                    }
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()
                             .putLong(SyncConfig.PREF_LAST_SYNC_CLEANUP, System.currentTimeMillis())
@@ -102,7 +107,7 @@ public class ApiSyncer {
         return result;
     }
 
-    /* package */ Result syncActivities(Uri uri, String action) throws IOException {
+    private Result syncActivities(Uri uri, String action) throws IOException {
         Result result = new Result(uri);
         log("syncActivities(" + uri + ")");
 
@@ -138,29 +143,31 @@ public class ApiSyncer {
             result.setSyncData(System.currentTimeMillis(), activities.size(), activities.future_href);
         }
 
-        result.wasChanged = inserted > 0;
+        result.change = inserted > 0 ? Result.CHANGED : Result.UNCHANGED;
+        result.success = true;
         log("activities: inserted " + inserted + " objects");
         return result;
     }
 
-    private Result quickSync(Content c, final long userId) throws IOException {
-        Result result = new Result(c.uri);
+    private Result syncContent(Content content, final long userId) throws IOException {
+        Result result = new Result(content.uri);
 
-        List<Long> local = idCursorToList(mResolver.query(
-                Content.COLLECTION_ITEMS.uri,
-                new String[] { DBHelper.CollectionItems.ITEM_ID },
-                DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
-                new String[] { String.valueOf(c.collectionType), String.valueOf(userId)},
-                DBHelper.CollectionItems.SORT_ORDER));
-
-        List<Long> remote = getCollectionIds(mApi, c.remoteUri);
+        List<Long> local = content.getLocalIds(mResolver, userId);
+        List<Long> remote = getCollectionIds(mApi, content.remoteUri);
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
-        result.setSyncData(System.currentTimeMillis(),remote.size(),null);
+        result.setSyncData(System.currentTimeMillis(), remote.size(), null);
 
-        if (local.equals(remote) && !(c == Content.ME_FOLLOWERS || c == Content.ME_FOLLOWINGS)) {
-            log("Cloud Api service: no change in URI " + c.uri + ". Skipping sync.");
+        if (!local.equals(remote)){
+            // items have been added or removed (not just ordering) so this is a sync hit
+            result.change = Result.CHANGED;
+            result.extra = "0"; // reset sync misses
+        }  else if (content == Content.ME_FOLLOWERS || content == Content.ME_FOLLOWINGS) {
+            result.change = Result.REORDERED;
+        } else {
+            log("Cloud Api service: no change in URI " + content.uri + ". Skipping sync.");
             return result;
         }
+
         // deletions can happen here, has no impact
         List<Long> itemDeletions = new ArrayList<Long>(local);
         itemDeletions.removeAll(remote);
@@ -170,24 +177,25 @@ public class ApiSyncer {
         int i = 0;
         while (i < itemDeletions.size()) {
             List<Long> batch = itemDeletions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
-            mResolver.delete(c.uri, DBHelper.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
+            mResolver.delete(content.uri, DBHelper.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
             i += RESOLVER_BATCH_SIZE;
         }
         int startPosition = 1;
         int added;
-        switch (c) {
+        switch (content) {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
 
                 // load the first page of items to getSince proper last_seen ordering
-                InputStream is = validateResponse(mApi.get(Request.to(c.remoteUri)
-                        .add("linked_partitioning", "1").add("limit", Consts.COLLECTION_PAGE_SIZE)))
+                InputStream is = validateResponse(mApi.get(Request.to(content.remoteUri)
+                        .add("linked_partitioning", "1")
+                        .add("limit", Consts.COLLECTION_PAGE_SIZE)))
                         .getEntity().getContent();
 
                 // parse and add first items
                 List<Parcelable> firstUsers = new ArrayList<Parcelable>();
                 ScModel.getCollectionFromStream(is, mApi.getMapper(), User.class, firstUsers);
-                added = SoundCloudDB.bulkInsertParcelables(mResolver, firstUsers, c.uri, userId);
+                added = SoundCloudDB.bulkInsertParcelables(mResolver, firstUsers, content.uri, userId);
 
                 // remove items from master remote list and adjust start index
                 for (Parcelable u : firstUsers) {
@@ -211,7 +219,7 @@ public class ApiSyncer {
                         mApi,
                         mResolver,
                         new ArrayList<Long>(remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED))),
-                        c.resourceType.equals(Track.class) ? Content.TRACKS : Content.USERS,
+                        content.resourceType.equals(Track.class) ? Content.TRACKS : Content.USERS,
                         false
                 ));
                 break;
@@ -227,7 +235,8 @@ public class ApiSyncer {
             cv[i].put(DBHelper.CollectionItems.USER_ID, userId);
             i++;
         }
-        mResolver.bulkInsert(c.uri, cv);
+        mResolver.bulkInsert(content.uri, cv);
+        result.success = true;
         return result;
     }
 
@@ -238,6 +247,7 @@ public class ApiSyncer {
                     .execute(c.request())
                     .get();
 
+            result.change = Result.CHANGED;
             result.success = user != null;
         } catch (InterruptedException ignored) {
         } catch (ExecutionException ignored) {
@@ -265,7 +275,7 @@ public class ApiSyncer {
             List<Long> storedIds = new ArrayList<Long>();
             while (i < additions.size()) {
                 List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
-                storedIds.addAll(idCursorToList(resolver.query(content.uri, new String[]{DBHelper.Tracks._ID},
+                storedIds.addAll(SoundCloudDB.idCursorToList(resolver.query(content.uri, new String[]{DBHelper.Tracks._ID},
                         DBHelper.getWhereIds(DBHelper.Tracks._ID, batch) + " AND " + DBHelper.Tracks.LAST_UPDATED + " > 0"
                         , CloudUtils.longListToStringArr(batch), null)));
                 i += RESOLVER_BATCH_SIZE;
@@ -296,17 +306,6 @@ public class ApiSyncer {
         return items;
     }
 
-    public static List<Long> idCursorToList(Cursor c) {
-        List<Long> ids = new ArrayList<Long>();
-        if (c != null && c.moveToFirst()) {
-            do {
-                ids.add(c.getLong(0));
-            } while (c.moveToNext());
-        }
-        if (c != null) c.close();
-        return ids;
-    }
-
     private static List<Long> getCollectionIds(AndroidCloudAPI app, String endpoint) throws IOException {
         List<Long> items = new ArrayList<Long>();
         IdHolder holder = null;
@@ -323,11 +322,11 @@ public class ApiSyncer {
     }
 
     private static HttpResponse validateResponse(HttpResponse response) throws IOException {
-        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+        final int code = response.getStatusLine().getStatusCode();
+        if (code == HttpStatus.SC_UNAUTHORIZED) {
             throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
                     response.getStatusLine().getReasonPhrase());
-        } else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK
-                && response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_MODIFIED) {
+        } else if (code != HttpStatus.SC_OK && code != HttpStatus.SC_NOT_MODIFIED) {
             throw new IOException("Invalid response: " + response.getStatusLine());
         }
         return response;
@@ -337,9 +336,16 @@ public class ApiSyncer {
     public static class IdHolder extends CollectionHolder<Long> {}
 
     public static class Result {
+        public static final int UNCHANGED = 0;
+        public static final int REORDERED = 1;
+        public static final int CHANGED   = 2;
+
         public final Uri uri;
         public final SyncResult syncResult = new SyncResult();
-        public boolean wasChanged;
+
+        /** One of {@link UNCHANGED}, {@link REORDERED}, {@link CHANGED}. */
+        public int change;
+
         public boolean success;
 
         public long synced_at;
@@ -368,7 +374,6 @@ public class ApiSyncer {
             return r;
         }
     }
-
 
     private static void log(String message) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
