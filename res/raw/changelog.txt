@@ -6,6 +6,8 @@ $ 41
     * Fixed incorrect repeats after track completion in certain ICS builds
     * Spanish
     * Various bug fixes
+    - Fixed notification close button action
+    - Fixed empty stream at signup
     - Proxy crashes
     - fixed resume after playback failure logic
     - sync backoff logic
