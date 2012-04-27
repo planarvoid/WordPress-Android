@@ -177,7 +177,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         registerReceiver(mNoisyReceiver, new IntentFilter(AUDIO_BECOMING_NOISY));
 
         mFocus = AudioManagerFactory.createAudioManager(this);
-        if (!mFocus.isSupported()) {
+        if (!mFocus.isFocusSupported()) {
             // setup call listening if not handled by audiofocus
             TelephonyManager tmgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
@@ -323,7 +323,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 mFocus.setPlaybackState(isPlaying());
                 setPlayingNotification(mCurrentTrack);
             } else if (what.equals(META_CHANGED)) {
-                applyCurrentMetadata(mCurrentTrack);
+                onTrackChanged(mCurrentTrack);
             }
         }
 
@@ -338,25 +338,25 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mPlaylistManager.saveQueue(mCurrentTrack == null ? 0 : getPosition());
     }
 
-    private void applyCurrentMetadata(final Track track){
-        if (mFocus.isSupported()) {
+    private void onTrackChanged(final Track track) {
+        if (mFocus.isTrackChangeSupported()) {
             final String artworkUri = track.getPlayerArtworkUri(this);
             if (ImageUtils.checkIconShouldLoad(artworkUri)) {
                 final Bitmap cached = ImageLoader.get(this).getBitmap(artworkUri, null, new ImageLoader.Options(false));
                 if (cached != null) {
                     // use a copy of the bitmap because it is going to get recycled afterwards
                     try {
-                        mFocus.applyRemoteMetadata(track, cached.copy(Bitmap.Config.ARGB_8888, false));
+                        mFocus.onTrackChanged(track, cached.copy(Bitmap.Config.ARGB_8888, false));
                     } catch (OutOfMemoryError e) {
-                        mFocus.applyRemoteMetadata(track, null);
+                        mFocus.onTrackChanged(track, null);
                         System.gc();
                         // retry?
                     }
                 } else {
-                    mFocus.applyRemoteMetadata(track, null);
+                    mFocus.onTrackChanged(track, null);
                     ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
                         public void onImageLoaded(Bitmap loadedBmp, String uri) {
-                            if (track.equals(mCurrentTrack)) applyCurrentMetadata(track);
+                            if (track.equals(mCurrentTrack)) onTrackChanged(track);
                         }
                         public void onImageError(String uri, Throwable error) {}
                     });

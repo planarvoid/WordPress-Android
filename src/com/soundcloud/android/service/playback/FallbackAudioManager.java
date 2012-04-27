@@ -17,15 +17,28 @@ public class FallbackAudioManager implements IAudioManager {
     }
 
     @Override
-    public void applyRemoteMetadata(Track track, Bitmap bitmap) {
-    }
-
-    @Override
     public void setPlaybackState(boolean isPlaying) {
     }
 
     @Override
-    public boolean isSupported() {
+    public boolean isFocusSupported() {
         return false;
+    }
+
+    @Override
+    public boolean isTrackChangeSupported() {
+        return false;
+    }
+
+    @Override
+    public void onFocusObtained() {
+    }
+
+    @Override
+    public void onFocusAbandoned() {
+    }
+
+    @Override
+    public void onTrackChanged(Track track, Bitmap artwork) {
     }
 }

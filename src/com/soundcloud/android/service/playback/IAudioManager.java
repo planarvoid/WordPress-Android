@@ -14,8 +14,12 @@ public interface IAudioManager {
     int requestMusicFocus(MusicFocusable focusable);
     int abandonMusicFocus(boolean isTemporary);
 
-    void applyRemoteMetadata(final Track track, final Bitmap bitmap);
     void setPlaybackState(boolean isPlaying);
 
-    boolean isSupported();
+    boolean isFocusSupported();
+    boolean isTrackChangeSupported();
+
+    void onFocusObtained();
+    void onFocusAbandoned();
+    void onTrackChanged(Track track, Bitmap artwork);
 }
