@@ -11,6 +11,7 @@ $ 41
     - Proxy crashes
     - Fixed resume after playback failure logic
     - Sync backoff logic
+    - fixed playback service component handling (which will fix service lifecycle)
 
 $ 40
   % v 2.2.5

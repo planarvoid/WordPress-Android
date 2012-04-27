@@ -41,7 +41,7 @@ public class PlaybackRemoteViews extends RemoteViews{
         linkButtons(context);
 
         final ComponentName name = new ComponentName(context, CloudPlaybackService.class);
-        final Intent close = new Intent(CloudPlaybackService.CLOSE_ACTION).setComponent(name);
+        final Intent close = new Intent(CloudPlaybackService.STOP_ACTION).setComponent(name);
         setOnClickPendingIntent(R.id.close, PendingIntent.getService(context,
                 0 /* requestCode */, close, 0 /* flags */));
     }

@@ -14,7 +14,7 @@ public interface IAudioManager {
     int requestMusicFocus(MusicFocusable focusable);
     int abandonMusicFocus(boolean isTemporary);
 
-    void setPlaybackState(boolean isPlaying);
+    void setPlaybackState(State state);
 
     boolean isFocusSupported();
     boolean isTrackChangeSupported();

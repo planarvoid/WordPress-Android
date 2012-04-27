@@ -1,6 +1,20 @@
 
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.tracking.Media;
+import com.soundcloud.android.view.play.PlayerTrackView;
+import com.soundcloud.android.view.play.TransportBar;
+import com.soundcloud.android.view.play.WaveformController;
+import com.soundcloud.android.view.WorkspaceView;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,19 +30,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.tracking.Media;
-import com.soundcloud.android.view.WorkspaceView;
-import com.soundcloud.android.view.play.PlayerTrackView;
-import com.soundcloud.android.view.play.TransportBar;
-import com.soundcloud.android.view.play.WaveformController;
 
 public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
     private static final String TAG = "ScPlayer";
