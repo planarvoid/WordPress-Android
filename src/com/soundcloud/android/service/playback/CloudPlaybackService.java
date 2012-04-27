@@ -511,7 +511,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 old.release();
             }
         }.start();
-        if (refresh) mMediaPlayer = new MediaPlayer();
+        mMediaPlayer = refresh ? new MediaPlayer() : null;
     }
 
 
@@ -573,7 +573,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     mMediaPlayer.stop();
                 }
                 releaseMediaPlayer(false);
-                mMediaPlayer = null;
             }
             gotoIdleState(STOPPED);
         }
