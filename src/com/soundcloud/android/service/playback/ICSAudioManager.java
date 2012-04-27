@@ -88,22 +88,6 @@ public class ICSAudioManager extends FroyoAudioManager {
     }
 
     private static int translateState(State state) {
-        switch (state) {
-            case PLAYING:
-                return RemoteControlClient.PLAYSTATE_PLAYING;
-            case PREPARING:
-            case PAUSED_FOR_BUFFERING:
-                return RemoteControlClient.PLAYSTATE_BUFFERING;
-            case STOPPED:
-                return RemoteControlClient.PLAYSTATE_STOPPED;
-            case PAUSED:
-            case PAUSED_FOCUS_LOST:
-                return RemoteControlClient.PLAYSTATE_PAUSED;
-            case ERROR:
-                return RemoteControlClient.PLAYSTATE_ERROR;
-
-            default:
-                return RemoteControlClient.PLAYSTATE_STOPPED;
-        }
+        return state.isSupposedToBePlaying() ? RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED;
     }
 }
