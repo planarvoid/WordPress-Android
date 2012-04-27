@@ -18,9 +18,14 @@ import com.soundcloud.android.service.sync.ApiSyncer;
 public class LocalCollection {
     public final int id;
     public final Uri uri;
+
+    /** timestamp of last sync */
     public long last_sync = -1;
+    /** see {@link SyncState}, for display/UI purposes ({@link com.soundcloud.android.adapter.RemoteCollectionAdapter}) */
     public int sync_state = -1;
+    /** collection size */
     public int size = -1;
+    /** collection specific data - future_href for activities, sync misses for rest */
     public String extra;
 
     private ContentResolver mContentResolver;
@@ -29,7 +34,15 @@ public class LocalCollection {
     public interface SyncState {
         int PENDING = 0;
         int SYNCING = 1;
-        int IDLE = 2;
+        int IDLE    = 2;
+    }
+
+    public int syncMisses() {
+        try {
+            return Integer.parseInt(extra);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     public LocalCollection(Cursor c) {
@@ -61,7 +74,7 @@ public class LocalCollection {
         extra = result.extra;
         sync_state = SyncState.IDLE;
 
-        return (resolver.update(Content.COLLECTIONS.forId(id), buildContentValues(), null,null) == 1);
+        return resolver.update(Content.COLLECTIONS.forId(id), buildContentValues(), null,null) == 1;
     }
 
     public static LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {

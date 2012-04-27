@@ -5,7 +5,7 @@
                 android:background="@color/darkBg">
   <RelativeLayout android:padding="10dip"
                   android:layout_width="fill_parent"
-                  android:layout_height="fill_parent">\
+                  android:layout_height="fill_parent">
     <TextView android:id="@+id/txt_msg"
               android:layout_height="wrap_content"
               style="@style/txt_auth_msg"
@@ -15,6 +15,7 @@
 
     <EditText android:layout_height="wrap_content"
               android:id="@+id/txt_username"
+              android:inputType="text"
               android:layout_below="@+id/txt_msg"
               android:layout_alignLeft="@+id/txt_msg"
               android:layout_width="fill_parent"

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.2.5"
+      android:versionName="2.2.6"
       android:installLocation="internalOnly"
-      android:versionCode="40">
+      android:versionCode="41">
 
     <supports-screens android:anyDensity="true" />
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10"/>
+    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="11"/>
 
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -60,7 +60,21 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="soundcloud.com"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="http" android:host="snd.sc"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="snd.sc"/>
             </intent-filter>
 
             <!-- soundcloud:users:12345#show | soundcloud:tracks:12345#play -->
@@ -184,8 +198,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.ScUpload" android:windowSoftInputMode="adjustPan">
-
+        <activity android:name=".activity.ScUpload" android:windowSoftInputMode="adjustPan" android:theme="@style/Theme.ScNoBackground" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
                 <data android:mimeType="audio/*"/>
@@ -208,8 +221,19 @@
 
         <!-- services -->
         <service android:name=".service.sync.ApiSyncService"/>
-        <service android:name=".service.playback.CloudPlaybackService"/>
         <service android:name=".service.record.CloudCreateService"/>
+        <service android:name=".service.playback.CloudPlaybackService"
+                 android:exported="false">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.playback.play"/>
+                <action android:name="com.soundcloud.android.playback.togglepause"/>
+                <action android:name="com.soundcloud.android.playback.pause"/>
+                <action android:name="com.soundcloud.android.playback.next"/>
+                <action android:name="com.soundcloud.android.playback.previous"/>
+                <action android:name="com.soundcloud.android.playback.close"/>
+                <action android:name="com.soundcloud.android.playback.reset"/>
+            </intent-filter>
+        </service>
 
         <service android:name=".service.upload.UploadService" android:exported="false">
             <intent-filter>
@@ -274,11 +298,10 @@
                        android:resource="@xml/widget_record" />
         </receiver>
 
-        <!-- headphone remote control -->
+        <!-- headphone + remoteclient control -->
         <receiver android:name=".service.playback.RemoteControlReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
-                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
         </receiver>
 

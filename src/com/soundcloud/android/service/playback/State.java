@@ -54,4 +54,8 @@ import java.util.EnumSet;
     public boolean isSupposedToBePlaying() {
         return this == PREPARING || this == PLAYING || this == PAUSED_FOR_BUFFERING || this == EMPTY_PLAYLIST;
     }
+
+    public boolean isInIdleState() {
+        return this == PAUSED || this == STOPPED || this == COMPLETED || this == ERROR;
+    }
 }

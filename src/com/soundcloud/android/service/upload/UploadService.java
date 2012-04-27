@@ -326,7 +326,7 @@ public class UploadService extends Service {
 
         Intent userTracks = (new Intent(Actions.MY_PROFILE).putExtra("userBrowserTag", UserBrowser.Tab.tracks));
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, userTracks, PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification notification = new Notification(R.drawable.ic_status, tickerText, System.currentTimeMillis());
+        Notification notification = new Notification(R.drawable.ic_notification_cloud, tickerText, System.currentTimeMillis());
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
         notification.setLatestEventInfo(this,title ,message , contentIntent);
 

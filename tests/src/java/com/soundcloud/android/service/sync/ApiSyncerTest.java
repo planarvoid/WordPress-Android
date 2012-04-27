@@ -50,7 +50,6 @@ public class ApiSyncerTest {
         expect(result.synced_at).not.toEqual(0l);
     }
 
-
     @Test
     public void shouldSyncContent() throws Exception {
         TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
@@ -59,5 +58,25 @@ public class ApiSyncerTest {
         ApiSyncer.Result result = syncer.syncContent(Content.ME_TRACKS.uri, Intent.ACTION_SYNC);
         expect(result.success).toBe(true);
         expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
+        expect(result.extra).toEqual("0");
+    }
+
+    @Test
+    public void shouldReturnUnchangedIfLocalStateEqualsRemote() throws Exception {
+        TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
+        TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application);
+        ApiSyncer.Result result = syncer.syncContent(Content.ME_TRACKS.uri, Intent.ACTION_SYNC);
+        expect(result.success).toBe(true);
+        expect(result.change).toEqual(ApiSyncer.Result.CHANGED);
+
+        TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
+        TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+
+        result = syncer.syncContent(Content.ME_TRACKS.uri, Intent.ACTION_SYNC);
+        expect(result.success).toBe(true);
+        expect(result.change).toEqual(ApiSyncer.Result.UNCHANGED);
+        expect(result.extra).toBeNull();
     }
 }

@@ -77,18 +77,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:key="extras" android:title="@string/pref_dev_extras">
-        <Preference
-                android:key="dev.alarmClock"
-                android:title="@string/pref_dev_alarm_clock"
-                android:summary="@string/pref_dev_alarm_clock_summary"/>
-
-        <ListPreference
-                android:key="dev.alarmClock.uri"
-                android:title="@string/pref_dev_alarm_play_uri"
-                android:summary="@string/pref_dev_alarm_play_uri_summary"
-                android:entries="@array/dev_alarmClock_uri_entries"
-                android:entryValues="@array/dev_alarmClock_uri_values"
-                />
+        <!-- content will be added dynamically -->
     </PreferenceCategory>
 
     <PreferenceCategory android:key="dev-settings"

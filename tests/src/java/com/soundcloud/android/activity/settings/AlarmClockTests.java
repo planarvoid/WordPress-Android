@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.activity.settings.AlarmClock;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -28,7 +27,7 @@ import android.widget.Toast;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class AlarmClockTests {
+public class    AlarmClockTests {
     ShadowAlarmManager shadowAlarmManager;
     AlarmClock alarm;
 
@@ -91,7 +90,7 @@ public class AlarmClockTests {
 
         Intent intent = shadowOf(Robolectric.application).getNextStartedService();
         expect(intent).not.toBeNull();
-        expect(intent.getAction()).toEqual(CloudPlaybackService.PLAY);
+        expect(intent.getAction()).toEqual(CloudPlaybackService.PLAY_ACTION);
         expect(intent.getData()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/favorites");
         expect(shadowOf(intent).getIntentClass().getSimpleName()).toEqual("CloudPlaybackService");
         expect(intent.getData().getQueryParameter(ScContentProvider.Parameter.CACHED)).toBeNull();

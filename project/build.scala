@@ -6,7 +6,7 @@ import AndroidNdkKeys._
 object General {
   val settings = Defaults.defaultSettings ++ Seq(
     organization := "com.soundcloud",
-    platformName := "android-10"
+    platformName := "android-14"
   )
 
   val androidProjectSettings =
@@ -32,7 +32,7 @@ object AndroidBuild extends Build {
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
     "com.at" % "ATInternet" % "1.1.003",
     "com.google.android" % "support-v4" % "r6",
-    "com.google.android" % "android" % "2.3.3" % "provided"
+    "com.google.android" % "android" % "4.0.1.2" % "provided"
   )
 
   val testDependencies = Seq(

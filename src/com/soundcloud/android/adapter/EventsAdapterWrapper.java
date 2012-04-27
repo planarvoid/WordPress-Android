@@ -162,11 +162,17 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
+
+                if (!mAutoAppend) {
+                    allowInitialLoading();
+                    notifyDataSetChanged();
+                }
                 if (CloudUtils.isTaskFinished(mRefreshTask)) doneRefreshing(); // no refresh task so no need to show the refresh header
                 break;
             }
             case ApiSyncService.STATUS_APPEND_ERROR:
             case ApiSyncService.STATUS_APPEND_FINISHED: {
+
                 if (!resultData.getBoolean(mContentUri.toString())) mKeepGoing = false; // no items to append, so don't keep going
                 mState = IDLE;
                 notifyDataSetChanged();

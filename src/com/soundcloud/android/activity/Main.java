@@ -456,7 +456,7 @@ public class Main extends TabActivity implements
 
     protected void onTrackLoaded(Track track, String action) {
         startService(new Intent(Main.this, CloudPlaybackService.class)
-                .setAction(CloudPlaybackService.PLAY)
+                .setAction(CloudPlaybackService.PLAY_ACTION)
                 .putExtra("track", track));
 
         startActivity(new Intent(Main.this, ScPlayer.class));

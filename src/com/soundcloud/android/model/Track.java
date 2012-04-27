@@ -182,6 +182,11 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         return _list_artwork_uri;
     }
 
+    public String getPlayerArtworkUri(Context context){
+        final String iconUrl = getArtwork();
+        return TextUtils.isEmpty(iconUrl) ? null : Consts.GraphicSize.formatUriForPlayer(context, iconUrl);
+    }
+
 
     @Override @JsonIgnore
     public User getUser() {

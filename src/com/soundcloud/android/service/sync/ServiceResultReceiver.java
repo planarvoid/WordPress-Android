@@ -48,9 +48,9 @@ class ServiceResultReceiver extends ResultReceiver {
                 break;
             }
             case ApiSyncService.STATUS_SYNC_FINISHED: {
+                SyncContent.updateCollections(app, resultData);
 
-                SyncContent.updateCollections(app,resultData);
-
+                // notification related
                 if (SyncConfig.shouldUpdateDashboard(app)) {
                     final long frequency = SyncConfig.getNotificationsFrequency(app);
                     final long delta = System.currentTimeMillis() -

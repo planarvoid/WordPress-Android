@@ -161,6 +161,10 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
         return mTouchState == TOUCH_STATE_SCROLLING;
     }
 
+    public boolean isScrollerFinished(){
+        return mScroller.isFinished();
+    }
+
     /**
      * Returns the index of the currently displayed screen.
      */

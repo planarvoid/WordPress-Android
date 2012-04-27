@@ -25,6 +25,7 @@ public class PlayerAvatarBar extends View {
     private static final int AVATARS_REFRESHED = 1;
     private static final int AVATAR_WIDTH = 32;
     private static final int AVATAR_WIDTH_LARGE = 100;
+    public static final Matrix DEFAULT_MATRIX = new Matrix();
 
     private long mDuration;
 
@@ -297,7 +298,7 @@ public class PlayerAvatarBar extends View {
         super.onDraw(canvas);
 
         if (mCanvasBmp != null) {
-            canvas.drawBitmap(mCanvasBmp, new Matrix(), mImagePaint);
+            canvas.drawBitmap(mCanvasBmp, DEFAULT_MATRIX, mImagePaint);
         } else if (mCurrentComments != null) {
             for (Comment comment : mCurrentComments){
                 canvas.drawLine(comment.xPos, 0, comment.xPos, getHeight(), mLinePaint);

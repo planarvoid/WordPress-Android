@@ -32,8 +32,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceGroup;
 import android.util.Log;
 
 import java.io.File;
@@ -55,10 +57,6 @@ public class Settings extends PreferenceActivity {
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
 
-
-    public static final String ALARM_CLOCK     = "dev.alarmClock";
-    public static final String ALARM_CLOCK_URI = "dev.alarmClock.uri";
-
     private ProgressDialog mDeleteDialog;
 
     @Override
@@ -70,20 +68,11 @@ public class Settings extends PreferenceActivity {
             BetaPreferences.add(this, getPreferenceScreen());
         }
 
-        if (!AlarmClock.isEnabled(this)) {
-            getPreferenceScreen().removePreference(findPreference(EXTRAS));
+        PreferenceGroup extras = (PreferenceGroup) findPreference(EXTRAS);
+        if (AlarmClock.isFeatureEnabled(this)) {
+            AlarmClock.get(getApplicationContext()).addPrefs(this, extras);
         } else {
-            findPreference(ALARM_CLOCK).setOnPreferenceClickListener(
-                    new Preference.OnPreferenceClickListener() {
-                        public boolean onPreferenceClick(Preference preference) {
-                            new AlarmClock(Settings.this).showDialog();
-                            return true;
-                        }
-                    }
-            );
-            SharedPreferencesUtils.listWithLabel(this,
-                    R.string.pref_dev_alarm_play_uri,
-                    ALARM_CLOCK_URI);
+            getPreferenceScreen().removePreference(extras);
         }
 
         findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
@@ -226,9 +215,8 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        SharedPreferencesUtils.listWithLabel(this,
-                R.string.pref_record_quality,
-                "defaultRecordingQuality");
+        SharedPreferencesUtils.listWithLabel((ListPreference) findPreference("defaultRecordingQuality"),
+                R.string.pref_record_quality);
 
         if (!SoundCloudApplication.DEV_MODE) {
             getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));

@@ -1,7 +1,7 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.ContentResolver;
-import android.net.Uri;
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -9,10 +9,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.content.ContentResolver;
+import android.net.Uri;
 
-import static com.soundcloud.android.Expect.expect;
+import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
 public class SyncContentTest {
@@ -25,10 +25,8 @@ public class SyncContentTest {
 
     @Test
     public void shouldSyncAll() throws Exception {
-        List<Uri> urisToSync = new ArrayList<Uri>();
-        SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
+        List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(3);
-
     }
 
     @Test
@@ -41,11 +39,8 @@ public class SyncContentTest {
                 "some-extra", // extra
                 resolver);
 
-        List<Uri> urisToSync = new ArrayList<Uri>();
-        SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
-
+        List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(2);
-
     }
 
     @Test
@@ -58,9 +53,7 @@ public class SyncContentTest {
                 "1", // extra
                 resolver);
 
-        List<Uri> urisToSync = new ArrayList<Uri>();
-        SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
-
+        List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(2);
     }
 
@@ -74,9 +67,7 @@ public class SyncContentTest {
                 "1", // extra
                 resolver);
 
-        List<Uri> urisToSync = new ArrayList<Uri>();
-        SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
-
+        List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(3);
     }
 
@@ -90,15 +81,12 @@ public class SyncContentTest {
                 String.valueOf(SyncConfig.TRACK_BACKOFF_MULTIPLIERS.length), // extra
                 resolver);
 
-        List<Uri> urisToSync = new ArrayList<Uri>();
-        SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
-
+        List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(2);
     }
 
     @Test
     public void shouldNotSyncAfterMiss() throws Exception {
-
         LocalCollection c = LocalCollection.insertLocalCollection(
                 SyncContent.MySounds.content.uri,// uri
                 1, // sync state
@@ -107,16 +95,14 @@ public class SyncContentTest {
                 "", // extra
                 resolver);
 
-        List<Uri> urisToSync = new ArrayList<Uri>();
-        SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
+        List<Uri> urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(3);
 
         android.os.Bundle syncResult = new android.os.Bundle();
         syncResult.putBoolean(SyncContent.MySounds.content.uri.toString(),false);
         SyncContent.updateCollections(Robolectric.application, syncResult);
 
-        urisToSync = new ArrayList<Uri>();
-        SyncContent.configureSyncExtras(Robolectric.application, urisToSync, false);
+        urisToSync = SyncContent.getCollectionsDueForSync(Robolectric.application, false);
         expect(urisToSync.size()).toEqual(2);
     }
 }

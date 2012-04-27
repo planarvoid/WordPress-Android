@@ -34,8 +34,10 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 
@@ -77,6 +79,7 @@ public class ApiSyncer {
                 case ME_EXCLUSIVE_STREAM:
                 case ME_SOUND_STREAM:
                     result = syncActivities(uri, action);
+                    result.success = true;
                     break;
 
                 case ME_TRACKS:
@@ -84,6 +87,7 @@ public class ApiSyncer {
                 case ME_FOLLOWINGS:
                 case ME_FOLLOWERS:
                     result = syncContent(c, SoundCloudApplication.getUserIdFromContext(mContext));
+                    result.success = true;
                     break;
             }
         } else {
@@ -144,7 +148,6 @@ public class ApiSyncer {
         }
 
         result.change = inserted > 0 ? Result.CHANGED : Result.UNCHANGED;
-        result.success = true;
         log("activities: inserted " + inserted + " objects");
         return result;
     }
@@ -157,29 +160,9 @@ public class ApiSyncer {
         log("Cloud Api service: got remote ids " + remote.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(), remote.size(), null);
 
-        if (!local.equals(remote)){
-            // items have been added or removed (not just ordering) so this is a sync hit
-            result.change = Result.CHANGED;
-            result.extra = "0"; // reset sync misses
-        }  else if (content == Content.ME_FOLLOWERS || content == Content.ME_FOLLOWINGS) {
-            result.change = Result.REORDERED;
-        } else {
-            log("Cloud Api service: no change in URI " + content.uri + ". Skipping sync.");
-            return result;
-        }
+        if (checkUnchanged(content, result, local, remote)) return result;
+        handleDeletions(content, local, remote);
 
-        // deletions can happen here, has no impact
-        List<Long> itemDeletions = new ArrayList<Long>(local);
-        itemDeletions.removeAll(remote);
-
-        log("Need to remove " + itemDeletions.size() + " items");
-
-        int i = 0;
-        while (i < itemDeletions.size()) {
-            List<Long> batch = itemDeletions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
-            mResolver.delete(content.uri, DBHelper.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
-            i += RESOLVER_BATCH_SIZE;
-        }
         int startPosition = 1;
         int added;
         switch (content) {
@@ -227,7 +210,7 @@ public class ApiSyncer {
 
         log("Added " + added + " new items for this endpoint");
         ContentValues[] cv = new ContentValues[remote.size()];
-        i = 0;
+        int i = 0;
         for (Long id : remote) {
             cv[i] = new ContentValues();
             cv[i].put(DBHelper.CollectionItems.POSITION, startPosition + i);
@@ -236,8 +219,49 @@ public class ApiSyncer {
             i++;
         }
         mResolver.bulkInsert(content.uri, cv);
-        result.success = true;
         return result;
+    }
+
+    private boolean checkUnchanged(Content content, Result result, List<Long> local, List<Long> remote) {
+        switch (content) {
+            case ME_FOLLOWERS:
+            case ME_FOLLOWINGS:
+                Set<Long> localSet = new HashSet<Long>(local);
+                Set<Long> remoteSet = new HashSet<Long>(remote);
+                if (!localSet.equals(remoteSet)) {
+                    result.change = Result.CHANGED;
+                    result.extra = "0"; // reset sync misses
+                } else {
+                    result.change = local.equals(remote) ? Result.UNCHANGED : Result.REORDERED;
+                }
+                break;
+            default:
+                if (!local.equals(remote)) {
+                    // items have been added or removed (not just ordering) so this is a sync hit
+                    result.change = Result.CHANGED;
+                    result.extra = "0"; // reset sync misses
+                } else {
+                    result.change = Result.UNCHANGED;
+                    log("Cloud Api service: no change in URI " + content.uri + ". Skipping sync.");
+                }
+        }
+        return result.change == Result.UNCHANGED;
+    }
+
+    private List<Long> handleDeletions(Content content, List<Long> local, List<Long> remote) {
+        // deletions can happen here, has no impact
+        List<Long> itemDeletions = new ArrayList<Long>(local);
+        itemDeletions.removeAll(remote);
+        if (!itemDeletions.isEmpty()) {
+            log("Need to remove " + itemDeletions.size() + " items");
+            int i = 0;
+            while (i < itemDeletions.size()) {
+                List<Long> batch = itemDeletions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
+                mResolver.delete(content.uri, DBHelper.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
+                i += RESOLVER_BATCH_SIZE;
+            }
+        }
+        return itemDeletions;
     }
 
     private Result syncMe(Content c) throws IOException {

@@ -14,6 +14,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -362,8 +363,8 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void shouldShowNewFetchedFollower() throws Exception {
-        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-                addResourceResponse("/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+        TestHelper.addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
+        addResourceResponse("/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
 
         addHttpResponseRule("GET", "/users/12345",
                 new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("user.json"))));
@@ -388,6 +389,45 @@ public class SyncAdapterServiceTest {
         expect(result.notifications.size()).toEqual(0);
     }
 
+
+    @Test
+    public void shouldSyncLocalCollections() throws Exception {
+        SyncContent.MySounds.setEnabled(Robolectric.application, true);
+
+        TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
+        TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+
+        addCannedActivities(
+                "empty_events.json",
+                "empty_events.json",
+                "empty_events.json");
+
+        doPerformSync(DefaultTestRunner.application, false, null);
+
+        LocalCollection lc = LocalCollection.fromContent(Content.ME_TRACKS, Robolectric.application.getContentResolver(), false);
+        expect(lc).not.toBeNull();
+        expect(lc.extra).toEqual("0");
+        expect(lc.size).toEqual(3);
+        expect(lc.last_sync).not.toEqual(0L);
+
+        // reset sync time & rerun sync
+        addCannedActivities(
+                "empty_events.json",
+                "empty_events.json",
+                "empty_events.json");
+
+        lc.updateLastSyncTime(0, DefaultTestRunner.application.getContentResolver());
+
+        doPerformSync(DefaultTestRunner.application, false, null);
+
+        lc = LocalCollection.fromContent(Content.ME_TRACKS, Robolectric.application.getContentResolver(), false);
+        expect(lc).not.toBeNull();
+        expect(lc.extra).toEqual("1");    // 1 miss
+        expect(lc.size).toEqual(3);
+        expect(lc.last_sync).not.toEqual(0L);
+    }
+
+
     static class SyncOutcome {
         List<NotificationInfo> notifications;
         SyncResult result;
@@ -411,24 +451,18 @@ public class SyncAdapterServiceTest {
 
     private static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime, Bundle extras)
             throws Exception {
-        if (!firstTime) {
-            app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
-        }
-
-        if (extras == null) {
-            extras = new Bundle();
-        }
+        if (!firstTime) app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
+        if (extras == null) extras = new Bundle();
 
         ShadowNotificationManager m = shadowOf((NotificationManager)
                 Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
-
         m.cancelAll();
 
         SyncResult result = new SyncResult();
         Intent intent = SyncAdapterService.performSync(
                 app,
                 new Account("foo", "bar"),
-                extras, null, result);
+                extras, result);
 
 
         if (intent != null) {
@@ -468,8 +502,6 @@ public class SyncAdapterServiceTest {
         NotificationInfo n = notifications.get(0);
         expect(n.n.tickerText.toString()).toEqual(ticker);
         expect(n.info.getContentTitle().toString()).toEqual(title);
-
-
         expect(n.info.getContentText().toString()).toEqual(content);
     }
 
@@ -493,21 +525,5 @@ public class SyncAdapterServiceTest {
 
     private void addResourceResponse(String url, String resource) throws IOException {
         TestHelper.addCannedResponse(getClass(), url, resource);
-    }
-
-    private void serviceAction(ApiSyncService svc, String action, Content content, String... fixtures) throws IOException {
-        TestHelper.addCannedResponses(SyncAdapterServiceTest.class, fixtures);
-        svc.onStart(new Intent(action, content.uri), 1);
-    }
-
-    private void addIdResponse(String url, int... ids) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{ \"collection\": [");
-        for (int i = 0; i < ids.length; i++) {
-            sb.append(ids[i]);
-            if (i < ids.length - 1) sb.append(", ");
-        }
-        sb.append("] }");
-        Robolectric.addHttpResponseRule(url, new TestHttpResponse(200, sb.toString()));
     }
 }

@@ -262,7 +262,7 @@ public class BetaService extends Service {
 
         String ticker = getString(R.string.pref_beta_new_version_downloaded_ticker);
 
-        Notification n = new Notification(R.drawable.ic_status, ticker, apk.lastmodified);
+        Notification n = new Notification(R.drawable.ic_notification_cloud, ticker, apk.lastmodified);
         n.flags |= defaultNotificationFlags();
         n.setLatestEventInfo(this, title, content, PendingIntent.getActivity(this, 0, apk.getInstallIntent(), 0));
         NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -275,7 +275,7 @@ public class BetaService extends Service {
         String ncontent = getString(R.string.pref_beta_not_enough_storage_content, beta.key);
         Intent intent = new Intent(android.provider.Settings.ACTION_MEMORY_CARD_SETTINGS);
 
-        Notification n = new Notification(R.drawable.ic_status, title, System.currentTimeMillis());
+        Notification n = new Notification(R.drawable.ic_notification_cloud, title, System.currentTimeMillis());
         n.flags |= defaultNotificationFlags();
         n.setLatestEventInfo(this, title, ncontent, PendingIntent.getActivity(this, 0, intent, 0));
         NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -288,7 +288,7 @@ public class BetaService extends Service {
         Intent intent = new Intent(this, Settings.class)
                 .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
-        Notification n = new Notification(R.drawable.ic_status, title, System.currentTimeMillis());
+        Notification n = new Notification(R.drawable.ic_notification_cloud, title, System.currentTimeMillis());
         n.flags |= defaultNotificationFlags();
         n.setLatestEventInfo(this, title, ncontent, PendingIntent.getActivity(this, 0, intent, 0));
         NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -300,7 +300,7 @@ public class BetaService extends Service {
         Intent intent = new Intent(this, Settings.class)
                 .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
-        Notification n = new Notification(R.drawable.ic_status, title, System.currentTimeMillis());
+        Notification n = new Notification(R.drawable.ic_notification_cloud, title, System.currentTimeMillis());
         n.flags |= defaultNotificationFlags();
         n.setLatestEventInfo(this, title, message, PendingIntent.getActivity(this, 0, intent, 0));
         NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -339,7 +339,7 @@ public class BetaService extends Service {
          Intent intent = new Intent(context, Settings.class)
                   .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
-         Notification n = new Notification(R.drawable.ic_status, title, System.currentTimeMillis());
+         Notification n = new Notification(R.drawable.ic_notification_cloud, title, System.currentTimeMillis());
          n.flags |= BetaService.defaultNotificationFlags();
          n.setLatestEventInfo(context, title, version, PendingIntent.getActivity(context, 0, intent ,0 ));
          NotificationManager mgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

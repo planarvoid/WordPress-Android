@@ -274,7 +274,7 @@ public class PlayerTrackView extends LinearLayout implements
                     getContext(),
                     mArtwork,
                     mTrack.getArtwork(),
-                    Consts.GraphicSize.T500, new ImageLoader.Callback() {
+                    Consts.GraphicSize.getPlayerGraphicSize(getContext()), new ImageLoader.Callback() {
                 @Override
                 public void onImageError(ImageView view, String url, Throwable error) {
                     mCurrentArtBindResult = ImageLoader.BindResult.ERROR;

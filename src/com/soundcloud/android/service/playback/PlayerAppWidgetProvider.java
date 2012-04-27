@@ -32,25 +32,25 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        defaultAppWidget(context, appWidgetIds);
+        updateWidget(context, appWidgetIds);
+
         // Send broadcast intent to any running CloudPlaybackService so it can
         // wrap around with an immediate update.
-        Intent updateIntent = new Intent(CloudPlaybackService.SERVICECMD);
-        updateIntent.putExtra(CloudPlaybackService.CMDNAME,
-                PlayerAppWidgetProvider.CMDAPPWIDGETUPDATE);
+
+        Intent updateIntent = new Intent(CloudPlaybackService.UPDATE_WIDGET_ACTION);
         updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
         updateIntent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
         context.sendBroadcast(updateIntent);
     }
 
-    private void defaultAppWidget(Context context, int[] appWidgetIds) {
+    private void updateWidget(Context context, int[] appWidgetIds) {
         final PlaybackRemoteViews views = new PlaybackRemoteViews(context.getPackageName(), R.layout.appwidget_player);
         views.setTextViewText(R.id.title_txt, context.getString(R.string.widget_touch_to_open));
         views.setViewVisibility(R.id.by_txt, View.GONE);
         views.setViewVisibility(R.id.user_txt, View.GONE);
 
         // initialize controls
-        views.linkButtons(context, -1, -1, false);
+        views.linkButtonsWidget(context, -1, -1, false);
         pushUpdate(context, appWidgetIds, views);
     }
 
@@ -100,12 +100,11 @@ public class PlayerAppWidgetProvider extends AppWidgetProvider {
 
             if (mCurrentTrackId != trackId) {
                 mCurrentTrackId = trackId;
-                views.setCurrentTrack(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.title),
-                        intent.getStringExtra(CloudPlaybackService.BroadcastExtras.username));
+                views.setCurrentTrackTitle(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.title));
+                views.setCurrentUsername(intent.getStringExtra(CloudPlaybackService.BroadcastExtras.username));
             }
 
-            views.linkButtons(context, trackId,intent.getLongExtra(CloudPlaybackService.BroadcastExtras.user_id,-1),
-                    intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isFavorite,false)) ;
+            views.linkButtonsNotification(context);
 
             pushUpdate(context, appWidgetIds, views);
         }

@@ -3,9 +3,5 @@
     android:minWidth="146dp"
     android:minHeight="146dp"
     android:updatePeriodMillis="0"
-    android:initialLayout="@layout/appwidget_record" >
-    <ImageButton android:id="@+id/btn_action"
-        android:background="@drawable/btn_rec_states"
-        android:layout_centerInParent="true" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-</appwidget-provider>
+    android:initialLayout="@layout/appwidget_record"
+    android:previewImage="@drawable/widget_record_preview"/>

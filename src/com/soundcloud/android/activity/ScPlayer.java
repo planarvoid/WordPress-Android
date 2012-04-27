@@ -1,21 +1,6 @@
 
 package com.soundcloud.android.activity;
 
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.playback.FocusHelper;
-import com.soundcloud.android.view.play.PlayerTrackView;
-import com.soundcloud.android.view.play.TransportBar;
-import com.soundcloud.android.view.play.WaveformController;
-import com.soundcloud.android.tracking.Media;
-import com.soundcloud.android.view.WorkspaceView;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +16,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.tracking.Media;
+import com.soundcloud.android.view.WorkspaceView;
+import com.soundcloud.android.view.play.PlayerTrackView;
+import com.soundcloud.android.view.play.TransportBar;
+import com.soundcloud.android.view.play.WaveformController;
 
 public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
     private static final String TAG = "ScPlayer";
@@ -120,23 +118,25 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     @Override
     public void onScreenChanged(View newScreen, int newScreenIndex) {
+
         if (newScreen == null) return;
         final int newQueuePos = ((PlayerTrackView) newScreen).getPlayPosition();
 
-        mCurrentQueuePosition = newQueuePos;
         mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
-
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
-                mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
+        if (mCurrentQueuePosition != newQueuePos){
+            mCurrentQueuePosition = newQueuePos;
+            mHandler.sendMessageDelayed(mHandler.obtainMessage(SEND_CURRENT_QUEUE_POSITION),
+                    mChangeTrackFast ? TRACK_NAV_DELAY : TRACK_SWIPE_UPDATE_DELAY);
+        }
         mChangeTrackFast = false;
 
         final long prevTrackId;
         final long nextTrackId;
 
         try {
-            prevTrackId = newQueuePos > 0
+            prevTrackId = mPlaybackService != null && newQueuePos > 0
                     ? mPlaybackService.getTrackIdAt(newQueuePos - 1) : -1;
-            nextTrackId = newQueuePos < mPlaybackService.getQueueLength() - 1
+            nextTrackId =  mPlaybackService != null && newQueuePos < mPlaybackService.getQueueLength() - 1
                     ? mPlaybackService.getTrackIdAt(newQueuePos + 1) : -1;
         } catch (RemoteException ignored) {
             return;
@@ -474,12 +474,15 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             String action = intent.getAction();
 
             if (action.equals(CloudPlaybackService.PLAYLIST_CHANGED)) {
+                mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 setTrackDisplayFromService();
             } else if (action.equals(CloudPlaybackService.META_CHANGED)) {
+                mHandler.removeMessages(SEND_CURRENT_QUEUE_POSITION);
                 if (mCurrentQueuePosition != queuePos) {
                     if (mCurrentQueuePosition != -1
                             && queuePos == mCurrentQueuePosition + 1
-                            && !mTrackWorkspace.isScrolling()) {
+                            && !mTrackWorkspace.isScrolling()
+                            && mTrackWorkspace.isScrollerFinished()) {
                         // auto advance
                         mTrackWorkspace.scrollRight();
                     } else {
@@ -545,7 +548,6 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     @Override
     protected void onResume() {
         super.onResume();
-        FocusHelper.registerHeadphoneRemoteControl(this);
         setPlaybackState();
     }
 
@@ -628,8 +630,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                     ((PlayerTrackView) mTrackWorkspace.getLastScreen()).destroy();
                     mTrackWorkspace.removeViewFromBack();
                 }
-                mTrackWorkspace.resetScroll();
             }
+
+            mTrackWorkspace.resetScroll();
 
             final int workspacePos = mCurrentQueuePosition > 0 ? 1 : 0;
             if (!mTrackWorkspace.isInitialized()){

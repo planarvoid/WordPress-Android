@@ -318,8 +318,9 @@ public class CloudCreateService extends Service  {
         nm.notify(RECORD_NOTIFY_ID, notification);
     }
 
+
     public static Notification createOngoingNotification(CharSequence tickerText, PendingIntent pendingIntent) {
-        int icon = R.drawable.ic_status;
+        int icon = R.drawable.ic_notification_cloud;
         Notification notification = new Notification(icon, tickerText, System.currentTimeMillis());
         notification.contentIntent = pendingIntent;
         notification.flags |= Notification.FLAG_ONGOING_EVENT;

@@ -14,6 +14,7 @@ import org.apache.http.HttpStatus;
 
 import android.accounts.Account;
 import android.app.Service;
+import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -28,9 +29,13 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Sync service - delegates to {@link ApiSyncService} for the actual syncing. This class is responsible for the setup
+ * and handling of the background syncing.
+ */
 public class SyncAdapterService extends Service {
     /* package */  static final String TAG = SyncAdapterService.class.getSimpleName();
-    private ScSyncAdapter mSyncAdapter;
+    private AbstractThreadedSyncAdapter mSyncAdapter;
 
     public static final int MAX_ARTWORK_PREFETCH = 40; // only prefetch N amount of artwork links
 
@@ -43,18 +48,21 @@ public class SyncAdapterService extends Service {
 
     @Override public void onCreate() {
         super.onCreate();
-        mSyncAdapter = new ScSyncAdapter((SoundCloudApplication) getApplication());
+        mSyncAdapter = new AbstractThreadedSyncAdapter(this, false) {
+            @Override
+            public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
+                performSync((SoundCloudApplication)getApplication(), account, extras, syncResult);
+            }
+        };
     }
 
     @Override public IBinder onBind(Intent intent) {
         return mSyncAdapter.getSyncAdapterBinder();
     }
 
-    /** @noinspection UnusedParameters*/
     /* package */ static Intent performSync(final SoundCloudApplication app,
                                             Account account,
                                             Bundle extras,
-                                            ContentProviderClient provider,
                                             final SyncResult syncResult) {
         if (!app.useAccount(account).valid()) {
             Log.w(TAG, "no valid token, skip sync");
@@ -62,7 +70,7 @@ public class SyncAdapterService extends Service {
             return null;
         }
 
-        final boolean force = extras.getBoolean(ContentResolver.SYNC_EXTRAS_FORCE, false);
+        final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
         final Intent syncIntent = new Intent(app, ApiSyncService.class);
         final ArrayList<Uri> urisToSync = new ArrayList<Uri>();
 
@@ -79,7 +87,7 @@ public class SyncAdapterService extends Service {
             if (!handleFollowerEvent(app, extras)) {
                 Log.w(TAG, "unhandled follower event:"+extras);
             }
-            syncIntent.setData(Content.ME_FOLLOWERS.uri);
+            syncIntent.setData(Content.ME_FOLLOWERS.uri); // refresh follower list
         } else {
              if (SyncConfig.shouldUpdateDashboard(app)) {
                 if (SyncConfig.isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
@@ -88,15 +96,15 @@ public class SyncAdapterService extends Service {
             }
 
             if (SyncConfig.shouldSyncCollections(app)) {
-                SyncContent.configureSyncExtras(app, urisToSync, force);
+                urisToSync.addAll(SyncContent.getCollectionsDueForSync(app, manual));
             }
 
-            if (SyncConfig.shouldSync(app, SyncConfig.PREF_LAST_SYNC_CLEANUP, SyncConfig.CLEANUP_DELAY) || force) {
+            if (SyncConfig.shouldSync(app, SyncConfig.PREF_LAST_SYNC_CLEANUP, SyncConfig.CLEANUP_DELAY) || manual) {
                 urisToSync.add(Content.TRACK_CLEANUP.uri);
                 urisToSync.add(Content.USERS_CLEANUP.uri);
             }
 
-            if (SyncConfig.shouldSync(app, SyncConfig.PREF_LAST_USER_SYNC, SyncConfig.CLEANUP_DELAY) || force) {
+            if (SyncConfig.shouldSync(app, SyncConfig.PREF_LAST_USER_SYNC, SyncConfig.CLEANUP_DELAY) || manual) {
                 urisToSync.add(Content.ME.uri);
             }
 

@@ -2,6 +2,8 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Friend;
@@ -133,7 +135,7 @@ public enum Content {
     public final Table table;
 
     static final private UriMatcher sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-    static final private Map<Integer, Content> sMap = new HashMap<Integer, Content>();
+    static final private SparseArray<Content> sMap = new SparseArray<Content>();
     static final private Map<Uri, Content> sUris = new HashMap<Uri, Content>();
 
     public static final int SYNCABLE_CEILING = 150;
