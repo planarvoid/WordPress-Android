@@ -320,7 +320,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         if (SoundCloudApplication.useRichNotifications()) {
             if (what.equals(PLAYSTATE_CHANGED)) {
-                mFocus.setPlaybackState(isPlaying());
+                mFocus.setPlaybackState(state);
                 setPlayingNotification(mCurrentTrack);
             } else if (what.equals(META_CHANGED)) {
                 onTrackChanged(mCurrentTrack);
@@ -789,7 +789,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     private String getUserName() {
-        return mCurrentTrack != null && mCurrentTrack.user != null ? mCurrentTrack.user.username : null;
+        return mCurrentTrack != null ? mCurrentTrack.getUserName() : null;
     }
 
     private long getUserId() {

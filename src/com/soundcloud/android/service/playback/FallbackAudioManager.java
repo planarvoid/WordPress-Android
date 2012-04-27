@@ -17,7 +17,7 @@ public class FallbackAudioManager implements IAudioManager {
     }
 
     @Override
-    public void setPlaybackState(boolean isPlaying) {
+    public void setPlaybackState(State state) {
     }
 
     @Override

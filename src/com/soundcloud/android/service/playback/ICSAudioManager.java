@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
+import android.util.Log;
 
 @SuppressWarnings("UnusedDeclaration")
 public class ICSAudioManager extends FroyoAudioManager {
@@ -36,9 +37,12 @@ public class ICSAudioManager extends FroyoAudioManager {
     }
 
     @Override
-    public void setPlaybackState(boolean isPlaying) {
-        super.setPlaybackState(isPlaying);
-        client.setPlaybackState(isPlaying ? RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
+    public void setPlaybackState(State state) {
+        super.setPlaybackState(state);
+        final int playbackState = translateState(state);
+
+        Log.d(getClass().getName(), "set playbackstate ("+state+") to "+playbackState);
+        client.setPlaybackState(playbackState);
     }
 
     @Override
@@ -60,6 +64,7 @@ public class ICSAudioManager extends FroyoAudioManager {
     }
 
     private void unregisterRemoteControlClient() {
+        client.editMetadata(false).clear();
         getAudioManager().unregisterRemoteControlClient(client);
     }
 
@@ -80,5 +85,25 @@ public class ICSAudioManager extends FroyoAudioManager {
 
         client.setTransportControlFlags(flags);
         return client;
+    }
+
+    private static int translateState(State state) {
+        switch (state) {
+            case PLAYING:
+                return RemoteControlClient.PLAYSTATE_PLAYING;
+            case PREPARING:
+            case PAUSED_FOR_BUFFERING:
+                return RemoteControlClient.PLAYSTATE_BUFFERING;
+            case STOPPED:
+                return RemoteControlClient.PLAYSTATE_STOPPED;
+            case PAUSED:
+            case PAUSED_FOCUS_LOST:
+                return RemoteControlClient.PLAYSTATE_PAUSED;
+            case ERROR:
+                return RemoteControlClient.PLAYSTATE_ERROR;
+
+            default:
+                return RemoteControlClient.PLAYSTATE_STOPPED;
+        }
     }
 }
