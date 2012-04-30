@@ -1,6 +1,11 @@
 package com.soundcloud.android.view.create;
 
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import com.soundcloud.android.R;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
 
@@ -21,6 +26,7 @@ public class CreateWaveDisplay extends TouchLayout {
 
     private static final int UI_UPDATE_SEEK = 1;
     private static final int UI_UPDATE_TRIM = 2;
+    private static final int UI_SET_TRIM_DRAWABLES = 3;
 
     private int mLeftHandleTouchIndex;
     private int mRightHandleTouchIndex;
@@ -37,7 +43,7 @@ public class CreateWaveDisplay extends TouchLayout {
     private long lastSeekX = -1;
     private int touchSlop;
 
-    private View rightHandle, leftHandle;
+    private ImageButton rightHandle, leftHandle;
     private LayoutParams rightLp, leftLp;
     private Listener mListener;
 
@@ -74,18 +80,19 @@ public class CreateWaveDisplay extends TouchLayout {
         touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 
         final float density = getContext().getResources().getDisplayMetrics().density;
-        final int dim = (int) (30 * density);
 
-        leftHandle = new View(getContext());
-        leftHandle.setBackgroundColor(Color.GRAY);
-        leftLp = new LayoutParams(dim,dim);
+        leftHandle = new ImageButton(getContext());
+        leftHandle.setBackgroundResource(R.drawable.left_handle_states);
+        leftHandle.setClickable(false);
+        leftLp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
         leftLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,1);
         leftLp.addRule(RelativeLayout.ALIGN_PARENT_LEFT,1);
         trimPercentLeft = 0.0f;
 
-        rightHandle = new View(getContext());
-        rightHandle.setBackgroundColor(Color.GRAY);
-        rightLp = new LayoutParams(dim,dim);
+        rightHandle = new ImageButton(getContext());
+        rightHandle.setBackgroundResource(R.drawable.right_handle_states);
+        rightHandle.setClickable(false);
+        rightLp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
         rightLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,1);
         rightLp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,1);
         trimPercentRight = 1.0f;
@@ -107,7 +114,7 @@ public class CreateWaveDisplay extends TouchLayout {
 
         LayoutParams viewParams = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
         //viewParams.rightMargin = viewParams.leftMargin = (int) (getContext().getResources().getDisplayMetrics().density * 15);
-        viewParams.bottomMargin = (int) (getContext().getResources().getDisplayMetrics().density * 15);
+        viewParams.bottomMargin = (int) (getContext().getResources().getDisplayMetrics().density * 20);
         addView(mWaveformView, viewParams);
         return mWaveformView;
     }
@@ -143,8 +150,10 @@ public class CreateWaveDisplay extends TouchLayout {
             seekTouch(input.x);
         } else if (mLeftHandleTouchIndex > -1 && input.actionIndex == mLeftHandleTouchIndex) {
             leftDragOffsetX = x - leftHandle.getLeft();
+            queueUnique(UI_SET_TRIM_DRAWABLES);
         } else if (mRightHandleTouchIndex > -1 && input.actionIndex == mRightHandleTouchIndex) {
             rightDragOffsetX = x - rightHandle.getRight();
+            queueUnique(UI_SET_TRIM_DRAWABLES);
         }
     }
 
@@ -173,9 +182,12 @@ public class CreateWaveDisplay extends TouchLayout {
     @Override
     protected void processUpInput(InputObject input) {
         processHandleUpFromPointer(input.actionIndex);
+        queueUnique(UI_SET_TRIM_DRAWABLES);
         mTouchHandler.removeMessages(UI_UPDATE_SEEK);
         lastSeekX = -1;
         mSeekMode = false;
+
+
     }
 
     @Override
@@ -199,6 +211,7 @@ public class CreateWaveDisplay extends TouchLayout {
             rightDragOffsetX = 0;
             if (mLeftHandleTouchIndex > pointerIndex) mLeftHandleTouchIndex--;
         }
+        queueUnique(UI_UPDATE_TRIM);
     }
 
     private void seekTouch(int x) {
@@ -219,6 +232,7 @@ public class CreateWaveDisplay extends TouchLayout {
         if (leftHandle.getParent() == this) {
             leftHandleRect = new Rect();
             leftHandle.getHitRect(leftHandleRect);
+
             leftHandleRect.set(leftHandleRect.left - touchSlop,
                                 leftHandleRect.top - touchSlop,
                                 leftHandleRect.right, // prevent overlapping
@@ -233,10 +247,14 @@ public class CreateWaveDisplay extends TouchLayout {
                                 rightHandleRect.bottom + touchSlop);
         }
 
+
+
         final int x = input.actionIndex == 0 ? input.x : input.pointerX;
         final int y = input.actionIndex == 0 ? input.y : input.pointerY;
+        Log.i("asdf","Checking left rect " + leftHandleRect + " " + x + " " + y);
         if (leftHandleRect != null && leftHandleRect.contains(x,y)) {
             mLeftHandleTouchIndex = input.actionIndex;
+            Log.i("asdf","Setting left index");
         } else if (rightHandleRect != null && rightHandleRect.contains(x,y)) {
             mRightHandleTouchIndex = input.actionIndex;
         } else if (input.action == InputObject.ACTION_TOUCH_DOWN){
@@ -289,6 +307,14 @@ public class CreateWaveDisplay extends TouchLayout {
                         }
                     }
                     break;
+
+                case UI_SET_TRIM_DRAWABLES:
+                    rightHandle.setPressed(mRightHandleTouchIndex != -1);
+                    leftHandle.setPressed(mLeftHandleTouchIndex != -1);
+
+                    break;
+
+
             }
         }
     };

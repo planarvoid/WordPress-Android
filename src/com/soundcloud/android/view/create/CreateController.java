@@ -631,11 +631,13 @@ public class CreateController implements CreateWaveDisplay.Listener {
 
     private void setPlayButtonDrawable(boolean playing){
         if (playing){
+            if (mPauseBgDrawable == null) mPauseBgDrawable = mActivity.getResources().getDrawable(R.drawable.btn_rec_play_pause_states);
+            mPlayButton.setBackgroundDrawable(mPauseBgDrawable);
+            mPlayEditButton.setBackgroundDrawable(mPauseBgDrawable);
+        } else {
             if (mPlayBgDrawable == null) mPlayBgDrawable = mActivity.getResources().getDrawable(R.drawable.btn_rec_play_states);
             mPlayButton.setBackgroundDrawable(mPlayBgDrawable);
-        } else {
-            if (mPauseBgDrawable == null) mPauseBgDrawable = mActivity.getResources().getDrawable(R.drawable.btn_rec_pause_states);
-            mPlayButton.setBackgroundDrawable(mPauseBgDrawable);
+            mPlayEditButton.setBackgroundDrawable(mPlayBgDrawable);
         }
     }
 

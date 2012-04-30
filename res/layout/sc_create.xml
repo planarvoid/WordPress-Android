@@ -4,9 +4,9 @@
               android:layout_height="fill_parent"
               android:orientation="vertical"
               android:background="@drawable/bg_rec"
-            android:weightSum="5">
+            android:weightSum="6">
 
-    <RelativeLayout android:layout_weight="3"
+    <RelativeLayout android:layout_weight="4"
                     android:layout_width="fill_parent"
                     android:layout_height="0dp">
         <LinearLayout android:layout_height="fill_parent"
@@ -22,7 +22,7 @@
                       android:singleLine="true"/>
             <FrameLayout android:id="@+id/gauge_holder"
                          android:layout_below="@+id/chronometer"
-                         android:layout_height="120dip"
+                         android:layout_height="150dip"
                          android:layout_width="fill_parent"/>
         </LinearLayout>
         <TextView android:id="@+id/txt_instructions"
@@ -85,9 +85,7 @@
                               style="@style/toggle_record_edit"
                               android:textOn="@string/fade_toggle_on"
                               android:textOff="@string/fade_toggle_off"
-                              android:layout_centerInParent="true"
-                              android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"/>
+                              android:layout_centerInParent="true" />
             </RelativeLayout>
             <RelativeLayout android:layout_width="0dp"
                             android:layout_weight="1"
@@ -105,9 +103,7 @@
                               style="@style/toggle_record_edit"
                               android:textOn="@string/optimize_toggle_on"
                               android:textOff="@string/optimize_toggle_off"
-                              android:layout_centerInParent="true"
-                              android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"/>
+                              android:layout_centerInParent="true" />
             </RelativeLayout>
         </LinearLayout>
     </FrameLayout>

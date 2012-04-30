@@ -175,8 +175,8 @@
     </style>
 
     <style name="toggle_record_edit" parent="toggle_blue">
-        <item name="android:layout_width">150dp</item>
-        <item name="android:layout_height">100dp</item>
+        <item name="android:layout_width">125dp</item>
+        <item name="android:layout_height">50dp</item>
     </style>
 
     <style name="txt_record_dark">
@@ -195,7 +195,7 @@
     </style>
 
     <style name="txt_record_chrono" parent="txt_record_dark">
-        <item name="android:textSize">28sp</item>
+        <item name="android:textSize">32sp</item>
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
     </style>
