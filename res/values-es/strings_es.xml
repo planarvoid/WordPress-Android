@@ -511,6 +511,6 @@
   <string name="what_hint">Qué</string>
   <string name="where_hint">Dónde</string>
   <string name="widget_touch_to_open">Toque para abrir SoundCloud</string>
-  <string name="wifi_settings">Configuración de la red</string>
+  <string name="wifi_settings">Ajustes de la red</string>
   <string name="wifi_settings_summary">Edite la configuración. Use WIFI para un mejor rendimiento.</string>
 </resources>
