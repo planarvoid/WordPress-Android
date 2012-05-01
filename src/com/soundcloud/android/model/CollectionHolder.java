@@ -1,12 +1,12 @@
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.api.Request;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.text.TextUtils;
 
@@ -17,7 +17,8 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class CollectionHolder<T> implements Iterable<T> {
-    @JsonProperty @JsonView(Views.Mini.class)
+    @JsonProperty
+    @JsonView(Views.Mini.class)
     public List<T> collection;
 
     @JsonProperty @JsonView(Views.Mini.class)

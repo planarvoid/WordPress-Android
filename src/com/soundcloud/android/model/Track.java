@@ -1,6 +1,10 @@
 
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -15,10 +19,6 @@ import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.FlowLayout;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -169,7 +169,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
     @Override
     public void refreshTimeSinceCreated(Context context) {
-        _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
+        _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(), created_at.getTime());
     }
 
     public void refreshListArtworkUri(Context context) {

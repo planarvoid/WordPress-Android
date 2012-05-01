@@ -1,7 +1,8 @@
 
 package com.soundcloud.android.model;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import android.os.Parcel;
 import android.os.Parcelable;

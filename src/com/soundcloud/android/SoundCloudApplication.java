@@ -4,6 +4,7 @@ import static android.content.pm.PackageManager.*;
 import static com.soundcloud.android.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.provider.ScContentProvider.enableSyncing;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.PrefetchHandler;
@@ -39,7 +40,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;

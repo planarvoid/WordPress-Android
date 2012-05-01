@@ -4,23 +4,18 @@ import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.fromString;
 import static com.soundcloud.android.AndroidCloudAPI.CloudDateFormat.toTime;
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
-import org.codehaus.jackson.JsonNode;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
@@ -132,46 +127,6 @@ public class ActivitiesTest {
             expect(a.origin.getClass().equals(a.type.typeClass)).toBeTrue();
         }
     }
-
-    @Test
-    public void testToJson() throws Exception {
-        Activities initial = getActivities();
-        expect(initial.future_href).not.toBeNull();
-        expect(initial.next_href).not.toBeNull();
-
-        String json = initial.toJSON();
-        Activities other = Activities.fromJSON(json);
-        for (int i=0; i<initial.size(); i++) {
-            expect(initial.get(i)).toEqual(other.get(i));
-        }
-        expect(initial.size()).toEqual(other.size());
-        expect(initial.future_href).toEqual(other.future_href);
-        expect(initial.next_href).toEqual(other.next_href);
-    }
-
-    @Test @Ignore
-    // set to ignored because mutually exclusive annotation
-    // @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    public void testToJsonEqualsOriginal1() throws Exception {
-        JsonNode original = AndroidCloudAPI.Mapper.readTree(getClass().getResourceAsStream("activities_all.json"));
-        String json = Activities.fromJSON(getClass().getResourceAsStream("activities_all.json")).toJSON();
-        JsonNode copy = AndroidCloudAPI.Mapper.readTree(json);
-        expect(original).toEqual(copy);
-    }
-
-    @Test
-    public void testToJsonEqualsOriginal2() throws Exception {
-        JsonNode original = AndroidCloudAPI.Mapper.readTree(getClass().getResourceAsStream("incoming.json"));
-        String json = Activities.fromJSON(getClass().getResourceAsStream("incoming.json")).toJSON();
-
-        FileOutputStream fos = new FileOutputStream(new File("out.json"));
-        fos.write(json.getBytes("UTF-8"));
-        fos.close();
-
-        JsonNode copy = AndroidCloudAPI.Mapper.readTree(json);
-        expect(original).toEqual(copy);
-    }
-
 
     @Test
     public void testMerge() throws Exception {

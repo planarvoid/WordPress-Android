@@ -2,12 +2,12 @@ package com.soundcloud.android.task;
 
 import android.net.Uri;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.codehaus.jackson.JsonNode;
 
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ public class NewConnectionTask extends AsyncApiTask<Connection.Service, Void, Ur
 
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_ACCEPTED) {
                 JsonNode node = mApi.getMapper().readTree(response.getEntity().getContent());
-                return Uri.parse(node.get("authorize_url").getTextValue());
+                return Uri.parse(node.get("authorize_url").asText());
             } else {
                 warn("error creating connection", response);
                 return null;
