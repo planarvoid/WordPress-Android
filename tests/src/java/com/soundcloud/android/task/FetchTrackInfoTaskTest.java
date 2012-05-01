@@ -1,9 +1,8 @@
 package com.soundcloud.android.task;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
@@ -48,15 +47,15 @@ public class FetchTrackInfoTaskTest {
 
         task.addListener(listener);
         task.execute(Request.to(Endpoints.TRACK_DETAILS, 12345));
-        assertThat(track[0], not(nullValue()));
-        assertThat(track[0].title, equalTo("recording on sunday night"));
+        expect(track[0]).not.toBeNull();
+        expect(track[0].title).toEqual("recording on sunday night");
 
         t = SoundCloudDB.getTrackById(Robolectric.application.getContentResolver(),12345);
-        assertThat(t, not(nullValue()));
-        assertThat(t.title, equalTo("recording on sunday night"));
+        expect(t).not.toBeNull();
+        expect(t.title).toEqual("recording on sunday night");
 
         t = SoundCloudApplication.TRACK_CACHE.get(12345l);
-        assertThat(t, not(nullValue()));
-        assertThat(t.title, equalTo("recording on sunday night"));
+        expect(t).not.toBeNull();
+        expect(t.title).toEqual("recording on sunday night");
     }
 }

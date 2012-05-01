@@ -1,7 +1,6 @@
 package com.soundcloud.android.service.beta;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.android.Expect.expect;
 
 import org.junit.Test;
 
@@ -14,17 +13,17 @@ public class BucketParserTest {
     public void testBucketParsing() throws Exception {
         List<Beta> content = BucketParser.getContent(getClass().getResourceAsStream("bucket_contents.xml"));
 
-        assertThat(content, notNullValue());
-        assertThat(content.size(), is(2));
+        expect(content).not.toBeNull();
+        expect(content.size()).toEqual(2);
         Beta first =  content.get(0);
-        assertThat(first.key, equalTo("com.soundcloud.android-27.apk"));
-        assertThat(first.lastmodified, equalTo(1309961993000l));
-        assertThat(first.etag, equalTo("94156b52d785aec62dc65f489c9d51b3"));
-        assertThat(first.size, equalTo(2015887l));
-        assertThat(first.storageClass, equalTo("STANDARD"));
+        expect(first.key).toEqual("com.soundcloud.android-27.apk");
+        expect(first.lastmodified).toEqual(1309961993000l);
+        expect(first.etag).toEqual("94156b52d785aec62dc65f489c9d51b3");
+        expect(first.size).toEqual(2015887l);
+        expect(first.storageClass).toEqual("STANDARD");
 
         Beta second =  content.get(1);
-        assertThat(second.key, equalTo("com.soundcloud.android-28.apk"));
+        expect(second.key).toEqual("com.soundcloud.android-28.apk");
     }
 
 

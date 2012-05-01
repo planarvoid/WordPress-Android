@@ -1,7 +1,6 @@
 package com.soundcloud.android;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
@@ -13,11 +12,11 @@ public class AppTest {
     @Test
     public void shouldHaveProductionEnabled() throws Exception {
         // make sure this doesn't get accidentally committed
-        assertThat(SoundCloudApplication.API_PRODUCTION, is(true));
+        expect(SoundCloudApplication.API_PRODUCTION).toBeTrue();
     }
 
     @Test
     public void shouldNotBeDetectedAsDalvik() throws Exception {
-        assertThat(SoundCloudApplication.DALVIK, is(false));
+        expect(SoundCloudApplication.DALVIK).toBeFalse();
     }
 }

@@ -1,11 +1,9 @@
 package com.soundcloud.android.task;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.ApiTests;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +20,7 @@ public class RecoverPasswordTaskTest extends ApiTests {
 
         RecoverPasswordTask task = new RecoverPasswordTask(api);
         Boolean result = task.doInBackground("foo@gmail.com");
-        assertThat(result, is(true));
+        expect(result).toBeTrue();
     }
 
     @Test
@@ -32,8 +30,8 @@ public class RecoverPasswordTaskTest extends ApiTests {
 
         RecoverPasswordTask task = new RecoverPasswordTask(api);
         Boolean result = task.doInBackground("foo@gmail.com");
-        assertThat(result, is(false));
-        assertThat(task.mErrors, equalTo(Arrays.asList("Unknown Email Address")));
+        expect(result).toBeFalse();
+        expect(task.mErrors).toEqual(Arrays.asList("Unknown Email Address"));
     }
 
     @Test
@@ -41,6 +39,6 @@ public class RecoverPasswordTaskTest extends ApiTests {
         Robolectric.addPendingHttpResponse(401, "unauthorized");
         RecoverPasswordTask task = new RecoverPasswordTask(api);
         Boolean result = task.doInBackground("foo@gmail.com");
-        assertThat(result, is(false));
+        expect(result).toBeFalse();
     }
 }
