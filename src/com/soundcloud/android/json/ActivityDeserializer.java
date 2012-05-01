@@ -1,12 +1,12 @@
 package com.soundcloud.android.json;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Activity;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.DeserializationContext;
-import org.codehaus.jackson.map.JsonDeserializer;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 
@@ -17,10 +17,10 @@ public class ActivityDeserializer extends JsonDeserializer<Activity> {
     public Activity deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         JsonNode node = mapper.readValue(parser, JsonNode.class);
         Activity e = new Activity();
-        e.type = Activity.Type.fromString(node.get("type").getValueAsText());
-        e.created_at = context.parseDate(node.get("created_at").getValueAsText());
-        e.tags = node.get("tags").getValueAsText();
-        e.origin = mapper.readValue(node.path("origin"), e.type.typeClass);
+        e.type = Activity.Type.fromString(node.get("type").asText());
+        e.created_at = context.parseDate(node.get("created_at").asText());
+        e.tags = node.get("tags").asText();
+        e.origin = mapper.readValue(node.path("origin").traverse(), e.type.typeClass);
         return e;
     }
 }

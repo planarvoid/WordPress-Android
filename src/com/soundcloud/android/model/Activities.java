@@ -1,5 +1,7 @@
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
@@ -9,8 +11,6 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -29,7 +29,8 @@ import static com.soundcloud.android.SoundCloudApplication.*;
 
 public class Activities extends CollectionHolder<Activity> {
     /* use this URL to poll for updates */
-    @JsonProperty @JsonView(Views.Mini.class)
+    @JsonProperty
+    @JsonView(Views.Mini.class)
     public String future_href;
 
     public static final Activities EMPTY = new Activities();
@@ -141,20 +142,6 @@ public class Activities extends CollectionHolder<Activity> {
 
     public static Activities fromJSON(String is) throws IOException {
         return AndroidCloudAPI.Mapper.readValue(is, Activities.class);
-    }
-
-    public String toJSON() throws IOException {
-        return toJSON(Views.Mini.class);
-    }
-
-    public String toJSON(Class<?> view) throws IOException {
-        return AndroidCloudAPI.Mapper.viewWriter(view).writeValueAsString(this);
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    public Activities toJSON(File f, Class<?> view) throws IOException {
-        AndroidCloudAPI.Mapper.viewWriter(Views.Mini.class).writeValue(f, this);
-        return this;
     }
 
     // TODO, get rid of future href and next href and generate them

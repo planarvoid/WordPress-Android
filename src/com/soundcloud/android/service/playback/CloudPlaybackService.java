@@ -195,7 +195,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         try {
             mProxy = new StreamProxy(getApp()).init().start();
         } catch (IOException e) {
-            Log.i(TAG, "Unable to start service " + e.getMessage());
+            Log.e(TAG, "Unable to start service ", e);
         }
     }
 

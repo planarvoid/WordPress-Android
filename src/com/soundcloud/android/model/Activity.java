@@ -1,14 +1,14 @@
 
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.utils.CloudUtils;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -21,7 +21,8 @@ import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Activity extends ScModel implements Refreshable, Origin, Playable, Comparable<Activity> {
-    @JsonProperty public Date created_at;
+    @JsonProperty
+    public Date created_at;
     @JsonProperty public Type type;
     @JsonProperty public String tags;
 

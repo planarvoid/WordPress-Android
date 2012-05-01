@@ -47,7 +47,7 @@ public enum Table {
         this.name = name;
         this.view = view;
         if (create != null) {
-            createString = "CREATE "+(view ? "VIEW" : "TABLE")+" "+name+" "+create;
+            createString = "CREATE "+(view ? "VIEW" : "TABLE")+" IF NOT EXISTS "+name+" "+create;
         } else {
             createString = null;
         }

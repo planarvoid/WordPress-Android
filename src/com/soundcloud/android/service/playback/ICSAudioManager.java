@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
-import android.util.Log;
 
 @SuppressWarnings("UnusedDeclaration")
 public class ICSAudioManager extends FroyoAudioManager {
@@ -40,8 +39,6 @@ public class ICSAudioManager extends FroyoAudioManager {
     public void setPlaybackState(State state) {
         super.setPlaybackState(state);
         final int playbackState = translateState(state);
-
-        Log.d(getClass().getName(), "set playbackstate ("+state+") to "+playbackState);
         client.setPlaybackState(playbackState);
     }
 
@@ -54,6 +51,8 @@ public class ICSAudioManager extends FroyoAudioManager {
         client.editMetadata(true)
                 .putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, artwork)
                 .putString(MediaMetadataRetriever.METADATA_KEY_TITLE, track.title)
+                .putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST, track.getUserName())
+                // album artist seems to get used, but set other field anyway
                 .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, track.getUserName())
                 .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, track.duration)
                 .apply();

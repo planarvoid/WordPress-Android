@@ -2,12 +2,11 @@ package com.soundcloud.android.service.beta;
 
 import static com.soundcloud.android.utils.CloudUtils.*;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.IOUtils;
-import org.codehaus.jackson.annotate.JsonAutoDetect;
-import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +26,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-@JsonAutoDetect(JsonMethod.NONE)
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE,
+                isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 public class Beta implements Comparable<Beta>, Parcelable {
     public static final String EXTRA_BETA_VERSION = "beta-version";
     @JsonProperty String key;

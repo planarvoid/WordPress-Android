@@ -2,6 +2,8 @@ package com.soundcloud.android.task.create;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
@@ -10,9 +12,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
 
 import android.location.Location;
 import android.os.AsyncTask;
@@ -66,14 +65,15 @@ public class FoursquareVenueTask extends AsyncTask<Location, Void, List<Foursqua
                         JsonNode nearby = null;
                         for (JsonNode g : groups) {
                             if (g.get("type") == null) continue;
-                            if ("nearby".equals(g.get("type").getTextValue())) {
+                            if ("nearby".equals(g.get("type").asText())) {
                                 nearby = g;
                                 break;
                             }
                         }
                         if (nearby != null) {
                             JsonNode items = nearby.get("items");
-                            return mapper.readValue(items, TypeFactory.collectionType(ArrayList.class, FoursquareVenue.class));
+                            return mapper.readValue(items.traverse(),
+                                    mapper.getTypeFactory().constructCollectionType(ArrayList.class, FoursquareVenue.class));
                         }
                     }
                     return new ArrayList<FoursquareVenue>();

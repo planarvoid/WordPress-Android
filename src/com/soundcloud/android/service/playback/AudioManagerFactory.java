@@ -20,8 +20,6 @@ public class AudioManagerFactory {
                         "com.soundcloud.android.service.playback.ICSAudioManager" :
                         "com.soundcloud.android.service.playback.FroyoAudioManager";
 
-                Log.d(CloudPlaybackService.TAG, "using "+name);
-
                 Class klass = Class.forName(name);
                 Constructor ctor = klass.getConstructor(Context.class);
                 manager = (IAudioManager) ctor.newInstance(context);

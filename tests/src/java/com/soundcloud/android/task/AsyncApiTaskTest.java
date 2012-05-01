@@ -4,8 +4,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.soundcloud.android.robolectric.ApiTests;
-import org.codehaus.jackson.map.ObjectReader;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
