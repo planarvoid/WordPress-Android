@@ -61,7 +61,7 @@ public interface AndroidCloudAPI extends CloudAPI {
 
         public static final ObjectMapper Mapper = createMapper();
         static {
-            Mapper.registerModule(new SimpleModule("EventSupport", new Version(1, 0, 0, null))
+            Mapper.registerModule(new SimpleModule("EventSupport", new Version(1, 0, 0, null, null, null))
                     .addDeserializer(User.class, new UserDeserializer())
                     .addDeserializer(Activity.class, new ActivityDeserializer()));
         }
