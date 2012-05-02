@@ -1,5 +1,9 @@
 package com.soundcloud.android.view.create;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.record.AmplitudeData;
+import com.soundcloud.android.record.CloudRecorder;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -8,14 +12,9 @@ import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
-import com.soundcloud.android.R;
-import com.soundcloud.android.record.CloudRecorder;
-
-import java.util.List;
 
 public class CreateWaveView extends View {
     private static long ANIMATION_ZOOM_TIME = 400;
@@ -31,7 +30,7 @@ public class CreateWaveView extends View {
     private int mMode;
     private boolean mIsEditing;
 
-    private List<Float> mAllAmplitudes;
+    private AmplitudeData mAllAmplitudes;
     private int mRecordStartIndex = -1;
 
 
@@ -215,26 +214,26 @@ public class CreateWaveView extends View {
         final int totalAmplitudeSize = mAllAmplitudes.size();
         final int recordedAmplitudeSize = mAllAmplitudes.size() - (mRecordStartIndex);
 
-        int subArrayStart;
+        int start;
         if (totalAmplitudeSize < width) {
-            subArrayStart = (int) (mRecordStartIndex * interpolatedTime);
+            start = (int) (mRecordStartIndex * interpolatedTime);
         } else {
             final int gap = (totalAmplitudeSize - width) - mRecordStartIndex;
-            subArrayStart = (int) Math.max(0,(totalAmplitudeSize - width) - gap * interpolatedTime);
+            start = (int) Math.max(0,(totalAmplitudeSize - width) - gap * interpolatedTime);
         }
-        final List<Float> amplitudesSubArray = mAllAmplitudes.subList(subArrayStart, mAllAmplitudes.size());
-        if (amplitudesSubArray.size() > 0) {
+        final AmplitudeData subData = mAllAmplitudes.slice(start, mAllAmplitudes.size());
+        if (subData.size() > 0) {
             final int lastDrawX = (totalAmplitudeSize < width) ? (int) (totalAmplitudeSize + (width - totalAmplitudeSize) * interpolatedTime) : width;
-            float[] points = getAmplitudePoints(amplitudesSubArray, 0, lastDrawX);
+            float[] points = getAmplitudePoints(subData, 0, lastDrawX);
             if (animating) {
                 if (mRecordStartIndex == -1) {
                     c.drawLines(points, DARK_UNPLAYED_PAINT);
-                } else if (mRecordStartIndex <= subArrayStart) {
+                } else if (mRecordStartIndex <= start) {
                     c.drawLines(points, PLAYED_PAINT);
                 } else {
-                    final int gap = (mRecordStartIndex - subArrayStart);
+                    final int gap = (mRecordStartIndex - start);
                     final int recordStartIndex = (recordedAmplitudeSize >= width) ? gap * 4
-                            : Math.round(gap * ((float) lastDrawX) / amplitudesSubArray.size()) * 4; // incorporate the scaling
+                            : Math.round(gap * ((float) lastDrawX) / subData.size()) * 4; // incorporate the scaling
 
                     c.drawLines(points, 0, recordStartIndex, DARK_UNPLAYED_PAINT);
                     c.drawLines(points, recordStartIndex, points.length - recordStartIndex, PLAYED_PAINT);
@@ -294,26 +293,26 @@ public class CreateWaveView extends View {
 
         if (animating){
             final int recordedAmplitudeSize = mAllAmplitudes.size() - (mRecordStartIndex);
-            int subArrayStart;
+            int start;
             if (totalAmplitudeSize < width) {
-                subArrayStart = (int) (mRecordStartIndex - mRecordStartIndex * interpolatedTime);
+                start = (int) (mRecordStartIndex - mRecordStartIndex * interpolatedTime);
             } else if (recordedAmplitudeSize < width) {
-                subArrayStart = mRecordStartIndex - (int) ((width - recordedAmplitudeSize) * interpolatedTime);
+                start = mRecordStartIndex - (int) ((width - recordedAmplitudeSize) * interpolatedTime);
             } else {
-                subArrayStart = Math.max(0,mRecordStartIndex + (int) (interpolatedTime * (recordedAmplitudeSize - width)));
+                start = Math.max(0,mRecordStartIndex + (int) (interpolatedTime * (recordedAmplitudeSize - width)));
             }
 
-            final List<Float> amplitudesSubArray = mAllAmplitudes.subList(subArrayStart, mAllAmplitudes.size());
+            final AmplitudeData amplitudesSubArray = mAllAmplitudes.slice(start, mAllAmplitudes.size());
             if (amplitudesSubArray.size() > 0){
                 final int lastDrawX = (totalAmplitudeSize < width) ? (int) (width - (width - totalAmplitudeSize) * interpolatedTime) : width;
                 float[] points = getAmplitudePoints(amplitudesSubArray,0,lastDrawX);
 
                 if (mRecordStartIndex == -1) {
                     c.drawLines(points, DARK_UNPLAYED_PAINT);
-                } else if (mRecordStartIndex <= subArrayStart){
+                } else if (mRecordStartIndex <= start){
                     c.drawLines(points, PLAYED_PAINT);
                 } else {
-                    final int gap = (mRecordStartIndex - subArrayStart);
+                    final int gap = (mRecordStartIndex - start);
                     final int recordStartIndex = (recordedAmplitudeSize >= width) ? gap * 4
                             : Math.round(gap * ((float) lastDrawX) / amplitudesSubArray.size()) * 4; // incorporate the scaling
 
@@ -356,9 +355,9 @@ public class CreateWaveView extends View {
         c.drawLines(points,pointOffset, pointCount, paint);
     }
 
-    private float[] getAmplitudePoints(List<Float> amplitudesArray, int firstDrawX, int lastDrawX) {
+    private float[] getAmplitudePoints(AmplitudeData data, int firstDrawX, int lastDrawX) {
 
-        final int amplitudesSize = amplitudesArray.size();
+        final int amplitudesSize = data.size();
         final int height = getHeight();
 
         final float[] pts = new float[(lastDrawX - firstDrawX + 1) * 4];
@@ -366,7 +365,7 @@ public class CreateWaveView extends View {
 
         int ptIndex = 0;
         for (int x = firstDrawX; x < lastDrawX; x++) {
-            final float a = directSelect ? amplitudesArray.get(x - firstDrawX) : getInterpolatedAmpValue(amplitudesArray,amplitudesSize,x,firstDrawX,lastDrawX);
+            final float a = directSelect ? data.get(x - firstDrawX) : data.getInterpolatedValue(x, firstDrawX, lastDrawX);
             pts[ptIndex] = x;
             pts[ptIndex + 1] = height / 2 - a * mMaxWaveHeight / 2;
             pts[ptIndex + 2] = x;
@@ -376,22 +375,9 @@ public class CreateWaveView extends View {
         return pts;
     }
 
-    private float getInterpolatedAmpValue(List<Float> amplitudesArray, int size, int x, int firstDrawX, int lastDrawX){
-        if (size > lastDrawX - firstDrawX) {
-            // scaling down, nearest neighbor is fine
-            return amplitudesArray.get((int) Math.min(size - 1, ((float) (x - firstDrawX)) / (lastDrawX - firstDrawX) * size));
-        } else {
-            // scaling up, do interpolation
-            final float fIndex = Math.min(size - 1, size * ((float) (x - firstDrawX)) / (lastDrawX - firstDrawX));
-            final float v1 = amplitudesArray.get((int) Math.floor(fIndex));
-            final float v2 = amplitudesArray.get((int) Math.ceil(fIndex));
-            return v1 + (v2 - v1) * (fIndex - ((int) fIndex));
-        }
-    }
 
     private void assertAmplitudeHistory(){
-
-        if (mAllAmplitudes == null) mAllAmplitudes = CloudRecorder.getInstance(getContext()).amplitudes;
+        if (mAllAmplitudes == null) mAllAmplitudes = CloudRecorder.getInstance(getContext()).amplitudeData;
     }
 
     private void drawAmplitude(Canvas c, int xIndex, float amplitude, Paint p) {

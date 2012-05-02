@@ -21,8 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CloudRecorder {
     /* package */ static final String TAG = CloudRecorder.class.getSimpleName();
@@ -38,8 +36,7 @@ public class CloudRecorder {
 
     private volatile State mState;
 
-    // XXX memory
-    public List<Float> amplitudes = new ArrayList<Float>();
+    public final AmplitudeData amplitudeData;
     public int writeIndex;
 
     private final AudioRecord mAudioRecord;
@@ -97,11 +94,12 @@ public class CloudRecorder {
         bufferReadSize =  (int) config.validBytePosition(mConfig.bytesPerSecond / (FPS));
         mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
         mState = State.IDLE;
+        amplitudeData = new AmplitudeData(config);
     }
 
     public void startReading() {
         if (mState == State.IDLE) {
-            amplitudes.clear();
+            amplitudeData.clear();
             writeIndex = -1;
             mRecordStream = null;
 
@@ -173,11 +171,11 @@ public class CloudRecorder {
         @Override
         public void handleMessage(Message msg) {
             if (mState == State.RECORDING && writeIndex == -1) {
-                writeIndex = amplitudes.size();
+                writeIndex = amplitudeData.size();
             }
 
             final float frameAmplitude = mAmplitudeAnalyzer.frameAmplitude();
-            amplitudes.add(frameAmplitude);
+            amplitudeData.add(frameAmplitude);
 
             Intent intent = new Intent(CloudCreateService.RECORD_SAMPLE)
                     .putExtra(CloudCreateService.EXTRA_AMPLITUDE, frameAmplitude)
