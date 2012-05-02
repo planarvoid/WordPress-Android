@@ -24,7 +24,7 @@ object AndroidBuild extends Build {
     "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
-    "com.soundcloud" % "java-api-wrapper" % "1.1.1-SNAPSHOT",
+    "com.soundcloud" % "java-api-wrapper" % "1.1.1",
     "com.google.android" % "filecache" % "r153",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
     "org.xiph" % "libvorbis" % "1.0.0-beta",
