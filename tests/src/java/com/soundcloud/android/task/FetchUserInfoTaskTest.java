@@ -1,23 +1,20 @@
 package com.soundcloud.android.task;
 
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.utils.IOUtils.readInputStream;
+import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
+
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-
-import com.xtremelabs.robolectric.Robolectric;
-
-import static com.soundcloud.android.utils.IOUtils.readInputStream;
-import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -52,20 +49,20 @@ public class FetchUserInfoTaskTest {
 
         task.addListener(listener);
         task.execute(Request.to(Endpoints.USER_DETAILS, 12345));
-        assertThat(user[0], not(nullValue()));
-        assertThat(user[0].username, equalTo("SoundCloud Android @ MWC"));
-        assertThat(user[0].isPrimaryEmailConfirmed(), equalTo(false));
+        expect(user[0]).not.toBeNull();
+        expect(user[0].username).toEqual("SoundCloud Android @ MWC");
+        expect(user[0].isPrimaryEmailConfirmed()).toBeFalse();
 
 
         u = SoundCloudDB.getUserById(Robolectric.application.getContentResolver(), 3135930);
-        assertThat(u, not(nullValue()));
-        assertThat(u.username, equalTo("SoundCloud Android @ MWC"));
+        expect(u).not.toBeNull();
+        expect(u.username).toEqual("SoundCloud Android @ MWC");
 
         u = SoundCloudApplication.USER_CACHE.get(3135930l);
-        assertThat(u, not(nullValue()));
-        assertThat(u.username, equalTo("SoundCloud Android @ MWC"));
-        assertThat(u.user_following, equalTo(true));
-        assertThat(u.user_follower, equalTo(true));
+        expect(u).not.toBeNull();
+        expect(u.username).toEqual("SoundCloud Android @ MWC");
+        expect(u.user_following).toBeTrue();
+        expect(u.user_follower).toBeTrue();
 
     }
 }

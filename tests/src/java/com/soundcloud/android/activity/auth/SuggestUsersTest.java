@@ -1,24 +1,17 @@
 package com.soundcloud.android.activity.auth;
+
+import static com.soundcloud.android.Expect.expect;
+import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.robolectric.ApiTests;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowActivity;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-
-import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -36,8 +29,8 @@ public class SuggestUsersTest extends ApiTests {
 
         ShadowActivity shadow = shadowOf(users);
         ShadowActivity.IntentForResult intent = shadow.peekNextStartedActivityForResult();
-        assertThat(intent.intent.getData().toString(), equalTo("http://example.com"));
-        assertThat(intent.intent.getComponent().getClassName(), equalTo(Connect.class.getName()));
+        expect(intent.intent.getData().toString()).toEqual("http://example.com");
+        expect(intent.intent.getComponent().getClassName()).toEqual(Connect.class.getName());
     }
 
     @Test @Ignore
@@ -47,6 +40,6 @@ public class SuggestUsersTest extends ApiTests {
         users.onCreate(null);
 
         users.findViewById(R.id.btn_done).performClick();
-        assertThat(users.isFinishing(), is(true));
+        expect(users.isFinishing()).toBeTrue();
     }
 }

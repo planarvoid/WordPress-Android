@@ -1,15 +1,12 @@
 package com.soundcloud.android.service.beta;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static com.soundcloud.android.Expect.expect;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,16 +23,16 @@ public class BetaTest {
         Beta c13 = new Beta();
         c13.key = "foo-13.apk";
 
-        assertThat(new Beta().getVersionCode(), is(-1));
-        assertThat(c12.getVersionCode(), is(12));
-        assertThat(c13.getVersionCode(), is(13));
-        assertThat(c12.compareTo(c13), is(1));
-        assertThat(c13.compareTo(c13), is(0));
-        assertThat(c13.compareTo(c12), is(-1));
+        expect(new Beta().getVersionCode()).toEqual(-1);
+        expect(c12.getVersionCode()).toEqual(12);
+        expect(c13.getVersionCode()).toEqual(13);
+        expect(c12.compareTo(c13)).toEqual(1);
+        expect(c13.compareTo(c13)).toEqual(0);
+        expect(c13.compareTo(c12)).toEqual(-1);
 
         List<Beta> l =Arrays.asList(c12, c13);
         Collections.sort(l);
-        assertThat(l.get(0).getVersionCode(), is(13));
+        expect(l.get(0).getVersionCode()).toEqual(13);
     }
 
     @Test
@@ -49,19 +46,19 @@ public class BetaTest {
         c.metadata.put("baz", "bar");
 
 
-        assertThat(c.toJSON(), equalTo(
+        expect(c.toJSON()).toEqual(
             "{\"key\":\"foo\",\"lastmodified\":1309961993000,\"etag\":\"ETAG\",\"size\":2000," +
                     "\"storageClass\":\"FOO\",\"metadata\":{\"baz\":\"bar\"}}"
-        ));
+        );
 
         Beta json = Beta.fromJSON(c.toJSON());
 
-        assertThat(json.key, equalTo(c.key));
-        assertThat(json.lastmodified, is(c.lastmodified));
-        assertThat(json.etag, equalTo(c.etag));
-        assertThat(json.size, is(c.size));
-        assertThat(json.storageClass, equalTo(c.storageClass));
-        assertThat(json.metadata, equalTo(c.metadata));
+        expect(json.key).toEqual(c.key);
+        expect(json.lastmodified).toEqual(c.lastmodified);
+        expect(json.etag).toEqual(c.etag);
+        expect(json.size).toEqual(c.size);
+        expect(json.storageClass).toEqual(c.storageClass);
+        expect(json.metadata).toEqual(c.metadata);
     }
 
     @Test
@@ -71,12 +68,12 @@ public class BetaTest {
         c.metadata.put("android-versioncode", "23");
         c.metadata.put("git-sha1", "GIT");
 
-        assertThat(c.getVersionName(), equalTo("1.4-BETA"));
-        assertThat(c.getGitSha1(), equalTo("GIT"));
-        assertThat(c.getVersionCode(), is(23));
+        expect(c.getVersionName()).toEqual("1.4-BETA");
+        expect(c.getGitSha1()).toEqual("GIT");
+        expect(c.getVersionCode()).toEqual(23);
 
         c.metadata.put("android-versioncode", "UNPARSEABLE");
-        assertThat(c.getVersionCode(), is(-1));
+        expect(c.getVersionCode()).toEqual(-1);
     }
 
     @Test

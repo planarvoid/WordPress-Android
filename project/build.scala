@@ -39,7 +39,6 @@ object AndroidBuild extends Build {
     "com.pivotallabs" % "robolectric" % "1.2-SNAPSHOT" % "test",
     "junit" % "junit-dep" % "4.9" % "test",
     "org.mockito" % "mockito-core" % "1.8.5" % "test",
-    "org.hamcrest" % "hamcrest-core" % "1.1" % "test",
     "com.github.xian" % "great-expectations" % "0.10" % "test",
     "org.scalatest" %% "scalatest" % "1.7.1" % "test",
     "org.scala-lang" % "scala-compiler" % "2.9.1" % "test",

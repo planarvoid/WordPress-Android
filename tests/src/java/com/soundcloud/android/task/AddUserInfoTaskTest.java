@@ -1,13 +1,11 @@
 package com.soundcloud.android.task;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -24,7 +22,7 @@ public class AddUserInfoTaskTest extends ApiTests {
         AddUserInfoTask task = new AddUserInfoTask(api);
         User user = new User();
         User result = task.doInBackground(Pair.create(user, (File)null));
-        assertThat(result.username, equalTo("testing"));
+        expect(result.username).toEqual("testing");
     }
 
     @Test
@@ -33,7 +31,7 @@ public class AddUserInfoTaskTest extends ApiTests {
         AddUserInfoTask task = new AddUserInfoTask(api);
         User user = new User();
         User result = task.doInBackground(Pair.create(user, new File("/tmp/bla")));
-        assertThat(result.username, equalTo("testing"));
+        expect(result.username).toEqual("testing");
     }
 
     @Test
@@ -43,7 +41,7 @@ public class AddUserInfoTaskTest extends ApiTests {
         User user = new User();
         File tmp = File.createTempFile("test", "tmp");
         User result = task.doInBackground(Pair.create(user, tmp));
-        assertThat(result.username, equalTo("testing"));
+        expect(result.username).toEqual("testing");
     }
 
     @Test
@@ -52,7 +50,7 @@ public class AddUserInfoTaskTest extends ApiTests {
         AddUserInfoTask task = new AddUserInfoTask(api);
         User user = new User();
         User result = task.doInBackground(Pair.create(user, (File)null));
-        assertThat(result, CoreMatchers.<Object>nullValue());
-        assertThat(task.mErrors, equalTo(Arrays.asList("Failz")));
+        expect(result).toBeNull();
+        expect(task.mErrors).toEqual(Arrays.asList("Failz"));
     }
 }

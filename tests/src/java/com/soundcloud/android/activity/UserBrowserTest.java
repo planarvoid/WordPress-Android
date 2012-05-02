@@ -1,31 +1,20 @@
 package com.soundcloud.android.activity;
-import com.soundcloud.android.model.Track;
+
+import static com.soundcloud.android.Expect.expect;
+
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
 import com.xtremelabs.robolectric.shadows.ShadowAdapterView;
-import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.robolectric.TestHelper.addCannedResponses;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import android.content.Intent;
-import android.net.Uri;
-
-import java.io.IOException;
 
 
 @RunWith(DefaultTestRunner.class)
