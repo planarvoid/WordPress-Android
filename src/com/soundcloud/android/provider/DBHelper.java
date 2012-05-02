@@ -670,6 +670,9 @@ public class DBHelper extends SQLiteOpenHelper {
             Table.TRACKS.alterColumns(db);
             Table.USERS.alterColumns(db);
 
+            // trackview refers to metadata now (http://www.bugsense.com/dashboard/project/806c72af#error/24301879)
+            Table.TRACK_METADATA.create(db);
+
             Table.TRACK_VIEW.create(db);
             Table.COMMENTS.create(db);
             Table.ACTIVITIES.create(db);

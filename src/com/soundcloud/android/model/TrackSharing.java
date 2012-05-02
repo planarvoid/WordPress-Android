@@ -1,10 +1,10 @@
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.database.Cursor;
 import android.os.Parcel;

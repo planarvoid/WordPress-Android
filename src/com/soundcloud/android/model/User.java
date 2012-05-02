@@ -4,6 +4,11 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import android.content.Context;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
@@ -13,11 +18,6 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Users;
 import com.soundcloud.android.service.playback.PlaylistManager;
 import com.soundcloud.android.utils.ImageUtils;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;

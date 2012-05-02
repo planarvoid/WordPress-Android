@@ -1,11 +1,9 @@
 package com.soundcloud.android.task;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.android.Expect.expect;
 
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.soundcloud.android.robolectric.ApiTests;
-import org.codehaus.jackson.map.ObjectReader;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -21,34 +19,30 @@ public class AsyncApiTaskTest extends ApiTests {
 
     @Test
     public void shouldParseDifferentErrorMessageFormats1() throws Exception {
-        assertThat(
-                parse("{\"errors\":{\"error\":[\"Email has already been taken\",\"Email is already taken.\"]}}"),
-                equalTo(Arrays.asList("Email has already been taken", "Email is already taken.")));
+        expect(parse("{\"errors\":{\"error\":[\"Email has already been taken\",\"Email is already taken.\"]}}"))
+                .toEqual(Arrays.asList("Email has already been taken", "Email is already taken."));
     }
 
     @Test
     public void shouldParseDifferentErrorMessageFormats2() throws Exception {
-        assertThat(
-                parse("{\"errors\":{\"error\":\"Username has already been taken\"}}"),
-                equalTo(Arrays.asList("Username has already been taken")));
+        expect(parse("{\"errors\":{\"error\":\"Username has already been taken\"}}"))
+                .toEqual(Arrays.asList("Username has already been taken"));
     }
 
     @Test
     public void shouldParseDifferentErrorMessageFormats3() throws Exception {
-        assertThat(
-                parse("{\"error\":\"Unknown Email Address\"}"),
-                equalTo(Arrays.asList("Unknown Email Address")));
+        expect(parse("{\"error\":\"Unknown Email Address\"}"))
+                .toEqual(Arrays.asList("Unknown Email Address"));
     }
 
     @Test
     public void shouldParseDifferentErrorMessageFormats4() throws Exception {
-        assertThat(
-                parse("{\"errors\":[{\"error_message\":\"Username is too short (minimum is 3 characters)\"}]}"),
-                equalTo(Arrays.asList("Username is too short (minimum is 3 characters)")));
+        expect(parse("{\"errors\":[{\"error_message\":\"Username is too short (minimum is 3 characters)\"}]}"))
+                .toEqual(Arrays.asList("Username is too short (minimum is 3 characters)"));
     }
 
     @Test
     public void shouldIgnoreMalformedJSON() throws Exception {
-        assertThat(parse("failz").isEmpty(), is(true));
+        expect(parse("failz").isEmpty()).toBeTrue();
     }
 }
