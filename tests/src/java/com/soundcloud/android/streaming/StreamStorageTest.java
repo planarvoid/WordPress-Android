@@ -27,7 +27,7 @@ import java.util.List;
 @RunWith(DefaultTestRunner.class)
 public class StreamStorageTest {
     public static final int TEST_CHUNK_SIZE = 1024;
-    final File baseDir = new File(System.getProperty("java.io.tmpdir"), "storage-test");
+    final File baseDir = new File(System.getProperty("java.io.tmpdir"), "storage-test-"+(int)(Math.random()*10E6));
     final File testFile = new File(getClass().getResource("fred.mp3").getFile());
     final LinkedHashMap<Integer, ByteBuffer> sampleBuffers = new LinkedHashMap<Integer, ByteBuffer>();
     final List<Integer> sampleChunkIndexes = new ArrayList<Integer>();
