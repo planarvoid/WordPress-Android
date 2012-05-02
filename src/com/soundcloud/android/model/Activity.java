@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.AndroidCloudAPI;
@@ -229,6 +230,8 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
                 return defaultView;
             }
         }
+
+        @JsonCreator
         public static Type fromString(String type) {
             for (Type t : values()) {
                 if (t.type.equals(type)) {

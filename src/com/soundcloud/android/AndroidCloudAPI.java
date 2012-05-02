@@ -51,21 +51,23 @@ import java.util.TimeZone;
 
 public interface AndroidCloudAPI extends CloudAPI {
     public static final ObjectMapper Mapper = Wrapper.Mapper;
-    public static final ObjectMapper DefaultMapper = Wrapper.DefaultMapper;
     URI REDIRECT_URI = URI.create("soundcloud://auth");
 
     String getUserAgent();
     ObjectMapper getMapper();
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
+        public static final ObjectMapper Mapper;
 
-        public static final ObjectMapper Mapper = createMapper();
         static {
-            Mapper.registerModule(new SimpleModule("EventSupport", new Version(1, 0, 0, null, null, null))
-                    .addDeserializer(User.class, new UserDeserializer())
-                    .addDeserializer(Activity.class, new ActivityDeserializer()));
+            Mapper = createMapper();
+            // need to create separate mapper (for user deserialization)
+            final ObjectMapper mapper = createMapper();
+
+            Mapper.registerModule(new SimpleModule("CustomDeserialization", new Version(1, 0, 0, null, null, null))
+                    .addDeserializer(User.class, new UserDeserializer(mapper))
+                    .addDeserializer(Activity.class, new ActivityDeserializer(Mapper)));
         }
-        public static final ObjectMapper DefaultMapper = createMapper();
 
         private Context mContext;
         private String userAgent;
