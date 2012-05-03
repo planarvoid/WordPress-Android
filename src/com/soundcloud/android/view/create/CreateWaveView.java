@@ -18,6 +18,18 @@ import android.view.animation.Interpolator;
 
 public class CreateWaveView extends View {
     private static long ANIMATION_ZOOM_TIME = 400;
+    private static final Interpolator SHOW_FULL_INTERPOLATOR = new AccelerateDecelerateInterpolator();
+
+    private final static Paint TRIM_LINE_PAINT;
+    private final static Paint PLAYED_PAINT;
+    private final static Paint UNPLAYED_PAINT;
+    private final static Paint DARK_UNPLAYED_PAINT;
+    private final static Paint DARK_PLAYED_PAINT;
+    private final static Paint BITMAP_PAINT;
+
+    private static final int WAVEFORM_DARK_UNPLAYED = 0xff444444;
+    private static final int WAVEFORM_UNPLAYED      = 0xffffffff;
+    private static final int WAVEFORM_DARK_ORANGE   = 0xff662000;
 
     private Bitmap mZoomBitmap;
     private int nextBufferX;
@@ -33,21 +45,7 @@ public class CreateWaveView extends View {
     private AmplitudeData mAllAmplitudes;
     private int mRecordStartIndex = -1;
 
-
     private long mAnimationStartTime;
-
-    private static final Interpolator SHOW_FULL_INTERPOLATOR = new AccelerateDecelerateInterpolator();
-
-    private static Paint TRIM_LINE_PAINT;
-    private static Paint PLAYED_PAINT;
-    private static Paint UNPLAYED_PAINT;
-    private static Paint DARK_UNPLAYED_PAINT;
-    private static Paint DARK_PLAYED_PAINT;
-    private static Paint BITMAP_PAINT;
-
-    private static final int WAVEFORM_DARK_UNPLAYED = 0xff444444;
-    private static final int WAVEFORM_UNPLAYED = 0xffffffff;
-    private static final int WAVEFORM_DARK_ORANGE = 0xff662000;
 
     static {
         BITMAP_PAINT = new Paint();
@@ -73,7 +71,7 @@ public class CreateWaveView extends View {
         mGlowHeight = (int) (5 * getContext().getResources().getDisplayMetrics().density);
     }
 
-    public void setMode(int mode, boolean animate){
+    public void setMode(int mode, boolean animate) {
         if (mMode != mode){
             mMode = mode;
             if (mZoomBitmap != null){
@@ -84,7 +82,6 @@ public class CreateWaveView extends View {
 
             if (animate) mAnimationStartTime = System.currentTimeMillis();
             invalidate();
-
         }
     }
 

@@ -341,9 +341,16 @@ public class CloudRecorder {
             synchronized (mAudioRecord) {
                 Log.d(TAG, "starting reader thread: state="+mState);
 
+                if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
+                    Log.w(TAG, "audiorecorder is not initialized");
+                    mState = CloudRecorder.State.ERROR;
+                    return;
+                }
+
                 if (mState == CloudRecorder.State.RECORDING) {
                     broadcast(CloudCreateService.RECORD_STARTED);
                 }
+
                 mAudioRecord.startRecording();
                 mAudioRecord.setPositionNotificationPeriod(mConfig.sampleRate);
                 while (mState == CloudRecorder.State.READING || mState == CloudRecorder.State.RECORDING) {

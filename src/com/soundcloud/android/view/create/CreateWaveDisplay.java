@@ -1,10 +1,5 @@
 package com.soundcloud.android.view.create;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
@@ -16,8 +11,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.view.View;
+import android.util.Log;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
 public class CreateWaveDisplay extends TouchLayout {
@@ -76,10 +73,7 @@ public class CreateWaveDisplay extends TouchLayout {
     }
 
     private void init() {
-
         touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
-
-        final float density = getContext().getResources().getDisplayMetrics().density;
 
         leftHandle = new ImageButton(getContext());
         leftHandle.setBackgroundResource(R.drawable.left_handle_states);
@@ -103,8 +97,6 @@ public class CreateWaveDisplay extends TouchLayout {
         refreshWaveView();
     }
 
-
-
     public CreateWaveView refreshWaveView() {
         if (mWaveformView != null && mWaveformView.getParent() == this) {
             removeView(mWaveformView);
@@ -122,7 +114,6 @@ public class CreateWaveDisplay extends TouchLayout {
     public void setTrimListener(Listener trimListener) {
         mListener = trimListener;
     }
-
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -264,8 +255,6 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
-
-
     private void calcualteWaveformRect(){
         if (mWaveformView != null){
             mWaveformRect = new Rect();
@@ -311,10 +300,7 @@ public class CreateWaveDisplay extends TouchLayout {
                 case UI_SET_TRIM_DRAWABLES:
                     rightHandle.setPressed(mRightHandleTouchIndex != -1);
                     leftHandle.setPressed(mLeftHandleTouchIndex != -1);
-
                     break;
-
-
             }
         }
     };
