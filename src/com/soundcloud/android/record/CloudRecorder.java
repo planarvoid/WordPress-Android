@@ -94,7 +94,7 @@ public class CloudRecorder {
         bufferReadSize =  (int) config.validBytePosition(mConfig.bytesPerSecond / (FPS));
         mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
         mState = State.IDLE;
-        amplitudeData = new AmplitudeData(config);
+        amplitudeData = new AmplitudeData();
     }
 
     public void startReading() {

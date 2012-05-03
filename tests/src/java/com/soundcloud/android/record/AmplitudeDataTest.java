@@ -2,7 +2,6 @@ package com.soundcloud.android.record;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +18,7 @@ public class AmplitudeDataTest {
 
     @Before
     public void before() {
-        data = new AmplitudeData(AudioConfig.DEFAULT);
+        data = new AmplitudeData();
     }
 
     @Test

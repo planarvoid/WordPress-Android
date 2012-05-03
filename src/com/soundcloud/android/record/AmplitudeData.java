@@ -1,7 +1,5 @@
 package com.soundcloud.android.record;
 
-import com.soundcloud.android.audio.AudioConfig;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -15,8 +13,8 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
 
     private final int initialCapacity;
 
-    public AmplitudeData(AudioConfig config) {
-        this(config.bytesPerSecond * AVERAGE_RECORDING_TIME / CloudRecorder.FPS);
+    public AmplitudeData() {
+        this(AVERAGE_RECORDING_TIME * CloudRecorder.FPS);
     }
 
     public AmplitudeData(int initialCapacity ) {
