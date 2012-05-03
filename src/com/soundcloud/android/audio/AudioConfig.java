@@ -32,11 +32,15 @@ public enum AudioConfig {
         bytesPerSecond = sampleRate * (bitsPerSample / 8) * channels;
     }
 
-    public int getChannelConfig() {
+    /**
+     * @param in true for input, false for output
+     * @return the AudioFormat for this configuration
+     */
+    public int getChannelConfig(boolean in) {
         switch (channels) {
-            case 1:  return AudioFormat.CHANNEL_CONFIGURATION_MONO;
-            case 2:  return AudioFormat.CHANNEL_CONFIGURATION_STEREO;
-            default: return AudioFormat.CHANNEL_CONFIGURATION_DEFAULT;
+            case 1:  return in ? AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_OUT_MONO;
+            case 2:  return in ? AudioFormat.CHANNEL_IN_STEREO : AudioFormat.CHANNEL_OUT_STEREO;
+            default: return in ? AudioFormat.CHANNEL_IN_DEFAULT : AudioFormat.CHANNEL_OUT_DEFAULT;
         }
     }
 
@@ -45,7 +49,7 @@ public enum AudioConfig {
     }
 
     public int getMinBufferSize() {
-        return AudioTrack.getMinBufferSize(sampleRate, getChannelConfig(), getFormat());
+        return AudioTrack.getMinBufferSize(sampleRate, getChannelConfig(false), getFormat());
     }
 
     public ScAudioTrack createAudioTrack(int bufferSize) {
@@ -53,7 +57,7 @@ public enum AudioConfig {
     }
 
     public AudioRecord createAudioRecord(int bufferSize) {
-        return new AudioRecord(source, sampleRate, getChannelConfig(), getFormat(), bufferSize);
+        return new AudioRecord(source, sampleRate, getChannelConfig(true), getFormat(), bufferSize);
     }
 
     public WavHeader createHeader() {

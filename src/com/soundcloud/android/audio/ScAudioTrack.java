@@ -10,7 +10,7 @@ public class ScAudioTrack extends AudioTrack {
     public ScAudioTrack(AudioConfig config, int bufferSize) {
         super(AudioManager.STREAM_MUSIC,
                 config.sampleRate,
-                config.getChannelConfig(),
+                config.getChannelConfig(false),
                 config.getFormat(),
                 bufferSize,
                 AudioTrack.MODE_STREAM);

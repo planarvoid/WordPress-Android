@@ -5,6 +5,8 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.audio.AudioConfig;
 import org.junit.Test;
 
+import android.media.AudioFormat;
+
 public class AudioConfigTest {
 
     @Test
@@ -35,5 +37,14 @@ public class AudioConfigTest {
     public void shouldHaveBytesPerSecond() throws Exception {
         expect(AudioConfig.PCM16_44100_1.bytesPerSecond).toEqual(44100 * 2);
         expect(AudioConfig.PCM16_44100_2.bytesPerSecond).toEqual(44100 * 2 * 2);
+    }
+
+    @Test
+    public void shouldSelectCorrectChannelConfig() throws Exception {
+        expect(AudioConfig.PCM16_44100_1.getChannelConfig(true)).toEqual(AudioFormat.CHANNEL_IN_MONO);
+        expect(AudioConfig.PCM16_44100_1.getChannelConfig(false)).toEqual(AudioFormat.CHANNEL_OUT_MONO);
+
+        expect(AudioConfig.PCM16_44100_2.getChannelConfig(true)).toEqual(AudioFormat.CHANNEL_IN_STEREO);
+        expect(AudioConfig.PCM16_44100_2.getChannelConfig(false)).toEqual(AudioFormat.CHANNEL_OUT_STEREO);
     }
 }
