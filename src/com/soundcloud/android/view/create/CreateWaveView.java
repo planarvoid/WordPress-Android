@@ -213,10 +213,10 @@ public class CreateWaveView extends View {
 
         int start;
         if (totalAmplitudeSize < width) {
-            start = (int) (mRecordStartIndex * interpolatedTime);
+            start = Math.max(0, (int) (mRecordStartIndex * interpolatedTime));
         } else {
             final int gap = (totalAmplitudeSize - width) - mRecordStartIndex;
-            start = (int) Math.max(0,(totalAmplitudeSize - width) - gap * interpolatedTime);
+            start = (int) Math.max(0, (totalAmplitudeSize - width) - gap * interpolatedTime);
         }
         final AmplitudeData subData = mAllAmplitudes.slice(start, mAllAmplitudes.size());
         if (subData.size() > 0) {
