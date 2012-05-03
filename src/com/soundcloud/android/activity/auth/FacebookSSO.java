@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.Signature;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -23,6 +24,14 @@ public class FacebookSSO extends AbstractLoginActivity {
     static final String FB_PERMISSION_EXTRA = "scope";
     static final String FB_CLIENT_ID_EXTRA = "client_id";
 
+    // permissions used by SoundCloud (also backend) - email is required for successful signup
+    private static final String[] DEFAULT_PERMISSIONS = {
+        "publish_actions",
+        "offline_access",   /* this is going to be deprecated soon */
+        "email",
+        "user_birthday",
+    };
+
     @Override
     protected void build() {
         // no UI
@@ -31,8 +40,8 @@ public class FacebookSSO extends AbstractLoginActivity {
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        Intent auth = getAuthIntent(this);
-        if (validateAppSignatureForIntent(this, auth)) {
+        Intent auth = getAuthIntent(this, DEFAULT_PERMISSIONS);
+        if (validateAppSignatureForIntent(auth)) {
             startActivityForResult(auth, 0);
         } else {
             setResult(RESULT_OK,
@@ -45,7 +54,8 @@ public class FacebookSSO extends AbstractLoginActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             try {
-                loginExtensionGrantype(CloudAPI.FACEBOOK_GRANT_TYPE+getTokenFromIntent(data));
+                final String token = getTokenFromIntent(data);
+                loginExtensionGrantype(CloudAPI.FACEBOOK_GRANT_TYPE+token);
             } catch (SSOException e) {
                 Log.w(TAG, "error getting Facebook token", e);
 
@@ -117,9 +127,13 @@ public class FacebookSSO extends AbstractLoginActivity {
         intent.setClassName("com.facebook.katana", "com.facebook.katana.ProxyAuth");
         intent.putExtra(FB_CLIENT_ID_EXTRA, applicationId);
         if (permissions.length > 0) {
-            intent.putExtra(FB_PERMISSION_EXTRA, permissions);
+            intent.putExtra(FB_PERMISSION_EXTRA, TextUtils.join(",", permissions));
         }
         return intent;
+    }
+
+    protected boolean validateAppSignatureForIntent(Intent intent) {
+        return validateAppSignatureForIntent(this, intent);
     }
 
     static boolean validateAppSignatureForIntent(Context context, Intent intent) {

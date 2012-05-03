@@ -1,5 +1,12 @@
-$ 41
+$ 42
   % v current
+  _ 2012-05-04
+  ! Bugfixes
+    * Fix Facebook SSO
+    - Upgraded to Jackson 2.0.2
+
+$ 41
+  % v 2.2.6
   _ 2012-04-27
   ! More ICS controls and maintenance
     * Lockscreen and notification playback control (ICS)
