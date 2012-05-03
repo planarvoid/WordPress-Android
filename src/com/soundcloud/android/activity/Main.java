@@ -6,6 +6,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.settings.AccountSettings;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Search;
@@ -64,7 +65,6 @@ public class Main extends TabActivity implements
     private FetchTrackTask mFetchTrackTask;
     private FetchUserTask mFetchUserTask;
     private ChangeLog mChangeLog;
-
 
     @Override
     protected void onCreate(Bundle state) {
@@ -210,7 +210,7 @@ public class Main extends TabActivity implements
         if (intent == null || (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return;
         final Tab tab = Main.Tab.fromIntent(intent);
 
-        if (Intent.ACTION_VIEW.equals(intent.getAction()) && handleViewUrl(intent)) {
+        if (handleViewUrl(intent)) {
             // already handled
         } else if (Actions.MESSAGE.equals(intent.getAction())) {
             final long recipient = intent.getLongExtra("recipient", -1);
@@ -251,6 +251,9 @@ public class Main extends TabActivity implements
     }
 
     protected boolean handleViewUrl(Intent intent) {
+        if (!Intent.ACTION_VIEW.equals(intent.getAction()) && !FacebookSSO.isFacebookView(this, intent))
+            return false;
+
         Uri data = intent.getData();
         if (data == null) return false;
         ScModel model = ResolveTask.resolveLocally(getContentResolver(), data);

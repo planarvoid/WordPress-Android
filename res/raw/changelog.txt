@@ -3,6 +3,7 @@ $ 42
   _ 2012-05-04
   ! Bugfixes
     * Fix Facebook SSO
+    * Handle links from Facebook app
     - Upgraded to Jackson 2.0.2
 
 $ 41

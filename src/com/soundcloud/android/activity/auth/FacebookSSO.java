@@ -32,6 +32,9 @@ public class FacebookSSO extends AbstractLoginActivity {
         "user_birthday",
     };
 
+    // intents coming from the Facebook app start with this string (action)
+    private static final String COM_FACEBOOK_APPLICATION = "com.facebook.application.";
+
     @Override
     protected void build() {
         // no UI
@@ -70,6 +73,71 @@ public class FacebookSSO extends AbstractLoginActivity {
         }
     }
 
+    protected boolean validateAppSignatureForIntent(Intent intent) {
+        return validateAppSignatureForIntent(this, intent);
+    }
+
+    public static boolean isFacebookView(Context context, Intent intent) {
+        //noinspection SimplifiableIfStatement
+        if (intent == null || intent.getAction() == null ||
+                !intent.getAction().startsWith(COM_FACEBOOK_APPLICATION)) {
+            return false;
+        } else {
+            return intent.getAction().equals(COM_FACEBOOK_APPLICATION + getFacebookAppId(context));
+        }
+    }
+
+    static Intent getAuthIntent(Context context, String... permissions) {
+        final String applicationId = getFacebookAppId(context);
+        Intent intent = new Intent();
+        intent.setClassName("com.facebook.katana", "com.facebook.katana.ProxyAuth");
+        intent.putExtra(FB_CLIENT_ID_EXTRA, applicationId);
+        if (permissions.length > 0) {
+            intent.putExtra(FB_PERMISSION_EXTRA, TextUtils.join(",", permissions));
+        }
+        return intent;
+    }
+
+    private static class SSOException extends Exception {
+        public SSOException(String s) {
+            super(s);
+        }
+    }
+
+    private static class SSOCanceledException extends SSOException {
+        public SSOCanceledException() {
+            super("Login canceled by user");
+        }
+    }
+
+    private static String getFacebookAppId(Context context) {
+        return context.getString(SoundCloudApplication.API_PRODUCTION ?
+                R.string.production_facebook_app_id : R.string.sandbox_facebook_app_id);
+    }
+
+    static boolean validateAppSignatureForIntent(Context context, Intent intent) {
+        ResolveInfo resolveInfo =
+                context.getPackageManager().resolveActivity(intent, 0);
+        if (resolveInfo == null) {
+            return false;
+        }
+        String packageName = resolveInfo.activityInfo.packageName;
+        PackageInfo packageInfo;
+        try {
+            packageInfo = context.getPackageManager().getPackageInfo(
+                    packageName, PackageManager.GET_SIGNATURES);
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+
+        for (Signature signature : packageInfo.signatures) {
+            if (signature.toCharsString().equals(FB_APP_SIGNATURE)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static String getTokenFromIntent(Intent data) throws SSOException {
         // Check OAuth 2.0/2.10 error code.
         String error = data.getStringExtra("error");
@@ -104,59 +172,6 @@ public class FacebookSSO extends AbstractLoginActivity {
                 throw new SSOException("session is not valid");
             }
         }
-    }
-
-
-    static class SSOException extends Exception {
-        public SSOException(String s) {
-            super(s);
-        }
-    }
-
-    static class SSOCanceledException extends SSOException {
-        public SSOCanceledException() {
-            super("Login canceled by user");
-        }
-    }
-
-    static Intent getAuthIntent(Context context, String... permissions) {
-        String applicationId = context.getString(SoundCloudApplication.API_PRODUCTION ?
-                R.string.production_facebook_app_id : R.string.sandbox_facebook_app_id);
-
-        Intent intent = new Intent();
-        intent.setClassName("com.facebook.katana", "com.facebook.katana.ProxyAuth");
-        intent.putExtra(FB_CLIENT_ID_EXTRA, applicationId);
-        if (permissions.length > 0) {
-            intent.putExtra(FB_PERMISSION_EXTRA, TextUtils.join(",", permissions));
-        }
-        return intent;
-    }
-
-    protected boolean validateAppSignatureForIntent(Intent intent) {
-        return validateAppSignatureForIntent(this, intent);
-    }
-
-    static boolean validateAppSignatureForIntent(Context context, Intent intent) {
-        ResolveInfo resolveInfo =
-                context.getPackageManager().resolveActivity(intent, 0);
-        if (resolveInfo == null) {
-            return false;
-        }
-        String packageName = resolveInfo.activityInfo.packageName;
-        PackageInfo packageInfo;
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(
-                    packageName, PackageManager.GET_SIGNATURES);
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-
-        for (Signature signature : packageInfo.signatures) {
-            if (signature.toCharsString().equals(FB_APP_SIGNATURE)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static final String FB_APP_SIGNATURE =

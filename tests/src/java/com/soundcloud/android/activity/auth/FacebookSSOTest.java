@@ -55,4 +55,12 @@ public class FacebookSSOTest {
         Intent result = shadowOf(sso).getResultIntent();
         expect(result.getStringExtra("error")).toEqual("fb app not installed or sig invalid");
     }
+
+    @Test
+    public void shouldDetectFacebookIntent() throws Exception {
+        expect(FacebookSSO.isFacebookView(Robolectric.application, null)).toBeFalse();
+        expect(FacebookSSO.isFacebookView(Robolectric.application, new Intent())).toBeFalse();
+        expect(FacebookSSO.isFacebookView(Robolectric.application, new Intent("com.facebook.application.123"))).toBeFalse();
+        expect(FacebookSSO.isFacebookView(Robolectric.application, new Intent("com.facebook.application.19507961798"))).toBeTrue();
+    }
 }
