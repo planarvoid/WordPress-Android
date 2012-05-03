@@ -21,7 +21,7 @@ import com.soundcloud.api.Token;
 import java.io.IOException;
 
 public abstract class AbstractLoginActivity extends Activity {
-    public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING, Token.SCOPE_PLAYCOUNT };
+    public static final String[] SCOPES_TO_REQUEST = { Token.SCOPE_NON_EXPIRING };
     public static final String SCOPES_EXTRA = "scopes";
 
     public static final String CODE_EXTRA = "code";
