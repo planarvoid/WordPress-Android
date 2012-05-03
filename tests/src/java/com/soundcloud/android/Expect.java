@@ -6,7 +6,9 @@ import com.pivotallabs.greatexpectations.matchers.BooleanMatcher;
 import com.pivotallabs.greatexpectations.matchers.ComparableMatcher;
 import com.pivotallabs.greatexpectations.matchers.DateMatcher;
 import com.pivotallabs.greatexpectations.matchers.IterableMatcher;
+import com.pivotallabs.greatexpectations.matchers.LongMatcher;
 import com.pivotallabs.greatexpectations.matchers.ObjectMatcher;
+import com.pivotallabs.greatexpectations.matchers.SetMatcher;
 import com.pivotallabs.greatexpectations.matchers.StringMatcher;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.ContentMatcher;
@@ -14,10 +16,9 @@ import com.soundcloud.android.robolectric.UriMatcher;
 
 import android.net.Uri;
 
-/** @noinspection unchecked*/
+@SuppressWarnings({"unchecked", "UnusedDeclaration", "TypeParameterExplicitlyExtendsObject"})
 public class Expect {
 
-    /** @noinspection TypeParameterExplicitlyExtendsObject*/
     public static <T extends Object, M extends ObjectMatcher<T, M>> ObjectMatcher<T, ?> expect(T actual) {
         return wrapped(ObjectMatcher.class, actual);
     }
@@ -36,9 +37,15 @@ public class Expect {
     public static <T extends Iterable<X>, X, M extends IterableMatcher<T, X, M>> IterableMatcher<T, X, ?> expect(T actual) {
         return wrapped(IterableMatcher.class, actual);
     }
+    public static <T extends java.util.Set<X>, X, M extends SetMatcher<T, X, M>> SetMatcher<T, X, ?> expect(T actual) {
+        return wrapped(SetMatcher.class, actual);
+    }
     public static <T extends String, M extends StringMatcher<T, M>> StringMatcher<T, ?> expect(T actual) {
         return wrapped(StringMatcher.class, actual);
     }
+//    public static <T extends Long, M extends LongMatcher<T, M>> LongMatcher<T, ?> expect(T actual) {
+//        return wrapped(LongMatcher.class, actual);
+//    }
     public static <T extends Content, M extends ContentMatcher<T, M>> ContentMatcher<T, ?> expect(T actual) {
         return wrapped(ContentMatcher.class, actual);
     }

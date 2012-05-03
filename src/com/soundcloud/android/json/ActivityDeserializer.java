@@ -5,14 +5,17 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Activity;
 
 import java.io.IOException;
 
 public class ActivityDeserializer extends JsonDeserializer<Activity> {
-    // need private instance here - non-re-entrant mapper
-    static final ObjectMapper mapper = AndroidCloudAPI.Wrapper.createMapper();
+    private final ObjectMapper mapper;
+
+    public ActivityDeserializer(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+
     @Override
     public Activity deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         JsonNode node = mapper.readValue(parser, JsonNode.class);

@@ -24,7 +24,7 @@ object AndroidBuild extends Build {
     "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
-    "com.soundcloud" % "java-api-wrapper" % "1.1.1-SNAPSHOT",
+    "com.soundcloud" % "java-api-wrapper" % "1.1.1",
     "com.google.android" % "filecache" % "r153",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
     "org.xiph" % "libvorbis" % "1.0.0-beta",
@@ -36,7 +36,7 @@ object AndroidBuild extends Build {
     "com.pivotallabs" % "robolectric" % "1.2-SNAPSHOT" % "test",
     "junit" % "junit-dep" % "4.9" % "test",
     "org.mockito" % "mockito-core" % "1.8.5" % "test",
-    "com.github.xian" % "great-expectations" % "0.10" % "test",
+    "com.github.xian" % "great-expectations" % "0.13" % "test",
     "com.novocode" % "junit-interface" % "0.7" % "test" intransitive(),
     "org.scalatest" %% "scalatest" % "1.7.1" % "test",
     "org.scala-lang" % "scala-compiler" % "2.9.1" % "test"

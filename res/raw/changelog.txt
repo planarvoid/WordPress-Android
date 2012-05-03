@@ -1,8 +1,11 @@
 $ 42
   % v current
-  _ 2012-04
-  ! 2.2.6 + Español
+  _ 2012-05-04
+  ! Bugfixes
+    * Fix Facebook SSO
+    * Handle links from Facebook app
     * Spanish translation
+    - Upgraded to Jackson 2.0.2
 
 $ 41
   % v 2.2.6

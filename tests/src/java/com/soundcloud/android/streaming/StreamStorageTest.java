@@ -73,9 +73,9 @@ public class StreamStorageTest {
         ByteBuffer data = storage.getChunkData(item.url, 0);
         expect(data).not.toBeNull();
         expect(data.limit()).toEqual(storage.chunkSize);
-        expect(data.get()).toBe((byte) 1);
-        expect(data.get()).toBe((byte) 2);
-        expect(data.get()).toBe((byte) 3);
+        expect(data.get()).toEqual((byte) 1);
+        expect(data.get()).toEqual((byte) 2);
+        expect(data.get()).toEqual((byte) 3);
     }
 
     @Test
