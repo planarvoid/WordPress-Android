@@ -66,7 +66,6 @@ public class CloudRecorder {
     private CloudRecorder(Context context, AudioConfig config) {
         final int bufferSize = config.getMinBufferSize();
         mConfig = config;
-        try {
         mAudioRecord = config.createAudioRecord(bufferSize * 4);
         mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
@@ -79,9 +78,6 @@ public class CloudRecorder {
                 }
             }
         });
-        } catch (Exception e){
-            Log.i("asdf","Exception creating audio record ", e);
-        }
 
         mAudioTrack = config.createAudioTrack(bufferSize);
         mAudioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
@@ -103,12 +99,14 @@ public class CloudRecorder {
         amplitudeData = new AmplitudeData();
     }
 
+    public void reset(){
+        amplitudeData.clear();
+        writeIndex = -1;
+        mRecordStream = null;
+    }
+
     public State startReading() {
         if (mState == State.IDLE) {
-            amplitudeData.clear();
-            writeIndex = -1;
-            mRecordStream = null;
-
             startReadingInternal(State.READING);
         }
         return mState;
@@ -134,13 +132,7 @@ public class CloudRecorder {
     }
 
     public void stopRecording() {
-        // by default, only stop if actually recording (writing)
-        stopRecording(false);
-    }
-
-    public void stopRecording(boolean stopIfReading) {
-        if (mState == State.RECORDING ||
-            (mState == State.READING && stopIfReading)) {
+        if (mState == State.RECORDING ||mState == State.READING) {
             mState = State.STOPPING;
         }
     }
@@ -153,7 +145,7 @@ public class CloudRecorder {
 
     public void onDestroy() {
         stopPlayback();
-        stopRecording(true);
+        stopRecording();
         //release();
     }
 

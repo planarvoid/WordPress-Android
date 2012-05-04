@@ -242,10 +242,8 @@ public class CreateWaveDisplay extends TouchLayout {
 
         final int x = input.actionIndex == 0 ? input.x : input.pointerX;
         final int y = input.actionIndex == 0 ? input.y : input.pointerY;
-        Log.i("asdf","Checking left rect " + leftHandleRect + " " + x + " " + y);
         if (leftHandleRect != null && leftHandleRect.contains(x,y)) {
             mLeftHandleTouchIndex = input.actionIndex;
-            Log.i("asdf","Setting left index");
         } else if (rightHandleRect != null && rightHandleRect.contains(x,y)) {
             mRightHandleTouchIndex = input.actionIndex;
         } else if (input.action == InputObject.ACTION_TOUCH_DOWN){
@@ -346,6 +344,7 @@ public class CreateWaveDisplay extends TouchLayout {
     }
 
     public void reset() {
+        mMode = CreateWaveDisplay.MODE_REC;
         mWaveformView.reset();
     }
 

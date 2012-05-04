@@ -311,6 +311,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     public void reset() {
+        mCreateService.resetRecorder();
         mCurrentState = CreateState.IDLE_RECORD;
         mRecording = null;
         mWaveDisplay.reset();

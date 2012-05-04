@@ -206,6 +206,10 @@ public class CloudCreateService extends Service  {
         }
     }
 
+    public void resetRecorder() {
+        mRecorder.reset();
+    }
+
     public boolean isRecording() {
         return mIsRecording;
     }

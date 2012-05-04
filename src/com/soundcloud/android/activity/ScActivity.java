@@ -144,7 +144,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
     private final ServiceConnection createOsc = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            Log.i("asdf","On Create Service " + binder);
             if (binder instanceof LocalBinder) {
                 mCreateService = (CloudCreateService) ((LocalBinder) binder).getService();
                 onCreateServiceBound();
