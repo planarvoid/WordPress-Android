@@ -83,27 +83,24 @@ public class ScTextUtils {
         private OnClickListener mListener;
         private boolean mUnderline;
 
-            public ClickSpan(OnClickListener listener) {
-                this(listener, false);
-            }
-
-            public ClickSpan(OnClickListener listener, boolean underline) {
-                mListener = listener;
-                mUnderline = underline;
-            }
-
-            @Override
-            public void onClick(View widget) {
-               if (mListener != null) mListener.onClick();
-            }
-
-            @Override public void updateDrawState(TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setUnderlineText(mUnderline);
-            }
-
-            public interface OnClickListener {
-                void onClick();
-            }
+        public ClickSpan(OnClickListener listener, boolean underline) {
+            mListener = listener;
+            mUnderline = underline;
         }
+
+        @Override
+        public void onClick(View widget) {
+            if (mListener != null) mListener.onClick();
+        }
+
+        @Override
+        public void updateDrawState(TextPaint ds) {
+            super.updateDrawState(ds);
+            ds.setUnderlineText(mUnderline);
+        }
+
+        public interface OnClickListener {
+            void onClick();
+        }
+    }
 }
