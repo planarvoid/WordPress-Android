@@ -176,7 +176,7 @@ public class ScContentProvider extends ContentProvider {
 
             case TRACK_PLAYS_ITEM:
                 qb.setTables(content.table.name);
-                qb.appendWhere(Table.TRACK_PLAYS.id + " = " + uri.getLastPathSegment());
+                qb.appendWhere(content.table.id + " = " + uri.getLastPathSegment());
                 break;
 
             case TRACK_METADATA:
