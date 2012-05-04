@@ -2,9 +2,9 @@ $ 42
   % v current
   _ 2012-05-04
   ! Bugfixes
-    * Fix Facebook SSO
+    * Fix Facebook Single sign-on
     * Handle links from Facebook app
-    * Spanish translation
+    * Spanish localization
     - Upgraded to Jackson 2.0.1
     - java-api-wrapper 1.1.1
 
