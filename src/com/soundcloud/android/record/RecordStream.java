@@ -108,7 +108,7 @@ public class RecordStream implements Closeable {
     }
 
     public void setStartPositionByPercent(double percent) {
-        startPosition = (long) percent * getDuration();
+        startPosition = (long) (percent * getDuration());
     }
 
     public void setEndPositionByPercent(double percent) {
