@@ -31,7 +31,6 @@ import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.android.view.FullImageDialog;
-import com.soundcloud.android.view.create.PrivateMessager;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.ScTabView;
 import com.soundcloud.android.view.UserlistLayout;
@@ -40,7 +39,6 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -89,8 +87,6 @@ public class UserBrowser extends ScActivity implements
     private FetchUserTask mLoadUserTask;
     private boolean mUpdateInfo;
 
-    private PrivateMessager mMessager;
-
     private List<Connection> mConnections;
     private Object mAdapterStates[];
 
@@ -100,8 +96,7 @@ public class UserBrowser extends ScActivity implements
         details(Page.Users_info, Page.You_info),
         followings(Page.Users_following, Page.You_following),
         followers(Page.Users_followers, Page.You_followers),
-        friend_finder(null, Page.You_find_friends),
-        privateMessage(Page.Users_dedicated_rec, null);
+        friend_finder(null, Page.You_find_friends);
 
         public final Page user, you;
 
@@ -192,9 +187,6 @@ public class UserBrowser extends ScActivity implements
             build();
             if (!isMe()) FollowStatus.get().requestUserFollowings(getApp(), this, false);
 
-            if (intent.hasExtra("recordingUri")) {
-                mMessager.setRecording(Uri.parse(intent.getStringExtra("recordingUri")));
-            }
             if (intent.hasExtra("userBrowserTag")){
                 mUserlistBrowser.initByTag(intent.getStringExtra("userBrowserTag"));
             } else if (isMe()) {
@@ -250,20 +242,11 @@ public class UserBrowser extends ScActivity implements
         trackScreen();
 
         super.onResume();
-        if (mMessager != null) mMessager.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mMessager != null) mMessager.onPause();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (mMessager != null) mMessager.onStart();
-
         for (ScListView list : mLists) {
             list.checkForManualDetatch();
         }
@@ -272,10 +255,7 @@ public class UserBrowser extends ScActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-
-        if (mMessager != null) mMessager.onStop();
         FollowStatus.get().removeListener(this);
-
         mAdapterStates = new Object[mLists.size()];
         int i = 0;
         for (ScListView list : mLists) {
@@ -286,20 +266,6 @@ public class UserBrowser extends ScActivity implements
             }
             i++;
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mMessager != null) mMessager.onDestroy();
-    }
-
-    public void onSaveInstanceState(Bundle state) {
-        if (mMessager != null) mMessager.onSaveInstanceState(state);
-    }
-
-    public void onRestoreInstanceState(Bundle state) {
-        if (mMessager != null) mMessager.onRestoreInstanceState(state);
     }
 
     @Override
@@ -388,7 +354,6 @@ public class UserBrowser extends ScActivity implements
 
         mUserlistBrowser = (UserlistLayout) findViewById(R.id.userlist_browser);
         final boolean isMe = isMe();
-        mMessager = isMe ? null : new PrivateMessager(this, mUser);
 
         // Tracks View
         LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
@@ -556,7 +521,6 @@ public class UserBrowser extends ScActivity implements
             }
         }
 
-        if (mMessager != null) mUserlistBrowser.addView(mMessager, getString(R.string.user_browser_tab_message), getResources().getDrawable(R.drawable.ic_user_tab_rec), Tab.privateMessage.name());
         if (mFriendFinderView != null) mUserlistBrowser.addView(mFriendFinderView, getString(R.string.user_browser_tab_friend_finder), getResources().getDrawable(R.drawable.ic_user_tab_friendfinder), Tab.friend_finder.name());
         mUserlistBrowser.addView(mMyTracksView,  getString(R.string.user_browser_tab_sounds), getResources().getDrawable(R.drawable.ic_user_tab_sounds), Tab.tracks.name());
         mUserlistBrowser.addView(favoritesView, getString(R.string.user_browser_tab_likes), getResources().getDrawable(R.drawable.ic_user_tab_likes), Tab.favorites.name());
@@ -816,14 +780,7 @@ public class UserBrowser extends ScActivity implements
                 .create()
                 .show();
         } else {
-            if (recording.private_user_id <= 0) {
-                startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
-            } else {
-                startActivity(new Intent(UserBrowser.this, UserBrowser.class).putExtra("userId", recording.private_user_id)
-                        .putExtra("edit", false)
-                        .putExtra("recordingUri", recording.toUri().toString())
-                        .putExtra("userBrowserTag", Tab.privateMessage.name()));
-            }
+            startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
         }
     }
 
@@ -850,25 +807,7 @@ public class UserBrowser extends ScActivity implements
                 }
             //noinspection fallthrough
             default:
-                if (mMessager != null) {
-                    mMessager.onActivityResult(requestCode,resultCode,result);
-                }
         }
-    }
-
-    @Override
-    public void onCreateServiceBound() {
-        super.onCreateServiceBound();
-        if (mMessager != null) mMessager.onCreateServiceBound(mCreateService);
-    }
-
-    @Override
-    protected Dialog onCreateDialog(int which) {
-        Dialog created = null;
-        if (mMessager != null) {
-            created = mMessager.onCreateDialog(which);
-        }
-        return created == null ? super.onCreateDialog(which) : created;
     }
 
     private Configuration toConfiguration(){

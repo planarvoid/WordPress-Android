@@ -216,9 +216,9 @@ public class Main extends TabActivity implements
         } else if (Actions.MESSAGE.equals(intent.getAction())) {
             final long recipient = intent.getLongExtra("recipient", -1);
             if (recipient != -1) {
+                // TODO, fix this
                 startActivity(new Intent(this, UserBrowser.class)
-                        .putExtra("userId", recipient)
-                        .putExtra("userBrowserTag", UserBrowser.Tab.privateMessage.name()));
+                        .putExtra("userId", recipient));
             }
         } else if (Actions.PLAYER.equals(intent.getAction())) {
             // start another activity to control history

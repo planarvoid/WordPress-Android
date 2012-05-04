@@ -39,7 +39,7 @@ public class CloudRecorder {
     public final AmplitudeData amplitudeData;
     public int writeIndex;
 
-    private final AudioRecord mAudioRecord;
+    private  AudioRecord mAudioRecord;
     private final ScAudioTrack mAudioTrack;
 
     private RecordStream mRecordStream;
@@ -66,6 +66,7 @@ public class CloudRecorder {
     private CloudRecorder(Context context, AudioConfig config) {
         final int bufferSize = config.getMinBufferSize();
         mConfig = config;
+        try {
         mAudioRecord = config.createAudioRecord(bufferSize * 4);
         mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
@@ -78,6 +79,10 @@ public class CloudRecorder {
                 }
             }
         });
+        } catch (Exception e){
+            Log.i("asdf","Exception creating audio record ", e);
+        }
+
         mAudioTrack = config.createAudioTrack(bufferSize);
         mAudioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override public void onMarkerReached(AudioTrack track) {
@@ -93,11 +98,12 @@ public class CloudRecorder {
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         bufferReadSize =  (int) config.validBytePosition(mConfig.bytesPerSecond / (FPS));
         mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
-        mState = State.IDLE;
+
+        mState = mAudioRecord == null || mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
         amplitudeData = new AmplitudeData();
     }
 
-    public void startReading() {
+    public State startReading() {
         if (mState == State.IDLE) {
             amplitudeData.clear();
             writeIndex = -1;
@@ -105,6 +111,7 @@ public class CloudRecorder {
 
             startReadingInternal(State.READING);
         }
+        return mState;
     }
 
     // Sets output file path, call directly after construction/reset.
@@ -151,7 +158,7 @@ public class CloudRecorder {
     }
 
     private void release() {
-        mAudioRecord.release();
+        if (mAudioRecord != null) mAudioRecord.release();
         mAudioTrack.release();
     }
 

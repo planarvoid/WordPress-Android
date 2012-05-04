@@ -201,7 +201,9 @@ public class CloudCreateService extends Service  {
     }
 
     public void startReading() {
-        mRecorder.startReading();
+        if (mRecorder.startReading() == CloudRecorder.State.ERROR) {
+            onRecordError();
+        }
     }
 
     public boolean isRecording() {
