@@ -163,6 +163,7 @@
   <string name="dialog_reset_recording_message">Reset? Recording will be deleted.</string>
   <string name="dialog_unsaved_recordings_message">Unsaved recordings found. Checked items will be saved.</string>
   <string name="discogs">Discogs</string>
+  <string name="drag_waveform_comment">Drag along the waveform and release to make a comment at:</string>
   <plurals name="elapsed_days">
     <item quantity="one">1 day</item>
     <item quantity="other">%d days</item>
