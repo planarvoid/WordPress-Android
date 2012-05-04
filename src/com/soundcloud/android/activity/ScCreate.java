@@ -55,6 +55,7 @@ import java.util.List;
 public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     public static final int REQUEST_UPLOAD_FILE = 1;
+    public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
 
     private Recording mRecording;
     private User mPrivateUser;
@@ -108,6 +109,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             }
         }
 
+        if (getIntent().hasExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT)){
+            mPrivateUser = getIntent().getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT);
+        }
+
         mHandler = new Handler();
 
         mRecStatesDrawable = getResources().getDrawable(R.drawable.btn_rec_states);
@@ -116,6 +121,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mRemainingTimeCalculator = AudioConfig.DEFAULT.createCalculator();
 
         txtInstructions = (TextView) findViewById(R.id.txt_instructions);
+        if (mPrivateUser != null){
+            txtInstructions.setText(getResources().getString(R.string.private_message_title, mPrivateUser.username));
+        }
+
+
         txtRecordMessage = (TextView) findViewById(R.id.txt_record_message);
 
         mChrono = (TextView) findViewById(R.id.chronometer);
@@ -330,10 +340,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         final boolean saved = mRecording != null && mRecording.isSaved();
         mResetButton.setVisibility(saved ? View.GONE : View.VISIBLE);
         mDeleteButton.setVisibility(saved ? View.VISIBLE : View.GONE);
-    }
-
-    public void setInstructionsText(String s){
-        txtInstructions.setText(s);
     }
 
     @Override
