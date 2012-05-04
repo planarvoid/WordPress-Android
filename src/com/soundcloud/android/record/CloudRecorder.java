@@ -97,6 +97,7 @@ public class CloudRecorder {
 
         mState = mAudioRecord == null || mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
         amplitudeData = new AmplitudeData();
+        reset();
     }
 
     public void reset(){
