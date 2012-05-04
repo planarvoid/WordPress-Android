@@ -218,7 +218,7 @@ public class CreateWaveView extends View {
             final int gap = (totalAmplitudeSize - width) - mRecordStartIndex;
             start = (int) Math.max(0, (totalAmplitudeSize - width) - gap * interpolatedTime);
         }
-        final AmplitudeData subData = mAllAmplitudes.slice(start, mAllAmplitudes.size());
+        final AmplitudeData subData = mAllAmplitudes.slice(start, mAllAmplitudes.size() - start);
         if (subData.size() > 0) {
             final int lastDrawX = (totalAmplitudeSize < width) ? (int) (totalAmplitudeSize + (width - totalAmplitudeSize) * interpolatedTime) : width;
             float[] points = getAmplitudePoints(subData, 0, lastDrawX);
@@ -299,7 +299,7 @@ public class CreateWaveView extends View {
                 start = Math.max(0,mRecordStartIndex + (int) (interpolatedTime * (recordedAmplitudeSize - width)));
             }
 
-            final AmplitudeData amplitudesSubArray = mAllAmplitudes.slice(start, mAllAmplitudes.size());
+            final AmplitudeData amplitudesSubArray = mAllAmplitudes.slice(start, mAllAmplitudes.size() - start);
             if (amplitudesSubArray.size() > 0){
                 final int lastDrawX = (totalAmplitudeSize < width) ? (int) (width - (width - totalAmplitudeSize) * interpolatedTime) : width;
                 float[] points = getAmplitudePoints(amplitudesSubArray,0,lastDrawX);
