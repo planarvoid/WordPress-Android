@@ -8,8 +8,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.ClickSpan;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 public class EmptyCollection extends FrameLayout {
 
@@ -65,7 +64,7 @@ public class EmptyCollection extends FrameLayout {
     public EmptyCollection setSecondaryText(int secondaryTextId){
         mTxtLink.setText(secondaryTextId);
         mTxtLink.setVisibility(View.VISIBLE);
-        CloudUtils.clickify(mTxtLink, mTxtLink.getText().toString(), new ClickSpan.OnClickListener() {
+        ScTextUtils.clickify(mTxtLink, mTxtLink.getText().toString(), new ScTextUtils.ClickSpan.OnClickListener() {
             @Override
             public void onClick() {
                 if (mActionListener != null) {

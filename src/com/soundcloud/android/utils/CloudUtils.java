@@ -3,7 +3,6 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
-import org.json.JSONException;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -20,27 +19,18 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
 import android.util.Log;
 import android.view.Display;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.BigInteger;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -254,43 +244,6 @@ public final class CloudUtils {
         } else {
             return r.getQuantityString(R.plurals.elapsed_years, (int) (elapsed/31536000),(int) (elapsed/31536000));
         }
-    }
-
-    /**
-     * Adapted from the {@link android.text.util.Linkify} class. Changes the
-     * first instance of {@code link} into a clickable link attached to the given listener
-     * @param view the textview
-     * @param link the link to set, or null to use the whole text
-     * @param listener the listener
-     * @param underline underline the text
-     * @return true if the link was added
-     */
-    public static boolean clickify(TextView view, final String link, final ClickSpan.OnClickListener listener, boolean underline) {
-        CharSequence text = view.getText();
-        String string = text.toString();
-        ClickSpan span = new ClickSpan(listener, underline);
-
-        int start = 0, end = string.length();
-        if (link != null) {
-            start = string.indexOf(link);
-            end = start + link.length();
-            if (start == -1) return false;
-        }
-
-        if (text instanceof Spannable) {
-            ((Spannable)text).setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        } else {
-            SpannableString s = SpannableString.valueOf(text);
-            if (s != null) {  // robolectric
-                s.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                view.setText(s);
-            }
-        }
-        MovementMethod m = view.getMovementMethod();
-        if ((m == null) || !(m instanceof LinkMovementMethod)) {
-            view.setMovementMethod(LinkMovementMethod.getInstance());
-        }
-        return true;
     }
 
     @SuppressWarnings("UnusedDeclaration")

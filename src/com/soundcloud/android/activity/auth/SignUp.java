@@ -8,8 +8,8 @@ import com.soundcloud.android.task.SignupTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Token;
 
 import android.app.Activity;
@@ -92,10 +92,11 @@ public class SignUp extends Activity {
             }
         });
 
-        CloudUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
+        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
                 getResources().getString(R.string.authentication_terms_of_use),
-                new ClickSpan.OnClickListener() {
-                    @Override public void onClick() {
+                new ScTextUtils.ClickSpan.OnClickListener() {
+                    @Override
+                    public void onClick() {
                         app.track(Click.Signup_Signup_terms);
                         startActivity(new Intent(Intent.ACTION_VIEW, TERMS_OF_USE_URL));
                     }

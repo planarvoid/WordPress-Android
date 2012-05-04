@@ -29,6 +29,7 @@ import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.FriendFinderView;
 import com.soundcloud.android.view.FullImageDialog;
@@ -47,7 +48,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
@@ -739,7 +739,7 @@ public class UserBrowser extends ScActivity implements
 
         if (!TextUtils.isEmpty(user.description)) {
             mDisplayedInfo = true;
-            mDescription.setText(Html.fromHtml((user).description.replace(System.getProperty("line.separator"), "<br/>")));
+            mDescription.setText(ScTextUtils.fromHtml(user.description));
             mDescription.setMovementMethod(LinkMovementMethod.getInstance());
         }
         configureEmptyView();
