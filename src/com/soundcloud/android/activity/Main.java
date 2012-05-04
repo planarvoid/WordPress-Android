@@ -183,7 +183,7 @@ public class Main extends TabActivity implements
     @Override
     protected void onRestoreInstanceState(Bundle state) {
         super.onRestoreInstanceState(state);
-        if (state.containsKey(TAB_TAG)) {
+        if (state !=null && state.containsKey(TAB_TAG)) {
             getTabHost().setCurrentTabByTag(state.getString(TAB_TAG));
         }
     }
