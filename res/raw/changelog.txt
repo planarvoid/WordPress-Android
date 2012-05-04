@@ -4,7 +4,8 @@ $ 42
   ! Bugfixes
     * Fix Facebook SSO
     * Handle links from Facebook app
-    - Upgraded to Jackson 2.0.2
+    - Upgraded to Jackson 2.0.1
+    - java-api-wrapper 1.1.1
 
 $ 41
   % v 2.2.6
