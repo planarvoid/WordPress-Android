@@ -229,14 +229,16 @@ public class CloudRecorder {
     public void onNewStartPosition(double percent) {
         mRecordStream.setStartPositionByPercent(percent);
         if (mState == State.PLAYING) {
-            seekTo(mRecordStream.startPosition);
+            mSeekToPos = Math.max(mRecordStream.startPosition, mRecordStream.endPosition - TRIM_PREVIEW_LENGTH);
+            mState = State.SEEKING;
         }
     }
 
     public void onNewEndPosition(double percent) {
         mRecordStream.setEndPositionByPercent(percent);
         if (mState == State.PLAYING) {
-            seekTo(Math.max(mRecordStream.startPosition, mRecordStream.endPosition - mConfig.msToByte(TRIM_PREVIEW_LENGTH)));
+            mSeekToPos = Math.max(mRecordStream.startPosition, mRecordStream.endPosition - TRIM_PREVIEW_LENGTH);
+            mState = State.SEEKING;
         }
     }
 
@@ -262,7 +264,7 @@ public class CloudRecorder {
 
                 file.seek(mCurrentPosition);
                 mState = CloudRecorder.State.PLAYING;
-                int n;
+                int n = 0;
                 while (mState == CloudRecorder.State.PLAYING
                         && (n = file.read(buffer, bufferSize)) > -1
                         && (mCurrentPosition < mRecordStream.endPosition)) {
