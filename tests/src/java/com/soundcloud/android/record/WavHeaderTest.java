@@ -49,6 +49,14 @@ public class WavHeaderTest {
     }
 
     @Test
+    public void shouldCalculateDuration8Khz() throws Exception {
+        InputStream wav = getClass().getResourceAsStream(PCM16_8000_1_WAV);
+        expect(wav).not.toBeNull();
+        WavHeader header = new WavHeader(wav);
+        expect(header.getDuration()).toEqual(5550l);
+    }
+
+    @Test
     public void shouldReturnMatchingAudioConfig_short() throws Exception {
         InputStream wav = getClass().getResourceAsStream(SHORT_TEST_WAV);
         expect(wav).not.toBeNull();

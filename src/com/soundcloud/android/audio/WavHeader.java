@@ -199,7 +199,11 @@ public class WavHeader {
      * @return the duration, in ms
      */
     public long getDuration() {
-        return Math.round((mNumBytes / (double) (mSampleRate * mNumChannels * getBytesPerSample())) * 1000l);
+        return getDuration(mNumBytes, getAudioConfig());
+    }
+
+    public static long getDuration(long bytes, AudioConfig config) {
+        return Math.round((bytes / (double) (config.sampleRate * config.channels * (config.bitsPerSample / 8))) * 1000l);
     }
 
     /**
