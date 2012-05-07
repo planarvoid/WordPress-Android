@@ -82,6 +82,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private static final long PROGRESS_PERIOD = 1000 / 60; // aim for 60 fps.
 
     private Drawable mRecStatesDrawable, mRecStopStatesDrawable, mPlayBgDrawable, mPauseBgDrawable;
+    private String[] mRecordSuggestions;
 
     public enum CreateState {
         IDLE_STANDBY_REC,
@@ -148,6 +149,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mWaveDisplay = new CreateWaveDisplay(this);
         mWaveDisplay.setTrimListener(this);
         ((ViewGroup) findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
+
+        mRecordSuggestions = getResources().getStringArray(R.array.record_suggestions);
 
 
         mCurrentState = CreateState.IDLE_RECORD;
@@ -457,7 +460,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 if (!TextUtils.isEmpty(mRecordErrorMessage)) {
                     txtRecordMessage.setText(mRecordErrorMessage);
                 } else {
-                    txtRecordMessage.setText(getRandomSuggestion());
+                    txtRecordMessage.setText(mRecordSuggestions[((int) Math.floor(Math.random() * mRecordSuggestions.length))]);
                 }
 
                 setPlayButtonDrawable(false);
@@ -651,11 +654,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
            hideView(mToggleOptimize,animate,finalState);
            hideView(mPlayEditButton,animate,finalState);
        }
-    }
-
-    private CharSequence getRandomSuggestion() {
-        // XXX
-        return "Why don't you record the sounds of your street?";
     }
 
     private void startRecording() {
