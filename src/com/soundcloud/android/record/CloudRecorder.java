@@ -26,7 +26,7 @@ import java.nio.ByteOrder;
 public class CloudRecorder {
     /* package */ static final String TAG = CloudRecorder.class.getSimpleName();
 
-    public static final int PIXELS_PER_SECOND = 40;
+    public static final int PIXELS_PER_SECOND = 30;
     private static final int TRIM_PREVIEW_LENGTH = 500;
 
     private static CloudRecorder instance;
