@@ -159,6 +159,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         updateUi(false);
     }
 
+    @Override
     public void onStart(){
         super.onStart();
         IntentFilter recordFilter = CloudRecorder.getIntentFilter();
@@ -173,6 +174,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         LocalBroadcastManager.getInstance(this).registerReceiver(mStatusListener, recordFilter);
     }
 
+    @Override
     public void onPause() {
         super.onPause();
         mActive = false;
@@ -181,6 +183,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     }
 
+    @Override
     public void onResume() {
         super.onResume();
         if (mCreateService != null){
@@ -189,6 +192,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mActive = true;
     }
 
+    @Override
     public void onStop() {
         super.onStop();
         mHandler.removeCallbacks(mSmoothProgress);
@@ -196,12 +200,14 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusListener);
     }
 
+    @Override
     public void onSaveInstanceState(Bundle state) {
         state.putString("createCurrentCreateState", mCurrentState.toString());
         state.putString("createCurrentRecordFilePath", mRecording != null ? mRecording.getAbsolutePath() : "");
         mWaveDisplay.onSaveInstanceState(state);
     }
 
+    @Override
     public void onRestoreInstanceState(Bundle state) {
         if (state.isEmpty()) return;
         if (!TextUtils.isEmpty(state.getString("createCurrentRecordFilePath"))) {
@@ -286,8 +292,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private Button setupResetButton() {
         final Button button = ((Button) findViewById(R.id.btn_reset));
         button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            @Override public void onClick(View v) {
                 if (mCurrentState.isEdit()) {
                     mCurrentState = CreateState.IDLE_PLAYBACK;
                 } else {
@@ -302,7 +307,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private ImageButton setupActionButton() {
         final ImageButton button = (ImageButton) findViewById(R.id.btn_action);
         button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+            @Override public void onClick(View v) {
                 if (mCurrentState == CreateState.IDLE_STANDBY_REC) {
                     stopRecording();
                     configureState();
@@ -332,8 +337,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private Button setupDeleteButton() {
         final Button button = ((Button) findViewById(R.id.btn_delete));
         button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            @Override public void onClick(View v) {
                 ScCreate.this.track(Click.Record_delete);
                 ScCreate.this.showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
             }
@@ -345,8 +349,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         final Button button = ((Button) findViewById(id));
         if (button != null){
             button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                @Override public void onClick(View v) {
                     switch (mCurrentState) {
                         case IDLE_PLAYBACK:
                             ScCreate.this.track(Click.Record_play);
@@ -377,8 +380,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private Button setupEditButton() {
         Button button = ((Button) findViewById(R.id.btn_edit));
         button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            @Override public void onClick(View v) {
                 ScCreate.this.track(Click.Record_edit);
                 mCurrentState = CreateState.EDIT;
                 updateUi(true);
@@ -390,7 +392,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private Button setupSaveButton() {
         final Button button = (Button) findViewById(R.id.btn_save);
         button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+            @Override public void onClick(View v) {
                 if (mCurrentState.isEdit()) {
                     saveEditState();
 
@@ -423,8 +425,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private ToggleButton setupToggleFade() {
         final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_fade);
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            @Override public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
             }
         });
@@ -434,8 +435,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private ToggleButton setupToggleOptimize() {
         final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_optimize);
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            @Override public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
             }
         });
@@ -984,8 +984,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     }
 
-    @Override
-    public Dialog onCreateDialog(int which) {
+    @Override public Dialog onCreateDialog(int which) {
         switch (which) {
             case Consts.Dialogs.DIALOG_UNSAVED_RECORDING:
                 final List<Recording> recordings = mUnsavedRecordings;
@@ -1061,8 +1060,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    @Override public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file).setIcon(R.drawable.ic_menu_incoming);
         return super.onCreateOptionsMenu(menu);
     }
