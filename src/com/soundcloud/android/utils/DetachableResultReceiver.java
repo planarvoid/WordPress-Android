@@ -4,7 +4,6 @@ package com.soundcloud.android.utils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
-import android.util.Log;
 
 import java.util.ArrayList;
 

@@ -5,9 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.ClickSpan;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -24,12 +22,13 @@ public class ShareUserHeader extends RelativeLayout {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.share_user_header, this);
 
-        CloudUtils.clickify((TextView) findViewById(R.id.share_header_logout_txt), null,
-                new ClickSpan.OnClickListener() {
-            @Override public void onClick() {
-                activity.safeShowDialog(Consts.Dialogs.DIALOG_LOGOUT);
-            }
-        }, true);
+        ScTextUtils.clickify((TextView) findViewById(R.id.share_header_logout_txt), null,
+                new ScTextUtils.ClickSpan.OnClickListener() {
+                    @Override
+                    public void onClick() {
+                        activity.safeShowDialog(Consts.Dialogs.DIALOG_LOGOUT);
+                    }
+                }, true);
 
         ((TextView) findViewById(R.id.share_header_username)).setText(user.username);
 

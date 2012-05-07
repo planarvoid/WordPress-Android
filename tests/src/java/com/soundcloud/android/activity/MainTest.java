@@ -28,6 +28,7 @@ public class MainTest {
     Uri resolved;
     String action;
     Track track;
+    User user;
 
     @Before
     public void before() {
@@ -47,6 +48,12 @@ public class MainTest {
             public void onTrackLoaded(Track track, String action) {
                 MainTest.this.track = track;
                 super.onTrackLoaded(track, action);
+            }
+
+            @Override
+            protected void onUserLoaded(User u, String action) {
+                MainTest.this.user = u;
+                super.onUserLoaded(u, action);
             }
         };
     }
@@ -152,6 +159,24 @@ public class MainTest {
         expect(action).toBeNull();
         expect(track).not.toBeNull();
         expect(track.id).toEqual(12345L);
+    }
+
+    @Test
+    public void shouldHandleFacebookDeeplinkIntent() throws Exception {
+        addHttpResponseRule("/resolve?url=http%3A%2F%2Fsoundcloud.com%2Fjohnpeelarchive%3Ffb_action_ids%3D10151612282280249%26fb_action_types%3Dsoundcloud%3Afollow%26fb_source%3Daggregation%26fb_aggregation_id%3D10150389352581799",
+                new TestHttpResponse(302, "", new BasicHeader("Location", "https://api.soundcloud.com/users/12345")));
+
+        TestHelper.addCannedResponse(getClass(), "/users/12345", "user.json");
+
+        main.handleViewUrl(new Intent("com.facebook.application.19507961798",
+                Uri.parse("http://soundcloud.com/johnpeelarchive?fb_action_ids=10151612282280249&fb_action_types=soundcloud:follow&fb_source=aggregation&fb_aggregation_id=10150389352581799")));
+
+        expect(error).toBeFalse();
+        expect(resolved.toString()).toEqual("https://api.soundcloud.com/users/12345");
+        expect(action).toBeNull();
+        expect(user).not.toBeNull();
+        expect(user.id).toEqual(3135930L);
+        expect(user.username).toEqual("SoundCloud Android @ MWC");
     }
 
     @Test

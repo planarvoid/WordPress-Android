@@ -25,7 +25,7 @@ import java.nio.ByteOrder;
 public class CloudRecorder {
     /* package */ static final String TAG = CloudRecorder.class.getSimpleName();
 
-    public static final int FPS = 40;
+    public static final int PIXELS_PER_SECOND = 40;
     private static final int TRIM_PREVIEW_LENGTH = 500;
 
     private static CloudRecorder instance;
@@ -92,7 +92,7 @@ public class CloudRecorder {
 
         buffer = ByteBuffer.allocateDirect(bufferSize);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
-        bufferReadSize =  (int) config.validBytePosition(mConfig.bytesPerSecond / (FPS));
+        bufferReadSize =  (int) config.validBytePosition((long) (mConfig.bytesPerSecond / (PIXELS_PER_SECOND * context.getResources().getDisplayMetrics().density)));
         mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
 
         mState = mAudioRecord == null || mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;

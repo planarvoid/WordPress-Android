@@ -14,7 +14,7 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
     private final int initialCapacity;
 
     public AmplitudeData() {
-        this(AVERAGE_RECORDING_TIME * CloudRecorder.FPS);
+        this(AVERAGE_RECORDING_TIME * CloudRecorder.PIXELS_PER_SECOND);
     }
 
     public AmplitudeData(int initialCapacity ) {

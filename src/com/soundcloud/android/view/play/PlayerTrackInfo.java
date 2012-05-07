@@ -7,11 +7,11 @@ import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.TrackComments;
 import com.soundcloud.android.activity.TrackFavoriters;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
 
 import android.content.Context;
 import android.content.Intent;
-import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.util.Linkify;
@@ -137,8 +137,8 @@ public class PlayerTrackInfo extends RelativeLayout{
             mPlayingTrack.fillTags(mTrackTags, mPlayer);
 
             TextView txtInfo = (TextView) findViewById(R.id.txtInfo);
-            if (txtInfo != null && mPlayingTrack != null){ // should never be null, but sure enough it is in rare cases. Maybe not inflated yet??
-                txtInfo.setText(Html.fromHtml(mPlayingTrack.trackInfo()));
+            if (txtInfo != null && mPlayingTrack != null) { // should never be null, but sure enough it is in rare cases. Maybe not inflated yet??
+                txtInfo.setText(ScTextUtils.fromHtml(mPlayingTrack.trackInfo()));
                 Linkify.addLinks(txtInfo, Linkify.WEB_URLS);
 
                 // for some reason this needs to be set to support links

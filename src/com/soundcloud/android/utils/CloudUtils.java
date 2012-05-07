@@ -24,12 +24,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
 import android.util.Log;
 import android.view.Display;
 import android.widget.TextView;
@@ -164,43 +159,6 @@ public final class CloudUtils {
 
     public static String getTimeElapsed(Resources r, long timestamp){
         return getTimeString(r, Math.max(0, (System.currentTimeMillis() - timestamp)/1000), false);
-    }
-
-    /**
-     * Adapted from the {@link android.text.util.Linkify} class. Changes the
-     * first instance of {@code link} into a clickable link attached to the given listener
-     * @param view the textview
-     * @param link the link to set, or null to use the whole text
-     * @param listener the listener
-     * @param underline underline the text
-     * @return true if the link was added
-     */
-    public static boolean clickify(TextView view, final String link, final ClickSpan.OnClickListener listener, boolean underline) {
-        CharSequence text = view.getText();
-        String string = text.toString();
-        ClickSpan span = new ClickSpan(listener, underline);
-
-        int start = 0, end = string.length();
-        if (link != null) {
-            start = string.indexOf(link);
-            end = start + link.length();
-            if (start == -1) return false;
-        }
-
-        if (text instanceof Spannable) {
-            ((Spannable)text).setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        } else {
-            SpannableString s = SpannableString.valueOf(text);
-            if (s != null) {  // robolectric
-                s.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                view.setText(s);
-            }
-        }
-        MovementMethod m = view.getMovementMethod();
-        if ((m == null) || !(m instanceof LinkMovementMethod)) {
-            view.setMovementMethod(LinkMovementMethod.getInstance());
-        }
-        return true;
     }
 
     @SuppressWarnings("UnusedDeclaration")

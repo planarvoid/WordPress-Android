@@ -374,6 +374,20 @@ public class ActivitiesTest {
         expect(a.getFirstAvailableAvatar()).toEqual(avatar_2);
     }
 
+    @Test
+    public void shouldNotCreateNewUserObjectsIfObjectIdIsTheSame() throws Exception {
+
+        Activities a = Activities.fromJSON(
+                getClass().getResourceAsStream("two_activities_by_same_user.json"));
+
+        // fronx favorites + comments
+        User u1 = a.get(0).getUser();
+        User u2 = a.get(1).getUser();
+
+        expect(u1).toBe(u2);
+    }
+
+
     private Activity makeActivity(Track t){
         Activity a = new Activity();
         a.origin = t;

@@ -223,7 +223,8 @@ public class StreamItem implements Parcelable {
     }
 
     /* package */ static StreamItem read(DataInputStream dis) throws IOException {
-        String url = dis.readUTF();
+        final String url = dis.readUTF();
+        if (TextUtils.isEmpty(url)) throw new IOException("no url stored");
         StreamItem item = new StreamItem(url);
         item.mContentLength = dis.readLong();
         item.mEtag = dis.readUTF();
