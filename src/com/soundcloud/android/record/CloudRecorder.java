@@ -40,7 +40,7 @@ public class CloudRecorder {
     public final AmplitudeData amplitudeData;
     public int writeIndex;
 
-    private  AudioRecord mAudioRecord;
+    private final AudioRecord mAudioRecord;
     private final ScAudioTrack mAudioTrack;
 
     private RecordStream mRecordStream;
@@ -125,7 +125,7 @@ public class CloudRecorder {
             }
 
             if (mRecordStream == null) {
-                mRecordStream = new RecordStream(path, mConfig, "armeabi-v7a".equals(Build.CPU_ABI));
+                mRecordStream = new RecordStream(path, mConfig, true /* "armeabi-v7a".equals(Build.CPU_ABI) */);
             }
             startReadingInternal(State.RECORDING);
         } else throw new IllegalStateException("cannot record to file, in state " + mState);
@@ -285,7 +285,7 @@ public class CloudRecorder {
                     } else {
                         mCurrentPosition += file.getConfig().bytesToMs(written);
                     }
-                    buffer.rewind();
+                    buffer.clear();
                 }
             } else {
                 Log.w(TAG, "dataStart > length: " + mCurrentPosition + ">" + file.getDuration());

@@ -44,7 +44,12 @@ public class VorbisFile implements AudioFile {
     @Override
     public int read(ByteBuffer buffer, int length) throws IOException {
         final int ret = decoder.decode(buffer, length);
-        return ret == 0 ? EOF : ret;
+        if (ret == 0) {
+            return EOF;
+        } else {
+            buffer.position(ret);
+            return ret;
+        }
     }
 
     @Override

@@ -159,6 +159,130 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         updateUi(false);
     }
 
+    public void onStart(){
+        super.onStart();
+        IntentFilter recordFilter = CloudRecorder.getIntentFilter();
+
+        // XXX still using global broadcast
+        IntentFilter uploadFilter = new IntentFilter();
+        uploadFilter.addAction(UploadService.UPLOAD_ERROR);
+        uploadFilter.addAction(UploadService.UPLOAD_CANCELLED);
+        uploadFilter.addAction(UploadService.UPLOAD_SUCCESS);
+
+        this.registerReceiver(mStatusListener, uploadFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mStatusListener, recordFilter);
+    }
+
+    public void onPause() {
+        super.onPause();
+        mActive = false;
+        if (mCurrentState != CreateState.RECORD && mCreateService != null){
+            mCreateService.stopRecording(); // this will stop the amplitude reading loop
+        }
+    }
+
+    public void onResume() {
+        super.onResume();
+        if (mCreateService != null){
+            configureState();
+        }
+        mActive = true;
+    }
+
+    public void onStop() {
+        super.onStop();
+        mHandler.removeCallbacks(mSmoothProgress);
+        this.unregisterReceiver(mStatusListener);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusListener);
+    }
+
+    public void onSaveInstanceState(Bundle state) {
+        state.putString("createCurrentCreateState", mCurrentState.toString());
+        state.putString("createCurrentRecordFilePath", mRecording != null ? mRecording.getAbsolutePath() : "");
+        mWaveDisplay.onSaveInstanceState(state);
+    }
+
+    public void onRestoreInstanceState(Bundle state) {
+        if (state.isEmpty()) return;
+        if (!TextUtils.isEmpty(state.getString("createCurrentRecordFilePath"))) {
+            mRecording = new Recording(new File(state.getString("createCurrentRecordFilePath")));
+        }
+        if (!TextUtils.isEmpty(state.getString("createCurrentCreateState"))) {
+            mCurrentState = CreateState.valueOf(state.getString("createCurrentCreateState"));
+            updateUi(false);
+        }
+        mWaveDisplay.onRestoreInstanceState(state);
+    }
+
+    public void onRecordingError() {
+        mSampleInterrupted = true;
+        mRecordErrorMessage = this.getResources().getString(R.string.error_recording_message);
+        IOUtils.deleteFile(mRecording.audio_path);
+        mRecording = null;
+        mCurrentState = CreateState.IDLE_RECORD;
+        updateUi(true);
+    }
+
+    @Override
+    public void onSeek(float pct) {
+        if (mCreateService != null) {
+            mLastTrackTime = -1;
+            mCreateService.seekTo(pct);
+        }
+    }
+
+    @Override
+    public void onAdjustTrimLeft(float pos) {
+        if (mCreateService != null) { mCreateService.setPlaybackStart(pos); }
+    }
+
+    @Override
+    public void onAdjustTrimRight(float pos) {
+        if (mCreateService != null) { mCreateService.setPlaybackEnd(pos); }
+    }
+
+
+    @Override
+    protected void onCreateServiceBound() {
+        if (mActive) configureState();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case Consts.OptionsMenu.SELECT_FILE:
+                startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("audio/*"), REQUEST_UPLOAD_FILE);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case 0:
+                if (resultCode == RESULT_OK) {
+                    finish();
+                }
+                break;
+            case REQUEST_UPLOAD_FILE:
+                if (resultCode == RESULT_OK) {
+                    final Uri uri = data.getData();
+                    final Intent intent = (new Intent(Actions.EDIT))
+                            .putExtra(Intent.EXTRA_STREAM, uri);
+
+                    final String file = uri.getLastPathSegment();
+                    if (file != null && file.lastIndexOf(".") != -1) {
+                        intent.putExtra(Actions.EXTRA_TITLE,
+                                file.substring(0, file.lastIndexOf(".")));
+                    }
+                    startActivity(intent);
+                }
+        }
+    }
+
+
     private Button setupResetButton() {
         final Button button = ((Button) findViewById(R.id.btn_reset));
         button.setOnClickListener(new View.OnClickListener() {
@@ -216,6 +340,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         });
         return button;
     }
+
     private Button setupPlaybutton(int id) {
         final Button button = ((Button) findViewById(id));
         if (button != null){
@@ -248,6 +373,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
         return button;
     }
+
     private Button setupEditButton() {
         Button button = ((Button) findViewById(R.id.btn_edit));
         button.setOnClickListener(new View.OnClickListener() {
@@ -260,11 +386,14 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         });
         return button;
     }
+
     private Button setupSaveButton() {
         final Button button = (Button) findViewById(R.id.btn_save);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (mCurrentState.isEdit()) {
+                    saveEditState();
+
                     mCurrentState = CreateState.IDLE_PLAYBACK;
                     updateUi(true);
                 } else {
@@ -313,7 +442,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return tb;
     }
 
-    public void reset() {
+    private void reset() {
         mCreateService.resetRecorder();
         mCurrentState = CreateState.IDLE_RECORD;
         mRecording = null;
@@ -322,23 +451,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         setResetState();
     }
 
-    @Override
-    public void onSeek(float pct) {
-        if (mCreateService != null) {
-            mLastTrackTime = -1;
-            mCreateService.seekTo(pct);
-        }
-    }
-
-    @Override
-    public void onAdjustTrimLeft(float pos) {
-        if (mCreateService != null) { mCreateService.setPlaybackStart(pos); }
-    }
-
-    @Override
-    public void onAdjustTrimRight(float pos) {
-        if (mCreateService != null) { mCreateService.setPlaybackEnd(pos); }
-    }
 
     private void setResetState() {
         final boolean saved = mRecording != null && mRecording.isSaved();
@@ -346,22 +458,12 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mDeleteButton.setVisibility(saved ? View.VISIBLE : View.GONE);
     }
 
-    @Override
-    protected void onCreateServiceBound() {
-        if (mActive) configureState();
-    }
-
-    public void setRecording(Recording recording){
-        mRecording = recording;
-        configureState();
-    }
-
-    private void configureState(){
+    private void configureState() {
         if (mCreateService == null) return;
 
         boolean takeAction = false;
 
-        if (mCreateService.isRecording()){
+        if (mCreateService.isRecording()) {
             if (shouldReactToRecording()) {
                 mCurrentState = CreateState.RECORD;
                 if (mRecording == null) mRecording = mCreateService.getRecording();
@@ -426,34 +528,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return ((userIdFromPath == -1 && mPrivateUser == null) || (mPrivateUser != null && userIdFromPath == mPrivateUser.id));
     }
 
-    public void onSaveInstanceState(Bundle state) {
-        state.putString("createCurrentCreateState", mCurrentState.toString());
-        state.putString("createCurrentRecordFilePath", mRecording != null ? mRecording.getAbsolutePath() : "");
-        mWaveDisplay.onSaveInstanceState(state);
+    private void saveEditState() {
+
     }
 
-    public void onRestoreInstanceState(Bundle state) {
-        if (state.isEmpty()) return;
-        if (!TextUtils.isEmpty(state.getString("createCurrentRecordFilePath"))) {
-            mRecording = new Recording(new File(state.getString("createCurrentRecordFilePath")));
-        }
-        if (!TextUtils.isEmpty(state.getString("createCurrentCreateState"))) {
-            mCurrentState = CreateState.valueOf(state.getString("createCurrentCreateState"));
-            updateUi(false);
-        }
-        mWaveDisplay.onRestoreInstanceState(state);
-    }
-
-    public void onRecordingError() {
-        mSampleInterrupted = true;
-        mRecordErrorMessage = this.getResources().getString(R.string.error_recording_message);
-        IOUtils.deleteFile(mRecording.audio_path);
-        mRecording = null;
-        mCurrentState = CreateState.IDLE_RECORD;
-        updateUi(true);
-    }
-
-    void updateUi(boolean takeAction) {
+    private void updateUi(boolean takeAction) {
         switch (mCurrentState) {
             case IDLE_RECORD:
                 if (takeAction) stopPlayback();
@@ -726,7 +805,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     }
 
-    public void onFrameUpdate(float maxAmplitude, long elapsed) {
+    private void onFrameUpdate(float maxAmplitude, long elapsed) {
         if (mCurrentState == CreateState.IDLE_RECORD || mCurrentState == CreateState.RECORD) {
             mWaveDisplay.updateAmplitude(maxAmplitude, mCurrentState == CreateState.RECORD);
             if (mCurrentState == CreateState.RECORD) onRecProgressUpdate(elapsed);
@@ -864,42 +943,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     }
 
-    public void onStart(){
-        super.onStart();
-        IntentFilter recordFilter = CloudRecorder.getIntentFilter();
-
-        // XXX still using global broadcast
-        IntentFilter uploadFilter = new IntentFilter();
-        uploadFilter.addAction(UploadService.UPLOAD_ERROR);
-        uploadFilter.addAction(UploadService.UPLOAD_CANCELLED);
-        uploadFilter.addAction(UploadService.UPLOAD_SUCCESS);
-
-        this.registerReceiver(mStatusListener, uploadFilter);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mStatusListener, recordFilter);
-    }
-
-    public void onPause() {
-        super.onPause();
-        mActive = false;
-        if (mCurrentState != CreateState.RECORD && mCreateService != null){
-            mCreateService.stopRecording(); // this will stop the amplitude reading loop
-        }
-    }
-
-    public void onResume() {
-        super.onResume();
-        if (mCreateService != null){
-            configureState();
-        }
-        mActive = true;
-    }
-
-    public void onStop() {
-        super.onStop();
-        mHandler.removeCallbacks(mSmoothProgress);
-        this.unregisterReceiver(mStatusListener);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusListener);
-    }
 
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
@@ -932,6 +975,16 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     };
 
+    private void onSave(final Recording recording, boolean isNew) {
+        if (isNew) {
+            startActivity(new Intent(this, ScUpload.class).setData(recording.toUri()));
+            reset();
+        } else {
+            startActivityForResult(new Intent(this, ScUpload.class).setData(recording.toUri()), 0);
+        }
+    }
+
+    @Override
     public Dialog onCreateDialog(int which) {
         switch (which) {
             case Consts.Dialogs.DIALOG_UNSAVED_RECORDING:
@@ -1007,49 +1060,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case Consts.OptionsMenu.SELECT_FILE:
-                startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("audio/*"), REQUEST_UPLOAD_FILE);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case 0:
-                if (resultCode == RESULT_OK) {
-                    finish();
-                }
-                break;
-            case REQUEST_UPLOAD_FILE:
-                if (resultCode == RESULT_OK) {
-                    final Uri uri = data.getData();
-                    final Intent intent = (new Intent(Actions.EDIT))
-                            .putExtra(Intent.EXTRA_STREAM, uri);
-
-                    final String file = uri.getLastPathSegment();
-                    if (file != null && file.lastIndexOf(".") != -1) {
-                        intent.putExtra(Actions.EXTRA_TITLE,
-                                file.substring(0, file.lastIndexOf(".")));
-                    }
-                    startActivity(intent);
-                }
-        }
-    }
-
-    public void onSave(final Recording recording, boolean isNew) {
-        if (isNew) {
-            startActivity(new Intent(this, ScUpload.class).setData(recording.toUri()));
-            reset();
-        } else {
-            startActivityForResult(new Intent(this, ScUpload.class).setData(recording.toUri()), 0);
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
