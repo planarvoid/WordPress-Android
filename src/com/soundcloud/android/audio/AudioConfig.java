@@ -1,5 +1,6 @@
 package com.soundcloud.android.audio;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.record.RemainingTimeCalculator;
 
 import android.media.AudioFormat;
@@ -10,6 +11,7 @@ import android.media.MediaRecorder;
 public enum AudioConfig {
     PCM16_44100_2(16, 44100, 2, .5f),
     PCM16_44100_1(16, 44100, 1, .5f),
+    PCM16_8000_1(16, 8000, 1, .5f),
     ;
 
     public final int sampleRate;
@@ -19,7 +21,9 @@ public enum AudioConfig {
     public final float quality;
     public final int source = MediaRecorder.AudioSource.MIC;
 
-    public static AudioConfig DEFAULT = PCM16_44100_1;
+    public static final AudioConfig DEFAULT = SoundCloudApplication.EMULATOR ?
+            AudioConfig.PCM16_8000_1 : // also needs hw.audioInput=yes in avd
+            AudioConfig.PCM16_44100_1;
 
     private AudioConfig(int bitsPerSample, int sampleRate, int channels, float quality) {
         if (bitsPerSample != 8 && bitsPerSample != 16) throw new IllegalArgumentException("invalid bitsPerSample:"+bitsPerSample);
@@ -31,6 +35,7 @@ public enum AudioConfig {
         this.quality = quality;
         bytesPerSecond = sampleRate * (bitsPerSample / 8) * channels;
     }
+
 
     /**
      * @param in true for input, false for output

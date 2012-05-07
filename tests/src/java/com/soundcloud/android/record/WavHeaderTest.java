@@ -9,11 +9,13 @@ import org.junit.Test;
 import java.io.File;
 import java.io.InputStream;
 
-public class WaveHeaderTest {
+public class WavHeaderTest {
     /** 44100 16bit signed, 1 channel, 00:00:05.64, 497708 bytes  */
     public static final String SHORT_TEST_WAV = "/com/soundcloud/android/service/upload/short_test.wav";
     /** 44100 16bit signed, 2 channels, 00:00:18.95, 3342684 bytes  */
     public static final String MED_TEST_WAV = "/com/soundcloud/android/service/upload/med_test.wav";
+    /** 8000 16bit signed, 1 channel, 00:00:05.55, 88844 bytes  */
+    public static final String PCM16_8000_1_WAV = "/com/soundcloud/android/service/upload/PCM16_8000_1.wav";
 
     @Test
     public void shouldReadWaveHeaderFromInputStream() throws Exception {
@@ -60,6 +62,14 @@ public class WaveHeaderTest {
         expect(wav).not.toBeNull();
         WavHeader header = new WavHeader(wav);
         expect(header.getAudioConfig()).toBe(AudioConfig.PCM16_44100_2);
+    }
+
+    @Test
+    public void shouldReturnMatchingAudio_8000() throws Exception {
+        InputStream wav = getClass().getResourceAsStream(PCM16_8000_1_WAV);
+        expect(wav).not.toBeNull();
+        WavHeader header = new WavHeader(wav);
+        expect(header.getAudioConfig()).toBe(AudioConfig.PCM16_8000_1);
     }
 
     @Test

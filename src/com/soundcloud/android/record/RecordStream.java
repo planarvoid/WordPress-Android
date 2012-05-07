@@ -19,12 +19,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class RecordStream implements Closeable {
-    private VorbisEncoder mEncoder;
-
-    public final File encodedFile;
-
     private WavWriter mWavWriter;
     private final AudioConfig config;
+
+    private VorbisEncoder mEncoder;
+    public final File encodedFile;
 
     private boolean initialised;
 
@@ -36,23 +35,24 @@ public class RecordStream implements Closeable {
     private static final int FADE_LENGTH_MS = 1000;
     private static final int FADE_EXP_CURVE = 2;
 
-    public RecordStream(File f, AudioConfig cfg) {
+    public RecordStream(File f, AudioConfig cfg, boolean encode) {
         if (f == null) throw new IllegalArgumentException("file is null");
         if (cfg == null) throw new IllegalArgumentException("config is null");
 
         config = cfg;
-        encodedFile = Recording.encodedFilename(f);
         mWavWriter = new WavWriter(f, cfg);
-
+        encodedFile = encode ? Recording.encodedFilename(f) : null;
     }
 
     public int write(ByteBuffer buffer, int length) throws IOException {
         if (!initialised) {
             initialise();
         }
-
         mWavWriter.write(buffer, length);
-        mEncoder.write(buffer, length);
+
+        if (mEncoder != null) {
+            mEncoder.write(buffer, length);
+        }
         return length;
     }
 
@@ -64,7 +64,7 @@ public class RecordStream implements Closeable {
         if (!initialised) return -1;
         try {
             final long duration = mWavWriter.finalizeStream();
-            mEncoder.pause();
+            if (mEncoder != null) mEncoder.pause();
             initialised = false;
             endPosition = duration;
             return duration;
@@ -92,7 +92,7 @@ public class RecordStream implements Closeable {
     }
 
     private void initialise() throws IOException {
-        if (mEncoder == null) {
+        if (mEncoder == null && encodedFile != null) {
             // initialise a new encoder object
             long start = System.currentTimeMillis();
             mEncoder = new VorbisEncoder(encodedFile, "a", config);
@@ -120,7 +120,7 @@ public class RecordStream implements Closeable {
     }
 
     public AudioFile getAudioFile() throws IOException {
-        return new VorbisFile(encodedFile);
+        return encodedFile == null ? new WavFile(mWavWriter.file) :  new VorbisFile(encodedFile);
     }
 
     public byte[] applyMods(byte[] buffer, long bufferIndex) {
