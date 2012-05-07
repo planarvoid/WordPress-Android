@@ -44,6 +44,8 @@ public class CreateWaveDisplay extends TouchLayout {
     private LayoutParams rightLp, leftLp;
     private Listener mListener;
 
+    private int leftMarginOffset, rightMarginOffset;
+
     private float trimPercentLeft, trimPercentRight;
     private int waveformWidth;
 
@@ -90,6 +92,9 @@ public class CreateWaveDisplay extends TouchLayout {
         rightLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,1);
         rightLp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,1);
         trimPercentRight = 1.0f;
+
+        leftMarginOffset = (int) getResources().getDimension(R.dimen.trim_handle_left_margin_offset);
+        rightMarginOffset = (int) getResources().getDimension(R.dimen.trim_handle_right_margin_offset);
 
         mSeekMode = false;
         mLeftHandleTouchIndex = mRightHandleTouchIndex = -1;
@@ -273,8 +278,9 @@ public class CreateWaveDisplay extends TouchLayout {
                     break;
 
                 case UI_UPDATE_TRIM:
-                    if (leftLp.leftMargin != lastTrimLeftX){
-                        leftLp.leftMargin = lastTrimLeftX;
+                    final int adjustedLeftMargin = lastTrimLeftX + leftMarginOffset;
+                    if (leftLp.leftMargin != adjustedLeftMargin){
+                        leftLp.leftMargin = adjustedLeftMargin;
                         leftHandle.requestLayout();
 
                         mWaveformView.setTrimLeft(lastTrimLeftX);
@@ -284,8 +290,9 @@ public class CreateWaveDisplay extends TouchLayout {
                         }
                     }
 
-                    if (lastTrimRightX != -1 && rightLp.rightMargin != (waveformWidth - lastTrimRightX)) {
-                        rightLp.rightMargin = (waveformWidth - lastTrimRightX);
+                    final int adjustedRightMargin = (waveformWidth - lastTrimRightX) + rightMarginOffset;
+                    if (lastTrimRightX != -1 && rightLp.rightMargin != adjustedRightMargin) {
+                        rightLp.rightMargin = adjustedRightMargin;
                         rightHandle.requestLayout();
                         mWaveformView.setTrimRight(lastTrimRightX);
                         trimPercentRight = Math.min(1, ((float) lastTrimRightX / waveformWidth));
@@ -304,12 +311,12 @@ public class CreateWaveDisplay extends TouchLayout {
     };
 
     public void setTrimHandles() {
-        leftLp.leftMargin = (int) (waveformWidth * trimPercentLeft);
+        leftLp.leftMargin = (int) (waveformWidth * trimPercentLeft) + leftMarginOffset;
         if (leftHandle.getParent() != this){
             addView(leftHandle, leftLp);
         }
 
-        rightLp.rightMargin = (int) ((1.0f - trimPercentRight) * waveformWidth);
+        rightLp.rightMargin = (int) ((1.0f - trimPercentRight) * waveformWidth) + rightMarginOffset;
         if (rightHandle.getParent() != this){
             addView(rightHandle, rightLp);
         }
