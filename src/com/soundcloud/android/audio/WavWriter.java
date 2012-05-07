@@ -23,12 +23,12 @@ public class WavWriter implements AudioWriter {
     private RandomAccessFile initializeWriter(File file, AudioConfig config) throws IOException {
         RandomAccessFile writer = new RandomAccessFile(file, "rw");
         if (!file.exists() || writer.length() == 0) {
-            Log.d(TAG, "creating new WAV file");
+            Log.d(TAG, "creating new WAV file ("+file.getAbsolutePath()+")");
             writer.setLength(0); // truncate
             WavHeader wh = config.createHeader();
             wh.write(writer);
         } else {
-            Log.d(TAG, "appending to existing WAV file");
+            Log.d(TAG, "appending to existing WAV file ("+file.getAbsolutePath()+")");
             writer.seek(writer.length());
         }
         return writer;

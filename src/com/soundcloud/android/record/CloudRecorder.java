@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
@@ -124,7 +125,7 @@ public class CloudRecorder {
             }
 
             if (mRecordStream == null) {
-                mRecordStream = new RecordStream(path, mConfig);
+                mRecordStream = new RecordStream(path, mConfig, "armeabi-v7a".equals(Build.CPU_ABI));
             }
             startReadingInternal(State.RECORDING);
         } else throw new IllegalStateException("cannot record to file, in state " + mState);
@@ -264,11 +265,12 @@ public class CloudRecorder {
 
                 file.seek(mCurrentPosition);
                 mState = CloudRecorder.State.PLAYING;
-                int n = 0;
+                int n;
                 while (mState == CloudRecorder.State.PLAYING
                         && (n = file.read(buffer, bufferSize)) > -1
                         && (mCurrentPosition < mRecordStream.endPosition)) {
 
+                    buffer.flip();
                     int written = mAudioTrack.write(buffer, n);
                     if (written < 0) {
                         Log.e(TAG, "AudioTrack#write() returned "+

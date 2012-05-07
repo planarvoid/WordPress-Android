@@ -345,12 +345,19 @@ public class WavHeader {
     }
 
     public AudioConfig getAudioConfig() {
-        if (mFormat == FORMAT_PCM && mSampleRate == 44100 && mBitsPerSample == 16) {
-            switch (mNumChannels) {
-                case 1: return AudioConfig.PCM16_44100_1;
-                case 2: return AudioConfig.PCM16_44100_2;
-                default: return null;
+        if (mFormat == FORMAT_PCM && mBitsPerSample == 16) {
+            switch (mSampleRate) {
+                case 44100:
+                    switch (mNumChannels) {
+                        case 1: return AudioConfig.PCM16_44100_1;
+                        case 2: return AudioConfig.PCM16_44100_2;
+                    }
+                    break;
+                case 8000:
+                    if (mNumChannels == 1) return AudioConfig.PCM16_8000_1;
+                    break;
             }
-        } else return null;
+        }
+        throw new IllegalArgumentException("unknown audioformat: "+toString());
     }
 }
