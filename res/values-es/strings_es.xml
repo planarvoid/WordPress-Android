@@ -25,7 +25,7 @@
   <string name="authentication_error_password_mismatch">Por favor, compruebe que ambas contraseñas coinciden.</string>
   <string name="authentication_error_password_too_short">Su contraseña debe tener 4 o más caracteres.</string>
   <string name="authentication_error_title">¡Lo sentimos!</string>
-  <string name="authentication_find_friends_on_facebook">\u0020\u0020\u0020\u0020Encuentre amigos en Facebook</string>
+  <string name="authentication_find_friends_on_facebook">Encuentro amigos</string>
   <string name="authentication_log_in">Iniciar sesión</string>
   <string name="authentication_log_in_with_facebook">Iniciar sesión con Facebook</string>
   <string name="authentication_log_in_with_facebook_ssl_error">Error al conectar con Facebook (SSL)</string>
@@ -163,6 +163,7 @@
   <string name="dialog_reset_recording_message">¿Quiere reiniciar? La grabación se borrará.</string>
   <string name="dialog_unsaved_recordings_message">Se encontraron grabaciones sin guardar. Los elementos marcados se guardarán.</string>
   <string name="discogs">Discogs</string>
+  <string name="drag_waveform_comment">Arrastre a lo largo de la forma de onda y soltar para hacer un comentario en:</string>
   <plurals name="elapsed_days">
     <item quantity="one">Un día</item>
     <item quantity="other">%d días</item>
@@ -511,6 +512,6 @@
   <string name="what_hint">Qué</string>
   <string name="where_hint">Dónde</string>
   <string name="widget_touch_to_open">Toque para abrir SoundCloud</string>
-  <string name="wifi_settings">Configuración de la red</string>
+  <string name="wifi_settings">Ajustes de la red</string>
   <string name="wifi_settings_summary">Edite la configuración. Use WIFI para un mejor rendimiento.</string>
 </resources>

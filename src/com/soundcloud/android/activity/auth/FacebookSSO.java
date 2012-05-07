@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.Signature;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -23,6 +24,17 @@ public class FacebookSSO extends AbstractLoginActivity {
     static final String FB_PERMISSION_EXTRA = "scope";
     static final String FB_CLIENT_ID_EXTRA = "client_id";
 
+    // permissions used by SoundCloud (also backend) - email is required for successful signup
+    private static final String[] DEFAULT_PERMISSIONS = {
+        "publish_actions",
+        "offline_access",   /* this is going to be deprecated soon */
+        "email",
+        "user_birthday",
+    };
+
+    // intents coming from the Facebook app start with this string (action)
+    private static final String COM_FACEBOOK_APPLICATION = "com.facebook.application.";
+
     @Override
     protected void build() {
         // no UI
@@ -31,8 +43,8 @@ public class FacebookSSO extends AbstractLoginActivity {
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        Intent auth = getAuthIntent(this);
-        if (validateAppSignatureForIntent(this, auth)) {
+        Intent auth = getAuthIntent(this, DEFAULT_PERMISSIONS);
+        if (validateAppSignatureForIntent(auth)) {
             startActivityForResult(auth, 0);
         } else {
             setResult(RESULT_OK,
@@ -45,7 +57,8 @@ public class FacebookSSO extends AbstractLoginActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             try {
-                loginExtensionGrantype(CloudAPI.FACEBOOK_GRANT_TYPE+getTokenFromIntent(data));
+                final String token = getTokenFromIntent(data);
+                loginExtensionGrantype(CloudAPI.FACEBOOK_GRANT_TYPE+token);
             } catch (SSOException e) {
                 Log.w(TAG, "error getting Facebook token", e);
 
@@ -58,6 +71,71 @@ public class FacebookSSO extends AbstractLoginActivity {
         } else {
             finish();
         }
+    }
+
+    protected boolean validateAppSignatureForIntent(Intent intent) {
+        return validateAppSignatureForIntent(this, intent);
+    }
+
+    public static boolean isFacebookView(Context context, Intent intent) {
+        //noinspection SimplifiableIfStatement
+        if (intent == null || intent.getAction() == null ||
+                !intent.getAction().startsWith(COM_FACEBOOK_APPLICATION)) {
+            return false;
+        } else {
+            return intent.getAction().equals(COM_FACEBOOK_APPLICATION + getFacebookAppId(context));
+        }
+    }
+
+    static Intent getAuthIntent(Context context, String... permissions) {
+        final String applicationId = getFacebookAppId(context);
+        Intent intent = new Intent();
+        intent.setClassName("com.facebook.katana", "com.facebook.katana.ProxyAuth");
+        intent.putExtra(FB_CLIENT_ID_EXTRA, applicationId);
+        if (permissions.length > 0) {
+            intent.putExtra(FB_PERMISSION_EXTRA, TextUtils.join(",", permissions));
+        }
+        return intent;
+    }
+
+    private static class SSOException extends Exception {
+        public SSOException(String s) {
+            super(s);
+        }
+    }
+
+    private static class SSOCanceledException extends SSOException {
+        public SSOCanceledException() {
+            super("Login canceled by user");
+        }
+    }
+
+    private static String getFacebookAppId(Context context) {
+        return context.getString(SoundCloudApplication.API_PRODUCTION ?
+                R.string.production_facebook_app_id : R.string.sandbox_facebook_app_id);
+    }
+
+    static boolean validateAppSignatureForIntent(Context context, Intent intent) {
+        ResolveInfo resolveInfo =
+                context.getPackageManager().resolveActivity(intent, 0);
+        if (resolveInfo == null) {
+            return false;
+        }
+        String packageName = resolveInfo.activityInfo.packageName;
+        PackageInfo packageInfo;
+        try {
+            packageInfo = context.getPackageManager().getPackageInfo(
+                    packageName, PackageManager.GET_SIGNATURES);
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+
+        for (Signature signature : packageInfo.signatures) {
+            if (signature.toCharsString().equals(FB_APP_SIGNATURE)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String getTokenFromIntent(Intent data) throws SSOException {
@@ -94,55 +172,6 @@ public class FacebookSSO extends AbstractLoginActivity {
                 throw new SSOException("session is not valid");
             }
         }
-    }
-
-
-    static class SSOException extends Exception {
-        public SSOException(String s) {
-            super(s);
-        }
-    }
-
-    static class SSOCanceledException extends SSOException {
-        public SSOCanceledException() {
-            super("Login canceled by user");
-        }
-    }
-
-    static Intent getAuthIntent(Context context, String... permissions) {
-        String applicationId = context.getString(SoundCloudApplication.API_PRODUCTION ?
-                R.string.production_facebook_app_id : R.string.sandbox_facebook_app_id);
-
-        Intent intent = new Intent();
-        intent.setClassName("com.facebook.katana", "com.facebook.katana.ProxyAuth");
-        intent.putExtra(FB_CLIENT_ID_EXTRA, applicationId);
-        if (permissions.length > 0) {
-            intent.putExtra(FB_PERMISSION_EXTRA, permissions);
-        }
-        return intent;
-    }
-
-    static boolean validateAppSignatureForIntent(Context context, Intent intent) {
-        ResolveInfo resolveInfo =
-                context.getPackageManager().resolveActivity(intent, 0);
-        if (resolveInfo == null) {
-            return false;
-        }
-        String packageName = resolveInfo.activityInfo.packageName;
-        PackageInfo packageInfo;
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(
-                    packageName, PackageManager.GET_SIGNATURES);
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-
-        for (Signature signature : packageInfo.signatures) {
-            if (signature.toCharsString().equals(FB_APP_SIGNATURE)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static final String FB_APP_SIGNATURE =

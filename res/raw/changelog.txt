@@ -1,5 +1,15 @@
-$ 41
+$ 42
   % v current
+  _ 2012-05-04
+  ! Bugfixes
+    * Fix Facebook Single sign-on
+    * Handle links from Facebook app
+    * Spanish localization
+    - Upgraded to Jackson 2.0.1
+    - java-api-wrapper 1.1.1
+
+$ 41
+  % v 2.2.6
   _ 2012-04-27
   ! More ICS controls and maintenance
     * Lockscreen and notification playback control (ICS)

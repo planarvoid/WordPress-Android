@@ -6,8 +6,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.task.RecoverPasswordTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -65,15 +65,16 @@ public class Recover extends Activity {
             }
         });
 
-        CloudUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
+        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
                 getResources().getString(R.string.authentication_support),
-                new ClickSpan.OnClickListener() {
-            @Override public void onClick() {
-                startActivity(
-                        new Intent(Intent.ACTION_VIEW,
-                        Uri.parse(getString(R.string.authentication_support_uri))));
-            }
-        }, true);
+                new ScTextUtils.ClickSpan.OnClickListener() {
+                    @Override
+                    public void onClick() {
+                        startActivity(
+                                new Intent(Intent.ACTION_VIEW,
+                                        Uri.parse(getString(R.string.authentication_support_uri))));
+                    }
+                }, true);
 
         if (getIntent().hasExtra("email")) {
             emailField.setText(getIntent().getStringExtra("email"));

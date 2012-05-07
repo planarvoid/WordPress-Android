@@ -1,5 +1,4 @@
 <resources>
-    <string name="drag_waveform_comment">Drag along the waveform and release to make a comment at:</string>
     <string name="menu_select_file">Select File</string>
     <string name="btn_revert_to_original">Revert to original</string>
 

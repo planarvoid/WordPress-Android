@@ -661,7 +661,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static boolean upgradeTo9(SQLiteDatabase db, int oldVersion) {
         try {
-            Table.TRACK_PLAYS.recreate(db);
+            Table.TRACK_PLAYS.drop(db);
 
             Table.TRACKS.alterColumns(db);
             Table.USERS.alterColumns(db);

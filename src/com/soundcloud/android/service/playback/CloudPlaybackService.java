@@ -617,16 +617,16 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             return;
         }
 
-        status = new Notification();
-        status.flags |= Notification.FLAG_ONGOING_EVENT;
-        status.icon = R.drawable.ic_notification_cloud;
+        final Notification notification = new Notification();
+        notification.flags |= Notification.FLAG_ONGOING_EVENT;
+        notification.icon = R.drawable.ic_notification_cloud;
 
         Intent intent = new Intent(Actions.PLAYER);
         intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
 
         if (!SoundCloudApplication.useRichNotifications()) {
-            status.setLatestEventInfo(this, track.getUserName(), track.title, pi);
+            notification.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
             final PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11,
                     R.drawable.ic_notification_play_states,R.drawable.ic_notification_pause_states);
@@ -645,7 +645,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         public void onImageLoaded(Bitmap bitmap, String uri) {
                             if (mCurrentTrack == track) {
                                 view.setIcon(bitmap);
-                                startForeground(PLAYBACKSERVICE_STATUS_ID, status);
+                                startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
                             }
                         }
                         public void onImageError(String uri, Throwable error) {
@@ -655,10 +655,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             } else {
                 view.clearIcon();
             }
-            status.contentView = view;
-            status.contentIntent = pi;
+            notification.contentView = view;
+            notification.contentIntent = pi;
         }
-        startForeground(PLAYBACKSERVICE_STATUS_ID, status);
+        startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
+        status = notification;
     }
 
     /* package */ void setQueuePosition(int pos) {

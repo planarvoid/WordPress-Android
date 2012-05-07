@@ -27,7 +27,7 @@ import android.widget.Toast;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class    AlarmClockTests {
+public class AlarmClockTest {
     ShadowAlarmManager shadowAlarmManager;
     AlarmClock alarm;
 
