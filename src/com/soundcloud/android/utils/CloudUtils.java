@@ -47,7 +47,6 @@ public final class CloudUtils {
             = new HashMap<Context, HashMap<Class<? extends Service>, ServiceConnection>>();
 
 
-
     public static ProgressDialog showProgress(Context context, int message) {
         return showProgress(context, message, 0);
     }
@@ -84,7 +83,7 @@ public final class CloudUtils {
         return String.format("%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
     }
 
-    public static boolean bindToService(Activity context, Class<? extends Service> service, ServiceConnection callback) {
+    public static boolean bindToService(Context context, Class<? extends Service> service, ServiceConnection callback) {
         //http://blog.tourizo.com/2009/04/binding-services-while-in-activitygroup.html
         context.startService(new Intent(context, service));
         if (sConnectionMap.get(context) == null) {
@@ -93,14 +92,14 @@ public final class CloudUtils {
         sConnectionMap.get(context).put(service, callback);
 
         boolean success =  context.getApplicationContext().bindService(
-                (new Intent()).setClass(context, service),
+                new Intent(context, service),
                 callback,
                 0);
         if (!success) Log.w(TAG, "BIND TO SERVICE " + service.getSimpleName() + " FAILED");
         return success;
     }
 
-    public static void unbindFromService(Activity context, Class<? extends Service> service) {
+    public static void unbindFromService(Context context, Class<? extends Service> service) {
         ServiceConnection sb = sConnectionMap.get(context).remove(service);
         if (sConnectionMap.get(context).isEmpty()) sConnectionMap.remove(context);
         if (sb != null) context.getApplicationContext().unbindService(sb);

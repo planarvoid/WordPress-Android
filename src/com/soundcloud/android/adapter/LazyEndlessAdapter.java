@@ -6,7 +6,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -268,8 +267,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         return getWrappedAdapter().getData();
     }
 
-    public ScActivity.PlayInfo getPlayInfo(final int position) {
-        ScActivity.PlayInfo info = new ScActivity.PlayInfo();
+    public Playable.PlayInfo getPlayInfo(final int position) {
+        Playable.PlayInfo info = new Playable.PlayInfo();
         info.uri = getPlayableUri();
         info.position = position - getWrappedAdapter().positionOffset();
 

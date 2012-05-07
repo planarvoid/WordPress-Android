@@ -45,9 +45,7 @@ public class CreateWaveView extends View {
     private AmplitudeData mAllAmplitudes;
     private int mRecordStartIndex = -1;
 
-    private long mLastInvalidate;
     private long mAnimationStartTime;
-    private static final long MS_PER_FRAME = 1000 / 40;
 
     static {
         BITMAP_PAINT = new Paint();
