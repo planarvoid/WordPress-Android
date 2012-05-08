@@ -1,9 +1,6 @@
 package com.soundcloud.android.activity;
 
-import static junit.framework.Assert.*;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -76,22 +73,22 @@ public class ScUploadTest implements Params.Track {
     @Test
     public void shouldOnlyGenerateSharingNoteWhenSharingPublicly() throws Exception {
         Upload upload = upload();
-        assertNull("A sharing note should not be present", upload.sharing_note);
+        expect(upload.sharing_note).toBeNull();
     }
 
     @Test
     public void shouldPassThroughAllRequiredTrackParams() throws Exception {
         Upload upload = upload();
 
-        assertThat(upload.type, equalTo("recording"));
-        assertNotNull(upload.title);
+        expect(upload.type).toEqual("recording");
+        expect(upload.title).not.toBeNull();
 
-        assertNull(upload.service_ids);
-        assertThat(upload.post_to_empty, equalTo(""));
-        assertEquals(PUBLIC, upload.sharing);
+        expect(upload.service_ids).toBeNull();
+        expect(upload.post_to_empty).toEqual("");
+        expect(PUBLIC).toEqual(upload.sharing);
 
-        assertNotNull(upload.trackPath);
-        assertNull(upload.artworkPath);
+        expect(upload.trackPath).not.toBeNull();
+        expect(upload.artworkPath).toBeNull();
     }
 
     @Test @DisableStrictI18n
@@ -115,12 +112,12 @@ public class ScUploadTest implements Params.Track {
         create.mConnectionList.getAdapter().setConnections(Arrays.asList(c1, c2, c3));
 
         Map args = upload().toTrackMap();
-        assertTrue(args.get(POST_TO) instanceof List);
+        expect(args.get(POST_TO) instanceof List).toBeTrue();
         List ids = (List) args.get(POST_TO);
 
-        assertEquals(2, ids.size());
-        assertEquals("1000", ids.get(0).toString());
-        assertEquals("1001", ids.get(1).toString());
+        expect(2).toEqual(ids.size());
+        expect("1000").toEqual(ids.get(0).toString());
+        expect("1001").toEqual(ids.get(1).toString());
     }
 
 
@@ -137,12 +134,12 @@ public class ScUploadTest implements Params.Track {
                 ;
 
         Recording r = create.recordingFromIntent(i);
-        assertThat(r, notNullValue());
-        assertThat(r.description, equalTo("description"));
-        assertThat(r.genre, equalTo("genre"));
+        expect(r).not.toBeNull();
+        expect(r.description).toEqual("description");
+        expect(r.genre).toEqual("genre");
 //        assertThat(r.is_private, is(false));
-        assertThat(r.where_text, equalTo("where"));
-        assertThat(r.what_text, equalTo("title"));
+        expect(r.where_text).toEqual("where");
+        expect(r.what_text).toEqual("title");
 //        assertThat(r.tags, equalTo(new String[] { "tags" } ));
     }
 }

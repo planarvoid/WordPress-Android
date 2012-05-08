@@ -1,0 +1,66 @@
+{
+  "collection": [
+
+    {
+      "type": "favoriting",
+      "created_at": "2011\/05\/29 11:54:10 +0000",
+      "origin": {
+        "track": {
+          "id": 16111648,
+          "permalink": "sleeping-at-mtv",
+          "title": "Sleeping at MTV",
+          "user_id": 133201,
+          "uri": "https:\/\/api.soundcloud.com\/tracks\/16111648",
+          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
+          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/sleeping-at-mtv",
+          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/16111648\/stream",
+          "artwork_url": "http:\/\/i1.sndcdn.com\/artworks-000007695739-1bkuev-large.jpg?0dfc9e6"
+        },
+        "user": {
+          "id": 375367,
+          "permalink": "fronx",
+          "username": "fronx",
+          "uri": "https:\/\/api.soundcloud.com\/users\/375367",
+          "permalink_url": "http:\/\/soundcloud.com\/fronx",
+          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003575192-wqnp00-large.jpg?0dfc9e6"
+        }
+      },
+      "tags": "own, affiliated"
+    },
+    {
+      "type": "comment",
+      "created_at": "2011\/05\/29 11:53:09 +0000",
+      "origin": {
+        "id": 17485296,
+        "created_at": "2011\/05\/29 11:51:16 +0000",
+        "user_id": 375367,
+        "track_id": 16110503,
+        "timestamp": null,
+        "body": "heh :)",
+        "uri": "https:\/\/api.soundcloud.com\/comments\/17485296",
+        "user": {
+          "id": 375367,
+          "permalink": "fronx",
+          "username": "fronx",
+          "uri": "https:\/\/api.soundcloud.com\/users\/375367",
+          "permalink_url": "http:\/\/soundcloud.com\/fronx",
+          "avatar_url": "http:\/\/i1.sndcdn.com\/avatars-000003575192-wqnp00-large.jpg?0dfc9e6"
+        },
+        "track": {
+          "id": 16110503,
+          "permalink": "autotune-at-mtv",
+          "title": "Autotune at MTV",
+          "user_id": 133201,
+          "uri": "https:\/\/api.soundcloud.com\/tracks\/16110503",
+          "user_uri": "https:\/\/api.soundcloud.com\/users\/133201",
+          "permalink_url": "http:\/\/soundcloud.com\/jberkel\/autotune-at-mtv",
+          "stream_url": "https:\/\/api.soundcloud.com\/tracks\/16110503\/stream"
+        }
+      },
+      "tags": "own, affiliated"
+    }
+
+  ],
+  "next_href": "https:\/\/api.soundcloud.com\/me\/activities\/tracks?cursor=e46666c4-a7e6-11e0-8c30-73a2e4b61738",
+  "future_href": "https:\/\/api.soundcloud.com\/me\/activities\/tracks?uuid[to]=e46666c4-a7e6-11e0-8c30-73a2e4b61738"
+}

@@ -1,8 +1,17 @@
-$ 42
+$ 43
   % v current
-  _ 2012-04
-  ! 2.2.6 + Español
-    * Spanish translation
+  _ tbd
+  ! Bugfixes
+
+$ 42
+  % v 2.2.7
+  _ 2012-05-04
+  ! Bugfixes
+    * Fix Facebook Single sign-on
+    * Handle links from Facebook app
+    * Spanish localization
+    - Upgraded to Jackson 2.0.1
+    - java-api-wrapper 1.1.1
 
 $ 41
   % v 2.2.6

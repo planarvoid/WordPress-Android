@@ -1,10 +1,8 @@
 package com.soundcloud.android.activity.auth;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.ApiTests;
@@ -27,12 +25,12 @@ public class SignupDetailsTest extends ApiTests {
         addPendingHttpResponse(200, resource("user.json"));
         User result = info.addUserInfo(user, "foobaz", null);
 
-        assertThat(result.username, equalTo("foobaz"));
-        assertThat(result.permalink, equalTo("foobaz"));
-        assertThat(info.isFinishing(), is(true));
+        expect(result.username).toEqual("foobaz");
+        expect(result.permalink).toEqual("foobaz");
+        expect(info.isFinishing()).toBeTrue();
 
         ShadowActivity activity = shadowOf(info);
-        assertThat(activity.getResultCode(), is(-1));
+        expect(activity.getResultCode()).toEqual(-1);
     }
 
     @Test
@@ -42,7 +40,7 @@ public class SignupDetailsTest extends ApiTests {
 
         addPendingHttpResponse(422, "{\"error\":\"Failz\"}");
         info.addUserInfo(new User(), "foobaz", null);
-        assertThat(info.isFinishing(), is(false));
-        assertThat(ShadowToast.getTextOfLatestToast(), equalTo("Error adding info: Failz"));
+        expect(info.isFinishing()).toBeFalse();
+        expect(ShadowToast.getTextOfLatestToast()).toEqual("Error adding info: Failz");
     }
 }

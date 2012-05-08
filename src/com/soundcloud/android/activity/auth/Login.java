@@ -5,8 +5,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.ClickSpan;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Intent;
 import android.view.KeyEvent;
@@ -63,9 +63,9 @@ public class Login extends AbstractLoginActivity {
             }
         });
 
-        CloudUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
+        ScTextUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
                 getResources().getString(R.string.authentication_I_forgot_my_password),
-                new ClickSpan.OnClickListener() {
+                new ScTextUtils.ClickSpan.OnClickListener() {
                     @Override
                     public void onClick() {
                         Intent i = new Intent(Login.this, Recover.class);

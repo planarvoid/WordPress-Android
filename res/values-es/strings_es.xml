@@ -163,6 +163,7 @@
   <string name="dialog_reset_recording_message">¿Quiere reiniciar? La grabación se borrará.</string>
   <string name="dialog_unsaved_recordings_message">Se encontraron grabaciones sin guardar. Los elementos marcados se guardarán.</string>
   <string name="discogs">Discogs</string>
+  <string name="drag_waveform_comment">Arrastre a lo largo de la forma de onda y soltar para hacer un comentario en:</string>
   <plurals name="elapsed_days">
     <item quantity="one">Un día</item>
     <item quantity="other">%d días</item>

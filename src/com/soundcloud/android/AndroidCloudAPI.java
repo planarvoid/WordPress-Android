@@ -2,8 +2,13 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.soundcloud.android.json.ActivityDeserializer;
-import com.soundcloud.android.json.ActivitySerializer;
 import com.soundcloud.android.json.UserDeserializer;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.User;
@@ -14,12 +19,6 @@ import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.module.SimpleModule;
-import org.codehaus.jackson.map.util.StdDateFormat;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -52,22 +51,23 @@ import java.util.TimeZone;
 
 public interface AndroidCloudAPI extends CloudAPI {
     public static final ObjectMapper Mapper = Wrapper.Mapper;
-    public static final ObjectMapper DefaultMapper = Wrapper.DefaultMapper;
     URI REDIRECT_URI = URI.create("soundcloud://auth");
 
     String getUserAgent();
     ObjectMapper getMapper();
 
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
+        public static final ObjectMapper Mapper;
 
-        public static final ObjectMapper Mapper = createMapper();
         static {
-            Mapper.registerModule(new SimpleModule("EventSupport", new Version(1, 0, 0, null))
-                    .addDeserializer(User.class, new UserDeserializer())
-                    .addDeserializer(Activity.class, new ActivityDeserializer())
-                    .addSerializer(Activity.class, new ActivitySerializer()));
+            Mapper = createMapper();
+            // need to create separate mapper (for user deserialization)
+            final ObjectMapper mapper = createMapper();
+
+            Mapper.registerModule(new SimpleModule("CustomDeserialization", new Version(1, 0, 0, null, null, null))
+                    .addDeserializer(User.class, new UserDeserializer(mapper))
+                    .addDeserializer(Activity.class, new ActivityDeserializer(Mapper)));
         }
-        public static final ObjectMapper DefaultMapper = createMapper();
 
         private Context mContext;
         private String userAgent;
@@ -132,8 +132,8 @@ public interface AndroidCloudAPI extends CloudAPI {
         public static ObjectMapper createMapper() {
             return new ObjectMapper() {
                 {
-                    configure(SerializationConfig.Feature.DEFAULT_VIEW_INCLUSION, false);
-                    configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                    configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                     setDateFormat(new CloudDateFormat());
                 }
             };

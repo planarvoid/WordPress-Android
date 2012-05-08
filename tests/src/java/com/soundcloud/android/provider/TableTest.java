@@ -22,14 +22,14 @@ public class TableTest {
     public void shouldProvideACreateStringForViews() throws Exception {
         Table view = Table.TRACK_VIEW;
         expect(view.view).toBe(true);
-        expect(view.createString).toMatch("CREATE VIEW "+view.name);
+        expect(view.createString).toMatch("CREATE VIEW IF NOT EXISTS "+view.name);
     }
 
     @Test
     public void shouldProvideACreateStringForTables() throws Exception {
         Table table = Table.TRACKS;
         expect(table.view).toBe(false);
-        expect(table.createString).toMatch("CREATE TABLE " +table.name);
+        expect(table.createString).toMatch("CREATE TABLE IF NOT EXISTS " +table.name);
     }
 
     @Test

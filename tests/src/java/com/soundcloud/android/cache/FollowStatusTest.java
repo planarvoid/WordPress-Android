@@ -1,13 +1,10 @@
 package com.soundcloud.android.cache;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
-import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -29,24 +26,24 @@ public class FollowStatusTest extends ApiTests {
                     @Override
                     public void onChange(boolean success, FollowStatus status) {
                         called[0] = true;
-                        assertThat(success, is(true));
-                        assertThat(status.isFollowing(1), is(true));
-                        assertThat(status.isFollowing(2), is(true));
-                        assertThat(status.isFollowing(6), is(false));
+                        expect(success).toBeTrue();
+                        expect(status.isFollowing(1)).toBeTrue();
+                        expect(status.isFollowing(2)).toBeTrue();
+                        expect(status.isFollowing(6)).toBeFalse();
 
                     }
                 }, false);
-        assertThat(called[0], is(true));
+        expect(called[0]).toBeTrue();
     }
 
     @Test
     public void testToggleFollowing() throws Exception {
         FollowStatus status = new FollowStatus();
-        assertThat(status.isFollowing(10), is(false));
+        expect(status.isFollowing(10)).toBeFalse();
         status.toggleFollowing(10);
-        assertThat(status.isFollowing(10), is(true));
+        expect(status.isFollowing(10)).toBeTrue();
         status.toggleFollowing(10);
-        assertThat(status.isFollowing(10), is(false));
+        expect(status.isFollowing(10)).toBeFalse();
     }
 
     @Test
@@ -56,10 +53,10 @@ public class FollowStatusTest extends ApiTests {
         status.toggleFollowing(10, api, new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                assertThat(msg.what, is(1));
+                expect(msg.what).toEqual(1);
             }
         });
-        assertThat(status.isFollowing(10), is(true));
+        expect(status.isFollowing(10)).toBeTrue();
     }
 
     @Test
@@ -67,22 +64,21 @@ public class FollowStatusTest extends ApiTests {
         FollowStatus status = new FollowStatus();
         Robolectric.addPendingHttpResponse(500, "ERROR");
         status.toggleFollowing(23, api, null);
-        assertThat(status.isFollowing(23), is(false));
+        expect(status.isFollowing(23)).toBeFalse();
     }
 
     @Test
     public void updateFollowing() throws Exception {
         FollowStatus status = new FollowStatus();
         status.updateFollowing(10, true);
-        assertThat(status.isFollowing(10), is(true));
+        expect(status.isFollowing(10)).toBeTrue();
         status.updateFollowing(10, false);
-        assertThat(status.isFollowing(10), is(false));
+        expect(status.isFollowing(10)).toBeFalse();
     }
 
     @Test
     public void shouldGenerateFilename() throws Exception {
-        assertThat(
-            FollowStatus.getFilename(10),
-            equalTo("follow-status-cache-10"));
+        expect(
+                FollowStatus.getFilename(10)).toEqual("follow-status-cache-10");
     }
 }

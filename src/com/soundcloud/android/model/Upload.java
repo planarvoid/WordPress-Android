@@ -3,9 +3,10 @@ package com.soundcloud.android.model;
 import android.content.res.Resources;
 import android.os.Parcel;
 import android.text.TextUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.soundcloud.android.utils.record.CloudRecorder.Profile;
 import com.soundcloud.api.Params;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.io.File;
 import java.util.*;

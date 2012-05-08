@@ -1,13 +1,12 @@
 
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.annotate.JsonView;
 
 import android.content.ContentValues;
 import android.content.Context;

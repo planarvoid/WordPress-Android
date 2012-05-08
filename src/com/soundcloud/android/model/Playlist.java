@@ -1,9 +1,9 @@
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.json.Views;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.map.annotate.JsonView;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Playlist extends ScModel implements Origin {

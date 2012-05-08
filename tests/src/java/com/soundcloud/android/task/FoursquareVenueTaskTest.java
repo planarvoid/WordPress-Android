@@ -1,12 +1,11 @@
 package com.soundcloud.android.task;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+
+import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.FoursquareVenue;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.ApiTests;
+import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,23 +29,23 @@ public class FoursquareVenueTaskTest extends ApiTests {
         loc.setAccuracy(5);
 
         List<FoursquareVenue> venues = task.doInBackground(loc);
-        assertNotNull(venues);
-        assertThat(venues.size(), equalTo(50));
+        expect(venues).not.toBeNull();
+        expect(venues.size()).toEqual(50);
 
         FoursquareVenue kotti = venues.get(0);
 
-        assertThat(kotti.name, equalTo("U-Bhf Kottbusser Tor - U1, U8"));
-        assertThat(kotti.id, equalTo("4adcda7ef964a520b74721e3"));
+        expect(kotti.name).toEqual("U-Bhf Kottbusser Tor - U1, U8");
+        expect(kotti.id).toEqual("4adcda7ef964a520b74721e3");
 
-        assertNotNull(kotti.categories);
-        assertThat(kotti.categories.size(), equalTo(2));
-        assertThat(kotti.categories.get(0).name, equalTo("Monument / Landmark"));
-        assertThat(kotti.categories.get(0).icon.toString(), equalTo("https://foursquare.com/img/categories/building/default.png"));
-        assertThat(kotti.categories.get(0).id, equalTo("4bf58dd8d48988d12d941735"));
-        assertThat(kotti.categories.get(0).primary, is(true));
-        assertThat(kotti.getCategory(), equalTo(kotti.categories.get(0)));
-        assertThat(kotti.getIcon().toString(), equalTo("https://foursquare.com/img/categories/building/default.png"));
-        assertThat(kotti.getHttpIcon().toString(), equalTo("http://foursquare.com/img/categories/building/default.png"));
+        expect(kotti.categories).not.toBeNull();
+        expect(kotti.categories.size()).toEqual(2);
+        expect(kotti.categories.get(0).name).toEqual("Monument / Landmark");
+        expect(kotti.categories.get(0).icon.toString()).toEqual("https://foursquare.com/img/categories/building/default.png");
+        expect(kotti.categories.get(0).id).toEqual("4bf58dd8d48988d12d941735");
+        expect(kotti.categories.get(0).primary).toBeTrue();
+        expect(kotti.getCategory()).toEqual(kotti.categories.get(0));
+        expect(kotti.getIcon().toString()).toEqual("https://foursquare.com/img/categories/building/default.png");
+        expect(kotti.getHttpIcon().toString()).toEqual("http://foursquare.com/img/categories/building/default.png");
     }
 
     @Test
@@ -54,7 +53,7 @@ public class FoursquareVenueTaskTest extends ApiTests {
         Robolectric.addPendingHttpResponse(400, "Error");
         FoursquareVenueTask task = new FoursquareVenueTask();
         Location loc = new Location("mock");
-        assertNull(task.doInBackground(loc));
+        expect(task.doInBackground(loc)).toBeNull();
     }
 
     @Test
@@ -64,6 +63,6 @@ public class FoursquareVenueTaskTest extends ApiTests {
 
         FoursquareVenueTask task = new FoursquareVenueTask();
         Location loc = new Location("mock");
-        assertThat(task.doInBackground(loc).size(), equalTo(0));
+        expect(task.doInBackground(loc).size()).toEqual(0);
     }
 }
