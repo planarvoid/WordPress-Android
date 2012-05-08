@@ -10,7 +10,7 @@ import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.service.record.CloudCreateService;
+import com.soundcloud.android.service.record.SoundRecorderService;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -299,7 +299,7 @@ public class UploadService extends Service {
         mUploadNotificationView.setTextViewText(R.id.percentage, "0");
         mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
 
-        mUploadNotification = CloudCreateService.createOngoingNotification(
+        mUploadNotification = SoundRecorderService.createOngoingNotification(
                 getString(R.string.cloud_uploader_notification_ticker),
                 PendingIntent.getActivity(this, 0, recording.getMonitorIntent(), PendingIntent.FLAG_UPDATE_CURRENT));
         mUploadNotification.contentView = mUploadNotificationView;

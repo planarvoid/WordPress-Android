@@ -8,9 +8,8 @@ import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.CloudRecorder;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.record.RemainingTimeCalculator;
-import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
@@ -59,7 +58,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     private Recording mRecording;
     private User mPrivateUser;
 
-    private CloudRecorder mRecorder;
+    private SoundRecorder mRecorder;
     private CreateState mLastState, mCurrentState;
     private long mLastDisplayedTime;
 
@@ -160,7 +159,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     @Override
     public void onStart() {
         super.onStart();
-        IntentFilter recordFilter = CloudRecorder.getIntentFilter();
+        IntentFilter recordFilter = SoundRecorder.getIntentFilter();
 
         // XXX still using global broadcast
         IntentFilter uploadFilter = new IntentFilter();
@@ -171,7 +170,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         registerReceiver(mStatusListener, uploadFilter);
         LocalBroadcastManager.getInstance(this).registerReceiver(mStatusListener, recordFilter);
 
-        mRecorder = CloudRecorder.getInstance(this);
+        mRecorder = SoundRecorder.getInstance(this);
 
     }
 
@@ -460,13 +459,13 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                 mHandler.postDelayed(mSmoothProgress, 0);
                 takeAction = true;
 
-        } else if (!CloudRecorder.RECORD_DIR.exists()) {
+        } else if (!SoundRecorder.RECORD_DIR.exists()) {
             // can happen when there's no mounted sd card
             mActionButton.setEnabled(false);
 
         } else {
             if (mRecording == null && mPrivateUser != null) {
-                mRecording = Recording.checkForUnusedPrivateRecording(CloudRecorder.RECORD_DIR, mPrivateUser);
+                mRecording = Recording.checkForUnusedPrivateRecording(SoundRecorder.RECORD_DIR, mPrivateUser);
             }
 
             if (mRecording != null) {
@@ -479,7 +478,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         }
 
         if (!(mCurrentState == CreateState.RECORD) && mPrivateUser == null) {
-            mUnsavedRecordings = Recording.getUnsavedRecordings(getContentResolver(),CloudRecorder.RECORD_DIR,mRecording);
+            mUnsavedRecordings = Recording.getUnsavedRecordings(getContentResolver(), SoundRecorder.RECORD_DIR,mRecording);
             if (mUnsavedRecordings.isEmpty()) {
                 showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
             }
@@ -556,7 +555,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                             mWaveDisplay.resetTrim();
                             mRecorder.revertFile();
                             if (mRecorder.isPlaying()) {
-                                mRecorder.togglePlayback(this);
+                                mRecorder.togglePlayback();
                             }
                             mHandler.removeCallbacks(mSmoothProgress);
                             break;
@@ -632,7 +631,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                         startPlayback();
                     } else {
                         if (mRecorder.isPlaying()) {
-                            mRecorder.togglePlayback(this);
+                            mRecorder.togglePlayback();
                         }
                         mHandler.removeCallbacks(mSmoothProgress);
                         break;
@@ -702,7 +701,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
             mCurrentState = CreateState.IDLE_RECORD;
             updateUi(true);
         } else {
-            mRecorder.startRecording(this, mRecording);
+            mRecorder.startRecording(mRecording);
         }
     }
 
@@ -777,7 +776,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         mLastPos = -1;
         mLastTrackTime = -1;
         if (!mRecorder.isPlaying()) {  //might already be playing back if activity just created
-            mRecorder.play(this);
+            mRecorder.play();
             track(Click.Record_play);
         }
     }
@@ -868,26 +867,26 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (CloudCreateService.RECORD_STARTED.equals(action) &&
+            if (SoundRecorder.RECORD_STARTED.equals(action) &&
                     (mCurrentState == CreateState.IDLE_PLAYBACK || mCurrentState == CreateState.PLAYBACK)) {
                 // this will happen if recording starts from somewhere else. just reset as the player will have to be reloaded anyway
                 stopPlayback();
                 reset();
-            } else if (CloudCreateService.RECORD_SAMPLE.equals(action)) {
-                float maxAmplitude = intent.getFloatExtra(CloudCreateService.EXTRA_AMPLITUDE, -1f);
-                long elapsed = intent.getLongExtra(CloudCreateService.EXTRA_ELAPSEDTIME, -1l);
+            } else if (SoundRecorder.RECORD_SAMPLE.equals(action)) {
+                float maxAmplitude = intent.getFloatExtra(SoundRecorder.EXTRA_AMPLITUDE, -1f);
+                long elapsed = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l);
                 if (mCurrentState == CreateState.IDLE_RECORD || mCurrentState == CreateState.RECORD) {
                     mWaveDisplay.updateAmplitude(maxAmplitude, mCurrentState == CreateState.RECORD);
                     if (mCurrentState == CreateState.RECORD) onRecProgressUpdate(elapsed);
                 }
 
-            } else if (CloudCreateService.RECORD_ERROR.equals(action)) {
+            } else if (SoundRecorder.RECORD_ERROR.equals(action)) {
                 onRecordingError();
-            } else if (CloudCreateService.PLAYBACK_STARTED.equals(action)) {
-                mLastTrackTime = intent.getLongExtra(CloudCreateService.EXTRA_POSITION,0);
+            } else if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
+                mLastTrackTime = intent.getLongExtra(SoundRecorder.EXTRA_POSITION,0);
                 mLastProgressTimestamp = System.currentTimeMillis();
                 mHandler.postDelayed(mSmoothProgress, 100);
-            } else if (CloudCreateService.PLAYBACK_COMPLETE.equals(action) || CloudCreateService.PLAYBACK_ERROR.equals(action)) {
+            } else if (SoundRecorder.PLAYBACK_COMPLETE.equals(action) || SoundRecorder.PLAYBACK_ERROR.equals(action)) {
                     onPlaybackComplete();
             }
         }

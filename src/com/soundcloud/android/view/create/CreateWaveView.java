@@ -2,7 +2,7 @@ package com.soundcloud.android.view.create;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.record.AmplitudeData;
-import com.soundcloud.android.record.CloudRecorder;
+import com.soundcloud.android.record.SoundRecorder;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -176,7 +176,7 @@ public class CreateWaveView extends View {
         }
 
         if (isRecording && mRecordStartIndex == -1) {
-            mRecordStartIndex = CloudRecorder.getInstance(getContext()).writeIndex;
+            mRecordStartIndex = SoundRecorder.getInstance(getContext()).writeIndex;
         }
         invalidate();
     }
@@ -200,7 +200,7 @@ public class CreateWaveView extends View {
 
         assertAmplitudeHistory();
 
-        if (mRecordStartIndex == -1) mRecordStartIndex = CloudRecorder.getInstance(getContext()).writeIndex;
+        if (mRecordStartIndex == -1) mRecordStartIndex = SoundRecorder.getInstance(getContext()).writeIndex;
 
         float normalizedTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
@@ -374,7 +374,7 @@ public class CreateWaveView extends View {
 
 
     private void assertAmplitudeHistory(){
-        if (mAllAmplitudes == null) mAllAmplitudes = CloudRecorder.getInstance(getContext()).amplitudeData;
+        if (mAllAmplitudes == null) mAllAmplitudes = SoundRecorder.getInstance(getContext()).amplitudeData;
     }
 
     private void drawAmplitude(Canvas c, int xIndex, float amplitude, Paint p) {

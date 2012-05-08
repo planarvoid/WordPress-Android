@@ -6,7 +6,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
@@ -22,8 +21,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.CloudRecorder;
-import com.soundcloud.android.service.record.CloudCreateService;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.EventAware;
@@ -52,7 +50,6 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -870,7 +867,7 @@ public class UserBrowser extends ScActivity implements
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        CloudRecorder recorder = CloudRecorder.getInstance(this);
+        SoundRecorder recorder = SoundRecorder.getInstance(this);
         if (!isMe() && recorder != null && recorder.isRecording() && recorder.getRecording().getPrivateUserId() != mUser.id) {
             menu.removeItem(Consts.OptionsMenu.PRIVATE_MESSAGE);
         }

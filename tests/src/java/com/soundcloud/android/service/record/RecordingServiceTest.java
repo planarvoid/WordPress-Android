@@ -7,18 +7,16 @@ import com.soundcloud.android.service.LocalBinder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
-
 @RunWith(DefaultTestRunner.class)
-public class CloudCreateServiceTest {
+public class RecordingServiceTest {
     @Test
     public void shouldUseLocalService() throws Exception {
-        expect(new CloudCreateService().onBind(null) instanceof LocalBinder).toBeTrue();
+        expect(new SoundRecorderService().onBind(null) instanceof LocalBinder).toBeTrue();
     }
 
     @Test
     public void shouldGetCreated() throws Exception {
-        CloudCreateService svc = new CloudCreateService();
+        SoundRecorderService svc = new SoundRecorderService();
         svc.onCreate();
     }
 }

@@ -1,6 +1,6 @@
 package com.soundcloud.android.record;
 
-import static com.soundcloud.android.record.CloudRecorder.TAG;
+import static com.soundcloud.android.record.SoundRecorder.TAG;
 
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioFile;

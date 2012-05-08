@@ -2,13 +2,11 @@
 package com.soundcloud.android.record;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioFile;
 import com.soundcloud.android.audio.ScAudioTrack;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.record.CloudCreateService;
+import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
@@ -19,6 +17,7 @@ import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
+import android.test.ServiceTestCase;
 import android.util.Log;
 
 import java.io.File;
@@ -27,8 +26,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.EnumSet;
 
-public class CloudRecorder {
-    /* package */ static final String TAG = CloudRecorder.class.getSimpleName();
+public class SoundRecorder {
+    /* package */ static final String TAG = SoundRecorder.class.getSimpleName();
 
     public static final int PIXELS_PER_SECOND = 30;
     private static final int TRIM_PREVIEW_LENGTH = 500;
@@ -37,7 +36,30 @@ public class CloudRecorder {
                 new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
                 new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
 
-    private static CloudRecorder instance;
+    private static SoundRecorder instance;
+    public static final String RECORD_STARTED    = "com.soundcloud.android.recordstarted";
+    public static final String RECORD_SAMPLE     = "com.soundcloud.android.recordsample";
+    public static final String RECORD_ERROR      = "com.soundcloud.android.recorderror";
+    public static final String RECORD_PROGRESS   = "com.soundcloud.android.recordprogress";
+    public static final String RECORD_FINISHED   = "com.soundcloud.android.recordfinished";
+    public static final String PLAYBACK_STARTED  = "com.soundcloud.android.playbackstarted";
+    public static final String PLAYBACK_STOPPED  = "com.soundcloud.android.playbackstopped";
+    public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
+    public static final String PLAYBACK_PROGRESS = "com.soundcloud.android.playbackprogress";
+    public static final String PLAYBACK_ERROR    = "com.soundcloud.android.playbackerror";
+
+    public static final String EXTRA_POSITION    = "position";
+    public static final String EXTRA_STATE       = "state";
+    public static final String EXTRA_PATH        = "path";
+    public static final String EXTRA_AMPLITUDE   = "amplitude";
+    public static final String EXTRA_ELAPSEDTIME = "elapsedTime";
+
+
+    public static final String[] ALL_ACTIONS = {
+      RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
+      PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS
+    };
+
 
     public enum State {
         IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING;
@@ -58,6 +80,7 @@ public class CloudRecorder {
         }
     }
 
+    private Context mContext;
     private volatile State mState;
 
     public final AmplitudeData amplitudeData;
@@ -80,24 +103,25 @@ public class CloudRecorder {
 
     private LocalBroadcastManager mBroadcastManager;
 
-    public static synchronized CloudRecorder getInstance(Context context) {
+    public static synchronized SoundRecorder getInstance(Context context) {
         if (instance == null) {
             // this must be tied to the application context so it can be kept alive by the service
-            instance = new CloudRecorder(context.getApplicationContext(), AudioConfig.DEFAULT);
+            instance = new SoundRecorder(context.getApplicationContext(), AudioConfig.DEFAULT);
         }
         return instance;
     }
 
-    private CloudRecorder(Context context, AudioConfig config) {
+    private SoundRecorder(Context context, AudioConfig config) {
         final int bufferSize = config.getMinBufferSize();
+        mContext = context;
         mConfig = config;
         mAudioRecord = config.createAudioRecord(bufferSize * 4);
         mAudioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
             @Override public void onPeriodicNotification(AudioRecord audioRecord) {
                 if (mState == State.RECORDING) {
-                    Intent intent = new Intent(CloudCreateService.RECORD_PROGRESS)
-                        .putExtra(CloudCreateService.EXTRA_ELAPSEDTIME,
+                    Intent intent = new Intent(RECORD_PROGRESS)
+                        .putExtra(EXTRA_ELAPSEDTIME,
                                 mRecordStream == null ? -1 : mRecordStream.elapsedTime());
                     mBroadcastManager.sendBroadcast(intent);
                 }
@@ -109,7 +133,7 @@ public class CloudRecorder {
             @Override public void onMarkerReached(AudioTrack track) {
             }
             @Override public void onPeriodicNotification(AudioTrack track) {
-                broadcast(CloudCreateService.PLAYBACK_PROGRESS);
+                broadcast(PLAYBACK_PROGRESS);
             }
         });
         mAudioTrack.setPositionNotificationPeriod(mConfig.sampleRate);
@@ -151,7 +175,7 @@ public class CloudRecorder {
     }
 
     // Sets output file path, call directly after construction/reset.
-    public State startRecording(final Context c, final Recording recording) {
+    public State startRecording(final Recording recording) {
         if (recording == null) throw new IllegalArgumentException("recording object is null");
 
         if (mState != State.RECORDING) {
@@ -164,7 +188,8 @@ public class CloudRecorder {
                 mRecordStream = new RecordStream(recording, mConfig, true /* "armeabi-v7a".equals(Build.CPU_ABI) */);
             }
 
-            c.startService(new Intent(c, CloudCreateService.class).setAction(CloudCreateService.RECORD_STARTED));
+            // the service will ensure the recording lifecycle and notifications
+            mContext.startService(new Intent(mContext, SoundRecorderService.class).setAction(RECORD_STARTED));
 
             startReadingInternal(State.RECORDING);
 
@@ -212,6 +237,7 @@ public class CloudRecorder {
         return mState;
     }
 
+
     private final Handler refreshHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -222,9 +248,9 @@ public class CloudRecorder {
             final float frameAmplitude = mAmplitudeAnalyzer.frameAmplitude();
             amplitudeData.add(frameAmplitude);
 
-            Intent intent = new Intent(CloudCreateService.RECORD_SAMPLE)
-                    .putExtra(CloudCreateService.EXTRA_AMPLITUDE, frameAmplitude)
-                    .putExtra(CloudCreateService.EXTRA_ELAPSEDTIME, mRecordStream == null ? -1 : mRecordStream.elapsedTime());
+            Intent intent = new Intent(RECORD_SAMPLE)
+                    .putExtra(EXTRA_AMPLITUDE, frameAmplitude)
+                    .putExtra(EXTRA_ELAPSEDTIME, mRecordStream == null ? -1 : mRecordStream.elapsedTime());
 
             mBroadcastManager.sendBroadcast(intent);
         }
@@ -257,18 +283,19 @@ public class CloudRecorder {
         return mState == State.PLAYING || mState == State.SEEKING;
     }
 
-    public void togglePlayback(Context c) {
+    public void togglePlayback() {
         if (isPlaying()) {
             stopPlayback();
         } else {
-            play(c);
+            play();
         }
     }
 
-    public void play(Context c) {
+    public void play() {
         if (!isPlaying()) {
+            // the service will ensure the playback lifecycle and notifications
+            mContext.startService(new Intent(mContext, SoundRecorderService.class).setAction(PLAYBACK_STARTED));
             mSeekToPos = -1;
-            c.startService(new Intent(c, CloudCreateService.class).setAction(CloudCreateService.PLAYBACK_STARTED));
             new PlayerThread().start();
         }
     }
@@ -305,9 +332,9 @@ public class CloudRecorder {
 
     private void broadcast(String action) {
         final Intent intent = new Intent(action)
-                .putExtra(CloudCreateService.EXTRA_POSITION, getCurrentPlaybackPosition())
-                .putExtra(CloudCreateService.EXTRA_STATE, mState.name())
-                .putExtra(CloudCreateService.EXTRA_PATH, mRecordStream == null ? null : mRecordStream.getFile().getAbsolutePath());
+                .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
+                .putExtra(EXTRA_STATE, mState.name())
+                .putExtra(EXTRA_PATH, mRecordStream == null ? null : mRecordStream.getFile().getAbsolutePath());
         Log.d(TAG, "broadcast "+intent);
         mBroadcastManager.sendBroadcast(intent);
     }
@@ -324,9 +351,9 @@ public class CloudRecorder {
                 ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
 
                 file.seek(mCurrentPosition);
-                mState = CloudRecorder.State.PLAYING;
+                mState = SoundRecorder.State.PLAYING;
                 int n;
-                while (mState == CloudRecorder.State.PLAYING
+                while (mState == SoundRecorder.State.PLAYING
                         && (n = file.read(buffer, bufferSize)) > -1
                         && (mCurrentPosition < mRecordStream.endPosition)) {
 
@@ -337,7 +364,7 @@ public class CloudRecorder {
                                 (written == AudioTrack.ERROR_INVALID_OPERATION ? "ERROR_INVALID_OPERATION" :
                                  written == AudioTrack.ERROR_BAD_VALUE ? "ERROR_BAD_VALUE" : "error "+written));
 
-                        mState = CloudRecorder.State.ERROR;
+                        mState = SoundRecorder.State.ERROR;
                     } else {
                         mCurrentPosition += file.getConfig().bytesToMs(written);
                     }
@@ -357,39 +384,39 @@ public class CloudRecorder {
                 AudioFile file = null;
                 try {
                     file =  mRecordStream.getAudioFile();
-                    mState = CloudRecorder.State.PLAYING;
+                    mState = SoundRecorder.State.PLAYING;
 
                     final long start = mRecordStream.startPosition;
                     // resume from current position if it is valid, otherwise use start position. this is done before broadcast for reporting
                     mCurrentPosition = (mCurrentPosition > start &&
                                         mCurrentPosition < mRecordStream.endPosition) ? mCurrentPosition : start;
 
-                    broadcast(CloudCreateService.PLAYBACK_STARTED);
+                    broadcast(PLAYBACK_STARTED);
 
                     do {
-                        if (mState == CloudRecorder.State.SEEKING) {
+                        if (mState == SoundRecorder.State.SEEKING) {
                             mCurrentPosition = mSeekToPos;
                             mSeekToPos = -1;
                         }
                         play(file);
 
-                    } while (mState == CloudRecorder.State.SEEKING);
+                    } while (mState == SoundRecorder.State.SEEKING);
 
                 } catch (IOException e) {
                     Log.w(TAG, "error during playback", e);
-                    mState = CloudRecorder.State.ERROR;
+                    mState = SoundRecorder.State.ERROR;
                 } finally {
                     IOUtils.close(file);
                     mAudioTrack.stop();
                 }
                 Log.d(TAG, "player loop exit: state="+mState+", position="+mCurrentPosition+" of " +  mRecordStream.endPosition);
-                if (mState == CloudRecorder.State.PLAYING && mCurrentPosition >=  mRecordStream.endPosition) {
+                if (mState == SoundRecorder.State.PLAYING && mCurrentPosition >=  mRecordStream.endPosition) {
                     mCurrentPosition = -1;
-                    broadcast(CloudCreateService.PLAYBACK_COMPLETE);
+                    broadcast(PLAYBACK_COMPLETE);
                 } else {
-                    broadcast(CloudCreateService.PLAYBACK_STOPPED);
+                    broadcast(PLAYBACK_STOPPED);
                 }
-                mState = CloudRecorder.State.IDLE;
+                mState = SoundRecorder.State.IDLE;
             }
         }
     }
@@ -407,26 +434,26 @@ public class CloudRecorder {
 
                 if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
                     Log.w(TAG, "audiorecorder is not initialized");
-                    mState = CloudRecorder.State.ERROR;
+                    mState = SoundRecorder.State.ERROR;
                     return;
                 }
 
-                if (mState == CloudRecorder.State.RECORDING) {
-                    broadcast(CloudCreateService.RECORD_STARTED);
+                if (mState == SoundRecorder.State.RECORDING) {
+                    broadcast(RECORD_STARTED);
                 }
 
                 mAudioRecord.startRecording();
                 mAudioRecord.setPositionNotificationPeriod(mConfig.sampleRate);
-                while (mState == CloudRecorder.State.READING || mState == CloudRecorder.State.RECORDING) {
+                while (mState == SoundRecorder.State.READING || mState == SoundRecorder.State.RECORDING) {
                     buffer.rewind();
                     final int read = mAudioRecord.read(buffer, bufferReadSize);
                     if (read < 0) {
                         Log.w(TAG, "AudioRecord.read() returned error: " + read);
-                        mState = CloudRecorder.State.ERROR;
+                        mState = SoundRecorder.State.ERROR;
                     } else if (read == 0) {
                         Log.w(TAG, "AudioRecord.read() returned no data");
                     } else {
-                        if (mState == CloudRecorder.State.RECORDING && mRecordStream != null) {
+                        if (mState == SoundRecorder.State.RECORDING && mRecordStream != null) {
                             try {
                                 final int written = mRecordStream.write(buffer, read);
                                 if (written < read) {
@@ -435,7 +462,7 @@ public class CloudRecorder {
                                 mDuration = mRecordStream.getDuration();
                             } catch (IOException e) {
                                 Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
-                                mState = CloudRecorder.State.ERROR;
+                                mState = SoundRecorder.State.ERROR;
                                 break;
                             }
                         }
@@ -443,20 +470,20 @@ public class CloudRecorder {
                         refreshHandler.sendEmptyMessage(0);
                     }
                 }
-                Log.d(TAG, "exiting reader loop, stopping recording (mState="+mState+")");
+                Log.d(TAG, "exiting reader loop, stopping recording (mState=" + mState + ")");
                 mAudioRecord.stop();
 
                 if (mRecordStream != null) {
-                    if (mState != CloudRecorder.State.ERROR) {
+                    if (mState != SoundRecorder.State.ERROR) {
                         mRecordStream.finalizeStream();
                         resetPlaybackBounds();
-                        broadcast(CloudCreateService.RECORD_FINISHED);
+                        broadcast(RECORD_FINISHED);
                     } else {
-                        broadcast(CloudCreateService.RECORD_ERROR);
+                        broadcast(RECORD_ERROR);
                     }
                 }
 
-                mState = CloudRecorder.State.IDLE;
+                mState = SoundRecorder.State.IDLE;
                 mReaderThread = null;
             }
         }
@@ -464,7 +491,7 @@ public class CloudRecorder {
 
     public static IntentFilter getIntentFilter() {
         IntentFilter filter = new IntentFilter();
-        for (String action : CloudCreateService.ALL_ACTIONS) {
+        for (String action : ALL_ACTIONS) {
             filter.addAction(action);
         }
         return filter;

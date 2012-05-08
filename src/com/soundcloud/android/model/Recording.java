@@ -8,7 +8,7 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.CloudRecorder;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.service.upload.UserCanceledException;
 import com.soundcloud.android.utils.CloudUtils;
@@ -364,12 +364,20 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return res.getString(id, time.format("%A"));
     }
 
+    public void record(Context context) {
+        context.startService(getRecordIntent());
+    }
+
     public void upload(Context context) {
         context.startService(getUploadIntent());
     }
 
     public void cancelUpload(Context context) {
         context.startService(getCancelIntent());
+    }
+
+    private Intent getRecordIntent() {
+        return new Intent(Actions.RECORD).putExtra(UploadService.EXTRA_RECORDING, this);
     }
 
     public Intent getMonitorIntent() {
@@ -615,7 +623,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public static Recording create(User user) {
-        File file = new File(CloudRecorder.RECORD_DIR, System.currentTimeMillis() + (user == null ? "" : "_" + user.id));
+        File file = new File(SoundRecorder.RECORD_DIR, System.currentTimeMillis() + (user == null ? "" : "_" + user.id));
         return new Recording(file);
     }
 }

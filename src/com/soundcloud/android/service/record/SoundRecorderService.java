@@ -7,7 +7,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.record.CloudRecorder;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.LocalBinder;
 
 import android.app.Notification;
@@ -25,34 +25,14 @@ import android.os.PowerManager.WakeLock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-public class CloudCreateService extends Service  {
-    private static final String TAG = CloudCreateService.class.getSimpleName();
-
-    public static final String RECORD_STARTED    = "com.soundcloud.android.recordstarted";
-    public static final String RECORD_ERROR      = "com.soundcloud.android.recorderror";
-    public static final String RECORD_SAMPLE     = "com.soundcloud.android.recordsample";
-    public static final String RECORD_PROGRESS   = "com.soundcloud.android.recordprogress";
-    public static final String RECORD_FINISHED   = "com.soundcloud.android.recordfinished";
-
-    public static final String PLAYBACK_STARTED  = "com.soundcloud.android.playbackstarted";
-    public static final String PLAYBACK_STOPPED  = "com.soundcloud.android.playbackstopped";
-    public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
-    public static final String PLAYBACK_PROGRESS = "com.soundcloud.android.playbackprogress";
-    public static final String PLAYBACK_ERROR    = "com.soundcloud.android.playbackerror";
-
-    public static final String EXTRA_AMPLITUDE   = "amplitude";
-    public static final String EXTRA_ELAPSEDTIME = "elapsedTime";
-    public static final String EXTRA_POSITION    = "position";
-    public static final String EXTRA_STATE       = "state";
-    public static final String EXTRA_PATH        = "path";
-
-    public static final String[] ALL_ACTIONS = {
-      RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
-      PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS
-    };
+/**
+ * In charge of lifecycle and notifications for the {@link com.soundcloud.android.record.SoundRecorder}
+ */
+public class SoundRecorderService extends Service  {
+    private static final String TAG = SoundRecorderService.class.getSimpleName();
 
     // recorder/player
-    private CloudRecorder mRecorder;
+    private SoundRecorder mRecorder;
 
     // state
     private int mServiceStartId = -1;
@@ -67,9 +47,9 @@ public class CloudCreateService extends Service  {
     private static final int IDLE_DELAY = 30*1000;  // interval after which we stop the service when idle
 
     private WakeLock mWakeLock;
-    private final IBinder mBinder = new LocalBinder<CloudCreateService>() {
-        @Override public CloudCreateService getService() {
-            return CloudCreateService.this;
+    private final IBinder mBinder = new LocalBinder<SoundRecorderService>() {
+        @Override public SoundRecorderService getService() {
+            return SoundRecorderService.this;
         }
     };
 
@@ -104,14 +84,14 @@ public class CloudCreateService extends Service  {
         super.onCreate();
         Log.d(TAG, "create service started");
 
-        mRecorder = CloudRecorder.getInstance(this);
+        mRecorder = SoundRecorder.getInstance(this);
 
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, TAG);
-        mRecorder = CloudRecorder.getInstance(this);
+        mRecorder = SoundRecorder.getInstance(this);
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
-        mBroadcastManager.registerReceiver(receiver, CloudRecorder.getIntentFilter());
+        mBroadcastManager.registerReceiver(receiver, SoundRecorder.getIntentFilter());
 
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that case.
@@ -145,26 +125,26 @@ public class CloudCreateService extends Service  {
             final String action = intent.getAction();
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "BroadcastReceiver#onReceive(" + action + ")");
 
-            if (PLAYBACK_STARTED.equals(action)) {
+            if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
                 onPlaybackStarted(mRecorder.getRecording());
 
-            } else if (PLAYBACK_STOPPED.equals(action) || PLAYBACK_COMPLETE.equals(action) || PLAYBACK_ERROR.equals(action)) {
+            } else if (SoundRecorder.PLAYBACK_STOPPED.equals(action) || SoundRecorder.PLAYBACK_COMPLETE.equals(action) || SoundRecorder.PLAYBACK_ERROR.equals(action)) {
                 gotoIdleState(PLAYBACK_NOTIFY_ID);
 
-            } else if (RECORD_STARTED.equals(action)) {
+            } else if (SoundRecorder.RECORD_STARTED.equals(action)) {
                 acquireWakeLock();
                 startForeground(RECORD_NOTIFY_ID, createRecordingNotification(mRecorder.getRecording()));
 
-            } else if (RECORD_PROGRESS.equals(action)) {
-                final long time = intent.getLongExtra(CloudCreateService.EXTRA_ELAPSEDTIME, -1l);
+            } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
+                final long time = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l);
                 if (mRecordNotification != null) {
                     updateRecordTicker(mRecordNotification, time);
                 }
 
-            } else if (RECORD_FINISHED.equals(action)) {
+            } else if (SoundRecorder.RECORD_FINISHED.equals(action)) {
                 gotoIdleState(RECORD_NOTIFY_ID);
 
-            } else if (RECORD_ERROR.equals(action)) {
+            } else if (SoundRecorder.RECORD_ERROR.equals(action)) {
                 gotoIdleState(RECORD_NOTIFY_ID);
             }
         }
