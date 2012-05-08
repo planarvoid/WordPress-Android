@@ -191,6 +191,10 @@ public class CloudCreateService extends Service  {
         return mRecording;
     }
 
+    public long getPrivateMessageUserIdFromRecording() {
+        return mRecording == null ? -1 : getUserIdFromFile(mRecording.audio_path);
+    }
+
     public void stopRecording() {
         if (mRecorder != null) {
             mRecorder.stopRecording();

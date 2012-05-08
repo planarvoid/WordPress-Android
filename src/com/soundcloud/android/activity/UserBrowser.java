@@ -22,6 +22,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.EventAware;
@@ -863,6 +864,14 @@ public class UserBrowser extends ScActivity implements
                 menu.size(), R.string.menu_private_message).setIcon(R.drawable.ic_menu_friendfinder);
         }
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (!isMe() && mCreateService.isRecording() && mCreateService.getPrivateMessageUserIdFromRecording() != mUser.id) {
+            menu.removeItem(Consts.OptionsMenu.PRIVATE_MESSAGE);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
