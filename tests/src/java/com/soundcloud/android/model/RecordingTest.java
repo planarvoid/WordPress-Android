@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.service.record.CloudCreateService;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -341,4 +342,15 @@ public class RecordingTest {
         r.artwork_path = r.resized_artwork_path = null;
         expect(r.hasArtwork()).toBeFalse();
     }
+
+    @Test
+    public void shouldGetUserIdFromFile() throws Exception {
+        expect(Recording.getUserIdFromFile(new File("_/foo"))).toEqual(-1l);
+        expect(Recording.getUserIdFromFile(new File("_/foo/12232_1234"))).toEqual(1234l);
+        expect(Recording.getUserIdFromFile(new File("/foo/12232_1234.ogg"))).toEqual(1234l);
+        expect(Recording.getUserIdFromFile(new File("foo/12232_1234.ogg_"))).toEqual(1234l);
+        expect(Recording.getUserIdFromFile(new File("_foo/12232_1234.ogg_"))).toEqual(1234l);
+    }
+
+
 }

@@ -21,9 +21,9 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.WifiMonitor;
 import com.soundcloud.android.service.sync.SyncConfig;
-import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
@@ -122,7 +122,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         mCloudApi.setTokenListener(this);
         mCloudApi.debugRequests = DEV_MODE || !DALVIK;
-
 
         if (account != null) {
             FollowStatus.initialize(this, getCurrentUserId());

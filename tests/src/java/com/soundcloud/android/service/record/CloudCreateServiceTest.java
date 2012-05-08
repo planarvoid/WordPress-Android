@@ -21,13 +21,4 @@ public class CloudCreateServiceTest {
         CloudCreateService svc = new CloudCreateService();
         svc.onCreate();
     }
-
-    @Test
-    public void shouldGetUserIdFromFile() throws Exception {
-        expect(CloudCreateService.getUserIdFromFile(new File("_/foo"))).toEqual(-1l);
-        expect(CloudCreateService.getUserIdFromFile(new File("_/foo/12232_1234"))).toEqual(1234l);
-        expect(CloudCreateService.getUserIdFromFile(new File("/foo/12232_1234.ogg"))).toEqual(1234l);
-        expect(CloudCreateService.getUserIdFromFile(new File("foo/12232_1234.ogg_"))).toEqual(1234l);
-        expect(CloudCreateService.getUserIdFromFile(new File("_foo/12232_1234.ogg_"))).toEqual(1234l);
-    }
 }

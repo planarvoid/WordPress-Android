@@ -1,9 +1,13 @@
 
 package com.soundcloud.android.record;
 
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioFile;
 import com.soundcloud.android.audio.ScAudioTrack;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.utils.IOUtils;
 
@@ -21,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.EnumSet;
 
 public class CloudRecorder {
     /* package */ static final String TAG = CloudRecorder.class.getSimpleName();
@@ -28,10 +33,29 @@ public class CloudRecorder {
     public static final int PIXELS_PER_SECOND = 30;
     private static final int TRIM_PREVIEW_LENGTH = 500;
 
+    public static final File RECORD_DIR = IOUtils.ensureUpdatedDirectory(
+                new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
+                new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
+
     private static CloudRecorder instance;
 
     public enum State {
-        IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING
+        IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING;
+
+        public static final EnumSet<State> ACTIVE = EnumSet.of(RECORDING, PLAYING, SEEKING);
+        public static final EnumSet<State> PLAYBACK = EnumSet.of(PLAYING, SEEKING);
+
+        public boolean isActive() {
+            return ACTIVE.contains(this);
+        }
+
+        public boolean isPlaying() {
+            return PLAYBACK.contains(this);
+        }
+
+        public boolean isRecording() {
+            return this == RECORDING;
+        }
     }
 
     private volatile State mState;
@@ -43,7 +67,7 @@ public class CloudRecorder {
     private final ScAudioTrack mAudioTrack;
 
     private RecordStream mRecordStream;
-    private AmplitudeAnalyzer mAmplitudeAnalyzer;
+    private final AmplitudeAnalyzer mAmplitudeAnalyzer;
 
     final private AudioConfig mConfig;
     final private ByteBuffer buffer;
@@ -58,7 +82,8 @@ public class CloudRecorder {
 
     public static synchronized CloudRecorder getInstance(Context context) {
         if (instance == null) {
-            instance = new CloudRecorder(context, AudioConfig.DEFAULT);
+            // this must be tied to the application context so it can be kept alive by the service
+            instance = new CloudRecorder(context.getApplicationContext(), AudioConfig.DEFAULT);
         }
         return instance;
     }
@@ -106,6 +131,18 @@ public class CloudRecorder {
         mRecordStream = null;
     }
 
+    public boolean isActive() {
+        return mState.isActive();
+    }
+
+    public boolean isRecording() {
+        return mState.isRecording();
+    }
+
+    public Recording getRecording() {
+        return mRecordStream == null ? null : mRecordStream.recording;
+    }
+
     public State startReading() {
         if (mState == State.IDLE) {
             startReadingInternal(State.READING);
@@ -114,22 +151,30 @@ public class CloudRecorder {
     }
 
     // Sets output file path, call directly after construction/reset.
-    public State startRecording(final File path) {
-        if (path == null) throw new IllegalArgumentException("path is null");
+    public State startRecording(final Context c, final Recording recording) {
+        if (recording == null) throw new IllegalArgumentException("recording object is null");
 
         if (mState != State.RECORDING) {
-            if (mRecordStream != null && !mRecordStream.getFile().equals(path)) {
+            if (mRecordStream != null && !mRecordStream.getFile().equals(recording.audio_path)) {
                 mRecordStream.release();
                 mRecordStream = null;
             }
 
             if (mRecordStream == null) {
-                mRecordStream = new RecordStream(path, mConfig, true /* "armeabi-v7a".equals(Build.CPU_ABI) */);
+                mRecordStream = new RecordStream(recording, mConfig, true /* "armeabi-v7a".equals(Build.CPU_ABI) */);
             }
+
+            c.startService(new Intent(c, CloudCreateService.class).setAction(CloudCreateService.RECORD_STARTED));
+
             startReadingInternal(State.RECORDING);
+
         } else throw new IllegalStateException("cannot record to file, in state " + mState);
 
         return mState;
+    }
+
+    public void stopReading() {
+        if (mState == State.READING) mState = State.STOPPING;
     }
 
     public void stopRecording() {
@@ -193,6 +238,17 @@ public class CloudRecorder {
         return mSeekToPos != -1 ? mSeekToPos : mCurrentPosition == -1 ? -1 :  mCurrentPosition;
     }
 
+    public void revertFile() {
+        resetPlaybackBounds();
+        mRecordStream.applyFades = false;
+        //TODO reset optimize
+    }
+
+    public void applyEdits() {
+        //TODO: anything? Maybe ust don't revert modification layer
+    }
+
+
     public void resetPlaybackBounds() {
         if (mRecordStream != null) mRecordStream.resetPlaybackBounds();
     }
@@ -201,17 +257,18 @@ public class CloudRecorder {
         return mState == State.PLAYING || mState == State.SEEKING;
     }
 
-    public void togglePlayback() {
+    public void togglePlayback(Context c) {
         if (isPlaying()) {
             stopPlayback();
         } else {
-            play();
+            play(c);
         }
     }
 
-    public void play() {
+    public void play(Context c) {
         if (!isPlaying()) {
             mSeekToPos = -1;
+            c.startService(new Intent(c, CloudCreateService.class).setAction(CloudCreateService.PLAYBACK_STARTED));
             new PlayerThread().start();
         }
     }

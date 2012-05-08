@@ -21,27 +21,30 @@ import java.nio.ByteBuffer;
 public class RecordStream implements Closeable {
     private WavWriter mWavWriter;
     private final AudioConfig config;
-
     private VorbisEncoder mEncoder;
+
+    public final Recording recording;
     public final File encodedFile;
+    public boolean applyFades; //TODO , this
 
     private boolean initialised;
 
     /* package */ long startPosition;
     /* package */ long endPosition;
 
-    private boolean applyFades = true;
+
 
     private static final int FADE_LENGTH_MS = 1000;
     private static final int FADE_EXP_CURVE = 2;
 
-    public RecordStream(File f, AudioConfig cfg, boolean encode) {
-        if (f == null) throw new IllegalArgumentException("file is null");
+    public RecordStream(Recording r, AudioConfig cfg, boolean encode) {
+        if (r == null) throw new IllegalArgumentException("recording is null");
         if (cfg == null) throw new IllegalArgumentException("config is null");
 
+        recording = r;
         config = cfg;
-        mWavWriter = new WavWriter(f, cfg);
-        encodedFile = encode ? Recording.encodedFilename(f) : null;
+        mWavWriter = new WavWriter(r.audio_path, cfg);
+        encodedFile = encode ? r.encodedFilename() : null;
     }
 
     public int write(ByteBuffer buffer, int length) throws IOException {
@@ -116,7 +119,7 @@ public class RecordStream implements Closeable {
     }
 
     public File getFile() {
-        return mWavWriter.file;
+        return recording.audio_path;
     }
 
     public AudioFile getAudioFile() throws IOException {

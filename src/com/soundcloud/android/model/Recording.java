@@ -3,9 +3,12 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.CloudRecorder;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.service.upload.UserCanceledException;
 import com.soundcloud.android.utils.CloudUtils;
@@ -21,13 +24,17 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.location.Location;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.text.format.Time;
+import android.util.Log;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,7 +90,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static final String TAG_SOURCE_ANDROID_RECORD          = "soundcloud:source=android-record";
     public static final String TAG_RECORDING_TYPE_DEDICATED       = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
-
 
     public static interface Status {
         int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
@@ -493,6 +499,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return encoded_audio_path != null && encoded_audio_path.exists() ? encoded_audio_path : audio_path;
     }
 
+    public long getPrivateUserId() {
+        return getUserIdFromFile(audio_path);
+    }
+
     @Override
     public String toString() {
         return "Recording{" +
@@ -528,7 +538,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
         }
     };
 
-    @Override public int compareTo(Recording recording) {
+    @Override
+    public int compareTo(Recording recording) {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
     }
 
@@ -536,8 +547,76 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return encodedFilename(audio_path);
     }
 
+    public static Recording checkForUnusedPrivateRecording(File directory, User user) {
+        if (user == null) return null;
+        for (File f : directory.listFiles(new RecordingFilter(null))) {
+            if (Recording.getUserIdFromFile(f) == user.id) {
+                return new Recording(f);
+            }
+        }
+        return null;
+    }
+
     public static File encodedFilename(File file) {
         return new File(file.getParentFile(), file.getName().concat(".ogg"));
+    }
+
+    public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore) {
+        MediaPlayer mp = null;
+        List<Recording> unsaved = new ArrayList<Recording>();
+        for (File f : directory.listFiles(new RecordingFilter(ignore))) {
+            if (getUserIdFromFile(f) != -1) continue; // ignore current file
+            Recording r = SoundCloudDB.getRecordingByPath(resolver, f);
+            if (r == null) {
+                r = new Recording(f);
+                try {
+                    if (mp == null) {
+                        mp = new MediaPlayer();
+                    }
+                    mp.reset();
+                    mp.setDataSource(f.getAbsolutePath());
+                    mp.prepare();
+                    r.duration = mp.getDuration();
+                } catch (IOException e) {
+                    Log.e(SoundCloudApplication.TAG, "error", e);
+                }
+                unsaved.add(r);
+            }
+        }
+        Collections.sort(unsaved, null);
+        return unsaved;
+    }
+
+    public static class RecordingFilter implements FilenameFilter {
+        private Recording toIgnore;
+
+        public RecordingFilter(Recording ignore) {
+            toIgnore = ignore;
+        }
+
+        @Override
+        public boolean accept(File file, String name) {
+            return Recording.isRawFilename(name) || Recording.isEncodedFilename(name) &&
+                    (toIgnore == null || !toIgnore.audio_path.equals(file));
+        }
+    }
+
+    public static long getUserIdFromFile(File file) {
+        final String path = file.getName();
+        if (TextUtils.isEmpty(path) || !path.contains("_") || path.indexOf("_") + 1 >= path.length()) {
+            return -1;
+        } else try {
+            return Long.valueOf(
+                    path.substring(path.indexOf('_') + 1,
+                            path.contains(".") ? path.indexOf('.') : path.length()));
+        } catch (NumberFormatException ignored) {
+            return -1;
+        }
+    }
+
+    public static Recording create(User user) {
+        File file = new File(CloudRecorder.RECORD_DIR, System.currentTimeMillis() + (user == null ? "" : "_" + user.id));
+        return new Recording(file);
     }
 }
 

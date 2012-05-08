@@ -4,15 +4,11 @@ import static com.soundcloud.android.Consts.Notifications.PLAYBACK_NOTIFY_ID;
 import static com.soundcloud.android.Consts.Notifications.RECORD_NOTIFY_ID;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.CloudRecorder;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.utils.IOUtils;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -21,20 +17,13 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
 import android.util.Log;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class CloudCreateService extends Service  {
     private static final String TAG = CloudCreateService.class.getSimpleName();
@@ -57,11 +46,6 @@ public class CloudCreateService extends Service  {
     public static final String EXTRA_STATE       = "state";
     public static final String EXTRA_PATH        = "path";
 
-
-    public static final File RECORD_DIR = IOUtils.ensureUpdatedDirectory(
-            new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
-            new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
-
     public static final String[] ALL_ACTIONS = {
       RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
       PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS
@@ -69,10 +53,6 @@ public class CloudCreateService extends Service  {
 
     // recorder/player
     private CloudRecorder mRecorder;
-
-    // files
-    private boolean mIsRecording;
-    private Recording mRecording;
 
     // state
     private int mServiceStartId = -1;
@@ -84,60 +64,47 @@ public class CloudCreateService extends Service  {
 
     private LocalBroadcastManager mBroadcastManager;
 
+    private static final int IDLE_DELAY = 30*1000;  // interval after which we stop the service when idle
+
     private WakeLock mWakeLock;
     private final IBinder mBinder = new LocalBinder<CloudCreateService>() {
         @Override public CloudCreateService getService() {
             return CloudCreateService.this;
-
         }
     };
 
-    @Override public IBinder onBind(Intent intent) {
+    @Override
+    public IBinder onBind(Intent intent) {
         return mBinder;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mServiceStartId = startId;
+        mDelayedStopHandler.removeCallbacksAndMessages(null);
+
+        // make sure the service will shut down on its own if it was
+        // just started but not bound to and nothing is playing
+        scheduleServiceShutdownCheck();
         return START_STICKY;
     }
 
-    @Override
-    public boolean onUnbind(Intent intent) {
-        // cargoculted?
-        if (!isRecording() && !isPlaying()) {
-            // No active playlist, OK to stop the service right now
-            stopSelf(mServiceStartId);
-        }
-        return false;
-    }
-
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final Handler mDelayedStopHandler = new Handler() {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (PLAYBACK_STARTED.equals(action)) {
-
-            } else if (PLAYBACK_COMPLETE.equals(action) || PLAYBACK_ERROR.equals(action)) {
-                onPlaybackComplete();
-            } else if (RECORD_STARTED.equals(action)) {
-
-            } else if (RECORD_PROGRESS.equals(action)) {
-                final long time = intent.getLongExtra(CloudCreateService.EXTRA_ELAPSEDTIME, -1l);
-                if (mRecordNotification != null) {
-                    updateRecordTicker(mRecordNotification, time);
-                }
-            } else if (RECORD_FINISHED.equals(action)) {
-
+        public void handleMessage(Message msg) {
+            if (!mRecorder.isActive()) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "DelayedStopHandler: stopping service");
+                stopSelf(mServiceStartId);
             }
         }
     };
-
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "create service started");
+
+        mRecorder = CloudRecorder.getInstance(this);
 
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -145,33 +112,70 @@ public class CloudCreateService extends Service  {
         mRecorder = CloudRecorder.getInstance(this);
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
         mBroadcastManager.registerReceiver(receiver, CloudRecorder.getIntentFilter());
+
+        // If the service was idle, but got killed before it stopped itself, the
+        // system will relaunch it. Make sure it gets stopped again in that case.
+        scheduleServiceShutdownCheck();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mRecorder != null) mRecorder.onDestroy();
 
         mBroadcastManager.unregisterReceiver(receiver);
-        // prevent any ongoing notifications that may get stuck
-        nm.cancel(RECORD_NOTIFY_ID);
+        gotoIdleState(RECORD_NOTIFY_ID);
+        gotoIdleState(PLAYBACK_NOTIFY_ID);
 
-        gotoIdleState();
         releaseWakeLock();
         mWakeLock = null;
     }
 
-    public void startRecording(Recording recording) {
-        Log.v(TAG, "startRecording(" + recording + ")");
-        acquireWakeLock();
-        mRecording = recording;
-        startForeground(RECORD_NOTIFY_ID, createRecordingNotification(recording));
-        if (mRecorder.startRecording(mRecording.audio_path) == CloudRecorder.State.ERROR) {
-            onRecordError();
-        } else {
-            mIsRecording = true;
+    private void scheduleServiceShutdownCheck() {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "scheduleServiceShutdownCheck()");
         }
+        mDelayedStopHandler.removeCallbacksAndMessages(null);
+        mDelayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
     }
+
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            final String action = intent.getAction();
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "BroadcastReceiver#onReceive(" + action + ")");
+
+            if (PLAYBACK_STARTED.equals(action)) {
+                onPlaybackStarted(mRecorder.getRecording());
+
+            } else if (PLAYBACK_STOPPED.equals(action) || PLAYBACK_COMPLETE.equals(action) || PLAYBACK_ERROR.equals(action)) {
+                gotoIdleState(PLAYBACK_NOTIFY_ID);
+
+            } else if (RECORD_STARTED.equals(action)) {
+                acquireWakeLock();
+                startForeground(RECORD_NOTIFY_ID, createRecordingNotification(mRecorder.getRecording()));
+
+            } else if (RECORD_PROGRESS.equals(action)) {
+                final long time = intent.getLongExtra(CloudCreateService.EXTRA_ELAPSEDTIME, -1l);
+                if (mRecordNotification != null) {
+                    updateRecordTicker(mRecordNotification, time);
+                }
+
+            } else if (RECORD_FINISHED.equals(action)) {
+                gotoIdleState(RECORD_NOTIFY_ID);
+
+            } else if (RECORD_ERROR.equals(action)) {
+                gotoIdleState(RECORD_NOTIFY_ID);
+            }
+        }
+    };
+
+    private void gotoIdleState(int cancelNotificationId) {
+        nm.cancel(cancelNotificationId);
+        scheduleServiceShutdownCheck();
+        if (!mRecorder.isActive()) stopForeground(true);
+    }
+
 
     private Notification createRecordingNotification(Recording recording) {
         mRecordPendingIntent = PendingIntent.getActivity(this, 0, recording.getViewIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
@@ -183,77 +187,18 @@ public class CloudCreateService extends Service  {
         return mRecordNotification;
     }
 
-    public File getRecordingFile() {
-        return mRecording.audio_path;
-    }
-
-    public Recording getRecording() {
-        return mRecording;
-    }
-
-    public long getPrivateMessageUserIdFromRecording() {
-        return mRecording == null ? -1 : getUserIdFromFile(mRecording.audio_path);
-    }
-
-    public void stopRecording() {
-        if (mRecorder != null) {
-            mRecorder.stopRecording();
-        }
-        mIsRecording = false;
-        nm.cancel(RECORD_NOTIFY_ID);
-        gotoIdleState();
-    }
-
-    public void startReading() {
-        if (mRecorder.startReading() == CloudRecorder.State.ERROR) {
-            onRecordError();
-        }
-    }
-
-    public void resetRecorder() {
-        mRecorder.reset();
-    }
-
-    public boolean isRecording() {
-        return mIsRecording;
-    }
-
-    public void stopPlayback() {
-        mRecorder.stopPlayback();
-        onPlaybackComplete();
-    }
-
-    public void pausePlayback() {
-        if (mRecorder.isPlaying()) mRecorder.togglePlayback();
-        nm.cancel(PLAYBACK_NOTIFY_ID);
-        gotoIdleState();
-    }
-
-    public void setPlaybackStart(double pos) {
-        mRecorder.onNewStartPosition(pos);
-    }
-
-    public void setPlaybackEnd(double pos) {
-        mRecorder.onNewEndPosition(pos);
-    }
-
-    public void startPlayback(Recording file) throws IOException {
-        if (file == null || !file.exists()) throw new IOException("file "+ file +" does not exist");
-
-        mRecording = file;
-        mRecorder.play();
-
+    private void onPlaybackStarted(Recording recording) {
         Intent intent;
-        if (!mRecording.isSaved()) {
+        if (!recording.isSaved()) {
             intent = (new Intent(Actions.RECORD))
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         } else {
             intent = (new Intent(this, ScCreate.class))
-            .setData(mRecording.toUri())
+            .setData(recording.toUri())
             .setAction(Intent.ACTION_MAIN);
         }
-        startForeground(PLAYBACK_NOTIFY_ID, createPlaynotification(intent, mRecording));
+        startForeground(PLAYBACK_NOTIFY_ID, createPlaynotification(intent, recording));
     }
 
     private Notification createPlaynotification(Intent intent, Recording r) {
@@ -273,53 +218,6 @@ public class CloudCreateService extends Service  {
         return notification;
     }
 
-    public void seekTo(float pct) {
-        mRecorder.seekTo(pct);
-    }
-
-    public boolean isPlaying() {
-        return mRecorder.isPlaying();
-    }
-
-    public long getPlaybackDuration() {
-        return mRecorder.getDuration();
-    }
-
-    public File getCurrentPlaybackPath() {
-        return mRecording.audio_path;
-    }
-
-    public long getCurrentPlaybackPosition() {
-        return mRecorder.getCurrentPlaybackPosition();
-    }
-
-    /**
-     * Revert edited file to original form
-     */
-    public void revertFile() {
-        mRecorder.resetPlaybackBounds();
-    }
-
-
-    public void onPlaybackComplete() {
-        nm.cancel(PLAYBACK_NOTIFY_ID);
-        gotoIdleState();
-    }
-
-    private void gotoIdleState() {
-        if (!isRecording() && !isPlaying()) {
-            stopForeground(true);
-        }
-    }
-
-    private void onRecordError() {
-        sendBroadcast(new Intent(RECORD_ERROR));
-        mIsRecording = false;
-
-        nm.cancel(RECORD_NOTIFY_ID);
-        gotoIdleState();
-    }
-
     /* package */ void updateRecordTicker(Notification notification, long recordTimeMs) {
         notification.setLatestEventInfo(this,
                 getString(R.string.cloud_recorder_event_title),
@@ -327,7 +225,6 @@ public class CloudCreateService extends Service  {
                 mRecordPendingIntent);
         nm.notify(RECORD_NOTIFY_ID, notification);
     }
-
 
     public static Notification createOngoingNotification(CharSequence tickerText, PendingIntent pendingIntent) {
         int icon = R.drawable.ic_notification_cloud;
@@ -346,74 +243,6 @@ public class CloudCreateService extends Service  {
     private void releaseWakeLock() {
         if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.release();
-        }
-    }
-
-    public File[] listRecordingFiles() {
-        return RECORD_DIR.listFiles(new RecordingFilter());
-    }
-
-    public List<Recording> getUnsavedRecordings() {
-        MediaPlayer mp = null;
-        List<Recording> unsaved = new ArrayList<Recording>();
-        for (File f : listRecordingFiles()) {
-            if (getUserIdFromFile(f) != -1) continue; // ignore current file
-            Recording r = SoundCloudDB.getRecordingByPath(getContentResolver(), f);
-            if (r == null) {
-                r = new Recording(f);
-                try {
-                    if (mp == null) {
-                        mp = new MediaPlayer();
-                    }
-                    mp.reset();
-                    mp.setDataSource(f.getAbsolutePath());
-                    mp.prepare();
-                    r.duration = mp.getDuration();
-                } catch (IOException e) {
-                    Log.e(TAG, "error", e);
-                }
-                unsaved.add(r);
-            }
-        }
-        Collections.sort(unsaved, null);
-        return unsaved;
-    }
-
-
-    public Recording checkForUnusedPrivateRecording(User user) {
-        if (user == null) return null;
-        for (File f : listRecordingFiles()) {
-            if (getUserIdFromFile(f) == user.id) {
-                return new Recording(f);
-            }
-        }
-        return null;
-    }
-
-    public static Recording createRecording(User user) {
-        File file = new File(RECORD_DIR,
-                System.currentTimeMillis() + (user == null ? "" : "_" + user.id));
-        return new Recording(file);
-    }
-
-    public static long getUserIdFromFile(File file) {
-        final String path = file.getName();
-        if (TextUtils.isEmpty(path) || !path.contains("_") || path.indexOf("_") + 1 >= path.length()) {
-            return -1;
-        } else try {
-            return Long.valueOf(
-                    path.substring(path.indexOf('_') + 1,
-                    path.contains(".") ? path.indexOf('.') : path.length()));
-        } catch (NumberFormatException ignored) {
-            return -1;
-        }
-    }
-
-    public class RecordingFilter implements FilenameFilter {
-        @Override
-        public boolean accept(File file, String name) {
-            return Recording.isRawFilename(name) || Recording.isEncodedFilename(name) &&
-                    (mRecording == null || !mRecording.audio_path.equals(file));
         }
     }
 }

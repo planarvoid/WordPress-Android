@@ -1,7 +1,5 @@
 package com.soundcloud.android.activity;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -12,7 +10,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.CloudRecorder;
 import com.soundcloud.android.record.RemainingTimeCalculator;
-import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tracking.Click;
@@ -28,20 +25,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,12 +47,11 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 @Tracking(page = Page.Record_main)
-public class ScCreate extends Activity implements CreateWaveDisplay.Listener, ServiceConnection {
+public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
 
     public static final int REQUEST_UPLOAD_FILE = 1;
     public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
@@ -67,7 +59,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
     private Recording mRecording;
     private User mPrivateUser;
 
-    private CloudCreateService mCreateService;
+    private CloudRecorder mRecorder;
     private CreateState mLastState, mCurrentState;
     private long mLastDisplayedTime;
 
@@ -93,8 +85,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
     private String[] mRecordSuggestions;
 
     public enum CreateState {
-        IDLE_STANDBY_REC,
-        IDLE_STANDBY_PLAY,
         IDLE_RECORD,
         RECORD,
         IDLE_PLAYBACK,
@@ -180,7 +170,9 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
 
         registerReceiver(mStatusListener, uploadFilter);
         LocalBroadcastManager.getInstance(this).registerReceiver(mStatusListener, recordFilter);
-        bindService(new Intent(this, CloudCreateService.class), this, Context.BIND_AUTO_CREATE);
+
+        mRecorder = CloudRecorder.getInstance(this);
+
     }
 
     @Override
@@ -189,27 +181,13 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
         mHandler.removeCallbacks(mSmoothProgress);
         unregisterReceiver(mStatusListener);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusListener);
-        unbindService(this);
-    }
-
-    @Override @SuppressWarnings("unchecked")
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        mCreateService = ((LocalBinder<CloudCreateService>)service).getService();
-        configureState();
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-        mCreateService = null;
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mActive = false;
-        if (mCurrentState != CreateState.RECORD && mCreateService != null){
-            mCreateService.stopRecording(); // this will stop the amplitude reading loop
-        }
+        mRecorder.stopReading(); // this will stop the amplitude reading loop
     }
 
     @Override
@@ -250,23 +228,19 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
 
     @Override
     public void onSeek(float pct) {
-        if (mCreateService != null) {
             mLastTrackTime = -1;
-            mCreateService.seekTo(pct);
-        }
+            mRecorder.seekTo(pct);
     }
 
     @Override
     public void onAdjustTrimLeft(float pos) {
-        if (mCreateService != null) { mCreateService.setPlaybackStart(pos); }
+        mRecorder.onNewStartPosition(pos);
     }
 
     @Override
     public void onAdjustTrimRight(float pos) {
-        if (mCreateService != null) { mCreateService.setPlaybackEnd(pos); }
+        mRecorder.onNewEndPosition(pos);
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -319,36 +293,31 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
         });
         return button;
     }
+
     private ImageButton setupActionButton() {
         final ImageButton button = (ImageButton) findViewById(R.id.btn_action);
         button.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                if (mCurrentState == CreateState.IDLE_STANDBY_REC) {
-                    stopRecording();
-                    configureState();
-                } else if (mCurrentState == CreateState.IDLE_STANDBY_PLAY) {
-                    track(Click.Record_play_stop);
-                    stopPlayback();
-                    configureState();
-                } else {
-                    switch (mCurrentState) {
-                        case IDLE_RECORD:
-                        case IDLE_PLAYBACK:
-                        case PLAYBACK:
-                            track(Click.Record_rec);
-                            mCurrentState = CreateState.RECORD;
-                            break;
-                        case RECORD:
-                            track(Click.Record_rec_stop);
-                            mCurrentState = CreateState.IDLE_PLAYBACK;
-                            break;
-                    }
-                    updateUi(true);
+            @Override
+            public void onClick(View v) {
+
+                switch (mCurrentState) {
+                    case IDLE_RECORD:
+                    case IDLE_PLAYBACK:
+                    case PLAYBACK:
+                        track(Click.Record_rec);
+                        mCurrentState = CreateState.RECORD;
+                        break;
+                    case RECORD:
+                        track(Click.Record_rec_stop);
+                        mCurrentState = CreateState.IDLE_PLAYBACK;
+                        break;
                 }
+                updateUi(true);
             }
         });
         return button;
     }
+
     private Button setupDeleteButton() {
         final Button button = ((Button) findViewById(R.id.btn_delete));
         button.setOnClickListener(new View.OnClickListener() {
@@ -409,7 +378,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
         button.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 if (mCurrentState.isEdit()) {
-                    saveEditState();
+                    mRecorder.applyEdits();
 
                     mCurrentState = CreateState.IDLE_PLAYBACK;
                     updateUi(true);
@@ -429,7 +398,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
                         // set duration because ogg files report incorrect
                         // duration in mediaplayer if playback is attempted
                         // after encoding
-                        mRecording.duration = mCreateService.getPlaybackDuration();
+                        mRecording.duration = mRecorder.getDuration();
                         mRecording = SoundCloudDB.insertRecording(getContentResolver(), mRecording);
                     }
                     onSave(mRecording, isNew);
@@ -460,7 +429,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
     }
 
     private void reset() {
-        mCreateService.resetRecorder();
+        mRecorder.reset();
         mCurrentState = CreateState.IDLE_RECORD;
         mRecording = null;
         mWaveDisplay.reset();
@@ -476,33 +445,28 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
     }
 
     private void configureState() {
-        if (mCreateService == null || !mActive) return;
+        if (mRecorder == null || !mActive) return;
 
         boolean takeAction = false;
 
-        if (mCreateService.isRecording()) {
-            if (shouldReactToRecording()) {
+        if (mRecorder.isRecording()) {
                 mCurrentState = CreateState.RECORD;
-                if (mRecording == null) mRecording = mCreateService.getRecording();
-            } else {
-                mCurrentState = CreateState.IDLE_STANDBY_REC;
-            }
-        } else if (mCreateService.isPlaying()) {
-            if (shouldReactToPlayback()) {
+                mRecording = mRecorder.getRecording();
+
+        } else if (mRecorder.isPlaying()) {
                 if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
-                mRecording = mCreateService.getRecording();
+                mRecording = mRecorder.getRecording();
                 configurePlaybackInfo();
                 mHandler.postDelayed(mSmoothProgress, 0);
                 takeAction = true;
-            } else {
-                mCurrentState = CreateState.IDLE_STANDBY_PLAY;
-            }
-        } else if (!CloudCreateService.RECORD_DIR.exists()) {
+
+        } else if (!CloudRecorder.RECORD_DIR.exists()) {
             // can happen when there's no mounted sd card
             mActionButton.setEnabled(false);
+
         } else {
             if (mRecording == null && mPrivateUser != null) {
-                mRecording = mCreateService.checkForUnusedPrivateRecording(mPrivateUser);
+                mRecording = Recording.checkForUnusedPrivateRecording(CloudRecorder.RECORD_DIR, mPrivateUser);
             }
 
             if (mRecording != null) {
@@ -514,43 +478,20 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
             }
         }
 
-        if (!(mCurrentState == CreateState.RECORD ||
-                mCurrentState == CreateState.IDLE_STANDBY_REC ||
-                mCurrentState == CreateState.IDLE_STANDBY_PLAY)
-                && mPrivateUser == null) {
-
-            /*
-            mUnsavedRecordings = mCreateService.getUnsavedRecordings();
+        if (!(mCurrentState == CreateState.RECORD) && mPrivateUser == null) {
+            mUnsavedRecordings = Recording.getUnsavedRecordings(getContentResolver(),CloudRecorder.RECORD_DIR,mRecording);
             if (mUnsavedRecordings.isEmpty()) {
-                this.showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
+                showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
             }
-            */
         }
 
         setResetState();
         updateUi(takeAction);
     }
 
-    private boolean shouldReactToRecording() {
-        return shouldReactToPath(mCreateService.getRecordingFile());
-    }
-
-    private boolean shouldReactToPlayback() {
-        return shouldReactToPath(mCreateService.getCurrentPlaybackPath());
-    }
-
-    private boolean shouldReactToPath(File file) {
-        if (file == null) return false;
-        final long userIdFromPath = CloudCreateService.getUserIdFromFile(file);
-        return ((userIdFromPath == -1 && mPrivateUser == null) || (mPrivateUser != null && userIdFromPath == mPrivateUser.id));
-    }
-
-    private void saveEditState() {
-
-    }
-
     private void updateUi(boolean takeAction) {
         switch (mCurrentState) {
+
             case IDLE_RECORD:
                 if (takeAction) stopPlayback();
                 if (!TextUtils.isEmpty(mRecordErrorMessage)) {
@@ -566,7 +507,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
                 hideView(mChrono, false, View.INVISIBLE);
-                hideEditControls(false, View.GONE);
+                hideEditControls();
 
 
                 showView(mActionButton, false);
@@ -576,27 +517,11 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (mActive && mRecording == null && mCreateService != null) {
-                            mCreateService.startReading();
+                        if (mActive && mRecording == null) {
+                            mRecorder.startReading();
                         }
                     }
                 });
-                break;
-
-            case IDLE_STANDBY_REC:
-            case IDLE_STANDBY_PLAY:
-                mPlayButton.setVisibility(View.GONE);
-                mEditButton.setVisibility(View.GONE);
-
-                mActionButton.setVisibility(View.VISIBLE);
-                mActionButton.setImageDrawable(mRecStatesDrawable);
-
-                txtRecordMessage.setVisibility(View.VISIBLE);
-                mFileLayout.setVisibility(View.INVISIBLE);
-                mChrono.setVisibility(View.INVISIBLE);
-                txtInstructions.setVisibility(View.VISIBLE);
-                txtRecordMessage.setText(mCurrentState == CreateState.IDLE_STANDBY_REC ?
-                        getString(R.string.recording_in_progress) : getString(R.string.playback_in_progress));
                 break;
 
             case RECORD:
@@ -604,7 +529,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
-                hideEditControls(false, View.GONE);
+                hideEditControls();
                 hideView(txtInstructions, false, View.GONE);
 
                 showView(mChrono, takeAction && mLastState == CreateState.IDLE_RECORD);
@@ -628,13 +553,10 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
                         case PLAYBACK:
                         case EDIT:
                         case EDIT_PLAYBACK:
-
                             mWaveDisplay.resetTrim();
-                            if (mCreateService != null) {
-                                mCreateService.revertFile();
-                                if (mCreateService.isPlaying()) {
-                                    mCreateService.pausePlayback();
-                                }
+                            mRecorder.revertFile();
+                            if (mRecorder.isPlaying()) {
+                                mRecorder.togglePlayback(this);
                             }
                             mHandler.removeCallbacks(mSmoothProgress);
                             break;
@@ -651,7 +573,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
 
                 hideView(txtInstructions, false, View.GONE);
                 hideView(txtRecordMessage, false, View.INVISIBLE);
-                hideEditControls(false, View.GONE);
+                hideEditControls();
 
                 setPlayButtonDrawable(false);
                 mChrono.setText(mCurrentDurationString);
@@ -669,7 +591,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
                 showView(mChrono,false);
 
                 hideView(txtInstructions,false,View.GONE);
-                hideEditControls(false, View.GONE);
+                hideEditControls();
                 hideView(txtRecordMessage,false,View.INVISIBLE);
 
                 setPlayButtonDrawable(true);
@@ -709,8 +631,8 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
                     if (isPlaying) {
                         startPlayback();
                     } else {
-                        if (mCreateService != null && mCreateService.isPlaying()) {
-                            mCreateService.pausePlayback();
+                        if (mRecorder.isPlaying()) {
+                            mRecorder.togglePlayback(this);
                         }
                         mHandler.removeCallbacks(mSmoothProgress);
                         break;
@@ -740,14 +662,14 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
         }
     }
 
-    private void hideEditControls(boolean animate, int finalState){
+    private void hideEditControls(){
        if (mHasEditControlGroup){
            // portrait
-           hideView(mEditControls,animate,finalState);
+           hideView(mEditControls, false, View.GONE);
        } else {
-           hideView(mToggleFade,animate,finalState);
-           hideView(mToggleOptimize,animate,finalState);
-           hideView(mPlayEditButton,animate,finalState);
+           hideView(mToggleFade, false, View.GONE);
+           hideView(mToggleOptimize, false, View.GONE);
+           hideView(mPlayEditButton, false, View.GONE);
        }
     }
 
@@ -773,14 +695,14 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
         }
 
         if (mRecording == null) {
-            mRecording = CloudCreateService.createRecording(mPrivateUser);
+            mRecording = Recording.create(mPrivateUser);
         }
 
         if (mSampleInterrupted) {
             mCurrentState = CreateState.IDLE_RECORD;
             updateUi(true);
         } else {
-            mCreateService.startRecording(mRecording);
+            mRecorder.startRecording(this, mRecording);
         }
     }
 
@@ -824,9 +746,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
     }
 
     private void stopRecording() {
-        if (mCreateService != null) {
-            mCreateService.stopRecording();
-        }
+        mRecorder.stopRecording();
 
         // disable actions during processing and playback preparation
         mActionButton.setEnabled(false);
@@ -835,17 +755,13 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
 
 
     private void configurePlaybackInfo() {
-        mCurrentDurationString = CloudUtils.formatTimestamp(getDuration());
-        final long currentPlaybackPosition = mCreateService.getCurrentPlaybackPosition();
-        if ((currentPlaybackPosition > 0 || mCreateService.isPlaying()) && currentPlaybackPosition < getDuration()) {
-            mWaveDisplay.setProgress(((float) currentPlaybackPosition) / getDuration());
+        mCurrentDurationString = CloudUtils.formatTimestamp(mRecorder.getDuration());
+        final long currentPlaybackPosition = mRecorder.getCurrentPlaybackPosition();
+        if ((currentPlaybackPosition > 0 || mRecorder.isPlaying()) && currentPlaybackPosition < mRecorder.getDuration()) {
+            mWaveDisplay.setProgress(((float) currentPlaybackPosition) / mRecorder.getDuration());
         } else {
             mWaveDisplay.setProgress(-1f);
         }
-    }
-
-    private long getDuration() {
-        return mCreateService.getPlaybackDuration();
     }
 
     private void onPlaybackComplete(){
@@ -860,15 +776,9 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
     private void startPlayback() {
         mLastPos = -1;
         mLastTrackTime = -1;
-        if (!mCreateService.isPlaying()) {  //might already be playing back if activity just created
+        if (!mRecorder.isPlaying()) {  //might already be playing back if activity just created
+            mRecorder.play(this);
             track(Click.Record_play);
-
-            try {
-                mCreateService.startPlayback(mRecording);
-            } catch (IOException e) {
-                CloudUtils.showToast(mCreateService, "Could not start playback");
-               Log.w(TAG, e);
-            }
         }
     }
 
@@ -898,16 +808,15 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
     private final Runnable mRefreshPositionFromService = new Runnable() {
         @Override
         public void run() {
-            final boolean stillPlaying;
-            stillPlaying = mCreateService.isPlaying();
-            mLastTrackTime = stillPlaying ? mCreateService.getCurrentPlaybackPosition() : getDuration();
+            final boolean stillPlaying = mRecorder.isPlaying();
+            mLastTrackTime = stillPlaying ? mRecorder.getCurrentPlaybackPosition() : mRecorder.getDuration();
             mLastProgressTimestamp = System.currentTimeMillis();
             if (stillPlaying) mHandler.postDelayed(this, 500);
         }
     };
 
     private void setProgressInternal(long pos) {
-        final long duration = getDuration();
+        final long duration = mRecorder.getDuration();
         if (duration != 0){
             mWaveDisplay.setProgress(((float) Math.max(0, Math.min(pos, duration))) / duration);
         }
@@ -916,7 +825,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
     private void stopPlayback() {
         mHandler.removeCallbacks(mSmoothProgress);
         mHandler.removeCallbacks(mRefreshPositionFromService);
-        if (mCreateService != null) mCreateService.stopPlayback();
+        mRecorder.stopPlayback();
     }
 
     private void showView(final View v, boolean animate) {
@@ -979,12 +888,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
                 mLastProgressTimestamp = System.currentTimeMillis();
                 mHandler.postDelayed(mSmoothProgress, 100);
             } else if (CloudCreateService.PLAYBACK_COMPLETE.equals(action) || CloudCreateService.PLAYBACK_ERROR.equals(action)) {
-                String path = intent.getStringExtra(CloudCreateService.EXTRA_PATH);
-                if (path != null && shouldReactToPath(new File(path))) {
                     onPlaybackComplete();
-                } else if (mCurrentState == CreateState.IDLE_STANDBY_PLAY) {
-                    configureState();
-                }
             }
         }
     };
@@ -1072,7 +976,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener, Se
                 return null;
         }
     }
-
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file).setIcon(R.drawable.ic_menu_incoming);
