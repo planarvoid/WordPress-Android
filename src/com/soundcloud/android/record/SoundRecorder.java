@@ -17,7 +17,6 @@ import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
-import android.test.ServiceTestCase;
 import android.util.Log;
 
 import java.io.File;
