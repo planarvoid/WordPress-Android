@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
 public final class CloudUtils {
     private static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
     private static final String DURATION_FORMAT_LONG  = "%1$d.%3$02d.%5$02d";
-    private static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.ENGLISH);
+    private static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.getDefault());
 
     private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
             "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}" +
