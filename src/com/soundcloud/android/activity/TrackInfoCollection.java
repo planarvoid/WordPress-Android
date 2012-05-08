@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.utils.CloudUtils;
@@ -30,7 +31,7 @@ public abstract class TrackInfoCollection extends ScActivity implements Sectione
         mTrackInfoBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playTrack(PlayInfo.forTracks(mTrack), true, false);
+                playTrack(Playable.PlayInfo.forTracks(mTrack), true, false);
             }
         });
 

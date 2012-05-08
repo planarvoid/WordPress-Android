@@ -21,7 +21,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.ICloudPlaybackService;
-import com.soundcloud.android.service.record.CloudCreateService;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
@@ -44,7 +43,6 @@ import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -59,7 +57,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -68,7 +65,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
 
     protected Object[] mPreviousState;
     protected ICloudPlaybackService mPlaybackService;
-    protected CloudCreateService mCreateService;
     protected UploadService mUploadService;
     protected NetworkConnectivityListener connectivityListener;
 
@@ -107,9 +103,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     protected void onServiceUnbound() {
     }
 
-    protected void onCreateServiceBound() {
-    }
-
     protected void onUploadServiceBound() {
         if (mLists == null || mLists.isEmpty() || !(this instanceof UserBrowser)) return;
         for (ScListView lv : mLists){
@@ -138,19 +131,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         public void onServiceDisconnected(ComponentName classname) {
             onServiceUnbound();
             mPlaybackService = null;
-        }
-    };
-
-
-    private final ServiceConnection createOsc = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder binder) {
-            if (binder instanceof LocalBinder) {
-                mCreateService = (CloudCreateService) ((LocalBinder) binder).getService();
-                onCreateServiceBound();
-            }
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
         }
     };
 
@@ -233,7 +213,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         connectivityListener.startListening(this);
 
         CloudUtils.bindToService(this, CloudPlaybackService.class, osc);
-        CloudUtils.bindToService(this, CloudCreateService.class, createOsc);
         CloudUtils.bindToService(this, UploadService.class, uploadOsc);
         setPlayingTrackFromService();
     }
@@ -250,9 +229,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         CloudUtils.unbindFromService(this, CloudPlaybackService.class);
         mPlaybackService = null;
         mIgnorePlaybackStatus = false;
-
-        CloudUtils.unbindFromService(this, CloudCreateService.class);
-        mCreateService = null;
     }
 
     @Override
@@ -271,29 +247,11 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
         }
     }
 
-
-    public static class PlayInfo {
-        public List<Playable> playables;
-        public int position;
-        public Uri uri;
-
-        Track getTrack() {
-            return playables.get(Math.max(0,Math.min(playables.size() -1 ,position))).getTrack();
-        }
-
-        public static PlayInfo forTracks(Track... t) {
-            PlayInfo info = new PlayInfo();
-            info.playables = Arrays.<Playable>asList(t);
-            return info;
-        }
-
-    }
-
-    public void playTrack(PlayInfo info) {
+    public void playTrack(Playable.PlayInfo info) {
         playTrack(info, true, false);
     }
 
-    public void playTrack(PlayInfo info, boolean goToPlayer, boolean commentMode) {
+    public void playTrack(Playable.PlayInfo info, boolean goToPlayer, boolean commentMode) {
         final Track t = info.getTrack();
         if (getCurrentTrackId() != t.id) {
             Intent intent = new Intent(this, CloudPlaybackService.class)
@@ -635,10 +593,6 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
             handleRecordingClick(recording);
         }
     };
-
-    public CloudCreateService getCreateService() {
-        return mCreateService;
-    }
 
     // tracking shizzle
     public void track(Event event, Object... args) {

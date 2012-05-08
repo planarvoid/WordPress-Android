@@ -10,8 +10,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -38,10 +36,10 @@ public class CreateWaveDisplay extends TouchLayout {
     private Rect mWaveformRect;
 
     private long lastSeekX = -1;
-    private int touchSlop;
+    private final int touchSlop;
 
-    private ImageButton rightHandle, leftHandle;
-    private LayoutParams rightLp, leftLp;
+    private final ImageButton rightHandle, leftHandle;
+    private final LayoutParams rightLp, leftLp;
     private Listener mListener;
 
     private int leftMarginOffset, rightMarginOffset;
@@ -59,22 +57,6 @@ public class CreateWaveDisplay extends TouchLayout {
 
     public CreateWaveDisplay(Context context) {
         super(context);
-        init();
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    public CreateWaveDisplay(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    public CreateWaveDisplay(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        init();
-    }
-
-    private void init() {
         touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 
         leftHandle = new ImageButton(getContext());
@@ -102,7 +84,7 @@ public class CreateWaveDisplay extends TouchLayout {
         refreshWaveView();
     }
 
-    public CreateWaveView refreshWaveView() {
+    private CreateWaveView refreshWaveView() {
         if (mWaveformView != null && mWaveformView.getParent() == this) {
             removeView(mWaveformView);
         }
@@ -265,7 +247,7 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
-    Handler mTouchHandler = new Handler() {
+    private final Handler mTouchHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -310,7 +292,7 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     };
 
-    public void setTrimHandles() {
+    private void setTrimHandles() {
         leftLp.leftMargin = (int) (waveformWidth * trimPercentLeft) + leftMarginOffset;
         if (leftHandle.getParent() != this){
             addView(leftHandle, leftLp);
