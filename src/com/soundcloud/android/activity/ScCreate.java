@@ -9,7 +9,6 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.RemainingTimeCalculator;
 import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Page;
@@ -26,7 +25,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -75,7 +73,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     private boolean mHasEditControlGroup;
     private List<Recording> mUnsavedRecordings;
 
-    private Handler mHandler;
+    private final Handler mHandler = new Handler();
     private long mLastPos, mLastProgressTimestamp, mLastTrackTime;
 
     private static final long PROGRESS_PERIOD = 1000 / 60; // aim for 60 fps.
@@ -111,8 +109,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
             mPrivateUser = getIntent().getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT);
         }
 
-        mHandler = new Handler();
-
         mRecStatesDrawable = getResources().getDrawable(R.drawable.btn_rec_states);
         mRecStopStatesDrawable = getResources().getDrawable(R.drawable.btn_rec_pause_states);
 
@@ -120,7 +116,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         if (mPrivateUser != null){
             txtInstructions.setText(getString(R.string.private_message_title, mPrivateUser.username));
         }
-
 
         txtRecordMessage = (TextView) findViewById(R.id.txt_record_message);
 
@@ -146,8 +141,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         ((ViewGroup) findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
 
         mRecordSuggestions = getResources().getStringArray(R.array.record_suggestions);
-
-
         mCurrentState = CreateState.IDLE_RECORD;
 
         setResetState();
@@ -157,19 +150,8 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     @Override
     public void onStart() {
         super.onStart();
-        IntentFilter recordFilter = SoundRecorder.getIntentFilter();
-
-        // XXX still using global broadcast
-        IntentFilter uploadFilter = new IntentFilter();
-        uploadFilter.addAction(UploadService.UPLOAD_ERROR);
-        uploadFilter.addAction(UploadService.UPLOAD_CANCELLED);
-        uploadFilter.addAction(UploadService.UPLOAD_SUCCESS);
-
-        registerReceiver(mStatusListener, uploadFilter);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mStatusListener, recordFilter);
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(mStatusListener, SoundRecorder.getIntentFilter());
         mRecorder = SoundRecorder.getInstance(this);
-
     }
 
     @Override
@@ -214,13 +196,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         mWaveDisplay.onRestoreInstanceState(state);
     }
 
-    public void onRecordingError() {
-        mRecordErrorMessage = getString(R.string.error_recording_message);
-        IOUtils.deleteFile(mRecording.audio_path);
-        mRecording = null;
-        mCurrentState = CreateState.IDLE_RECORD;
-        updateUi(true);
-    }
 
     @Override
     public void onSeek(float pct) {
@@ -273,6 +248,13 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         }
     }
 
+    private void onRecordingError() {
+        mRecordErrorMessage = getString(R.string.error_recording_message);
+        IOUtils.deleteFile(mRecording.audio_path);
+        mRecording = null;
+        mCurrentState = CreateState.IDLE_RECORD;
+        updateUi(true);
+    }
 
     private Button setupResetButton() {
         final Button button = ((Button) findViewById(R.id.btn_reset));
@@ -433,7 +415,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         setResetState();
     }
 
-
     private void setResetState() {
         final boolean saved = mRecording != null && mRecording.isSaved();
         mResetButton.setVisibility(saved ? View.GONE : View.VISIBLE);
@@ -446,15 +427,15 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         boolean takeAction = false;
 
         if (mRecorder.isRecording()) {
-                mCurrentState = CreateState.RECORD;
-                mRecording = mRecorder.getRecording();
+            mCurrentState = CreateState.RECORD;
+            mRecording = mRecorder.getRecording();
 
         } else if (mRecorder.isPlaying()) {
-                if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
-                mRecording = mRecorder.getRecording();
-                configurePlaybackInfo();
-                mHandler.postDelayed(mSmoothProgress, 0);
-                takeAction = true;
+            if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
+            mRecording = mRecorder.getRecording();
+            configurePlaybackInfo();
+            mHandler.postDelayed(mSmoothProgress, 0);
+            takeAction = true;
 
         } else if (!SoundRecorder.RECORD_DIR.exists()) {
             // can happen when there's no mounted sd card
