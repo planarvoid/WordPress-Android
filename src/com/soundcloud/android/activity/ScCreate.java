@@ -4,13 +4,11 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.record.RemainingTimeCalculator;
-import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Page;
@@ -28,7 +26,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -48,6 +45,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -75,11 +73,11 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     private ToggleButton mToggleOptimize, mToggleFade;
     private String mRecordErrorMessage;
 
-    private boolean mSampleInterrupted, mActive, mHasEditControlGroup;
-    private RemainingTimeCalculator mRemainingTimeCalculator;
+    private boolean mActive;
+    private boolean mHasEditControlGroup;
     private List<Recording> mUnsavedRecordings;
 
-    private Handler mHandler;
+    private final Handler mHandler = new Handler();
     private long mLastPos, mLastProgressTimestamp, mLastTrackTime;
 
     private static final long PROGRESS_PERIOD = 1000 / 60; // aim for 60 fps.
@@ -115,18 +113,13 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
             mPrivateUser = getIntent().getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT);
         }
 
-        mHandler = new Handler();
-
         mRecStatesDrawable = getResources().getDrawable(R.drawable.btn_rec_states);
         mRecStopStatesDrawable = getResources().getDrawable(R.drawable.btn_rec_pause_states);
-
-        mRemainingTimeCalculator = AudioConfig.DEFAULT.createCalculator();
 
         txtInstructions = (TextView) findViewById(R.id.txt_instructions);
         if (mPrivateUser != null){
             txtInstructions.setText(getString(R.string.private_message_title, mPrivateUser.username));
         }
-
 
         txtRecordMessage = (TextView) findViewById(R.id.txt_record_message);
 
@@ -152,8 +145,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         ((ViewGroup) findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
 
         mRecordSuggestions = getResources().getStringArray(R.array.record_suggestions);
-
-
         mCurrentState = CreateState.IDLE_RECORD;
 
         setResetState();
@@ -163,19 +154,8 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     @Override
     public void onStart() {
         super.onStart();
-        IntentFilter recordFilter = SoundRecorder.getIntentFilter();
-
-        // XXX still using global broadcast
-        IntentFilter uploadFilter = new IntentFilter();
-        uploadFilter.addAction(UploadService.UPLOAD_ERROR);
-        uploadFilter.addAction(UploadService.UPLOAD_CANCELLED);
-        uploadFilter.addAction(UploadService.UPLOAD_SUCCESS);
-
-        registerReceiver(mStatusListener, uploadFilter);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mStatusListener, recordFilter);
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(mStatusListener, SoundRecorder.getIntentFilter());
         mRecorder = SoundRecorder.getInstance(this);
-
     }
 
     @Override
@@ -219,14 +199,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         mWaveDisplay.onRestoreInstanceState(state);
     }
 
-    public void onRecordingError() {
-        mSampleInterrupted = true;
-        mRecordErrorMessage = getString(R.string.error_recording_message);
-        IOUtils.deleteFile(mRecording.audio_path);
-        mRecording = null;
-        mCurrentState = CreateState.IDLE_RECORD;
-        updateUi(true);
-    }
 
     @Override
     public void onSeek(float pct) {
@@ -279,6 +251,13 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         }
     }
 
+    private void onRecordingError() {
+        mRecordErrorMessage = getString(R.string.error_recording_message);
+        IOUtils.deleteFile(mRecording.audio_path);
+        mRecording = null;
+        mCurrentState = CreateState.IDLE_RECORD;
+        updateUi(true);
+    }
 
     private Button setupResetButton() {
         final Button button = ((Button) findViewById(R.id.btn_reset));
@@ -413,7 +392,8 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     private ToggleButton setupToggleFade() {
         final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_fade);
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
             }
         });
@@ -423,7 +403,8 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     private ToggleButton setupToggleOptimize() {
         final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_optimize);
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
             }
         });
@@ -439,7 +420,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         setResetState();
     }
 
-
     private void setResetState() {
         final boolean saved = mRecording != null && mRecording.isSaved();
         mResetButton.setVisibility(saved ? View.GONE : View.VISIBLE);
@@ -452,14 +432,15 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         boolean takeAction = false;
 
         if (mRecorder.isRecording()) {
-                mCurrentState = CreateState.RECORD;
-                mRecording = mRecorder.getRecording();
+            mCurrentState = CreateState.RECORD;
+            mRecording = mRecorder.getRecording();
 
         } else if (mRecorder.isPlaying()) {
-                if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
-                mRecording = mRecorder.getRecording();
-                configurePlaybackInfo();
-                takeAction = true;
+
+            if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
+            mRecording = mRecorder.getRecording();
+            configurePlaybackInfo();
+            takeAction = true;
 
         } else if (!SoundRecorder.RECORD_DIR.exists()) {
             // can happen when there's no mounted sd card
@@ -683,48 +664,30 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     private void startRecording() {
         // XXX
         //pausePlayback();
-
         mRecordErrorMessage = null;
-        mSampleInterrupted = false;
         mLastDisplayedTime = 0;
         mChrono.setRecordProgress(0);
-        mRemainingTimeCalculator.reset();
-        updateTimeRemaining();
-
         mWaveDisplay.gotoRecordMode();
-
-        if (!IOUtils.isSDCardAvailable()) {
-            mSampleInterrupted = true;
-            mRecordErrorMessage = getString(R.string.record_insert_sd_card);
-        } else if (!mRemainingTimeCalculator.diskSpaceAvailable()) {
-            mSampleInterrupted = true;
-            mRecordErrorMessage = getString(R.string.record_storage_is_full);
-        }
 
         if (mRecording == null) {
             mRecording = Recording.create(mPrivateUser);
         }
 
-        if (mSampleInterrupted) {
+        try {
+            mRecorder.startRecording(mRecording);
+
+        } catch (IOException e) {
+            mRecordErrorMessage = e.getMessage();
             mCurrentState = CreateState.IDLE_RECORD;
             updateUi(true);
-        } else {
-            mRecorder.startRecording(mRecording);
         }
     }
 
-    /*
-     * Called when we're in recording state. Find out how much longer we can go
-     * on recording. If it's under 5 minutes, we display a count-down in the UI.
-     * If we've run out of time, stop the recording.
-     */
-    private void updateTimeRemaining() {
-        // adding 2 seconds to make up for lag
-        final long t = mRemainingTimeCalculator.timeRemaining() + 2;
+    private long updateTimeRemaining() {
+        final long t = mRecorder.timeRemaining();
         if (t <= 1) {
-            // no more space
-            mSampleInterrupted = true;
-            switch (mRemainingTimeCalculator.currentLowerLimit()) {
+            // no more space, error out
+            switch (mRecorder.currentLowerLimit()) {
                 case RemainingTimeCalculator.DISK_SPACE_LIMIT:
                     mRecordErrorMessage = getString(R.string.record_storage_is_full);
                     break;
@@ -737,7 +700,9 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
             }
             mCurrentState = mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK;
             updateUi(true);
+            return t;
         } else if (t < 300) {
+            // 5 minutes, display countdown
             String msg;
             if (t < 60) {
                 msg = getResources().getQuantityString(R.plurals.seconds_available, (int) t, t);
@@ -747,8 +712,10 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
             }
             txtRecordMessage.setText(msg);
             txtRecordMessage.setVisibility(View.VISIBLE);
+            return t;
         } else {
             txtRecordMessage.setVisibility(View.INVISIBLE);
+            return t;
         }
     }
 

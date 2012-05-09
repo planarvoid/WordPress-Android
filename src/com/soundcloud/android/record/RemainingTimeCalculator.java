@@ -141,7 +141,7 @@ public class RemainingTimeCalculator {
     /**
      * Is there any point of trying to start recording?
      */
-    public boolean diskSpaceAvailable() {
+    public boolean isDiskSpaceAvailable() {
         StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
         // keep one free block
         return fs.getAvailableBlocks() > 1;

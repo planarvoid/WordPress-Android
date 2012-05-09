@@ -2,6 +2,7 @@
 package com.soundcloud.android.record;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioFile;
 import com.soundcloud.android.audio.ScAudioTrack;
@@ -90,6 +91,7 @@ public class SoundRecorder {
     private final AudioRecord mAudioRecord;
     private final ScAudioTrack mAudioTrack;
 
+    private RemainingTimeCalculator mRemainingTimeCalculator;
     private RecordStream mRecordStream;
     private final AmplitudeAnalyzer mAmplitudeAnalyzer;
 
@@ -139,6 +141,7 @@ public class SoundRecorder {
         });
         mAudioTrack.setPositionNotificationPeriod(mConfig.sampleRate / 60);
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
+        mRemainingTimeCalculator = config.createCalculator();
 
         buffer = ByteBuffer.allocateDirect(bufferSize);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -176,8 +179,15 @@ public class SoundRecorder {
     }
 
     // Sets output file path, call directly after construction/reset.
-    public State startRecording(final Recording recording) {
+    public State startRecording(final Recording recording) throws IOException {
         if (recording == null) throw new IllegalArgumentException("recording object is null");
+
+        if (!IOUtils.isSDCardAvailable()) {
+            throw new IOException(mContext.getString(R.string.record_insert_sd_card));
+        } else if (!mRemainingTimeCalculator.isDiskSpaceAvailable()) {
+            throw new IOException(mContext.getString(R.string.record_storage_is_full));
+        }
+        mRemainingTimeCalculator.reset();
 
         if (mState != State.RECORDING) {
             if (mRecordStream != null && !mRecordStream.getFile().equals(recording.audio_path)) {
@@ -330,7 +340,15 @@ public class SoundRecorder {
             }
         }
     }
-    long lastPosition;
+
+    public long timeRemaining() {
+        return mRemainingTimeCalculator.timeRemaining() + 2; // adding 2 seconds to make up for lag
+    }
+
+    public int currentLowerLimit() {
+        return mRemainingTimeCalculator.currentLowerLimit();
+    }
+
     private void broadcast(String action) {
         final Intent intent = new Intent(action)
                 .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
