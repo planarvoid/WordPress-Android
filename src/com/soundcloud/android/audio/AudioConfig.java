@@ -11,7 +11,7 @@ import android.media.MediaRecorder;
 public enum AudioConfig {
     PCM16_44100_2(16, 44100, 2, .5f),
     PCM16_44100_1(16, 44100, 1, .5f),
-    PCM16_8000_1(16, 8000, 1, .5f),
+    PCM16_8000_1 (16, 8000,  1, .5f),
     ;
 
     public final int sampleRate;
@@ -83,5 +83,14 @@ public enum AudioConfig {
 
     public long validBytePosition(long offset) {
        return offset - (offset % ((bitsPerSample / 8) * channels));
+    }
+
+    public static AudioConfig findMatching(int sampleRate, int channels) {
+        for (AudioConfig cfg : values()) {
+            if (cfg.sampleRate == sampleRate && channels == cfg.channels) {
+                return cfg;
+            }
+        }
+        return null;
     }
 }

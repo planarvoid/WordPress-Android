@@ -396,9 +396,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 file.seek(mCurrentPosition);
                 mState = SoundRecorder.State.PLAYING;
                 int n = 0;
+
                 while (mState == SoundRecorder.State.PLAYING
-                        && (n = file.read(buffer, bufferSize)) > -1
-                        && (mCurrentPosition < mRecordStream.endPosition)) {
+                        && (mCurrentPosition < mRecordStream.endPosition)
+                        && (n = file.read(buffer, bufferSize)) > -1) {
 
                     buffer.flip();
                     int written = mAudioTrack.write(buffer, n);
@@ -409,13 +410,14 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
                         mState = SoundRecorder.State.ERROR;
                     } else {
-                        mCurrentPosition += file.getConfig().bytesToMs(written);
+                        mCurrentPosition += file.getConfig().bytesToMs(n);
                     }
                     buffer.clear();
                 }
 
-                if (n == -1){
+                if (n == -1) {
                     // TODO, This should not be necessary, mCurrentPosition should be correct
+                    Log.w(TAG, "got EOF, pos="+mCurrentPosition+", endPos="+mRecordStream.endPosition);
                     mCurrentPosition = mRecordStream.endPosition;
                 }
 

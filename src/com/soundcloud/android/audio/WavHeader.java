@@ -350,17 +350,7 @@ public class WavHeader {
 
     public AudioConfig getAudioConfig() {
         if (mFormat == FORMAT_PCM && mBitsPerSample == 16) {
-            switch (mSampleRate) {
-                case 44100:
-                    switch (mNumChannels) {
-                        case 1: return AudioConfig.PCM16_44100_1;
-                        case 2: return AudioConfig.PCM16_44100_2;
-                    }
-                    break;
-                case 8000:
-                    if (mNumChannels == 1) return AudioConfig.PCM16_8000_1;
-                    break;
-            }
+            return AudioConfig.findMatching(mSampleRate, mNumChannels);
         }
         throw new IllegalArgumentException("unknown audioformat: "+toString());
     }

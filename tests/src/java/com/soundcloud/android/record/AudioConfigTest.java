@@ -31,6 +31,7 @@ public class AudioConfigTest {
         expect(AudioConfig.PCM16_44100_1.bytesToMs(44100 * 2)).toEqual(1000l);
         expect(AudioConfig.PCM16_44100_2.bytesToMs(44100 * 2)).toEqual(500l);
         expect(AudioConfig.PCM16_44100_2.bytesToMs(44100 * 2 * 2)).toEqual(1000l);
+        expect(AudioConfig.PCM16_44100_2.bytesToMs(3313920)).toEqual(18786l);
     }
 
     @Test

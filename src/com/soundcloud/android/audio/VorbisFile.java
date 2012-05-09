@@ -23,11 +23,7 @@ public class VorbisFile implements AudioFile {
 
     @Override
     public AudioConfig getConfig() {
-        switch (getInfo().channels) {
-            case 1: return AudioConfig.PCM16_44100_1;
-            case 2: return AudioConfig.PCM16_44100_2;
-            default: return AudioConfig.DEFAULT;
-        }
+        return AudioConfig.findMatching(getInfo().sampleRate, getInfo().channels);
     }
 
     @Override
