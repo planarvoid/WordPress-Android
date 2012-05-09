@@ -77,9 +77,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     private List<Recording> mUnsavedRecordings;
 
     private final Handler mHandler = new Handler();
-    private long mLastPos, mLastProgressTimestamp, mLastTrackTime;
-
-    private static final long PROGRESS_PERIOD = 1000 / 60; // aim for 60 fps.
 
     private Drawable mRecStatesDrawable, mRecStopStatesDrawable, mPlayBgDrawable, mPauseBgDrawable;
     private String[] mRecordSuggestions;
@@ -195,10 +192,8 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         mWaveDisplay.onRestoreInstanceState(state);
     }
 
-
     @Override
     public void onSeek(float pct) {
-        mLastTrackTime = -1;
         mRecorder.seekTo(pct);
     }
 
@@ -736,8 +731,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     }
 
     private void startPlayback() {
-        mLastPos = -1;
-        mLastTrackTime = -1;
         if (!mRecorder.isPlaying()) {  //might already be playing back if activity just created
             mRecorder.play();
             track(Click.Record_play);
@@ -811,8 +804,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
             } else if (SoundRecorder.RECORD_ERROR.equals(action)) {
                 onRecordingError();
             } else if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
-                mLastTrackTime = intent.getLongExtra(SoundRecorder.EXTRA_POSITION, 0);
-                mLastProgressTimestamp = System.currentTimeMillis();
             } else if (SoundRecorder.PLAYBACK_PROGRESS.equals(action)) {
                 setProgressInternal(intent.getLongExtra(SoundRecorder.EXTRA_POSITION, 0),
                         intent.getLongExtra(SoundRecorder.EXTRA_DURATION, 0));
