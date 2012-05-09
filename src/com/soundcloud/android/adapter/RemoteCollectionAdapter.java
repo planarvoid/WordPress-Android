@@ -11,7 +11,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
@@ -40,7 +40,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     protected String mNextHref;
 
-    public RemoteCollectionAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
+    public RemoteCollectionAdapter(ScListActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(activity, wrapped, contentUri, request, autoAppend);
 
         if (contentUri != null) {

@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,7 +49,7 @@ import java.util.Date;
 import java.util.List;
 
 @Tracking(page = Page.Record_main)
-public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
+public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     public static final int REQUEST_UPLOAD_FILE = 1;
     public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
@@ -169,7 +170,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     public void onResume() {
         super.onResume();
         mActive = true;
-        configureState();
+        configureInitialState();
     }
 
     @Override
@@ -414,7 +415,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         mDeleteButton.setVisibility(saved ? View.VISIBLE : View.GONE);
     }
 
-    private void configureState() {
+    private void configureInitialState() {
         if (mRecorder == null || !mActive) return;
 
         boolean takeAction = false;
@@ -449,8 +450,9 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         }
 
         if (!(mCurrentState == CreateState.RECORD) && mPrivateUser == null) {
-            mUnsavedRecordings = Recording.getUnsavedRecordings(getContentResolver(), SoundRecorder.RECORD_DIR,mRecording);
-            if (mUnsavedRecordings.isEmpty()) {
+            Log.i("asdf", "Look for unsaved recording");
+            mUnsavedRecordings = Recording.getUnsavedRecordings(getContentResolver(), SoundRecorder.RECORD_DIR,mRecording, getCurrentUserId());
+            if (!mUnsavedRecordings.isEmpty()) {
                 showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
             }
         }
@@ -869,9 +871,5 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     @Override public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file).setIcon(R.drawable.ic_menu_incoming);
         return super.onCreateOptionsMenu(menu);
-    }
-
-    private void track(Event event, Object... args) {
-        ((SoundCloudApplication) getApplication() ).track(event, args);
     }
 }

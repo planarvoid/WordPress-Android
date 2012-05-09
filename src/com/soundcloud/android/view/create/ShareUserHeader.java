@@ -3,7 +3,7 @@ package com.soundcloud.android.view.create;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -15,7 +15,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class ShareUserHeader extends RelativeLayout {
-    public ShareUserHeader(final ScActivity activity, User user) {
+    public ShareUserHeader(final ScListActivity activity, User user) {
         super(activity);
 
         LayoutInflater inflater = (LayoutInflater) activity

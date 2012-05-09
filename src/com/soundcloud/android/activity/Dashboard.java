@@ -28,7 +28,7 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 
-public class Dashboard extends ScActivity {
+public class Dashboard extends ScListActivity {
     protected ScListView mListView;
     private Page mTrackingPage;
     private Main.Tab mCurrentTab;

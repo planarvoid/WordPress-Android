@@ -1,6 +1,9 @@
 
 package com.soundcloud.android.activity;
 
+import android.content.ComponentName;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -9,7 +12,10 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.service.playback.ICloudPlaybackService;
+import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tracking.Media;
+import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
 import com.soundcloud.android.view.play.WaveformController;
@@ -31,7 +37,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
-public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
+public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
     private static final String TAG = "ScPlayer";
 
     public static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
@@ -41,6 +47,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private static final int SEND_CURRENT_QUEUE_POSITION = 2;
     private static final long TRACK_SWIPE_UPDATE_DELAY = 1000;
     private static final long TRACK_NAV_DELAY = 500;
+
+    protected ICloudPlaybackService mPlaybackService;
 
     private long mSeekPos = -1;
     private boolean mWaveformLoaded, mActivityPaused, mIsCommenting, mIsPlaying, mChangeTrackFast, mShouldShowComments;
@@ -285,17 +293,21 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         }
     }
 
-    @Override
-    protected void onServiceBound() {
-        super.onServiceBound();
-        long trackId;
-        try {
-            trackId = mPlaybackService.getCurrentTrackId();
-        } catch (RemoteException ignored) {
-            trackId = -1;
+    private final ServiceConnection osc = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName classname, IBinder obj) {
+            mPlaybackService = ICloudPlaybackService.Stub.asInterface(obj);
+            onPlaybackServiceBound();
         }
 
-        if (trackId == -1) {
+        @Override
+        public void onServiceDisconnected(ComponentName classname) {
+            mPlaybackService = null;
+        }
+    };
+
+    protected void onPlaybackServiceBound() {
+        if (CloudPlaybackService.getCurrentTrackId() == -1) {
             // nothing to show, send them back to main
             Intent intent = new Intent(this, Main.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -529,6 +541,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         super.onStart();
         mActivityPaused = false;
 
+        CloudUtils.bindToService(this, CloudPlaybackService.class, osc);
+
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYLIST_CHANGED);
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
@@ -561,6 +575,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         } catch (RemoteException e) {
             Log.e(TAG, "error", e);
         }
+
+        CloudUtils.unbindFromService(this, CloudPlaybackService.class);
 
         for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
             ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).onStop(true);

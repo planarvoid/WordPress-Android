@@ -15,7 +15,7 @@ import com.soundcloud.android.view.TrackInfoBar;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
-public abstract class TrackInfoCollection extends ScActivity implements SectionedEndlessAdapter.SectionListener, FetchTrackTask.FetchTrackListener {
+public abstract class TrackInfoCollection extends ScListActivity implements SectionedEndlessAdapter.SectionListener, FetchTrackTask.FetchTrackListener {
     Track mTrack;
     TrackInfoBar mTrackInfoBar;
     SectionedListView mListView;

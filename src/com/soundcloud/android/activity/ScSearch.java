@@ -38,7 +38,7 @@ import android.widget.TextView;
 import java.util.List;
 
 @Tracking(page = Page.Search_main)
-public class ScSearch extends ScActivity {
+public class ScSearch extends ScListActivity {
     private EditText txtQuery;
 
     private RadioGroup rdoSearchType;

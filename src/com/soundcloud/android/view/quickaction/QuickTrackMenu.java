@@ -6,7 +6,7 @@ import android.view.View;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.ITracklistAdapter;
 import com.soundcloud.android.model.Track;
@@ -26,10 +26,10 @@ public class QuickTrackMenu extends QuickAction {
     private Drawable mPlayDrawable;
     private Drawable mPauseDrawable;
 
-    private ScActivity mActivity;
+    private ScListActivity mActivity;
     private ITracklistAdapter mAdapter;
 
-    public QuickTrackMenu(ScActivity activity, ITracklistAdapter tracklistAdapter) {
+    public QuickTrackMenu(ScListActivity activity, ITracklistAdapter tracklistAdapter) {
         super(activity);
 
         mActivity = activity;

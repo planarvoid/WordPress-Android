@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Tracking(page = Page.Record_details)
-public class ScUpload extends ScActivity {
+public class ScUpload extends ScListActivity {
     private ViewFlipper mSharingFlipper;
     private RadioGroup mRdoPrivacy;
     /* package */ RadioButton mRdoPrivate, mRdoPublic;

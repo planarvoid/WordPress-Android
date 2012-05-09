@@ -13,7 +13,7 @@ import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
@@ -40,7 +40,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     protected UpdateCollectionTask mUpdateCollectionTask;
 
     protected ScListView mListView;
-    protected ScActivity mActivity;
+    protected ScListActivity mActivity;
     protected View mPendingView = null;
 
     protected Content mContent;
@@ -64,7 +64,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     int ERROR           = 4; // idle with error, no more appends
 
 
-    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
+    public LazyEndlessAdapter(ScListActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(wrapped);
 
         mActivity = activity;

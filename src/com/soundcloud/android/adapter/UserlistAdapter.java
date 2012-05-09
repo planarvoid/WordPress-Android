@@ -1,11 +1,9 @@
 
 package com.soundcloud.android.adapter;
 
-import android.graphics.drawable.Drawable;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistRow;
@@ -21,7 +19,7 @@ public class UserlistAdapter extends LazyBaseAdapter implements FollowStatus.Lis
         this(userBrowser, parcelables, userClass, false);
     }
 
-    public UserlistAdapter(ScActivity activity, ArrayList<Parcelable> data, Class<?> model, boolean useFollowBack) {
+    public UserlistAdapter(ScListActivity activity, ArrayList<Parcelable> data, Class<?> model, boolean useFollowBack) {
         super(activity, data, model);
         mUseFollowBack = useFollowBack;
         if (activity != null) {

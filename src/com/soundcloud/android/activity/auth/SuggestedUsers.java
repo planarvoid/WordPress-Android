@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.activity.Tour;
 import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 
 
 @Tracking(page = Page.Entry_signup__find_friends)
-public class SuggestedUsers extends ScActivity implements SectionedEndlessAdapter.SectionListener {
+public class SuggestedUsers extends ScListActivity implements SectionedEndlessAdapter.SectionListener {
     private ScListView mListView;
     private SectionedAdapter.Section mFriendsSection;
     private SectionedUserlistAdapter ffAdp;

@@ -569,14 +569,16 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return new File(file.getParentFile(), file.getName().concat(".ogg"));
     }
 
-    public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore) {
+    public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
         MediaPlayer mp = null;
         List<Recording> unsaved = new ArrayList<Recording>();
+
         for (File f : directory.listFiles(new RecordingFilter(ignore))) {
             if (getUserIdFromFile(f) != -1) continue; // ignore current file
             Recording r = SoundCloudDB.getRecordingByPath(resolver, f);
             if (r == null) {
                 r = new Recording(f);
+                r.user_id = userId;
                 try {
                     if (mp == null) {
                         mp = new MediaPlayer();

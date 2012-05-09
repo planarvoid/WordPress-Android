@@ -11,7 +11,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.FriendFinderAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
@@ -53,7 +53,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
         int CONNECTION_ERROR = 4;
     }
 
-    public FriendFinderView(ScActivity activity) {
+    public FriendFinderView(ScListActivity activity) {
         super(activity, null);
 
         LayoutInflater inflater = activity.getLayoutInflater();

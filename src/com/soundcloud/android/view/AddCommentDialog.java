@@ -4,7 +4,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.task.AddCommentTask;
@@ -25,10 +25,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class AddCommentDialog extends Dialog {
-    private ScActivity mActivity;
+    private ScListActivity mActivity;
     private EditText mInput;
 
-    public AddCommentDialog(ScActivity context) {
+    public AddCommentDialog(ScListActivity context) {
         super(context, R.style.Theme_AddCommentDialog);
         mActivity = context;
 

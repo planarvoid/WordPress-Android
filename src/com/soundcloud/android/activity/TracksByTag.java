@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-public class TracksByTag extends ScActivity implements SectionedEndlessAdapter.SectionListener {
+public class TracksByTag extends ScListActivity implements SectionedEndlessAdapter.SectionListener {
     private ScListView mListView;
     @Override
     public void onCreate(Bundle bundle) {

@@ -3,7 +3,7 @@ package com.soundcloud.android.task.fetch;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -33,11 +33,11 @@ public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Re
         mModelId = modelId;
     }
 
-    protected WeakReference<ScActivity> mActivityReference;
+    protected WeakReference<ScListActivity> mActivityReference;
 
-    public void setActivity(ScActivity activity) {
+    public void setActivity(ScListActivity activity) {
         if (activity != null) {
-            mActivityReference = new WeakReference<ScActivity>(activity);
+            mActivityReference = new WeakReference<ScListActivity>(activity);
         }
     }
 

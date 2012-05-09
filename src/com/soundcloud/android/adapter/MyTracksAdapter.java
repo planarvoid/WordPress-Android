@@ -1,7 +1,7 @@
 
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
@@ -27,7 +27,7 @@ public class MyTracksAdapter extends TracklistAdapter {
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
 
-    public MyTracksAdapter(ScActivity activity, ArrayList<Parcelable> data,
+    public MyTracksAdapter(ScListActivity activity, ArrayList<Parcelable> data,
             Class<?> model) {
         super(activity, data, model);
         refreshCursor();

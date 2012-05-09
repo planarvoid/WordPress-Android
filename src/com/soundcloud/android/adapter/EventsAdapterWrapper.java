@@ -3,7 +3,7 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -27,7 +27,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     private long mSetLastSeenTo = -1;
     private Activities mActivities = Activities.EMPTY;
 
-    public EventsAdapterWrapper(ScActivity activity, LazyBaseAdapter wrapped, Content content) {
+    public EventsAdapterWrapper(ScListActivity activity, LazyBaseAdapter wrapped, Content content) {
         super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
         mAutoAppend = mLocalCollection.last_sync > 0; // never synced, wait on items to allow appending to prevent premature empty view
     }
