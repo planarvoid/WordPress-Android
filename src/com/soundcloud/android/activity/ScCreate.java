@@ -354,9 +354,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     track(Click.Record_next);
                     boolean isNew = !mRecording.isSaved();
                     if (isNew) {
-
-                        mRecording.user_id =  0; //XXX ;//ScCreate.this.getCurrentUserId();
-
+                        mRecording.user_id = SoundCloudApplication.getUserId();
 
                         if (mPrivateUser != null) {
                             SoundCloudDB.upsertUser(getContentResolver(), mPrivateUser);

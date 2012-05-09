@@ -91,6 +91,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public Comment pendingComment;
 
+    public static SoundCloudApplication instance;
+
     public static boolean useRichNotifications() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
@@ -98,6 +100,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
         if (DALVIK) {
@@ -121,7 +124,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         );
 
         mCloudApi.setTokenListener(this);
-        mCloudApi.debugRequests = DEV_MODE || !DALVIK;
+        mCloudApi.debugRequests = DEV_MODE;
 
         if (account != null) {
             FollowStatus.initialize(this, getCurrentUserId());
@@ -204,7 +207,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         mLoggedInUser = null;
     }
 
-    private ImageLoader createImageLoader() {
+    protected ImageLoader createImageLoader() {
         final File cacheDir = IOUtils.getCacheDir(this);
         ResponseCache cache = FileCache.installFileCache(cacheDir, FileCache.IMAGE_CACHE_AUTO);
         ContentHandler bitmapHandler = new BitmapContentHandler();
@@ -232,8 +235,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             return super.getSystemService(name);
         }
     }
-
-
 
     public Account getAccount() {
         Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));
@@ -299,8 +300,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return data != null && Boolean.parseBoolean(data);
     }
 
-    public long getCurrentUserId()  {
+    private long getCurrentUserId()  {
         return getAccountDataLong(User.DataKeys.USER_ID);
+    }
+
+    public static long getUserId() {
+        return instance.getCurrentUserId();
     }
 
     public boolean setAccountData(String key, boolean value) {

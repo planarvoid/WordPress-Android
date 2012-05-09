@@ -8,7 +8,9 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.task.create.FoursquareVenueTaskTest;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
+import com.xtremelabs.robolectric.shadows.ShadowAdapterView;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

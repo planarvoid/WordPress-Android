@@ -8,10 +8,13 @@ import com.xtremelabs.robolectric.internal.Implements;
 import java.io.File;
 import java.io.IOException;
 
+@SuppressWarnings("UnusedDeclaration")
 @Implements(VorbisEncoder.class)
 public class ShadowVorbisEncoder {
     @Implementation
     public static int encodeWav(File in, File out, float quality, ProgressListener l) throws IOException {
+        if (!out.createNewFile()) throw new IOException("can't create "+out);
+        out.deleteOnExit();
         return 0;
     }
 }

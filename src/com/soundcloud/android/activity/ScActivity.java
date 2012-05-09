@@ -213,7 +213,7 @@ public class ScActivity extends android.app.Activity implements Tracker {
 
     public long getCurrentUserId() {
         if (mCurrentUserId == 0) {
-            mCurrentUserId = getApp().getCurrentUserId();
+            mCurrentUserId = SoundCloudApplication.getUserId();
         }
         return mCurrentUserId;
     }

@@ -1,5 +1,6 @@
 package com.soundcloud.android;
 
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Event;
@@ -8,6 +9,9 @@ import com.soundcloud.api.Token;
 
 import android.accounts.Account;
 import android.content.Intent;
+import android.widget.BaseAdapter;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,7 +37,6 @@ public class TestApplication extends SoundCloudApplication {
         this.token = token;
         mCloudApi = new Wrapper(null, "id", "secret", null, token, Env.LIVE);
     }
-
 
     @Override
     public Account getAccount() {
@@ -71,6 +74,21 @@ public class TestApplication extends SoundCloudApplication {
         super.sendBroadcast(intent);
     }
 
+    @Override
+    protected ImageLoader createImageLoader() {
+        return new ImageLoader() {
+            @Override
+            public BindResult bind(BaseAdapter adapter, ImageView view, String url, Options options) {
+                return BindResult.LOADING;
+            }
+
+            @Override
+            public BindResult bind(BaseExpandableListAdapter adapter, ImageView view, String url, Options options) {
+                return BindResult.LOADING;
+            }
+        };
+    }
+
     // object mother
     public static Recording getValidRecording() throws IOException {
         Recording r = new Recording(getTestFile());
@@ -85,5 +103,4 @@ public class TestApplication extends SoundCloudApplication {
         pw.close();
         return tmp;
     }
-
 }
