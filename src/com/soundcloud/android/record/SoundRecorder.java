@@ -15,7 +15,6 @@ import com.soundcloud.android.utils.IOUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Handler;
@@ -430,6 +429,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         public void run() {
             synchronized (mAudioRecord) {
                 Log.d(TAG, String.format("starting player thread (%d)", mRecordStream.startPosition));
+
+                if (!mAudioManager.requestMusicFocus(SoundRecorder.this, IAudioManager.FOCUS_GAIN)) {
+                    Log.e(TAG, "could not obtain audio focus");
+                    broadcast(PLAYBACK_ERROR);
+                    return;
+                }
+
                 mAudioTrack.play();
 
                 AudioFile file = null;
@@ -459,10 +465,11 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 } finally {
                     IOUtils.close(file);
                     mAudioTrack.stop();
+                    mAudioManager.abandonMusicFocus(false);
                 }
 
                 if (mRecordStream != null){
-                    Log.d(TAG, "player loop exit: state=" + mState + ", position=" + mCurrentPosition + " of " + (mRecordStream == null ? "unknown" : mRecordStream.endPosition));
+                    Log.d(TAG, "player loop exit: state=" + mState + ", position=" + mCurrentPosition + " of " + (mRecordStream.endPosition));
                     if (mState == SoundRecorder.State.PLAYING && mCurrentPosition >= mRecordStream.endPosition) {
                         mCurrentPosition = -1;
                         broadcast(PLAYBACK_COMPLETE);
