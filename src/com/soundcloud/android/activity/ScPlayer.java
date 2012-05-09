@@ -8,6 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlaylistManager;
 import com.soundcloud.android.tracking.Media;
@@ -257,8 +258,10 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     private final ServiceConnection osc = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName classname, IBinder obj) {
-            mPlaybackService = ((CloudPlaybackService.LocalBinder)obj).getService();
-            onPlaybackServiceBound();
+            if (obj instanceof LocalBinder) {
+                mPlaybackService = (CloudPlaybackService) ((LocalBinder)obj).getService();
+                onPlaybackServiceBound();
+            }
         }
 
         @Override
