@@ -29,10 +29,9 @@ public class RecordStream implements Closeable {
 
     private boolean initialised;
 
+    private long duration;
     /* package */ long startPosition;
     /* package */ long endPosition;
-
-
 
     private static final int FADE_LENGTH_MS = 1000;
     private static final int FADE_EXP_CURVE = 2;
@@ -60,17 +59,18 @@ public class RecordStream implements Closeable {
     }
 
     public long getDuration() {
-        return mWavWriter == null ? 0 : mWavWriter.getDuration();
+        return duration;
     }
 
     public long finalizeStream() {
         if (!initialised) return -1;
         try {
-            final long duration = mWavWriter.finalizeStream();
+            mWavWriter.finalizeStream();
             if (mEncoder != null) mEncoder.pause();
             initialised = false;
-            endPosition = duration;
+            endPosition = duration = getAudioFile().getDuration();
             return duration;
+
         } catch (IOException e) {
             Log.e(TAG, "I/O exception occured while finalizing file", e);
             return -1;
@@ -107,15 +107,15 @@ public class RecordStream implements Closeable {
     /** Playback Bounds **/
     public void resetPlaybackBounds() {
         startPosition = 0;
-        endPosition   = getDuration();
+        endPosition = duration;
     }
 
     public void setStartPositionByPercent(double percent) {
-        startPosition = (long) (percent * getDuration());
+        startPosition = (long) (percent * duration);
     }
 
     public void setEndPositionByPercent(double percent) {
-        endPosition = (long) (percent * getDuration());
+        endPosition = (long) (percent * duration);
     }
 
     public File getFile() {

@@ -18,6 +18,7 @@ import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.view.create.Chronometer;
 import com.soundcloud.android.view.create.CreateWaveDisplay;
 
 import android.app.Activity;
@@ -34,6 +35,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,14 +64,16 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     private CreateState mLastState, mCurrentState;
     private long mLastDisplayedTime;
 
-    private TextView txtInstructions, txtRecordMessage, mChrono;
+    private TextView txtInstructions, txtRecordMessage;
+    private Chronometer mChrono;
+
     private ViewGroup mEditControls;
     private ViewGroup mFileLayout;
     private ImageButton mActionButton;
     private CreateWaveDisplay mWaveDisplay;
     private Button mResetButton, mDeleteButton, mPlayButton, mEditButton, mSaveButton, mPlayEditButton;
     private ToggleButton mToggleOptimize, mToggleFade;
-    private String mRecordErrorMessage, mCurrentDurationString;
+    private String mRecordErrorMessage;
 
     private boolean mSampleInterrupted, mActive, mHasEditControlGroup;
     private RemainingTimeCalculator mRemainingTimeCalculator;
@@ -126,7 +130,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
 
         txtRecordMessage = (TextView) findViewById(R.id.txt_record_message);
 
-        mChrono = (TextView) findViewById(R.id.chronometer);
+        mChrono = (Chronometer) findViewById(R.id.chronometer);
         mChrono.setVisibility(View.INVISIBLE);
 
         mFileLayout = (ViewGroup) findViewById(R.id.file_layout);
@@ -177,7 +181,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     @Override
     public void onStop() {
         super.onStop();
-        mHandler.removeCallbacks(mSmoothProgress);
         unregisterReceiver(mStatusListener);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusListener);
     }
@@ -456,7 +459,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                 if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
                 mRecording = mRecorder.getRecording();
                 configurePlaybackInfo();
-                mHandler.postDelayed(mSmoothProgress, 0);
                 takeAction = true;
 
         } else if (!SoundRecorder.RECORD_DIR.exists()) {
@@ -537,7 +539,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
 
                 mActionButton.setImageDrawable(mRecStopStatesDrawable);
                 txtRecordMessage.setText("");
-                mChrono.setText("");
+                mChrono.clear();
 
                 if (takeAction) {
                     stopPlayback();
@@ -557,7 +559,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                             if (mRecorder.isPlaying()) {
                                 mRecorder.togglePlayback();
                             }
-                            mHandler.removeCallbacks(mSmoothProgress);
                             break;
                     }
                     mWaveDisplay.gotoPlaybackMode();
@@ -575,8 +576,16 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                 hideEditControls();
 
                 setPlayButtonDrawable(false);
-                mChrono.setText(mCurrentDurationString);
                 mActionButton.setImageDrawable(mRecStatesDrawable);
+
+                // TODO not sure if this is necessary yet
+                /*
+                final long pos = mRecorder.getCurrentPlaybackPosition();
+                if (pos <= 0){
+                    mChrono.setRecordProgress(mRecorder.getDuration());
+                } else {
+                    mChrono.setPlaybackProgress(pos, mRecorder.getDuration());
+                }*/
 
 
                 setResetState();
@@ -633,7 +642,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                         if (mRecorder.isPlaying()) {
                             mRecorder.togglePlayback();
                         }
-                        mHandler.removeCallbacks(mSmoothProgress);
                         break;
                     }
                 }
@@ -679,7 +687,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         mRecordErrorMessage = null;
         mSampleInterrupted = false;
         mLastDisplayedTime = 0;
-        mChrono.setText("0.00");
+        mChrono.setRecordProgress(0);
         mRemainingTimeCalculator.reset();
         updateTimeRemaining();
 
@@ -754,7 +762,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
 
 
     private void configurePlaybackInfo() {
-        mCurrentDurationString = CloudUtils.formatTimestamp(mRecorder.getDuration());
         final long currentPlaybackPosition = mRecorder.getCurrentPlaybackPosition();
         if ((currentPlaybackPosition > 0 || mRecorder.isPlaying()) && currentPlaybackPosition < mRecorder.getDuration()) {
             mWaveDisplay.setProgress(((float) currentPlaybackPosition) / mRecorder.getDuration());
@@ -764,7 +771,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     }
 
     private void onPlaybackComplete(){
-        mHandler.removeCallbacks(mSmoothProgress);
         if (mCurrentState == CreateState.PLAYBACK || mCurrentState == CreateState.EDIT_PLAYBACK) {
             mCurrentState = mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK;
             configurePlaybackInfo();
@@ -781,49 +787,14 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         }
     }
 
-    private final Runnable mSmoothProgress = new Runnable() {
-        public void run() {
-            if (mCurrentState == CreateState.PLAYBACK || mCurrentState == CreateState.EDIT_PLAYBACK) {
-                if (mLastTrackTime == -1) {
-                    mHandler.post(mRefreshPositionFromService);
-                } else {
-                    final long posMs = mLastTrackTime + System.currentTimeMillis() - mLastProgressTimestamp;
-                    final long pos = posMs / 1000;
-
-                    if (mLastPos != pos) {
-                        mLastPos = pos;
-                        mChrono.setText(new StringBuilder()
-                                .append(CloudUtils.formatTimestamp(posMs))
-                                .append(" / ")
-                                .append(mCurrentDurationString));
-                    }
-                    setProgressInternal(posMs);
-                }
-                mHandler.postDelayed(this, PROGRESS_PERIOD);
-            }
-        }
-    };
-
-    private final Runnable mRefreshPositionFromService = new Runnable() {
-        @Override
-        public void run() {
-            final boolean stillPlaying = mRecorder.isPlaying();
-            mLastTrackTime = stillPlaying ? mRecorder.getCurrentPlaybackPosition() : mRecorder.getDuration();
-            mLastProgressTimestamp = System.currentTimeMillis();
-            if (stillPlaying) mHandler.postDelayed(this, 500);
-        }
-    };
-
-    private void setProgressInternal(long pos) {
-        final long duration = mRecorder.getDuration();
+    private void setProgressInternal(long pos, long duration) {
         if (duration != 0){
+            mChrono.setPlaybackProgress(pos, duration);
             mWaveDisplay.setProgress(((float) Math.max(0, Math.min(pos, duration))) / duration);
         }
     }
 
     private void stopPlayback() {
-        mHandler.removeCallbacks(mSmoothProgress);
-        mHandler.removeCallbacks(mRefreshPositionFromService);
         mRecorder.stopPlayback();
     }
 
@@ -856,7 +827,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
 
     private void onRecProgressUpdate(long elapsed) {
         if (elapsed - mLastDisplayedTime > 1000) {
-            mChrono.setText(CloudUtils.formatTimestamp(elapsed));
+            mChrono.setRecordProgress(elapsed);
             updateTimeRemaining();
             mLastDisplayedTime = (elapsed / 1000)*1000;
         }
@@ -883,9 +854,12 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
             } else if (SoundRecorder.RECORD_ERROR.equals(action)) {
                 onRecordingError();
             } else if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
-                mLastTrackTime = intent.getLongExtra(SoundRecorder.EXTRA_POSITION,0);
+                mLastTrackTime = intent.getLongExtra(SoundRecorder.EXTRA_POSITION, 0);
                 mLastProgressTimestamp = System.currentTimeMillis();
-                mHandler.postDelayed(mSmoothProgress, 100);
+            } else if (SoundRecorder.PLAYBACK_PROGRESS.equals(action)) {
+                setProgressInternal(intent.getLongExtra(SoundRecorder.EXTRA_POSITION, 0),
+                        intent.getLongExtra(SoundRecorder.EXTRA_DURATION, 0));
+
             } else if (SoundRecorder.PLAYBACK_COMPLETE.equals(action) || SoundRecorder.PLAYBACK_ERROR.equals(action)) {
                     onPlaybackComplete();
             }

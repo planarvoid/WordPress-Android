@@ -31,6 +31,7 @@ public class SoundRecorder {
     public static final int PIXELS_PER_SECOND = 30;
     private static final int TRIM_PREVIEW_LENGTH = 500;
 
+
     public static final File RECORD_DIR = IOUtils.ensureUpdatedDirectory(
                 new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
                 new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
@@ -52,12 +53,13 @@ public class SoundRecorder {
     public static final String EXTRA_PATH        = "path";
     public static final String EXTRA_AMPLITUDE   = "amplitude";
     public static final String EXTRA_ELAPSEDTIME = "elapsedTime";
-
+    public static final String EXTRA_DURATION    = "duration";
 
     public static final String[] ALL_ACTIONS = {
       RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
       PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS
     };
+
 
 
     public enum State {
@@ -135,7 +137,7 @@ public class SoundRecorder {
                 broadcast(PLAYBACK_PROGRESS);
             }
         });
-        mAudioTrack.setPositionNotificationPeriod(mConfig.sampleRate);
+        mAudioTrack.setPositionNotificationPeriod(mConfig.sampleRate / 60);
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
 
         buffer = ByteBuffer.allocateDirect(bufferSize);
@@ -328,13 +330,14 @@ public class SoundRecorder {
             }
         }
     }
-
+    long lastPosition;
     private void broadcast(String action) {
         final Intent intent = new Intent(action)
                 .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
+                .putExtra(EXTRA_DURATION, getDuration())
                 .putExtra(EXTRA_STATE, mState.name())
                 .putExtra(EXTRA_PATH, mRecordStream == null ? null : mRecordStream.getFile().getAbsolutePath());
-        Log.d(TAG, "broadcast "+intent);
+
         mBroadcastManager.sendBroadcast(intent);
     }
 
@@ -351,7 +354,7 @@ public class SoundRecorder {
 
                 file.seek(mCurrentPosition);
                 mState = SoundRecorder.State.PLAYING;
-                int n;
+                int n = 0;
                 while (mState == SoundRecorder.State.PLAYING
                         && (n = file.read(buffer, bufferSize)) > -1
                         && (mCurrentPosition < mRecordStream.endPosition)) {
@@ -369,10 +372,17 @@ public class SoundRecorder {
                     }
                     buffer.clear();
                 }
+
+                if (n == -1){
+                    // TODO, This should not be necessary, mCurrentPosition should be correct
+                    mCurrentPosition = mRecordStream.endPosition;
+                }
+
             } else {
                 Log.w(TAG, "dataStart > length: " + mCurrentPosition + ">" + file.getDuration());
                 throw new IOException("pos > length: " + mCurrentPosition + ">" + file.getDuration());
             }
+
         }
 
         public void run() {
@@ -458,7 +468,6 @@ public class SoundRecorder {
                                 if (written < read) {
                                     Log.w(TAG, "partial write "+written);
                                 }
-                                mDuration = mRecordStream.getDuration();
                             } catch (IOException e) {
                                 Log.e(TAG, "Error occured in updateListener, recording is aborted : ", e);
                                 mState = SoundRecorder.State.ERROR;
@@ -474,7 +483,7 @@ public class SoundRecorder {
 
                 if (mRecordStream != null) {
                     if (mState != SoundRecorder.State.ERROR) {
-                        mRecordStream.finalizeStream();
+                        mDuration = mRecordStream.finalizeStream();
                         resetPlaybackBounds();
                         broadcast(RECORD_FINISHED);
                     } else {
