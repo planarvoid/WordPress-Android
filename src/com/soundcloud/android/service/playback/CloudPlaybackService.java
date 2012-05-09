@@ -2,6 +2,7 @@ package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.service.playback.State.*;
 
+import android.os.Binder;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -137,9 +138,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private IAudioManager mFocus;
     private boolean mTransientFocusLoss;
 
+    private final IBinder mBinder = new LocalBinder();
+    public class LocalBinder extends Binder {
+        public CloudPlaybackService getService() {
+            return CloudPlaybackService.this;
+        }
+    }
 
-
-    private final IBinder mBinder = new ServiceStub(this);
     private static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
     private Notification status;
 
@@ -319,7 +324,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             .putExtra(BroadcastExtras.isPlaying, isPlaying())
             .putExtra(BroadcastExtras.isSupposedToBePlaying, state.isSupposedToBePlaying())
             .putExtra(BroadcastExtras.isBuffering, isBuffering())
-            .putExtra(BroadcastExtras.position, getPosition())
+            .putExtra(BroadcastExtras.position, getProgress())
             .putExtra(BroadcastExtras.queuePosition, mPlaylistManager.getPosition())
             .putExtra(BroadcastExtras.isFavorite, getIsFavorite());
 
@@ -342,7 +347,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     private void saveQueue(){
-        mPlaylistManager.saveQueue(currentTrack == null ? 0 : getPosition());
+        mPlaylistManager.saveQueue(currentTrack == null ? 0 : getProgress());
     }
 
     private void onTrackChanged(final Track track) {
@@ -585,6 +590,16 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
+    public void togglePlayback() {
+        if (state.isSupposedToBePlaying()) {
+            pause();
+        } else if (currentTrack != null) {
+            play();
+        } else {
+            openCurrent();
+        }
+    }
+
 
     private void gotoIdleState(State newState) {
         if (!newState.isInIdleState()) throw new IllegalArgumentException(newState + " is not a valid idle state");
@@ -665,7 +680,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         status = notification;
     }
 
-    /* package */ void setQueuePosition(int pos) {
+    /* package */
+    public void setQueuePosition(int pos) {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "setQueuePosition("+pos+")");
 
         if (mPlaylistManager.getPosition() != pos &&
@@ -675,11 +691,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     }
 
     /* package */
-    @SuppressWarnings("UnusedParameters")
-    void setClearToPlay(boolean clearToPlay) {
-    }
-
-    /* package */ void setFavoriteStatus(long trackId, boolean favoriteStatus) {
+    public void setFavoriteStatus(long trackId, boolean favoriteStatus) {
         if (currentTrack != null && currentTrack.id == trackId) {
             if (favoriteStatus) {
                 addFavorite();
@@ -693,14 +705,16 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         return currentTrack == null ? -1 : currentTrack.duration;
     }
 
-    /* package */ boolean isBuffering() {
+    /* package */
+    public boolean isBuffering() {
         return state == PAUSED_FOR_BUFFERING || state == PREPARING || mWaitingForSeek;
     }
 
     /*
      * Returns the current playback position in milliseconds
      */
-    /* package */ long getPosition() {
+    /* package */
+    public long getProgress() {
         if (currentTrack != null && mResumeTrackId == currentTrack.id) {
             return mResumeTime; // either -1 or a valid resume time
         } else if (mWaitingForSeek && mSeekPos > 0) {
@@ -712,11 +726,13 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    /* package */ int loadPercent() {
+    /* package */
+    public int loadPercent() {
         return mMediaPlayer != null && !state.isError() ? mLoadPercent : 0;
     }
 
-    /* package */ boolean isSeekable() {
+    /* package */
+    public boolean isSeekable() {
         return (Build.VERSION.SDK_INT >= MINIMUM_SEEKABLE_SDK
                 && mMediaPlayer != null
                 && state.isSeekable()
@@ -728,7 +744,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         return Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO && StreamProxy.isOpenCore();
     }
 
-    /* package */ long seek(long pos, boolean performSeek) {
+    /* package */
+    public long seek(long pos, boolean performSeek) {
         if (isSeekable()) {
             if (pos <= 0) {
                 pos = 0;
@@ -773,7 +790,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    /* package */ boolean isPlaying() {
+    /* package */
+    public boolean isPlaying() {
         try {
             return mMediaPlayer != null && mMediaPlayer.isPlaying() && state.isSupposedToBePlaying();
         } catch (IllegalStateException e) {
@@ -781,7 +799,15 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     }
 
-    /* package */ void setAutoAdvance(boolean autoAdvance) {
+    public void restartTrack() {
+        openCurrent();
+    }
+
+    public PlaylistManager getPlaylistManager() {
+        return mPlaylistManager;
+    }
+
+    public void setAutoAdvance(boolean autoAdvance) {
         mAutoAdvance = autoAdvance;
     }
 
@@ -925,13 +951,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             } else if (PREVIOUS_ACTION.equals(action)) {
                 prev();
             } else if (TOGGLEPAUSE_ACTION.equals(action)) {
-                if (state.isSupposedToBePlaying()) {
-                    pause();
-                } else if (currentTrack != null) {
-                    play();
-                } else {
-                    openCurrent();
-                }
+                togglePlayback();
             } else if (PAUSE_ACTION.equals(action)) {
                 pause();
             } else if (UPDATE_WIDGET_ACTION.equals(action)) {
@@ -954,7 +974,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 mPlaylistManager.clear();
             } else if (STOP_ACTION.equals(action)) {
                 if (state.isSupposedToBePlaying()) pause();
-                mResumeTime = getPosition();
+                mResumeTime = getProgress();
                 mResumeTrackId = currentTrack.id;
                 stop();
 

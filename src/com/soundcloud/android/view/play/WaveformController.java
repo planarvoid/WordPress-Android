@@ -576,7 +576,6 @@ public class WaveformController extends TouchLayout {
 
 
     private void showWaveform(boolean animate) {
-        mPlayer.onWaveformLoaded();
         if (!mIsBuffering) hideWaiting();
 
         if (mOverlay.getVisibility() == View.INVISIBLE) {
