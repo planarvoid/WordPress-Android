@@ -270,7 +270,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
             @Override
             public void onClick(View v) {
 
-                CreateState newState = mCurrentState;
+                CreateState newState = null;
                 switch (mCurrentState) {
                     case IDLE_RECORD:
                     case IDLE_PLAYBACK:
@@ -449,7 +449,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         }
 
         if (!(mCurrentState == CreateState.RECORD) && mPrivateUser == null) {
-            mUnsavedRecordings = Recording.getUnsavedRecordings(getContentResolver(), SoundRecorder.RECORD_DIR,mRecording);
+            mUnsavedRecordings = Recording.getUnsavedRecordings(getContentResolver(), SoundRecorder.RECORD_DIR, mRecording);
             if (mUnsavedRecordings.isEmpty()) {
                 showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
             }
@@ -461,7 +461,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     private void updateUi(CreateState newState, boolean takeAction) {
         if (newState != null) mCurrentState = newState;
         switch (mCurrentState) {
-
             case IDLE_RECORD:
                 if (takeAction) stopPlayback();
                 if (!TextUtils.isEmpty(mRecordErrorMessage)) {
