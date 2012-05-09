@@ -98,7 +98,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         setContentView(R.layout.sc_create);
 
         final Uri recordingUri = getIntent().getData();
-        if (recordingUri != null){
+        if (recordingUri != null) {
             mRecording = Recording.fromUri(recordingUri, getContentResolver());
             if (mRecording == null){
                 CloudUtils.showToast(this, R.string.error_getting_recording);
@@ -141,10 +141,9 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         ((ViewGroup) findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
 
         mRecordSuggestions = getResources().getStringArray(R.array.record_suggestions);
-        mCurrentState = CreateState.IDLE_RECORD;
 
         setResetState();
-        updateUi(false);
+        updateUi(CreateState.IDLE_RECORD, false);
     }
 
     @Override
@@ -158,7 +157,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     public void onStop() {
         super.onStop();
         mHandler.removeCallbacks(mSmoothProgress);
-        unregisterReceiver(mStatusListener);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mStatusListener);
     }
 
@@ -190,8 +188,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
             mRecording = new Recording(new File(state.getString("createCurrentRecordFilePath")));
         }
         if (!TextUtils.isEmpty(state.getString("createCurrentCreateState"))) {
-            mCurrentState = CreateState.valueOf(state.getString("createCurrentCreateState"));
-            updateUi(false);
+            updateUi(CreateState.valueOf(state.getString("createCurrentCreateState")), false);
         }
         mWaveDisplay.onRestoreInstanceState(state);
     }
@@ -199,8 +196,8 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
 
     @Override
     public void onSeek(float pct) {
-            mLastTrackTime = -1;
-            mRecorder.seekTo(pct);
+        mLastTrackTime = -1;
+        mRecorder.seekTo(pct);
     }
 
     @Override
@@ -252,21 +249,18 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         mRecordErrorMessage = getString(R.string.error_recording_message);
         IOUtils.deleteFile(mRecording.audio_path);
         mRecording = null;
-        mCurrentState = CreateState.IDLE_RECORD;
-        updateUi(true);
+        updateUi(CreateState.IDLE_RECORD, true);
     }
 
     private Button setupResetButton() {
         final Button button = ((Button) findViewById(R.id.btn_reset));
         button.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                if (mCurrentState.isEdit()) {
-                    mCurrentState = CreateState.IDLE_PLAYBACK;
-                } else {
+                if (!mCurrentState.isEdit()) {
                     track(Click.Record_discard);
                     showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
                 }
-                updateUi(true);
+                updateUi(mCurrentState.isEdit() ? CreateState.EDIT_PLAYBACK : null, true);
             }
         });
         return button;
@@ -278,19 +272,20 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
             @Override
             public void onClick(View v) {
 
+                CreateState newState = mCurrentState;
                 switch (mCurrentState) {
                     case IDLE_RECORD:
                     case IDLE_PLAYBACK:
                     case PLAYBACK:
                         track(Click.Record_rec);
-                        mCurrentState = CreateState.RECORD;
+                        newState = CreateState.RECORD;
                         break;
                     case RECORD:
                         track(Click.Record_rec_stop);
-                        mCurrentState = CreateState.IDLE_PLAYBACK;
+                        newState = CreateState.IDLE_PLAYBACK;
                         break;
                 }
-                updateUi(true);
+                updateUi(newState, true);
             }
         });
         return button;
@@ -312,27 +307,28 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         if (button != null){
             button.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
+
+                    CreateState newState = mCurrentState;
                     switch (mCurrentState) {
                         case IDLE_PLAYBACK:
                             track(Click.Record_play);
-                            mCurrentState = CreateState.PLAYBACK;
+                            newState = CreateState.PLAYBACK;
                             break;
                         case PLAYBACK:
                             track(Click.Record_play_stop);
-                            mCurrentState = CreateState.IDLE_PLAYBACK;
+                            newState = CreateState.IDLE_PLAYBACK;
                             break;
                         case EDIT:
                             track(Click.Record_play);
-                            mCurrentState = CreateState.EDIT_PLAYBACK;
+                            newState = CreateState.EDIT_PLAYBACK;
                             break;
                         case EDIT_PLAYBACK:
                             track(Click.Record_play_stop);
-                            mCurrentState = CreateState.EDIT;
+                            newState = CreateState.EDIT;
                             break;
 
                     }
-                    updateUi(true);
-
+                    updateUi(newState, true);
                 }
             });
         }
@@ -344,8 +340,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         button.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 track(Click.Record_edit);
-                mCurrentState = CreateState.EDIT;
-                updateUi(true);
+                updateUi(CreateState.EDIT, true);
             }
         });
         return button;
@@ -358,8 +353,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                 if (mCurrentState.isEdit()) {
                     mRecorder.applyEdits();
 
-                    mCurrentState = CreateState.IDLE_PLAYBACK;
-                    updateUi(true);
+                    updateUi(CreateState.IDLE_PLAYBACK, true);
                 } else {
                     track(Click.Record_next);
                     boolean isNew = !mRecording.isSaved();
@@ -408,10 +402,9 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
 
     private void reset() {
         mRecorder.reset();
-        mCurrentState = CreateState.IDLE_RECORD;
         mRecording = null;
         mWaveDisplay.reset();
-        updateUi(true);
+        updateUi(CreateState.IDLE_RECORD, true);
         setResetState();
     }
 
@@ -425,13 +418,14 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         if (mRecorder == null || !mActive) return;
 
         boolean takeAction = false;
+        CreateState newState = null;
 
         if (mRecorder.isRecording()) {
-            mCurrentState = CreateState.RECORD;
+            newState = CreateState.RECORD;
             mRecording = mRecorder.getRecording();
 
         } else if (mRecorder.isPlaying()) {
-            if (mCurrentState != CreateState.EDIT_PLAYBACK) mCurrentState = CreateState.PLAYBACK;
+            if (mCurrentState != CreateState.EDIT_PLAYBACK) newState = CreateState.PLAYBACK;
             mRecording = mRecorder.getRecording();
             configurePlaybackInfo();
             mHandler.postDelayed(mSmoothProgress, 0);
@@ -440,17 +434,17 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         } else if (!SoundRecorder.RECORD_DIR.exists()) {
             // can happen when there's no mounted sd card
             mActionButton.setEnabled(false);
-
+            // TODO state?
         } else {
             if (mRecording == null && mPrivateUser != null) {
                 mRecording = Recording.checkForUnusedPrivateRecording(SoundRecorder.RECORD_DIR, mPrivateUser);
             }
 
             if (mRecording != null) {
-                if (mCurrentState != CreateState.EDIT) mCurrentState = CreateState.IDLE_PLAYBACK;
+                if (mCurrentState != CreateState.EDIT) newState = CreateState.IDLE_PLAYBACK;
                 configurePlaybackInfo();
             } else {
-                mCurrentState = CreateState.IDLE_RECORD;
+                newState = CreateState.IDLE_RECORD;
                 takeAction = true;
             }
         }
@@ -461,12 +455,12 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                 showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
             }
         }
-
         setResetState();
-        updateUi(takeAction);
+        updateUi(newState, takeAction);
     }
 
-    private void updateUi(boolean takeAction) {
+    private void updateUi(CreateState newState, boolean takeAction) {
+        if (newState != null) mCurrentState = newState;
         switch (mCurrentState) {
 
             case IDLE_RECORD:
@@ -668,8 +662,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
 
         } catch (IOException e) {
             mRecordErrorMessage = e.getMessage();
-            mCurrentState = CreateState.IDLE_RECORD;
-            updateUi(true);
+            updateUi(CreateState.IDLE_RECORD, true);
         }
     }
 
@@ -688,8 +681,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                     mRecordErrorMessage = null;
                     break;
             }
-            mCurrentState = mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK;
-            updateUi(true);
+            updateUi(mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK, true);
             return t;
         } else if (t < 300) {
             // 5 minutes, display countdown
@@ -731,9 +723,8 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     private void onPlaybackComplete(){
         mHandler.removeCallbacks(mSmoothProgress);
         if (mCurrentState == CreateState.PLAYBACK || mCurrentState == CreateState.EDIT_PLAYBACK) {
-            mCurrentState = mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK;
             configurePlaybackInfo();
-            updateUi(true);
+            updateUi(mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK, true);
         }
     }
 
