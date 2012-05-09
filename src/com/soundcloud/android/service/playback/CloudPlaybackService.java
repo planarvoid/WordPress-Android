@@ -522,7 +522,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         track(Media.fromTrack(mCurrentTrack), Media.Action.Play);
         mLastRefresh = System.currentTimeMillis();
 
-        if (mCurrentTrack != null && mFocus.requestMusicFocus(this) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+        if (mCurrentTrack != null && mFocus.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
             if (mMediaPlayer != null && state.isStartable()) {
                 // resume
                 if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "mp.start");
@@ -1208,7 +1208,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                         setVolume(0);
                         //  FADE_IN will call play()
                         notifyChange(BUFFERING_COMPLETE);
-                        if (!mAutoPause && mFocus.requestMusicFocus(CloudPlaybackService.this) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                        if (!mAutoPause && mFocus.requestMusicFocus(CloudPlaybackService.this, IAudioManager.FOCUS_GAIN)) {
                             mPlayerHandler.sendEmptyMessage(FADE_IN);
                         }
                     }

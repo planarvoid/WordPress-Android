@@ -7,12 +7,15 @@ import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioFile;
 import com.soundcloud.android.audio.ScAudioTrack;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.service.playback.AudioManagerFactory;
+import com.soundcloud.android.service.playback.IAudioManager;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Handler;
@@ -26,7 +29,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.EnumSet;
 
-public class SoundRecorder {
+public class SoundRecorder implements IAudioManager.MusicFocusable {
     /* package */ static final String TAG = SoundRecorder.class.getSimpleName();
 
     public static final int PIXELS_PER_SECOND = 30;
@@ -60,6 +63,7 @@ public class SoundRecorder {
       RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
       PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS
     };
+
 
 
     public enum State {
@@ -98,7 +102,7 @@ public class SoundRecorder {
     final private ByteBuffer buffer;
     final private int bufferReadSize;
 
-
+    private IAudioManager mAudioManager;
     private ReaderThread mReaderThread;
 
     private long mCurrentPosition, mDuration, mSeekToPos = -1;
@@ -145,6 +149,7 @@ public class SoundRecorder {
         bufferReadSize =  (int) config.validBytePosition((long) (mConfig.bytesPerSecond / (PIXELS_PER_SECOND * context.getResources().getDisplayMetrics().density)));
         mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
         amplitudeData = new AmplitudeData();
+        mAudioManager = AudioManagerFactory.createAudioManager(context);
 
         reset();
     }
@@ -188,6 +193,12 @@ public class SoundRecorder {
         } else if (!mRemainingTimeCalculator.isDiskSpaceAvailable()) {
             throw new IOException(mContext.getString(R.string.record_storage_is_full));
         }
+
+        // mute any playback during recording
+        if (!mAudioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
+            throw new IOException("Could not obtain music focus");
+        }
+
         mRemainingTimeCalculator.reset();
 
         if (mState != State.RECORDING) {
@@ -356,6 +367,12 @@ public class SoundRecorder {
         return mRemainingTimeCalculator.currentLowerLimit();
     }
 
+    @Override public void focusGained() {
+    }
+
+    @Override public void focusLost(boolean isTransient, boolean canDuck) {
+    }
+
     private void broadcast(String action) {
         final Intent intent = new Intent(action)
                 .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
@@ -507,6 +524,7 @@ public class SoundRecorder {
                 }
                 Log.d(TAG, "exiting reader loop, stopping recording (mState=" + mState + ")");
                 mAudioRecord.stop();
+                mAudioManager.abandonMusicFocus(false);
 
                 if (mRecordStream != null) {
                     if (mState != SoundRecorder.State.ERROR) {
