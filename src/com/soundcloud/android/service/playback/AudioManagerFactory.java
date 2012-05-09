@@ -10,7 +10,8 @@ import java.lang.reflect.InvocationTargetException;
 public class AudioManagerFactory {
     private AudioManagerFactory() {
     }
-    static IAudioManager createAudioManager(Context context) {
+
+    public static IAudioManager createAudioManager(Context context) {
         IAudioManager manager = null;
 
         final int sdkInt = Build.VERSION.SDK_INT;

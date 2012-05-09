@@ -242,8 +242,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     }
 
-    private void onRecordingError() {
-        mRecordErrorMessage = getString(R.string.error_recording_message);
+    private void onRecordingError(String message) {
+        mRecordErrorMessage = message;
         IOUtils.deleteFile(mRecording.audio_path);
         mRecording = null;
         updateUi(CreateState.IDLE_RECORD, true);
@@ -269,8 +269,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                CreateState newState = mCurrentState;
                 switch (mCurrentState) {
                     case IDLE_RECORD:
                     case IDLE_PLAYBACK:
@@ -284,7 +282,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         mRecorder.stopRecording();
                         break;
                 }
-
             }
         });
         return button;
@@ -450,7 +447,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
 
         if (!(mCurrentState == CreateState.RECORD) && mPrivateUser == null) {
-            Log.i("asdf", "Look for unsaved recording");
             mUnsavedRecordings = Recording.getUnsavedRecordings(getContentResolver(), SoundRecorder.RECORD_DIR,mRecording, getCurrentUserId());
             if (!mUnsavedRecordings.isEmpty()) {
                 showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
@@ -463,7 +459,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private void updateUi(CreateState newState, boolean takeAction) {
         if (newState != null) mCurrentState = newState;
         switch (mCurrentState) {
-
             case IDLE_RECORD:
                 if (!TextUtils.isEmpty(mRecordErrorMessage)) {
                     txtRecordMessage.setText(mRecordErrorMessage);
@@ -635,9 +630,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     private void startRecording() {
-        // XXX
-        //pausePlayback();
-
         mRecordErrorMessage = null;
         mLastDisplayedTime = -1;
         mWaveDisplay.gotoRecordMode();
@@ -648,9 +640,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         try {
             mRecorder.startRecording(mRecording);
-
         } catch (IOException e) {
-            mRecordErrorMessage = e.getMessage();
+            onRecordingError(e.getMessage());
             updateUi(CreateState.IDLE_RECORD, true);
         }
     }
@@ -766,8 +757,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 }
 
             } else if (SoundRecorder.RECORD_ERROR.equals(action)) {
-                onRecordingError();
-
+                onRecordingError(getString(R.string.error_recording_message));
             } else if (SoundRecorder.RECORD_FINISHED.equals(action)) {
                 updateUi(CreateState.IDLE_PLAYBACK, true);
 
