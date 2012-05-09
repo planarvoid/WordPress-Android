@@ -62,7 +62,6 @@ public class SoundRecorder {
     };
 
 
-
     public enum State {
         IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING;
 
@@ -123,9 +122,7 @@ public class SoundRecorder {
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
             @Override public void onPeriodicNotification(AudioRecord audioRecord) {
                 if (mState == State.RECORDING) {
-                    Intent intent = new Intent(RECORD_PROGRESS)
-                        .putExtra(EXTRA_ELAPSEDTIME,
-                                mRecordStream == null ? -1 : mRecordStream.elapsedTime());
+                    Intent intent = new Intent(RECORD_PROGRESS).putExtra(EXTRA_ELAPSEDTIME, getTimeElapsed());
                     mBroadcastManager.sendBroadcast(intent);
                 }
             }
@@ -147,24 +144,28 @@ public class SoundRecorder {
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         bufferReadSize =  (int) config.validBytePosition((long) (mConfig.bytesPerSecond / (PIXELS_PER_SECOND * context.getResources().getDisplayMetrics().density)));
         mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
-
-        mState = mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
         amplitudeData = new AmplitudeData();
+
         reset();
     }
 
     public void reset(){
+        if (isRecording()) stopRecording();
+        if (isPlaying()) stopPlayback();
+
+        mState = mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
+
         amplitudeData.clear();
-        writeIndex = -1;
+        mCurrentPosition = writeIndex = -1;
         mRecordStream = null;
     }
 
     public boolean isActive() {
-        return mState.isActive();
+        return mState != null && mState.isActive();
     }
 
     public boolean isRecording() {
-        return mState.isRecording();
+        return mState != null && mState.isRecording();
     }
 
     public Recording getRecording() {
@@ -203,6 +204,7 @@ public class SoundRecorder {
             mContext.startService(new Intent(mContext, SoundRecorderService.class).setAction(RECORD_STARTED));
 
             startReadingInternal(State.RECORDING);
+            broadcast(RECORD_STARTED);
 
         } else throw new IllegalStateException("cannot record to file, in state " + mState);
 
@@ -261,7 +263,7 @@ public class SoundRecorder {
 
             Intent intent = new Intent(RECORD_SAMPLE)
                     .putExtra(EXTRA_AMPLITUDE, frameAmplitude)
-                    .putExtra(EXTRA_ELAPSEDTIME, mRecordStream == null ? -1 : mRecordStream.elapsedTime());
+                    .putExtra(EXTRA_ELAPSEDTIME, getTimeElapsed());
 
             mBroadcastManager.sendBroadcast(intent);
         }
@@ -270,6 +272,11 @@ public class SoundRecorder {
     public long getDuration() {
         return mDuration;
     }
+
+    public long getTimeElapsed() {
+        return mRecordStream == null ? -1 : mRecordStream.elapsedTime();
+    }
+
 
     public long getCurrentPlaybackPosition() {
         return mSeekToPos != -1 ? mSeekToPos : mCurrentPosition == -1 ? -1 :  mCurrentPosition;
@@ -291,7 +298,7 @@ public class SoundRecorder {
     }
 
     public boolean isPlaying() {
-        return mState == State.PLAYING || mState == State.SEEKING;
+        return mState != null && (mState == State.PLAYING || mState == State.SEEKING);
     }
 
     public void togglePlayback() {
@@ -436,14 +443,20 @@ public class SoundRecorder {
                     IOUtils.close(file);
                     mAudioTrack.stop();
                 }
-                Log.d(TAG, "player loop exit: state="+mState+", position="+mCurrentPosition+" of " +  mRecordStream.endPosition);
-                if (mState == SoundRecorder.State.PLAYING && mCurrentPosition >=  mRecordStream.endPosition) {
-                    mCurrentPosition = -1;
-                    broadcast(PLAYBACK_COMPLETE);
+
+                if (mRecordStream != null){
+                    Log.d(TAG, "player loop exit: state=" + mState + ", position=" + mCurrentPosition + " of " + (mRecordStream == null ? "unknown" : mRecordStream.endPosition));
+                    if (mState == SoundRecorder.State.PLAYING && mCurrentPosition >= mRecordStream.endPosition) {
+                        mCurrentPosition = -1;
+                        broadcast(PLAYBACK_COMPLETE);
+                    } else {
+                        broadcast(PLAYBACK_STOPPED);
+                    }
+                    mState = SoundRecorder.State.IDLE;
                 } else {
-                    broadcast(PLAYBACK_STOPPED);
+                    mCurrentPosition = -1;
+                    Log.d(TAG, "player loop exit: no stream available");
                 }
-                mState = SoundRecorder.State.IDLE;
             }
         }
     }
@@ -463,10 +476,6 @@ public class SoundRecorder {
                     Log.w(TAG, "audiorecorder is not initialized");
                     mState = SoundRecorder.State.ERROR;
                     return;
-                }
-
-                if (mState == SoundRecorder.State.RECORDING) {
-                    broadcast(RECORD_STARTED);
                 }
 
                 mAudioRecord.startRecording();

@@ -1,24 +1,5 @@
 package com.soundcloud.android.activity;
 
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.RemainingTimeCalculator;
-import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Event;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.view.create.Chronometer;
-import com.soundcloud.android.view.create.CreateWaveDisplay;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -42,6 +23,24 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.RemainingTimeCalculator;
+import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Event;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
+import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.view.create.Chronometer;
+import com.soundcloud.android.view.create.CreateWaveDisplay;
 
 import java.io.File;
 import java.io.IOException;
@@ -276,14 +275,15 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                     case IDLE_PLAYBACK:
                     case PLAYBACK:
                         track(Click.Record_rec);
-                        newState = CreateState.RECORD;
+                        startRecording();
                         break;
+
                     case RECORD:
                         track(Click.Record_rec_stop);
-                        newState = CreateState.IDLE_PLAYBACK;
+                        mRecorder.stopRecording();
                         break;
                 }
-                updateUi(newState, true);
+
             }
         });
         return button;
@@ -462,7 +462,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         if (newState != null) mCurrentState = newState;
         switch (mCurrentState) {
             case IDLE_RECORD:
-                if (takeAction) stopPlayback();
                 if (!TextUtils.isEmpty(mRecordErrorMessage)) {
                     txtRecordMessage.setText(mRecordErrorMessage);
                 } else {
@@ -494,7 +493,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                 break;
 
             case RECORD:
-
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
@@ -507,18 +505,12 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
 
                 mActionButton.setImageDrawable(mRecStopStatesDrawable);
                 txtRecordMessage.setText("");
-                mChrono.clear();
-
-                if (takeAction) {
-                    stopPlayback();
-                    startRecording();
-                }
+                mChrono.setDurationOnly(mRecorder.getTimeElapsed());
                 break;
 
             case IDLE_PLAYBACK:
                 if (takeAction) {
                     switch (mLastState) {
-                        case RECORD: stopRecording(); break;
                         case PLAYBACK:
                         case EDIT:
                         case EDIT_PLAYBACK:
@@ -546,16 +538,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
                 setPlayButtonDrawable(false);
                 mActionButton.setImageDrawable(mRecStatesDrawable);
 
-                // TODO not sure if this is necessary yet
-                /*
-                final long pos = mRecorder.getCurrentPlaybackPosition();
-                if (pos <= 0){
-                    mChrono.setRecordProgress(mRecorder.getDuration());
-                } else {
-                    mChrono.setPlaybackProgress(pos, mRecorder.getDuration());
-                }*/
-
-
+                configurePlaybackInfo();
                 setResetState();
                 break;
 
@@ -651,9 +634,9 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
     private void startRecording() {
         // XXX
         //pausePlayback();
+
         mRecordErrorMessage = null;
-        mLastDisplayedTime = 0;
-        mChrono.setRecordProgress(0);
+        mLastDisplayedTime = -1;
         mWaveDisplay.gotoRecordMode();
 
         if (mRecording == null) {
@@ -704,28 +687,15 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         }
     }
 
-    private void stopRecording() {
-        mRecorder.stopRecording();
-
-        // disable actions during processing and playback preparation
-        mActionButton.setEnabled(false);
-        configurePlaybackInfo();
-    }
-
-
     private void configurePlaybackInfo() {
         final long currentPlaybackPosition = mRecorder.getCurrentPlaybackPosition();
-        if ((currentPlaybackPosition > 0 || mRecorder.isPlaying()) && currentPlaybackPosition < mRecorder.getDuration()) {
-            mWaveDisplay.setProgress(((float) currentPlaybackPosition) / mRecorder.getDuration());
+        final long duration = mRecorder.getDuration();
+        if ((currentPlaybackPosition > 0 || mRecorder.isPlaying()) && currentPlaybackPosition < duration) {
+            mChrono.setPlaybackProgress(currentPlaybackPosition,duration);
+            mWaveDisplay.setProgress(((float) currentPlaybackPosition) / duration);
         } else {
+            mChrono.setDurationOnly(duration);
             mWaveDisplay.setProgress(-1f);
-        }
-    }
-
-    private void onPlaybackComplete(){
-        if (mCurrentState == CreateState.PLAYBACK || mCurrentState == CreateState.EDIT_PLAYBACK) {
-            configurePlaybackInfo();
-            updateUi(mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK, true);
         }
     }
 
@@ -741,10 +711,6 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
             mChrono.setPlaybackProgress(pos, duration);
             mWaveDisplay.setProgress(((float) Math.max(0, Math.min(pos, duration))) / duration);
         }
-    }
-
-    private void stopPlayback() {
-        mRecorder.stopPlayback();
     }
 
     private void showView(final View v, boolean animate) {
@@ -776,7 +742,7 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
 
     private void onRecProgressUpdate(long elapsed) {
         if (elapsed - mLastDisplayedTime > 1000) {
-            mChrono.setRecordProgress(elapsed);
+            mChrono.setDurationOnly(elapsed);
             updateTimeRemaining();
             mLastDisplayedTime = (elapsed / 1000)*1000;
         }
@@ -787,28 +753,30 @@ public class ScCreate extends Activity implements CreateWaveDisplay.Listener {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (SoundRecorder.RECORD_STARTED.equals(action) &&
-                    (mCurrentState == CreateState.IDLE_PLAYBACK || mCurrentState == CreateState.PLAYBACK)) {
-                // this will happen if recording starts from somewhere else. just reset as the player will have to be reloaded anyway
-                stopPlayback();
-                reset();
+            if (SoundRecorder.RECORD_STARTED.equals(action)) {
+                updateUi(CreateState.RECORD, true);
+
             } else if (SoundRecorder.RECORD_SAMPLE.equals(action)) {
-                float maxAmplitude = intent.getFloatExtra(SoundRecorder.EXTRA_AMPLITUDE, -1f);
-                long elapsed = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l);
                 if (mCurrentState == CreateState.IDLE_RECORD || mCurrentState == CreateState.RECORD) {
-                    mWaveDisplay.updateAmplitude(maxAmplitude, mCurrentState == CreateState.RECORD);
-                    if (mCurrentState == CreateState.RECORD) onRecProgressUpdate(elapsed);
+                    mWaveDisplay.updateAmplitude(intent.getFloatExtra(SoundRecorder.EXTRA_AMPLITUDE, -1f), mCurrentState == CreateState.RECORD);
+                    if (mCurrentState == CreateState.RECORD) onRecProgressUpdate(intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l));
                 }
 
             } else if (SoundRecorder.RECORD_ERROR.equals(action)) {
                 onRecordingError();
+
+            } else if (SoundRecorder.RECORD_FINISHED.equals(action)) {
+                updateUi(CreateState.IDLE_PLAYBACK, true);
+
             } else if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
             } else if (SoundRecorder.PLAYBACK_PROGRESS.equals(action)) {
                 setProgressInternal(intent.getLongExtra(SoundRecorder.EXTRA_POSITION, 0),
                         intent.getLongExtra(SoundRecorder.EXTRA_DURATION, 0));
 
             } else if (SoundRecorder.PLAYBACK_COMPLETE.equals(action) || SoundRecorder.PLAYBACK_ERROR.equals(action)) {
-                    onPlaybackComplete();
+                if (mCurrentState == CreateState.PLAYBACK || mCurrentState == CreateState.EDIT_PLAYBACK) {
+                    updateUi(mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK, true);
+                }
             }
         }
     };
