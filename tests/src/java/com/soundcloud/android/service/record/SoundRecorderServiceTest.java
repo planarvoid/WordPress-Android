@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(DefaultTestRunner.class)
-public class RecordingServiceTest {
+public class SoundRecorderServiceTest {
     @Test
     public void shouldUseLocalService() throws Exception {
         expect(new SoundRecorderService().onBind(null) instanceof LocalBinder).toBeTrue();
