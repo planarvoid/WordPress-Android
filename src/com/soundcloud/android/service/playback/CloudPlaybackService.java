@@ -2,7 +2,6 @@ package com.soundcloud.android.service.playback;
 
 import static com.soundcloud.android.service.playback.State.*;
 
-import android.os.Binder;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -11,6 +10,7 @@ import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.streaming.StreamProxy;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
@@ -53,8 +53,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static List<Playable> playlistXfer;
 
     private static Track currentTrack;
-    public static Track getCurrentTrack() { return currentTrack; };
-    public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.id; };
+    public static Track getCurrentTrack()  { return currentTrack; }
+    public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.id; }
 
     private static State state = STOPPED;
     public static State getState() { return state; }
@@ -138,12 +138,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private IAudioManager mFocus;
     private boolean mTransientFocusLoss;
 
-    private final IBinder mBinder = new LocalBinder();
-    public class LocalBinder extends Binder {
-        public CloudPlaybackService getService() {
+    private final IBinder mBinder = new LocalBinder<CloudPlaybackService>() {
+        @Override public CloudPlaybackService getService() {
             return CloudPlaybackService.this;
         }
-    }
+    };
 
     private static final ImageLoader.Options ICON_OPTIONS = new ImageLoader.Options(false);
     private Notification status;
@@ -1154,7 +1153,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             }
 
             if (mMediaPlayer == mp) {
-                // only clear seek if we are not buffering. If we are buffering, it will be cleard after buffering completes
+                // only clear seek if we are not buffering. If we are buffering, it will be cleared after buffering completes
                 if (state != State.PAUSED_FOR_BUFFERING){
                     // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
                     mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);

@@ -35,8 +35,6 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
 public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
-    private static final String TAG = "ScPlayer";
-
     public static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
     public static final int REFRESH_DELAY = 1000;
 
@@ -139,9 +137,9 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         final long nextTrackId;
 
         final PlaylistManager playlistManager = mPlaybackService.getPlaylistManager();
-        prevTrackId = mPlaybackService != null && newQueuePos > 0
+        prevTrackId = newQueuePos > 0
                 ? playlistManager.getTrackIdAt(newQueuePos - 1) : -1;
-        nextTrackId =  mPlaybackService != null && newQueuePos < playlistManager.length() - 1
+        nextTrackId =  newQueuePos < playlistManager.length() - 1
                 ? playlistManager.getTrackIdAt(newQueuePos + 1) : -1;
 
         final PlayerTrackView ptv;
@@ -529,7 +527,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     }
 
     private void setCurrentTrackDataFromService() {
-        setCurrentTrackDataFromService(mPlaybackService.getCurrentTrackId());
+        setCurrentTrackDataFromService(CloudPlaybackService.getCurrentTrackId());
     }
 
     private void setCurrentTrackDataFromService(long id) {
@@ -538,7 +536,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         mCurrentQueuePosition = mPlaybackService.getPlaylistManager().getPosition();
         mPlayingTrack = getTrackById(id);
         if (mPlayingTrack == null) {
-            mPlayingTrack = mPlaybackService.getCurrentTrack();
+            mPlayingTrack = CloudPlaybackService.getCurrentTrack();
         }
 
         setFavoriteStatus();
