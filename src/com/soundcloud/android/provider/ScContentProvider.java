@@ -201,8 +201,17 @@ public class ScContentProvider extends ContentProvider {
                         _sortOrder, null);
                 break;
             case RECORDING:
-                qb.setTables(content.table.name);
+                qb.setTables(content.table.name +
+                                        " LEFT OUTER JOIN "+Table.USERS+
+                                        " ON "+content.table.field(DBHelper.Recordings.PRIVATE_USER_ID)+
+                                        "="+Table.USERS.field(DBHelper.Users._ID));
+
                 qb.appendWhere(Table.RECORDINGS.id + " = "+ uri.getLastPathSegment());
+                query = qb.buildQuery(new String[] { content.table.allFields(), DBHelper.Users.USERNAME },
+                                        selection,
+                                        null,
+                                        null,
+                                        _sortOrder, null);
                 break;
 
             case ME_SOUND_STREAM:

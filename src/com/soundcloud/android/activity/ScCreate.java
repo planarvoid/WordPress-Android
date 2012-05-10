@@ -359,6 +359,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         if (mPrivateUser != null) {
                             SoundCloudDB.upsertUser(getContentResolver(), mPrivateUser);
                             mRecording.private_user_id = mPrivateUser.id;
+                            mRecording.private_username = mPrivateUser.getDisplayName();
                             mRecording.is_private = true;
                         }
                         // set duration because ogg files report incorrect
@@ -431,6 +432,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             mActionButton.setEnabled(false);
             // TODO state?
         } else {
+
             if (mRecording == null && mPrivateUser != null) {
                 mRecording = Recording.checkForUnusedPrivateRecording(SoundRecorder.RECORD_DIR, mPrivateUser);
             }
