@@ -25,6 +25,9 @@ public interface AudioFile extends Closeable {
     long getDuration();
 
 
+    /**
+     * @return the current position in milliseconds
+     */
     long getPosition();
 
     /**
@@ -37,5 +40,8 @@ public interface AudioFile extends Closeable {
     int read(ByteBuffer buffer, int length) throws IOException;
 
 
+    /**
+     * @return the underlying file or null
+     */
     File getFile();
 }

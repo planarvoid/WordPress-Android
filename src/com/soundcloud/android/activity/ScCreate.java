@@ -352,10 +352,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     updateUi(CreateState.IDLE_PLAYBACK, true);
                 } else {
                     track(Click.Record_next);
-                    boolean isNew = !mRecording.isSaved();
-                    if (isNew) {
+                    if (!mRecording.isSaved()) {
                         mRecording.user_id = SoundCloudApplication.getUserId();
-
                         if (mPrivateUser != null) {
                             SoundCloudDB.upsertUser(getContentResolver(), mPrivateUser);
                             mRecording.private_user_id = mPrivateUser.id;
@@ -366,8 +364,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         // after encoding
                         mRecording.duration = mRecorder.getDuration();
                         mRecording = SoundCloudDB.insertRecording(getContentResolver(), mRecording);
+                        startActivity(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()));
+                        reset();
+                    } else {
+                        startActivityForResult(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()), 0);
                     }
-                    onSave(mRecording, isNew);
                 }
             }
         });
@@ -770,15 +771,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             }
         }
     };
-
-    private void onSave(final Recording recording, boolean isNew) {
-        if (isNew) {
-            startActivity(new Intent(this, ScUpload.class).setData(recording.toUri()));
-            reset();
-        } else {
-            startActivityForResult(new Intent(this, ScUpload.class).setData(recording.toUri()), 0);
-        }
-    }
 
     @Override public Dialog onCreateDialog(int which) {
         switch (which) {

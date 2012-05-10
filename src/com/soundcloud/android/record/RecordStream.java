@@ -35,6 +35,11 @@ public class RecordStream implements Closeable {
     private static final int FADE_LENGTH_MS = 1000;
     private static final int FADE_EXP_CURVE = 2;
 
+    /**
+     * @param raw the file to hold raw data
+     * @param encoded the file to be encoded (pass in null to skip encoding)
+     * @param cfg the audio config to use
+     */
     public RecordStream(File raw, File encoded, AudioConfig cfg) {
         if (raw == null && encoded == null) throw new IllegalArgumentException("raw + encoded is null");
         if (cfg == null) throw new IllegalArgumentException("config is null");
@@ -102,7 +107,6 @@ public class RecordStream implements Closeable {
         initialised = true;
     }
 
-    /** Playback Bounds **/
     public void resetPlaybackBounds() {
         startPosition = 0;
         endPosition = duration;
