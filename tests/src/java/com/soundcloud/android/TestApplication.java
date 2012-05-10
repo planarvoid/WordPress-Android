@@ -14,6 +14,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -93,14 +94,19 @@ public class TestApplication extends SoundCloudApplication {
     public static Recording getValidRecording() throws IOException {
         Recording r = new Recording(getTestFile());
         if (!r.encoded_audio_path.createNewFile()) throw new RuntimeException("could not create encoded file");
+        fill(r.encoded_audio_path);
         return r;
     }
 
     public static File getTestFile() throws IOException {
         File tmp = File.createTempFile("temp", ".ogg");
-        PrintWriter pw = new PrintWriter(new FileOutputStream(tmp));
+        fill(tmp);
+        return tmp;
+    }
+
+    private static void fill(File f) throws FileNotFoundException {
+        PrintWriter pw = new PrintWriter(new FileOutputStream(f));
         pw.print("123");
         pw.close();
-        return tmp;
     }
 }
