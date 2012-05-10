@@ -106,6 +106,11 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_timeSeek(JNIEnv *env, jobject
     return align ? ov_time_seek_page(&state->vf, pos) : ov_time_seek(&state->vf, pos);
 }
 
+jdouble Java_com_soundcloud_android_jni_VorbisDecoder_timeTell(JNIEnv *env, jobject obj) {
+    decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
+    return ov_time_tell(&state->vf);
+}
+
 jint Java_com_soundcloud_android_jni_VorbisDecoder_decode(JNIEnv *env, jobject obj, jobject buffer, jint length) {
     decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
     int current_section;

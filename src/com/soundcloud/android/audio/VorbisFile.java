@@ -38,6 +38,11 @@ public class VorbisFile implements AudioFile {
     }
 
     @Override
+    public long getPosition() {
+        return (long) decoder.timeTell();
+    }
+
+    @Override
     public int read(ByteBuffer buffer, int length) throws IOException {
         final int ret = decoder.decode(buffer, length);
         if (ret == 0) {

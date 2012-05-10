@@ -23,6 +23,9 @@ public interface AudioFile extends Closeable {
      */
     long getDuration();
 
+
+    long getPosition();
+
     /**
      * Reads up to length bytes audiodata into the buffer, starting from the current position
      * @param buffer the bytebuffer to read bytes into

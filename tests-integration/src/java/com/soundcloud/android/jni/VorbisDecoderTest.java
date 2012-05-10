@@ -68,6 +68,24 @@ public class VorbisDecoderTest extends AudioTest {
         decoder.release();
     }
 
+    public void testTimeTell() throws Exception {
+        VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
+        assertEquals(0, decoder.timeSeek(10000d));
+        assertEquals(10000d, decoder.timeTell());
+
+        // decode some stuff
+        ByteBuffer bb = ByteBuffer.allocateDirect(4096);
+        int read = 0;
+        do {
+            read += decoder.decode(bb, bb.capacity());
+        }  while (read < 44100 * 2 * 2 /* around 1sec worth of data */);
+
+        // and check time
+        assertEquals(11004d, decoder.timeTell());
+
+        decoder.release();
+    }
+
 
     public void testGetInfo() throws Exception {
         VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
