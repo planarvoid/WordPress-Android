@@ -1,6 +1,23 @@
 package com.soundcloud.android.activity;
 
-import android.app.Activity;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.RemainingTimeCalculator;
+import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.tracking.Tracking;
+import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.view.create.Chronometer;
+import com.soundcloud.android.view.create.CreateWaveDisplay;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -13,7 +30,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,24 +40,6 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.RemainingTimeCalculator;
-import com.soundcloud.android.record.SoundRecorder;
-import com.soundcloud.android.tracking.Click;
-import com.soundcloud.android.tracking.Event;
-import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.view.create.Chronometer;
-import com.soundcloud.android.view.create.CreateWaveDisplay;
 
 import java.io.File;
 import java.io.IOException;
@@ -444,12 +442,15 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             }
         }
 
+        /*
+        TODO: renable later
         if (!(mCurrentState == CreateState.RECORD) && mPrivateUser == null) {
             mUnsavedRecordings = Recording.getUnsavedRecordings(getContentResolver(), SoundRecorder.RECORD_DIR,mRecording, getCurrentUserId());
             if (!mUnsavedRecordings.isEmpty()) {
                 showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
             }
         }
+        */
         setResetState();
         updateUi(newState, takeAction);
     }
@@ -632,12 +633,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mLastDisplayedTime = -1;
         mWaveDisplay.gotoRecordMode();
 
-        if (mRecording == null) {
-            mRecording = Recording.create(mPrivateUser);
-        }
-
         try {
-            mRecorder.startRecording(mRecording);
+            mRecording = mRecorder.startRecording(mPrivateUser);
         } catch (IOException e) {
             onRecordingError(e.getMessage());
             updateUi(CreateState.IDLE_RECORD, true);

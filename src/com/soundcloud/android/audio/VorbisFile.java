@@ -54,6 +54,11 @@ public class VorbisFile implements AudioFile {
     }
 
     @Override
+    public File getFile() {
+        return decoder.file;
+    }
+
+    @Override
     public void close() throws IOException {
         decoder.release();
     }

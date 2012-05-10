@@ -102,6 +102,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public Recording(File f) {
         if (f == null) throw new IllegalArgumentException("file is null");
         audio_path = f;
+        encoded_audio_path = Recording.encodedFilename(f);
     }
 
     public Recording(Cursor c) {

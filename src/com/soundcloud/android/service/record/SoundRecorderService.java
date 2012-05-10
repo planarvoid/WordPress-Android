@@ -126,14 +126,19 @@ public class SoundRecorderService extends Service  {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "BroadcastReceiver#onReceive(" + action + ")");
 
             if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
-                onPlaybackStarted(mRecorder.getRecording());
+                Recording recording = intent.getParcelableExtra(SoundRecorder.EXTRA_RECORDING);
+                onPlaybackStarted(recording);
 
-            } else if (SoundRecorder.PLAYBACK_STOPPED.equals(action) || SoundRecorder.PLAYBACK_COMPLETE.equals(action) || SoundRecorder.PLAYBACK_ERROR.equals(action)) {
+            } else if (SoundRecorder.PLAYBACK_STOPPED.equals(action) ||
+                       SoundRecorder.PLAYBACK_COMPLETE.equals(action) ||
+                       SoundRecorder.PLAYBACK_ERROR.equals(action)) {
+
                 gotoIdleState(PLAYBACK_NOTIFY_ID);
 
             } else if (SoundRecorder.RECORD_STARTED.equals(action)) {
                 acquireWakeLock();
-                startForeground(RECORD_NOTIFY_ID, createRecordingNotification(mRecorder.getRecording()));
+                Recording recording = intent.getParcelableExtra(SoundRecorder.EXTRA_RECORDING);
+                startForeground(RECORD_NOTIFY_ID, createRecordingNotification(recording));
 
             } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
                 final long time = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l);

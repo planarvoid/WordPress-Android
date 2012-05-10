@@ -1,6 +1,7 @@
 package com.soundcloud.android.audio;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -34,4 +35,7 @@ public interface AudioFile extends Closeable {
      * @throws IOException
      */
     int read(ByteBuffer buffer, int length) throws IOException;
+
+
+    File getFile();
 }

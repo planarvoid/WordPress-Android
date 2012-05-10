@@ -866,15 +866,6 @@ public class UserBrowser extends ScListActivity implements
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        SoundRecorder recorder = SoundRecorder.getInstance(this);
-        if (!isMe() && recorder != null && recorder.isRecording() && recorder.getRecording().getPrivateUserId() != mUser.id) {
-            menu.removeItem(Consts.OptionsMenu.PRIVATE_MESSAGE);
-        }
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case Consts.OptionsMenu.PRIVATE_MESSAGE:
