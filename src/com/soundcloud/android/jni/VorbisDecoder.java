@@ -51,6 +51,12 @@ public class VorbisDecoder {
 
 
     /**
+     * @see <a href="http://xiph.org/vorbis/doc/vorbisfile/ov_time_tell.html">ov_time_tell</a>
+     * @return current decoding time offset in milliseconds.
+     */
+    public native double timeTell();
+
+    /**
      * This is the main function used to decode a Vorbis file within a loop.
      * It returns up to the specified number of bytes of decoded PCM audio in the requested endianness,
      * signedness, and word size. If the audio is multichannel, the channels are interleaved in the

@@ -31,6 +31,15 @@ public class WavFile implements AudioFile {
     }
 
     @Override
+    public long getPosition() {
+        try {
+            return getConfig().bytesToMs(file.getFilePointer() - WavHeader.LENGTH);
+        } catch (IOException e) {
+            return -1;
+        }
+    }
+
+    @Override
     public int read(ByteBuffer buffer, int length) throws IOException {
         return file.getChannel().read(buffer);
     }

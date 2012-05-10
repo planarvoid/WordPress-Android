@@ -35,6 +35,14 @@ JNIEXPORT jobject JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_getInfo
 
 /*
  * Class:     com_soundcloud_android_jni_VorbisDecoder
+ * Method:    timeTell
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_timeTell
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisDecoder
  * Method:    decode
  * Signature: (Ljava/nio/ByteBuffer;I)I
  */

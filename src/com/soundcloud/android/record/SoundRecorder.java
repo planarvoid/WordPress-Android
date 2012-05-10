@@ -410,7 +410,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
                         mState = SoundRecorder.State.ERROR;
                     } else {
-                        mCurrentPosition += file.getConfig().bytesToMs(n);
+                        mCurrentPosition = file.getPosition();
                     }
                     buffer.clear();
                 }

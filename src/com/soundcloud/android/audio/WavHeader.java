@@ -264,11 +264,7 @@ public class WavHeader {
         if (ms < 0) {
             return WavHeader.LENGTH;
         } else {
-            final long offset = (long) Math.min(mNumBytes,
-                    ms * getBytesPerSample()
-                       * mNumChannels
-                       * (mSampleRate / 1000d));
-
+            final long offset = Math.min(mNumBytes, getAudioConfig().msToByte(ms));
             return LENGTH + getAudioConfig().validBytePosition(offset);
          }
     }

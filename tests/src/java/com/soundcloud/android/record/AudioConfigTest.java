@@ -35,6 +35,13 @@ public class AudioConfigTest {
     }
 
     @Test
+    public void shouldMillisecondsToBytes() throws Exception {
+        expect(AudioConfig.PCM16_44100_2.msToByte(18786l)).toEqual(3313850l);
+        expect(AudioConfig.PCM16_44100_1.msToByte(500)).toEqual(44100l);
+        expect(AudioConfig.PCM16_44100_1.msToByte(1000)).toEqual(88200l);
+    }
+
+    @Test
     public void shouldHaveBytesPerSecond() throws Exception {
         expect(AudioConfig.PCM16_44100_1.bytesPerSecond).toEqual(44100 * 2);
         expect(AudioConfig.PCM16_44100_2.bytesPerSecond).toEqual(44100 * 2 * 2);

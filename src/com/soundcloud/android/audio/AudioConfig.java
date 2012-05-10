@@ -74,11 +74,11 @@ public enum AudioConfig {
     }
 
     public long msToByte(long ms) {
-        return ms * bytesPerSecond / 1000;
+        return (long) (ms * (sampleRate / 1000d) * (bitsPerSample / 8d) * channels);
     }
 
     public long bytesToMs(long bytePos){
-        return (1000*bytePos)/(bytesPerSecond);
+        return (1000*bytePos) / bytesPerSecond;
     }
 
     public long validBytePosition(long offset) {
