@@ -327,4 +327,8 @@ public final class CloudUtils {
         }
         return idList;
     }
+
+    public static String removeFileExtension(String str){
+        return str.contains(".") ? str.substring(0, str.lastIndexOf(".")) : str;
+    }
 }

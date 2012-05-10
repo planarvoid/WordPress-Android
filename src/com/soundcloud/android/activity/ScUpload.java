@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Tracking(page = Page.Record_details)
-public class ScUpload extends ScListActivity {
+public class ScUpload extends ScActivity {
     private ViewFlipper mSharingFlipper;
     private RadioGroup mRdoPrivacy;
     /* package */ RadioButton mRdoPrivate, mRdoPublic;
@@ -43,8 +43,8 @@ public class ScUpload extends ScListActivity {
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+
         setContentView(R.layout.sc_upload);
-        initResourceRefs();
 
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId())) != null) {
@@ -64,6 +64,94 @@ public class ScUpload extends ScListActivity {
             }
         }
     }
+
+    @Override
+    public void setContentView(int layoutId) {
+            super.setContentView(layoutId);
+            mRecordingMetadata = (RecordingMetaData) findViewById(R.id.metadata_layout);
+            mRecordingMetadata.setActivity(this);
+
+            findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    track(Click.Record_details_record_another);
+                    startActivity((new Intent(Actions.RECORD))
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                }
+            });
+
+            findViewById(R.id.btn_upload).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    track(Click.Record_details_Upload_and_share);
+
+                    if (mRecording != null) {
+                        mapToRecording(mRecording);
+                        saveRecording(mRecording);
+                    }
+
+                    if (startUpload()) {
+                        mRecording = null;
+                        mRecordingMetadata.setRecording(null);
+                        setResult(RESULT_OK);
+                        finish();
+                    }
+                }
+            });
+
+            mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
+            mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
+            mRdoPublic = (RadioButton) findViewById(R.id.rdo_public);
+            mRdoPrivate = (RadioButton) findViewById(R.id.rdo_private);
+
+            mRdoPrivacy.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    switch (checkedId) {
+                        case R.id.rdo_public:
+                            mSharingFlipper.setDisplayedChild(0);
+                            ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_public);
+                            break;
+                        case R.id.rdo_private:
+                            mSharingFlipper.setDisplayedChild(1);
+                            ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_private);
+                            break;
+                    }
+                }
+            });
+
+            mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
+            mConnectionList.setAdapter(new ConnectionList.Adapter(this.getApp()));
+
+            mAccessList = (AccessList) findViewById(R.id.accessList);
+            mAccessList.setAdapter(new AccessList.Adapter());
+            mAccessList.getAdapter().setAccessList(null);
+
+            mAccessList.getAdapter().registerDataSetObserver(new DataSetObserver() {
+                @Override
+                public void onChanged() {
+                    findViewById(R.id.btn_add_emails).setVisibility(
+                            mAccessList.getAdapter().getCount() > 0 ? View.GONE : View.VISIBLE
+                    );
+                }
+            });
+
+            findViewById(R.id.btn_add_emails).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    List<String> accessList = mAccessList.getAdapter().getAccessList();
+                    Intent intent = new Intent(ScUpload.this, EmailPicker.class);
+                    if (accessList != null) {
+                        intent.putExtra(EmailPicker.BUNDLE_KEY, accessList.toArray(new String[accessList.size()]));
+                        if (v instanceof TextView) {
+                            intent.putExtra(EmailPicker.SELECTED, ((TextView) v).getText());
+                        }
+                    }
+                    startActivityForResult(intent, EmailPicker.PICK_EMAILS);
+                }
+            });
+        }
 
     @Override
     protected void onResume() {
@@ -97,92 +185,6 @@ public class ScUpload extends ScListActivity {
 
     private void setPrivateShareEmails(String[] emails) {
         mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
-    }
-
-    private void initResourceRefs() {
-        mRecordingMetadata = (RecordingMetaData) findViewById(R.id.metadata_layout);
-        mRecordingMetadata.setActivity(this);
-
-        findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                track(Click.Record_details_record_another);
-                startActivity((new Intent(Actions.RECORD))
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
-            }
-        });
-
-        findViewById(R.id.btn_upload).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                track(Click.Record_details_Upload_and_share);
-
-                if (mRecording != null) {
-                    mapToRecording(mRecording);
-                    saveRecording(mRecording);
-                }
-
-                if (startUpload()) {
-                    mRecording = null;
-                    mRecordingMetadata.setRecording(null);
-                    setResult(RESULT_OK);
-                    finish();
-                }
-            }
-        });
-
-        mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
-        mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
-        mRdoPublic = (RadioButton) findViewById(R.id.rdo_public);
-        mRdoPrivate = (RadioButton) findViewById(R.id.rdo_private);
-
-        mRdoPrivacy.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.rdo_public:
-                        mSharingFlipper.setDisplayedChild(0);
-                        ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_public);
-                        break;
-                    case R.id.rdo_private:
-                        mSharingFlipper.setDisplayedChild(1);
-                        ((TextView) findViewById(R.id.txt_record_options)).setText(R.string.sc_upload_sharing_options_private);
-                        break;
-                }
-            }
-        });
-
-        mConnectionList = (ConnectionList) findViewById(R.id.connectionList);
-        mConnectionList.setAdapter(new ConnectionList.Adapter(this.getApp()));
-
-        mAccessList = (AccessList) findViewById(R.id.accessList);
-        mAccessList.setAdapter(new AccessList.Adapter());
-        mAccessList.getAdapter().setAccessList(null);
-
-        mAccessList.getAdapter().registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                findViewById(R.id.btn_add_emails).setVisibility(
-                        mAccessList.getAdapter().getCount() > 0 ? View.GONE : View.VISIBLE
-                );
-            }
-        });
-
-        findViewById(R.id.btn_add_emails).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<String> accessList = mAccessList.getAdapter().getAccessList();
-                Intent intent = new Intent(ScUpload.this, EmailPicker.class);
-                if (accessList != null) {
-                    intent.putExtra(EmailPicker.BUNDLE_KEY, accessList.toArray(new String[accessList.size()]));
-                    if (v instanceof TextView) {
-                        intent.putExtra(EmailPicker.SELECTED, ((TextView) v).getText());
-                    }
-                }
-                startActivityForResult(intent, EmailPicker.PICK_EMAILS);
-            }
-        });
     }
 
     /* package */ boolean startUpload() {
