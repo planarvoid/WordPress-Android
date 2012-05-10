@@ -552,10 +552,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
     }
 
-    public File encodedFilename() {
-        return encodedFilename(audio_path);
-    }
-
     public static Recording checkForUnusedPrivateRecording(File directory, User user) {
         if (user == null) return null;
         for (File f : directory.listFiles(new RecordingFilter(null))) {

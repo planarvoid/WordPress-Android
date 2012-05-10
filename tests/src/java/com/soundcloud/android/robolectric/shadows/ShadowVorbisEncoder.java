@@ -13,8 +13,6 @@ import java.io.IOException;
 public class ShadowVorbisEncoder {
     @Implementation
     public static int encodeWav(File in, File out, float quality, ProgressListener l) throws IOException {
-        if (!out.createNewFile()) throw new IOException("can't create "+out);
-        out.deleteOnExit();
         return 0;
     }
 }

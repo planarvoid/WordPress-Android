@@ -116,7 +116,7 @@ public class UploadService extends Service {
             if (recording.hasArtwork() && recording.resized_artwork_path == null) {
                 post(new ImageResizer(UploadService.this, recording));
             } else {
-                if (!recording.encodedFilename().exists()) {
+                if (!recording.encoded_audio_path.exists()) {
                     mEncodingHandler.post(new Encoder(UploadService.this, recording));
                 } else {
                     post(new Uploader((SoundCloudApplication) getApplication(), recording));
