@@ -242,8 +242,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private void onRecordingError(String message) {
         mRecordErrorMessage = message;
-        IOUtils.deleteFile(mRecording.audio_path);
-        mRecording = null;
+        if (mRecording != null) {
+            mRecording.delete(getContentResolver());
+            mRecording = null;
+        }
         updateUi(CreateState.IDLE_RECORD, true);
     }
 

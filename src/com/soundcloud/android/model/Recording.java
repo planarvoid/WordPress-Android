@@ -288,8 +288,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public boolean delete(ContentResolver resolver) {
         boolean deleted = false;
-        if (!external_upload && audio_path.exists()) {
-            deleted = audio_path.delete();
+        if (!external_upload) {
+            deleted = IOUtils.deleteFile(audio_path);
         }
         if (id > 0 && resolver != null) resolver.delete(toUri(), null, null);
         return deleted;
