@@ -54,8 +54,6 @@ public class SyncAdapterServiceTest {
 
     @Before
     public void before() {
-        Robolectric.application.onCreate();
-
         // don't want default syncing for tests
         SyncContent.setAllSyncEnabledPrefs(Robolectric.application, false);
 

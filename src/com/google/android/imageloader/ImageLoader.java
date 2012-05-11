@@ -16,6 +16,10 @@
 
 package com.google.android.imageloader;
 
+import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.cache.FileCache;
+import com.soundcloud.android.utils.ImageUtils;
+
 import android.app.Activity;
 import android.app.Application;
 import android.content.ContentResolver;
@@ -31,18 +35,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
-import android.util.Log;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
-
-import com.google.android.filecache.ScFileCacheResponse;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
-import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.WorkspaceView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,13 +53,20 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 
 /**
  * A helper class to executeAppendTask images asynchronously.
  */
-public final class ImageLoader {
+public class ImageLoader {
 
     private static final String TAG = "ImageLoader";
 

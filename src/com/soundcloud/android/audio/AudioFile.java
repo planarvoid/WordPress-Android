@@ -1,6 +1,7 @@
 package com.soundcloud.android.audio;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -23,6 +24,12 @@ public interface AudioFile extends Closeable {
      */
     long getDuration();
 
+
+    /**
+     * @return the current position in milliseconds
+     */
+    long getPosition();
+
     /**
      * Reads up to length bytes audiodata into the buffer, starting from the current position
      * @param buffer the bytebuffer to read bytes into
@@ -31,4 +38,10 @@ public interface AudioFile extends Closeable {
      * @throws IOException
      */
     int read(ByteBuffer buffer, int length) throws IOException;
+
+
+    /**
+     * @return the underlying file or null
+     */
+    File getFile();
 }

@@ -105,7 +105,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_USERID:
                 MatrixCursor c = new MatrixCursor(new String[] { BaseColumns._ID}, 1);
-                c.addRow(new Object[] { SoundCloudApplication.fromContext(getContext()).getCurrentUserId() });
+                c.addRow(new Object[] { SoundCloudApplication.getUserId() });
                 return c;
 
             case USER_TRACKS:

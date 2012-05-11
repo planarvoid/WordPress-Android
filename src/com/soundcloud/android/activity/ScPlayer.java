@@ -1,9 +1,6 @@
 
 package com.soundcloud.android.activity;
 
-import android.content.ComponentName;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -16,21 +13,22 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlaylistManager;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
 import com.soundcloud.android.view.play.WaveformController;
-import com.soundcloud.android.view.WorkspaceView;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
-import android.os.RemoteException;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +36,6 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
 public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenChangeListener, WorkspaceView.OnScrollListener {
-    private static final String TAG = "ScPlayer";
-
     public static final String PLAYER_SHOWING_COMMENTS = "playerShowingComments";
     public static final int REFRESH_DELAY = 1000;
 
@@ -142,9 +138,9 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         final long nextTrackId;
 
         final PlaylistManager playlistManager = mPlaybackService.getPlaylistManager();
-        prevTrackId = mPlaybackService != null && newQueuePos > 0
+        prevTrackId = newQueuePos > 0
                 ? playlistManager.getTrackIdAt(newQueuePos - 1) : -1;
-        nextTrackId =  mPlaybackService != null && newQueuePos < playlistManager.length() - 1
+        nextTrackId =  newQueuePos < playlistManager.length() - 1
                 ? playlistManager.getTrackIdAt(newQueuePos + 1) : -1;
 
         final PlayerTrackView ptv;
@@ -262,8 +258,10 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     private final ServiceConnection osc = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName classname, IBinder obj) {
-            mPlaybackService = ((CloudPlaybackService.LocalBinder)obj).getService();
-            onPlaybackServiceBound();
+            if (obj instanceof LocalBinder) {
+                mPlaybackService = (CloudPlaybackService) ((LocalBinder)obj).getService();
+                onPlaybackServiceBound();
+            }
         }
 
         @Override
@@ -532,7 +530,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     }
 
     private void setCurrentTrackDataFromService() {
-        setCurrentTrackDataFromService(mPlaybackService.getCurrentTrackId());
+        setCurrentTrackDataFromService(CloudPlaybackService.getCurrentTrackId());
     }
 
     private void setCurrentTrackDataFromService(long id) {
@@ -541,7 +539,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         mCurrentQueuePosition = mPlaybackService.getPlaylistManager().getPosition();
         mPlayingTrack = getTrackById(id);
         if (mPlayingTrack == null) {
-            mPlayingTrack = mPlaybackService.getCurrentTrack();
+            mPlayingTrack = CloudPlaybackService.getCurrentTrack();
         }
 
         setFavoriteStatus();

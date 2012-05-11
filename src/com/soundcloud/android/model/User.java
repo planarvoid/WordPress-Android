@@ -393,6 +393,6 @@ public class User extends ScModel implements  Refreshable, Origin {
         }
         Activities.clear(null, resolver);
         PlaylistManager.clearState(app);
-        Search.clearState(resolver, app.getCurrentUserId());
+        Search.clearState(resolver, SoundCloudApplication.getUserId());
     }
 }

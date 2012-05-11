@@ -8,7 +8,6 @@ import com.soundcloud.android.audio.VorbisFile;
 import com.soundcloud.android.audio.WavFile;
 import com.soundcloud.android.audio.WavWriter;
 import com.soundcloud.android.jni.VorbisEncoder;
-import com.soundcloud.android.model.Recording;
 
 import android.net.Uri;
 import android.util.Log;
@@ -19,12 +18,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class RecordStream implements Closeable {
-    private WavWriter mWavWriter;
     private final AudioConfig config;
-    private VorbisEncoder mEncoder;
 
-    public final Recording recording;
-    public final File encodedFile;
+    private WavWriter mWavWriter;
+    private VorbisEncoder mEncoder;
+    private final File mEncodedFile;
+
     public boolean applyFades; //TODO , this
 
     private boolean initialised;
@@ -36,14 +35,18 @@ public class RecordStream implements Closeable {
     private static final int FADE_LENGTH_MS = 1000;
     private static final int FADE_EXP_CURVE = 2;
 
-    public RecordStream(Recording r, AudioConfig cfg, boolean encode) {
-        if (r == null) throw new IllegalArgumentException("recording is null");
+    /**
+     * @param raw the file to hold raw data
+     * @param encoded the file to be encoded (pass in null to skip encoding)
+     * @param cfg the audio config to use
+     */
+    public RecordStream(File raw, File encoded, AudioConfig cfg) {
+        if (raw == null && encoded == null) throw new IllegalArgumentException("raw + encoded is null");
         if (cfg == null) throw new IllegalArgumentException("config is null");
 
-        recording = r;
         config = cfg;
-        mWavWriter = new WavWriter(r.audio_path, cfg);
-        encodedFile = encode ? r.encodedFilename() : null;
+        mWavWriter = new WavWriter(raw, cfg);
+        mEncodedFile = encoded;
     }
 
     public int write(ByteBuffer buffer, int length) throws IOException {
@@ -95,16 +98,15 @@ public class RecordStream implements Closeable {
     }
 
     private void initialise() throws IOException {
-        if (mEncoder == null && encodedFile != null) {
+        if (mEncoder == null && mEncodedFile != null) {
             // initialise a new encoder object
             long start = System.currentTimeMillis();
-            mEncoder = new VorbisEncoder(encodedFile, "a", config);
+            mEncoder = new VorbisEncoder(mEncodedFile, "a", config);
             Log.d(TAG, "init in " + (System.currentTimeMillis() - start) + " msecs");
         }
         initialised = true;
     }
 
-    /** Playback Bounds **/
     public void resetPlaybackBounds() {
         startPosition = 0;
         endPosition = duration;
@@ -118,12 +120,16 @@ public class RecordStream implements Closeable {
         endPosition = (long) (percent * duration);
     }
 
-    public File getFile() {
-        return recording.audio_path;
+    public AudioFile getAudioFile() throws IOException {
+        return mEncodedFile == null ? new WavFile(mWavWriter.file) :  new VorbisFile(mEncodedFile);
     }
 
-    public AudioFile getAudioFile() throws IOException {
-        return encodedFile == null ? new WavFile(mWavWriter.file) :  new VorbisFile(encodedFile);
+    public File getFile()  {
+        try {
+            return getAudioFile().getFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public byte[] applyMods(byte[] buffer, long bufferIndex) {

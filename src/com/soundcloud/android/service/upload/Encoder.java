@@ -34,10 +34,10 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
         try {
             final File in = mRecording.audio_path;
             broadcast(UploadService.ENCODING_STARTED);
-            VorbisEncoder.encodeWav(in, mRecording.encodedFilename(), AudioConfig.DEFAULT.quality, this);
+            VorbisEncoder.encodeWav(in, mRecording.encoded_audio_path, AudioConfig.DEFAULT.quality, this);
 
             // double check
-            if (mRecording.encodedFilename().exists()) {
+            if (mRecording.encoded_audio_path.exists()) {
                 broadcast(UploadService.ENCODING_SUCCESS);
             } else {
                 broadcast(UploadService.ENCODING_ERROR);
@@ -75,5 +75,4 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
 
        if (mCancelled) throw new UserCanceledException();
     }
-
 }

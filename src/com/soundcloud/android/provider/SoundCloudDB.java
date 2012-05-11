@@ -11,6 +11,7 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.utils.CloudUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -227,10 +228,11 @@ public class SoundCloudDB {
     }
 
     public static Recording getRecordingByPath(ContentResolver resolver, File file) {
+        // TODO, removefileextension is probably not the best way to account for encoded / raw handling
         Cursor cursor = resolver.query(Content.RECORDINGS.uri,
                 null,
                 DBHelper.Recordings.AUDIO_PATH + "= ?",
-                new String[]{ file.getAbsolutePath() },
+                new String[]{CloudUtils.removeFileExtension(file.getAbsolutePath()) },
                 null);
 
         Recording recording = null;

@@ -8,6 +8,7 @@ import com.xtremelabs.robolectric.internal.Implements;
 import java.io.File;
 import java.io.IOException;
 
+@SuppressWarnings("UnusedDeclaration")
 @Implements(VorbisEncoder.class)
 public class ShadowVorbisEncoder {
     @Implementation

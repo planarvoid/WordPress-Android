@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class EncoderTests {
+public class EncoderTest {
     List<Intent> intents = new ArrayList<Intent>();
     List<String> actions = new ArrayList<String>();
 
@@ -38,7 +38,6 @@ public class EncoderTests {
     @Test
     public void shouldEncode() throws Exception {
         Recording rec = TestApplication.getValidRecording();
-        rec.audio_path =  new File(getClass().getResource("short_test.wav").getFile());
         Encoder encoder = new Encoder(Robolectric.application, rec);
         encoder.run();
         expect(actions).toContainExactly(UploadService.ENCODING_STARTED, UploadService.ENCODING_SUCCESS);

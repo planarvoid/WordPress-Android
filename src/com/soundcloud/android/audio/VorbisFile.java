@@ -23,11 +23,7 @@ public class VorbisFile implements AudioFile {
 
     @Override
     public AudioConfig getConfig() {
-        switch (getInfo().channels) {
-            case 1: return AudioConfig.PCM16_44100_1;
-            case 2: return AudioConfig.PCM16_44100_2;
-            default: return AudioConfig.DEFAULT;
-        }
+        return AudioConfig.findMatching(getInfo().sampleRate, getInfo().channels);
     }
 
     @Override
@@ -42,6 +38,11 @@ public class VorbisFile implements AudioFile {
     }
 
     @Override
+    public long getPosition() {
+        return (long) decoder.timeTell();
+    }
+
+    @Override
     public int read(ByteBuffer buffer, int length) throws IOException {
         final int ret = decoder.decode(buffer, length);
         if (ret == 0) {
@@ -50,6 +51,11 @@ public class VorbisFile implements AudioFile {
             buffer.position(ret);
             return ret;
         }
+    }
+
+    @Override
+    public File getFile() {
+        return decoder.file;
     }
 
     @Override
