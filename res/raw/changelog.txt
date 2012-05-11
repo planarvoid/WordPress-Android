@@ -1,7 +1,8 @@
-$ 43
+$ 44
   % v current
-  _ tbd
-  ! Bugfixes
+  _ 2012-05-11
+  ! Sync Fix
+    * Fixed sync battery usage
 
 $ 42
   % v 2.2.7

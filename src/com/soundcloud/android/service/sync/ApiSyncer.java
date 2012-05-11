@@ -397,6 +397,19 @@ public class ApiSyncer {
             r.syncResult.stats.numIoExceptions++;
             return r;
         }
+
+        @Override
+        public String toString() {
+            return "Result{" +
+                    "uri=" + uri +
+                    ", syncResult=" + syncResult +
+                    ", change=" + change +
+                    ", success=" + success +
+                    ", synced_at=" + synced_at +
+                    ", new_size=" + new_size +
+                    ", extra='" + extra + '\'' +
+                    '}';
+        }
     }
 
     private static void log(String message) {

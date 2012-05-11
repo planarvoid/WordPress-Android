@@ -459,11 +459,12 @@ public class SyncAdapterServiceTest {
         m.cancelAll();
 
         SyncResult result = new SyncResult();
-        Intent intent = SyncAdapterService.performSync(
+        SyncAdapterService.performSync(
                 app,
                 new Account("foo", "bar"),
                 extras, result);
 
+        Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 
         if (intent != null) {
             // robolectric doesn't run the service code for us, need to do it manually

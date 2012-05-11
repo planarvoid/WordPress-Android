@@ -3,6 +3,7 @@ package com.soundcloud.android.service.sync;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activities;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -60,19 +61,15 @@ public class SyncAdapterService extends Service {
         return mSyncAdapter.getSyncAdapterBinder();
     }
 
-    /* package */ static Intent performSync(final SoundCloudApplication app,
+    /* package */ static void performSync(final SoundCloudApplication app,
                                             Account account,
                                             Bundle extras,
                                             final SyncResult syncResult) {
         if (!app.useAccount(account).valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
-            return null;
+            return;
         }
-
-        final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
-        final Intent syncIntent = new Intent(app, ApiSyncService.class);
-        final ArrayList<Uri> urisToSync = new ArrayList<Uri>();
 
         // for first sync set all last seen flags to "now"
         if (app.getAccountDataLong(User.DataKeys.LAST_INCOMING_SEEN) <= 0) {
@@ -82,14 +79,44 @@ public class SyncAdapterService extends Service {
             app.setAccountData(User.DataKeys.LAST_INCOMING_NOTIFIED_AT, now);
         }
 
-        PushEvent evt = PushEvent.fromExtras(extras);
-        if (evt == PushEvent.FOLLOWER) {
+        final Intent syncIntent = getSyncIntent(app, extras);
+        if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
+            Looper.prepare();
+            syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ServiceResultReceiver(app, syncResult, extras) {
+                @Override
+                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    try {
+                        super.onReceiveResult(resultCode, resultData);
+                    } finally {
+                        // make sure the looper quits in any case - otherwise sync just hangs, holding wakelock
+                        Looper.myLooper().quit();
+                    }
+                }
+            });
+            app.startService(syncIntent);
+            Looper.loop();
+        }
+    }
+
+    private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras) {
+        final Intent syncIntent = new Intent(app, ApiSyncService.class);
+
+        if (PushEvent.fromExtras(extras) == PushEvent.FOLLOWER) {
             if (!handleFollowerEvent(app, extras)) {
-                Log.w(TAG, "unhandled follower event:"+extras);
+                Log.w(TAG, "unhandled follower event:" + extras);
             }
-            syncIntent.setData(Content.ME_FOLLOWERS.uri); // refresh follower list
+
+            if (SyncConfig.shouldSyncCollections(app)) {
+                syncIntent.setData(Content.ME_FOLLOWERS.uri); // refresh follower list
+            } else {
+                // set last sync time to 0 so it auto-refreshes on next load
+                final LocalCollection lc = LocalCollection.fromContent(Content.ME_FOLLOWERS, app.getContentResolver(), false);
+                if (lc != null) lc.updateLastSyncTime(0, app.getContentResolver());
+            }
         } else {
-             if (SyncConfig.shouldUpdateDashboard(app)) {
+            final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
+            final ArrayList<Uri> urisToSync = new ArrayList<Uri>();
+            if (SyncConfig.shouldUpdateDashboard(app)) {
                 if (SyncConfig.isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
                 if (SyncConfig.isExclusiveEnabled(app, extras)) urisToSync.add(Content.ME_EXCLUSIVE_STREAM.uri);
                 if (SyncConfig.isActivitySyncEnabled(app, extras)) urisToSync.add(Content.ME_ACTIVITIES.uri);
@@ -108,13 +135,11 @@ public class SyncAdapterService extends Service {
                 urisToSync.add(Content.ME.uri);
             }
 
-            syncIntent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
-        }
 
-        Looper.prepare();
-        syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ServiceResultReceiver(app, syncResult, extras));
-        app.startService(syncIntent);
-        Looper.loop();
+            if (!urisToSync.isEmpty()) {
+                syncIntent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
+            }
+        }
         return syncIntent;
     }
 
