@@ -1,6 +1,5 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.Context;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activities;

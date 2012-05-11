@@ -38,6 +38,8 @@ class ServiceResultReceiver extends ResultReceiver {
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+
         switch (resultCode) {
             case ApiSyncService.STATUS_SYNC_ERROR: {
                 SyncResult serviceResult = resultData.getParcelable(ApiSyncService.EXTRA_SYNC_RESULT);
@@ -45,6 +47,7 @@ class ServiceResultReceiver extends ResultReceiver {
                 result.stats.numIoExceptions = serviceResult.stats.numIoExceptions;
                 break;
             }
+
             case ApiSyncService.STATUS_SYNC_FINISHED: {
                 SyncContent.updateCollections(app, resultData);
 

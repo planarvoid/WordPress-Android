@@ -1,11 +1,11 @@
 package com.soundcloud.android.service.sync;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import com.soundcloud.android.SoundCloudApplication;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,7 +22,7 @@ import java.util.Set;
  * The action of the passed intent is either {@link Intent.ACTION_SYNC} or {@link ApiSyncService.ACTION_APPEND}
  * (for Activities).
  */
-/* package */  class ApiSyncServiceRequest {
+/* package */  class SyncIntent {
     private final String action;
     public final List<CollectionSyncRequest> collectionSyncRequests = new ArrayList<CollectionSyncRequest>();
     private final Set<CollectionSyncRequest> requestsRemaining;
@@ -34,7 +34,7 @@ import java.util.Set;
     private final Bundle resultData = new Bundle();
     private final SyncResult syncAdapterResult = new SyncResult();
 
-    public ApiSyncServiceRequest(SoundCloudApplication application, Intent intent) {
+    public SyncIntent(Context context, Intent intent) {
         resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
         isUIRequest = intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false);
         action = intent.getAction();
@@ -46,7 +46,7 @@ import java.util.Set;
             syncUris.add(intent.getData());
         }
         for (Uri uri : syncUris) {
-            collectionSyncRequests.add(new CollectionSyncRequest(application, uri, action));
+            collectionSyncRequests.add(new CollectionSyncRequest(context, uri, action));
         }
         requestsRemaining = new HashSet<CollectionSyncRequest>(collectionSyncRequests);
     }
@@ -65,18 +65,29 @@ import java.util.Set;
         }
 
         if (requestsRemaining.isEmpty()) {
-            if (resultReceiver != null) {
-                if (request.result.success) {
-                    resultReceiver.send(ApiSyncService.ACTION_APPEND.equals(action) ? ApiSyncService.STATUS_APPEND_FINISHED : ApiSyncService.STATUS_SYNC_FINISHED, resultData);
-                } else {
-                    final Bundle bundle = new Bundle();
-                    bundle.putParcelable(ApiSyncService.EXTRA_SYNC_RESULT, syncAdapterResult);
-                    resultReceiver.send(ApiSyncService.ACTION_APPEND.equals(action) ? ApiSyncService.STATUS_APPEND_ERROR : ApiSyncService.STATUS_SYNC_ERROR, bundle);
-                }
-            }
+            finish();
             return true;
         } else {
             return false;
         }
+    }
+
+    void finish() {
+        if (resultReceiver != null) {
+            if (isSuccess()) {
+                resultReceiver.send(ApiSyncService.ACTION_APPEND.equals(action) ? ApiSyncService.STATUS_APPEND_FINISHED : ApiSyncService.STATUS_SYNC_FINISHED, resultData);
+            } else {
+                final Bundle bundle = new Bundle();
+                bundle.putParcelable(ApiSyncService.EXTRA_SYNC_RESULT, syncAdapterResult);
+                resultReceiver.send(ApiSyncService.ACTION_APPEND.equals(action) ? ApiSyncService.STATUS_APPEND_ERROR : ApiSyncService.STATUS_SYNC_ERROR, bundle);
+            }
+        }
+    }
+
+    private boolean isSuccess() {
+        for (CollectionSyncRequest r : collectionSyncRequests) {
+            if (!r.result.success) return false;
+        }
+        return true;
     }
 }

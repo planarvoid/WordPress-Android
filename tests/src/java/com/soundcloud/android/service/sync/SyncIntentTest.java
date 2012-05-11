@@ -19,7 +19,7 @@ import static com.soundcloud.android.Expect.expect;
 import java.util.ArrayList;
 
 @RunWith(DefaultTestRunner.class)
-public class ApiSyncServiceRequestTest {
+public class SyncIntentTest {
     ContentResolver resolver;
     static final long USER_ID = 100L;
 
@@ -30,7 +30,7 @@ public class ApiSyncServiceRequestTest {
 
     @Test
     public void shouldCreateCollectionSyncRequests() throws Exception {
-        ApiSyncServiceRequest req = new ApiSyncServiceRequest(DefaultTestRunner.application,
+        SyncIntent req = new SyncIntent(DefaultTestRunner.application,
                 new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri));
 
         expect(req.collectionSyncRequests.size()).toEqual(1);
@@ -45,7 +45,7 @@ public class ApiSyncServiceRequestTest {
         uris.add(Content.ME_FAVORITES.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, uris);
-        ApiSyncServiceRequest req = new ApiSyncServiceRequest(DefaultTestRunner.application, intent);
+        SyncIntent req = new SyncIntent(DefaultTestRunner.application, intent);
 
         expect(req.collectionSyncRequests.size()).toEqual(2);
     }
@@ -62,7 +62,7 @@ public class ApiSyncServiceRequestTest {
             }
         });
 
-        ApiSyncServiceRequest req = new ApiSyncServiceRequest(DefaultTestRunner.application, intent);
+        SyncIntent req = new SyncIntent(DefaultTestRunner.application, intent);
 
         final CollectionSyncRequest syncRequest = req.collectionSyncRequests.get(0);
         syncRequest.onQueued();

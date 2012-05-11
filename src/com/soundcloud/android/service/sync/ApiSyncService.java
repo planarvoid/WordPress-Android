@@ -1,12 +1,11 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.ContentValues;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.os.AsyncTask;
@@ -17,7 +16,9 @@ import android.util.Log;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 public class ApiSyncService extends Service {
@@ -39,13 +40,20 @@ public class ApiSyncService extends Service {
     public static final int MAX_TASK_LIMIT = 3;
     private int mActiveTaskCount;
 
-    /* package */ final List<ApiSyncServiceRequest> mRequests = new ArrayList<ApiSyncServiceRequest>();
-    /* package */ final LinkedList<CollectionSyncRequest> mPendingCollectionRequests = new LinkedList<CollectionSyncRequest>();
+    /* package */ final List<SyncIntent> mSyncIntents = new ArrayList<SyncIntent>();
+
+
+    /* package */ final LinkedList<CollectionSyncRequest> mPendingRequests = new LinkedList<CollectionSyncRequest>();
     /* package */ final List<CollectionSyncRequest> mRunningRequests = new ArrayList<CollectionSyncRequest>();
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
+
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "onStart("+intent+")");
+        if (intent != null){
+            enqueueRequest(new SyncIntent(this, intent));
+        }
+        flushSyncRequests();
     }
 
     @Override
@@ -55,62 +63,50 @@ public class ApiSyncService extends Service {
         getContentResolver().update(Content.COLLECTIONS.uri,cv,null,null);
     }
 
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "onStart("+intent+")");
-        if (intent != null){
-            enqueueRequest(new ApiSyncServiceRequest((SoundCloudApplication) getApplication(), intent));
-        }
-        flushUriRequests();
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
-    /* package */ void enqueueRequest(ApiSyncServiceRequest apiRequest) {
-        mRequests.add(apiRequest);
-
-        for (CollectionSyncRequest request : apiRequest.collectionSyncRequests){
-            // ghetto linked list search
-            CollectionSyncRequest existingRequest = null;
-            for (CollectionSyncRequest pendingRequest : mPendingCollectionRequests){
-                if (pendingRequest.equals(request)) {
-                    existingRequest = pendingRequest;
-                    break;
-                }
-            }
-            if (existingRequest == null && !mRunningRequests.contains(request)) {
-                request.onQueued();
-
-                if (apiRequest.isUIRequest){
-                    mPendingCollectionRequests.add(0, request);
-                } else {
-                    mPendingCollectionRequests.add(request);
-                }
-            } else if (existingRequest != null && apiRequest.isUIRequest && !mPendingCollectionRequests.getFirst().equals(existingRequest)){
-                mPendingCollectionRequests.remove(existingRequest);
-                mPendingCollectionRequests.addFirst(existingRequest);
+    /* package */ void enqueueRequest(SyncIntent syncIntent) {
+        mSyncIntents.add(syncIntent);
+        for (CollectionSyncRequest request : syncIntent.collectionSyncRequests) {
+            if (!mRunningRequests.contains(request)) {
+                if (!mPendingRequests.contains(request)) {
+                        if (syncIntent.isUIRequest) {
+                            mPendingRequests.add(0, request);
+                        } else {
+                            mPendingRequests.add(request);
+                        }
+                        request.onQueued();
+                    } else if (syncIntent.isUIRequest && !mPendingRequests.getFirst().equals(request)) {
+                        mPendingRequests.remove(request);
+                        mPendingRequests.addFirst(request);
+                    }
             }
         }
     }
 
-    /* package */ void onUriSyncResult(CollectionSyncRequest collectionRequest){
-        for (ApiSyncServiceRequest apiRequest : new ArrayList<ApiSyncServiceRequest>(mRequests)){
-            if (apiRequest.onUriResult(collectionRequest)){
-                mRequests.remove(apiRequest);
+    /* package */ void onUriSyncResult(CollectionSyncRequest syncRequest){
+        for (SyncIntent syncIntent : new ArrayList<SyncIntent>(mSyncIntents)) {
+
+            if (syncIntent.onUriResult(syncRequest)){
+                mSyncIntents.remove(syncIntent);
             }
         }
-        mRunningRequests.remove(collectionRequest);
+        mRunningRequests.remove(syncRequest);
     }
 
-    void flushUriRequests() {
-        if (mPendingCollectionRequests.isEmpty() && mRunningRequests.isEmpty()){
+    private void flushSyncRequests() {
+        if (mPendingRequests.isEmpty() && mRunningRequests.isEmpty()) {
+            // make sure all sync intents are finished (should have been handled before)
+            for (SyncIntent i : mSyncIntents) {
+                i.finish();
+            }
             stopSelf();
         } else {
-            while (mActiveTaskCount < MAX_TASK_LIMIT && !mPendingCollectionRequests.isEmpty()) {
-                final CollectionSyncRequest syncRequest = mPendingCollectionRequests.poll();
+            while (mActiveTaskCount < MAX_TASK_LIMIT && !mPendingRequests.isEmpty()) {
+                final CollectionSyncRequest syncRequest = mPendingRequests.poll();
                 mRunningRequests.add(syncRequest);
                 new ApiTask().executeOnThreadPool(syncRequest);
             }
@@ -170,7 +166,7 @@ public class ApiSyncService extends Service {
         @Override
         protected void onPostExecute(Void result) {
             mActiveTaskCount--;
-            flushUriRequests();
+            flushSyncRequests();
         }
     }
 
