@@ -122,7 +122,17 @@ public class SyncAdapterService extends Service {
         }
 
         Looper.prepare();
-        syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ServiceResultReceiver(app, syncResult, extras));
+        syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ServiceResultReceiver(app, syncResult, extras) {
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                try {
+                    super.onReceiveResult(resultCode, resultData);
+                } finally {
+                    // make sure the looper quits in any case - otherwise sync just hangs, holding wakelock
+                    Looper.myLooper().quit();
+                }
+            }
+        });
         app.startService(syncIntent);
         Looper.loop();
         return syncIntent;

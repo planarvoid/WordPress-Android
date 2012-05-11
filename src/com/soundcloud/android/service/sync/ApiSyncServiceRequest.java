@@ -56,8 +56,6 @@ import java.util.Set;
      * @return true if all requests have been processed, otherwise false.
      */
     public boolean onUriResult(CollectionSyncRequest request) {
-        if (request.result == null) return false;
-
         if (requestsRemaining.contains(request)) {
             requestsRemaining.remove(request);
             resultData.putBoolean(request.contentUri.toString(), isUIRequest ?

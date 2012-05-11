@@ -24,6 +24,7 @@ import java.io.IOException;
         this.context = context;
         this.contentUri = contentUri;
         this.action = action;
+        this.result = new ApiSyncer.Result(contentUri);
     }
 
     public void onQueued() {

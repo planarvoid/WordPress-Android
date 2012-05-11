@@ -14,7 +14,6 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
@@ -44,7 +43,6 @@ class ServiceResultReceiver extends ResultReceiver {
                 SyncResult serviceResult = resultData.getParcelable(ApiSyncService.EXTRA_SYNC_RESULT);
                 result.stats.numAuthExceptions = serviceResult.stats.numAuthExceptions;
                 result.stats.numIoExceptions = serviceResult.stats.numIoExceptions;
-                Looper.myLooper().quit();
                 break;
             }
             case ApiSyncService.STATUS_SYNC_FINISHED: {
@@ -73,13 +71,10 @@ class ServiceResultReceiver extends ResultReceiver {
                             Activities.getSince(Content.ME_ACTIVITIES, app.getContentResolver(), lastOwnSeen);
                     maybeNotifyOwn(app, news, extras);
                 }
-                Looper.myLooper().quit();
                 break;
             }
         }
     }
-
-
 
     private boolean maybeNotifyIncoming(SoundCloudApplication app,
                                              Activities incoming,
