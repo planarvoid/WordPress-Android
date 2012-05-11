@@ -1,10 +1,8 @@
 package com.soundcloud.android.service.sync;
 
-import android.content.Context;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activities;
-import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -87,17 +85,9 @@ public class SyncAdapterService extends Service {
         PushEvent evt = PushEvent.fromExtras(extras);
         if (evt == PushEvent.FOLLOWER) {
             if (!handleFollowerEvent(app, extras)) {
-                Log.w(TAG, "unhandled follower event:" + extras);
+                Log.w(TAG, "unhandled follower event:"+extras);
             }
-
-            if (SyncConfig.shouldSyncCollections(app)) {
-                syncIntent.setData(Content.ME_FOLLOWERS.uri); // refresh follower list
-            } else {
-                // set last sync time to 0 so it auto-refreshes on next load
-                final LocalCollection lc = LocalCollection.fromContent(Content.ME_FOLLOWERS, app.getContentResolver(), false);
-                if (lc != null) lc.updateLastSyncTime(0, app.getContentResolver());
-            }
-
+            syncIntent.setData(Content.ME_FOLLOWERS.uri); // refresh follower list
         } else {
              if (SyncConfig.shouldUpdateDashboard(app)) {
                 if (SyncConfig.isIncomingEnabled(app, extras)) urisToSync.add(Content.ME_SOUND_STREAM.uri);
