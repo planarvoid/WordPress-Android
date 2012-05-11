@@ -13,6 +13,9 @@ import java.io.IOException;
  * job, then updates {@link LocalCollection}.
  */
 /* package */  class CollectionSyncRequest {
+
+    public static final String TAG = ApiSyncService.class.getSimpleName();
+
     private final Context context;
     public final Uri contentUri;
     private final String action;
@@ -32,6 +35,7 @@ import java.io.IOException;
         localCollection.updateSyncState(LocalCollection.SyncState.PENDING, context.getContentResolver());
     }
 
+
     public CollectionSyncRequest execute() {
         if (localCollection == null) throw new IllegalStateException("request has not been queued");
 
@@ -49,6 +53,11 @@ import java.io.IOException;
             localCollection.updateSyncState(LocalCollection.SyncState.IDLE, context.getContentResolver());
             result = ApiSyncer.Result.fromIOException(contentUri);
         }
+
+        if (Log.isLoggable(TAG,Log.DEBUG)){
+            Log.d(TAG,"Executed sync on " + toString());
+        }
+
         return this;
     }
 
@@ -74,8 +83,9 @@ import java.io.IOException;
     @Override
     public String toString() {
         return "CollectionSyncRequest{" +
-                "uri=" + contentUri +
+                "contentUri=" + contentUri +
                 ", action='" + action + '\'' +
+                ", result=" + result +
                 '}';
     }
 }
