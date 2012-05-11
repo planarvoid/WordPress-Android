@@ -70,6 +70,26 @@ public class ApiSyncServiceTest {
     }
 
     @Test
+    public void shouldProvideFeedbackViaResultReceiverNoSyncIntent() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+        Intent intent = new Intent(Intent.ACTION_SYNC, null);
+
+        final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<Integer, Bundle>();
+        intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler(Looper.myLooper())) {
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                received.put(resultCode, resultData);
+            }
+        });
+
+        svc.onStart(intent, 0);
+
+        expect(received.size()).toBe(1);
+        expect(received.containsKey(ApiSyncService.STATUS_SYNC_FINISHED)).toBeTrue();
+    }
+
+
+    @Test
     public void shouldQueue() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         Context context = DefaultTestRunner.application;
