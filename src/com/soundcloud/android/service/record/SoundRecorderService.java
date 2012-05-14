@@ -196,7 +196,6 @@ public class SoundRecorderService extends Service  {
     }
 
     private void sendRecordingNotification(Recording recording) {
-        Log.i("asdf","Send Recording Notification");
         startForeground(RECORD_NOTIFY_ID, createRecordingNotification(recording));
     }
 
