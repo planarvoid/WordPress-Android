@@ -60,7 +60,7 @@ public class ApiSyncService extends Service {
     public void onDestroy() {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.SYNC_STATE,LocalCollection.SyncState.IDLE);
-        getContentResolver().update(Content.COLLECTIONS.uri,cv,null,null);
+        getContentResolver().update(Content.COLLECTIONS.uri, cv, null, null);
     }
 
     @Override
@@ -73,16 +73,18 @@ public class ApiSyncService extends Service {
         for (CollectionSyncRequest request : syncIntent.collectionSyncRequests) {
             if (!mRunningRequests.contains(request)) {
                 if (!mPendingRequests.contains(request)) {
-                        if (syncIntent.isUIRequest) {
-                            mPendingRequests.add(0, request);
-                        } else {
-                            mPendingRequests.add(request);
-                        }
-                        request.onQueued();
-                    } else if (syncIntent.isUIRequest && !mPendingRequests.getFirst().equals(request)) {
-                        mPendingRequests.remove(request);
-                        mPendingRequests.addFirst(request);
+                    if (syncIntent.isUIRequest) {
+                        mPendingRequests.add(0, request);
+                    } else {
+                        mPendingRequests.add(request);
                     }
+                    request.onQueued();
+                } else if (syncIntent.isUIRequest && !mPendingRequests.getFirst().equals(request)) {
+                    // move the original object up in the queue, since it has already been initialized with onQueued()
+                    final CollectionSyncRequest existing = mPendingRequests.get(mPendingRequests.indexOf(request));
+                    mPendingRequests.remove(existing);
+                    mPendingRequests.addFirst(existing);
+                }
             }
         }
     }

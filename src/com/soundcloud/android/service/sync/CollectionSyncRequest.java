@@ -22,6 +22,7 @@ import java.io.IOException;
     private LocalCollection localCollection;
 
     public ApiSyncer.Result result;
+    public boolean hasBeenQueued;
 
     public CollectionSyncRequest(Context context, Uri contentUri, String action) {
         this.context = context;
@@ -33,6 +34,7 @@ import java.io.IOException;
     public void onQueued() {
         localCollection = LocalCollection.fromContentUri(contentUri, context.getContentResolver(), true);
         localCollection.updateSyncState(LocalCollection.SyncState.PENDING, context.getContentResolver());
+        hasBeenQueued = true;
     }
 
 
