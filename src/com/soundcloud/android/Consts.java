@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
 
 import java.io.File;
@@ -36,6 +37,11 @@ public final class Consts {
     // adapter loading constants
     public static final int ROW_APPEND_BUFFER = 6;
     public static final int ITEM_TYPE_LOADING = -1;
+
+    public static interface SdkSwitches {
+        boolean useRichNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+        boolean canDetermineActivityBackground = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    }
 
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;

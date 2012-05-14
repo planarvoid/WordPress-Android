@@ -4,6 +4,7 @@ import static com.soundcloud.android.service.playback.State.*;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
@@ -329,7 +330,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
         sendBroadcast(i);
 
-        if (SoundCloudApplication.useRichNotifications()) {
+        if (Consts.SdkSwitches.useRichNotifications) {
             if (what.equals(PLAYSTATE_CHANGED)) {
                 mFocus.setPlaybackState(state);
                 setPlayingNotification(currentTrack);
@@ -542,7 +543,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
                 mPlayerHandler.sendEmptyMessageDelayed(CHECK_TRACK_EVENT, CHECK_TRACK_EVENT_DELAY);
                 notifyChange(PLAYSTATE_CHANGED);
-                if (!SoundCloudApplication.useRichNotifications()) setPlayingNotification(currentTrack);
+                if (!Consts.SdkSwitches.useRichNotifications) setPlayingNotification(currentTrack);
 
             } else if (state != PLAYING) {
                 // must have been a playback error
@@ -609,7 +610,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         mPlayerHandler.removeMessages(CHECK_TRACK_EVENT);
         scheduleServiceShutdownCheck();
 
-        if (SoundCloudApplication.useRichNotifications() && currentTrack != null && state != STOPPED){
+        if (Consts.SdkSwitches.useRichNotifications && currentTrack != null && state != STOPPED){
             stopForeground(false);
             setPlayingNotification(currentTrack);
         } else {
@@ -629,7 +630,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private void setPlayingNotification(final Track track) {
 
         if (track == null || state == STOPPED ||
-                (SoundCloudApplication.useRichNotifications() && status != null && status.contentView != null &&
+                (Consts.SdkSwitches.useRichNotifications && status != null && status.contentView != null &&
                     ((PlaybackRemoteViews) status.contentView).isAlreadyNotifying(track, state.isSupposedToBePlaying()))){
             return;
         }
@@ -642,7 +643,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
 
-        if (!SoundCloudApplication.useRichNotifications()) {
+        if (!Consts.SdkSwitches.useRichNotifications) {
             notification.setLatestEventInfo(this, track.getUserName(), track.title, pi);
         } else {
             final PlaybackRemoteViews view = new PlaybackRemoteViews(getPackageName(), R.layout.playback_status_v11,

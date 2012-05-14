@@ -41,7 +41,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
 
     private static SoundRecorder instance;
-    public static final String NOTIFICATION_STATE    = "com.soundcloud.android.notificationState";
+    public static final String NOTIFICATION_STATE = "com.soundcloud.android.notificationState";
     public static final String RECORD_STARTED    = "com.soundcloud.android.recordstarted";
     public static final String RECORD_SAMPLE     = "com.soundcloud.android.recordsample";
     public static final String RECORD_ERROR      = "com.soundcloud.android.recorderror";
@@ -53,6 +53,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     public static final String PLAYBACK_PROGRESS = "com.soundcloud.android.playbackprogress";
     public static final String PLAYBACK_ERROR    = "com.soundcloud.android.playbackerror";
 
+    public static final String EXTRA_SHOULD_NOTIFY = "shouldUseNotifications";
     public static final String EXTRA_POSITION    = "position";
     public static final String EXTRA_STATE       = "state";
     public static final String EXTRA_AMPLITUDE   = "amplitude";
@@ -96,7 +97,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     private IAudioManager mAudioManager;
     private ReaderThread mReaderThread;
 
-    private boolean mShouldUseNotifications;
+    private boolean mShouldUseNotifications = true;
 
     private long mCurrentPosition, mDuration, mSeekToPos = -1;
 
@@ -389,12 +390,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
-    public boolean shouldUseNotifications() {
-        return mShouldUseNotifications;
-    }
-
     private void broadcast(String action) {
         final Intent intent = new Intent(action)
+                .putExtra(EXTRA_SHOULD_NOTIFY, mShouldUseNotifications)
                 .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
                 .putExtra(EXTRA_DURATION, getDuration())
                 .putExtra(EXTRA_STATE, mState.name())

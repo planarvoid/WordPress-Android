@@ -93,10 +93,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     public static SoundCloudApplication instance;
 
-    public static boolean useRichNotifications() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();

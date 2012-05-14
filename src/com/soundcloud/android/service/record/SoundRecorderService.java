@@ -126,7 +126,9 @@ public class SoundRecorderService extends Service  {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "BroadcastReceiver#onReceive(" + action + ")");
 
             if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
-                if (mRecorder.shouldUseNotifications()) sendPlayingNotification(mRecorder.getRecording());
+                if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)){
+                    sendPlayingNotification(mRecorder.getRecording());
+                }
 
             } else if (SoundRecorder.PLAYBACK_STOPPED.equals(action) ||
                        SoundRecorder.PLAYBACK_COMPLETE.equals(action) ||
@@ -135,7 +137,9 @@ public class SoundRecorderService extends Service  {
 
             } else if (SoundRecorder.RECORD_STARTED.equals(action)) {
                 acquireWakeLock();
-                if (mRecorder.shouldUseNotifications()) sendRecordingNotification(mRecorder.getRecording());
+                if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)){
+                    sendRecordingNotification(mRecorder.getRecording());
+                }
 
             } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
                 final long time = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l);
@@ -150,7 +154,7 @@ public class SoundRecorderService extends Service  {
                 gotoIdleState(RECORD_NOTIFY_ID);
 
             } else if (SoundRecorder.NOTIFICATION_STATE.equals(action)) {
-                if (mRecorder.shouldUseNotifications()) {
+                if (intent.getBooleanExtra(SoundRecorder.EXTRA_SHOULD_NOTIFY, true)){
                     if (mRecorder.isRecording()) {
                         sendRecordingNotification(mRecorder.getRecording());
                     } else if (mRecorder.isPlaying()) {

@@ -160,8 +160,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     public void onResume() {
         super.onResume();
         mActive = true;
-        mRecorder.shouldUseNotifications(false);
         configureInitialState();
+
+        if (Consts.SdkSwitches.canDetermineActivityBackground) {
+            mRecorder.shouldUseNotifications(false);
+        }
     }
 
     @Override
@@ -172,8 +175,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         /*  if we are either backing out or getting killed (finishing), or we are pausing cause we are leaving
             and not because of a configuration change, then we know we are going to the background, so tell the recorder
-            to provide notifications */
-        if (isFinishing() || !isChangingConfigurations()){
+            to provide notifications. isChangingConfigurations availablility dependent on SDK */
+        if (Consts.SdkSwitches.canDetermineActivityBackground && (isFinishing() || !isChangingConfigurations())){
             mRecorder.shouldUseNotifications(true);
         }
     }
