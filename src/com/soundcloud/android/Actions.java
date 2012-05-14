@@ -16,6 +16,7 @@ public final class Actions {
     public static final String EDIT         = "com.soundcloud.android.EDIT";
     public static final String ACCOUNT_PREF = "com.soundcloud.android.action.ACCOUNT_PREF";
     public static final String USER_BROWSER = "com.soundcloud.android.action.USER_BROWSER";
+    public static final String RECORDING_PROCESS = "com.soundcloud.android.recording.PROCESS";
 
     public static final String EXTRA_TITLE       = "com.soundcloud.android.extra.title";
     public static final String EXTRA_WHERE       = "com.soundcloud.android.extra.where";
