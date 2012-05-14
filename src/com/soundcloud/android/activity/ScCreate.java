@@ -389,7 +389,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         // set duration because ogg files report incorrect
                         // duration in mediaplayer if playback is attempted
                         // after encoding
-                        mRecording.duration = mRecorder.getDuration();
+                        mRecording.duration = mRecorder.getPlaybackDuration();
                         mRecording = SoundCloudDB.insertRecording(getContentResolver(), mRecording);
                         startActivity(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()));
                         reset();
@@ -407,7 +407,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
+                mRecorder.toggleFade();
             }
         });
         return tb;
@@ -533,7 +533,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
                 mActionButton.setImageDrawable(mRecStopStatesDrawable);
                 txtRecordMessage.setText("");
-                mChrono.setDurationOnly(mRecorder.getTimeElapsed());
+                mChrono.setDurationOnly(mRecorder.getRecordingElapsedTime());
                 break;
 
             case IDLE_PLAYBACK:
@@ -709,7 +709,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private void configurePlaybackInfo() {
         final long currentPlaybackPosition = mRecorder.getCurrentPlaybackPosition();
-        final long duration = mRecorder.getDuration();
+        final long duration = mRecorder.getPlaybackDuration();
         if ((currentPlaybackPosition > 0 || mRecorder.isPlaying()) && currentPlaybackPosition < duration) {
             mChrono.setPlaybackProgress(currentPlaybackPosition,duration);
             mWaveDisplay.setProgress(((float) currentPlaybackPosition) / duration);

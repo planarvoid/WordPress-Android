@@ -16,6 +16,8 @@
 
 package com.soundcloud.android.audio;
 
+import android.util.Log;
+
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
