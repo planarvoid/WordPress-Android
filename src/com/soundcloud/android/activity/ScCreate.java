@@ -70,8 +70,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private ToggleButton mToggleOptimize, mToggleFade;
     private String mRecordErrorMessage;
 
-    private boolean mActive;
-    private boolean mHasEditControlGroup;
+    private boolean mActive, mHasEditControlGroup;
     private List<Recording> mUnsavedRecordings;
 
     private final Handler mHandler = new Handler();
@@ -158,17 +157,25 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mActive = true;
+        mRecorder.shouldUseNotifications(false);
+        configureInitialState();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         mActive = false;
         mRecorder.stopReading(); // this will stop the amplitude reading loop
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mActive = true;
-        configureInitialState();
+        /*  if we are either backing out or getting killed (finishing), or we are pausing cause we are leaving
+            and not because of a configuration change, then we know we are going to the background, so tell the recorder
+            to provide notifications */
+        if (isFinishing() || !isChangingConfigurations()){
+            mRecorder.shouldUseNotifications(true);
+        }
     }
 
     @Override

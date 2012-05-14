@@ -41,6 +41,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
 
     private static SoundRecorder instance;
+    public static final String NOTIFICATION_STATE    = "com.soundcloud.android.notificationState";
     public static final String RECORD_STARTED    = "com.soundcloud.android.recordstarted";
     public static final String RECORD_SAMPLE     = "com.soundcloud.android.recordsample";
     public static final String RECORD_ERROR      = "com.soundcloud.android.recorderror";
@@ -60,7 +61,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     public static final String EXTRA_RECORDING   = "recording";
 
     public static final String[] ALL_ACTIONS = {
-      RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
+      NOTIFICATION_STATE, RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
       PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS
     };
 
@@ -95,7 +96,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     private IAudioManager mAudioManager;
     private ReaderThread mReaderThread;
 
-    private long mCurrentPosition, mSeekToPos = -1;
+    private boolean mShouldUseNotifications;
+
+    private long mCurrentPosition, mDuration, mSeekToPos = -1;
 
     private LocalBroadcastManager mBroadcastManager;
 
@@ -284,7 +287,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     };
 
     public long getDuration() {
-        return mRecordStream.getDuration();
+        return mRecordStream == null ? -1 : mRecordStream.getDuration();
     }
 
     public long getTimeElapsed() {
@@ -374,6 +377,20 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     @Override public void focusLost(boolean isTransient, boolean canDuck) {
+    }
+
+
+    // Used by the service to determine whether to show notifications or not
+    // this is stored here because of the Recorder's lifecycle.
+    public void shouldUseNotifications(boolean b) {
+        if (mShouldUseNotifications != b){
+            mShouldUseNotifications = b;
+            broadcast(NOTIFICATION_STATE);
+        }
+    }
+
+    public boolean shouldUseNotifications() {
+        return mShouldUseNotifications;
     }
 
     private void broadcast(String action) {

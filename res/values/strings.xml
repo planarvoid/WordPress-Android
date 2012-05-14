@@ -9,4 +9,6 @@
     <string name="optimize_toggle_off">Not Optimized</string>
 
     <string name="menu_private_message">Private Message</string>
+
+    <string name="cloud_recorder_notification_ticker">Recording</string>
 </resources>
