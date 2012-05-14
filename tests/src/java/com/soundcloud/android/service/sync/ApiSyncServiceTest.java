@@ -5,7 +5,6 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.robolectric.TestHelper.*;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Activities;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.LocalCollection;
@@ -22,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -70,10 +70,29 @@ public class ApiSyncServiceTest {
     }
 
     @Test
+    public void shouldProvideFeedbackViaResultReceiverNoSyncIntent() throws Exception {
+        ApiSyncService svc = new ApiSyncService();
+        Intent intent = new Intent(Intent.ACTION_SYNC, null);
+
+        final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<Integer, Bundle>();
+        intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler(Looper.myLooper())) {
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                received.put(resultCode, resultData);
+            }
+        });
+
+        svc.onStart(intent, 0);
+
+        expect(received.size()).toBe(1);
+        expect(received.containsKey(ApiSyncService.STATUS_SYNC_FINISHED)).toBeTrue();
+    }
+
+
+    @Test
     public void shouldQueue() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-
-        SoundCloudApplication app = DefaultTestRunner.application;
+        Context context = DefaultTestRunner.application;
 
         Intent intent = new Intent(Intent.ACTION_SYNC);
         ArrayList<Uri> urisToSync = new ArrayList<Uri>();
@@ -82,39 +101,39 @@ public class ApiSyncServiceTest {
         urisToSync.add(Content.ME_FOLLOWERS.uri);
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
-        ApiSyncServiceRequest request1 = new ApiSyncServiceRequest(app, intent);
-        ApiSyncServiceRequest request2 = new ApiSyncServiceRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
-        ApiSyncServiceRequest request3 = new ApiSyncServiceRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
+        SyncIntent request1 = new SyncIntent(context, intent);
+        SyncIntent request2 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
+        SyncIntent request3 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
 
         svc.enqueueRequest(request1);
-        expect(svc.mPendingCollectionRequests.size()).toBe(3);
+        expect(svc.mPendingRequests.size()).toBe(3);
         svc.enqueueRequest(request2);
 
-        expect(svc.mPendingCollectionRequests.size()).toBe(3);
+        expect(svc.mPendingRequests.size()).toBe(3);
         svc.enqueueRequest(request3);
-        expect(svc.mPendingCollectionRequests.size()).toBe(4);
-        expect(svc.mPendingCollectionRequests.poll().contentUri).toBe(Content.ME_FOLLOWINGS.uri);
-        expect(svc.mPendingCollectionRequests.size()).toBe(3);
+        expect(svc.mPendingRequests.size()).toBe(4);
+        expect(svc.mPendingRequests.poll().contentUri).toBe(Content.ME_FOLLOWINGS.uri);
+        expect(svc.mPendingRequests.size()).toBe(3);
 
-        expect(svc.mPendingCollectionRequests.peek().contentUri).toBe(Content.ME_TRACKS.uri);
-        ApiSyncServiceRequest request4 = new ApiSyncServiceRequest(app, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
+        expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_TRACKS.uri);
+        SyncIntent request4 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
         svc.enqueueRequest(request4);
-        expect(svc.mPendingCollectionRequests.peek().contentUri).toBe(Content.ME_FAVORITES.uri);
+        expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_FAVORITES.uri);
     }
 
     @Test
     public void shouldRemove() throws Exception {
         ApiSyncService svc = new ApiSyncService();
 
-        SoundCloudApplication app = DefaultTestRunner.application;
+        Context context = DefaultTestRunner.application;
 
-        svc.mRunningRequests.add(new CollectionSyncRequest(app, Content.ME_FAVORITES.uri, null));
-        svc.mRunningRequests.add(new CollectionSyncRequest(app, Content.ME_FOLLOWINGS.uri, null));
+        svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_FAVORITES.uri, null));
+        svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_FOLLOWINGS.uri, null));
 
         ApiSyncer.Result result = new ApiSyncer.Result(Content.ME_FAVORITES.uri);
         result.success = true;
 
-        svc.onUriSyncResult(new CollectionSyncRequest(app, Content.ME_FAVORITES.uri, null));
+        svc.onUriSyncResult(new CollectionSyncRequest(context, Content.ME_FAVORITES.uri, null));
         expect(svc.mRunningRequests.size()).toBe(1);
     }
 
@@ -359,12 +378,10 @@ public class ApiSyncServiceTest {
     @Test
     public void shouldClearSyncStatuses() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-
-        SoundCloudApplication app = DefaultTestRunner.application;
-
-        expect(LocalCollection.fromContentUri(Content.ME_TRACKS.uri,app.getContentResolver(), true).sync_state).toBe(LocalCollection.SyncState.PENDING);
+        ContentResolver resolver = DefaultTestRunner.application.getContentResolver();
+        expect(LocalCollection.fromContentUri(Content.ME_TRACKS.uri, resolver, true).sync_state).toBe(LocalCollection.SyncState.PENDING);
         svc.onDestroy();
-        expect(LocalCollection.fromContentUri(Content.ME_TRACKS.uri,app.getContentResolver(), true).sync_state).toBe(LocalCollection.SyncState.IDLE);
+        expect(LocalCollection.fromContentUri(Content.ME_TRACKS.uri, resolver, true).sync_state).toBe(LocalCollection.SyncState.IDLE);
     }
 
 

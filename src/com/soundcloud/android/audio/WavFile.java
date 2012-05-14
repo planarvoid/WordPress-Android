@@ -7,10 +7,12 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 public class WavFile implements AudioFile {
-    private RandomAccessFile file;
-    private WavHeader header;
+    private final RandomAccessFile file;
+    private final File backing;
+    private final WavHeader header;
 
     public WavFile(File backing) throws IOException {
+        this.backing = backing;
         file = new RandomAccessFile(backing, "r");
         file.seek(WavHeader.LENGTH);
         header = new WavHeader(new FileInputStream(backing));
@@ -42,6 +44,11 @@ public class WavFile implements AudioFile {
     @Override
     public int read(ByteBuffer buffer, int length) throws IOException {
         return file.getChannel().read(buffer);
+    }
+
+    @Override
+    public File getFile() {
+        return backing;
     }
 
     @Override

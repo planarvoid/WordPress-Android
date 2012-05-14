@@ -7,6 +7,7 @@ import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioFile;
 import com.soundcloud.android.audio.ScAudioTrack;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.AudioManagerFactory;
 import com.soundcloud.android.service.playback.IAudioManager;
 import com.soundcloud.android.service.record.SoundRecorderService;
@@ -53,17 +54,15 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     public static final String EXTRA_POSITION    = "position";
     public static final String EXTRA_STATE       = "state";
-    public static final String EXTRA_PATH        = "path";
     public static final String EXTRA_AMPLITUDE   = "amplitude";
     public static final String EXTRA_ELAPSEDTIME = "elapsedTime";
     public static final String EXTRA_DURATION    = "duration";
+    public static final String EXTRA_RECORDING   = "recording";
 
     public static final String[] ALL_ACTIONS = {
       RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
       PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS
     };
-
-
 
     public enum State {
         IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING;
@@ -71,17 +70,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         public static final EnumSet<State> ACTIVE = EnumSet.of(RECORDING, PLAYING, SEEKING);
         public static final EnumSet<State> PLAYBACK = EnumSet.of(PLAYING, SEEKING);
 
-        public boolean isActive() {
-            return ACTIVE.contains(this);
-        }
-
-        public boolean isPlaying() {
-            return PLAYBACK.contains(this);
-        }
-
-        public boolean isRecording() {
-            return this == RECORDING;
-        }
+        public boolean isActive() { return ACTIVE.contains(this); }
+        public boolean isPlaying() { return PLAYBACK.contains(this); }
+        public boolean isRecording() { return this == RECORDING; }
     }
 
     private Context mContext;
@@ -92,9 +83,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     private final AudioRecord mAudioRecord;
     private final ScAudioTrack mAudioTrack;
-
     private RemainingTimeCalculator mRemainingTimeCalculator;
     private RecordStream mRecordStream;
+    private Recording mRecording;
     private final AmplitudeAnalyzer mAmplitudeAnalyzer;
 
     final private AudioConfig mConfig;
@@ -104,7 +95,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     private IAudioManager mAudioManager;
     private ReaderThread mReaderThread;
 
-    private long mCurrentPosition, mDuration, mSeekToPos = -1;
+    private long mCurrentPosition, mSeekToPos = -1;
 
     private LocalBroadcastManager mBroadcastManager;
 
@@ -125,8 +116,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
             @Override public void onMarkerReached(AudioRecord audioRecord) { }
             @Override public void onPeriodicNotification(AudioRecord audioRecord) {
                 if (mState == State.RECORDING) {
-                    Intent intent = new Intent(RECORD_PROGRESS).putExtra(EXTRA_ELAPSEDTIME, getTimeElapsed());
-                    mBroadcastManager.sendBroadcast(intent);
+                    mBroadcastManager.sendBroadcast(new Intent(RECORD_PROGRESS)
+                            .putExtra(EXTRA_ELAPSEDTIME, getTimeElapsed())
+                            .putExtra(EXTRA_DURATION, getDuration()));
                 }
             }
         });
@@ -136,7 +128,11 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
             @Override public void onMarkerReached(AudioTrack track) {
             }
             @Override public void onPeriodicNotification(AudioTrack track) {
-                broadcast(PLAYBACK_PROGRESS);
+                if (mState == State.PLAYING) {
+                    mBroadcastManager.sendBroadcast(new Intent(PLAYBACK_PROGRESS)
+                            .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
+                            .putExtra(EXTRA_DURATION, getDuration()));
+                }
             }
         });
         mAudioTrack.setPositionNotificationPeriod(mConfig.sampleRate / 60);
@@ -155,13 +151,15 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     public void reset(){
         if (isRecording()) stopRecording();
-        if (isPlaying()) stopPlayback();
-
+        if (isPlaying())   stopPlayback();
         mState = mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
-
         amplitudeData.clear();
         mCurrentPosition = writeIndex = -1;
-        mRecordStream = null;
+        mRecording = null;
+        if (mRecordStream != null) {
+            mRecordStream.release();
+            mRecordStream = null;
+        }
     }
 
     public boolean isActive() {
@@ -172,10 +170,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         return mState != null && mState.isRecording();
     }
 
-    public Recording getRecording() {
-        return mRecordStream == null ? null : mRecordStream.recording;
-    }
-
     public State startReading() {
         if (mState == State.IDLE) {
             startReadingInternal(State.READING);
@@ -184,9 +178,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     // Sets output file path, call directly after construction/reset.
-    public State startRecording(final Recording recording) throws IOException {
-        if (recording == null) throw new IllegalArgumentException("recording object is null");
-
+    public Recording startRecording(User user) throws IOException {
         if (!IOUtils.isSDCardAvailable()) {
             throw new IOException(mContext.getString(R.string.record_insert_sd_card));
         } else if (!mRemainingTimeCalculator.isDiskSpaceAvailable()) {
@@ -201,24 +193,36 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         mRemainingTimeCalculator.reset();
 
         if (mState != State.RECORDING) {
-            if (mRecordStream != null && !mRecordStream.getFile().equals(recording.audio_path)) {
-                mRecordStream.release();
-                mRecordStream = null;
-            }
 
-            if (mRecordStream == null) {
-                mRecordStream = new RecordStream(recording, mConfig, true /* "armeabi-v7a".equals(Build.CPU_ABI) */);
+            if (mRecording == null) {
+                Recording recording = Recording.create(user);
+                if (mRecordStream != null && !mRecordStream.getFile().equals(recording.audio_path)) {
+                    mRecordStream.release();
+                    mRecordStream = null;
+                }
+
+                if (mRecordStream == null) {
+                    mRecordStream = new RecordStream(
+                            recording.audio_path,
+                            recording.encoded_audio_path, /* pass in null for no encoding */
+                            mConfig
+                    );
+                }
+                mRecording = recording;
             }
 
             // the service will ensure the recording lifecycle and notifications
             mContext.startService(new Intent(mContext, SoundRecorderService.class).setAction(RECORD_STARTED));
 
             startReadingInternal(State.RECORDING);
+
             broadcast(RECORD_STARTED);
-
+            return mRecording;
         } else throw new IllegalStateException("cannot record to file, in state " + mState);
+    }
 
-        return mState;
+    public Recording getRecording() {
+        return mRecording;
     }
 
     public void stopReading() {
@@ -280,7 +284,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     };
 
     public long getDuration() {
-        return mDuration;
+        return mRecordStream.getDuration();
     }
 
     public long getTimeElapsed() {
@@ -377,7 +381,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
                 .putExtra(EXTRA_DURATION, getDuration())
                 .putExtra(EXTRA_STATE, mState.name())
-                .putExtra(EXTRA_PATH, mRecordStream == null ? null : mRecordStream.getFile().getAbsolutePath());
+                .putExtra(EXTRA_RECORDING, mRecording);
 
         mBroadcastManager.sendBroadcast(intent);
     }
@@ -537,7 +541,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
                 if (mRecordStream != null) {
                     if (mState != SoundRecorder.State.ERROR) {
-                        mDuration = mRecordStream.finalizeStream();
+                        mRecordStream.finalizeStream();
                         resetPlaybackBounds();
                         broadcast(RECORD_FINISHED);
                     } else {

@@ -102,6 +102,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public Recording(File f) {
         if (f == null) throw new IllegalArgumentException("file is null");
         audio_path = f;
+        encoded_audio_path = Recording.encodedFilename(f);
     }
 
     public Recording(Cursor c) {
@@ -287,8 +288,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public boolean delete(ContentResolver resolver) {
         boolean deleted = false;
-        if (!external_upload && audio_path.exists()) {
-            deleted = audio_path.delete();
+        if (!external_upload) {
+            deleted = IOUtils.deleteFile(audio_path);
         }
         if (id > 0 && resolver != null) resolver.delete(toUri(), null, null);
         return deleted;
@@ -549,10 +550,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
     @Override
     public int compareTo(Recording recording) {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
-    }
-
-    public File encodedFilename() {
-        return encodedFilename(audio_path);
     }
 
     public static Recording checkForUnusedPrivateRecording(File directory, User user) {

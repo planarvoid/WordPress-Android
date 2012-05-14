@@ -10,6 +10,7 @@ public class VorbisDecoder {
     private static final String TAG = "VorbisDecoder";
     public final File file;
 
+    /** page alignment is faster, but less precise */
     private static final boolean ALIGN_SEEK_ON_PAGE = false;
 
     @SuppressWarnings("UnusedDeclaration") // used in JNI code
@@ -19,7 +20,6 @@ public class VorbisDecoder {
         this.file = file;
         init(file.getAbsolutePath());
     }
-
 
     /**
      * @return the current state (0 = ready to decode, < 0 uninitialised)
