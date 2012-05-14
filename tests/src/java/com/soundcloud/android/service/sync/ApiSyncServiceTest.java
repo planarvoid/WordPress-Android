@@ -32,6 +32,7 @@ import android.os.ResultReceiver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncServiceTest {
@@ -90,7 +91,7 @@ public class ApiSyncServiceTest {
 
 
     @Test
-    public void shouldQueue() throws Exception {
+    public void shouldComplexQueue() throws Exception {
         ApiSyncService svc = new ApiSyncService();
         Context context = DefaultTestRunner.application;
 
@@ -102,23 +103,34 @@ public class ApiSyncServiceTest {
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
         SyncIntent request1 = new SyncIntent(context, intent);
-        SyncIntent request2 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri));
-        SyncIntent request3 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
+        SyncIntent request2 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
+        SyncIntent request3 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri));
 
         svc.enqueueRequest(request1);
         expect(svc.mPendingRequests.size()).toBe(3);
-        svc.enqueueRequest(request2);
+        makeSureOnQueueCalled(svc.mPendingRequests);
 
+        svc.enqueueRequest(request2);
         expect(svc.mPendingRequests.size()).toBe(3);
+        makeSureOnQueueCalled(svc.mPendingRequests);
+
         svc.enqueueRequest(request3);
         expect(svc.mPendingRequests.size()).toBe(4);
-        expect(svc.mPendingRequests.poll().contentUri).toBe(Content.ME_FOLLOWINGS.uri);
+        makeSureOnQueueCalled(svc.mPendingRequests);
+
+        expect(svc.mPendingRequests.poll().contentUri).toBe(Content.ME_FAVORITES.uri);
         expect(svc.mPendingRequests.size()).toBe(3);
 
         expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_TRACKS.uri);
-        SyncIntent request4 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FAVORITES.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
+        SyncIntent request4 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
         svc.enqueueRequest(request4);
-        expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_FAVORITES.uri);
+        expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_FOLLOWINGS.uri);
+    }
+
+    private void makeSureOnQueueCalled(LinkedList<CollectionSyncRequest> pendingRequests) {
+        for (CollectionSyncRequest req : pendingRequests){
+            expect(req.hasBeenQueued).toBeTrue();
+        }
     }
 
     @Test
