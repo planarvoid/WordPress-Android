@@ -12,4 +12,5 @@
     </issue>
 
     <issue id="ViewConstructor" severity="ignore"/>
+    <issue id="TypographyEllipsis" severity="ignore"/>
 </lint>
