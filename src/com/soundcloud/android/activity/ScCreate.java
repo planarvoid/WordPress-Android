@@ -617,6 +617,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 final boolean isPlaying = mCurrentState == CreateState.EDIT_PLAYBACK;
                 setPlayButtonDrawable(isPlaying);
 
+                if (!isPlaying){
+                    configurePlaybackInfo();
+                }
+
                 if (takeAction) {
                     if (isPlaying) {
                         startPlayback();
