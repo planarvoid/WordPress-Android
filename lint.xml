@@ -21,4 +21,9 @@
     <issue id="ExtraTranslation">
         <ignore path="res/values-es/strings_es.xml"/>
     </issue>
+
+    <!-- TODO -->
+    <issue id="UnusedResources">
+        <ignore path="res/values-es/strings_es.xml"/>
+    </issue>
 </lint>
