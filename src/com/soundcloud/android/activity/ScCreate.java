@@ -20,6 +20,7 @@ import com.soundcloud.android.view.create.CreateWaveDisplay;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -50,7 +51,8 @@ import java.util.List;
 @Tracking(page = Page.Record_main)
 public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
-    public static final int REQUEST_UPLOAD_FILE = 1;
+    public static final int REQUEST_UPLOAD_FILE  = 1;
+    public static final int REQUEST_PROCESS_FILE = 2;
     public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
 
     private Recording mRecording;
@@ -216,16 +218,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mRecorder.onNewEndPosition(pos);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case Consts.OptionsMenu.SELECT_FILE:
-                startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("audio/*"), REQUEST_UPLOAD_FILE);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -247,6 +240,28 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 file.substring(0, file.lastIndexOf(".")));
                     }
                     startActivity(intent);
+                }
+                break;
+            case REQUEST_PROCESS_FILE:
+                    if (resultCode == RESULT_OK) {
+                    String message = data.getStringExtra("message");
+                    if (message != null) {
+                        CloudUtils.showToast(this, "Error processing file: "+message);
+                    } else {
+                        CloudUtils.showToast(this, "processed");
+                    }
+
+
+                    String in = data.getStringExtra("in");
+                    String out = data.getStringExtra("out");
+
+
+                    Log.d(SoundCloudApplication.TAG, "processed "+in+" => "+out);
+                    if (out != null) {
+                        if (!new File(out).renameTo(new File(in))) {
+                            Log.w(SoundCloudApplication.TAG, "could not rename");
+                        }
+                    }
                 }
         }
     }
@@ -867,7 +882,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         .create();
 
             case Consts.Dialogs.DIALOG_DELETE_RECORDING:
-             return new AlertDialog.Builder(this)
+                return new AlertDialog.Builder(this)
                         .setTitle(null)
                         .setMessage(R.string.dialog_confirm_delete_recording_message)
                         .setPositiveButton(android.R.string.yes,
@@ -880,6 +895,18 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         .setNegativeButton(android.R.string.no, null)
                         .create();
 
+            case Consts.Dialogs.DIALOG_INSTALL_PROCESSOR:
+                return new AlertDialog.Builder(this)
+                        .setTitle(null)
+                        .setMessage(R.string.dialog_install_processor)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, null)
+                        .create();
+
             default:
                 return null;
         }
@@ -887,6 +914,34 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file).setIcon(R.drawable.ic_menu_incoming);
+        menu.add(menu.size(), Consts.OptionsMenu.PROCESS, 0, R.string.process).setIcon(R.drawable.ic_menu_incoming);
         return super.onCreateOptionsMenu(menu);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case Consts.OptionsMenu.SELECT_FILE:
+                startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("audio/*"), REQUEST_UPLOAD_FILE);
+                return true;
+
+            case Consts.OptionsMenu.PROCESS:
+
+                if (mRecording != null) {
+                    Intent process = new Intent(Actions.RECORDING_PROCESS)
+                            .setData(Uri.fromFile(mRecording.audio_path))
+                            .putExtra("out", mRecording.audio_path.getAbsolutePath()+"-processed.wav");
+                    try {
+                        startActivityForResult(process, REQUEST_PROCESS_FILE);
+                    } catch (ActivityNotFoundException e) {
+                        showDialog(Consts.Dialogs.DIALOG_INSTALL_PROCESSOR);
+                    }
+                }
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
