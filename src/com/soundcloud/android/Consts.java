@@ -52,6 +52,7 @@ public final class Consts {
         int DIALOG_ADD_COMMENT = 8;
         int DIALOG_LOGOUT = 9;
         int DIALOG_INSTALL_PROCESSOR = 10;
+        int DIALOG_REVERT_RECORDING = 11;
     }
 
     public interface OptionsMenu {
