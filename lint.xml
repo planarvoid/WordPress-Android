@@ -11,5 +11,5 @@
         <ignore path="res/values/colors.xml" />
     </issue>
 
-    <issue id="ViewConstructor" severity="ignore">
+    <issue id="ViewConstructor" severity="ignore"/>
 </lint>
