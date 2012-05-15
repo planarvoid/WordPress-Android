@@ -291,7 +291,7 @@ public class WaveformControllerLand extends WaveformController {
         super.setCommentMode(commenting);
     }
 
-    @Override
+    @Override @SuppressLint("NewApi")
     public void resetCommentDisplay(){
         if (mCommentPanel != null && mCommentPanel.getParent() == this) {
             if (mCommentPanel.getAnimation() != null && Build.VERSION.SDK_INT > 7) mCommentPanel.getAnimation().cancel();

@@ -13,4 +13,7 @@
 
     <issue id="ViewConstructor" severity="ignore"/>
     <issue id="TypographyEllipsis" severity="ignore"/>
+
+    <!-- should probably re-enable later once more important things are fixed -->
+    <issue id="ContentDescription" severity="ignore"/>
 </lint>
