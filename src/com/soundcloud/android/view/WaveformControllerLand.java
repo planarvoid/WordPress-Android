@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import android.annotation.SuppressLint;
 import android.graphics.Matrix;
 import android.os.Build;
 import android.os.Handler;
@@ -204,6 +205,7 @@ public class WaveformControllerLand extends WaveformController {
         }
     }
 
+    @SuppressLint("NewApi")
     private void toggleCommentsPanelVisibility(boolean visible) {
 
         if (visible && !mCommentPanelVisible) {
