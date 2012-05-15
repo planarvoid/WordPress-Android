@@ -584,6 +584,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return app == null ? -1 : app.getCurrentUserId();
     }
 
+    @SuppressWarnings("NewApi")
     private static void setupStrictMode() {
         if (Build.VERSION.SDK_INT > 8) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()

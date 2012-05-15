@@ -10,4 +10,6 @@
         <ignore path="res/values/array.xml" />
         <ignore path="res/values/colors.xml" />
     </issue>
+
+    <issue id="ViewConstructor" severity="ignore">
 </lint>
