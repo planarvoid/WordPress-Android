@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.FloatMath;
 import android.util.Log;
 import android.view.*;
 import android.widget.Scroller;
@@ -257,7 +258,7 @@ public class WorkspaceView extends ViewGroup implements ImageLoader.LoadBlocker 
                 mLastScreenFraction = screenFraction;
 
                 final int low = (int) screenFraction;
-                final int high = (int) Math.ceil(screenFraction);
+                final int high = (int) FloatMath.ceil(screenFraction);
                 if (low < mLastLow || high > mLastHigh){
                     if (low < mLastLow) {
                         mOnScreenChangeListener.onNextScreenVisible(getScreenAt(low), low);

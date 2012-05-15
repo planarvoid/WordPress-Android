@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.FloatMath;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -393,7 +394,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         }
         if (bpm != 0) {
             str.append(" ");
-            if (Math.floor(bpm) == bpm) {
+            if (FloatMath.floor(bpm) == bpm) {
                 str.append((int) bpm);
             } else {
                 str.append(bpm);

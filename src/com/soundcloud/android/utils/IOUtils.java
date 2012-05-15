@@ -8,6 +8,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -357,6 +358,7 @@ public final class IOUtils {
         return proxy;
     }
 
+    @SuppressLint("NewApi")
     public static HttpClient createHttpClient(String userAgent) {
         if (Build.VERSION.SDK_INT >= 8) {
             return AndroidHttpClient.newInstance(userAgent);
@@ -365,6 +367,7 @@ public final class IOUtils {
         }
     }
 
+    @SuppressLint("NewApi")
     public static void closeHttpClient(HttpClient client) {
         if (client instanceof AndroidHttpClient) {
             // avoid leak error logging

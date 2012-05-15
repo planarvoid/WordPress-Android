@@ -20,6 +20,7 @@ import com.soundcloud.api.Token;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -56,6 +57,7 @@ public interface AndroidCloudAPI extends CloudAPI {
     String getUserAgent();
     ObjectMapper getMapper();
 
+    @SuppressLint("NewApi")
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         public static final ObjectMapper Mapper;
 

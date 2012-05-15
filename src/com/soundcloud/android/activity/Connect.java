@@ -3,6 +3,7 @@ package com.soundcloud.android.activity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.task.create.NewConnectionTask;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -20,6 +21,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+@SuppressLint("NewApi")
 public class Connect extends Activity {
     public static final int MAKE_CONNECTION = 1000;
 

@@ -32,7 +32,6 @@ import android.os.ResultReceiver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncServiceTest {
@@ -108,29 +107,24 @@ public class ApiSyncServiceTest {
 
         svc.enqueueRequest(request1);
         expect(svc.mPendingRequests.size()).toBe(3);
-        makeSureOnQueueCalled(svc.mPendingRequests);
 
         svc.enqueueRequest(request2);
         expect(svc.mPendingRequests.size()).toBe(3);
-        makeSureOnQueueCalled(svc.mPendingRequests);
 
         svc.enqueueRequest(request3);
         expect(svc.mPendingRequests.size()).toBe(4);
-        makeSureOnQueueCalled(svc.mPendingRequests);
 
-        expect(svc.mPendingRequests.poll().contentUri).toBe(Content.ME_FAVORITES.uri);
-        expect(svc.mPendingRequests.size()).toBe(3);
+        // make sure favorites is queued on front
+        expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_FAVORITES.uri);
+        expect(svc.mPendingRequests.get(1).contentUri).toBe(Content.ME_TRACKS.uri);
 
-        expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_TRACKS.uri);
         SyncIntent request4 = new SyncIntent(context, new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,true));
         svc.enqueueRequest(request4);
         expect(svc.mPendingRequests.peek().contentUri).toBe(Content.ME_FOLLOWINGS.uri);
-    }
 
-    private void makeSureOnQueueCalled(LinkedList<CollectionSyncRequest> pendingRequests) {
-        for (CollectionSyncRequest req : pendingRequests){
-            expect(req.hasBeenQueued).toBeTrue();
-        }
+        // make sure all requests can be executed
+        Robolectric.setDefaultHttpResponse(404, "");
+        svc.flushSyncRequests();
     }
 
     @Test

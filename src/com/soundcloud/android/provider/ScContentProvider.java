@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -729,6 +730,7 @@ public class ScContentProvider extends ContentProvider {
         return null;
     }
 
+    @SuppressLint("NewApi")
     public static void enableSyncing(Account account, long pollFrequency) {
         ContentResolver.setIsSyncable(account, AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
@@ -738,6 +740,7 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
+    @SuppressLint("NewApi")
     public static void disableSyncing(Account account) {
         ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
           if (Build.VERSION.SDK_INT >= 8) {
@@ -782,6 +785,7 @@ public class ScContentProvider extends ContentProvider {
     };
 
 
+    @SuppressLint("NewApi")
     private static long dbInsertWithOnConflict(SQLiteDatabase db, Table table,
                                               ContentValues values,
                                               int conflictAlgorithm) {

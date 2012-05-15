@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.play;
 
+import android.annotation.SuppressLint;
 import android.graphics.Matrix;
 import android.os.Build;
 import android.os.Handler;
@@ -204,6 +205,7 @@ public class WaveformControllerLand extends WaveformController {
         }
     }
 
+    @SuppressLint("NewApi")
     private void toggleCommentsPanelVisibility(boolean visible) {
 
         if (visible && !mCommentPanelVisible) {
@@ -289,7 +291,7 @@ public class WaveformControllerLand extends WaveformController {
         super.setCommentMode(commenting);
     }
 
-    @Override
+    @Override @SuppressLint("NewApi")
     public void resetCommentDisplay(){
         if (mCommentPanel != null && mCommentPanel.getParent() == this) {
             if (mCommentPanel.getAnimation() != null && Build.VERSION.SDK_INT > 7) mCommentPanel.getAnimation().cancel();
