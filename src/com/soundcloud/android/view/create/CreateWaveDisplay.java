@@ -206,7 +206,7 @@ public class CreateWaveDisplay extends TouchLayout {
     }
 
     private void setTouchMode(InputObject input) {
-        if (input.actionIndex > 1) return;
+        if (mMode == MODE_REC || input.actionIndex > 1) return;
 
         Rect leftHandleRect = null, rightHandleRect = null;
         if (leftHandle.getParent() == this) {
