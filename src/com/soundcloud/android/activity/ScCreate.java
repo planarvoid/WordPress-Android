@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -267,8 +268,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 if (!mCurrentState.isEdit()) {
                     track(Click.Record_discard);
                     showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
+                } else {
+                    track(Click.Record_revert);
+                    showDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
                 }
-                updateUi(mCurrentState.isEdit() ? CreateState.EDIT_PLAYBACK : null, true);
+
             }
         });
         return button;
@@ -510,10 +514,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
                 hideEditControls();
                 hideView(txtInstructions, false, View.GONE);
+                hideView(txtRecordMessage, false, View.INVISIBLE);
 
                 showView(mChrono, takeAction && mLastState == CreateState.IDLE_RECORD);
                 showView(mActionButton, false);
-                showView(txtRecordMessage, false);
 
                 mActionButton.setImageDrawable(mRecStopStatesDrawable);
                 txtRecordMessage.setText("");
@@ -838,6 +842,28 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                     track(Click.Record_discard_cancel);
                                 }
                         })
+                        .create();
+
+            case Consts.Dialogs.DIALOG_REVERT_RECORDING:
+                return new AlertDialog.Builder(this)
+                        .setTitle(null)
+                        .setMessage(R.string.dialog_revert_recording_message)
+                        .setPositiveButton(android.R.string.yes,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        track(Click.Record_revert__ok);
+                                        removeDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
+                                        updateUi(CreateState.IDLE_PLAYBACK, true);
+                                    }
+                                })
+                        .setNegativeButton(android.R.string.no,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        track(Click.Record_revert_cancel);
+                                    }
+                                })
                         .create();
 
             case Consts.Dialogs.DIALOG_DELETE_RECORDING:

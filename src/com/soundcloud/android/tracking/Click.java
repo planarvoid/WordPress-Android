@@ -34,6 +34,10 @@ public enum Click implements Event {
     Record_discard_cancel("Record", "discard:cancel", Type.action, Level2.Record),
     Record_delete        ("Record", "delete",         Type.action, Level2.Record),
 
+    Record_revert("Record", "revert", Type.action, Level2.Record),
+    Record_revert__ok("Record", "revert::ok", Type.action, Level2.Record),
+    Record_revert_cancel("Record", "revert:cancel", Type.action, Level2.Record),
+
     Record_play          ("Record", "play",           Type.action, Level2.Record),
     Record_play_stop     ("Record", "play_stop",      Type.action, Level2.Record),
     Record_next          ("Record", "next",           Type.navigation, Level2.Record), // record another sound

@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -116,6 +117,7 @@ public class CreateWaveDisplay extends TouchLayout {
             waveformWidth = mWaveformView.getWidth();
             mWaveformView.setTrimLeft((int) (trimPercentLeft * waveformWidth));
             mWaveformView.setTrimRight((int) (trimPercentRight * waveformWidth));
+            setTrimHandles();
         }
     }
 
@@ -293,14 +295,16 @@ public class CreateWaveDisplay extends TouchLayout {
     };
 
     private void setTrimHandles() {
-        leftLp.leftMargin = (int) (waveformWidth * trimPercentLeft) + leftMarginOffset;
-        if (leftHandle.getParent() != this){
-            addView(leftHandle, leftLp);
-        }
+        if (mIsEditing) {
+            leftLp.leftMargin = (int) (waveformWidth * trimPercentLeft) + leftMarginOffset;
+            if (leftHandle.getParent() != this) {
+                addView(leftHandle, leftLp);
+            }
 
-        rightLp.rightMargin = (int) ((1.0f - trimPercentRight) * waveformWidth) + rightMarginOffset;
-        if (rightHandle.getParent() != this){
-            addView(rightHandle, rightLp);
+            rightLp.rightMargin = (int) ((1.0f - trimPercentRight) * waveformWidth) + rightMarginOffset;
+            if (rightHandle.getParent() != this) {
+                addView(rightHandle, rightLp);
+            }
         }
     }
 
@@ -338,10 +342,10 @@ public class CreateWaveDisplay extends TouchLayout {
     }
 
     public void setIsEditing(boolean isEditing) {
-        if (isEditing != mIsEditing){
+        if (mIsEditing != isEditing) {
             mIsEditing = isEditing;
             mWaveformView.setIsEditing(isEditing);
-            if (mIsEditing){
+            if (mIsEditing) {
                 setTrimHandles();
                 mWaveformView.setBackgroundColor(Color.BLACK);
             } else {
@@ -361,11 +365,12 @@ public class CreateWaveDisplay extends TouchLayout {
     }
 
     public void onRestoreInstanceState(Bundle state) {
+
         final String prepend = this.getClass().getSimpleName();
         mMode = state.getInt(prepend + "_mode", mMode);
-        trimPercentLeft = state.getFloat(prepend + "_trimPercentLeft", trimPercentLeft);
-        trimPercentRight = state.getFloat(prepend + "_trimPercentRight", trimPercentRight);
+        trimPercentLeft = state.getFloat(prepend + "_trimPercentLeft", 0.0f);
+        trimPercentRight = state.getFloat(prepend + "_trimPercentRight", 1.0f);
         setIsEditing(state.getBoolean(prepend + "_inEditMode", mIsEditing));
-        mWaveformView.setMode(mMode,false);
+        mWaveformView.setMode(mMode, false);
     }
 }

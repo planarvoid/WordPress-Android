@@ -11,4 +11,6 @@
     <string name="menu_private_message">Private Message</string>
 
     <string name="cloud_recorder_notification_ticker">Recording</string>
+
+    <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
 </resources>
