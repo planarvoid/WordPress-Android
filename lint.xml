@@ -18,7 +18,7 @@
     <issue id="ContentDescription" severity="ignore"/>
 
     <!-- TODO -->
-    <issue id="UnusedResources">
+    <issue id="ExtraTranslation">
         <ignore path="res/values-es/strings_es.xml"/>
     </issue>
 </lint>
