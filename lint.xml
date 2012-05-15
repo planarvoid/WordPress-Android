@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="MissingTranslation">
+        <ignore path="res/values/dev.xml" />
+        <ignore path="res/values/keys.xml" />
+        <ignore path="res/values/array.xml" />
+        <ignore path="res/values/beta.xml" />
+        <ignore path="res/values/sigs.xml" />
+        <ignore path="res/values/dimens.xml" />
+        <ignore path="res/values/array.xml" />
+        <ignore path="res/values/colors.xml" />
+    </issue>
+</lint>
