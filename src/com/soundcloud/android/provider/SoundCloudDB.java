@@ -12,6 +12,8 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.CloudUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,11 +59,11 @@ public class SoundCloudDB {
         return uri;
     }
 
-    public static Uri insertUser(ContentResolver resolver, User user) {
+    public static @Nullable Uri insertUser(ContentResolver resolver, User user) {
         return resolver.insert(Content.USERS.uri, user.buildContentValues(getUserId(resolver) == user.id));
     }
 
-    public static Uri upsertUser(ContentResolver resolver, User user) {
+    public static @Nullable Uri upsertUser(ContentResolver resolver, User user) {
         if (!user.isSaved()) {
             return insertUser(resolver, user);
         } else {
@@ -86,11 +88,11 @@ public class SoundCloudDB {
     }
 
 
-    public static Track getTrackById(ContentResolver resolver, long id) {
+    public static @Nullable Track getTrackById(ContentResolver resolver, long id) {
         return getTrackByUri(resolver, Content.TRACKS.forId(id));
     }
 
-    /* package */ static Track getTrackByUri(ContentResolver resolver, Uri uri) {
+    /* package */ static @Nullable Track getTrackByUri(ContentResolver resolver, Uri uri) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -109,7 +111,7 @@ public class SoundCloudDB {
         return resolver.insert(Content.TRACK_PLAYS.uri, contentValues) != null;
     }
 
-    public static User getUserById(ContentResolver resolver, long id) {
+    public static @Nullable User getUserById(ContentResolver resolver, long id) {
         if (id >= 0) {
             return getUserByUri(resolver, Content.USERS.forId(id));
         } else {
@@ -117,7 +119,7 @@ public class SoundCloudDB {
         }
     }
 
-    public static User getUserByUri(ContentResolver resolver, Uri uri) {
+    public static @Nullable User getUserByUri(ContentResolver resolver, Uri uri) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         User user = null;
         if (cursor != null && cursor.getCount() != 0) {
@@ -206,7 +208,7 @@ public class SoundCloudDB {
         return usersInserted + tracksInserted;
     }
 
-    public static Recording insertRecording(ContentResolver resolver, Recording r) {
+    public static @Nullable Recording insertRecording(ContentResolver resolver, Recording r) {
         Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
         if (uri != null) {
             r.id = Long.parseLong(uri.getLastPathSegment());
@@ -216,7 +218,7 @@ public class SoundCloudDB {
         }
     }
 
-    public static Recording getRecordingByUri(ContentResolver resolver, Uri uri) {
+    public static @Nullable Recording getRecordingByUri(ContentResolver resolver, Uri uri) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         Recording recording = null;
         if (cursor != null && cursor.getCount() != 0) {
@@ -227,7 +229,7 @@ public class SoundCloudDB {
         return recording;
     }
 
-    public static Recording getRecordingByPath(ContentResolver resolver, File file) {
+    public static @Nullable Recording getRecordingByPath(ContentResolver resolver, File file) {
         // TODO, removefileextension is probably not the best way to account for encoded / raw handling
         Cursor cursor = resolver.query(Content.RECORDINGS.uri,
                 null,
@@ -256,7 +258,7 @@ public class SoundCloudDB {
         }
     }
 
-    public static List<Long> idCursorToList(Cursor c) {
+    public static @NotNull List<Long> idCursorToList(Cursor c) {
         List<Long> ids = new ArrayList<Long>();
         if (c != null && c.moveToFirst()) {
             do {

@@ -91,6 +91,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static final String TAG_RECORDING_TYPE_DEDICATED       = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
 
+
     public static interface Status {
         int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
         int UPLOADING           = 1; // currently uploading
@@ -183,6 +184,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public boolean exists() {
         return audio_path.exists();
+    }
+
+    public void setRecipient(User recipient) {
+        private_user_id = recipient.id;
+        private_username = recipient.getDisplayName();
+        is_private = true;
     }
 
     public static Recording fromUri(Uri uri, ContentResolver resolver) {

@@ -28,7 +28,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -56,7 +55,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
 
     private Recording mRecording;
-    private User mPrivateUser;
+    private User mRecipient;
 
     private SoundRecorder mRecorder;
     private CreateState mLastState, mCurrentState;
@@ -75,8 +74,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private boolean mActive, mHasEditControlGroup;
     private List<Recording> mUnsavedRecordings;
-
-    private final Handler mHandler = new Handler();
 
     private Drawable mRecStatesDrawable, mRecStopStatesDrawable, mPlayBgDrawable, mPauseBgDrawable;
     private String[] mRecordSuggestions;
@@ -99,22 +96,21 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         final Uri recordingUri = getIntent().getData();
         if (recordingUri != null) {
-            mRecording = Recording.fromUri(recordingUri, getContentResolver());
-            if (mRecording == null){
+            if ((mRecording = Recording.fromUri(recordingUri, getContentResolver())) == null) {
                 CloudUtils.showToast(this, R.string.error_getting_recording);
             }
         }
 
         if (getIntent().hasExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT)){
-            mPrivateUser = getIntent().getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT);
+            mRecipient = getIntent().getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT);
         }
 
         mRecStatesDrawable = getResources().getDrawable(R.drawable.btn_rec_states);
         mRecStopStatesDrawable = getResources().getDrawable(R.drawable.btn_rec_pause_states);
 
         txtInstructions = (TextView) findViewById(R.id.txt_instructions);
-        if (mPrivateUser != null){
-            txtInstructions.setText(getString(R.string.private_message_title, mPrivateUser.username));
+        if (mRecipient != null){
+            txtInstructions.setText(getString(R.string.private_message_title, mRecipient.username));
         }
 
         txtRecordMessage = (TextView) findViewById(R.id.txt_record_message);
@@ -380,25 +376,20 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     updateUi(CreateState.IDLE_PLAYBACK, true);
                 } else {
                     track(Click.Record_next);
+
+
                     if (!mRecording.isSaved()) {
                         mRecording.user_id = SoundCloudApplication.getUserId();
-                        if (mPrivateUser != null) {
-                            SoundCloudDB.upsertUser(getContentResolver(), mPrivateUser);
-                            mRecording.private_user_id = mPrivateUser.id;
-                            mRecording.private_username = mPrivateUser.getDisplayName();
-                            mRecording.is_private = true;
+                        if (mRecipient != null) {
+                            SoundCloudDB.upsertUser(getContentResolver(), mRecipient);
+                            mRecording.setRecipient(mRecipient);
                         }
-                        // set duration because ogg files report incorrect
-                        // duration in mediaplayer if playback is attempted
-                        // after encoding
                         mRecording.duration = mRecorder.getPlaybackDuration();
                         mRecording = SoundCloudDB.insertRecording(getContentResolver(), mRecording);
-                        startActivity(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()));
                         reset();
-                    } else {
-                        // upload
-                        startActivityForResult(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()), 0);
                     }
+
+                    startActivity(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()));
                 }
             }
         });
@@ -463,8 +454,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             // TODO state?
         } else {
 
-            if (mRecording == null && mPrivateUser != null) {
-                mRecording = Recording.checkForUnusedPrivateRecording(SoundRecorder.RECORD_DIR, mPrivateUser);
+            if (mRecording == null && mRecipient != null) {
+                mRecording = Recording.checkForUnusedPrivateRecording(SoundRecorder.RECORD_DIR, mRecipient);
             }
 
             if (mRecording != null) {
@@ -513,14 +504,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 showView(txtInstructions, takeAction && mLastState != CreateState.IDLE_RECORD);
                 showView(txtRecordMessage, takeAction && mLastState != CreateState.IDLE_RECORD);
 
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mActive && mRecording == null) {
-                            mRecorder.startReading();
-                        }
-                    }
-                });
+                if (mActive && mRecording == null) {
+                    mRecorder.startReading();
+                }
                 break;
 
             case RECORD:
@@ -672,7 +658,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mWaveDisplay.gotoRecordMode();
 
         try {
-            mRecording = mRecorder.startRecording(mPrivateUser);
+            mRecording = mRecorder.startRecording(mRecipient);
         } catch (IOException e) {
             onRecordingError(e.getMessage());
             updateUi(CreateState.IDLE_RECORD, true);
