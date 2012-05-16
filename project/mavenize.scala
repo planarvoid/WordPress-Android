@@ -25,7 +25,7 @@ object Mavenizer {
             </sdk>
             <undeployBeforeDeploy>true</undeployBeforeDeploy>
             <deleteConflictingFiles>false</deleteConflictingFiles>
-            <target>soundcloud_audio</target>
+            <target>soundcloud_audio_encoder</target>
             <attachNativeArtifacts>true</attachNativeArtifacts>
             <clearNativeArtifacts>false</clearNativeArtifacts>
             <zipalign>
