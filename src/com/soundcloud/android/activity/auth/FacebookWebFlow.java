@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -23,6 +24,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+@SuppressLint("NewApi")
 public class FacebookWebFlow extends AbstractLoginActivity {
     private WebView mWebview;
 

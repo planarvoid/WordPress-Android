@@ -16,7 +16,7 @@ import java.util.Locale;
 public abstract class ScAndroidTestCase extends AndroidTestCase {
     public static final String TEST_DIR = "sc-tests";
 
-    protected AssetManager assets() {
+    protected AssetManager testAssets() {
         try {
             return getContext()
                     .getPackageManager()
@@ -30,7 +30,7 @@ public abstract class ScAndroidTestCase extends AndroidTestCase {
     protected File prepareAsset(String name) throws IOException {
         checkStorage();
 
-        InputStream in = assets().open(name);
+        InputStream in = testAssets().open(name);
         assertNotNull(in);
 
         File out = externalPath(name);

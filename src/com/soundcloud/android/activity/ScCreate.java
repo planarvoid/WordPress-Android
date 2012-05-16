@@ -178,7 +178,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         /*  if we are either backing out or getting killed (finishing), or we are pausing cause we are leaving
             and not because of a configuration change, then we know we are going to the background, so tell the recorder
-            to provide notifications. isChangingConfigurations availablility dependent on SDK */
+            to provide notifications. isChangingConfigurations availability dependent on SDK */
         if (Consts.SdkSwitches.canDetermineActivityBackground && (isFinishing() || !isChangingConfigurations())){
             mRecorder.shouldUseNotifications(true);
         }
@@ -931,11 +931,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 return true;
 
             case Consts.OptionsMenu.PROCESS:
-
                 if (mRecording != null) {
                     Intent process = new Intent(Actions.RECORDING_PROCESS)
                             .setData(Uri.fromFile(mRecording.audio_path))
-                            .putExtra("out", mRecording.audio_path.getAbsolutePath()+"-processed.wav");
+                            .putExtra("com.soundcloud.android.pd.extra.out",
+                                    mRecording.audio_path.getAbsolutePath()+"-processed.wav");
                     try {
                         startActivityForResult(process, REQUEST_PROCESS_FILE);
                     } catch (ActivityNotFoundException e) {

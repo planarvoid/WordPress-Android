@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
@@ -270,6 +271,7 @@ public final class CloudUtils {
         }
     }
 
+    @SuppressLint("NewApi")
     public static boolean isUserAMonkey() {
         if (Build.VERSION.SDK_INT >= 8) {
             try {

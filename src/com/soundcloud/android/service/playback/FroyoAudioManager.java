@@ -2,6 +2,7 @@ package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.model.Track;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 
 @SuppressWarnings("UnusedDeclaration")
+@SuppressLint("NewApi")
 public class FroyoAudioManager implements IAudioManager {
     private boolean mAudioFocusLost;
     private AudioManager.OnAudioFocusChangeListener listener;

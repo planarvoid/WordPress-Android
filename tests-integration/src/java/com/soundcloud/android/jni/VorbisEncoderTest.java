@@ -29,7 +29,7 @@ public class VorbisEncoderTest extends AudioTest {
         assertEquals("need writable external storage",
                 Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED);
 
-        InputStream in = assets().open(file);
+        InputStream in = testAssets().open(file);
         assertNotNull(in);
         WavHeader wavHeader = new WavHeader(in, true);
 
