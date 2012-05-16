@@ -216,8 +216,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 }
 
                 mRecordStream = new RecordStream(
-                        recording.audio_path,
-                        recording.encoded_audio_path, /* pass in null for no encoding */
+                        recording.getFile(),
+                        recording.getEncodedFile(), /* pass in null for no encoding */
                         mConfig
                 );
                 mRecording = recording;

@@ -16,6 +16,8 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -26,6 +28,7 @@ import android.database.Cursor;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -63,10 +66,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public double latitude;
 
     // assets
-    public File audio_path;
-    public File encoded_audio_path;
-    public File artwork_path;
-    public File resized_artwork_path;
+    @NotNull private File audio_path;
+    @Nullable public File artwork_path;
+    @Nullable public File resized_artwork_path;
 
     // sharing
     public String four_square_venue_id; /* hex */
@@ -80,8 +82,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public boolean external_upload;
     public int upload_status;
 
-    // upload state
-    public int status;
     private Exception mUploadException;
 
     private static final Pattern RAW_PATTERN = Pattern.compile("^.*\\.(2|pcm)$");
@@ -98,63 +98,56 @@ public class Recording extends ScModel implements Comparable<Recording> {
         int ERROR               = 3; // network / api error
     }
 
-
     public Recording(File f) {
         if (f == null) throw new IllegalArgumentException("file is null");
         audio_path = f;
-        encoded_audio_path = Recording.encodedFilename(f);
     }
 
     public Recording(Cursor c) {
-        this.id = c.getLong(c.getColumnIndex(Recordings._ID));
-        this.user_id = c.getLong(c.getColumnIndex(Recordings.USER_ID));
-        this.longitude = c.getDouble(c.getColumnIndex(Recordings.LONGITUDE));
-        this.latitude = c.getDouble(c.getColumnIndex(Recordings.LATITUDE));
-        this.what_text = c.getString(c.getColumnIndex(Recordings.WHAT_TEXT));
-        this.where_text = c.getString(c.getColumnIndex(Recordings.WHERE_TEXT));
-        this.audio_path = new File(c.getString(c.getColumnIndex(Recordings.AUDIO_PATH)));
+        id = c.getLong(c.getColumnIndex(Recordings._ID));
+        user_id = c.getLong(c.getColumnIndex(Recordings.USER_ID));
+        longitude = c.getDouble(c.getColumnIndex(Recordings.LONGITUDE));
+        latitude = c.getDouble(c.getColumnIndex(Recordings.LATITUDE));
+        what_text = c.getString(c.getColumnIndex(Recordings.WHAT_TEXT));
+        where_text = c.getString(c.getColumnIndex(Recordings.WHERE_TEXT));
+        audio_path = new File(c.getString(c.getColumnIndex(Recordings.AUDIO_PATH)));
         final String artwork = c.getString(c.getColumnIndex(Recordings.ARTWORK_PATH));
-        this.artwork_path = artwork == null ? null : new File(artwork);
+        artwork_path = artwork == null ? null : new File(artwork);
         final String audio = c.getString(c.getColumnIndex(Recordings.AUDIO_PATH));
-        this.audio_path = audio == null ? null : new File(audio);
-        this.duration = c.getLong(c.getColumnIndex(Recordings.DURATION));
-        this.four_square_venue_id = c.getString(c.getColumnIndex(Recordings.FOUR_SQUARE_VENUE_ID));
-        this.shared_emails = c.getString(c.getColumnIndex(Recordings.SHARED_EMAILS));
-        this.shared_ids = c.getString(c.getColumnIndex(Recordings.SHARED_IDS));
-        this.private_user_id = c.getLong(c.getColumnIndex(Recordings.PRIVATE_USER_ID));
+        if (audio == null) throw new IllegalArgumentException("audio is null");
+        audio_path = new File(audio);
+        duration = c.getLong(c.getColumnIndex(Recordings.DURATION));
+        four_square_venue_id = c.getString(c.getColumnIndex(Recordings.FOUR_SQUARE_VENUE_ID));
+        shared_emails = c.getString(c.getColumnIndex(Recordings.SHARED_EMAILS));
+        shared_ids = c.getString(c.getColumnIndex(Recordings.SHARED_IDS));
+        private_user_id = c.getLong(c.getColumnIndex(Recordings.PRIVATE_USER_ID));
         int usernameIdx = c.getColumnIndex(DBHelper.Users.USERNAME);
         if (usernameIdx != -1) { // gets joined in
-            this.private_username = c.getString(usernameIdx);
+            private_username = c.getString(usernameIdx);
         }
-        this.service_ids = c.getString(c.getColumnIndex(Recordings.SERVICE_IDS));
-        this.is_private = c.getInt(c.getColumnIndex(Recordings.IS_PRIVATE)) == 1;
-        this.external_upload = c.getInt(c.getColumnIndex(Recordings.EXTERNAL_UPLOAD)) == 1;
-        this.upload_status = c.getInt(c.getColumnIndex(Recordings.UPLOAD_STATUS));
-
-        // enforce proper construction
-        if (audio_path == null) {
-            throw new IllegalArgumentException("audio_path is null");
-        }
+        service_ids = c.getString(c.getColumnIndex(Recordings.SERVICE_IDS));
+        is_private = c.getInt(c.getColumnIndex(Recordings.IS_PRIVATE)) == 1;
+        external_upload = c.getInt(c.getColumnIndex(Recordings.EXTERNAL_UPLOAD)) == 1;
+        upload_status = c.getInt(c.getColumnIndex(Recordings.UPLOAD_STATUS));
     }
 
-    public Recording(Parcel in) {
-            readFromParcel(in);
+    public File getFile() {
+        return audio_path;
+    }
 
-        // enforce proper construction
-        if (audio_path == null) {
-            throw new IllegalArgumentException("audio_path is null");
-        }
+    public File getEncodedFile() {
+        return Recording.encodedFilename(audio_path);
+    }
+
+    public File getUploadFile() {
+        return getEncodedFile().exists() ? getEncodedFile() : getFile();
     }
 
     public File generateImageFile(File imageDir) {
-        if (audio_path == null) {
-            return null;
+        if (audio_path.getName().contains(".")) {
+            return new File(imageDir, audio_path.getName().substring(0, audio_path.getName().lastIndexOf(".")) + ".bmp");
         } else {
-            if (audio_path.getName().contains(".")) {
-                return new File(imageDir, audio_path.getName().substring(0, audio_path.getName().lastIndexOf(".")) + ".bmp");
-            } else {
-                return new File(imageDir, audio_path.getName()+".bmp");
-            }
+            return new File(imageDir, audio_path.getName()+".bmp");
         }
     }
 
@@ -286,7 +279,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return CloudUtils.formatTimestamp(duration);
     }
 
-    public boolean delete(ContentResolver resolver) {
+    public boolean delete(@Nullable ContentResolver resolver) {
         boolean deleted = false;
         if (!external_upload) {
             deleted = IOUtils.deleteFile(audio_path);
@@ -339,10 +332,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public boolean updateStatus(ContentResolver resolver) {
         if (id > 0) {
             ContentValues cv = new ContentValues();
-            cv.put(Recordings.UPLOAD_STATUS, status);
-            if (audio_path != null) {
-                cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
-            }
+            cv.put(Recordings.UPLOAD_STATUS, upload_status);
+            cv.put(Recordings.AUDIO_PATH, audio_path.getAbsolutePath());
             return resolver.update(toUri(), cv, null, null) > 0;
         } else {
             return false;
@@ -474,12 +465,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
      * Gets called after successful upload. Clean any tmp files here.
      */
     public void onUploaded() {
-        status = Status.UPLOADED;
+        upload_status = Status.UPLOADED;
         IOUtils.deleteFile(resized_artwork_path);
     }
 
     public boolean isUploaded() {
-        return status == Status.UPLOADED;
+        return upload_status == Status.UPLOADED;
     }
 
     public boolean isCanceled() {
@@ -488,7 +479,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public Recording setUploadException(Exception e) {
         mUploadException = e;
-        status = e instanceof UserCanceledException ? Status.NOT_YET_UPLOADED : Status.ERROR;
+        upload_status = e instanceof UserCanceledException ? Status.NOT_YET_UPLOADED : Status.ERROR;
         return this;
     }
 
@@ -504,48 +495,11 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return resized_artwork_path != null && resized_artwork_path.exists() ? resized_artwork_path : artwork_path;
     }
 
-    public File getAudio() {
-        return encoded_audio_path != null && encoded_audio_path.exists() ? encoded_audio_path : audio_path;
-    }
 
     public long getPrivateUserId() {
         return getUserIdFromFile(audio_path);
     }
 
-    @Override
-    public String toString() {
-        return "Recording{" +
-                "id=" + id +
-                ", user_id=" + user_id +
-                ", longitude=" + longitude +
-                ", latitude=" + latitude +
-                ", what_text='" + what_text + '\'' +
-                ", where_text='" + where_text + '\'' +
-                ", audio_path=" + audio_path +
-                ", duration=" + duration +
-                ", artwork_path=" + artwork_path +
-                ", four_square_venue_id='" + four_square_venue_id + '\'' +
-                ", shared_emails='" + shared_emails + '\'' +
-                ", shared_ids='" + shared_ids + '\'' +
-                ", service_ids='" + service_ids + '\'' +
-                ", is_private=" + is_private +
-                ", external_upload=" + external_upload +
-                ", upload_status=" + upload_status +
-                ", tags=" + (tags == null ? null : Arrays.asList(tags)) +
-                ", description='" + description + '\'' +
-                ", genre='" + genre + '\'' +
-                '}';
-    }
-
-    public static final Parcelable.Creator<Recording> CREATOR = new Parcelable.Creator<Recording>() {
-        public Recording createFromParcel(Parcel in) {
-            return new Recording(in);
-        }
-
-        public Recording[] newArray(int size) {
-            return new Recording[size];
-        }
-    };
 
     @Override
     public int compareTo(Recording recording) {
@@ -623,6 +577,101 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static Recording create(User user) {
         File file = new File(SoundRecorder.RECORD_DIR, System.currentTimeMillis() + (user == null ? "" : "_" + user.id));
         return new Recording(file);
+    }
+
+    @Override
+    public String toString() {
+        return "Recording{" +
+                "id=" + id +
+                ", user_id=" + user_id +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
+                ", what_text='" + what_text + '\'' +
+                ", where_text='" + where_text + '\'' +
+                ", audio_path=" + audio_path +
+                ", duration=" + duration +
+                ", artwork_path=" + artwork_path +
+                ", four_square_venue_id='" + four_square_venue_id + '\'' +
+                ", shared_emails='" + shared_emails + '\'' +
+                ", shared_ids='" + shared_ids + '\'' +
+                ", service_ids='" + service_ids + '\'' +
+                ", is_private=" + is_private +
+                ", external_upload=" + external_upload +
+                ", upload_status=" + upload_status +
+                ", tags=" + (tags == null ? null : Arrays.asList(tags)) +
+                ", description='" + description + '\'' +
+                ", genre='" + genre + '\'' +
+                '}';
+    }
+
+    public static final Parcelable.Creator<Recording> CREATOR = new Parcelable.Creator<Recording>() {
+        public Recording createFromParcel(Parcel in) {
+            return new Recording(in);
+        }
+
+        public Recording[] newArray(int size) {
+            return new Recording[size];
+        }
+    };
+
+    public Recording(Parcel in) {
+        Bundle data = in.readBundle(getClass().getClassLoader());
+        id = data.getLong("id");
+        user_id = data.getLong("user_id");
+        longitude = data.getDouble("longitude");
+        latitude = data.getDouble("latitude");
+        what_text = data.getString("what_text");
+        where_text = data.getString("where_text");
+        description = data.getString("description");
+        genre = data.getString("genre");
+        audio_path = new File(data.getString("audio_path"));
+        if (data.containsKey("artwork_path")) {
+            artwork_path = new File(data.getString("artwork_path"));
+        }
+        if (data.containsKey("resized_artwork_path")) {
+            resized_artwork_path = new File(data.getString("resized_artwork_path"));
+        }
+        duration = data.getLong("duration");
+        four_square_venue_id = data.getString("four_square_venue_id");
+        shared_emails = data.getString("shared_emails");
+        shared_ids = data.getString("shared_ids");
+        private_user_id = data.getLong("private_user_id");
+        private_username = data.getString("private_username");
+        service_ids = data.getString("service_ids");
+        is_private = data.getBoolean("is_private", false);
+        external_upload = data.getBoolean("external_upload", false);
+        upload_status = data.getInt("upload_status");
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        Bundle data = new Bundle();
+        data.putLong("id", id);
+        data.putLong("user_id", user_id);
+        data.putDouble("longitude", longitude);
+        data.putDouble("latitude", latitude);
+        data.putString("what_text", what_text);
+        data.putString("where_text", where_text);
+        data.putString("audio_path", audio_path.getAbsolutePath());
+        if (artwork_path != null) {
+            data.putString("artwork_path", artwork_path.getAbsolutePath());
+        }
+        if (resized_artwork_path != null) {
+            data.putString("resized_artwork_path", resized_artwork_path.getAbsolutePath());
+        }
+        data.putLong("duration", duration);
+        data.putString("four_square_venue_id", four_square_venue_id);
+        data.putString("shared_emails", shared_emails);
+        data.putString("shared_ids", shared_ids);
+        data.putString("description", description);
+        data.putString("genre", genre);
+        data.putLong("private_user_id", private_user_id);
+        data.putString("private_username", private_username);
+        data.putString("service_ids", service_ids);
+        data.putBoolean("is_private", is_private);
+        data.putBoolean("external_upload", external_upload);
+        data.putInt("upload_status", upload_status);
+        out.writeBundle(data);
     }
 }
 

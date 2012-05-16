@@ -93,8 +93,8 @@ public class TestApplication extends SoundCloudApplication {
     // object mother
     public static Recording getValidRecording() throws IOException {
         Recording r = new Recording(getTestFile());
-        if (!r.encoded_audio_path.createNewFile()) throw new RuntimeException("could not create encoded file");
-        fill(r.encoded_audio_path);
+        if (!r.getEncodedFile().createNewFile()) throw new RuntimeException("could not create encoded file");
+        fill(r.getEncodedFile());
         return r;
     }
 

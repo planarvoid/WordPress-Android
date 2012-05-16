@@ -58,7 +58,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
      * @throws IllegalArgumentException
      */
     private void upload() {
-        final File toUpload = mUpload.getAudio();
+        final File toUpload = mUpload.getUploadFile();
         if (toUpload == null || !toUpload.exists()) throw new IllegalArgumentException("File to be uploaded does not exist");
         if (toUpload.length() == 0) throw new IllegalArgumentException("File to be uploaded is empty");
 

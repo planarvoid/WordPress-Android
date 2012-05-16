@@ -32,12 +32,12 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
     @Override
     public void run() {
         try {
-            final File in = mRecording.audio_path;
+            final File in = mRecording.getFile();
             broadcast(UploadService.ENCODING_STARTED);
-            VorbisEncoder.encodeWav(in, mRecording.encoded_audio_path, AudioConfig.DEFAULT.quality, this);
+            VorbisEncoder.encodeWav(in, mRecording.getEncodedFile(), AudioConfig.DEFAULT.quality, this);
 
             // double check
-            if (mRecording.encoded_audio_path.exists()) {
+            if (mRecording.getEncodedFile().exists()) {
                 broadcast(UploadService.ENCODING_SUCCESS);
             } else {
                 broadcast(UploadService.ENCODING_ERROR);
