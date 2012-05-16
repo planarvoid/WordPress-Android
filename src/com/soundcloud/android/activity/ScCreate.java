@@ -211,11 +211,13 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     @Override
     public void onAdjustTrimLeft(float pos) {
         mRecorder.onNewStartPosition(pos);
+        if (!mRecorder.isPlaying()) configurePlaybackInfo();
     }
 
     @Override
     public void onAdjustTrimRight(float pos) {
         mRecorder.onNewEndPosition(pos);
+        if (!mRecorder.isPlaying()) configurePlaybackInfo();
     }
 
 
@@ -717,6 +719,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private void configurePlaybackInfo() {
         final long currentPlaybackPosition = mRecorder.getCurrentPlaybackPosition();
         final long duration = mRecorder.getPlaybackDuration();
+        Log.i("asdf","BLAH BLAH BLAH " + currentPlaybackPosition + " of " + duration);
         if ((currentPlaybackPosition > 0 || mRecorder.isPlaying()) && currentPlaybackPosition < duration) {
             mChrono.setPlaybackProgress(currentPlaybackPosition,duration);
             mWaveDisplay.setProgress(((float) currentPlaybackPosition) / duration);

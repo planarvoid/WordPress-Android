@@ -238,7 +238,7 @@ public class CreateWaveView extends View {
 
             } else {
 
-                final int currentProgressIndex = (int) (getWidth() * mCurrentProgress);
+                final int currentProgressIndex = mTrimLeft + (int) ((mTrimRight - mTrimLeft) * mCurrentProgress);
                 if (!mIsEditing) {
                     // just draw progress (full orange if no current progress)
                     if (currentProgressIndex < 0) {

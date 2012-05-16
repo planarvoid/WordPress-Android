@@ -35,24 +35,24 @@ public class PlaybackStream {
 
     public void resetBounds() {
         startPosition = 0;
-        endPosition = getDuration();
+        endPosition = mPlaybackFile.getDuration();
     }
 
     public long getDuration(){
-        return mPlaybackFile.getDuration();
+        return endPosition - startPosition;
     }
 
     public long getPosition() {
-        return currentPosition;
+        return currentPosition - startPosition;
     }
 
     public long setStartPositionByPercent(double percent) {
-        startPosition = (long) (percent * getDuration());
+        startPosition = (long) (percent * mPlaybackFile.getDuration());
         return startPosition;
     }
 
     public long setEndPositionByPercent(double percent) {
-        endPosition = (long) (percent * getDuration());
+        endPosition = (long) (percent * mPlaybackFile.getDuration());
         return Math.max(startPosition, endPosition - TRIM_PREVIEW_LENGTH);
     }
 
