@@ -46,7 +46,7 @@
     </style>
 
     <style name="btn_dark" parent="btn_default">
-        <item name="android:background">@drawable/btn_dark</item>
+        <item name="android:background">@drawable/btn_transparent_bg_states</item>
         <item name="android:textColor">@drawable/txt_btn_dark_states</item>
         <item name="android:shadowColor">#B3000000</item>
     </style>

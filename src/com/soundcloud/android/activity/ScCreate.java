@@ -15,6 +15,7 @@ import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.view.ButtonBar;
 import com.soundcloud.android.view.create.Chronometer;
 import com.soundcloud.android.view.create.CreateWaveDisplay;
 
@@ -66,12 +67,12 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private Chronometer mChrono;
 
     private ViewGroup mEditControls;
-    private ViewGroup mFileLayout;
     private ImageButton mActionButton;
     private CreateWaveDisplay mWaveDisplay;
-    private Button mResetButton, mDeleteButton, mPlayButton, mEditButton, mSaveButton, mPlayEditButton;
+    private Button mPlayButton, mEditButton, mPlayEditButton;
     private ToggleButton mToggleOptimize, mToggleFade;
     private String mRecordErrorMessage;
+    private ButtonBar mButtonBar;
 
     private boolean mActive, mHasEditControlGroup;
     private List<Recording> mUnsavedRecordings;
@@ -80,6 +81,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private Drawable mRecStatesDrawable, mRecStopStatesDrawable, mPlayBgDrawable, mPauseBgDrawable;
     private String[] mRecordSuggestions;
+    private String mRevertString;
+    private String mSaveString;
+    private String mNextString;
+    private String mResetString;
 
     public enum CreateState {
         IDLE_RECORD,
@@ -90,6 +95,12 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         EDIT_PLAYBACK;
 
         public boolean isEdit() { return this == EDIT || this == EDIT_PLAYBACK; }
+    }
+
+    static interface MenuItems {
+        int RESET = 1;
+        int DELETE = 2;
+        int SAVE = 3;
     }
 
     @Override
@@ -119,18 +130,22 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         txtRecordMessage = (TextView) findViewById(R.id.txt_record_message);
 
+        mRevertString = getString(R.string.btn_revert_to_original);
+        mResetString = getString(R.string.reset);
+        mSaveString = getString(R.string.btn_save);
+        mNextString = getString(R.string.btn_next);
+
+
         mChrono = (Chronometer) findViewById(R.id.chronometer);
         mChrono.setVisibility(View.INVISIBLE);
 
-        mFileLayout = (ViewGroup) findViewById(R.id.file_layout);
         mEditControls = (ViewGroup) findViewById(R.id.edit_controls);
         mHasEditControlGroup = mEditControls != null;
 
         mActionButton = setupActionButton();
-        mResetButton  = setupResetButton();
-        mDeleteButton = setupDeleteButton();
+
+        mButtonBar = setupButtonBar();
         mEditButton = setupEditButton();
-        mSaveButton = setupSaveButton();
         mPlayButton = setupPlaybutton(R.id.btn_play);
         mPlayEditButton = setupPlaybutton(R.id.btn_play_edit);
         mToggleFade = setupToggleFade();
@@ -141,8 +156,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         ((ViewGroup) findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
 
         mRecordSuggestions = getResources().getStringArray(R.array.record_suggestions);
-
-        setResetState();
         updateUi(CreateState.IDLE_RECORD, false);
     }
 
@@ -277,9 +290,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         updateUi(CreateState.IDLE_RECORD, true);
     }
 
-    private Button setupResetButton() {
-        final Button button = ((Button) findViewById(R.id.btn_reset));
-        button.setOnClickListener(new View.OnClickListener() {
+    private ButtonBar setupButtonBar() {
+        ButtonBar buttonBar = (ButtonBar) findViewById(R.id.bottom_bar);
+        buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.RESET,new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!mCurrentState.isEdit()) {
@@ -289,10 +302,47 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     track(Click.Record_revert);
                     showDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
                 }
-
             }
-        });
-        return button;
+        }),getString(R.string.reset));
+        buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.DELETE,new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                track(Click.Record_delete);
+                showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
+            }
+        }),getString(R.string.delete));
+        buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.SAVE,new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCurrentState.isEdit()) {
+                    mRecorder.applyEdits();
+
+                    updateUi(CreateState.IDLE_PLAYBACK, true);
+                } else {
+                    track(Click.Record_next);
+                    if (!mRecording.isSaved()) {
+                        mRecording.user_id = SoundCloudApplication.getUserId();
+                        if (mPrivateUser != null) {
+                            SoundCloudDB.upsertUser(getContentResolver(), mPrivateUser);
+                            mRecording.private_user_id = mPrivateUser.id;
+                            mRecording.private_username = mPrivateUser.getDisplayName();
+                            mRecording.is_private = true;
+                        }
+                        // set duration because ogg files report incorrect
+                        // duration in mediaplayer if playback is attempted
+                        // after encoding
+                        mRecording.duration = mRecorder.getPlaybackDuration();
+                        mRecording = SoundCloudDB.insertRecording(getContentResolver(), mRecording);
+                        startActivity(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()));
+                        reset();
+                    } else {
+                        startActivityForResult(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()), 0);
+                    }
+                }
+            }
+        }),getString(R.string.btn_next));
+        return buttonBar;
+
     }
 
     private ImageButton setupActionButton() {
@@ -318,16 +368,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private Button setupDeleteButton() {
-        final Button button = ((Button) findViewById(R.id.btn_delete));
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                track(Click.Record_delete);
-                showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
-            }
-        });
-        return button;
-    }
+
 
     private Button setupPlaybutton(int id) {
         final Button button = ((Button) findViewById(id));
@@ -373,40 +414,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private Button setupSaveButton() {
-        final Button button = (Button) findViewById(R.id.btn_save);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                if (mCurrentState.isEdit()) {
-                    mRecorder.applyEdits();
-
-                    updateUi(CreateState.IDLE_PLAYBACK, true);
-                } else {
-                    track(Click.Record_next);
-                    if (!mRecording.isSaved()) {
-                        mRecording.user_id = SoundCloudApplication.getUserId();
-                        if (mPrivateUser != null) {
-                            SoundCloudDB.upsertUser(getContentResolver(), mPrivateUser);
-                            mRecording.private_user_id = mPrivateUser.id;
-                            mRecording.private_username = mPrivateUser.getDisplayName();
-                            mRecording.is_private = true;
-                        }
-                        // set duration because ogg files report incorrect
-                        // duration in mediaplayer if playback is attempted
-                        // after encoding
-                        mRecording.duration = mRecorder.getPlaybackDuration();
-                        mRecording = SoundCloudDB.insertRecording(getContentResolver(), mRecording);
-                        startActivity(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()));
-                        reset();
-                    } else {
-                        startActivityForResult(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()), 0);
-                    }
-                }
-            }
-        });
-        return button;
-    }
-
     private ToggleButton setupToggleFade() {
         final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_fade);
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -434,13 +441,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mRecording = null;
         mWaveDisplay.reset();
         updateUi(CreateState.IDLE_RECORD, true);
-        setResetState();
-    }
-
-    private void setResetState() {
-        final boolean saved = mRecording != null && mRecording.isSaved();
-        mResetButton.setVisibility(saved ? View.GONE : View.VISIBLE);
-        mDeleteButton.setVisibility(saved ? View.VISIBLE : View.GONE);
     }
 
     private void configureInitialState() {
@@ -487,7 +487,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             }
         }
         */
-        setResetState();
         updateUi(newState, takeAction);
     }
 
@@ -506,7 +505,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
-                hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
+                hideView(mButtonBar, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
                 hideView(mChrono, false, View.INVISIBLE);
                 hideEditControls();
 
@@ -528,7 +527,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             case RECORD:
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
-                hideView(mFileLayout, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
+                hideView(mButtonBar, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
                 hideEditControls();
                 hideView(txtInstructions, false, View.GONE);
                 hideView(txtRecordMessage, false, View.INVISIBLE);
@@ -561,7 +560,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 showView(mPlayButton, takeAction && (mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
                 showView(mEditButton, takeAction && (mLastState == CreateState.RECORD || mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
                 showView(mActionButton, takeAction && (mLastState == CreateState.EDIT || mLastState == CreateState.EDIT_PLAYBACK));
-                showView(mFileLayout, takeAction && (mLastState == CreateState.RECORD));
+                showView(mButtonBar, takeAction && (mLastState == CreateState.RECORD));
                 showView(mChrono, false);
 
                 hideView(txtInstructions, false, View.GONE);
@@ -572,14 +571,13 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 mActionButton.setImageDrawable(mRecStatesDrawable);
 
                 configurePlaybackInfo();
-                setResetState();
                 break;
 
             case PLAYBACK:
                 showView(mActionButton,false);
                 showView(mPlayButton,false);
                 showView(mEditButton,false);
-                showView(mFileLayout,false);
+                showView(mButtonBar,false);
                 showView(mChrono,false);
 
                 hideView(txtInstructions,false,View.GONE);
@@ -589,16 +587,13 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 setPlayButtonDrawable(true);
                 mActionButton.setImageDrawable(mRecStatesDrawable);
 
-                setResetState();
-
                 if (takeAction) startPlayback();
                 break;
 
             case EDIT:
             case EDIT_PLAYBACK:
 
-                showView(mResetButton,false);
-                showView(mFileLayout,false);
+                showView(mButtonBar,false);
 
                 if (mHasEditControlGroup){
                    // portrait
@@ -612,9 +607,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 hideView(mPlayButton, false, View.GONE);
                 hideView(mActionButton, false, View.GONE);
                 hideView(mEditButton, false, View.GONE);
-                hideView(mDeleteButton,false, View.GONE);
+
                 hideView(txtInstructions,false,View.GONE);
                 hideView(txtRecordMessage,false,View.INVISIBLE);
+
+
 
                 final boolean isPlaying = mCurrentState == CreateState.EDIT_PLAYBACK;
                 setPlayButtonDrawable(isPlaying);
@@ -637,13 +634,22 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
 
         final boolean inEditState = mCurrentState.isEdit();
-        mResetButton.setText(inEditState ? getString(R.string.btn_revert_to_original) : getString(R.string.reset) );
-        mSaveButton.setText(inEditState ? getString(R.string.btn_save) : getString(R.string.btn_next));
+        configureButtonBar(inEditState);
         mWaveDisplay.setIsEditing(inEditState);
 
         mLastState = mCurrentState;
         mActionButton.setEnabled(true);
     }
+
+    private void configureButtonBar(boolean isEditing) {
+        mButtonBar.setTextById(MenuItems.RESET, isEditing ? mRevertString : mResetString );
+        mButtonBar.setTextById(MenuItems.SAVE, isEditing ? mSaveString : mNextString);
+
+        final boolean showDelete = !isEditing && mRecording != null && mRecording.isSaved();
+        mButtonBar.toggleVisibility(MenuItems.RESET, showDelete ? false : true, false);
+        mButtonBar.toggleVisibility(MenuItems.DELETE, showDelete ? true : false, true);
+    }
+
 
     private void setPlayButtonDrawable(boolean playing){
         if (playing){
@@ -719,7 +725,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private void configurePlaybackInfo() {
         final long currentPlaybackPosition = mRecorder.getCurrentPlaybackPosition();
         final long duration = mRecorder.getPlaybackDuration();
-        Log.i("asdf","BLAH BLAH BLAH " + currentPlaybackPosition + " of " + duration);
         if ((currentPlaybackPosition > 0 || mRecorder.isPlaying()) && currentPlaybackPosition < duration) {
             mChrono.setPlaybackProgress(currentPlaybackPosition,duration);
             mWaveDisplay.setProgress(((float) currentPlaybackPosition) / duration);

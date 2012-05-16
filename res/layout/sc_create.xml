@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
               android:orientation="vertical"
@@ -114,50 +115,14 @@
                     android:layout_width="fill_parent">
         <TextView android:id="@+id/txt_record_message"
                   android:layout_width="match_parent"
-                  android:layout_margin="5dip"
+                  android:layout_alignParentBottom="true"
                   style="@style/txt_record_message"
+                  android:gravity="center"
                   android:lines="2"
-                  android:layout_height="wrap_content"/>
-
-        <LinearLayout android:id="@+id/file_layout"
-                      android:paddingBottom="5dip"
-                      android:layout_alignParentBottom="true"
-                      android:orientation="horizontal"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content">
-
-            <Button android:id="@+id/btn_delete"
-                    style="@style/btn_orange"
-                    android:text="@string/delete"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:padding="15dip"
-                    android:singleLine="true"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginRight="15dip"/>
-
-            <Button android:id="@+id/btn_reset"
-                    style="@style/btn_dark"
-                    android:text="@string/reset"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:singleLine="true"
-                    android:padding="15dip"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginRight="15dip"/>
-
-            <Button android:id="@+id/btn_save"
-                    style="@style/btn_dark"
-                    android:text="@string/btn_next"
-                    android:padding="15dip"
-                    android:layout_weight="1"
-                    android:singleLine="true"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dip"
-                    android:layout_marginRight="10dip"/>
-        </LinearLayout>
+                  android:layout_height="match_parent"/>
+        <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
+                                           android:layout_width="fill_parent"
+                                           android:layout_height="60dp"
+                                           app:separator_color="@color/recButtonBarSeparator"/>
     </FrameLayout>
 </LinearLayout>

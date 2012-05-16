@@ -7,6 +7,8 @@
     <color name="listTxtRecSecondary">#FFcccccc</color>
     <color name="listTxtCreatedAt">#FFc9c9c9</color>
 
+    <color name="scOrange">#00000000</color>
+
     <color name="darkBg">#FF333333</color>
 
     <color name="listTxtHeader">#777777</color>
@@ -27,6 +29,11 @@
 
     <color name="recordUploadBorder">#ff525252</color>
     <color name="recordListItemBackground">#ff999999</color>
+
+    <color name="btnTransparentPressedStart">#ff6600</color>
+    <color name="btnTransparentPressedEnd">#ff3300</color>
+    <color name="btnTransparentSelectedStroke">#80ffffff</color>
+    <color name="recButtonBarSeparator">#ff000000</color>
 
     <color name="cloudProgressBackgroundStart">#FF444444</color>
     <color name="cloudProgressBackgroundCenter">#FF666666</color>
