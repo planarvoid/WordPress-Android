@@ -377,7 +377,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             @Override public void onClick(View v) {
                 if (mCurrentState.isEdit()) {
                     mRecorder.applyEdits();
-
                     updateUi(CreateState.IDLE_PLAYBACK, true);
                 } else {
                     track(Click.Record_next);
@@ -397,6 +396,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         startActivity(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()));
                         reset();
                     } else {
+                        // upload
                         startActivityForResult(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()), 0);
                     }
                 }
@@ -846,7 +846,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                             new DialogInterface.OnClickListener() {
                                 @Override public void onClick(DialogInterface dialog, int whichButton) {
                                     track(Click.Record_discard__ok);
-                                    IOUtils.deleteFile(mRecording.audio_path);
+                                    IOUtils.deleteFile(mRecording.getFile());
                                     removeDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
                                     reset();
                                 }
@@ -929,9 +929,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             case Consts.OptionsMenu.PROCESS:
                 if (mRecording != null) {
                     Intent process = new Intent(Actions.RECORDING_PROCESS)
-                            .setData(Uri.fromFile(mRecording.audio_path))
+                            .setData(Uri.fromFile(mRecording.getFile()))
                             .putExtra("com.soundcloud.android.pd.extra.out",
-                                    mRecording.audio_path.getAbsolutePath()+"-processed.wav");
+                                    mRecording.getFile().getAbsolutePath()+"-processed.wav");
                     try {
                         startActivityForResult(process, REQUEST_PROCESS_FILE);
                     } catch (ActivityNotFoundException e) {

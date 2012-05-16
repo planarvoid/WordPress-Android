@@ -33,8 +33,8 @@ public class RecordingMetaData extends RelativeLayout {
     private Recording mRecording;
     private File mImageDir, mArtworkFile;
 
-    /* package */ EditText mWhatText;
-    /* package */ TextView mWhereText;
+    private EditText mWhatText;
+    private TextView mWhereText;
     private ImageView mArtwork;
 
     private String mFourSquareVenueId;
@@ -44,16 +44,19 @@ public class RecordingMetaData extends RelativeLayout {
     private ArrayList<FoursquareVenue> mVenues = new ArrayList<FoursquareVenue>();
     private Location mLocation;
 
+    @SuppressWarnings("UnusedDeclaration")
     public RecordingMetaData(Context context) {
         super(context);
         init();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public RecordingMetaData(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public RecordingMetaData(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
@@ -200,7 +203,6 @@ public class RecordingMetaData extends RelativeLayout {
             ImageUtils.setImage(file, mArtwork, (int) (getResources().getDisplayMetrics().density * 100f),(int) (getResources().getDisplayMetrics().density * 100f));
         }
     }
-
 
     private void clearArtwork() {
         mArtworkFile = null;

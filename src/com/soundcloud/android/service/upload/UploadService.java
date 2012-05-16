@@ -116,7 +116,7 @@ public class UploadService extends Service {
             if (recording.hasArtwork() && recording.resized_artwork_path == null) {
                 post(new ImageResizer(UploadService.this, recording));
             } else {
-                if (!recording.encoded_audio_path.exists()) {
+                if (!recording.getEncodedFile().exists()) {
                     mEncodingHandler.post(new Encoder(UploadService.this, recording));
                 } else {
                     post(new Uploader((SoundCloudApplication) getApplication(), recording));
@@ -269,7 +269,7 @@ public class UploadService extends Service {
             (recording = SoundCloudDB.insertRecording(getContentResolver(), recording)) == null) {
             Log.w(TAG, "could not insert "+recording);
         } else {
-            recording.status = Recording.Status.UPLOADING;
+            recording.upload_status = Recording.Status.UPLOADING;
             recording.updateStatus(getContentResolver());
 
             queueUpload(recording);

@@ -114,7 +114,7 @@ public class RecordingTest {
     @Test
     public void shouldDeterminedLastModifiedFromFile() throws Exception {
         Recording r = createRecording();
-        expect(r.lastModified()).toEqual(r.audio_path.lastModified());
+        expect(r.lastModified()).toEqual(r.getFile().lastModified());
     }
 
     @Test
@@ -218,9 +218,7 @@ public class RecordingTest {
         r.shared_emails = "foo@example.com";
         r.shared_ids = "1,2,3,4";
         r.upload_status = Recording.Status.NOT_YET_UPLOADED;
-
-        r.encoded_audio_path = r.audio_path;
-        r.artwork_path = r.audio_path;
+        r.artwork_path = r.getFile();
         r.resized_artwork_path = r.artwork_path;
 
         return r;
@@ -306,8 +304,8 @@ public class RecordingTest {
         expect(r.genre).toEqual(r2.genre);
         expect(r.longitude).toEqual(r2.longitude);
         expect(r.latitude).toEqual(r2.latitude);
-        expect(r.audio_path).toEqual(r2.audio_path);
-        expect(r.encoded_audio_path).toEqual(r2.encoded_audio_path);
+        expect(r.getFile()).toEqual(r2.getFile());
+        expect(r.getEncodedFile()).toEqual(r2.getEncodedFile());
         expect(r.artwork_path).toEqual(r2.artwork_path);
         expect(r.resized_artwork_path).toEqual(r2.resized_artwork_path);
         expect(r.four_square_venue_id).toEqual(r2.four_square_venue_id);
@@ -316,18 +314,14 @@ public class RecordingTest {
         expect(r.private_username).toEqual(r2.private_username);
         expect(r.private_user_id).toEqual(r2.private_user_id);
         expect(r.external_upload).toEqual(r2.external_upload);
-        expect(r.status).toEqual(r2.status);
     }
 
 
     @Test
-    public void shouldGetAudio() throws Exception {
+    public void shouldGetUploadFile() throws Exception {
         Recording r = createRecording();
-        expect(r.getAudio()).not.toBeNull();
-        expect(r.getAudio()).toBe(r.audio_path);
-
-        r.encoded_audio_path = File.createTempFile("encoded", "ogg");
-        expect(r.getAudio()).toEqual(r.encoded_audio_path);
+        expect(r.getUploadFile()).not.toBeNull();
+        expect(r.getUploadFile()).toBe(r.getFile());
     }
 
     @Test
