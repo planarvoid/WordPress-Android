@@ -48,7 +48,7 @@ public class PlaybackStream {
 
     public long setStartPositionByPercent(double percent) {
         startPosition = (long) (percent * getDuration());
-        return Math.max(startPosition, endPosition - TRIM_PREVIEW_LENGTH);
+        return startPosition;
     }
 
     public long setEndPositionByPercent(double percent) {

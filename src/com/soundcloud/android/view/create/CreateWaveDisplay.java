@@ -206,7 +206,7 @@ public class CreateWaveDisplay extends TouchLayout {
     }
 
     private void setTouchMode(InputObject input) {
-        if (input.actionIndex > 1) return;
+        if (mMode == MODE_REC || input.actionIndex > 1) return;
 
         Rect leftHandleRect = null, rightHandleRect = null;
         if (leftHandle.getParent() == this) {
@@ -263,7 +263,7 @@ public class CreateWaveDisplay extends TouchLayout {
 
                 case UI_UPDATE_TRIM:
                     final int adjustedLeftMargin = lastTrimLeftX + leftMarginOffset;
-                    if (leftLp.leftMargin != adjustedLeftMargin){
+                    if (lastTrimLeftX != -1 && leftLp.leftMargin != adjustedLeftMargin){
                         leftLp.leftMargin = adjustedLeftMargin;
                         leftHandle.requestLayout();
 

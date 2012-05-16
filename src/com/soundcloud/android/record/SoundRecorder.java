@@ -343,12 +343,14 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     public void seekTo(float pct) {
-        long position = (long) (getPlaybackDuration() * pct);
-        if (isPlaying()) {
-            mSeekToPos = position;
-            mState = State.SEEKING;
-        } else {
-            mPlaybackStream.setCurrentPosition(position);
+        if (mPlaybackStream != null) {
+            long position = (long) (getPlaybackDuration() * pct);
+            if (isPlaying()) {
+                mSeekToPos = position;
+                mState = State.SEEKING;
+            } else {
+                mPlaybackStream.setCurrentPosition(position);
+            }
         }
     }
 
