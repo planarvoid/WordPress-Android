@@ -100,13 +100,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     private boolean mShouldUseNotifications = true;
 
-    private long mDuration, mSeekToPos = -1;
+    private long mSeekToPos = -1;
 
     private LocalBroadcastManager mBroadcastManager;
-
-    /* package */ long startPosition;
-    /* package */ long endPosition;
-
 
     public static synchronized SoundRecorder getInstance(Context context) {
         if (instance == null) {
@@ -317,9 +313,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     public void applyEdits() {
-        //TODO: anything? Maybe ust don't revert modification layer
+        // TODO
     }
-
 
     public boolean isPlaying() {
         return mState != null && (mState == State.PLAYING || mState == State.SEEKING);
@@ -431,8 +426,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
             playbackStream.initializePlayback();
             mState = SoundRecorder.State.PLAYING;
-            int n = 0;
-
+            int n;
             while (mState == SoundRecorder.State.PLAYING && (n = mPlaybackStream.read(buffer, bufferSize)) > -1) {
                 int written = mAudioTrack.write(buffer, n);
                 if (written < 0) {

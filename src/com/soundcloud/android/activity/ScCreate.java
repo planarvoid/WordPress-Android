@@ -31,7 +31,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -59,7 +58,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
 
     private Recording mRecording;
-    private User mPrivateUser;
+    private User mRecipient;
 
     private SoundRecorder mRecorder;
     private CreateState mLastState, mCurrentState;
@@ -78,8 +77,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private boolean mActive, mHasEditControlGroup;
     private List<Recording> mUnsavedRecordings;
-
-    private final Handler mHandler = new Handler();
 
     private String[] mRecordSuggestions;
     private String mRevertString;
@@ -111,20 +108,19 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         final Uri recordingUri = getIntent().getData();
         if (recordingUri != null) {
-            mRecording = Recording.fromUri(recordingUri, getContentResolver());
-            if (mRecording == null){
+            if ((mRecording = Recording.fromUri(recordingUri, getContentResolver())) == null) {
                 CloudUtils.showToast(this, R.string.error_getting_recording);
             }
         }
 
         if (getIntent().hasExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT)){
-            mPrivateUser = getIntent().getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT);
+            mRecipient = getIntent().getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT);
         }
 
 
-       txtInstructions = (TextView) findViewById(R.id.txt_instructions);
-        if (mPrivateUser != null){
-            txtInstructions.setText(getString(R.string.private_message_title, mPrivateUser.username));
+        txtInstructions = (TextView) findViewById(R.id.txt_instructions);
+        if (mRecipient != null){
+            txtInstructions.setText(getString(R.string.private_message_title, mRecipient.username));
         }
 
         txtRecordMessage = (TextView) findViewById(R.id.txt_record_message);
@@ -294,7 +290,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private ButtonBar setupButtonBar() {
         ButtonBar buttonBar = (ButtonBar) findViewById(R.id.bottom_bar);
-        buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.RESET,new View.OnClickListener() {
+        buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.RESET, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!mCurrentState.isEdit()) {
@@ -305,15 +301,15 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     showDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
                 }
             }
-        }),getString(R.string.reset));
-        buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.DELETE,new View.OnClickListener() {
+        }), getString(R.string.reset));
+        buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.DELETE, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 track(Click.Record_delete);
                 showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
             }
-        }),getString(R.string.delete));
-        buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.SAVE,new View.OnClickListener() {
+        }), getString(R.string.delete));
+        buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.SAVE, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mCurrentState.isEdit()) {
@@ -321,28 +317,23 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     updateUi(CreateState.IDLE_PLAYBACK, true);
                 } else {
                     track(Click.Record_next);
+
+
                     if (!mRecording.isSaved()) {
                         mRecording.user_id = SoundCloudApplication.getUserId();
-                        if (mPrivateUser != null) {
-                            SoundCloudDB.upsertUser(getContentResolver(), mPrivateUser);
-                            mRecording.private_user_id = mPrivateUser.id;
-                            mRecording.private_username = mPrivateUser.getDisplayName();
-                            mRecording.is_private = true;
+                        if (mRecipient != null) {
+                            SoundCloudDB.upsertUser(getContentResolver(), mRecipient);
+                            mRecording.setRecipient(mRecipient);
                         }
-                        // set duration because ogg files report incorrect
-                        // duration in mediaplayer if playback is attempted
-                        // after encoding
                         mRecording.duration = mRecorder.getPlaybackDuration();
                         mRecording = SoundCloudDB.insertRecording(getContentResolver(), mRecording);
-                        startActivity(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()));
                         reset();
-                    } else {
-                        // upload
-                        startActivityForResult(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()), 0);
                     }
+
+                    startActivity(new Intent(ScCreate.this, ScUpload.class).setData(mRecording.toUri()));
                 }
             }
-        }),getString(R.string.btn_next));
+        }), getString(R.string.btn_next));
         return buttonBar;
 
     }
@@ -463,8 +454,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         } else {
 
-            if (mRecording == null && mPrivateUser != null) {
-                mRecording = Recording.checkForUnusedPrivateRecording(SoundRecorder.RECORD_DIR, mPrivateUser);
+            if (mRecording == null && mRecipient != null) {
+                mRecording = Recording.checkForUnusedPrivateRecording(SoundRecorder.RECORD_DIR, mRecipient);
             }
 
             if (mRecording != null) {
@@ -521,14 +512,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 showView(txtInstructions, takeAction && mLastState != CreateState.IDLE_RECORD);
                 showView(txtRecordMessage, takeAction && mLastState != CreateState.IDLE_RECORD);
 
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mActive && mRecording == null) {
-                            mRecorder.startReading();
-                        }
-                    }
-                });
+                if (mActive && mRecording == null) {
+                    mRecorder.startReading();
+                }
                 break;
 
             case RECORD:
@@ -685,7 +671,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mWaveDisplay.gotoRecordMode();
 
         try {
-            mRecording = mRecorder.startRecording(mPrivateUser);
+            mRecording = mRecorder.startRecording(mRecipient);
         } catch (IOException e) {
             onRecordingError(e.getMessage());
             updateUi(CreateState.IDLE_RECORD, true);
