@@ -860,7 +860,7 @@ public class UserBrowser extends ScListActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!isMe()) {
             menu.add(menu.size(), Consts.OptionsMenu.PRIVATE_MESSAGE,
-                menu.size(), R.string.menu_private_message).setIcon(R.drawable.ic_menu_friendfinder);
+                menu.size(), R.string.menu_private_message).setIcon(R.drawable.ic_options_menu_rec);
         }
         return super.onCreateOptionsMenu(menu);
     }

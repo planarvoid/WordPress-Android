@@ -5,6 +5,7 @@
     </declare-styleable>
 
     <declare-styleable name="ButtonBar">
+        <attr name="button_background" format="reference" />
         <attr name="separator_color" format="reference|color" />
         <attr name="separator" format="integer" >
             <flag name="none" value="1" />

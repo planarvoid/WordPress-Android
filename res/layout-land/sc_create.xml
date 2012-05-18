@@ -89,5 +89,8 @@
                                            android:layout_alignParentBottom="true"
                                            android:layout_width="fill_parent"
                                            android:layout_height="60dp"
+                                           style="@style/rec_button_bar"
+                                           app:button_background="@drawable/btn_transparent_bg_states"
                                            app:separator_color="@color/recButtonBarSeparator"/>
+
 </RelativeLayout>
