@@ -390,7 +390,7 @@
     </style>
 
     <style name="rec_button_bar">
-        <item name="android:background">#FF222222</item>
+        <item name="android:background">@drawable/btn_bar_rec_bg</item>
     </style>
 
     <style name="txt_player_drawer_blue" parent="android:Widget.TextView">

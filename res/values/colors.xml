@@ -35,6 +35,9 @@
     <color name="btnTransparentSelectedStroke">#80ffffff</color>
     <color name="recButtonBarSeparator">#ff000000</color>
 
+    <color name="recButtonBarBgStart">#333333</color>
+    <color name="recButtonBarBgEnd">#222222</color>
+
     <color name="cloudProgressBackgroundStart">#FF444444</color>
     <color name="cloudProgressBackgroundCenter">#FF666666</color>
     <color name="cloudProgressBackgroundEnd">#FF444444</color>

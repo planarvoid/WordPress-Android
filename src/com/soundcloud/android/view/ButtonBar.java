@@ -63,7 +63,7 @@ public class ButtonBar extends LinearLayout {
         addView(holder);
     }
 
-    public void addItem(MenuItem menuItem, CharSequence label){
+    public ButtonBar addItem(MenuItem menuItem, CharSequence label){
         mMenuItems.add(menuItem);
         mMenuItemMap.put(menuItem.id,menuItem);
 
@@ -74,6 +74,7 @@ public class ButtonBar extends LinearLayout {
         holder.addView(menuItem.separator);
         holder.addView(menuItem.button);
         setVisibilities();
+        return this;
     }
 
     public void toggleVisibility(int id, boolean visible, boolean updateAll){

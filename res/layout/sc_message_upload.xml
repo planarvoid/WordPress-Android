@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
               android:background="@drawable/bg_rec"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
@@ -41,37 +42,10 @@
 
         </LinearLayout>
     </ScrollView>
-    <RelativeLayout android:layout_height="wrap_content"
-                    android:layout_width="fill_parent"
-                    android:layout_marginTop="10dp">
-
-        <LinearLayout android:id="@+id/file_layout"
-                      android:paddingBottom="5dip"
-                      android:orientation="horizontal"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      android:layout_alignParentBottom="false"
-                      android:layout_centerInParent="true">
-
-            <Button android:id="@+id/btn_cancel"
-                    style="@style/btn_dark"
-                    android:text="@string/btn_back"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:padding="15dip"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginRight="15dip"/>
-
-            <Button android:id="@+id/btn_upload"
-                    style="@style/btn_dark"
-                    android:text="@string/private_message_btn_send"
-                    android:padding="15dip"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dip"
-                    android:layout_marginRight="10dip"/>
-        </LinearLayout>
-    </RelativeLayout>
+    <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
+                                                       android:layout_width="fill_parent"
+                                                       android:layout_height="60dp"
+                                                       style="@style/rec_button_bar"
+                                                       app:button_background="@drawable/btn_transparent_bg_states"
+                                                       app:separator_color="@color/recButtonBarSeparator"/>
 </LinearLayout>

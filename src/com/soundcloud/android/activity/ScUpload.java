@@ -2,14 +2,18 @@ package com.soundcloud.android.activity;
 
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.AccessList;
+import com.soundcloud.android.view.ButtonBar;
 import com.soundcloud.android.view.ConnectionList;
 import com.soundcloud.android.view.create.RecordingMetaData;
 import com.soundcloud.android.view.create.ShareUserHeader;
@@ -74,7 +78,7 @@ public class ScUpload extends ScActivity {
         mRecordingMetadata = (RecordingMetaData) findViewById(R.id.metadata_layout);
         mRecordingMetadata.setActivity(this);
 
-        findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+        ((ButtonBar) findViewById(R.id.bottom_bar)).addItem(new ButtonBar.MenuItem(0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_record_another);
@@ -82,9 +86,7 @@ public class ScUpload extends ScActivity {
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
             }
-        });
-
-        findViewById(R.id.btn_upload).setOnClickListener(new View.OnClickListener() {
+        }), getString(R.string.record_another_sound)).addItem(new ButtonBar.MenuItem(1, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_Upload_and_share);
@@ -101,11 +103,9 @@ public class ScUpload extends ScActivity {
                     finish();
                 }
             }
-        });
-
+        }), getString((mRecording.is_private) ? R.string.private_message_btn_send : R.string.upload_and_share));
 
         if (mRecording.is_private) {
-
             ((TextView) findViewById(R.id.txt_private_message_upload_message))
                             .setText(getString(R.string.private_message_upload_message, mRecording.private_username));
         } else {
