@@ -8,10 +8,12 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
 import android.app.Service;
@@ -52,7 +54,19 @@ public class SyncAdapterService extends Service {
         mSyncAdapter = new AbstractThreadedSyncAdapter(this, false) {
             @Override
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-                performSync((SoundCloudApplication)getApplication(), account, extras, syncResult);
+                performSync((SoundCloudApplication) getApplication(), account, extras, syncResult);
+            }
+
+            @Override
+            public void onSyncCanceled() {
+                Log.d(TAG, "sync canceled, dumping stack");
+                DebugUtils.dumpStack(getContext());
+                new Thread() {
+                    @Override public void run() {
+                        DebugUtils.dumpLog(getContext());
+                    }
+                }.start();
+                super.onSyncCanceled();
             }
         };
     }
@@ -210,7 +224,7 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    private static void rewind(SoundCloudApplication app, String key1, String key2, long amount) {
+    private static void rewind(SoundCloudApplication app, String key1, @Nullable String key2, long amount) {
         app.setAccountData(key1, app.getAccountDataLong(key2 == null ? key1 : key2) - amount);
     }
 }

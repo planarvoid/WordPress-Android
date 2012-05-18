@@ -28,6 +28,7 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
@@ -100,6 +101,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     @Override
     public void onCreate() {
         super.onCreate();
+        DebugUtils.setLogLevels();
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
         if (DALVIK) {
