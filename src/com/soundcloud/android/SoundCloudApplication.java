@@ -101,7 +101,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     @Override
     public void onCreate() {
         super.onCreate();
-        DebugUtils.setLogLevels();
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
         if (DALVIK) {

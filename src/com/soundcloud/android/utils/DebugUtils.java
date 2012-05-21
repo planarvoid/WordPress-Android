@@ -2,7 +2,10 @@ package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import org.jetbrains.annotations.NotNull;
+
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -14,7 +17,7 @@ import java.io.PrintStream;
 import java.util.Map;
 
 public class DebugUtils {
-    public static void dumpStack(Context context) {
+    public static void dumpStack(@NotNull Context context) {
         Map<Thread, StackTraceElement[]> traces = Thread.getAllStackTraces();
         final File debugDir = context.getExternalFilesDir("debug");
         if (debugDir != null) {
@@ -41,7 +44,14 @@ public class DebugUtils {
         }
     }
 
-    public static void dumpLog(Context context) {
+    public static boolean dumpLog(@NotNull Context context) {
+        if (context.getPackageManager().checkPermission("android.permission.READ_LOGS", context.getPackageName())
+                != PackageManager.PERMISSION_GRANTED) {
+
+            Log.d(TAG, "no READ_LOGS permission, skipping dumpLog");
+            return false;
+        }
+
         final File debugDir = context.getExternalFilesDir("debug");
         if (debugDir != null) {
             try {
@@ -56,11 +66,14 @@ public class DebugUtils {
                 }
                 ps.close();
                 Log.d(TAG, "wrote log to " + logFile);
+                return true;
             } catch (IOException e) {
                 Log.w(TAG, "error writing logs");
+                return false;
             }
         } else {
             Log.w(TAG, "could not log because file not available");
+            return false;
         }
     }
 

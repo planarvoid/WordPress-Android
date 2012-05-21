@@ -38,7 +38,7 @@ import java.util.ArrayList;
  */
 public class SyncAdapterService extends Service {
     /* package */  static final String TAG = SyncAdapterService.class.getSimpleName();
-    private AbstractThreadedSyncAdapter mSyncAdapter;
+    private static final boolean DEBUG_CANCEL = Boolean.valueOf(System.getProperty("syncadapter.debug.cancel", null));
 
     public static final int MAX_ARTWORK_PREFETCH = 40; // only prefetch N amount of artwork links
 
@@ -49,6 +49,8 @@ public class SyncAdapterService extends Service {
     public static final int CLEAR_ALL       = 1;
     public static final int REWIND_LAST_DAY = 2;
 
+    private AbstractThreadedSyncAdapter mSyncAdapter;
+
     @Override public void onCreate() {
         super.onCreate();
         mSyncAdapter = new AbstractThreadedSyncAdapter(this, false) {
@@ -56,6 +58,8 @@ public class SyncAdapterService extends Service {
 
             @Override
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
+                if (DEBUG_CANCEL) DebugUtils.setLogLevels();
+
                 Looper.prepare();
                 looper = Looper.myLooper();
                 performSync((SoundCloudApplication) getApplication(), account, extras, syncResult, new Runnable() {
@@ -68,13 +72,16 @@ public class SyncAdapterService extends Service {
 
             @Override
             public void onSyncCanceled() {
-                Log.d(TAG, "sync canceled, dumping stack");
-                DebugUtils.dumpStack(getContext());
-                new Thread() {
-                    @Override public void run() {
-                        DebugUtils.dumpLog(getContext());
-                    }
-                }.start();
+                if (DEBUG_CANCEL) {
+                    Log.d(TAG, "sync canceled, dumping stack");
+                    DebugUtils.dumpStack(getContext());
+                    new Thread() {
+                        @Override public void run() {
+                            DebugUtils.dumpLog(getContext());
+                        }
+                    }.start();
+                }
+
                 if (looper != null) looper.quit(); // make sure  sync thread exits
                 super.onSyncCanceled();
             }
