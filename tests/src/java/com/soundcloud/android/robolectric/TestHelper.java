@@ -2,6 +2,7 @@ package com.soundcloud.android.robolectric;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
+import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.provider.Content;
@@ -13,6 +14,7 @@ import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.provider.Settings;
 
@@ -83,6 +85,33 @@ public class TestHelper {
         ConnectivityManager cm = (ConnectivityManager)
                 Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
         shadowOf(shadowOf(cm).getActiveNetworkInfo()).setConnectionStatus(false);
+    }
+
+    public static void connectedViaWifi(boolean enabled) {
+        ConnectivityManager cm = (ConnectivityManager)
+                Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (enabled) {
+            // pretend we're connected via wifi
+            Robolectric.shadowOf(cm).setNetworkInfo(ConnectivityManager.TYPE_WIFI,
+                    newInstanceOf(NetworkInfo.class));
+        } else {
+            // pretend we're connected only via mobile, no wifi
+            Robolectric.shadowOf(cm).setNetworkInfo(ConnectivityManager.TYPE_MOBILE,
+                    newInstanceOf(NetworkInfo.class));
+
+            NetworkInfo info = newInstanceOf(NetworkInfo.class);
+            Robolectric.shadowOf(info).setConnectionStatus(false);
+            Robolectric.shadowOf(cm).setNetworkInfo(ConnectivityManager.TYPE_WIFI, info);
+        }
+    }
+
+
+    public static void setBackgrounData(boolean enabled) {
+        ConnectivityManager cm = (ConnectivityManager)
+                Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        Robolectric.shadowOf(cm).setBackgroundDataSetting(enabled);
     }
 
     public static void enableFlightmode(boolean enabled) {
