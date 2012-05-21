@@ -8,10 +8,12 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
 import android.app.Service;
@@ -36,7 +38,7 @@ import java.util.ArrayList;
  */
 public class SyncAdapterService extends Service {
     /* package */  static final String TAG = SyncAdapterService.class.getSimpleName();
-    private AbstractThreadedSyncAdapter mSyncAdapter;
+    private static final boolean DEBUG_CANCEL = Boolean.valueOf(System.getProperty("syncadapter.debug.cancel", null));
 
     public static final int MAX_ARTWORK_PREFETCH = 40; // only prefetch N amount of artwork links
 
@@ -47,12 +49,41 @@ public class SyncAdapterService extends Service {
     public static final int CLEAR_ALL       = 1;
     public static final int REWIND_LAST_DAY = 2;
 
+    private AbstractThreadedSyncAdapter mSyncAdapter;
+
     @Override public void onCreate() {
         super.onCreate();
         mSyncAdapter = new AbstractThreadedSyncAdapter(this, false) {
+            private Looper looper;
+
             @Override
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-                performSync((SoundCloudApplication)getApplication(), account, extras, syncResult);
+                if (DEBUG_CANCEL) DebugUtils.setLogLevels();
+
+                Looper.prepare();
+                looper = Looper.myLooper();
+                performSync((SoundCloudApplication) getApplication(), account, extras, syncResult, new Runnable() {
+                    @Override public void run() {
+                        looper.quit();
+                    }
+                });
+                Looper.loop(); // wait for results to come in
+            }
+
+            @Override
+            public void onSyncCanceled() {
+                if (DEBUG_CANCEL) {
+                    Log.d(TAG, "sync canceled, dumping stack");
+                    DebugUtils.dumpStack(getContext());
+                    new Thread() {
+                        @Override public void run() {
+                            DebugUtils.dumpLog(getContext());
+                        }
+                    }.start();
+                }
+
+                if (looper != null) looper.quit(); // make sure  sync thread exits
+                super.onSyncCanceled();
             }
         };
     }
@@ -64,7 +95,8 @@ public class SyncAdapterService extends Service {
     /* package */ static void performSync(final SoundCloudApplication app,
                                             Account account,
                                             Bundle extras,
-                                            final SyncResult syncResult) {
+                                            final SyncResult syncResult,
+                                            final @Nullable Runnable onResult) {
         if (!app.useAccount(account).valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
@@ -81,7 +113,6 @@ public class SyncAdapterService extends Service {
 
         final Intent syncIntent = getSyncIntent(app, extras);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
-            Looper.prepare();
             syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ServiceResultReceiver(app, syncResult, extras) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -89,12 +120,11 @@ public class SyncAdapterService extends Service {
                         super.onReceiveResult(resultCode, resultData);
                     } finally {
                         // make sure the looper quits in any case - otherwise sync just hangs, holding wakelock
-                        Looper.myLooper().quit();
+                        if (onResult != null) onResult.run();
                     }
                 }
             });
             app.startService(syncIntent);
-            Looper.loop();
         }
     }
 
@@ -210,7 +240,7 @@ public class SyncAdapterService extends Service {
         }
     }
 
-    private static void rewind(SoundCloudApplication app, String key1, String key2, long amount) {
+    private static void rewind(SoundCloudApplication app, String key1, @Nullable String key2, long amount) {
         app.setAccountData(key1, app.getAccountDataLong(key2 == null ? key1 : key2) - amount);
     }
 }

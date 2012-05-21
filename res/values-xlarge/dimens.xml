@@ -10,8 +10,6 @@
     <dimen name="list_txt_sub_size">16sp</dimen>
 
     <dimen name="list_text_margin_left">5dip</dimen>
-    <dimen name="track_list_private_margin_left">5dip</dimen>
-
     <dimen name="user_browser_info_username_margin_bottom">3dip</dimen>
 
     <!-- can't change one of these without change them all -->

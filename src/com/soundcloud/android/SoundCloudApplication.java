@@ -28,6 +28,7 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
@@ -47,6 +48,7 @@ import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
@@ -584,6 +586,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return app == null ? -1 : app.getCurrentUserId();
     }
 
+    @SuppressLint("NewApi")
     private static void setupStrictMode() {
         if (Build.VERSION.SDK_INT > 8) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()

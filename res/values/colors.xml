@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="listTxtValue">#FF000000</color>
+    <color name="listTxtValue">#FF000000</color>
     <color name="listTxtValuePressed">#88FFFFFF</color>
-	<color name="listTxtValueInactive">#FFa9a9a9</color>
-	<color name="listTxtSecondary">#FF777777</color>
-	<color name="listTxtRecSecondary">#FFcccccc</color>
+    <color name="listTxtValueInactive">#FFa9a9a9</color>
+    <color name="listTxtSecondary">#FF777777</color>
+    <color name="listTxtRecSecondary">#FFcccccc</color>
     <color name="listTxtCreatedAt">#FFc9c9c9</color>
 
     <color name="darkBg">#FF333333</color>
@@ -12,61 +12,58 @@
     <color name="listTxtHeader">#777777</color>
     <color name="listBgHeader">#DEEFEFEF</color>
 
-	<color name="commentLine">#AAD7D7D7</color>
-	<color name="activeCommentLine">#CCe36711</color>
+    <color name="commentLine">#AAD7D7D7</color>
+    <color name="activeCommentLine">#CCe36711</color>
 
     <color name="portraitPlayerCommentLine">#FFEF5002</color>
-    <color name="portraitPlayerCommentText">#FFEF5002</color>
 
-	<color name="playerControlBackground">#FFE2E2E2</color>
+    <color name="playerControlBackground">#FFE2E2E2</color>
     <color name="playerControlBackgroundDark">#FFc8c8c8</color>
 
-	<color name="playerControlAlphaBackground">#AAE2E2E2</color>
-	<color name="progressDarkAlphaBackground">#AA000000</color>
-	
-	<color name="commentGray">#ff9c9c9c</color>
-	
-	<color name="recordUploadBorder">#ff525252</color>
+    <color name="playerControlAlphaBackground">#AAE2E2E2</color>
+    <color name="progressDarkAlphaBackground">#AA000000</color>
+
+    <color name="commentGray">#ff9c9c9c</color>
+
+    <color name="recordUploadBorder">#ff525252</color>
     <color name="recordListItemBackground">#ff999999</color>
 
-	<color name="cloudProgressBackgroundStart">#FF444444</color>
-	<color name="cloudProgressBackgroundCenter">#FF666666</color>
-	<color name="cloudProgressBackgroundEnd">#FF444444</color>
-	
-	<color name="cloudProgressSecondaryStart">#222222</color>
-	<color name="cloudProgressSecondaryCenter">#444444</color>
-	<color name="cloudProgressSecondaryEnd">#222222</color>
-	
-	<color name="cloudProgressStart">#ff3300</color>
-	<color name="cloudProgressCenter">#ff6600</color>
-	<color name="cloudProgressEnd">#ff3300</color>
-	
-	<color name="cloudProgressLandscapeBackgroundStart">#FF444444</color>
-	<color name="cloudProgressLandscapeBackgroundCenter">#FF666666</color>
-	<color name="cloudProgressLandscapeBackgroundEnd">#FF444444</color>
-	
-	<color name="cloudProgressRoundBackgroundStart">#FF222222</color>
-	<color name="cloudProgressRoundBackgroundCenter">#FF222222</color>
-	<color name="cloudProgressRoundBackgroundEnd">#FF222222</color>
-	
-	<color name="cloudProgressRoundStart">#fd320c</color>
+    <color name="cloudProgressBackgroundStart">#FF444444</color>
+    <color name="cloudProgressBackgroundCenter">#FF666666</color>
+    <color name="cloudProgressBackgroundEnd">#FF444444</color>
+
+    <color name="cloudProgressSecondaryStart">#222222</color>
+    <color name="cloudProgressSecondaryCenter">#444444</color>
+    <color name="cloudProgressSecondaryEnd">#222222</color>
+
+    <color name="cloudProgressStart">#ff3300</color>
+    <color name="cloudProgressCenter">#ff6600</color>
+    <color name="cloudProgressEnd">#ff3300</color>
+
+    <color name="cloudProgressLandscapeBackgroundStart">#FF444444</color>
+    <color name="cloudProgressLandscapeBackgroundCenter">#FF666666</color>
+    <color name="cloudProgressLandscapeBackgroundEnd">#FF444444</color>
+
+    <color name="cloudProgressRoundBackgroundStart">#FF222222</color>
+    <color name="cloudProgressRoundBackgroundCenter">#FF222222</color>
+    <color name="cloudProgressRoundBackgroundEnd">#FF222222</color>
+
+    <color name="cloudProgressRoundStart">#fd320c</color>
     <color name="cloudProgressRoundCenter">#ef5002</color>
     <color name="cloudProgressRoundEnd">#f92600</color>
-	
-	<color name="cloudProgressRoundBorder">#4b504c</color>
 
-	<color name="listSeperator">#FF333333</color>
+    <color name="cloudProgressRoundBorder">#4b504c</color>
 
-	<color name="white">#ffffffff</color>
-	<color name="black">#ff000000</color>
-	<color name="transparent">#00000000</color>
-	<color name="background_dark">#ff1a1a1a</color>
+    <color name="listSeperator">#FF333333</color>
 
-	<!-- For settings framework -->
-	<color name="darker_gray">#aaa</color>
+    <color name="white">#ffffffff</color>
+    <color name="black">#ff000000</color>
+    <color name="transparent">#00000000</color>
+
+    <!-- For settings framework -->
+    <color name="darker_gray">#aaa</color>
 
     <color name="blue_gradient_1">#ffffff</color>
-    <color name="blue_gradient_half">#f0f6fe</color>
     <color name="blue_gradient_2">#cae1fa</color>
 
 </resources>

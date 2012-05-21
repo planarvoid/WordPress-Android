@@ -15,7 +15,6 @@
 
     <dimen name="list_text_margin_left">5dip</dimen>
     <dimen name="list_text_margin_right">5dip</dimen>
-    <dimen name="track_list_private_margin_left">5dip</dimen>
 
     <dimen name="user_browser_info_username_margin_bottom">0dip</dimen>
 
@@ -45,8 +44,6 @@
     <dimen name="player_comment_bar_height">35dip</dimen>
     <dimen name="player_comment_bar_toggle_margin_right">0dip</dimen>
     <dimen name="player_comment_bar_txt_size">16sp</dimen>
-
-    <dimen name="pull_to_refresh_img_min_height">40dip</dimen>
 
     <dimen name="share_user_header_height">30dip</dimen>
     <dimen name="share_user_header_text_size">16sp</dimen>

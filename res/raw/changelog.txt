@@ -28,6 +28,7 @@ $ 41
     - Fixed resume after playback failure logic
     - Sync backoff logic
     - fixed playback service component handling (which will fix service lifecycle)
+    - Upgrade ATInternet 1.1.003
 
 $ 40
   % v 2.2.5

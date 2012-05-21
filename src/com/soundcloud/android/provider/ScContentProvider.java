@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -462,7 +463,7 @@ public class ScContentProvider extends ContentProvider {
                                         + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+ " ," + CollectionItemTypes.FAVORITE+ ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Tracks._ID
-                                    + " UNION SELECT DISTINCT " + DBHelper.ActivityView.TRACK_ID + " FROM "+ Table.ACTIVITY_VIEW.name
+                                    + " UNION SELECT DISTINCT " + DBHelper.ActivityView.TRACK_ID + " FROM "+ Table.ACTIVITIES.name
                                     + " UNION SELECT DISTINCT " + DBHelper.PlaylistItems.TRACK_ID + " FROM "+ Table.PLAYLIST_ITEMS.name
                                     + ")"
                                 + ")";
@@ -484,7 +485,7 @@ public class ScContentProvider extends ContentProvider {
                                         + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.FOLLOWER+ " ," + CollectionItemTypes.FOLLOWING+ ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " = " + Table.USERS.id
-                                    + " UNION SELECT DISTINCT " + DBHelper.ActivityView.USER_ID + " FROM "+ Table.ACTIVITY_VIEW.name
+                                    + " UNION SELECT DISTINCT " + DBHelper.ActivityView.USER_ID + " FROM "+ Table.ACTIVITIES.name
                                     + ")"
                                 + ") AND _id <> " + userId;
                     final long start = System.currentTimeMillis();
@@ -720,6 +721,7 @@ public class ScContentProvider extends ContentProvider {
         return null;
     }
 
+    @SuppressLint("NewApi")
     public static void enableSyncing(Account account, long pollFrequency) {
         ContentResolver.setIsSyncable(account, AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
@@ -729,6 +731,7 @@ public class ScContentProvider extends ContentProvider {
         }
     }
 
+    @SuppressLint("NewApi")
     public static void disableSyncing(Account account) {
         ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
           if (Build.VERSION.SDK_INT >= 8) {
@@ -773,6 +776,7 @@ public class ScContentProvider extends ContentProvider {
     };
 
 
+    @SuppressLint("NewApi")
     private static long dbInsertWithOnConflict(SQLiteDatabase db, Table table,
                                               ContentValues values,
                                               int conflictAlgorithm) {
