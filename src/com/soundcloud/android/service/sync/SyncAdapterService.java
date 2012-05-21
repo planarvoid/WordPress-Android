@@ -52,9 +52,18 @@ public class SyncAdapterService extends Service {
     @Override public void onCreate() {
         super.onCreate();
         mSyncAdapter = new AbstractThreadedSyncAdapter(this, false) {
+            private Looper looper;
+
             @Override
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-                performSync((SoundCloudApplication) getApplication(), account, extras, syncResult);
+                Looper.prepare();
+                looper = Looper.myLooper();
+                performSync((SoundCloudApplication) getApplication(), account, extras, syncResult, new Runnable() {
+                    @Override public void run() {
+                        looper.quit();
+                    }
+                });
+                Looper.loop(); // wait for results to come in
             }
 
             @Override
@@ -66,6 +75,7 @@ public class SyncAdapterService extends Service {
                         DebugUtils.dumpLog(getContext());
                     }
                 }.start();
+                if (looper != null) looper.quit(); // make sure  sync thread exits
                 super.onSyncCanceled();
             }
         };
@@ -78,7 +88,8 @@ public class SyncAdapterService extends Service {
     /* package */ static void performSync(final SoundCloudApplication app,
                                             Account account,
                                             Bundle extras,
-                                            final SyncResult syncResult) {
+                                            final SyncResult syncResult,
+                                            final @Nullable Runnable onResult) {
         if (!app.useAccount(account).valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
@@ -95,7 +106,6 @@ public class SyncAdapterService extends Service {
 
         final Intent syncIntent = getSyncIntent(app, extras);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
-            Looper.prepare();
             syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ServiceResultReceiver(app, syncResult, extras) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -103,12 +113,11 @@ public class SyncAdapterService extends Service {
                         super.onReceiveResult(resultCode, resultData);
                     } finally {
                         // make sure the looper quits in any case - otherwise sync just hangs, holding wakelock
-                        Looper.myLooper().quit();
+                        if (onResult != null) onResult.run();
                     }
                 }
             });
             app.startService(syncIntent);
-            Looper.loop();
         }
     }
 

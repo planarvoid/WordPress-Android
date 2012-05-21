@@ -462,7 +462,7 @@ public class SyncAdapterServiceTest {
         SyncAdapterService.performSync(
                 app,
                 new Account("foo", "bar"),
-                extras, result);
+                extras, result, null);
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 
