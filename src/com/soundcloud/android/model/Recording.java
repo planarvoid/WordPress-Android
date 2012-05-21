@@ -96,7 +96,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
         int NOT_YET_UPLOADED    = 0; // not yet uploaded, or canceled by user
         int UPLOADING           = 1; // currently uploading
         int UPLOADED            = 2; // successfully uploaded
-        int ERROR               = 3; // network / api error
+        int PROCESSED           = 3; // successfully uploaded
+        int ERROR               = 4; // network / api error
     }
 
     public Recording(File f) {

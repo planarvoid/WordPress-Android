@@ -48,8 +48,6 @@ public class ButtonBar extends LinearLayout {
         mSeparatorColor = a.getColor(R.styleable.ButtonBar_separator_color, 0xFF666666);
         a.recycle();
 
-        Log.i("asdf","Button bar separator color is " + mSeparatorColor);
-
         mMenuItems = new ArrayList<MenuItem>();
         mMenuItemMap = new SparseArray<MenuItem>();
 

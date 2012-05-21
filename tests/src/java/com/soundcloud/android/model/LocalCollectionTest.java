@@ -89,6 +89,17 @@ public class LocalCollectionTest {
     }
 
     @Test
+    public void shouldForceToStale() throws Exception {
+        final Uri uri = Uri.parse("foo");
+        LocalCollection c = LocalCollection.insertLocalCollection(uri, resolver);
+        c.updateLastSyncTime(200, resolver);
+        expect(LocalCollection.fromContentUri(uri, resolver, true).last_sync).toEqual(200L);
+
+        LocalCollection.forceToStale(uri,resolver);
+        expect(LocalCollection.fromContentUri(uri, resolver, true).last_sync).toEqual(0L);
+    }
+
+    @Test
     public void shouldDeleteCollection() throws Exception {
 
         final Uri uri = Uri.parse("foo");

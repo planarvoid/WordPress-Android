@@ -1,9 +1,21 @@
 package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.SoundCloudApplication.TRACK_CACHE;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.c2dm.C2DMReceiver;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.TracklistItem;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.ScContentProvider;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.service.sync.ApiSyncService;
+import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -11,9 +23,11 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -94,7 +108,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
             StatusLine status = response.getStatusLine();
             if (status.getStatusCode() == HttpStatus.SC_CREATED) {
-                onUploadSuccess();
+                onUploadSuccess(response);
             } else {
                 final String message = String.format("Upload failed: %d (%s)",
                         status.getStatusCode(),
@@ -121,8 +135,20 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         broadcast(UploadService.UPLOAD_ERROR);
     }
 
-    private void onUploadSuccess() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful");
+    private void onUploadSuccess(HttpResponse response) {
+        Track t = null;
+        try {
+            t = app.getMapper().readValue(response.getEntity().getContent(), Track.class);
+            SoundCloudDB.insertTrack(app.getContentResolver(), t);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //request to update my collection
+        LocalCollection.forceToStale(Content.ME_TRACKS.uri, app.getContentResolver());
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + ( t == null ? "<response error>" : t ));
+
         mUpload.onUploaded();
         broadcast(UploadService.UPLOAD_SUCCESS);
     }

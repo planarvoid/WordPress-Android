@@ -7,6 +7,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
+
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncer;
@@ -30,6 +32,11 @@ public class LocalCollection {
 
     private ContentResolver mContentResolver;
     private ContentObserver mChangeObserver;
+
+    private OnChangeListener mChangeListener;
+    public interface OnChangeListener {
+        void onLocalCollectionChanged();
+    }
 
     public interface SyncState {
         int PENDING = 0;
@@ -76,6 +83,7 @@ public class LocalCollection {
 
         return resolver.update(Content.COLLECTIONS.forId(id), buildContentValues(), null,null) == 1;
     }
+
 
     public static LocalCollection fromContent(Content content, ContentResolver resolver, boolean createIfNecessary) {
         return fromContentUri(content.uri, resolver, createIfNecessary);
@@ -169,6 +177,16 @@ public class LocalCollection {
         return (resolver.update(Content.COLLECTIONS.forId(id), cv, null,null) == 1);
     }
 
+    public static int getIdFromUri(Uri contentUri, ContentResolver resolver) {
+        int id = -1;
+        Cursor c = resolver.query(Content.COLLECTIONS.uri, new String[]{DBHelper.Collections._ID}, "uri = ?", new String[]{contentUri.toString()}, null);
+        if (c != null && c.moveToFirst()) {
+            id = c.getInt(0);
+        }
+        if (c != null) c.close();
+        return id;
+    }
+
     public static String getExtraFromUri(Uri contentUri, ContentResolver resolver) {
         String extra = null;
         Cursor c = resolver.query(Content.COLLECTIONS.uri, new String[]{DBHelper.Collections.EXTRA}, "uri = ?", new String[]{contentUri.toString()}, null);
@@ -180,27 +198,38 @@ public class LocalCollection {
     }
 
     public static int incrementSyncMiss(Uri contentUri, ContentResolver resolver) {
+        int id = -1;
         int misses = 0;
-        Cursor c = resolver.query(Content.COLLECTIONS.uri, new String[]{DBHelper.Collections.EXTRA}, "uri = ?", new String[]{contentUri.toString()}, null);
+        Cursor c = resolver.query(Content.COLLECTIONS.uri, new String[]{DBHelper.Collections._ID, DBHelper.Collections.EXTRA}, "uri = ?", new String[]{contentUri.toString()}, null);
         if (c != null && c.moveToFirst()) {
+            id = c.getInt(0);
             try {
-                misses = Integer.parseInt(c.getString(0));
+                misses = Integer.parseInt(c.getString(1));
             } catch (NumberFormatException ignore){}
         }
         if (c != null) c.close();
 
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.EXTRA, ++misses);
-        return (resolver.update(Content.COLLECTIONS.uri, cv, "uri = ?", new String[]{contentUri.toString()}) == 1) ? misses : -1;
+        return (resolver.update(Content.COLLECTIONS.forId(id), cv, null, null) == 1) ? misses : -1;
     }
 
-    public void startObservingSelf(ContentResolver contentResolver) {
+    public static boolean forceToStale(Uri uri, ContentResolver resolver) {
+        int id = getIdFromUri(uri, resolver);
+        ContentValues cv = new ContentValues();
+        cv.put(DBHelper.Collections.LAST_SYNC, 0);
+        return resolver.update(Content.COLLECTIONS.forId(id), cv, null, null) == 1;
+    }
+
+    public void startObservingSelf(ContentResolver contentResolver, OnChangeListener listener) {
         mContentResolver = contentResolver;
         mChangeObserver = new ChangeObserver();
         contentResolver.registerContentObserver(Content.COLLECTIONS.uri.buildUpon().appendPath(String.valueOf(id)).build(), true, mChangeObserver);
+        mChangeListener = listener;
     }
     public void stopObservingSelf() {
         if (mChangeObserver != null) mContentResolver.unregisterContentObserver(mChangeObserver);
+        mChangeListener = null;
     }
 
     private class ChangeObserver extends ContentObserver {
@@ -220,6 +249,7 @@ public class LocalCollection {
                 setFromCursor(c);
             }
             if (c != null) c.close();
+            if (mChangeListener != null) mChangeListener.onLocalCollectionChanged();
         }
     }
 

@@ -13,6 +13,7 @@ import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.LocalCollection;
+import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.service.sync.ApiSyncService;
@@ -28,9 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-public class RemoteCollectionAdapter extends LazyEndlessAdapter {
+public class RemoteCollectionAdapter extends LazyEndlessAdapter implements LocalCollection.OnChangeListener {
 
     private DetachableResultReceiver mDetachableReceiver;
     private Boolean mIsSyncable;
@@ -46,7 +48,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         if (contentUri != null) {
             // TODO :  Move off the UI thread.
             mLocalCollection = LocalCollection.fromContentUri(contentUri,activity.getContentResolver(), true);
-            mLocalCollection.startObservingSelf(activity.getContentResolver());
+            mLocalCollection.startObservingSelf(activity.getContentResolver(), this);
             mChangeObserver = new ChangeObserver();
             mObservingContent = true;
             activity.getContentResolver().registerContentObserver(contentUri, true, mChangeObserver);
@@ -56,9 +58,14 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     @Override
     public void onResume() {
         super.onResume();
+        refreshSyncData();
+    }
+
+    private void refreshSyncData() {
         if (isSyncable()) {
             setListLastUpdated();
-            if (isStale(false)){
+
+            if ((mContent != null) && mContent.isStale(mLocalCollection.last_sync) && !isRefreshing()){
                 refresh(false);
                 // this is to show the user something at the initial load
                 if (mLocalCollection.last_sync <= 0) mListView.setRefreshing();
@@ -226,10 +233,6 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             }};
     }
 
-    protected boolean isStale(boolean refresh){
-        return (getPageIndex(refresh) == 0 && mContent != null && mContent.isStale(mLocalCollection.last_sync));
-    }
-
     protected boolean isSyncable(){
         if (mIsSyncable == null){
             mIsSyncable = mContent != null && mContent.isSyncable();
@@ -321,7 +324,11 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     protected void onContentChanged() {
         mContentInvalid = true;
         executeRefreshTask();
+    }
 
+    @Override
+    public void onLocalCollectionChanged() {
+        refreshSyncData();
     }
 
     private class ChangeObserver extends ContentObserver {

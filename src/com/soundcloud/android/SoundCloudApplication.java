@@ -17,6 +17,7 @@ import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.cache.UserCache;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.WifiMonitor;
@@ -148,6 +149,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (BETA_MODE) {
             BetaService.scheduleCheck(this, false);
         }
+
+        getContentResolver().update(Content.USERS_CLEANUP.uri, null, null, null);
 
 //        setupStrictMode();
 

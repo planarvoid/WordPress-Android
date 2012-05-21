@@ -79,6 +79,10 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         if (mAutoAppend && mState == INITIALIZED) {
             mState = IDLE;
             mKeepGoing = true;
+        } else {
+            for (Parcelable p : getData()) {
+                if (p instanceof Playable) ((Playable) p).refreshTimeSinceCreated(mActivity);
+            }
         }
         notifyDataSetChanged();
     }
