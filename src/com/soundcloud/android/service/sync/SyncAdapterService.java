@@ -62,12 +62,13 @@ public class SyncAdapterService extends Service {
 
                 Looper.prepare();
                 looper = Looper.myLooper();
-                performSync((SoundCloudApplication) getApplication(), account, extras, syncResult, new Runnable() {
+                if (performSync((SoundCloudApplication) getApplication(), account, extras, syncResult, new Runnable() {
                     @Override public void run() {
                         looper.quit();
                     }
-                });
-                Looper.loop(); // wait for results to come in
+                })) {
+                    Looper.loop(); // wait for results to come in
+                }
             }
 
             @Override
@@ -92,7 +93,10 @@ public class SyncAdapterService extends Service {
         return mSyncAdapter.getSyncAdapterBinder();
     }
 
-    /* package */ static void performSync(final SoundCloudApplication app,
+    /**
+     * @return true if a sync has been started
+     */
+    /* package */ static boolean performSync(final SoundCloudApplication app,
                                             Account account,
                                             Bundle extras,
                                             final SyncResult syncResult,
@@ -100,7 +104,7 @@ public class SyncAdapterService extends Service {
         if (!app.useAccount(account).valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
-            return;
+            return false;
         }
 
         // for first sync set all last seen flags to "now"
@@ -125,6 +129,9 @@ public class SyncAdapterService extends Service {
                 }
             });
             app.startService(syncIntent);
+            return true;
+        } else {
+            return false;
         }
     }
 
