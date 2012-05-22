@@ -926,6 +926,12 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(Consts.OptionsMenu.PROCESS);
+        item.setVisible(mCurrentState == CreateState.EDIT);
+        return true;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
