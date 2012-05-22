@@ -15,7 +15,9 @@ import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.service.sync.SyncAdapterService;
+import com.soundcloud.android.task.PollUploadedTrackTask;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -136,10 +138,15 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     }
 
     private void onUploadSuccess(HttpResponse response) {
-        Track t = null;
+        String strTrack = null;
         try {
-            t = app.getMapper().readValue(response.getEntity().getContent(), Track.class);
+            final Track t = app.getMapper().readValue(response.getEntity().getContent(), Track.class);
             SoundCloudDB.insertTrack(app.getContentResolver(), t);
+            strTrack = t.toString();
+
+            // start polling for state change
+            new PollUploadedTrackTask(app, t.id, Content.ME_TRACKS.uri).execute(Request.to(Endpoints.TRACK_DETAILS, t.id));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -147,7 +154,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         //request to update my collection
         LocalCollection.forceToStale(Content.ME_TRACKS.uri, app.getContentResolver());
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + ( t == null ? "<response error>" : t ));
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + ( strTrack == null ? "<track_parsing_error>" : strTrack ));
 
         mUpload.onUploaded();
         broadcast(UploadService.UPLOAD_SUCCESS);

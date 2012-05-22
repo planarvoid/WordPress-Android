@@ -1,8 +1,11 @@
 
 package com.soundcloud.android.model;
 
+import android.util.Log;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.Consts;
@@ -49,9 +52,9 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     @JsonView(Views.Full.class) public Date created_at;
     @JsonView(Views.Mini.class) public long user_id;
     @JsonView(Views.Full.class) public int duration;
+    @JsonView(Views.Full.class) public State state;
     @JsonView(Views.Full.class) public boolean commentable;
-    @JsonView(Views.Full.class) public String state;
-    @JsonView(Views.Full.class) public String sharing;  //  public | private
+    @JsonView(Views.Full.class) public Sharing sharing;  //  public | private
     @JsonView(Views.Full.class) public String tag_list;
     @JsonView(Views.Mini.class) public String permalink;
     @JsonView(Views.Full.class) public String description;
@@ -194,8 +197,13 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         return user;
     }
 
+    @JsonIgnore
+    public boolean isStreamable() {
+        return !TextUtils.isEmpty(stream_url) && (state == null || state.isStreamable());
+    }
+
     public boolean isPublic() {
-        return "public".equals(sharing);
+        return sharing == null || sharing.isPublic();
     }
 
     public String getArtwork() {
@@ -243,6 +251,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         }
         permalink = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.PERMALINK));
         duration = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DURATION));
+        state = State.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STATE)));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.CREATED_AT)));
         tag_list = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TAG_LIST));
         track_type = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TRACK_TYPE));
@@ -254,7 +263,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         download_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_URL));
         streamable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.STREAMABLE)) == 1;
         stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STREAM_URL));
-        sharing = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.SHARING));
+        sharing = Sharing.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.SHARING)));
         playback_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.PLAYBACK_COUNT));
         download_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_COUNT));
         comment_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENT_COUNT));
@@ -295,10 +304,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         comments = t.comments;
     }
 
-    @JsonIgnore public boolean isStreamable() {
-        return !TextUtils.isEmpty(stream_url);
-    }
-
     public ContentValues buildContentValues(){
         ContentValues cv = super.buildContentValues();
 
@@ -313,6 +318,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
             cv.put(Tracks.USER_ID, user.id);
         }
 
+        if (state != null) cv.put(Tracks.STATE, state.value);
         if (created_at != null) cv.put(Tracks.CREATED_AT, created_at.getTime());
         if (tag_list != null) cv.put(Tracks.TAG_LIST, tag_list);
         if (track_type != null) cv.put(Tracks.TRACK_TYPE, track_type);
@@ -322,7 +328,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         if (downloadable) cv.put(Tracks.DOWNLOADABLE, downloadable);
         if (download_url != null) cv.put(Tracks.DOWNLOAD_URL, download_url);
         if (streamable) cv.put(Tracks.STREAMABLE, streamable);
-        if (sharing != null) cv.put(Tracks.SHARING, sharing);
+        if (sharing != null) cv.put(Tracks.SHARING, sharing.value);
         if (playback_count != -1) cv.put(Tracks.PLAYBACK_COUNT, playback_count);
         if (download_count != -1) cv.put(Tracks.DOWNLOAD_COUNT, download_count);
         if (comment_count != -1) cv.put(Tracks.COMMENT_COUNT, comment_count);
@@ -339,7 +345,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     private boolean isCompleteTrack(){
-        return created_at != null && duration > 0;
+        return state != null && created_at != null && duration > 0;
     }
 
     public void fillTags(FlowLayout ll, final Context context){
@@ -496,7 +502,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     public Intent getShareIntent() {
-        if (!"public".equals(sharing)) return null;
+        if (!sharing.isPublic()) return null;
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
@@ -524,6 +530,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         user_id = tracklistItem.user_id;
         duration = tracklistItem.duration;
         commentable = tracklistItem.commentable;
+        state = tracklistItem.state;
         sharing = tracklistItem.sharing;
         permalink = tracklistItem.permalink;
         streamable = tracklistItem.streamable;
@@ -569,5 +576,83 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
     public static Uri getClientUri(long id) {
         return Uri.parse("soundcloud:tracks:"+id);
+    }
+
+
+
+    public enum State {
+        UNDEFINED(""),
+        STORING("storing"),
+        STORED("stored"),
+        FAILED("failed"),
+        FINISHED("finished"),
+        REVIEWED("reviewed"),
+        REPLACING("replacing");
+
+        private final String value;
+        private State(String value){
+            this.value = value;
+        }
+
+        @JsonValue
+        public String value() {
+            return value;
+        }
+
+        // don't use built in valueOf to create so we can handle nulls and unknowns ourself
+        @JsonCreator
+        public static State fromString(String str) {
+            if (!TextUtils.isEmpty(str)) {
+                for (State s : values()) {
+                    if (s.value.equalsIgnoreCase(str)) return s;
+                }
+            }
+            return UNDEFINED;
+        }
+
+        public boolean isStreamable(){
+            // TODO: we can probably get away without including UNDEFINED in a subsequent release, as it will get updated lazily on first load
+            return FINISHED.equals(this) || UNDEFINED.equals(this);
+        }
+
+        public boolean isFailed() {
+            return FAILED.equals(this);
+        }
+
+        public boolean isProcessing() {
+            return !isStreamable() && !isFailed();
+        }
+    }
+
+    public enum Sharing {
+        UNDEFINED(""),
+        PUBLIC("public"),
+        PRIVATE("private");
+
+        private final String value;
+
+        private Sharing(String value) {
+            this.value = value;
+        }
+
+        @JsonValue
+        public String value() {
+            return value;
+        }
+
+        // don't use built in valueOf to create so we can handle nulls and unknowns ourself
+        @JsonCreator
+        public static Sharing fromString(String str) {
+            if (!TextUtils.isEmpty(str)) {
+                for (Sharing s : values()) {
+                    if (s.value.equalsIgnoreCase(str)) return s;
+                }
+            }
+            return UNDEFINED;
+        }
+
+        public boolean isPublic() {
+            return UNDEFINED.equals(this) || PUBLIC.equals(this);
+        }
     }
 }
