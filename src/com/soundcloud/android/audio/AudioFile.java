@@ -44,4 +44,6 @@ public interface AudioFile extends Closeable {
      * @return the underlying file or null
      */
     File getFile();
+
+    void reopen();
 }

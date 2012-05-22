@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class RecordStream implements Closeable {
+    private static final boolean USE_RAW = Boolean.valueOf(System.getProperty("raw.playback", null));
+
     private final AudioConfig config;
 
     private WavWriter mWavWriter;
@@ -25,7 +27,6 @@ public class RecordStream implements Closeable {
     private final File mEncodedFile;
 
     private boolean initialised;
-
 
     /**
      * @param raw the file to hold raw data
@@ -93,7 +94,6 @@ public class RecordStream implements Closeable {
     }
 
     public PlaybackStream getPlaybackStream() throws IOException {
-        return new PlaybackStream(mEncodedFile == null ? new WavFile(mWavWriter.file) : new VorbisFile(mEncodedFile), config);
+        return new PlaybackStream(USE_RAW || mEncodedFile == null ? new WavFile(mWavWriter.file) : new VorbisFile(mEncodedFile), config);
     }
-
 }

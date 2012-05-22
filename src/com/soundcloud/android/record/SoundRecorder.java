@@ -249,6 +249,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
+
+    public void reload() {
+        if (!mState.isPlaying()) {
+            mPlaybackStream.reopen();
+        }
+    }
+
     public void onDestroy() {
         stopPlayback();
         stopRecording();
