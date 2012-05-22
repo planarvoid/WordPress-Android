@@ -97,4 +97,13 @@ public class PlaybackStream {
     public void setCurrentPosition(long pos) {
         currentPosition = pos;
     }
+
+    public void reopen() {
+        try {
+            mPlaybackFile.reopen();
+            mPlaybackFile.seek(currentPosition);
+        } catch (IOException e) {
+            Log.w("asdf", e);
+        }
+    }
 }

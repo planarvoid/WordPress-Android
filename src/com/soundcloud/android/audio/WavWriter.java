@@ -70,7 +70,7 @@ public class WavWriter implements AudioWriter {
      * @return the duration, in ms
      */
     public long getDuration() {
-        return WavHeader.getDuration(file.length() - WavHeader.LENGTH, config);
+        return config.bytesToMs(file.length() - WavHeader.LENGTH);
     }
 
     @Override

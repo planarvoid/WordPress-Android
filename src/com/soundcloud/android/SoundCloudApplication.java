@@ -149,9 +149,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         if (BETA_MODE) {
             BetaService.scheduleCheck(this, false);
         }
-
-        getContentResolver().update(Content.USERS_CLEANUP.uri, null, null, null);
-
 //        setupStrictMode();
 
         // make sure the WifiMonitor is disabled when not in beta mode

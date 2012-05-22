@@ -56,6 +56,7 @@ public class Settings extends PreferenceActivity {
     public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
+    public static final String DEFAULT_RECORDING_QUALITY = "defaultRecordingQuality";
 
     private ProgressDialog mDeleteDialog;
 
@@ -215,7 +216,7 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        SharedPreferencesUtils.listWithLabel((ListPreference) findPreference("defaultRecordingQuality"),
+        SharedPreferencesUtils.listWithLabel((ListPreference) findPreference(DEFAULT_RECORDING_QUALITY),
                 R.string.pref_record_quality);
 
         if (!SoundCloudApplication.DEV_MODE) {

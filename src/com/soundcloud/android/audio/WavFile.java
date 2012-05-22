@@ -1,5 +1,7 @@
 package com.soundcloud.android.audio;
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,7 +9,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 public class WavFile implements AudioFile {
-    private final RandomAccessFile file;
+    private RandomAccessFile file;
     private final File backing;
     private final WavHeader header;
 
@@ -49,6 +51,16 @@ public class WavFile implements AudioFile {
     @Override
     public File getFile() {
         return backing;
+    }
+
+    @Override
+    public void reopen() {
+        try {
+            if (file != null) file.close();
+            file = new RandomAccessFile(backing, "r");
+        } catch (IOException e) {
+            Log.w(WavFile.class.getSimpleName(), e);
+        }
     }
 
     @Override

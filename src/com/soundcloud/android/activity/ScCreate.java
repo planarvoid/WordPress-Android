@@ -1,7 +1,6 @@
 package com.soundcloud.android.activity;
 
 import android.content.IntentFilter;
-import android.graphics.drawable.StateListDrawable;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -28,7 +27,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -256,22 +254,23 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 }
                 break;
             case REQUEST_PROCESS_FILE:
-                    if (resultCode == RESULT_OK) {
+                if (resultCode == RESULT_OK) {
                     String message = data.getStringExtra("message");
                     if (message != null) {
-                        CloudUtils.showToast(this, "Error processing file: "+message);
+                        CloudUtils.showToast(this, "Error processing file: " + message);
                     } else {
                         CloudUtils.showToast(this, "processed");
                     }
 
+                    String in = data.getStringExtra(Actions.RECORDING_EXTRA_IN);
+                    String out = data.getStringExtra(Actions.RECORDING_EXTRA_OUT);
 
-                    String in = data.getStringExtra("in");
-                    String out = data.getStringExtra("out");
-
-
-                    Log.d(SoundCloudApplication.TAG, "processed "+in+" => "+out);
+                    Log.d(SoundCloudApplication.TAG, "processed " + in + " => " + out);
                     if (out != null) {
-                        if (!new File(out).renameTo(new File(in))) {
+                        if (new File(out).renameTo(new File(in))) {
+                            // reload player
+                            mRecorder.reload();
+                        } else {
                             Log.w(SoundCloudApplication.TAG, "could not rename");
                         }
                     }
@@ -641,8 +640,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mButtonBar.setTextById(MenuItems.SAVE, isEditing ? mSaveString : mNextString);
 
         final boolean showDelete = !isEditing && mRecording != null && mRecording.isSaved();
-        mButtonBar.toggleVisibility(MenuItems.RESET, showDelete ? false : true, false);
-        mButtonBar.toggleVisibility(MenuItems.DELETE, showDelete ? true : false, true);
+        mButtonBar.toggleVisibility(MenuItems.RESET, !showDelete, false);
+        mButtonBar.toggleVisibility(MenuItems.DELETE, showDelete, true);
     }
 
 
