@@ -104,6 +104,9 @@ public class TrackTest {
         expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
         t.duration = 1000;
         v = t.buildContentValues();
+        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        t.state = Track.State.FINISHED;
+        v = t.buildContentValues();
         expect(v.get(DBHelper.Tracks.LAST_UPDATED)).not.toBeNull();
     }
 

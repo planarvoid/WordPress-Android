@@ -502,7 +502,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     public Intent getShareIntent() {
-        if (!sharing.isPublic()) return null;
+        if (sharing == null || !sharing.isPublic()) return null;
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
@@ -580,7 +580,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
 
 
-    public enum State {
+    public static enum State {
         UNDEFINED(""),
         STORING("storing"),
         STORED("stored"),
@@ -624,7 +624,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         }
     }
 
-    public enum Sharing {
+    public static enum Sharing {
         UNDEFINED(""),
         PUBLIC("public"),
         PRIVATE("private");
@@ -652,7 +652,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         }
 
         public boolean isPublic() {
-            return UNDEFINED.equals(this) || PUBLIC.equals(this);
+            return PUBLIC.equals(this);
         }
     }
 }

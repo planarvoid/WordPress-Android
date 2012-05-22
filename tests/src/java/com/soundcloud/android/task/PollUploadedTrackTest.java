@@ -2,6 +2,7 @@ package com.soundcloud.android.task;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
@@ -20,9 +21,6 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 @RunWith(DefaultTestRunner.class)
 public class PollUploadedTrackTest {
     FetchTrackTask.FetchTrackListener listener;
-    /*
-
-    TODO : My test module is currently broken.
 
     @Test
     public void testPollUploadedSuccess() throws Exception {
@@ -83,5 +81,4 @@ public class PollUploadedTrackTest {
         expect(t.state.isStreamable()).toBeTrue();
     }
 
-*/
 }

@@ -215,10 +215,7 @@ public class LocalCollection {
     }
 
     public static boolean forceToStale(Uri uri, ContentResolver resolver) {
-        int id = getIdFromUri(uri, resolver);
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.Collections.LAST_SYNC, 0);
-        return resolver.update(Content.COLLECTIONS.forId(id), cv, null, null) == 1;
+        return LocalCollection.fromContentUri(uri,resolver, true).updateLastSyncTime(0, resolver);
     }
 
     public void startObservingSelf(ContentResolver contentResolver, OnChangeListener listener) {
