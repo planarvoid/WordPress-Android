@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.utils.IOUtils.readInputStream;
 
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.model.Recording;
@@ -8,6 +9,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +58,11 @@ public class UploaderTest {
 
     @Test
     public void shouldSetSuccessAfterFileUpload() throws Exception {
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
+        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(HttpStatus.SC_CREATED,
+                readInputStream(getClass().getResourceAsStream("upload_response.json"))));
+        Robolectric.addHttpResponseRule("GET", "/tracks/47204307", new TestHttpResponse(HttpStatus.SC_OK,
+                        readInputStream(getClass().getResourceAsStream("track_finished.json"))));
+
         final Recording recording = TestApplication.getValidRecording();
         uploader(recording).run();
         expect(actions).toContainExactly(UploadService.UPLOAD_STARTED, UploadService.UPLOAD_SUCCESS);

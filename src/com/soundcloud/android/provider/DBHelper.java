@@ -15,7 +15,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
-    public static final int DATABASE_VERSION = 12;
+    public static final int DATABASE_VERSION = 13;
     private static final String DATABASE_NAME = "SoundCloud";
 
     DBHelper(Context context) {
@@ -70,6 +70,9 @@ public class DBHelper extends SQLiteOpenHelper {
                         case 12:
                             success = upgradeTo12(db, oldVersion);
                             break;
+                        case 13:
+                            success = upgradeTo13(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -104,6 +107,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "last_updated INTEGER," +
             "permalink VARCHAR(255)," +
             "duration INTEGER," +
+            "state VARCHAR(50)," +
             "created_at INTEGER," +
             "tag_list VARCHAR(255)," +
             "track_type VARCHAR(255)," +
@@ -288,6 +292,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Tracks." + Tracks.PERMALINK + " as " + TrackView.PERMALINK +
             ",Tracks." + Tracks.CREATED_AT + " as " + TrackView.CREATED_AT +
             ",Tracks." + Tracks.DURATION + " as " + TrackView.DURATION +
+            ",Tracks." + Tracks.STATE + " as " + TrackView.STATE +
             ",Tracks." + Tracks.TAG_LIST + " as " + TrackView.TAG_LIST +
             ",Tracks." + Tracks.TRACK_TYPE + " as " + TrackView.TRACK_TYPE +
             ",Tracks." + Tracks.TITLE + " as " + TrackView.TITLE +
@@ -386,6 +391,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String SHARED_TO_COUNT = "shared_to_count";
         public static final String SHARING_NOTE_TEXT = "sharing_note_text";
         public static final String USER_ID = "user_id";
+        public static final String STATE = "state";
 
         public static final String[] ALL_FIELDS = {
                 _ID, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
@@ -555,6 +561,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String PERMALINK = Tracks.PERMALINK;
         public static final String CREATED_AT = Tracks.CREATED_AT;
         public static final String DURATION = Tracks.DURATION;
+        public static final String STATE = Tracks.STATE;
         public static final String TAG_LIST = Tracks.TAG_LIST;
         public static final String TRACK_TYPE = Tracks.TRACK_TYPE;
         public static final String TITLE = Tracks.TITLE;
@@ -732,6 +739,18 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return false;
     }
+
+    private static boolean upgradeTo13(SQLiteDatabase db, int oldVersion) {
+            try {
+                Table.TRACKS.alterColumns(db);
+                Table.TRACK_VIEW.recreate(db);
+                return true;
+            } catch (SQLException e) {
+                SoundCloudApplication.handleSilentException("error during upgrade13 " +
+                        "(from " + oldVersion + ")", e);
+            }
+            return false;
+        }
 
     public static String getWhereIds(String column, List<Long> idSet){
         StringBuilder sb = new StringBuilder(column + " in (?");
