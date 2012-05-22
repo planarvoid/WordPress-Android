@@ -2,6 +2,8 @@ package com.soundcloud.android.record;
 
 import static com.soundcloud.android.record.SoundRecorder.TAG;
 
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.VorbisFile;
@@ -10,6 +12,7 @@ import com.soundcloud.android.audio.WavWriter;
 import com.soundcloud.android.jni.VorbisEncoder;
 
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.Closeable;
@@ -18,8 +21,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class RecordStream implements Closeable {
-    private static final boolean USE_RAW = Boolean.valueOf(System.getProperty("raw.playback", null));
-
     private final AudioConfig config;
 
     private WavWriter mWavWriter;
@@ -84,7 +85,7 @@ public class RecordStream implements Closeable {
     }
 
     private void initialise() throws IOException {
-        if (mEncoder == null && mEncodedFile != null) {
+        if (shouldEncode() && mEncoder == null && mEncodedFile != null) {
             // initialise a new encoder object
             long start = System.currentTimeMillis();
             mEncoder = new VorbisEncoder(mEncodedFile, "a", config);
@@ -94,6 +95,11 @@ public class RecordStream implements Closeable {
     }
 
     public PlaybackStream getPlaybackStream() throws IOException {
-        return new PlaybackStream(USE_RAW || mEncodedFile == null ? new WavFile(mWavWriter.file) : new VorbisFile(mEncodedFile), config);
+        return new PlaybackStream(mEncodedFile == null || !mEncodedFile.exists() ? new WavFile(mWavWriter.file) : new VorbisFile(mEncodedFile), config);
+    }
+
+    public boolean shouldEncode() {
+        return "compressed".equals(PreferenceManager.getDefaultSharedPreferences(SoundCloudApplication.instance)
+                .getString(DevSettings.DEV_RECORDING_TYPE, "compressed"));
     }
 }
