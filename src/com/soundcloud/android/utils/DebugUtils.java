@@ -99,15 +99,22 @@ public class DebugUtils {
             Log.d(CloudPlaybackService.TAG,
                     String.format("mediaPlayer error (what: %d, extra: %d, item: %s)", what, extra, item));
         }
-        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-                Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false)) {
+        if (shouldReportPlaybackErrors(context)) {
             NetworkInfo info = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE))
                     .getActiveNetworkInfo();
 
+            // only report when there's an active connection
             if (info != null && info.isConnectedOrConnecting()) {
                 SoundCloudApplication.handleSilentException("mp error", new MediaPlayerException(what, extra, info, item));
             }
         }
+    }
+
+    private static boolean shouldReportPlaybackErrors(Context context) {
+        return SoundCloudApplication.BETA_MODE ||
+                PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+                    Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false
+                );
     }
 
     private static class PlaybackError extends Exception {
