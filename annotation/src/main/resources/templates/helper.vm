@@ -1,0 +1,24 @@
+package ${packageName};
+
+import android.os.Parcel;
+import android.os.Bundle;
+
+public class ${className} {
+
+    public static void writeToParcel(${modelClass} model, Parcel out, int flags) {
+        Bundle bundle = new Bundle();
+
+        #foreach($var in $variables)
+            bundle.put${var.type}("${var.name}", model.${var.name});
+        #end
+
+        out.writeBundle(bundle);
+    }
+
+    public static void readFromParcel(${modelClass} model, Parcel in) {
+        Bundle bundle = in.readBundle(model.getClass().getClassLoader());
+        #foreach($var in $variables)
+             model.${var.name} = bundle.get${var.type}("${var.name}");
+        #end
+    }
+}
