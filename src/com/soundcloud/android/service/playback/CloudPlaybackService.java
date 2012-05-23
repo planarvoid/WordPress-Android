@@ -4,6 +4,7 @@ import static com.soundcloud.android.service.playback.State.*;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
@@ -23,6 +24,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.PlaybackRemoteViews;
+import org.apache.http.StatusLine;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -35,6 +37,8 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -44,7 +48,13 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
 public class CloudPlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
@@ -1224,6 +1234,16 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             Log.e(TAG, "onError("+what+ ", "+extra+", state="+state+")");
 
             if (mp == mMediaPlayer && state != STOPPED) {
+                final boolean isConnected = IOUtils.isConnected(CloudPlaybackService.this);
+
+                if (isConnected && SoundCloudApplication.REPORT_PLAYBACK_ERRORS) {
+                    if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
+                        SoundCloudApplication.handleSilentException("mp error",
+                                new MediaPlayerException(what, extra, getCurrentNetworkInfo(), getBuildProp()));
+                    }
+                    // getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
+                }
+
                 // when the proxy times out it will just close the connection - different implementations
                 // return different error codes. try to reconnect at least twice before giving up.
                 if (mConnectRetries++ < 4) {
@@ -1239,12 +1259,37 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                 mMediaPlayer = null;
 
                 gotoIdleState(ERROR);
-                notifyChange(IOUtils.isConnected(CloudPlaybackService.this) ? PLAYBACK_ERROR : STREAM_DIED);
+                notifyChange(isConnected ? PLAYBACK_ERROR : STREAM_DIED);
                 notifyChange(PLAYBACK_COMPLETE);
             }
             return true;
         }
     };
+
+    private NetworkInfo getCurrentNetworkInfo(){
+        return ((ConnectivityManager) CloudPlaybackService.this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+    }
+
+    private StringBuilder getBuildProp() {
+        StringBuilder props = new StringBuilder();
+        File f = new File("/system/build.prop");
+        InputStream instream = null;
+        try {
+            instream = new BufferedInputStream(new FileInputStream(f));
+            String line;
+            BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
+            while ((line = buffreader.readLine()) != null) {
+                if (line.contains("media.stagefright")) {
+                    props.append(line);
+                    props.append(" ");
+                }
+            }
+            instream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return props;
+    }
 
     // this is only used in pre 2.2 phones where there is no audio focus support
     private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
@@ -1271,4 +1316,63 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public void track(Class<?> klazz, Object... args) {
         getApp().track(klazz, args);
     }
+
+    static class PlaybackError extends Exception {
+            private final NetworkInfo networkInfo;
+            private final StringBuilder buildPropMedia;
+
+            PlaybackError(IOException ioException, NetworkInfo info, StringBuilder buildPropMedia) {
+                super(ioException);
+                this.networkInfo = info;
+
+                this.buildPropMedia = buildPropMedia;
+            }
+
+            @Override
+            public String getMessage() {
+                StringBuilder sb = new StringBuilder();
+                sb.append(super.getMessage()).append(" ")
+                        .append("networkType: ").append(networkInfo == null ? null : networkInfo.getTypeName())
+                        .append(" ")
+                        .append("build.prop: ").append(buildPropMedia);
+                return sb.toString();
+            }
+        }
+
+        static class StatusException extends PlaybackError {
+            private final StatusLine status;
+            public StatusException(StatusLine status, NetworkInfo info, boolean isStageFright, StringBuilder buildPropMedia) {
+                super(null, info, buildPropMedia);
+                this.status = status;
+            }
+            @Override
+            public String getMessage() {
+                StringBuilder sb = new StringBuilder();
+                sb.append(super.getMessage());
+                if (status != null) {
+                    sb.append(" status: ").append(status.toString());
+                }
+                return sb.toString();
+            }
+        }
+
+        static class MediaPlayerException extends PlaybackError {
+            final int code, extra;
+            MediaPlayerException(int code, int extra, NetworkInfo info, StringBuilder buildPropMedia) {
+                super(null, info, buildPropMedia);
+                this.code = code;
+                this.extra = extra;
+            }
+
+            @Override
+            public String getMessage() {
+                StringBuilder sb = new StringBuilder();
+                sb.append(super.getMessage())
+                  .append(" ")
+                  .append("code: ").append(code).append(", extra: ").append(extra);
+                return sb.toString();
+            }
+        }
+
+
 }

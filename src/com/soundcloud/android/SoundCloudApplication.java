@@ -82,6 +82,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static final UserCache USER_CACHE = new UserCache();
 
     public static boolean DEV_MODE, BETA_MODE;
+    public static boolean REPORT_PLAYBACK_ERRORS, REPORT_PLAYBACK_ERRORS_BUGSENSE;
     private RecordListener mRecListener;
     private ImageLoader mImageLoader;
 
@@ -101,6 +102,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         super.onCreate();
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
+        REPORT_PLAYBACK_ERRORS = REPORT_PLAYBACK_ERRORS_BUGSENSE = BETA_MODE; // Temporary
+
         if (DALVIK) {
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
