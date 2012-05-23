@@ -27,9 +27,13 @@ public class StreamFuture implements Future<ByteBuffer> {
 
     @Override
     public synchronized boolean cancel(boolean mayInterruptIfRunning) {
-        canceled = true;
-        notifyAll();
-        return true;
+        if (ready) {
+            return false;
+        } else {
+            canceled = true;
+            notifyAll();
+            return true;
+        }
     }
 
     @Override
