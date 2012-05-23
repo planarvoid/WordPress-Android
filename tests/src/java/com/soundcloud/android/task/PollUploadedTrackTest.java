@@ -73,7 +73,7 @@ public class PollUploadedTrackTest {
     private void checkFinishedInStorage(long id) throws Exception {
         Track t;
         t = SoundCloudDB.getTrackById(Robolectric.application.getContentResolver(), id);
-        expect(t).not.toBeNull();
+        expect(t).toBeNull();
         expect(t.state.isStreamable()).toBeTrue();
 
         t = SoundCloudApplication.TRACK_CACHE.get(id);

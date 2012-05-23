@@ -11,6 +11,7 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -274,7 +275,7 @@ public class Activities extends CollectionHolder<Activity> {
         }
     }
 
-    public static int clear(Content content, ContentResolver resolver) {
+    public static int clear(@Nullable Content content, ContentResolver resolver) {
         Content contentToDelete = Content.ME_ALL_ACTIVITIES;
         if (content != null) {
             contentToDelete = content;

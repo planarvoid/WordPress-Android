@@ -75,8 +75,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public String shared_emails;
     public String shared_ids;
     public String service_ids;
-    public String private_username;
-    public long private_user_id;
+
+    // private message to another user
+    public String recipient_username;
+    public long   recipient_user_id;
 
     // status
     public boolean external_upload;
@@ -121,10 +123,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
         four_square_venue_id = c.getString(c.getColumnIndex(Recordings.FOUR_SQUARE_VENUE_ID));
         shared_emails = c.getString(c.getColumnIndex(Recordings.SHARED_EMAILS));
         shared_ids = c.getString(c.getColumnIndex(Recordings.SHARED_IDS));
-        private_user_id = c.getLong(c.getColumnIndex(Recordings.PRIVATE_USER_ID));
+        recipient_user_id = c.getLong(c.getColumnIndex(Recordings.PRIVATE_USER_ID));
         int usernameIdx = c.getColumnIndex(DBHelper.Users.USERNAME);
         if (usernameIdx != -1) { // gets joined in
-            private_username = c.getString(usernameIdx);
+            recipient_username = c.getString(usernameIdx);
         }
         service_ids = c.getString(c.getColumnIndex(Recordings.SERVICE_IDS));
         is_private = c.getInt(c.getColumnIndex(Recordings.IS_PRIVATE)) == 1;
@@ -175,7 +177,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
             tags.add(TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD);
         } else {
             tags.add(TAG_SOURCE_ANDROID_RECORD);
-            if (private_user_id > 0) {
+            if (recipient_user_id > 0) {
                 tags.add(TAG_RECORDING_TYPE_DEDICATED);
             }
         }
@@ -187,8 +189,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public void setRecipient(User recipient) {
-        private_user_id = recipient.id;
-        private_username = recipient.getDisplayName();
+        recipient_user_id = recipient.id;
+        recipient_username = recipient.getDisplayName();
         is_private = true;
     }
 
@@ -217,7 +219,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public ContentValues buildContentValues(){
         ContentValues cv = super.buildContentValues();
-        cv.put(Recordings.USER_ID, user_id);
+        cv.put(Recordings.USER_ID, user_id > 0 ? user_id : SoundCloudApplication.getUserId());
         cv.put(Recordings.TIMESTAMP, lastModified());
         cv.put(Recordings.LONGITUDE, longitude);
         cv.put(Recordings.LATITUDE, latitude);
@@ -229,7 +231,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         cv.put(Recordings.FOUR_SQUARE_VENUE_ID, four_square_venue_id);
         cv.put(Recordings.SHARED_EMAILS, shared_emails);
         cv.put(Recordings.SHARED_IDS, shared_ids);
-        cv.put(Recordings.PRIVATE_USER_ID, private_user_id);
+        cv.put(Recordings.PRIVATE_USER_ID, recipient_user_id);
         cv.put(Recordings.SERVICE_IDS, service_ids);
         cv.put(Recordings.IS_PRIVATE, is_private);
         cv.put(Recordings.EXTERNAL_UPLOAD, external_upload);
@@ -392,8 +394,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public Intent getViewIntent() {
-        if (private_user_id > 0) {
-            return new Intent(Actions.MESSAGE).putExtra("recipient", private_user_id);
+        if (recipient_user_id > 0) {
+            return new Intent(Actions.MESSAGE).putExtra("recipient", recipient_user_id);
         } else {
             return new Intent(Actions.RECORD);
         }
@@ -428,8 +430,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
             data.put(Params.Track.SHARED_EMAILS, ids);
         }
 
-        if (private_user_id > 0) {
-            data.put(Params.Track.SHARED_IDS, private_user_id);
+        if (recipient_user_id > 0) {
+            data.put(Params.Track.SHARED_IDS, recipient_user_id);
         } else if (!TextUtils.isEmpty(shared_ids)) {
             List<String> ids = new ArrayList<String>();
             Collections.addAll(ids, shared_ids.split(","));
@@ -644,8 +646,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
         four_square_venue_id = data.getString("four_square_venue_id");
         shared_emails = data.getString("shared_emails");
         shared_ids = data.getString("shared_ids");
-        private_user_id = data.getLong("private_user_id");
-        private_username = data.getString("private_username");
+        recipient_user_id = data.getLong("private_user_id");
+        recipient_username = data.getString("private_username");
         service_ids = data.getString("service_ids");
         is_private = data.getBoolean("is_private", false);
         external_upload = data.getBoolean("external_upload", false);
@@ -674,8 +676,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
         data.putString("shared_ids", shared_ids);
         data.putString("description", description);
         data.putString("genre", genre);
-        data.putLong("private_user_id", private_user_id);
-        data.putString("private_username", private_username);
+        data.putLong("private_user_id", recipient_user_id);
+        data.putString("private_username", recipient_username);
         data.putString("service_ids", service_ids);
         data.putBoolean("is_private", is_private);
         data.putBoolean("external_upload", external_upload);

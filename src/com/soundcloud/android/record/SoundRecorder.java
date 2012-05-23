@@ -85,9 +85,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     private final AudioRecord mAudioRecord;
     private final ScAudioTrack mAudioTrack;
     private RemainingTimeCalculator mRemainingTimeCalculator;
-    private Recording mRecording;
     private final AmplitudeAnalyzer mAmplitudeAnalyzer;
 
+    private Recording mRecording;
     private RecordStream mRecordStream;
     private PlaybackStream mPlaybackStream;
 
@@ -320,7 +320,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     public void applyEdits() {
-        // TODO
+        Log.d(TAG, "applyEdits");
     }
 
     public boolean isPlaying() {
@@ -347,7 +347,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     public void seekTo(float pct) {
         if (mPlaybackStream != null) {
             long position = (long) (getPlaybackDuration() * pct);
-            if (isPlaying()) {
+            if (isPlaying() && position >= 0) {
                 mSeekToPos = position;
                 mState = State.SEEKING;
             } else {
@@ -382,6 +382,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     public int currentLowerLimit() {
         return mRemainingTimeCalculator.currentLowerLimit();
+    }
+
+    private void saveState() {
+        if (mRecording != null && mRecording.isSaved()) {
+
+
+        }
     }
 
     @Override public void focusGained() {

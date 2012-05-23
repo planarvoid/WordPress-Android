@@ -266,7 +266,7 @@ public class UploadService extends Service {
     /* package */ void onUpload(Recording recording) {
         // make sure recording is saved before uploading
         if (!recording.isSaved() &&
-            (recording = SoundCloudDB.insertRecording(getContentResolver(), recording)) == null) {
+            (recording = SoundCloudDB.insertRecording(getContentResolver(), recording, null)) == null) {
             Log.w(TAG, "could not insert "+recording);
         } else {
             recording.upload_status = Recording.Status.UPLOADING;

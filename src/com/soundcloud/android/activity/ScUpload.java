@@ -2,11 +2,8 @@ package com.soundcloud.android.activity;
 
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -107,7 +104,7 @@ public class ScUpload extends ScActivity {
 
         if (mRecording.is_private) {
             ((TextView) findViewById(R.id.txt_private_message_upload_message))
-                            .setText(getString(R.string.private_message_upload_message, mRecording.private_username));
+                            .setText(getString(R.string.private_message_upload_message, mRecording.recipient_username));
         } else {
             mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
             mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);

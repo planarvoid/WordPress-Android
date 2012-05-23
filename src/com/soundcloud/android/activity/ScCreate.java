@@ -321,13 +321,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     if (mRecording.isSaved()) {
                         recordingUri = mRecording.toUri();
                     } else {
-                        mRecording.user_id = SoundCloudApplication.getUserId();
-                        if (mRecipient != null) {
-                            SoundCloudDB.upsertUser(getContentResolver(), mRecipient);
-                            mRecording.setRecipient(mRecipient);
-                        }
                         mRecording.duration = mRecorder.getPlaybackDuration();
-                        recordingUri = SoundCloudDB.insertRecording(getContentResolver(), mRecording).toUri();
+                        recordingUri = SoundCloudDB.insertRecording(getContentResolver(), mRecording, mRecipient).toUri();
                         reset();
                     }
 
@@ -837,7 +832,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
-                                            SoundCloudDB.insertRecording(getContentResolver(), recordings.get(i));
+                                            SoundCloudDB.insertRecording(getContentResolver(), recordings.get(i), null);
                                         } else {
                                             recordings.get(i).delete(null);
                                         }

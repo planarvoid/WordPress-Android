@@ -134,7 +134,7 @@ public class ScContentProviderTest {
     public void shouldIncludeUsernameForPrivateRecordings() throws Exception {
         Recording r = new Recording(new File("/tmp/test"));
         r.user_id = USER_ID;
-        r.private_user_id = USER_ID;
+        r.recipient_user_id = USER_ID;
 
         User user = new User();
         user.id = USER_ID;

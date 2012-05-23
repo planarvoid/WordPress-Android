@@ -151,7 +151,7 @@ public class RecordingTest {
         expect(r2.duration).toEqual(r.duration);
         expect(r2.external_upload).toEqual(r.external_upload);
         expect(r2.user_id).toEqual(r.user_id);
-        expect(r2.private_user_id).toEqual(r.private_user_id);
+        expect(r2.recipient_user_id).toEqual(r.recipient_user_id);
         expect(r2.upload_status).toEqual(r.upload_status);
 
         // just this recording
@@ -170,7 +170,7 @@ public class RecordingTest {
         expect(r3.duration).toEqual(r.duration);
         expect(r3.external_upload).toEqual(r.external_upload);
         expect(r3.user_id).toEqual(r.user_id);
-        expect(r3.private_user_id).toEqual(r.private_user_id);
+        expect(r3.recipient_user_id).toEqual(r.recipient_user_id);
     }
 
     @Test
@@ -213,8 +213,8 @@ public class RecordingTest {
         r.genre = "speed blues ";
         r.duration = 86 * 1000;
         r.user_id = USER_ID;
-        r.private_user_id = 300L;
-        r.private_username = "foo";
+        r.recipient_user_id = 300L;
+        r.recipient_username = "foo";
         r.shared_emails = "foo@example.com";
         r.shared_ids = "1,2,3,4";
         r.upload_status = Recording.Status.NOT_YET_UPLOADED;
@@ -256,7 +256,7 @@ public class RecordingTest {
     @Test
     public void shouldAddDedicatedTagIfPrivateMessage() throws Exception {
         Recording r = createRecording();
-        r.private_user_id = 10;
+        r.recipient_user_id = 10;
         expect(r.getTags()).toContain("soundcloud:recording-type=dedicated");
     }
 
@@ -311,8 +311,8 @@ public class RecordingTest {
         expect(r.four_square_venue_id).toEqual(r2.four_square_venue_id);
         expect(r.shared_emails).toEqual(r2.shared_emails);
         expect(r.shared_ids).toEqual(r2.shared_ids);
-        expect(r.private_username).toEqual(r2.private_username);
-        expect(r.private_user_id).toEqual(r2.private_user_id);
+        expect(r.recipient_username).toEqual(r2.recipient_username);
+        expect(r.recipient_user_id).toEqual(r2.recipient_user_id);
         expect(r.external_upload).toEqual(r2.external_upload);
     }
 

@@ -73,9 +73,9 @@ public class MyTracklistRow extends TrackInfoBar {
         if (!recording.is_private) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
-            if (!TextUtils.isEmpty(recording.private_username)){
+            if (!TextUtils.isEmpty(recording.recipient_username)){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(recording.private_username);
+                mPrivateIndicator.setText(recording.recipient_username);
             } else {
                 final int sharedToCount = TextUtils.isEmpty(recording.shared_emails) ? 0
                         : recording.shared_emails.split(",").length;

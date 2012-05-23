@@ -11,19 +11,19 @@ import java.nio.ByteBuffer;
 public class PlaybackStream {
     private static final int TRIM_PREVIEW_LENGTH = 500;
 
-    private long currentPosition;
-    private long startPosition;
-    private long endPosition;
-    public PlaybackFilter filter;
+    private long mCurrentPos;
+    private long mStartPos;
+    private long mEndPos;
 
     private AudioConfig mConfig;
     private AudioFile mPlaybackFile;
 
+    public PlaybackFilter filter;
 
     public PlaybackStream(AudioFile audioFile, AudioConfig config) throws IOException {
         mPlaybackFile = audioFile;
         resetBounds();
-        currentPosition = -1;
+        mCurrentPos = -1;
 
         mConfig = config;
     }
@@ -34,59 +34,59 @@ public class PlaybackStream {
     }
 
     public void resetBounds() {
-        startPosition = 0;
-        endPosition = mPlaybackFile.getDuration();
+        mStartPos = 0;
+        mEndPos = mPlaybackFile.getDuration();
     }
 
     public long getDuration(){
-        return endPosition - startPosition;
+        return mEndPos - mStartPos;
     }
 
     public long getPosition() {
-        return currentPosition - startPosition;
+        return mCurrentPos - mStartPos;
     }
 
     public long setStartPositionByPercent(double percent) {
-        startPosition = (long) (percent * mPlaybackFile.getDuration());
-        return startPosition;
+        mStartPos = (long) (percent * mPlaybackFile.getDuration());
+        return mStartPos;
     }
 
     public long setEndPositionByPercent(double percent) {
-        endPosition = (long) (percent * mPlaybackFile.getDuration());
-        return Math.max(startPosition, endPosition - TRIM_PREVIEW_LENGTH);
+        mEndPos = (long) (percent * mPlaybackFile.getDuration());
+        return Math.max(mStartPos, mEndPos - TRIM_PREVIEW_LENGTH);
     }
 
     public int read(ByteBuffer buffer, int bufferSize) throws IOException {
-        if (currentPosition < endPosition) {
+        if (mCurrentPos < mEndPos) {
 
             final int n = mPlaybackFile.read(buffer, bufferSize);
             buffer.flip();
             if (filter != null) {
-                filter.apply(buffer, mConfig.msToByte(currentPosition - startPosition), mConfig.msToByte(endPosition - startPosition));
+                filter.apply(buffer, mConfig.msToByte(mCurrentPos - mStartPos), mConfig.msToByte(mEndPos - mStartPos));
             }
 
-            currentPosition = mPlaybackFile.getPosition();
+            mCurrentPos = mPlaybackFile.getPosition();
             return n;
         }
         return -1;
     }
 
     public boolean isFinished() {
-        return currentPosition >= endPosition;
+        return mCurrentPos >= mEndPos;
     }
 
     public void resetPlayback() {
-        currentPosition = -1;
+        mCurrentPos = -1;
     }
 
     public void initializePlayback() throws IOException {
-        currentPosition = getValidPosition(currentPosition);
-        mPlaybackFile.seek(currentPosition);
+        mCurrentPos = getValidPosition(mCurrentPos);
+        mPlaybackFile.seek(mCurrentPos);
 
     }
 
     public long getValidPosition(long currentPosition) {
-            return (currentPosition < startPosition || currentPosition >= endPosition) ? startPosition : currentPosition;
+            return (currentPosition < mStartPos || currentPosition >= mEndPos) ? mStartPos : currentPosition;
         }
 
     public void close() {
@@ -95,13 +95,13 @@ public class PlaybackStream {
     }
 
     public void setCurrentPosition(long pos) {
-        currentPosition = pos;
+        mCurrentPos = pos;
     }
 
     public void reopen() {
         try {
             mPlaybackFile.reopen();
-            mPlaybackFile.seek(currentPosition);
+            mPlaybackFile.seek(mCurrentPos);
         } catch (IOException e) {
             Log.w("asdf", e);
         }
