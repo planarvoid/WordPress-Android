@@ -272,6 +272,7 @@
 
             <intent-filter>
                 <action android:name="android.provider.Telephony.SECRET_CODE" />
+                <!-- *#*#ALARM#*#* -->
                 <data android:scheme="android_secret_code" android:host="25276"/>
             </intent-filter>
         </receiver>
@@ -319,7 +320,8 @@
         <receiver android:name=".service.playback.ToggleErrorReportingReceiver">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SECRET_CODE"/>
-                <data android:scheme="android_secret_code" android:host="72752933283"/><!--*SCPLAYDEBUG*-->
+                <!-- *#*#SCPLAYDEBUG#*#* -->
+                <data android:scheme="android_secret_code" android:host="72752933284"/>
             </intent-filter>
         </receiver>
 
