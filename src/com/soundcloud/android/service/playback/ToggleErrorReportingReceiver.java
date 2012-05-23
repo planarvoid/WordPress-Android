@@ -14,20 +14,17 @@ import android.widget.Toast;
 
 public final class ToggleErrorReportingReceiver extends BroadcastReceiver {
     @Override
-    public void onReceive(Context context, Intent intent) {
-        final String action = intent.getAction();
-
-        if (Consts.SECRET_CODE_ACTION.equals(action)) {
+    public void onReceive(Context context, Intent intent) { if (Consts.SECRET_CODE_ACTION.equals(intent.getAction())) {
             SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(context);
-            final boolean newValue = !pm.getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false);
-            SharedPreferencesUtils.apply(pm.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, newValue));
+            final boolean enabled = !pm.getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false);
+            SharedPreferencesUtils.apply(pm.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, enabled));
 
             if (Log.isLoggable(CloudPlaybackService.TAG, Log.DEBUG)) {
-                Log.d(CloudPlaybackService.TAG, "toggling error reporting (enabled=" + newValue + ")");
+                Log.d(CloudPlaybackService.TAG, "toggling error reporting (enabled=" + enabled + ")");
             }
 
             Toast.makeText(context, context.getString(R.string.playback_error_logging,
-                    newValue ? context.getText(R.string.enabled) : context.getText(R.string.disabled)), Toast.LENGTH_LONG).show();
+                    context.getText(enabled ? R.string.enabled : R.string.disabled)), Toast.LENGTH_LONG).show();
         }
     }
 }
