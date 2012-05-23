@@ -136,27 +136,4 @@ public class BetaPreferences {
         }
         return b.create();
     }
-
-    /** @noinspection UnusedDeclaration*/
-    private static PreferenceScreen
-        // hacky way to use package private method on PreferenceManager
-        preferenceScreenFromResource(PreferenceManager pm, Context ctxt, int settings_beta) {
-        try {
-            Class pmClass = pm.getClass();
-
-            Method m = pmClass.getDeclaredMethod("inflateFromResource", Context.class
-                    , Integer.TYPE, PreferenceScreen.class);
-            m.setAccessible(true);
-            return (PreferenceScreen) m.invoke(pm, ctxt, settings_beta, null);
-        } catch (NoSuchMethodException e) {
-            Log.w(TAG, "error", e);
-            return null;
-        } catch (IllegalAccessException e) {
-            Log.w(TAG, "error", e);
-            return null;
-        } catch (InvocationTargetException e) {
-            Log.w(TAG, "error", e);
-            return null;
-        }
-    }
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.2.8-BETA2"
+      android:versionName="2.2.9-BETA1"
       android:installLocation="internalOnly"
-      android:versionCode="43">
+      android:versionCode="44">
 
     <supports-screens android:anyDensity="true" />
     <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="11"/>

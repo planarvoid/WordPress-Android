@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
-import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
@@ -25,6 +24,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.jetbrains.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +39,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.content.TestIntentSender;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
@@ -59,12 +57,8 @@ public class SyncAdapterServiceTest {
         // don't want default syncing for tests
         SyncContent.setAllSyncEnabledPrefs(Robolectric.application, false);
 
-        // pretend we're connected via wifi
-        ConnectivityManager cm = (ConnectivityManager)
-                Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
-        Robolectric.shadowOf(cm).setBackgroundDataSetting(true);
-        Robolectric.shadowOf(cm).setNetworkInfo(ConnectivityManager.TYPE_WIFI,
-                newInstanceOf(NetworkInfo.class));
+        TestHelper.setBackgrounData(true);
+        TestHelper.connectedViaWifi(true);
 
         // the current sc user, assumed to be already in the db
         ContentValues cv = new ContentValues();
@@ -427,6 +421,23 @@ public class SyncAdapterServiceTest {
         expect(lc.last_sync).not.toEqual(0L);
     }
 
+    @Test
+    public void performSyncShouldReturnFalseIfNoSyncStarted() throws Exception {
+        TestHelper.connectedViaWifi(false);
+        PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
+                .edit()
+                .putBoolean(SyncConfig.PREF_NOTIFICATIONS_WIFI_ONLY, true)
+                .commit();
+
+        boolean hasSynced = SyncAdapterService.performSync(DefaultTestRunner.application,
+                new Account("foo", "bar"),
+                new Bundle(),
+                new SyncResult(),
+                null);
+
+        expect(hasSynced).toBeFalse();
+    }
+
 
     static class SyncOutcome {
         List<NotificationInfo> notifications;
@@ -449,7 +460,7 @@ public class SyncAdapterServiceTest {
         }
     }
 
-    private static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime, Bundle extras)
+    private static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime, @Nullable Bundle extras)
             throws Exception {
         if (!firstTime) app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
         if (extras == null) extras = new Bundle();
@@ -462,7 +473,7 @@ public class SyncAdapterServiceTest {
         SyncAdapterService.performSync(
                 app,
                 new Account("foo", "bar"),
-                extras, result);
+                extras, result, null);
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 

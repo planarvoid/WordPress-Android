@@ -29,7 +29,8 @@ object AndroidBuild extends Build {
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
     "org.xiph" % "libvorbis" % "1.0.0-beta",
     "com.at" % "ATInternet" % "1.1.003",
-    "com.google.android" % "android" % "4.0.1.2" % "provided"
+    "com.google.android" % "android" % "4.0.1.2" % "provided",
+    "com.intellij" % "annotations" % "9.0.4" % "compile"
   )
 
   val testDependencies = Seq(

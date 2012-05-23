@@ -13,6 +13,8 @@ public class SyncConfig {
     public static final String PREF_NOTIFICATIONS_FREQUENCY = "notificationsFrequency";
     public static final String PREF_LAST_SYNC_CLEANUP       = "lastSyncCleanup";
     public static final String PREF_LAST_USER_SYNC          = "lastUserSync";
+    public static final String PREF_NOTIFICATIONS_WIFI_ONLY = "notificationsWifiOnly";
+    public static final String PREF_SYNC_WIFI_ONLY          = "syncWifiOnly";
 
     public static final long DEFAULT_STALE_TIME  = 60*60*1000;         // 1 hr in ms
     public static final long CLEANUP_DELAY       = DEFAULT_STALE_TIME * 24; // every 24 hours
@@ -27,7 +29,7 @@ public class SyncConfig {
 
 
     public static boolean isNotificationsWifiOnlyEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsWifiOnly", false);
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(PREF_NOTIFICATIONS_WIFI_ONLY, false);
     }
 
     public static boolean isIncomingEnabled(Context c, Bundle extras) {
@@ -63,7 +65,7 @@ public class SyncConfig {
     }
 
     public static boolean isSyncWifiOnlyEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("syncWifiOnly", true);
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(PREF_SYNC_WIFI_ONLY, true);
     }
 
     public static long getNotificationsFrequency(Context c) {

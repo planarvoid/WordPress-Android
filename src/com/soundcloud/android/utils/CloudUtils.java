@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
@@ -30,6 +31,10 @@ import android.view.Display;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -356,6 +361,7 @@ public final class CloudUtils {
         }
     }
 
+    @SuppressLint("NewApi")
     public static boolean isUserAMonkey() {
         if (Build.VERSION.SDK_INT >= 8) {
             try {
