@@ -21,10 +21,11 @@ import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.SharedPreferencesUtils;
 import com.soundcloud.android.view.PlaybackRemoteViews;
-import org.apache.http.StatusLine;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -34,27 +35,23 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 
 public class CloudPlaybackService extends Service implements IAudioManager.MusicFocusable, Tracker {
@@ -1236,12 +1233,11 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             if (mp == mMediaPlayer && state != STOPPED) {
                 final boolean isConnected = IOUtils.isConnected(CloudPlaybackService.this);
 
-                if (isConnected && SoundCloudApplication.REPORT_PLAYBACK_ERRORS) {
-                    if (SoundCloudApplication.REPORT_PLAYBACK_ERRORS_BUGSENSE) {
-                        SoundCloudApplication.handleSilentException("mp error",
-                                new MediaPlayerException(what, extra, getCurrentNetworkInfo(), getBuildProp()));
-                    }
-                    // getApp().trackEvent(Consts.Tracking.Categories.PLAYBACK_ERROR, "mediaPlayer", "code", what);
+                if (isConnected &&
+                        PreferenceManager.getDefaultSharedPreferences(CloudPlaybackService.this).getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false)) {
+                    SoundCloudApplication.handleSilentException("mp error",
+                            new DebugUtils.MediaPlayerException(what, extra,
+                                    ((ConnectivityManager) CloudPlaybackService.this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo()));
                 }
 
                 // when the proxy times out it will just close the connection - different implementations
@@ -1266,31 +1262,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
         }
     };
 
-    private NetworkInfo getCurrentNetworkInfo(){
-        return ((ConnectivityManager) CloudPlaybackService.this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-    }
-
-    private StringBuilder getBuildProp() {
-        StringBuilder props = new StringBuilder();
-        File f = new File("/system/build.prop");
-        InputStream instream = null;
-        try {
-            instream = new BufferedInputStream(new FileInputStream(f));
-            String line;
-            BufferedReader buffreader = new BufferedReader(new InputStreamReader(instream));
-            while ((line = buffreader.readLine()) != null) {
-                if (line.contains("media.stagefright")) {
-                    props.append(line);
-                    props.append(" ");
-                }
-            }
-            instream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return props;
-    }
-
     // this is only used in pre 2.2 phones where there is no audio focus support
     private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
         @Override
@@ -1307,6 +1278,25 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             }
         }
     };
+    public static final class ToggleErrorReportingReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+
+            if (Consts.SECRET_CODE_ACTION.equals(action)) {
+                SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(context);
+                final boolean newValue = !pm.getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false);
+                SharedPreferencesUtils.apply(pm.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, newValue));
+
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "toggling error reporting (enabled=" + newValue + ")");
+                }
+
+                Toast.makeText(context, context.getString(R.string.playback_error_logging,
+                        newValue ? context.getText(R.string.enabled) : context.getText(R.string.disabled)), Toast.LENGTH_LONG).show();
+            }
+        }
+    };
 
     public void track(Event event, Object... args) {
         getApp().track(event, args);
@@ -1316,63 +1306,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public void track(Class<?> klazz, Object... args) {
         getApp().track(klazz, args);
     }
-
-    static class PlaybackError extends Exception {
-            private final NetworkInfo networkInfo;
-            private final StringBuilder buildPropMedia;
-
-            PlaybackError(IOException ioException, NetworkInfo info, StringBuilder buildPropMedia) {
-                super(ioException);
-                this.networkInfo = info;
-
-                this.buildPropMedia = buildPropMedia;
-            }
-
-            @Override
-            public String getMessage() {
-                StringBuilder sb = new StringBuilder();
-                sb.append(super.getMessage()).append(" ")
-                        .append("networkType: ").append(networkInfo == null ? null : networkInfo.getTypeName())
-                        .append(" ")
-                        .append("build.prop: ").append(buildPropMedia);
-                return sb.toString();
-            }
-        }
-
-        static class StatusException extends PlaybackError {
-            private final StatusLine status;
-            public StatusException(StatusLine status, NetworkInfo info, boolean isStageFright, StringBuilder buildPropMedia) {
-                super(null, info, buildPropMedia);
-                this.status = status;
-            }
-            @Override
-            public String getMessage() {
-                StringBuilder sb = new StringBuilder();
-                sb.append(super.getMessage());
-                if (status != null) {
-                    sb.append(" status: ").append(status.toString());
-                }
-                return sb.toString();
-            }
-        }
-
-        static class MediaPlayerException extends PlaybackError {
-            final int code, extra;
-            MediaPlayerException(int code, int extra, NetworkInfo info, StringBuilder buildPropMedia) {
-                super(null, info, buildPropMedia);
-                this.code = code;
-                this.extra = extra;
-            }
-
-            @Override
-            public String getMessage() {
-                StringBuilder sb = new StringBuilder();
-                sb.append(super.getMessage())
-                  .append(" ")
-                  .append("code: ").append(code).append(", extra: ").append(extra);
-                return sb.toString();
-            }
-        }
 
 
 }

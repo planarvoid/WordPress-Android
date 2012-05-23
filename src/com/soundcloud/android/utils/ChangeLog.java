@@ -61,10 +61,10 @@ public class ChangeLog {
     public ChangeLog(Context context) {
         mContext = context;
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        mOldVersion = sp.getInt(Consts.VERSION_KEY, 0);
+        mOldVersion = sp.getInt(Consts.PrefKeys.VERSION_KEY, 0);
         mThisVersion = CloudUtils.getAppVersionCode(context, 0);
         if (mThisVersion != 0) {
-            sp.edit().putInt(Consts.VERSION_KEY, mThisVersion).commit();
+            sp.edit().putInt(Consts.PrefKeys.VERSION_KEY, mThisVersion).commit();
         }
     }
 

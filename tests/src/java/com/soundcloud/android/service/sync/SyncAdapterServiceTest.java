@@ -69,7 +69,7 @@ public class SyncAdapterServiceTest {
         // always notify
         PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
                 .edit()
-                .putString(SyncConfig.PREF_NOTIFICATIONS_FREQUENCY, 0+"")
+                .putString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY, 0+"")
                 .commit();
 
         DefaultTestRunner.application.setCurrentUserId(100l);
@@ -426,7 +426,7 @@ public class SyncAdapterServiceTest {
         TestHelper.connectedViaWifi(false);
         PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
                 .edit()
-                .putBoolean(SyncConfig.PREF_NOTIFICATIONS_WIFI_ONLY, true)
+                .putBoolean(Consts.PrefKeys.NOTIFICATIONS_WIFI_ONLY, true)
                 .commit();
 
         boolean hasSynced = SyncAdapterService.performSync(DefaultTestRunner.application,

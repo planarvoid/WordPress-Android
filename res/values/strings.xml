@@ -1,0 +1,5 @@
+<resources>
+    <string name="playback_error_logging">Playback error logging : %s</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+</resources>

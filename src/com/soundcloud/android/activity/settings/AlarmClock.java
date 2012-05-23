@@ -1,6 +1,7 @@
 package com.soundcloud.android.activity.settings;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -49,9 +50,6 @@ public final class AlarmClock {
     public static final String DEFAULT = "10:00";
 
     public static final String EXTRA_URI = "uri";
-
-    private static final String PREF_ALARM_CLOCK_FEATURE_ENABLED = "dev.alarmClock.enabled";
-    private static final String PREF_ALARM_CLOCK_URI     = "dev.alarmClock.uri";
 
 
     private Context mContext;
@@ -151,7 +149,7 @@ public final class AlarmClock {
     }
 
     public static boolean isFeatureEnabled(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREF_ALARM_CLOCK_FEATURE_ENABLED, false);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Consts.PrefKeys.DEV_ALARM_CLOCK_ENABLED, false);
     }
 
     private Time getAlarmTime(Time now) {
@@ -195,7 +193,7 @@ public final class AlarmClock {
 
     private Uri getPlayUri() {
         String uri = PreferenceManager.getDefaultSharedPreferences(mContext)
-                .getString(PREF_ALARM_CLOCK_URI, DEFAULT_URI);
+                .getString(Consts.PrefKeys.DEV_ALARM_CLOCK_URI, DEFAULT_URI);
         return Uri.parse(uri);
     }
 
@@ -299,7 +297,7 @@ public final class AlarmClock {
         }
         ListPreference alarmUri = new ListPreference(context);
         alarmUri.setValue(getPlayUri().toString());
-        alarmUri.setKey(PREF_ALARM_CLOCK_URI);
+        alarmUri.setKey(Consts.PrefKeys.DEV_ALARM_CLOCK_URI);
         alarmUri.setTitle(R.string.pref_dev_alarm_play_uri);
         alarmUri.setSummary(R.string.pref_dev_alarm_play_uri_summary);
         alarmUri.setEntries(R.array.dev_alarmClock_uri_entries);
@@ -312,13 +310,12 @@ public final class AlarmClock {
     }
 
     public static final class Receiver extends BroadcastReceiver {
-        public static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
 
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
 
-            if (SECRET_CODE_ACTION.equals(action)) {
+            if (Consts.SECRET_CODE_ACTION.equals(action)) {
                 toggleAlarmClockFeatureEnabled(context);
             } else if (Actions.ALARM.equals(action)) {
                 onAlarm(context, intent);
@@ -400,8 +397,8 @@ public final class AlarmClock {
 
         private void toggleAlarmClockFeatureEnabled(Context context) {
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-            boolean newState = !prefs.getBoolean(PREF_ALARM_CLOCK_FEATURE_ENABLED, false);
-            prefs.edit().putBoolean(PREF_ALARM_CLOCK_FEATURE_ENABLED, newState).commit();
+            boolean newState = !prefs.getBoolean(Consts.PrefKeys.DEV_ALARM_CLOCK_ENABLED, false);
+            prefs.edit().putBoolean(Consts.PrefKeys.DEV_ALARM_CLOCK_ENABLED, newState).commit();
             CloudUtils.showToast(context, "SC AlarmClock " + (newState ? "enabled" : "disabled"));
         }
     }

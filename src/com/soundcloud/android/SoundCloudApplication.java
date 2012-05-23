@@ -21,14 +21,13 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.WifiMonitor;
 import com.soundcloud.android.service.sync.SyncConfig;
-import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
@@ -84,7 +83,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static final UserCache USER_CACHE = new UserCache();
 
     public static boolean DEV_MODE, BETA_MODE;
-    public static boolean REPORT_PLAYBACK_ERRORS, REPORT_PLAYBACK_ERRORS_BUGSENSE;
     private RecordListener mRecListener;
     private ImageLoader mImageLoader;
 
@@ -104,7 +102,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         super.onCreate();
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
-        REPORT_PLAYBACK_ERRORS = REPORT_PLAYBACK_ERRORS_BUGSENSE = BETA_MODE; // Temporary
 
         if (DALVIK) {
             if (!EMULATOR) {
@@ -144,7 +141,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 @Override public void run() {
                     PreferenceManager.getDefaultSharedPreferences(SoundCloudApplication.this)
                             .edit()
-                            .remove(C2DMReceiver.PREF_DEVICE_URL)
+                            .remove(Consts.PrefKeys.C2DM_DEVICE_URL)
                             .commit();
                 }
             });

@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.model.Activities;
@@ -163,12 +164,12 @@ public class SyncAdapterService extends Service {
                 urisToSync.addAll(SyncContent.getCollectionsDueForSync(app, manual));
             }
 
-            if (SyncConfig.shouldSync(app, SyncConfig.PREF_LAST_SYNC_CLEANUP, SyncConfig.CLEANUP_DELAY) || manual) {
+            if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_SYNC_CLEANUP, SyncConfig.CLEANUP_DELAY) || manual) {
                 urisToSync.add(Content.TRACK_CLEANUP.uri);
                 urisToSync.add(Content.USERS_CLEANUP.uri);
             }
 
-            if (SyncConfig.shouldSync(app, SyncConfig.PREF_LAST_USER_SYNC, SyncConfig.CLEANUP_DELAY) || manual) {
+            if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_USER_SYNC, SyncConfig.CLEANUP_DELAY) || manual) {
                 urisToSync.add(Content.ME.uri);
             }
 
@@ -182,7 +183,7 @@ public class SyncAdapterService extends Service {
 
 
     private static boolean handleFollowerEvent(SoundCloudApplication app, Bundle extras) {
-        if (PreferenceManager.getDefaultSharedPreferences(app).getBoolean("notificationsFollowers", true)
+        if (PreferenceManager.getDefaultSharedPreferences(app).getBoolean(Consts.PrefKeys.NOTIFICATIONS_FOLLOWERS, true)
                 && extras.containsKey(SyncAdapterService.EXTRA_PUSH_EVENT_URI)) {
             final long id = PushEvent.getIdFromUri(extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT_URI));
             if (id != -1) {

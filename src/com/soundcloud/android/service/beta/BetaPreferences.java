@@ -1,10 +1,10 @@
 package com.soundcloud.android.service.beta;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.utils.CloudUtils.getAppVersion;
 import static com.soundcloud.android.utils.CloudUtils.getAppVersionCode;
 import static com.soundcloud.android.utils.CloudUtils.getElapsedTimeString;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 
 import android.app.AlarmManager;
@@ -16,13 +16,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
-import android.util.Log;
 import android.widget.Toast;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class BetaPreferences {
 
@@ -49,14 +43,14 @@ public class BetaPreferences {
                 context.getString(R.string.pref_beta_check_for_updates_summary,
                         context.getString(getResourceForInterval((int) BetaService.INTERVAL))));
 
-        autoUpdate.setKey(BetaService.PREF_CHECK_UPDATES);
+        autoUpdate.setKey(Consts.PrefKeys.BETA_CHECK_FOR_UPDATES);
         autoUpdate.setDefaultValue(true);
 
         CheckBoxPreference requireWifi = new CheckBoxPreference(context);
         requireWifi.setTitle(R.string.pref_beta_require_wifi);
         requireWifi.setSummary(R.string.pref_beta_require_wifi_summary);
         requireWifi.setDefaultValue(true);
-        requireWifi.setKey(BetaService.PREF_REQUIRE_WIFI);
+        requireWifi.setKey(Consts.PrefKeys.BETA_REQUIRE_WIFI);
 
         group.addPreference(cat);
 

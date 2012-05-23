@@ -514,12 +514,12 @@ public class CreateController {
         }
 
         final boolean hiQ = PreferenceManager.getDefaultSharedPreferences(mActivity)
-            .getString("defaultRecordingQuality", "high")
+            .getString(Consts.PrefKeys.DEFAULT_REC_QUALITY, "high")
             .equals("high");
 
         if (hiQ && SoundCloudApplication.DEV_MODE
                 && !PreferenceManager.getDefaultSharedPreferences(mActivity)
-                        .getString("dev.defaultRecordingHighQualityType", "compressed")
+                        .getString(Consts.PrefKeys.DEV_DEFAULT_REC_HIGH_QUALITY_TYPE, "compressed")
                         .equals("compressed")) {
             //force raw for developer mode
             mAudioProfile = CloudRecorder.Profile.RAW;

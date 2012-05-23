@@ -70,7 +70,7 @@ public class ApiSyncer {
                     result = syncMe(c);
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()
-                            .putLong(SyncConfig.PREF_LAST_USER_SYNC, System.currentTimeMillis())
+                            .putLong(Consts.PrefKeys.LAST_USER_SYNC, System.currentTimeMillis())
                             .commit();
 
                     break;
@@ -100,7 +100,7 @@ public class ApiSyncer {
                     }
                     PreferenceManager.getDefaultSharedPreferences(mContext)
                             .edit()
-                            .putLong(SyncConfig.PREF_LAST_SYNC_CLEANUP, System.currentTimeMillis())
+                            .putLong(Consts.PrefKeys.LAST_SYNC_CLEANUP, System.currentTimeMillis())
                             .commit();
                     break;
                 default:

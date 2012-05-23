@@ -33,8 +33,6 @@ public class Dashboard extends ScActivity {
     private Page mTrackingPage;
     private Main.Tab mCurrentTab;
 
-    private static final String EXCLUSIVE_ONLY_KEY = "incoming_exclusive_only";
-
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -137,7 +135,7 @@ public class Dashboard extends ScActivity {
     }
 
     private Content getIncomingType() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(EXCLUSIVE_ONLY_KEY, false)
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Consts.PrefKeys.EXCLUSIVE_ONLY_KEY, false)
                 ? Content.ME_EXCLUSIVE_STREAM
                 : Content.ME_SOUND_STREAM;
     }
@@ -230,7 +228,7 @@ public class Dashboard extends ScActivity {
                                    SharedPreferencesUtils.apply(PreferenceManager
                                            .getDefaultSharedPreferences(Dashboard.this)
                                            .edit()
-                                           .putBoolean(EXCLUSIVE_ONLY_KEY, exclusive));
+                                           .putBoolean(Consts.PrefKeys.EXCLUSIVE_ONLY_KEY, exclusive));
 
                                    ((EventsAdapterWrapper) mListView.getWrapper()).setContent(exclusive ?
                                            Content.ME_EXCLUSIVE_STREAM : Content.ME_SOUND_STREAM);
