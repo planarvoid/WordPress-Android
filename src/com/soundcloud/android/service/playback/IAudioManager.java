@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.playback;
 
 import com.soundcloud.android.model.Track;
+import org.jetbrains.annotations.Nullable;
 
 import android.graphics.Bitmap;
 
@@ -21,5 +22,5 @@ public interface IAudioManager {
 
     void onFocusObtained();
     void onFocusAbandoned();
-    void onTrackChanged(Track track, Bitmap artwork);
+    void onTrackChanged(Track track, @Nullable Bitmap artwork);
 }

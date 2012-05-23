@@ -4,13 +4,13 @@ import static com.soundcloud.android.service.playback.State.*;
 
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.streaming.StreamItem;
 import com.soundcloud.android.streaming.StreamProxy;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
@@ -24,7 +24,6 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
 import com.soundcloud.android.view.PlaybackRemoteViews;
 
 import android.app.Notification;
@@ -35,21 +34,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
@@ -650,6 +645,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     view.clearIcon();
                     ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
                         public void onImageLoaded(Bitmap bitmap, String uri) {
+                            //noinspection ObjectEquality
                             if (mCurrentTrack == track) {
                                 view.setIcon(bitmap);
                                 startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
@@ -1130,6 +1126,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     final MediaPlayer.OnBufferingUpdateListener bufferingListener = new MediaPlayer.OnBufferingUpdateListener() {
         public void onBufferingUpdate(MediaPlayer mp, int percent) {
+            //noinspection ObjectEquality
             if (mMediaPlayer == mp) {
                 if (Log.isLoggable(TAG, Log.DEBUG) && mLoadPercent != percent) {
                     Log.d(TAG, "onBufferingUpdate("+percent+")");
@@ -1144,9 +1141,9 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onSeekComplete(state="+state+")");
             }
-
+            //noinspection ObjectEquality
             if (mMediaPlayer == mp) {
-                // only clear seek if we are not buffering. If we are buffering, it will be cleard after buffering completes
+                // only clear seek if we are not buffering. If we are buffering, it will be cleared after buffering completes
                 if (state != State.PAUSED_FOR_BUFFERING){
                     // keep the last seek time for 3000 ms because getCurrentPosition will be incorrect at first
                     mPlayerHandler.removeMessages(CLEAR_LAST_SEEK);
@@ -1192,6 +1189,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     MediaPlayer.OnPreparedListener preparedlistener = new MediaPlayer.OnPreparedListener() {
         public void onPrepared(MediaPlayer mp) {
+            //noinspection ObjectEquality
             if (mp == mMediaPlayer) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "onPrepared(state="+state+")");
@@ -1229,17 +1227,8 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
         public boolean onError(MediaPlayer mp, int what, int extra) {
             Log.e(TAG, "onError("+what+ ", "+extra+", state="+state+")");
-
+            //noinspection ObjectEquality
             if (mp == mMediaPlayer && state != STOPPED) {
-                final boolean isConnected = IOUtils.isConnected(CloudPlaybackService.this);
-
-                if (isConnected &&
-                        PreferenceManager.getDefaultSharedPreferences(CloudPlaybackService.this).getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false)) {
-                    SoundCloudApplication.handleSilentException("mp error",
-                            new DebugUtils.MediaPlayerException(what, extra,
-                                    ((ConnectivityManager) CloudPlaybackService.this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo()));
-                }
-
                 // when the proxy times out it will just close the connection - different implementations
                 // return different error codes. try to reconnect at least twice before giving up.
                 if (mConnectRetries++ < 4) {
@@ -1248,15 +1237,17 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     openCurrent();
                     return true;
                 } else {
+                    StreamItem item = mCurrentTrack != null ? mProxy.getStreamItem(mCurrentTrack.stream_url) : null;
                     Log.d(TAG, "stream disconnected, giving up");
                     mConnectRetries = 0;
-                }
-                mMediaPlayer.release();
-                mMediaPlayer = null;
+                    DebugUtils.reportMediaPlayerError(CloudPlaybackService.this, item, what, extra);
 
-                gotoIdleState(ERROR);
-                notifyChange(isConnected ? PLAYBACK_ERROR : STREAM_DIED);
-                notifyChange(PLAYBACK_COMPLETE);
+                    mMediaPlayer.release();
+                    mMediaPlayer = null;
+                    gotoIdleState(ERROR);
+                    notifyChange(IOUtils.isConnected(CloudPlaybackService.this) ? PLAYBACK_ERROR : STREAM_DIED);
+                    notifyChange(PLAYBACK_COMPLETE);
+                }
             }
             return true;
         }

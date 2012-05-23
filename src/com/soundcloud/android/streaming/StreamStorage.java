@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -91,7 +92,7 @@ public class StreamStorage {
         }
     }
 
-    public synchronized StreamItem getMetadata(String url) {
+    public synchronized @NotNull StreamItem getMetadata(String url) {
         String hashed = StreamItem.urlHash(url);
         if (!mItems.containsKey(hashed)) {
             mItems.put(hashed, readMetadata(url));
@@ -105,7 +106,6 @@ public class StreamStorage {
 
     public ByteBuffer fetchStoredDataForUrl(String url, Range range) throws IOException {
         StreamItem item = getMetadata(url);
-        if (item == null) throw new FileNotFoundException("stored data not found");
 
         Range actualRange = range;
         if (item.getContentLength() > 0) {
@@ -274,7 +274,7 @@ public class StreamStorage {
         return true;
     }
 
-    private StreamItem readMetadata(String url) {
+    private @NotNull StreamItem readMetadata(String url) {
         File f = incompleteIndexFileForUrl(url);
         if (f.exists()) {
             try {
@@ -315,7 +315,7 @@ public class StreamStorage {
 
     /* package */ ByteBuffer incompleteDataForChunk(String url, int chunkIndex) throws IOException {
         StreamItem item = getMetadata(url);
-        if (item == null || !item.downloadedChunks.contains(chunkIndex)) {
+        if (!item.downloadedChunks.contains(chunkIndex)) {
             throw new FileNotFoundException("download chunk not available");
         }
         int readLength = chunkIndex == item.numberOfChunks(chunkSize) ? (int) item.getContentLength() % chunkSize : chunkSize;

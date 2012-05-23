@@ -54,7 +54,7 @@ public class ItemQueueTest {
     public void shouldNotAddUnavailableItemToQueue() throws Exception {
         ItemQueue q = new ItemQueue();
         StreamItem item = new StreamItem("https://api.soundcloud.com/tracks/12345/stream");
-        item.markUnavailable();
+        item.markUnavailable(404);
         expect(q.addItem(item, Index.create(1))).toBeFalse();
     }
 }

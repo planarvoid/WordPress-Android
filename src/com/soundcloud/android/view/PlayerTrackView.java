@@ -547,6 +547,8 @@ public class PlayerTrackView extends LinearLayout implements
     }
 
     public void handleStatusIntent(Intent intent) {
+
+
         String action = intent.getAction();
         if (action.equals(CloudPlaybackService.PLAYSTATE_CHANGED)) {
 

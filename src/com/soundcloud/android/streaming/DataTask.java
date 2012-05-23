@@ -68,6 +68,7 @@ abstract class DataTask extends StreamItemTask {
                 if (Log.isLoggable(LOG_TAG, Log.DEBUG))
                     Log.d(LOG_TAG, "invalidating redirect url");
                 item.invalidateRedirectUrl();
+                item.setHttpError(status);
                 break;
             // permanent failure
             case HttpStatus.SC_PAYMENT_REQUIRED:
@@ -75,10 +76,11 @@ abstract class DataTask extends StreamItemTask {
             case HttpStatus.SC_GONE:
                 if (Log.isLoggable(LOG_TAG, Log.DEBUG))
                     Log.d(LOG_TAG, "marking item as unavailable");
-                item.markUnavailable();
+                item.markUnavailable(status);
                 break;
 
             default:
+                item.setHttpError(status);
                 throw new IOException("unexpected status code received: " + status);
         }
         return b;

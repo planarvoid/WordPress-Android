@@ -40,6 +40,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -564,7 +565,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
      * @param e      exception, can be null
      * @return       the thread used to submit the msg
      */
-    public static Thread handleSilentException(String msg, Exception e) {
+    public static Thread handleSilentException(@Nullable String msg, Exception e) {
         if (EMULATOR || !DALVIK) return null; // acra is disabled on emulator
         if (msg != null) {
            Log.w(TAG, "silentException: "+msg, e);

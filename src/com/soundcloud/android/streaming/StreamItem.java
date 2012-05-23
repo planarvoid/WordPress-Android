@@ -37,6 +37,7 @@ public class StreamItem implements Parcelable {
     public final long trackId;
 
     private boolean mUnavailable;  // http status 402, 404, 410
+    private int mHttpErrorStatus;
     private long mContentLength;
     private URL mRedirectedUrl;
     private String mEtag;  // audio content ETag
@@ -81,6 +82,7 @@ public class StreamItem implements Parcelable {
         mEtag = s.eTag;
         mExpires = s.expires;
         mBitrate = s.bitRate;
+        mHttpErrorStatus = 0;
         return this;
     }
 
@@ -109,8 +111,17 @@ public class StreamItem implements Parcelable {
                 /* && !isRedirectExpired();  */ // unreliable, don't use
     }
 
-    public void markUnavailable() {
+    public void markUnavailable(int status) {
         mUnavailable = true;
+        setHttpError(status);
+    }
+
+    public void setHttpError(int status) {
+        mHttpErrorStatus = status;
+    }
+
+    public int getHttpError() {
+        return mHttpErrorStatus;
     }
 
     /**
@@ -172,6 +183,7 @@ public class StreamItem implements Parcelable {
         sb.append(", mEtag='").append(mEtag).append('\'');
         sb.append(", mExpires=").append(mExpires == 0 ? "" : new Date(mExpires));
         sb.append(", chunksToDownload=").append(missingChunks);
+        sb.append(", httpStatus=").append(mHttpErrorStatus);
         sb.append(", downloadedChunks=").append(downloadedChunks);
         sb.append('}');
         return sb.toString();

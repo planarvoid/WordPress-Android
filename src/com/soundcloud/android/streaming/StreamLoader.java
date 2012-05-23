@@ -71,10 +71,23 @@ public class StreamLoader {
 
                 if (msg.obj instanceof HeadTask) {
                     HeadTask t = (HeadTask) msg.obj;
+                    mHeadTasks.remove(t.item);
                     if (t.item.isAvailable()) {
                         storage.storeMetadata(t.item);
+                    } else {
+                        // item not available, cancel futures
+                        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
+                            Log.d(LOG_TAG, "canceling load of item "+t.item);
+                        }
+
+                        for (StreamFuture f : new ArrayList<StreamFuture>(mPlayerCallbacks)) {
+                            if (f.item.equals(t.item)) {
+                                if (f.cancel(true)) {
+                                    mPlayerCallbacks.remove(f);
+                                }
+                            }
+                        }
                     }
-                    mHeadTasks.remove(t.item);
                 } else if (msg.obj instanceof DataTask) {
                     DataTask t = (DataTask) msg.obj;
                     if (msg.peekData() == null || !msg.getData().containsKey("success")) {
@@ -183,6 +196,10 @@ public class StreamLoader {
             Log.d(LOG_TAG, "Get data for url " + url + " " + range);
 
         final StreamItem item = mStorage.getMetadata(url);
+
+        // no point trying if item is no longer available
+        if (!item.isAvailable()) throw new IOException("Item is not available");
+
         final Index missing = mStorage.getMissingChunksForItem(url, range.chunkRange(mStorage.chunkSize));
         final StreamFuture pc = new StreamFuture(item, range);
         if (!missing.isEmpty()) {
