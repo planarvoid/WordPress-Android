@@ -172,15 +172,8 @@ public final class Consts {
         String EXCLUSIVE_ONLY_KEY                   = "incoming_exclusive_only";
         String SC_PLAYLIST_URI                      = "sc_playlist_uri";
         String STREAMING_WRITES_SINCE_CLEANUP       = "streamingWritesSinceCleanup";
-        String DEV_HTTP_PROXY                       = "dev.http.proxy";
         String C2DM_DEVICE_URL                      = "c2dm.device_url";
         String C2DM_REG_TO_DELETE                   = "c2dm.to_delete";
-        String DEV_ALARM_CLOCK_ENABLED              = "dev.alarmClock.enabled";
-        String DEV_ALARM_CLOCK_URI                  = "dev.alarmClock.uri";
-        String BETA_CHECK_FOR_UPDATES               = "beta.check_for_updates";
-        String BETA_REQUIRE_WIFI                    = "beta.require_wifi";
-        String BETA_VERSION                         = "beta.beta_version";
-        String LAST_USER_SYNC                       = "lastUserSync";
         String LAST_SYNC_CLEANUP                    = "lastSyncCleanup";
         String NOTIFICATIONS_FOLLOWERS              = "notificationsFollowers";
         String NOTIFICATIONS_WIFI_ONLY              = "notificationsWifiOnly";
@@ -191,7 +184,15 @@ public final class Consts {
         String NOTIFICATIONS_FREQUENCY              = "notificationsFrequency";
         String VERSION_KEY                          = "changeLogVersionCode";
         String DEFAULT_REC_QUALITY                  = "defaultRecordingQuality";
-        String DEV_DEFAULT_REC_HIGH_QUALITY_TYPE    = "dev.defaultRecordingHighQualityType";
         String PLAYBACK_ERROR_REPORTING_ENABLED     = "playbackErrorReportingEnabled";
+        String LAST_USER_SYNC                       = "lastUserSync";
+
+        String DEV_DEFAULT_REC_HIGH_QUALITY_TYPE    = "dev.defaultRecordingHighQualityType";
+        String DEV_HTTP_PROXY                       = "dev.http.proxy";
+        String DEV_ALARM_CLOCK_ENABLED              = "dev.alarmClock.enabled";
+        String DEV_ALARM_CLOCK_URI                  = "dev.alarmClock.uri";
+        String BETA_CHECK_FOR_UPDATES               = "beta.check_for_updates";
+        String BETA_REQUIRE_WIFI                    = "beta.require_wifi";
+        String BETA_VERSION                         = "beta.beta_version";
     }
 }

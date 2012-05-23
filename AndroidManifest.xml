@@ -316,11 +316,10 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".service.playback.CloudPlaybackService$ToggleErrorReportingReceiver">
+        <receiver android:name=".service.playback.ToggleErrorReportingReceiver">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SECRET_CODE"/>
-                <data android:scheme="android_secret_code" android:host="111"/>
-                <!--<data android:scheme="android_secret_code" android:host="*3328372752937*"/>--><!--*DEBUGSCPLAYER*-->
+                <data android:scheme="android_secret_code" android:host="72752933283"/><!--*SCPLAYDEBUG*-->
             </intent-filter>
         </receiver>
 

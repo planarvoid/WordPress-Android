@@ -1278,25 +1278,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             }
         }
     };
-    public static final class ToggleErrorReportingReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (Consts.SECRET_CODE_ACTION.equals(action)) {
-                SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(context);
-                final boolean newValue = !pm.getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false);
-                SharedPreferencesUtils.apply(pm.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, newValue));
-
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, "toggling error reporting (enabled=" + newValue + ")");
-                }
-
-                Toast.makeText(context, context.getString(R.string.playback_error_logging,
-                        newValue ? context.getText(R.string.enabled) : context.getText(R.string.disabled)), Toast.LENGTH_LONG).show();
-            }
-        }
-    };
 
     public void track(Event event, Object... args) {
         getApp().track(event, args);
