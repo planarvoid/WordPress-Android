@@ -12,6 +12,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.TracksByTag;
+import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -512,6 +513,14 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         intent.putExtra(android.content.Intent.EXTRA_TEXT, permalink_url);
 
         return intent;
+    }
+
+    public Uri commitLocally(ContentResolver resolver, TrackCache cache) {
+        System.out.println("committing " + id);
+        last_updated = System.currentTimeMillis();
+        full_track_info_loaded = true;
+        cache.putWithLocalFields(this);
+        return SoundCloudDB.upsertTrack(resolver, this);
     }
 
     public Track updateFrom(Context c, ScModel updatedItem) {

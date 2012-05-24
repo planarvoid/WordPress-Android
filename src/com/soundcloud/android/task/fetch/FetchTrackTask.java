@@ -12,10 +12,7 @@ public class FetchTrackTask extends FetchModelTask<Track> {
     }
 
     protected void updateLocally(ContentResolver resolver, Track track) {
-        track.last_updated = System.currentTimeMillis();
-        track.full_track_info_loaded = true;
-        SoundCloudDB.upsertTrack(resolver, track);
-        SoundCloudApplication.TRACK_CACHE.putWithLocalFields(track);
+        track.commitLocally(resolver,SoundCloudApplication.TRACK_CACHE);
     }
 
     public interface FetchTrackListener extends FetchModelListener<Track> {}

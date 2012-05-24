@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.SoundRecorderService;
@@ -20,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
@@ -210,6 +212,15 @@ public class UploadService extends Service {
                        UPLOAD_ERROR.equals(action) ||
                        UPLOAD_CANCELLED.equals(action)) {
 
+                final long track_id = recording.track_id;
+                if (track_id != -1){
+                    new Poller(createLooper("poller_"+ track_id),
+                            (SoundCloudApplication) getApplication(),
+                            track_id,
+                            Content.ME_TRACKS.uri).start();
+                }
+
+
                 // XXX retry on temp. error?
 
                 mUploads.remove(recording.id);
@@ -374,7 +385,7 @@ public class UploadService extends Service {
         return mWakeLock;
     }
 
-    private static Looper createLooper(String name) {
+    static Looper createLooper(String name) {
         HandlerThread thread = new HandlerThread(name);
         thread.start();
         return thread.getLooper();

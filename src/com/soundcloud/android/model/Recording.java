@@ -83,6 +83,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     // status
     public boolean external_upload;
     public int upload_status;
+    public long track_id = -1;
 
     private Exception mUploadException;
 

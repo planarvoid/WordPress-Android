@@ -1,23 +1,13 @@
 package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.SoundCloudApplication.TRACK_CACHE;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.TracklistItem;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.service.sync.ApiSyncService;
-import com.soundcloud.android.service.sync.SyncAdapterService;
-import com.soundcloud.android.task.PollUploadedTrackTask;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -25,11 +15,9 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.mime.content.FileBody;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -40,7 +28,6 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private SoundCloudApplication app;
     private Recording mUpload;
     private volatile boolean mCanceled;
-
     private LocalBroadcastManager mBroadcastManager;
 
     public Uploader(SoundCloudApplication app, Recording recording) {
@@ -141,11 +128,9 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         String strTrack = null;
         try {
             final Track t = app.getMapper().readValue(response.getEntity().getContent(), Track.class);
+            mUpload.track_id = t.id;
             SoundCloudDB.insertTrack(app.getContentResolver(), t);
             strTrack = t.toString();
-
-            // start polling for state change
-            new PollUploadedTrackTask(app, t.id, Content.ME_TRACKS.uri).execute(Request.to(Endpoints.TRACK_DETAILS, t.id));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -153,12 +138,13 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
         //request to update my collection
         LocalCollection.forceToStale(Content.ME_TRACKS.uri, app.getContentResolver());
-
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + ( strTrack == null ? "<track_parsing_error>" : strTrack ));
 
         mUpload.onUploaded();
         broadcast(UploadService.UPLOAD_SUCCESS);
     }
+
+    ;
 
     private void broadcast(String action) {
         mBroadcastManager.sendBroadcast(new Intent(action)

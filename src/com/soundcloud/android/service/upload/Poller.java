@@ -1,0 +1,92 @@
+package com.soundcloud.android.service.upload;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.api.Endpoints;
+import com.soundcloud.api.Request;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
+
+import java.io.IOException;
+
+public class Poller extends Handler {
+    private static long DEFAULT_MAX_EXECUTION_TIME = 60000; // TODO, how long is too long?
+    private static long DEFAULT_MIN_TIME_BETWEEN_REQUESTS = 5000;
+
+    private SoundCloudApplication mApp;
+    private Request mRequest;
+    private Uri mNotifyUri;
+    private long mCreatedAt;
+
+    private long mMinDelayBetweenRequests;
+    private long mMaxExecutionTime;
+
+    public Poller(Looper looper, SoundCloudApplication app, long trackId, Uri notifyUri) {
+        this(looper, app, trackId, notifyUri, DEFAULT_MIN_TIME_BETWEEN_REQUESTS, DEFAULT_MAX_EXECUTION_TIME);
+    }
+
+    public Poller(Looper looper, SoundCloudApplication app, long trackId, Uri notifyUri, long delayBetweenRequests, long maxExecutionTime) {
+        super(looper);
+        mApp = app;
+        mRequest = Request.to(Endpoints.TRACK_DETAILS, trackId);
+        mNotifyUri = notifyUri;
+        mCreatedAt = System.currentTimeMillis();
+        mMinDelayBetweenRequests = delayBetweenRequests;
+        mMaxExecutionTime = maxExecutionTime;
+    }
+
+    public void start() {
+        sendEmptyMessage(0);
+    }
+
+    @Override
+    public void handleMessage(Message msg) {
+        Track track = null;
+        final long start = System.currentTimeMillis();
+        try {
+            HttpResponse resp = mApp.get(mRequest);
+            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                track = mApp.getMapper().readValue(resp.getEntity().getContent(), Track.class);
+            } else {
+                Log.w(TAG, "unexpected response " + resp.getStatusLine());
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "error", e);
+        }
+
+        if ((track == null || track.state.isProcessing()) && System.currentTimeMillis() - mCreatedAt < mMaxExecutionTime) {
+            sendEmptyMessageDelayed(0, Math.max(0, mMinDelayBetweenRequests - (System.currentTimeMillis() - start)));
+        } else {
+            if (track != null && !track.state.isProcessing()) {
+                onTrackProcessed(track);
+            } else {
+                Log.e(SoundCloudApplication.TAG, "Track failed to be prepared " + track +
+                        (track != null && track.state != null ? ", [state: " + track.state.value() + "]" : ""));
+            }
+            Poller.this.getLooper().quit();
+        }
+    }
+
+
+    private void onTrackProcessed(Track track) {
+        // local storage should reflect full track info
+        track.commitLocally(mApp.getContentResolver(), SoundCloudApplication.TRACK_CACHE);
+
+        // this will tell any observers to update their UIs to the up to date track
+        if (mNotifyUri != null) mApp.getContentResolver().notifyChange(mNotifyUri, null, false);
+
+        if (Log.isLoggable(SoundCloudApplication.TAG, Log.DEBUG)) {
+            Log.i(SoundCloudApplication.TAG, "Track succesfully prepared by the api: " + track);
+        }
+    }
+}
