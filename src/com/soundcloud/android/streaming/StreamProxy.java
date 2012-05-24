@@ -209,15 +209,23 @@ public class StreamProxy implements Runnable {
     }
 
     private long firstRequestedByte(HttpRequest request) {
-        long startByte = 0;
         Header range = request.getFirstHeader("Range");
-        if (range != null && range.getValue() != null) {
-            Matcher m = Pattern.compile("bytes=(\\d+)-").matcher(range.getValue());
+        if (range != null) {
+            return firstRequestedByte(range.getValue());
+        } else {
+            return 0;
+        }
+    }
+
+    /* package */ static long firstRequestedByte(String range) {
+        long startByte = 0;
+        if (!TextUtils.isEmpty(range)) {
+            Matcher m = Pattern.compile("bytes=(-?\\d+)-?(\\d+)?(?:,.*)?").matcher(range);
             if (m.matches()) {
                 startByte = Long.parseLong(m.group(1));
             }
         }
-        return startByte;
+        return startByte < 0 ? 0 : startByte; // we don't support final byte ranges (-100)
     }
 
     private void processRequest(HttpGet request, Socket client) {
@@ -234,6 +242,8 @@ public class StreamProxy implements Runnable {
             if (streamUrl == null) throw new IOException("missing stream url parameter");
 
             final long startByte = firstRequestedByte(request);
+
+            Log.d(LOG_TAG, "start: " +startByte);
             final SocketChannel channel = client.getChannel();
             Map<String, String> headers = headerMap();
 
