@@ -242,8 +242,6 @@ public class StreamProxy implements Runnable {
             if (streamUrl == null) throw new IOException("missing stream url parameter");
 
             final long startByte = firstRequestedByte(request);
-
-            Log.d(LOG_TAG, "start: " +startByte);
             final SocketChannel channel = client.getChannel();
             Map<String, String> headers = headerMap();
 
