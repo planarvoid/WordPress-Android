@@ -10,3 +10,6 @@
 [submodule "tests-integration/assets"]
 	path = tests-integration/assets
 	url = git@github.com:soundcloud/sc-android-tests-integration-assets.git
+[submodule "android-cropimage"]
+	path = android-cropimage
+	url = git@github.com:soundcloud/android-cropimage.git
