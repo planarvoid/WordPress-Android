@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.2.9-BETA2"
+      android:versionName="2.2.9"
       android:installLocation="internalOnly"
       android:versionCode="44">
 
@@ -321,7 +321,7 @@
             <intent-filter>
                 <action android:name="android.provider.Telephony.SECRET_CODE"/>
                 <!-- *#*#SCPLAYDEBUG#*#* -->
-                <data android:scheme="android_secret_code" android:host="72752933284"/>
+                <data android:scheme="android_secret_code" android:host="12345"/>
             </intent-filter>
         </receiver>
 
