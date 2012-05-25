@@ -21,6 +21,7 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                ScContentProvider
                ApiSyncService
                ATTracker
+               SoundCloudApplication
               )
 
 [:device, :emu].each do |t|
