@@ -325,6 +325,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".provider.ScContentProvider$TrackUnavailableListener">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.trackunavailable"/>
+            </intent-filter>
+        </receiver>
+
         <meta-data android:name="android.app.default_searchable"
                    android:value=".activity.Main"/>
     </application>

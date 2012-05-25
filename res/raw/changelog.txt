@@ -3,6 +3,8 @@ $ 44
   _ tbd
   ! Sync Fix
     * Fixed sync battery usage, part 2
+    - Xperia Range fix
+    - Better handling of tracks which are no longer available
 
 $ 43
   % v 2.2.8

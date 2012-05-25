@@ -5,14 +5,18 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.SQLException;
@@ -801,6 +805,25 @@ public class ScContentProvider extends ContentProvider {
     private static void log(String message) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, message);
+        }
+    }
+
+    /**
+     * Handles deletion of tracks which are no longer available (have been marked private / deleted).
+     */
+    public static class TrackUnavailableListener extends BroadcastReceiver {
+        @Override
+        public void onReceive(final Context context, Intent intent) {
+            final long id = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, 0);
+            if (id > 0) {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        Log.d(TAG, "deleting unavailable track "+id);
+                        context.getContentResolver().delete(Content.TRACK.forId(id), null, null);
+                    }
+                }.start();
+            }
         }
     }
 }
