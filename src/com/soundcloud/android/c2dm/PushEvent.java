@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.soundcloud.android.view.UserlistRow;
+import org.jetbrains.annotations.NotNull;
 
 public enum PushEvent {
     LIKE("like"),
@@ -20,11 +21,11 @@ public enum PushEvent {
         this.type = type;
     }
 
-    public static PushEvent fromIntent(Intent intent) {
+    public static @NotNull PushEvent fromIntent(Intent intent) {
         return intent == null ? NULL : fromExtras(intent.getExtras());
     }
 
-    public static PushEvent fromExtras(Bundle extras) {
+    public static @NotNull PushEvent fromExtras(Bundle extras) {
         if (extras == null) return NULL;
 
         String type = extras.getString(C2DMReceiver.SC_EXTRA_EVENT_TYPE);
