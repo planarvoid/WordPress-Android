@@ -350,7 +350,7 @@ public class ApiSyncServiceTest {
         expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
 
         addCannedResponse(SyncAdapterServiceTest.class,
-                "/me/activities/tracks?uuid%5Bto%5D=future-href-incoming-1&limit=20",
+                "https://api.soundcloud.com/me/activities/tracks?uuid%5Bto%5D=future-href-incoming-1&limit=100",
                 "empty_events.json");
 
         // next sync request should go this url

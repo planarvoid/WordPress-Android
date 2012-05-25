@@ -20,6 +20,7 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -36,7 +37,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -135,14 +135,14 @@ public class ApiSyncer {
             }
         } else {
             String future_href = LocalCollection.getExtraFromUri(uri, mResolver);
-            Request request = c.request();
-            // this is a hack because of the api returning future hrefs to the wrong endpoints
-            if (future_href != null){
-                for (Map.Entry<String,String> entry : Request.to(future_href).getParams().entrySet()){
-                    request.add(entry.getKey(),entry.getValue());
-                }
-            }
+            Request request = future_href == null ? c.request() : Request.to(future_href);
             activities = Activities.fetchRecent(mApi, request, MINIMUM_LOCAL_ITEMS_STORED);
+
+            if (activities.hasMore()) {
+                // delete all activities to avoid gaps in the data
+                mResolver.delete(c.uri, null, null);
+            }
+
             inserted = activities.insert(c, mResolver);
             result.setSyncData(System.currentTimeMillis(), activities.size(), activities.future_href);
         }
@@ -380,7 +380,7 @@ public class ApiSyncer {
             this.uri = uri;
         }
 
-        public void setSyncData(long synced_at, int new_size, String extra){
+        public void setSyncData(long synced_at, int new_size, @Nullable String extra){
             this.synced_at = synced_at;
             this.new_size = new_size;
             this.extra = extra;

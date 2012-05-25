@@ -10,6 +10,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.SyncAdapterServiceTest;
 import com.xtremelabs.robolectric.Robolectric;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -143,6 +144,12 @@ public class ActivitiesTest {
     }
 
     @Test
+    public void testMergeWithEmpty() throws Exception {
+        Activities a1 = Activities.fromJSON(getClass().getResourceAsStream("activities_1.json"));
+        expect(a1.merge(Activities.EMPTY)).toBe(a1);
+    }
+
+    @Test
     public void testFilter() throws Exception {
         Activities a2 = Activities.fromJSON(getClass().getResourceAsStream("activities_2.json"));
         Date start = fromString("2011/07/29 15:36:44 +0000");
@@ -165,9 +172,10 @@ public class ActivitiesTest {
                 "incoming_1.json",
                 "incoming_2.json");
 
-        Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), -1);
+        Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 100);
         expect(a.size()).toEqual(100);
         expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
+        expect(a.hasMore()).toBeFalse();
     }
 
     @Test
@@ -175,9 +183,10 @@ public class ActivitiesTest {
         TestHelper.addCannedResponses(SyncAdapterServiceTest.class,
                 "incoming_1.json");
 
-        Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 20);
-        expect(a.size()).toEqual(20);
+        Activities a = Activities.fetchRecent(DefaultTestRunner.application, Content.ME_SOUND_STREAM.request(), 50);
+        expect(a.size()).toEqual(50);
         expect(a.future_href).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
+        expect(a.hasMore()).toBeTrue();
     }
 
     @Test
@@ -368,7 +377,7 @@ public class ActivitiesTest {
         expect(a.getFirstAvailableAvatar()).toEqual(avatar_1);
 
         a = new Activities();
-        a.add(makeActivity(makeTrack(null,null)));
+        a.add(makeActivity(makeTrack(null, null)));
         a.add(makeActivity(makeTrack(makeUser(avatar_2),null)));
         expect(a.getFirstAvailableArtwork()).toEqual(avatar_2);
         expect(a.getFirstAvailableAvatar()).toEqual(avatar_2);
@@ -394,7 +403,7 @@ public class ActivitiesTest {
         return a;
     }
 
-    private Track makeTrack(User u, String artworkUrl){
+    private Track makeTrack(@Nullable User u, @Nullable String artworkUrl){
         Track t = new Track();
         t.artwork_url = artworkUrl;
         t.user = u;

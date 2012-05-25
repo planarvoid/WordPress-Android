@@ -384,13 +384,12 @@ public class ScContentProvider extends ContentProvider {
                         : where + " AND " + DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment();
                 break;
             case ME_ALL_ACTIVITIES:
+                break;
             case ME_ACTIVITIES:
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
-                if (content != Content.ME_ALL_ACTIVITIES) {
-                    where = DBHelper.Activities.CONTENT_ID+"= ?";
-                    whereArgs = new String[] {String.valueOf(content.id) };
-                }
+                where = DBHelper.Activities.CONTENT_ID+"= ?";
+                whereArgs = new String[] {String.valueOf(content.id) };
                 break;
             case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
