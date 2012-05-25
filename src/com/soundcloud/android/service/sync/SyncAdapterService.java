@@ -164,7 +164,7 @@ public class SyncAdapterService extends Service {
                 }
                 break;
 
-            case NULL:
+            case NONE:
                 final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
                 final ArrayList<Uri> urisToSync = new ArrayList<Uri>();
                 if (SyncConfig.shouldUpdateDashboard(app)) {

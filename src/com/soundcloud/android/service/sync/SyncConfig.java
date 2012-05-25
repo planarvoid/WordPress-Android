@@ -33,21 +33,21 @@ public class SyncConfig {
         PushEvent evt = PushEvent.fromExtras(extras);
         return PreferenceManager
                 .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true) && evt == PushEvent.NULL;
+                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true) && evt == PushEvent.NONE;
     }
 
     public static boolean isExclusiveEnabled(Context c, Bundle extras) {
         PushEvent evt = PushEvent.fromExtras(extras);
         return PreferenceManager
                 .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_EXCLUSIVE, true) && evt == PushEvent.NULL;
+                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_EXCLUSIVE, true) && evt == PushEvent.NONE;
     }
 
     public static boolean isLikeEnabled(Context c, Bundle extras) {
         PushEvent evt = PushEvent.fromExtras(extras);
         return PreferenceManager
                 .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_FAVORITINGS, true) && (evt == PushEvent.NULL || evt == PushEvent.LIKE);
+                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_FAVORITINGS, true) && (evt == PushEvent.NONE || evt == PushEvent.LIKE);
     }
 
     public static boolean isActivitySyncEnabled(Context c, Bundle extras) {
@@ -58,7 +58,7 @@ public class SyncConfig {
         PushEvent evt = PushEvent.fromExtras(extras);
         return PreferenceManager
                 .getDefaultSharedPreferences(c)
-                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_COMMENTS, true) && (evt == PushEvent.NULL || evt == PushEvent.COMMENT);
+                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_COMMENTS, true) && (evt == PushEvent.NONE || evt == PushEvent.COMMENT);
     }
 
     public static boolean isSyncWifiOnlyEnabled(Context c) {

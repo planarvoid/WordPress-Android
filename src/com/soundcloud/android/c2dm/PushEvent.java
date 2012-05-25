@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import com.soundcloud.android.service.sync.SyncAdapterService;
-import com.soundcloud.android.view.UserlistRow;
 import org.jetbrains.annotations.NotNull;
 
 public enum PushEvent {
@@ -13,7 +12,7 @@ public enum PushEvent {
     FOLLOWER("follower"),
     COMMENT("comment"),
     UNKNOWN("unknown"),
-    NULL(null);
+    NONE(null);
 
     public final String type;
 
@@ -22,11 +21,11 @@ public enum PushEvent {
     }
 
     public static @NotNull PushEvent fromIntent(Intent intent) {
-        return intent == null ? NULL : fromExtras(intent.getExtras());
+        return intent == null ? NONE : fromExtras(intent.getExtras());
     }
 
     public static @NotNull PushEvent fromExtras(Bundle extras) {
-        if (extras == null) return NULL;
+        if (extras == null) return NONE;
 
         String type = extras.getString(C2DMReceiver.SC_EXTRA_EVENT_TYPE);
         if (type == null) type = extras.getString(SyncAdapterService.EXTRA_PUSH_EVENT);
@@ -38,7 +37,7 @@ public enum PushEvent {
             }
             return UNKNOWN;
         } else {
-            return NULL;
+            return NONE;
         }
     }
 
