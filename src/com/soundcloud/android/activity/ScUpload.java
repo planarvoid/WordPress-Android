@@ -52,7 +52,7 @@ public class ScUpload extends ScActivity {
 
         final Intent intent = getIntent();
         if (intent != null && (mRecording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId())) != null) {
-            setContentView(mRecording.is_private ? R.layout.sc_message_upload : R.layout.sc_upload);
+            setContentView(mRecording.isPrivateMessage() ? R.layout.sc_message_upload : R.layout.sc_upload);
 
             mRecordingMetadata.setRecording(mRecording);
             if (mRecording.external_upload) {
@@ -104,9 +104,9 @@ public class ScUpload extends ScActivity {
                     finish();
                 }
             }
-        }), getString((mRecording.is_private) ? R.string.private_message_btn_send : R.string.upload_and_share));
+        }), getString((mRecording.isPrivateMessage()) ? R.string.private_message_btn_send : R.string.upload_and_share));
 
-        if (mRecording.is_private) {
+        if (mRecording.isPrivateMessage()) {
             ((TextView) findViewById(R.id.txt_private_message_upload_message))
                             .setText(getString(R.string.private_message_upload_message, mRecording.recipient_username));
         } else {
@@ -170,7 +170,7 @@ public class ScUpload extends ScActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mRecording.is_private) {
+        if (!mRecording.isPrivateMessage()) {
             mConnectionList.getAdapter().loadIfNecessary();
         }
         track(getClass(), getApp().getLoggedInUser());
@@ -217,7 +217,7 @@ public class ScUpload extends ScActivity {
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-        if (!mRecording.is_private) {
+        if (!mRecording.isPrivateMessage()) {
             state.putInt("createPrivacyValue", mRdoPrivacy.getCheckedRadioButtonId());
         }
         mRecordingMetadata.onSaveInstanceState(state);
@@ -226,7 +226,7 @@ public class ScUpload extends ScActivity {
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
-        if (!mRecording.is_private) {
+        if (!mRecording.isPrivateMessage()) {
             if (state.getInt("createPrivacyValue") == R.id.rdo_private) {
                 mRdoPrivate.setChecked(true);
             } else {
@@ -247,7 +247,7 @@ public class ScUpload extends ScActivity {
 
     private void mapFromRecording(final Recording recording) {
         mRecordingMetadata.mapFromRecording(recording);
-        if (!mRecording.is_private) {
+        if (!mRecording.isPrivateMessage()) {
             if (!TextUtils.isEmpty(recording.shared_emails)) setPrivateShareEmails(recording.shared_emails.split(","));
             if (recording.is_private) {
                 mRdoPrivate.setChecked(true);
@@ -259,7 +259,7 @@ public class ScUpload extends ScActivity {
 
     private void mapToRecording(final Recording recording) {
         mRecordingMetadata.mapToRecording(recording);
-        if (!mRecording.is_private) {
+        if (!mRecording.isPrivateMessage()) {
             recording.is_private = mRdoPrivacy.getCheckedRadioButtonId() == R.id.rdo_private;
             if (!recording.is_private) {
                 if (mConnectionList.postToServiceIds() != null) {

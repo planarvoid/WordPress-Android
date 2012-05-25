@@ -512,6 +512,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return resized_artwork_path != null && resized_artwork_path.exists() ? resized_artwork_path : artwork_path;
     }
 
+    public boolean isPrivateMessage() {
+        return recipient_user_id > 0;
+    }
 
     public long getPrivateUserId() {
         return getUserIdFromFile(audio_path);
