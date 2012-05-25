@@ -1,6 +1,6 @@
 $ 44
   % v current
-  _ tbd
+  _ 2012-05-25
   ! Maintentance
     * Streaming & battery usage fixes
     - Xperia Range fix
