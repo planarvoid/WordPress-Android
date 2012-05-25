@@ -3,7 +3,9 @@ package com.soundcloud.android.service.upload;
 import static com.soundcloud.android.Consts.Notifications.UPLOADED_NOTIFY_ID;
 import static com.soundcloud.android.Consts.Notifications.UPLOADING_NOTIFY_ID;
 
+import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
@@ -12,6 +14,8 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.SoundRecorderService;
+import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ImageUtils;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -21,7 +25,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
@@ -34,6 +38,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -254,7 +259,7 @@ public class UploadService extends Service {
     };
 
     private void notifyProgress(int progress, int resId) {
-        mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, progress, false);
+        mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, progress, progress == 0 ? true : false); // just show indeterminate for 0 progress, looks better for quick uploads
         mUploadNotificationView.setTextViewText(R.id.percentage, getString(resId, progress));
         nm.notify(UPLOADING_NOTIFY_ID, mUploadNotification);
     }
@@ -301,10 +306,21 @@ public class UploadService extends Service {
 
 
     private Notification showUploadingNotification(Recording recording) {
-        mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.create_service_status_upload);
-        mUploadNotificationView.setTextViewText(R.id.message, "");
-        mUploadNotificationView.setTextViewText(R.id.percentage, "0");
+        mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.upload_status);
+        mUploadNotificationView.setTextViewText(R.id.time, CloudUtils.getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
+        mUploadNotificationView.setTextViewText(R.id.message, recording.title);
+        mUploadNotificationView.setTextViewText(R.id.percentage, "");
         mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
+
+
+        if (Consts.SdkSwitches.useRichNotifications && recording.hasArtwork()){
+            Bitmap b = ImageUtils.getConfiguredBitmap(recording.artwork_path,
+                    (int) getResources().getDimension(R.dimen.notification_image_width),
+                    (int) getResources().getDimension(R.dimen.notification_image_height));
+            if (b != null){
+                mUploadNotificationView.setImageViewBitmap(R.id.icon,b);
+            }
+        }
 
         mUploadNotification = SoundRecorderService.createOngoingNotification(
                 getString(R.string.cloud_uploader_notification_ticker),

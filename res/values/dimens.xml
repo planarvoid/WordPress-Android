@@ -2,6 +2,9 @@
 <resources>
     <dimen name="tab_text_size">12sp</dimen>
 
+    <dimen name="notification_image_width">65dip</dimen>
+    <dimen name="notification_image_height">65dip</dimen>
+
     <dimen name="list_icon_width">47dip</dimen>
     <dimen name="list_icon_height">47dip</dimen>
     <dimen name="list_icon_margin_left">5dip</dimen>

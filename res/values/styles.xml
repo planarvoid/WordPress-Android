@@ -9,6 +9,13 @@
         <item name="android:windowExitAnimation">@anim/add_comment_exit</item>
     </style>
 
+    <style name="notification_progress_bar" parent="@android:style/Widget.ProgressBar.Horizontal">
+        <item name="android:minHeight">3dp</item>
+        <item name="android:maxHeight">3dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+     </style>
+
     <style name="auth_input">
         <item name="android:textColor">#ffffffff</item>
         <item name="android:textSize">14sp</item>

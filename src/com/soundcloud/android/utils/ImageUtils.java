@@ -140,6 +140,46 @@ public final class ImageUtils {
         return BitmapFactory.decodeStream(input);
     }
 
+    public static Bitmap getConfiguredBitmap(File imageFile, int minWidth, int minHeight) {
+        Bitmap bitmap;
+        try {
+            BitmapFactory.Options opt = determineResizeOptions(imageFile, minWidth, minHeight, false);
+
+            BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
+            sampleOpt.inSampleSize = opt.inSampleSize;
+
+            bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), sampleOpt);
+
+            Matrix m = new Matrix();
+            float scale;
+            float dx = 0, dy = 0;
+
+            // assumes height and width are the same
+            if (bitmap.getWidth() > bitmap.getHeight()) {
+                scale = (float) minHeight / (float) bitmap.getHeight();
+                dx = (minWidth - bitmap.getWidth() * scale) * 0.5f;
+            } else {
+                scale = (float) minWidth / (float) bitmap.getWidth();
+                dy = (minHeight - bitmap.getHeight() * scale) * 0.5f;
+            }
+
+            m.setScale(scale, scale);
+            m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
+            int exifRotation = getExifRotation(imageFile.getAbsolutePath());
+            if (exifRotation != 0) {
+                m.postRotate(exifRotation, minWidth / 2, minHeight / 2);
+            }
+
+            return (m.isIdentity()) ? bitmap : Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
+
+        } catch (IOException e) {
+            Log.e(TAG, "error", e);
+        } catch (OutOfMemoryError e) {
+            Log.e(TAG, "error", e);
+        }
+        return null;
+    }
+
     public static boolean setImage(File imageFile, ImageView imageView, int viewWidth, int viewHeight) {
         Bitmap bitmap;
         try {
@@ -181,6 +221,48 @@ public final class ImageUtils {
             return false;
         }
     }
+
+    public static boolean setImageRemoteView(File imageFile, ImageView imageView, int viewWidth, int viewHeight) {
+            Bitmap bitmap;
+            try {
+                BitmapFactory.Options opt = determineResizeOptions(imageFile, viewWidth, viewHeight, false);
+
+                BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
+                sampleOpt.inSampleSize = opt.inSampleSize;
+
+                bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), sampleOpt);
+
+                Matrix m = new Matrix();
+                float scale;
+                float dx = 0, dy = 0;
+
+                // assumes height and width are the same
+                if (bitmap.getWidth() > bitmap.getHeight()) {
+                    scale = (float) viewHeight / (float) bitmap.getHeight();
+                    dx = (viewWidth - bitmap.getWidth() * scale) * 0.5f;
+                } else {
+                    scale = (float) viewWidth / (float) bitmap.getWidth();
+                    dy = (viewHeight - bitmap.getHeight() * scale) * 0.5f;
+                }
+
+                m.setScale(scale, scale);
+                m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
+                int exifRotation = getExifRotation(imageFile.getAbsolutePath());
+                if (exifRotation != 0) {
+                    m.postRotate(exifRotation, viewWidth / 2, viewHeight / 2);
+                }
+
+                imageView.setScaleType(ImageView.ScaleType.MATRIX);
+                imageView.setImageMatrix(m);
+
+                imageView.setImageBitmap(bitmap);
+                imageView.setVisibility(View.VISIBLE);
+                return true;
+            } catch (IOException e) {
+                Log.e(TAG, "error", e);
+                return false;
+            }
+        }
 
     public static boolean resizeImageFile(File inputFile, File outputFile, int width, int height) throws IOException {
         BitmapFactory.Options options = determineResizeOptions(inputFile, width, height, false);

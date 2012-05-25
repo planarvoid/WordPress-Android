@@ -26,12 +26,15 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Display;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -332,5 +335,11 @@ public final class CloudUtils {
 
     public static String removeFileExtension(String str){
         return str.contains(".") ? str.substring(0, str.lastIndexOf(".")) : str;
+    }
+
+    public static CharSequence getFormattedNotificationTimestamp(Context context, long when) {
+        final Date date = new Date(when);
+        return DateUtils.isToday(when) ? DateFormat.getTimeFormat(context).format(date)
+            : DateFormat.getDateFormat(context).format(date);
     }
 }
