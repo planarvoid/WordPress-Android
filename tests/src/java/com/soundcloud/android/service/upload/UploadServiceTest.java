@@ -116,22 +116,6 @@ public class UploadServiceTest {
     }
 
     @Test
-    public void shouldResizeArtworkIfSpecified() throws Exception {
-        // cannot test this - just to execute code path
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
-        final Recording upload = TestApplication.getValidRecording();
-        upload.artwork_path = File.createTempFile("some_artwork", ".png");
-
-        svc.onUpload(upload);
-
-        expect(upload.isUploaded()).toBeTrue();
-        expect(upload.resized_artwork_path).toEqual(upload.artwork_path);
-
-        Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), upload.toUri());
-        expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
-    }
-
-    @Test
     public void shouldHoldWifiAndWakelockDuringUpload() throws Exception {
         Recording recording = TestApplication.getValidRecording();
 

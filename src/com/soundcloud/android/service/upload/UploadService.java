@@ -115,14 +115,10 @@ public class UploadService extends Service {
         @Override
         public void handleMessage(Message msg) {
             Recording recording = (Recording) msg.obj;
-            if (recording.hasArtwork() && recording.resized_artwork_path == null) {
-                post(new ImageResizer(UploadService.this, recording));
+            if (!recording.getEncodedFile().exists()) {
+                mEncodingHandler.post(new Encoder(UploadService.this, recording));
             } else {
-                if (!recording.getEncodedFile().exists()) {
-                    mEncodingHandler.post(new Encoder(UploadService.this, recording));
-                } else {
-                    post(new Uploader((SoundCloudApplication) getApplication(), recording));
-                }
+                post(new Uploader((SoundCloudApplication) getApplication(), recording));
             }
         }
     }

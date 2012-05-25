@@ -66,7 +66,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         if (toUpload.length() == 0) throw new IllegalArgumentException("File to be uploaded is empty");
 
         final FileBody soundBody = new FileBody(toUpload);
-        final FileBody artworkBody = mUpload.hasArtwork() ? new FileBody(mUpload.getArtwork()) : null;
+        final FileBody artworkBody = mUpload.hasArtwork() ? new FileBody(mUpload.artwork_path) : null;
 
         final long totalTransfer = soundBody.getContentLength() + (artworkBody == null ? 0 : artworkBody.getContentLength());
 

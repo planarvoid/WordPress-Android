@@ -219,8 +219,6 @@ public class RecordingTest {
         r.shared_ids = "1,2,3,4";
         r.upload_status = Recording.Status.NOT_YET_UPLOADED;
         r.artwork_path = r.getFile();
-        r.resized_artwork_path = r.artwork_path;
-
         return r;
     }
 
@@ -307,7 +305,6 @@ public class RecordingTest {
         expect(r.getFile()).toEqual(r2.getFile());
         expect(r.getEncodedFile()).toEqual(r2.getEncodedFile());
         expect(r.artwork_path).toEqual(r2.artwork_path);
-        expect(r.resized_artwork_path).toEqual(r2.resized_artwork_path);
         expect(r.four_square_venue_id).toEqual(r2.four_square_venue_id);
         expect(r.shared_emails).toEqual(r2.shared_emails);
         expect(r.shared_ids).toEqual(r2.shared_ids);
@@ -328,11 +325,9 @@ public class RecordingTest {
     public void shouldGetArtwork() throws Exception {
         Recording r = createRecording();
         expect(r.hasArtwork()).toBeTrue();
-        expect(r.getArtwork()).toBe(r.artwork_path);
-        r.resized_artwork_path = File.createTempFile("resized-artwork", "png");
-        expect(r.getArtwork()).toBe(r.resized_artwork_path);
+        expect(r.artwork_path).toBe(r.artwork_path);
 
-        r.artwork_path = r.resized_artwork_path = null;
+        r.artwork_path = null;
         expect(r.hasArtwork()).toBeFalse();
     }
 
