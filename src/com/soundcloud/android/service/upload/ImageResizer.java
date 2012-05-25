@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class ImageResizer implements Runnable {
-    private static final int RECOMMENDED_SIZE = 800;
     private final Recording recording;
     private Context context;
     private LocalBroadcastManager mBroadcastManager;
@@ -41,7 +40,7 @@ public class ImageResizer implements Runnable {
             broadcast(UploadService.RESIZE_STARTED);
             File resized = IOUtils.getCacheFile(context, "upload_tmp_"+recording.id+".jpg");
             final long start = System.currentTimeMillis();
-            if (ImageUtils.resizeImageFile(recording.artwork_path, resized, RECOMMENDED_SIZE, RECOMMENDED_SIZE)) {
+            if (ImageUtils.resizeImageFile(recording.artwork_path, resized, Recording.RECOMMENDED_IMAGE_SIZE, Recording.RECOMMENDED_IMAGE_SIZE)) {
                 recording.resized_artwork_path = resized;
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, String.format("resized %s => %s  in %d ms", recording.artwork_path, recording.resized_artwork_path,

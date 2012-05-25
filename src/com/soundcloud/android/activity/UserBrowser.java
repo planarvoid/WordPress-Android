@@ -21,7 +21,6 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
-import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.EventAware;
@@ -790,7 +789,7 @@ public class UserBrowser extends ScListActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
-            case Connect.MAKE_CONNECTION:
+            case Consts.RequestCodes.MAKE_CONNECTION:
                 if (resultCode == RESULT_OK) {
                     boolean success = result.getBooleanExtra("success", false);
                     String msg = getString(

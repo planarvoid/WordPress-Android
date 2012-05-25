@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScListActivity;
@@ -155,7 +156,7 @@ public class SuggestedUsers extends ScListActivity implements SectionedEndlessAd
                             (new Intent(SuggestedUsers.this, Connect.class))
                                     .putExtra("service", Connection.Service.Facebook.name())
                                     .setData(uri),
-                            Connect.MAKE_CONNECTION);
+                            Consts.RequestCodes.MAKE_CONNECTION);
                 } else {
                     showToast(R.string.new_connection_error);
                 }
@@ -166,7 +167,7 @@ public class SuggestedUsers extends ScListActivity implements SectionedEndlessAd
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
-            case Connect.MAKE_CONNECTION:
+            case Consts.RequestCodes.MAKE_CONNECTION:
                 if (resultCode == RESULT_OK) {
                     boolean success = result.getBooleanExtra("success", false);
                     String msg = getString(

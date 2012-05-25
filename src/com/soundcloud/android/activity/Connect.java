@@ -23,7 +23,6 @@ import android.webkit.WebViewClient;
 
 @SuppressLint("NewApi")
 public class Connect extends Activity {
-    public static final int MAKE_CONNECTION = 1000;
 
     private WebView mWebView;
 

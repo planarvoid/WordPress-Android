@@ -31,7 +31,7 @@ public class RecordingMetaData extends RelativeLayout {
 
     private Activity mActivity;
     private Recording mRecording;
-    private File mImageDir, mArtworkFile;
+    private File mArtworkFile;
 
     private EditText mWhatText;
     private TextView mWhereText;
@@ -66,8 +66,7 @@ public class RecordingMetaData extends RelativeLayout {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.metadata, this);
 
-        mImageDir = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
-        IOUtils.mkdirs(mImageDir);
+        IOUtils.mkdirs(Recording.IMAGE_DIR);
 
         mArtwork = (ImageView) findViewById(R.id.artwork);
         mWhatText = (EditText) findViewById(R.id.what);
@@ -94,7 +93,7 @@ public class RecordingMetaData extends RelativeLayout {
                   intent.putParcelableArrayListExtra("venues", mVenues);
                   intent.putExtra("location", mLocation);
                 }
-                mActivity.startActivityForResult(intent, LocationPicker.PICK_VENUE);
+                mActivity.startActivityForResult(intent, Consts.RequestCodes.PICK_VENUE);
             }
         });
 
@@ -237,7 +236,7 @@ public class RecordingMetaData extends RelativeLayout {
     }
 
     public File getCurrentImageFile() {
-        return (mRecording == null) ? null : mRecording.generateImageFile(mImageDir);
+        return (mRecording == null) ? null : mRecording.generateImageFile(Recording.IMAGE_DIR);
     }
 
     public void setDefaultImage() {

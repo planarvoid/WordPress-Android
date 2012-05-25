@@ -38,6 +38,15 @@ public final class Consts {
     public static final int ROW_APPEND_BUFFER = 6;
     public static final int ITEM_TYPE_LOADING = -1;
 
+    public static interface RequestCodes {
+        int GALLERY_IMAGE_PICK  = 9000;
+        int GALLERY_IMAGE_TAKE  = 9001;
+        int PICK_EMAILS         = 9002;
+        int PICK_VENUE          = 9003;
+        int MAKE_CONNECTION     = 9004;
+        int IMAGE_CROP          = 9005;
+    }
+
     public static interface SdkSwitches {
         boolean useRichNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         boolean canDetermineActivityBackground = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;

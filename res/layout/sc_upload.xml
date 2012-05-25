@@ -119,8 +119,6 @@
         </RelativeLayout>
     </ScrollView>
     <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
-                                                   android:layout_width="fill_parent"
-                                                   android:layout_height="60dp"
                                                    style="@style/rec_button_bar"
                                                    app:button_background="@drawable/btn_transparent_bg_states"
                                                    app:separator_color="@color/recButtonBarSeparator"/>

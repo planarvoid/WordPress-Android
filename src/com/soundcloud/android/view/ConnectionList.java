@@ -1,6 +1,7 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.cache.Connections;
@@ -175,7 +176,7 @@ public class ConnectionList extends LinearLayout {
                                         (new Intent(parent.getContext(), Connect.class))
                                                 .putExtra("service", service.name())
                                                 .setData(uri),
-                                        Connect.MAKE_CONNECTION);
+                                        Consts.RequestCodes.MAKE_CONNECTION);
                             } else {
                                 Toast toast = Toast.makeText(parent.getContext(),
                                         parent.getResources().getString(R.string.new_connection_error),

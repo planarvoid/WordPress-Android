@@ -2,6 +2,7 @@
 package com.soundcloud.android.model;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.provider.Content;
@@ -48,6 +49,10 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 public class Recording extends ScModel implements Comparable<Recording> {
+
+    public static final int RECOMMENDED_IMAGE_SIZE = 2048;
+    public static final File IMAGE_DIR = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
+
     // basic properties
     public long user_id;
 

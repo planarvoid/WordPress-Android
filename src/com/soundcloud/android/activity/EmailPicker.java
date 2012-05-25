@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class EmailPicker extends ListActivity {
-    public static final int PICK_EMAILS = 9002;
     public static final String BUNDLE_KEY = "emails";
     public static final String SELECTED = "selected";
 

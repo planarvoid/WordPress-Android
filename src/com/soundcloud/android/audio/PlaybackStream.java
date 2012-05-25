@@ -1,5 +1,6 @@
 package com.soundcloud.android.audio;
 
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.utils.IOUtils;
 
 
@@ -103,7 +104,7 @@ public class PlaybackStream {
             mPlaybackFile.reopen();
             mPlaybackFile.seek(mCurrentPos);
         } catch (IOException e) {
-            Log.w("asdf", e);
+            Log.w(PlaybackStream.class.getSimpleName(), e);
         }
     }
 }

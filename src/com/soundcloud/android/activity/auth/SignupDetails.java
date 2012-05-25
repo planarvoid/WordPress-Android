@@ -3,6 +3,7 @@ package com.soundcloud.android.activity.auth;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -183,10 +184,10 @@ public class SignupDetails extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                case ImageUtils.ImagePickListener.GALLERY_IMAGE_PICK:
+                case Consts.RequestCodes.GALLERY_IMAGE_PICK:
                     setImage(IOUtils.getFromMediaUri(getContentResolver(), result.getData()));
                     break;
-                case ImageUtils.ImagePickListener.GALLERY_IMAGE_TAKE:
+                case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
                     setImage(mAvatarFile);
                     break;
             }

@@ -45,7 +45,6 @@ import java.util.List;
 
 
 public class LocationPicker extends ListActivity {
-    public static final int PICK_VENUE = 9003;     // Intent request code
 
     public static final String EXTRA_LATITUDE  = "latitude";
     public static final String EXTRA_LONGITUDE = "longitude";

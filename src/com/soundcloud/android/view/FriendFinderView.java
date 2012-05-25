@@ -77,7 +77,7 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
                                 (new Intent(mActivity, Connect.class))
                                         .putExtra("service", Service.Facebook.name())
                                         .setData(uri),
-                                Connect.MAKE_CONNECTION);
+                                Consts.RequestCodes.MAKE_CONNECTION);
                     } else {
                         mActivity.showToast(R.string.new_connection_error);
                     }

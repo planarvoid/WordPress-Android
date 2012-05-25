@@ -188,6 +188,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>co.bitcode.android</groupId>
+            <artifactId>android-cropimage</artifactId>
+            <version>1.0.0</version>
+            <type>apklib</type>
+        </dependency>
+        <dependency>
             <groupId>com.pivotallabs</groupId>
             <artifactId>robolectric</artifactId>
             <version>1.2-SNAPSHOT</version>

@@ -1,14 +1,14 @@
 package com.soundcloud.android.activity;
 
 
+import com.android.camera.CropImage;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.AccessList;
 import com.soundcloud.android.view.ButtonBar;
 import com.soundcloud.android.view.ConnectionList;
@@ -17,7 +17,10 @@ import com.soundcloud.android.view.create.ShareUserHeader;
 
 import android.content.Intent;
 import android.database.DataSetObserver;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -34,6 +37,7 @@ import java.util.List;
 
 @Tracking(page = Page.Record_details)
 public class ScUpload extends ScActivity {
+
     private ViewFlipper mSharingFlipper;
     private RadioGroup mRdoPrivacy;
     /* package */ RadioButton mRdoPrivate, mRdoPublic;
@@ -155,7 +159,7 @@ public class ScUpload extends ScActivity {
                             intent.putExtra(EmailPicker.SELECTED, ((TextView) v).getText());
                         }
                     }
-                    startActivityForResult(intent, EmailPicker.PICK_EMAILS);
+                    startActivityForResult(intent, Consts.RequestCodes.PICK_EMAILS);
                 }
             });
         }
@@ -274,18 +278,25 @@ public class ScUpload extends ScActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         switch (requestCode) {
-            case ImageUtils.ImagePickListener.GALLERY_IMAGE_PICK:
+            case Consts.RequestCodes.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
-                    mRecordingMetadata.setImage(IOUtils.getFromMediaUri(getContentResolver(), result.getData()));
+                    doCrop(result.getData(), Uri.fromFile(mRecording.generateImageFile(Recording.IMAGE_DIR)));
                 }
                 break;
-            case ImageUtils.ImagePickListener.GALLERY_IMAGE_TAKE:
+            case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
                 if (resultCode == RESULT_OK) {
-                    mRecordingMetadata.setDefaultImage();
+                    doCrop(Uri.fromFile(mRecording.generateImageFile(Recording.IMAGE_DIR)));
                 }
                 break;
 
-            case EmailPicker.PICK_EMAILS:
+            case Consts.RequestCodes.IMAGE_CROP: {
+                if (resultCode == RESULT_OK) {
+                    mRecordingMetadata.setImage(mRecording.generateImageFile(Recording.IMAGE_DIR));
+                }
+                break;
+            }
+
+            case Consts.RequestCodes.PICK_EMAILS:
                 if (resultCode == RESULT_OK && result != null && result.hasExtra(EmailPicker.BUNDLE_KEY)) {
                     String[] emails = result.getExtras().getStringArray(EmailPicker.BUNDLE_KEY);
                     if (emails != null) {
@@ -293,7 +304,7 @@ public class ScUpload extends ScActivity {
                     }
                 }
                 break;
-            case LocationPicker.PICK_VENUE:
+            case Consts.RequestCodes.PICK_VENUE:
                 if (resultCode == RESULT_OK && result != null && result.hasExtra(LocationPicker.EXTRA_NAME)) {
                     // XXX candidate for model?
                     mRecordingMetadata.setWhere(result.getStringExtra(LocationPicker.EXTRA_NAME),
@@ -302,7 +313,8 @@ public class ScUpload extends ScActivity {
                             result.getDoubleExtra(LocationPicker.EXTRA_LATITUDE, 0));
                 }
                 break;
-            case Connect.MAKE_CONNECTION:
+
+            case Consts.RequestCodes.MAKE_CONNECTION:
                 if (resultCode == RESULT_OK) {
                     boolean success = result.getBooleanExtra("success", false);
                     String msg = getString(
@@ -317,5 +329,27 @@ public class ScUpload extends ScActivity {
                     }
                 }
         }
+    }
+
+    private void doCrop(Uri imageUri) {
+        doCrop(imageUri,imageUri);
+    }
+
+    private void doCrop(Uri imageUri, Uri outputUri) {
+
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inJustDecodeBounds = true;
+
+        Intent intent = new Intent(this, CropImage.class)
+            .setData(imageUri)
+            .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
+            .putExtra("crop", "true")
+            .putExtra("aspectX", 1)
+            .putExtra("aspectY", 1)
+            .putExtra("outputX", Recording.RECOMMENDED_IMAGE_SIZE)
+            .putExtra("outputY", Recording.RECOMMENDED_IMAGE_SIZE)
+            .putExtra("noFaceDetection", true);
+
+        startActivityForResult(intent, Consts.RequestCodes.IMAGE_CROP);
     }
 }

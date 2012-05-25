@@ -1,5 +1,6 @@
 package com.soundcloud.android.view;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.EmailPicker;
 import com.soundcloud.android.utils.ImageUtils;
@@ -92,7 +93,7 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
             }
             ((Activity)getContext()).startActivityForResult(
                     intent,
-                    EmailPicker.PICK_EMAILS);
+                    Consts.RequestCodes.PICK_EMAILS);
         }
     }
 
