@@ -112,9 +112,9 @@ abstract class DataTask extends StreamItemTask {
 
         @Override
         protected int getData(URL url, int start, int end, ByteBuffer dst) throws IOException {
-            HttpResponse resp = api.safeExecute(null,
-                    Request.to(url.toString()).range(start, end)
-                            .buildRequest(HttpGet.class));
+            HttpGet get = new HttpGet(url.toString());
+            get.setHeader("Range", Request.formatRange(start, end));
+            HttpResponse resp = api.safeExecute(null, get);
 
             final int status = resp.getStatusLine().getStatusCode();
             switch (status) {
