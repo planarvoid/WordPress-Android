@@ -814,7 +814,9 @@ public class ScContentProvider extends ContentProvider {
         @Override
         public void onReceive(final Context context, Intent intent) {
             final long id = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, 0);
-            if (id > 0) {
+            final long userId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.user_id, 0);
+            // only delete tracks from other users - needs proper state checking
+            if (id > 0 && userId != SoundCloudApplication.getUserIdFromContext(context)) {
                 new Thread() {
                     @Override
                     public void run() {
