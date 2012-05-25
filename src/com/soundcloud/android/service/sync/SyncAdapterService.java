@@ -113,6 +113,14 @@ public class SyncAdapterService extends Service {
                 final LocalCollection lc = LocalCollection.fromContent(Content.ME_FOLLOWERS, app.getContentResolver(), false);
                 if (lc != null) lc.updateLastSyncTime(0, app.getContentResolver());
             }
+        } else if (PushEvent.fromExtras(extras) == PushEvent.LIKE || PushEvent.fromExtras(extras) == PushEvent.COMMENT) {
+            if (SyncConfig.shouldUpdateDashboard(app) && SyncConfig.isActivitySyncEnabled(app, extras)) {
+                syncIntent.setData(Content.ME_ACTIVITIES.uri);
+            } else {
+                // set last sync time to 0 so it auto-refreshes on next load
+                final LocalCollection lc = LocalCollection.fromContent(Content.ME_ACTIVITIES, app.getContentResolver(), false);
+                if (lc != null) lc.updateLastSyncTime(0, app.getContentResolver());
+            }
         } else {
             final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
             final ArrayList<Uri> urisToSync = new ArrayList<Uri>();
