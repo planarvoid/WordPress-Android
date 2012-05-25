@@ -74,6 +74,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String PLAYBACK_COMPLETE  = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_ERROR     = "com.soundcloud.android.trackerror";
     public static final String STREAM_DIED        = "com.soundcloud.android.streamdied";
+    public static final String TRACK_UNAVAILABLE  = "com.soundcloud.android.trackunavailable";
     public static final String COMMENTS_LOADED    = "com.soundcloud.android.commentsloaded";
     public static final String FAVORITE_SET       = "com.soundcloud.android.favoriteset";
     public static final String SEEKING            = "com.soundcloud.android.seeking";
@@ -1245,7 +1246,12 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     mMediaPlayer.release();
                     mMediaPlayer = null;
                     gotoIdleState(ERROR);
-                    notifyChange(IOUtils.isConnected(CloudPlaybackService.this) ? PLAYBACK_ERROR : STREAM_DIED);
+
+                    if (IOUtils.isConnected(CloudPlaybackService.this)) {
+                        notifyChange(item != null && !item.isAvailable() ? TRACK_UNAVAILABLE : PLAYBACK_ERROR);
+                    } else {
+                        notifyChange(STREAM_DIED);
+                    }
                     notifyChange(PLAYBACK_COMPLETE);
                 }
             }

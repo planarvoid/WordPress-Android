@@ -51,8 +51,9 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     private TransportBar mTransportBar;
 
     public interface PlayerError {
-        int PLAYBACK_ERROR = 0;
-        int STREAM_ERROR = 1;
+        int PLAYBACK_ERROR    = 0;
+        int STREAM_ERROR      = 1;
+        int TRACK_UNAVAILABLE = 2;
     }
 
     @Override
@@ -534,6 +535,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         f.addAction(CloudPlaybackService.PLAYSTATE_CHANGED);
         f.addAction(CloudPlaybackService.META_CHANGED);
         f.addAction(CloudPlaybackService.PLAYBACK_ERROR);
+        f.addAction(CloudPlaybackService.TRACK_UNAVAILABLE);
         f.addAction(CloudPlaybackService.STREAM_DIED);
         f.addAction(CloudPlaybackService.PLAYBACK_COMPLETE);
         f.addAction(CloudPlaybackService.BUFFERING);
