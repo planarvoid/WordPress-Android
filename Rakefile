@@ -85,7 +85,7 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
 end
 
 def manifest
-  @manifest ||= REXML::Document.new(File.read('AndroidManifest.xml'))
+  @manifest ||= REXML::Document.new(File.read('app/AndroidManifest.xml'))
 end
 
 def versionCode() manifest.root.attribute('versionCode') end
