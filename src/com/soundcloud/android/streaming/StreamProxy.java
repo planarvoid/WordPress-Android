@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -89,7 +90,7 @@ public class StreamProxy implements Runnable {
         if (mSocket == null) {
             throw new IllegalStateException("Cannot start proxy; it has not been initialized.");
         }
-        mThread = new Thread(this);
+        mThread = new Thread(this, "StreamProxy-accept");
         mThread.start();
         return this;
     }
@@ -138,7 +139,7 @@ public class StreamProxy implements Runnable {
                         }
                     }.start();
                 } catch (IOException e) {
-                    Log.w(LOG_TAG, "error reading request");
+                    Log.w(LOG_TAG, "error reading request", e);
                     client.close();
                 } catch (URISyntaxException e) {
                     Log.w(LOG_TAG, "error reading request - URI malformed", e);
@@ -177,7 +178,7 @@ public class StreamProxy implements Runnable {
             // copy original headers in new request
             try {
                 Header h = BasicLineParser.parseHeader(line, BasicLineParser.DEFAULT);
-                if (!h.getName().equalsIgnoreCase("host")) {
+                if (!"host".equalsIgnoreCase(h.getName())) {
                     request.addHeader(h);
                 }
             } catch (ParseException e) {
@@ -189,6 +190,10 @@ public class StreamProxy implements Runnable {
 
     public int getPort() {
         return mPort;
+    }
+
+    public StreamItem getStreamItem(String url) {
+        return storage.getMetadata(url);
     }
 
     public Uri createUri(String streamUrl, String nextStreamUrl) {
@@ -204,15 +209,23 @@ public class StreamProxy implements Runnable {
     }
 
     private long firstRequestedByte(HttpRequest request) {
-        long startByte = 0;
         Header range = request.getFirstHeader("Range");
-        if (range != null && range.getValue() != null) {
-            Matcher m = Pattern.compile("bytes=(\\d+)-").matcher(range.getValue());
+        if (range != null) {
+            return firstRequestedByte(range.getValue());
+        } else {
+            return 0;
+        }
+    }
+
+    /* package */ static long firstRequestedByte(String range) {
+        long startByte = 0;
+        if (!TextUtils.isEmpty(range)) {
+            Matcher m = Pattern.compile("bytes=(-?\\d+)-?(\\d+)?(?:,.*)?").matcher(range);
             if (m.matches()) {
                 startByte = Long.parseLong(m.group(1));
             }
         }
-        return startByte;
+        return startByte < 0 ? 0 : startByte; // we don't support final byte ranges (-100)
     }
 
     private void processRequest(HttpGet request, Socket client) {
@@ -242,7 +255,7 @@ public class StreamProxy implements Runnable {
             final String msg = e.getMessage();
             if (msg != null &&
                (msg.contains("Connection reset by peer") ||
-                msg.equals("Broken pipe"))) {
+                       "Broken pipe".equals(msg))) {
                 if (Log.isLoggable(LOG_TAG, Log.DEBUG))
                     Log.d(LOG_TAG, String.format("client %d closed connection [expected]", client.getPort()));
             } else {
@@ -254,6 +267,8 @@ public class StreamProxy implements Runnable {
         } catch (IOException e) {
             Log.w(LOG_TAG, e);
         } catch (InterruptedException e) {
+            Log.w(LOG_TAG, e);
+        } catch (ExecutionException e) {
             Log.w(LOG_TAG, e);
         } catch (TimeoutException e) {
             // let client reconnect to stream on timeout
@@ -304,7 +319,7 @@ public class StreamProxy implements Runnable {
 
     private void writeChunks(String streamUrl, String nextUrl, final long startByte, SocketChannel channel,
                              Map<String, String> headers)
-            throws IOException, InterruptedException, TimeoutException {
+            throws IOException, InterruptedException, TimeoutException, ExecutionException {
 
         ByteBuffer buffer;
         for (long offset = startByte; isRunning();) {
@@ -313,8 +328,6 @@ public class StreamProxy implements Runnable {
                 if (offset == startByte) {
                     // first chunk
                     buffer = stream.get(INITIAL_TIMEOUT, TimeUnit.SECONDS);
-
-
                     final long length = stream.item.getContentLength();
                     headers.put("Content-Length", String.valueOf(length));
                     headers.put("ETag", stream.item.etag());
@@ -323,13 +336,11 @@ public class StreamProxy implements Runnable {
                         headers.put("Content-Range",
                                 String.format("%d-%d/%d", startByte, length - 1, length));
                     }
-
-
                     ByteBuffer header = getHeader(startByte, headers);
                     channel.write(header);
 
                     // since we already got some data for this track, ready to queue next one
-                    queueNextUrl(nextUrl, 3000);
+                    queueNextUrl(nextUrl, 6000);
                 } else {
                     // subsequent chunks
                     buffer = stream.get(TRANSFER_TIMEOUT, TimeUnit.SECONDS);
@@ -351,6 +362,12 @@ public class StreamProxy implements Runnable {
                 // timeout happened before header write, take the chance to return a proper error code
                 if (offset == startByte) {
                     channel.write(getErrorHeader(503, "Data read timeout"));
+                }
+                throw e;
+            } catch (ExecutionException e) {
+                // stream item got probably canceled
+                if (offset == startByte) {
+                    channel.write(getErrorHeader(stream.item.getHttpError(), "Error"));
                 }
                 throw e;
             }

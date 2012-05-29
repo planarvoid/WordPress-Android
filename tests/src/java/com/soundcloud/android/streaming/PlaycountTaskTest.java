@@ -68,7 +68,7 @@ public class PlaycountTaskTest {
     @Test
     public void shouldNotLogIfItemIsUnavailable() throws Exception {
         StreamItem item = new StreamItem("https://api.soundcloud.com/tracks/12345/stream");
-        item.markUnavailable();
+        item.markUnavailable(404);
         PlaycountTask t = new PlaycountTask(item, DefaultTestRunner.application, true);
         expect(t.execute().getBoolean("success", false)).toBeFalse();
     }

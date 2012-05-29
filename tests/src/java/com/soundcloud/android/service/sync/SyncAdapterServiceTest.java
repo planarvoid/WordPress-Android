@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
-import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
@@ -25,6 +24,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
+import org.jetbrains.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +39,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.content.TestIntentSender;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
@@ -57,12 +55,8 @@ public class SyncAdapterServiceTest {
         // don't want default syncing for tests
         SyncContent.setAllSyncEnabledPrefs(Robolectric.application, false);
 
-        // pretend we're connected via wifi
-        ConnectivityManager cm = (ConnectivityManager)
-                Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
-        Robolectric.shadowOf(cm).setBackgroundDataSetting(true);
-        Robolectric.shadowOf(cm).setNetworkInfo(ConnectivityManager.TYPE_WIFI,
-                newInstanceOf(NetworkInfo.class));
+        TestHelper.setBackgrounData(true);
+        TestHelper.connectedViaWifi(true);
 
         // the current sc user, assumed to be already in the db
         ContentValues cv = new ContentValues();
@@ -73,7 +67,7 @@ public class SyncAdapterServiceTest {
         // always notify
         PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
                 .edit()
-                .putString(SyncConfig.PREF_NOTIFICATIONS_FREQUENCY, 0+"")
+                .putString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY, 0+"")
                 .commit();
 
         DefaultTestRunner.application.setCurrentUserId(100l);
@@ -337,7 +331,7 @@ public class SyncAdapterServiceTest {
         expect(second.getInfo().getContentText().toString()).toEqual("Comments and likes from Paul Ko, jensnikolaus and others");
     }
 
-
+    @Test
     public void shouldCheckPushEventExtraParameterLike() throws Exception {
         addCannedActivities("own_2.json");
 
@@ -356,6 +350,34 @@ public class SyncAdapterServiceTest {
         extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, PushEvent.COMMENT.type);
         SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
 
+        expect(result.notifications.size()).toEqual(1);
+    }
+
+    @Test
+    public void shouldOnlySyncActivitiesFromPushEventLike() throws Exception {
+        shouldOnlySyncActivitiesFromPushEvent(PushEvent.LIKE.type);
+    }
+
+    @Test
+    public void shouldOnlySyncActivitiesFromPushEventComment() throws Exception {
+        shouldOnlySyncActivitiesFromPushEvent(PushEvent.COMMENT.type);
+    }
+
+    private void shouldOnlySyncActivitiesFromPushEvent(String pushType) throws Exception {
+        addCannedActivities("own_2.json");
+
+        // add my sounds should sync
+        SyncContent.MySounds.setEnabled(Robolectric.application, true);
+        TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
+        TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+
+
+        Bundle extras = new Bundle();
+        extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, pushType);
+        SyncOutcome result = doPerformSync(DefaultTestRunner.application, false, extras);
+
+        LocalCollection lc = LocalCollection.fromContent(Content.ME_TRACKS, Robolectric.application.getContentResolver(), false);
+        expect(lc).toBeNull();
         expect(result.notifications.size()).toEqual(1);
     }
 
@@ -425,6 +447,23 @@ public class SyncAdapterServiceTest {
         expect(lc.last_sync).not.toEqual(0L);
     }
 
+    @Test
+    public void performSyncShouldReturnFalseIfNoSyncStarted() throws Exception {
+        TestHelper.connectedViaWifi(false);
+        PreferenceManager.getDefaultSharedPreferences(Robolectric.application)
+                .edit()
+                .putBoolean(Consts.PrefKeys.NOTIFICATIONS_WIFI_ONLY, true)
+                .commit();
+
+        boolean hasSynced = SyncAdapterService.performSync(DefaultTestRunner.application,
+                new Account("foo", "bar"),
+                new Bundle(),
+                new SyncResult(),
+                null);
+
+        expect(hasSynced).toBeFalse();
+    }
+
 
     static class SyncOutcome {
         List<NotificationInfo> notifications;
@@ -447,7 +486,7 @@ public class SyncAdapterServiceTest {
         }
     }
 
-    private static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime, Bundle extras)
+    private static SyncOutcome doPerformSync(SoundCloudApplication app, boolean firstTime, @Nullable Bundle extras)
             throws Exception {
         if (!firstTime) app.setAccountData(User.DataKeys.LAST_INCOMING_SEEN, 1l);
         if (extras == null) extras = new Bundle();
@@ -460,7 +499,7 @@ public class SyncAdapterServiceTest {
         SyncAdapterService.performSync(
                 app,
                 new Account("foo", "bar"),
-                extras, result);
+                extras, result, null);
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 

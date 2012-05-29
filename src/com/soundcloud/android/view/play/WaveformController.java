@@ -211,7 +211,6 @@ public class WaveformController extends TouchLayout {
         if (hide){
             showWaiting();
             mOverlay.setVisibility(View.INVISIBLE);
-            //mProgressBar.setVisibility(View.INVISIBLE);
             mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
         }
     }
@@ -410,7 +409,7 @@ public class WaveformController extends TouchLayout {
         if (TextUtils.isEmpty(track.waveform_url)){
             waveformResult = BindResult.ERROR;
             mOverlay.setImageDrawable(mPlayer.getResources().getDrawable(R.drawable.player_wave_bg));
-            showWaveform(false);
+            onDoneLoadingWaveform(false, false);
             return;
         }
 
@@ -432,25 +431,23 @@ public class WaveformController extends TouchLayout {
                     @Override
                     public void onImageLoaded(ImageView view, String url) {
                         waveformResult = BindResult.OK;
-                        showWaveform(mOnScreen);
+                        onDoneLoadingWaveform(true, mOnScreen);
                     }
                 },new ImageLoader.Options(true, postAtFront));
 
 
         switch (waveformResult) {
             case OK:
-                showWaveform(false);
+                onDoneLoadingWaveform(true, false);
                 break;
             case LOADING:
                 showWaiting();
                 mOverlay.setVisibility(View.INVISIBLE);
-                //mProgressBar.setVisibility(View.INVISIBLE);
                 mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
                 break;
             case ERROR:
                 showWaiting();
                 mOverlay.setVisibility(View.INVISIBLE);
-                //mProgressBar.setVisibility(View.INVISIBLE);
                 mCurrentTimeDisplay.setVisibility(View.INVISIBLE);
                 onWaveformError();
                 break;
@@ -572,26 +569,27 @@ public class WaveformController extends TouchLayout {
         } else {
             mOverlay.setImageDrawable(mPlayer.getResources()
                     .getDrawable(R.drawable.player_wave_bg));
-            showWaveform(mOnScreen);
+            onDoneLoadingWaveform(false, mOnScreen);
         }
     }
 
 
-    private void showWaveform(boolean animate) {
+    private void onDoneLoadingWaveform(boolean success, boolean animate) {
         if (!mIsBuffering) hideWaiting();
 
-        if (mOverlay.getVisibility() == View.INVISIBLE) {
-            mOverlay.setVisibility(View.VISIBLE);
-            //mProgressBar.setVisibility(View.VISIBLE);
-            mCurrentTimeDisplay.setVisibility(View.VISIBLE);
+        final AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
+        aa.setDuration(500);
 
-            if (animate){
-                AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);
-                aa.setDuration(500);
-                mOverlay.startAnimation(aa);
-                //mProgressBar.startAnimation(aa);
-                mCurrentTimeDisplay.startAnimation(aa);
-            }
+        // only show the image if the load was successful, otherwise it will obscure the progress
+        if (success && mOverlay.getVisibility() != View.VISIBLE) {
+            if (animate) mOverlay.startAnimation(aa);
+            mOverlay.setVisibility(View.VISIBLE);
+
+        }
+
+        if (mCurrentTimeDisplay.getVisibility() != View.VISIBLE) {
+            if (animate) mCurrentTimeDisplay.startAnimation(aa);
+            mCurrentTimeDisplay.setVisibility(View.VISIBLE);
         }
     }
 

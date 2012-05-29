@@ -6,7 +6,6 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.utils.*;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -20,15 +19,15 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLDecoder;
 import java.util.*;
 
 import static com.soundcloud.android.SoundCloudApplication.*;
 
 public class Activities extends CollectionHolder<Activity> {
+    public static final int MAX_REQUESTS = 5;
+
     /* use this URL to poll for updates */
     @JsonProperty
     @JsonView(Views.Mini.class)
@@ -64,6 +63,7 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
 
+    @SuppressWarnings("UnusedDeclaration")
     public boolean olderThan(long timestamp) {
         return !isEmpty() && collection.get(0).created_at.getTime() <= timestamp;
     }
@@ -137,16 +137,11 @@ public class Activities extends CollectionHolder<Activity> {
         return AndroidCloudAPI.Mapper.readValue(is, Activities.class);
     }
 
-    public static Activities fromJSON(File f) throws IOException {
-        return AndroidCloudAPI.Mapper.readValue(f, Activities.class);
-    }
-
-    public static Activities fromJSON(String is) throws IOException {
-        return AndroidCloudAPI.Mapper.readValue(is, Activities.class);
-    }
-
     // TODO, get rid of future href and next href and generate them
     public Activities merge(Activities old) {
+        //noinspection ObjectEquality
+        if (old == EMPTY) return this;
+
         Activities merged = new Activities(new ArrayList<Activity>(collection));
         merged.future_href = future_href;
         merged.next_href = old.next_href;
@@ -157,22 +152,6 @@ public class Activities extends CollectionHolder<Activity> {
             }
         }
         return merged;
-    }
-
-    private Activity lastEvent() {
-        return isEmpty() ? null : collection.get(collection.size()-1);
-    }
-
-    public Activities returnUnique(Activities old) {
-        Activities unique = new Activities(new ArrayList<Activity>());
-        unique.future_href = future_href;
-
-        for (Activity e : collection) {
-            if (!old.collection.contains(e)) {
-                unique.collection.add(e);
-            }
-        }
-        return unique;
     }
 
     public Activities filter(Date d) {
@@ -216,45 +195,39 @@ public class Activities extends CollectionHolder<Activity> {
     public static Activities fetchRecent(AndroidCloudAPI api,
                                          final Request request,
                                          int max) throws IOException {
-        boolean caughtUp = false;
-        String future_href = null;
-        String next_href;
-        List<Activity> activityList = new ArrayList<Activity>();
-        Request remote = new Request(request).add("limit", 20);
-        do {
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Making request " + remote);
-            HttpResponse response = api.get(remote);
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                Activities activities = fromJSON(response.getEntity().getContent());
-                remote = activities.hasMore() ? activities.getNextRequest() : null;
-                if (future_href == null && !TextUtils.isEmpty(activities.future_href)) {
-                    future_href = URLDecoder.decode(activities.future_href);
-                }
-                next_href = activities.next_href;
 
-                for (Activity evt : activities) {
-                    if (max < 0 || activityList.size() < max) {
-                        activityList.add(evt);
-                    } else {
-                        caughtUp = true;
-                        break;
-                    }
-                }
-            } else {
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
-                    return EMPTY;
-                } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
-                    throw new CloudAPI.InvalidTokenException(HttpStatus.SC_UNAUTHORIZED,
-                            response.getStatusLine().getReasonPhrase());
+        return fetchRecent(api, request, max, 0);
+    }
+
+    private static Activities fetchRecent(AndroidCloudAPI api,
+                                         final Request request,
+                                         int max,
+                                         int requestNumber) throws IOException {
+        if (max <= 0) return EMPTY;
+        Request remote = new Request(request).set("limit", max);
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Making request " + remote.toUrl());
+        HttpResponse response = api.get(remote);
+        final int status = response.getStatusLine().getStatusCode();
+        switch (status) {
+            case HttpStatus.SC_OK: {
+                Activities a = fromJSON(response.getEntity().getContent());
+                if (a.size() < max && a.hasMore() && !a.isEmpty() && requestNumber < MAX_REQUESTS) {
+                    /* should not happen in theory, but backend might limit max number per requests */
+                    return a.merge(fetchRecent(api, a.getNextRequest(), max - a.size(), requestNumber+1));
                 } else {
-                    throw new IOException(response.getStatusLine().toString());
+                    return a;
                 }
             }
-        } while (!caughtUp
-                && remote != null);
+            case HttpStatus.SC_NO_CONTENT: {
+                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Got no content response (204)");
+                return EMPTY;
+            }
+            case HttpStatus.SC_UNAUTHORIZED:
+                throw new InvalidTokenException(status, response.getStatusLine().getReasonPhrase());
 
-        return new Activities(activityList, future_href, next_href);
+            // sync will get retried later
+            default: throw new IOException(response.getStatusLine().toString());
+        }
     }
 
     public static Activities fetch(AndroidCloudAPI api,
@@ -342,9 +315,6 @@ public class Activities extends CollectionHolder<Activity> {
         return activities;
     }
 
-    public static Activities getBefore(Content content, ContentResolver resolver, long before)  {
-        return getBefore(content.uri, resolver, before);
-    }
     public static Activities getBefore(Uri contentUri, ContentResolver resolver, long before)  {
         if (Log.isLoggable(TAG, Log.DEBUG))
             Log.d(TAG, "Activities.getBefore("+contentUri+", before="+before+")");
@@ -361,7 +331,6 @@ public class Activities extends CollectionHolder<Activity> {
         }
 
         while (c != null && c.moveToNext()) {
-            final long id = c.getLong(c.getColumnIndex(DBHelper.ActivityView._ID));
             activities.add(new Activity(c));
         }
         if (c != null) c.close();
@@ -369,10 +338,11 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public static Activities get(ContentResolver resolver, Uri uri) {
-        return get(resolver,uri,null,null,null,null);
+        return get(resolver,uri, null, null, null, null);
     }
 
-    public static Activities get(ContentResolver resolver, Uri uri, String[] projection, String where, String[] whereArgs, String sort) {
+    public static Activities get(ContentResolver resolver, Uri uri, @Nullable String[] projection,
+                                 @Nullable String where, @Nullable String[] whereArgs, @Nullable String sort) {
         Activities activities = new Activities();
         Cursor c = resolver.query(uri, projection, where, whereArgs, sort);
         while (c != null && c.moveToNext()) {
@@ -380,34 +350,6 @@ public class Activities extends CollectionHolder<Activity> {
         }
         if (c != null) c.close();
         return activities;
-    }
-
-    public static List<Long> getLocalIdsSince(ContentResolver resolver, Uri contentUri, long since)  {
-        return getLocalIds(resolver, contentUri, DBHelper.ActivityView.CREATED_AT + "> ?", new String[]{String.valueOf(since)}, null);
-    }
-
-    public static List<Long> getLocalIds(ContentResolver resolver, Uri uri) {
-        return getLocalIds(resolver,uri,null,null,null);
-    }
-
-    public static List<Long> getLocalIds(ContentResolver resolver, Uri uri, String where, String[] whereArgs, String sort) {
-        List<Long> ids = new ArrayList<Long>();
-        Cursor c = resolver.query(uri, new String[]{DBHelper.ActivityView._ID}, where, whereArgs, sort);
-        while (c != null && c.moveToNext()) {
-            ids.add(c.getLong(0));
-        }
-        if (c != null) c.close();
-        return ids;
-    }
-
-    public static List<Long> getActivities(Uri uri, ContentResolver resolver) {
-        List<Long> ids = new ArrayList<Long>();
-        Cursor c = resolver.query(uri, new String[]{DBHelper.ActivityView._ID}, null, null, null);
-        while (c != null && c.moveToNext()) {
-            ids.add(c.getLong(0));
-        }
-        if (c != null) c.close();
-        return ids;
     }
 
     public ContentValues[] buildContentValues(final int contentId) {

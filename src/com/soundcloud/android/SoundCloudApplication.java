@@ -41,6 +41,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -101,6 +102,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         instance = this;
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
+
         if (DALVIK) {
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
@@ -138,7 +140,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 @Override public void run() {
                     PreferenceManager.getDefaultSharedPreferences(SoundCloudApplication.this)
                             .edit()
-                            .remove(C2DMReceiver.PREF_DEVICE_URL)
+                            .remove(Consts.PrefKeys.C2DM_DEVICE_URL)
                             .commit();
                 }
             });
@@ -548,7 +550,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
      * @param e      exception, can be null
      * @return       the thread used to submit the msg
      */
-    public static Thread handleSilentException(String msg, Exception e) {
+    public static Thread handleSilentException(@Nullable String msg, Exception e) {
         if (EMULATOR || !DALVIK) return null; // acra is disabled on emulator
         if (msg != null) {
            Log.w(TAG, "silentException: "+msg, e);

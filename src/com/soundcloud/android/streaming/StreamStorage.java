@@ -2,10 +2,12 @@ package com.soundcloud.android.streaming;
 
 import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -39,7 +41,6 @@ public class StreamStorage {
     public static final double MAX_PCT_OF_FREE_SPACE = 0.1d; // use 10% of sd card
 
     private static final int CLEANUP_INTERVAL = 20;
-    public static final String STREAMING_WRITES_SINCE_CLEANUP = "streamingWritesSinceCleanup";
 
     public static final String INDEX_EXTENSION = "index";
     public static final String CHUNKS_EXTENSION = "chunks";
@@ -91,7 +92,7 @@ public class StreamStorage {
         }
     }
 
-    public synchronized StreamItem getMetadata(String url) {
+    public synchronized @NotNull StreamItem getMetadata(String url) {
         String hashed = StreamItem.urlHash(url);
         if (!mItems.containsKey(hashed)) {
             mItems.put(hashed, readMetadata(url));
@@ -105,7 +106,6 @@ public class StreamStorage {
 
     public ByteBuffer fetchStoredDataForUrl(String url, Range range) throws IOException {
         StreamItem item = getMetadata(url);
-        if (item == null) throw new FileNotFoundException("stored data not found");
 
         Range actualRange = range;
         if (item.getContentLength() > 0) {
@@ -199,9 +199,9 @@ public class StreamStorage {
         if (mCleanupInterval > 0) {
             //Update the number of writes, cleanup if necessary
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-            final int currentCount = prefs.getInt(STREAMING_WRITES_SINCE_CLEANUP, 0) + 1;
+            final int currentCount = prefs.getInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, 0) + 1;
 
-            SharedPreferencesUtils.apply(prefs.edit().putInt(STREAMING_WRITES_SINCE_CLEANUP, currentCount));
+            SharedPreferencesUtils.apply(prefs.edit().putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, currentCount));
 
             if (currentCount >= mCleanupInterval) {
                 calculateFileMetrics();
@@ -274,7 +274,7 @@ public class StreamStorage {
         return true;
     }
 
-    private StreamItem readMetadata(String url) {
+    private @NotNull StreamItem readMetadata(String url) {
         File f = incompleteIndexFileForUrl(url);
         if (f.exists()) {
             try {
@@ -315,7 +315,7 @@ public class StreamStorage {
 
     /* package */ ByteBuffer incompleteDataForChunk(String url, int chunkIndex) throws IOException {
         StreamItem item = getMetadata(url);
-        if (item == null || !item.downloadedChunks.contains(chunkIndex)) {
+        if (!item.downloadedChunks.contains(chunkIndex)) {
             throw new FileNotFoundException("download chunk not available");
         }
         int readLength = chunkIndex == item.numberOfChunks(chunkSize) ? (int) item.getContentLength() % chunkSize : chunkSize;
@@ -363,7 +363,7 @@ public class StreamStorage {
         // reset counter
         SharedPreferencesUtils.apply(PreferenceManager.getDefaultSharedPreferences(mContext)
                 .edit()
-                .putInt(STREAMING_WRITES_SINCE_CLEANUP, 0));
+                .putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, 0));
 
         final long spaceToClean = mUsedSpace - mUsableSpace;
         if (spaceToClean > 0) {

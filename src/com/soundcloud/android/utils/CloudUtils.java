@@ -26,7 +26,6 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Display;
@@ -34,14 +33,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 public final class CloudUtils {
+
     private CloudUtils() {}
+
+    private static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
+    private static final String DURATION_FORMAT_LONG  = "%1$d.%3$02d.%5$02d";
+    private static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.getDefault());
 
     private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
         "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
@@ -339,7 +346,7 @@ public final class CloudUtils {
 
     public static CharSequence getFormattedNotificationTimestamp(Context context, long when) {
         final Date date = new Date(when);
-        return DateUtils.isToday(when) ? DateFormat.getTimeFormat(context).format(date)
-            : DateFormat.getDateFormat(context).format(date);
+        return DateUtils.isToday(when) ? android.text.format.DateFormat.getTimeFormat(context).format(date)
+            : android.text.format.DateFormat.getDateFormat(context).format(date);
     }
 }

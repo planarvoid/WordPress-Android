@@ -54,7 +54,6 @@ public class NotificationSettings extends PreferenceActivity {
     }
 
     private boolean checkSyncNecessary() {
-        PreferenceManager.getDefaultSharedPreferences(this);
         boolean sync = false;
         for (CheckBoxPreference p : syncPreferences) {
             if (p.isChecked()) {

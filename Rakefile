@@ -8,6 +8,22 @@ require 'yaml'
 c2dm_credentials = 'c2dm.credentials'
 file c2dm_credentials => 'c2dm:login'
 
+DEFAULT_LEVELS = %w(CloudPlaybackService
+               AwesomePlayer
+               NuHTTPDataSource
+               HTTPStream
+               NuCachedSource2
+               StreamProxy
+               StreamLoader
+               StreamStorage
+               C2DMReceiver
+               SyncAdapterService
+               ScContentProvider
+               ApiSyncService
+               ATTracker
+               SoundCloudApplication
+              )
+
 [:device, :emu].each do |t|
   def package() "com.soundcloud.android" end
   flag = (t == :device ? '-d' : '-e')
@@ -54,24 +70,16 @@ file c2dm_credentials => 'c2dm:login'
       namespace :logging do
         %w(verbose debug info warn error).each do |level|
           task level do
-            %w(CloudPlaybackService
-               AwesomePlayer
-               NuHTTPDataSource
-               HTTPStream
-               NuCachedSource2
-               StreamProxy
-               StreamStorage
-               C2DMReceiver
-               SyncAdapterService
-               ScContentProvider
-               ApiSyncService
-               ATTracker
-               UploadService
-              ).each do |tag|
+            DEFAULT_LEVELS.each do |tag|
               sh "adb #{flag} shell setprop log.tag.#{tag} #{level.upcase}"
             end
           end
         end
+
+      end
+
+      task :lolcat do
+        sh "adb #{flag} lolcat -v time #{DEFAULT_LEVELS.join(' ')} *:S"
       end
    end
 end
@@ -176,7 +184,7 @@ namespace :beta do
   desc "tag the current beta"
   task :tag do
     if versionName.to_s =~ /-BETA(\d+)?\Z/
-      sh "git tag -a #{versionName} -m #{versionName} && git push --tags"
+      sh "git tag -a #{versionName} -m #{versionName} && git push --tags && git push"
     else
       raise "#{versionName}: not a beta version"
     end

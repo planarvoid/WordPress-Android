@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.playback;
 
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.model.Playable;
@@ -23,7 +24,6 @@ import android.text.TextUtils;
 import java.util.List;
 
 public class PlaylistManager {
-    private static final String PREF_PLAYLIST_URI = "sc_playlist_uri";
 
     // these will be stored as uri parameters
     private static final String PARAM_PLAYLIST_POS = "playlistPos";
@@ -264,7 +264,7 @@ public class PlaylistManager {
     public void saveQueue(long seekPos) {
         if (SoundCloudApplication.getUserIdFromContext(mContext) >= 0) {
             SharedPreferencesUtils.apply(PreferenceManager.getDefaultSharedPreferences(mContext).edit()
-                    .putString(PREF_PLAYLIST_URI, getPlaylistState(seekPos).toString()));
+                    .putString(Consts.PrefKeys.SC_PLAYLIST_URI, getPlaylistState(seekPos).toString()));
         }
     }
 
@@ -284,7 +284,7 @@ public class PlaylistManager {
     public long reloadQueue() {
         // TODO : StrictMode policy violation; ~duration=139 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=23 violation=2
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-        final String lastUri = preferences.getString(PREF_PLAYLIST_URI, null);
+        final String lastUri = preferences.getString(Consts.PrefKeys.SC_PLAYLIST_URI, null);
 
         if (!TextUtils.isEmpty(lastUri)) {
             final Uri uri = Uri.parse(lastUri);
@@ -343,7 +343,7 @@ public class PlaylistManager {
 
     public static void clearLastPlayed(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
-                .remove(PlaylistManager.PREF_PLAYLIST_URI)
+                .remove(Consts.PrefKeys.SC_PLAYLIST_URI)
                 .commit();
     }
 

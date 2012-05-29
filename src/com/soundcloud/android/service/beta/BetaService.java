@@ -45,9 +45,6 @@ public class BetaService extends Service {
 
     public static final Uri BETA_BUCKET = Uri.parse("http://soundcloud-android-beta.s3.amazonaws.com/");
     public static final File APK_PATH = new File(Consts.FILES_PATH, "beta");
-    public static final String PREF_CHECK_UPDATES = "beta.check_for_updates";
-    public static final String PREF_REQUIRE_WIFI = "beta.require_wifi";
-    public static final String PREF_BETA_VERSION = "beta.beta_version";
 
 
     /**
@@ -146,7 +143,7 @@ public class BetaService extends Service {
     }
 
     static boolean shouldCheckForUpdates(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(PREF_CHECK_UPDATES, true);
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.BETA_CHECK_FOR_UPDATES, true);
     }
 
     private Beta selectVersion(List<Beta> available) {
@@ -397,7 +394,7 @@ public class BetaService extends Service {
 
     private boolean isWifi() {
         boolean requireWifi = PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean(PREF_REQUIRE_WIFI, true);
+                .getBoolean(Consts.PrefKeys.BETA_REQUIRE_WIFI, true);
 
         if (!requireWifi || SoundCloudApplication.EMULATOR) {
             return true;
@@ -486,20 +483,20 @@ public class BetaService extends Service {
     }
 
     public static boolean isPendingBeta(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).contains(PREF_BETA_VERSION);
+        return PreferenceManager.getDefaultSharedPreferences(context).contains(Consts.PrefKeys.BETA_VERSION);
     }
 
     public static void setPendingBeta(Context context, String version) {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
-                .putString(PREF_BETA_VERSION, version)
+                .putString(Consts.PrefKeys.BETA_VERSION, version)
                 .commit();
     }
 
     public static void clearPendingBeta(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
-                .remove(PREF_BETA_VERSION)
+                .remove(Consts.PrefKeys.BETA_VERSION)
                 .commit();
     }
 }

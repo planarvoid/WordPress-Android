@@ -74,4 +74,15 @@ public class StreamProxyTest {
         expect(proxy.createUri("https://api.soundcloud.com/tracks/3232/stream", null).toString())
                 .toEqual("http://127.0.0.1:0/%2F?streamUrl=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F3232%2Fstream");
     }
+
+    @Test
+    public void shouldParseRangeRequest() throws Exception {
+        expect(StreamProxy.firstRequestedByte("bytes=100-")).toEqual(100l);
+        expect(StreamProxy.firstRequestedByte("bytes=200-300")).toEqual(200l);
+        expect(StreamProxy.firstRequestedByte("bytes=200-300,301-400")).toEqual(200l);
+        expect(StreamProxy.firstRequestedByte("bytes=-100")).toEqual(0l);
+        expect(StreamProxy.firstRequestedByte(null)).toEqual(0l);
+        expect(StreamProxy.firstRequestedByte("")).toEqual(0l);
+        expect(StreamProxy.firstRequestedByte("blargh")).toEqual(0l);
+    }
 }

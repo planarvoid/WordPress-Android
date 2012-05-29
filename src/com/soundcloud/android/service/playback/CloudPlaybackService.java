@@ -12,6 +12,7 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.LocalBinder;
+import com.soundcloud.android.streaming.StreamItem;
 import com.soundcloud.android.streaming.StreamProxy;
 import com.soundcloud.android.task.FavoriteAddTask;
 import com.soundcloud.android.task.FavoriteRemoveTask;
@@ -22,6 +23,7 @@ import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.play.PlaybackRemoteViews;
@@ -82,6 +84,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public static final String PLAYBACK_COMPLETE  = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_ERROR     = "com.soundcloud.android.trackerror";
     public static final String STREAM_DIED        = "com.soundcloud.android.streamdied";
+    public static final String TRACK_UNAVAILABLE  = "com.soundcloud.android.trackunavailable";
     public static final String COMMENTS_LOADED    = "com.soundcloud.android.commentsloaded";
     public static final String FAVORITE_SET       = "com.soundcloud.android.favoriteset";
     public static final String SEEKING            = "com.soundcloud.android.seeking";
@@ -661,6 +664,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     view.clearIcon();
                     ImageLoader.get(this).getBitmap(artworkUri, new ImageLoader.BitmapCallback() {
                         public void onImageLoaded(Bitmap bitmap, String uri) {
+                            //noinspection ObjectEquality
                             if (currentTrack == track) {
                                 view.setIcon(bitmap);
                                 startForeground(PLAYBACKSERVICE_STATUS_ID, notification);
@@ -1138,6 +1142,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     final MediaPlayer.OnBufferingUpdateListener bufferingListener = new MediaPlayer.OnBufferingUpdateListener() {
         public void onBufferingUpdate(MediaPlayer mp, int percent) {
+            //noinspection ObjectEquality
             if (mMediaPlayer == mp) {
                 if (Log.isLoggable(TAG, Log.DEBUG) && mLoadPercent != percent) {
                     Log.d(TAG, "onBufferingUpdate("+percent+")");
@@ -1152,7 +1157,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onSeekComplete(state="+state+")");
             }
-
+            //noinspection ObjectEquality
             if (mMediaPlayer == mp) {
                 // only clear seek if we are not buffering. If we are buffering, it will be cleared after buffering completes
                 if (state != State.PAUSED_FOR_BUFFERING){
@@ -1200,6 +1205,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
     MediaPlayer.OnPreparedListener preparedlistener = new MediaPlayer.OnPreparedListener() {
         public void onPrepared(MediaPlayer mp) {
+            //noinspection ObjectEquality
             if (mp == mMediaPlayer) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "onPrepared(state="+state+")");
@@ -1237,7 +1243,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
         public boolean onError(MediaPlayer mp, int what, int extra) {
             Log.e(TAG, "onError("+what+ ", "+extra+", state="+state+")");
-
+            //noinspection ObjectEquality
             if (mp == mMediaPlayer && state != STOPPED) {
                 // when the proxy times out it will just close the connection - different implementations
                 // return different error codes. try to reconnect at least twice before giving up.
@@ -1247,15 +1253,22 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
                     openCurrent();
                     return true;
                 } else {
+                    StreamItem item = currentTrack != null ? mProxy.getStreamItem(currentTrack.stream_url) : null;
                     Log.d(TAG, "stream disconnected, giving up");
                     mConnectRetries = 0;
-                }
-                mMediaPlayer.release();
-                mMediaPlayer = null;
+                    DebugUtils.reportMediaPlayerError(CloudPlaybackService.this, item, what, extra);
 
-                gotoIdleState(ERROR);
-                notifyChange(IOUtils.isConnected(CloudPlaybackService.this) ? PLAYBACK_ERROR : STREAM_DIED);
-                notifyChange(PLAYBACK_COMPLETE);
+                    mMediaPlayer.release();
+                    mMediaPlayer = null;
+                    gotoIdleState(ERROR);
+
+                    if (IOUtils.isConnected(CloudPlaybackService.this)) {
+                        notifyChange(item != null && !item.isAvailable() ? TRACK_UNAVAILABLE : PLAYBACK_ERROR);
+                    } else {
+                        notifyChange(STREAM_DIED);
+                    }
+                    notifyChange(PLAYBACK_COMPLETE);
+                }
             }
             return true;
         }
@@ -1286,4 +1299,6 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     public void track(Class<?> klazz, Object... args) {
         getApp().track(klazz, args);
     }
+
+
 }

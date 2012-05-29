@@ -91,7 +91,7 @@ public interface AndroidCloudAPI extends CloudAPI {
 
                 if (SoundCloudApplication.DEV_MODE) {
                     final String proxy =
-                            PreferenceManager.getDefaultSharedPreferences(context).getString("dev.http.proxy", null);
+                            PreferenceManager.getDefaultSharedPreferences(context).getString(Consts.PrefKeys.DEV_HTTP_PROXY, null);
                     setProxy(TextUtils.isEmpty(proxy) ? null : URI.create(proxy));
                 }
             }

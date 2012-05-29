@@ -18,8 +18,6 @@ public final class Consts {
             Environment.getExternalStorageDirectory(),
             "Android/data/com.soundcloud.android/files");
 
-    public static final String VERSION_KEY = "changeLogVersionCode";
-
     // dot file to have it excluded from media scanning - also use .nomedia
     public static final File EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH,  ".cache");
     public static final File EXTERNAL_STREAM_DIRECTORY = new File(FILES_PATH, "stream");
@@ -37,6 +35,7 @@ public final class Consts {
     // adapter loading constants
     public static final int ROW_APPEND_BUFFER = 6;
     public static final int ITEM_TYPE_LOADING = -1;
+    public static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
 
     public static interface RequestCodes {
         int GALLERY_IMAGE_PICK  = 9000;
@@ -187,5 +186,33 @@ public final class Consts {
         long user = 86400000;       //24*60*60*1000 = 24hr
         long track = 3600000l;      //60*60*1000 = 1hr
         long activity = 600000l;    //30*60*1000 = 10 mins
+    }
+
+    public interface PrefKeys {
+        String EXCLUSIVE_ONLY_KEY                   = "incoming_exclusive_only";
+        String SC_PLAYLIST_URI                      = "sc_playlist_uri";
+        String STREAMING_WRITES_SINCE_CLEANUP       = "streamingWritesSinceCleanup";
+        String C2DM_DEVICE_URL                      = "c2dm.device_url";
+        String C2DM_REG_TO_DELETE                   = "c2dm.to_delete";
+        String LAST_SYNC_CLEANUP                    = "lastSyncCleanup";
+        String NOTIFICATIONS_FOLLOWERS              = "notificationsFollowers";
+        String NOTIFICATIONS_WIFI_ONLY              = "notificationsWifiOnly";
+        String NOTIFICATIONS_INCOMING               = "notificationsIncoming";
+        String NOTIFICATIONS_EXCLUSIVE              = "notificationsExclusive";
+        String NOTIFICATIONS_FAVORITINGS            = "notificationsFavoritings";
+        String NOTIFICATIONS_COMMENTS               = "notificationsComments";
+        String NOTIFICATIONS_FREQUENCY              = "notificationsFrequency";
+        String VERSION_KEY                          = "changeLogVersionCode";
+        String DEFAULT_REC_QUALITY                  = "defaultRecordingQuality";
+        String PLAYBACK_ERROR_REPORTING_ENABLED     = "playbackErrorReportingEnabled";
+        String LAST_USER_SYNC                       = "lastUserSync";
+
+        String DEV_DEFAULT_REC_HIGH_QUALITY_TYPE    = "dev.defaultRecordingHighQualityType";
+        String DEV_HTTP_PROXY                       = "dev.http.proxy";
+        String DEV_ALARM_CLOCK_ENABLED              = "dev.alarmClock.enabled";
+        String DEV_ALARM_CLOCK_URI                  = "dev.alarmClock.uri";
+        String BETA_CHECK_FOR_UPDATES               = "beta.check_for_updates";
+        String BETA_REQUIRE_WIFI                    = "beta.require_wifi";
+        String BETA_VERSION                         = "beta.beta_version";
     }
 }

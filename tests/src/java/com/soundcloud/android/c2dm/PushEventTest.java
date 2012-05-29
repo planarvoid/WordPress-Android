@@ -31,8 +31,8 @@ public class PushEventTest {
                 new Intent().putExtra(C2DMReceiver.SC_EXTRA_EVENT_TYPE, "bla"))
         ).toEqual(PushEvent.UNKNOWN);
 
-        expect(PushEvent.fromIntent(new Intent())).toEqual(PushEvent.NULL);
-        expect(PushEvent.fromIntent(null)).toEqual(PushEvent.NULL);
+        expect(PushEvent.fromIntent(new Intent())).toEqual(PushEvent.NONE);
+        expect(PushEvent.fromIntent(null)).toEqual(PushEvent.NONE);
     }
 
     @Test
@@ -50,8 +50,8 @@ public class PushEventTest {
         extras.putString(C2DMReceiver.SC_EXTRA_EVENT_TYPE, "bla");
         expect(PushEvent.fromExtras(extras)).toEqual(PushEvent.UNKNOWN);
 
-        expect(PushEvent.fromExtras(new Bundle())).toEqual(PushEvent.NULL);
-        expect(PushEvent.fromExtras(null)).toEqual(PushEvent.NULL);
+        expect(PushEvent.fromExtras(new Bundle())).toEqual(PushEvent.NONE);
+        expect(PushEvent.fromExtras(null)).toEqual(PushEvent.NONE);
     }
 
     @Test
@@ -69,8 +69,8 @@ public class PushEventTest {
         extras.putString(SyncAdapterService.EXTRA_PUSH_EVENT, "bla");
         expect(PushEvent.fromExtras(extras)).toEqual(PushEvent.UNKNOWN);
 
-        expect(PushEvent.fromExtras(new Bundle())).toEqual(PushEvent.NULL);
-        expect(PushEvent.fromExtras(null)).toEqual(PushEvent.NULL);
+        expect(PushEvent.fromExtras(new Bundle())).toEqual(PushEvent.NONE);
+        expect(PushEvent.fromExtras(null)).toEqual(PushEvent.NONE);
     }
 
     @Test

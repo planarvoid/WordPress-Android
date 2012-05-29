@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.c2dm.PushEvent;
 import com.soundcloud.android.utils.IOUtils;
 
@@ -10,9 +11,7 @@ import android.preference.PreferenceManager;
 public class SyncConfig {
     private static final long DEFAULT_NOTIFICATIONS_FREQUENCY = 60*60*1000*4L; // 4h
 
-    public static final String PREF_NOTIFICATIONS_FREQUENCY = "notificationsFrequency";
-    public static final String PREF_LAST_SYNC_CLEANUP       = "lastSyncCleanup";
-    public static final String PREF_LAST_USER_SYNC          = "lastUserSync";
+    public static final String PREF_SYNC_WIFI_ONLY          = "syncWifiOnly";
 
     public static final long DEFAULT_STALE_TIME  = 60*60*1000;         // 1 hr in ms
     public static final long CLEANUP_DELAY       = DEFAULT_STALE_TIME * 24; // every 24 hours
@@ -27,28 +26,28 @@ public class SyncConfig {
 
 
     public static boolean isNotificationsWifiOnlyEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("notificationsWifiOnly", false);
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(Consts.PrefKeys.NOTIFICATIONS_WIFI_ONLY, false);
     }
 
     public static boolean isIncomingEnabled(Context c, Bundle extras) {
         PushEvent evt = PushEvent.fromExtras(extras);
         return PreferenceManager
                 .getDefaultSharedPreferences(c)
-                .getBoolean("notificationsIncoming", true) && evt == PushEvent.NULL;
+                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_INCOMING, true) && evt == PushEvent.NONE;
     }
 
     public static boolean isExclusiveEnabled(Context c, Bundle extras) {
         PushEvent evt = PushEvent.fromExtras(extras);
         return PreferenceManager
                 .getDefaultSharedPreferences(c)
-                .getBoolean("notificationsExclusive", true) && evt == PushEvent.NULL;
+                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_EXCLUSIVE, true) && evt == PushEvent.NONE;
     }
 
     public static boolean isLikeEnabled(Context c, Bundle extras) {
         PushEvent evt = PushEvent.fromExtras(extras);
         return PreferenceManager
                 .getDefaultSharedPreferences(c)
-                .getBoolean("notificationsFavoritings", true) && (evt == PushEvent.NULL || evt == PushEvent.LIKE);
+                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_FAVORITINGS, true) && (evt == PushEvent.NONE || evt == PushEvent.LIKE);
     }
 
     public static boolean isActivitySyncEnabled(Context c, Bundle extras) {
@@ -59,16 +58,16 @@ public class SyncConfig {
         PushEvent evt = PushEvent.fromExtras(extras);
         return PreferenceManager
                 .getDefaultSharedPreferences(c)
-                .getBoolean("notificationsComments", true) && (evt == PushEvent.NULL || evt == PushEvent.COMMENT);
+                .getBoolean(Consts.PrefKeys.NOTIFICATIONS_COMMENTS, true) && (evt == PushEvent.NONE || evt == PushEvent.COMMENT);
     }
 
     public static boolean isSyncWifiOnlyEnabled(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean("syncWifiOnly", true);
+        return PreferenceManager.getDefaultSharedPreferences(c).getBoolean(PREF_SYNC_WIFI_ONLY, true);
     }
 
     public static long getNotificationsFrequency(Context c) {
-        if (PreferenceManager.getDefaultSharedPreferences(c).contains(PREF_NOTIFICATIONS_FREQUENCY)) {
-            return Long.parseLong(PreferenceManager.getDefaultSharedPreferences(c).getString(PREF_NOTIFICATIONS_FREQUENCY,
+        if (PreferenceManager.getDefaultSharedPreferences(c).contains(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY)) {
+            return Long.parseLong(PreferenceManager.getDefaultSharedPreferences(c).getString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY,
                     String.valueOf(DEFAULT_NOTIFICATIONS_FREQUENCY)));
         } else {
             return DEFAULT_NOTIFICATIONS_FREQUENCY;

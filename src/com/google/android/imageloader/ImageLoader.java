@@ -19,6 +19,7 @@ package com.google.android.imageloader;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.app.Application;
@@ -474,7 +475,7 @@ public class ImageLoader {
         return this.getBitmap(uri,callback,new Options());
     }
 
-     public Bitmap getBitmap(String uri, BitmapCallback callback, Options options) {
+     public Bitmap getBitmap(String uri, @Nullable BitmapCallback callback, Options options) {
         if (options == null) options = new Options();
         final Bitmap memoryBmp = getBitmap(uri);
         if (memoryBmp != null){

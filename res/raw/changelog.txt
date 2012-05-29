@@ -1,5 +1,13 @@
-$ 43
+$ 44
   % v current
+  _ 2012-05-25
+  ! Maintentance
+    * Streaming & battery usage fixes
+    - Xperia Range fix
+    - Better handling of tracks which are no longer available
+
+$ 43
+  % v 2.2.8
   _ 2012-05-11
   ! Sync Fix
     * Fixed sync battery usage
@@ -28,6 +36,7 @@ $ 41
     - Fixed resume after playback failure logic
     - Sync backoff logic
     - fixed playback service component handling (which will fix service lifecycle)
+    - Upgrade ATInternet 1.1.003
 
 $ 40
   % v 2.2.5

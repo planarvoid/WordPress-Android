@@ -2,6 +2,8 @@ package com.soundcloud.android.service.beta;
 
 import static com.soundcloud.android.service.beta.BetaService.TAG;
 
+import com.soundcloud.android.Consts;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +20,7 @@ public class WifiMonitor extends BroadcastReceiver {
             if (info.isConnected()) {
                 final boolean requireWifi = PreferenceManager
                                .getDefaultSharedPreferences(context)
-                               .getBoolean(BetaService.PREF_REQUIRE_WIFI, true);
+                               .getBoolean(Consts.PrefKeys.BETA_REQUIRE_WIFI, true);
 
                 if (requireWifi && BetaService.isPendingBeta(context)) {
                     Log.d(TAG, "WifiMonitor: scheduling betaservice check");

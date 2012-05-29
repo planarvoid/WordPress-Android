@@ -2,6 +2,7 @@ package com.soundcloud.android.c2dm;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.AndroidCloudAPI;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
@@ -31,9 +32,7 @@ public class C2DMReceiver extends BroadcastReceiver {
     public static final String TAG = C2DMReceiver.class.getSimpleName();
 
     public static final String PREF_REG_ID          = "c2dm.reg_id";
-    public static final String PREF_DEVICE_URL      = "c2dm.device_url";
     public static final String PREF_REG_LAST_TRY    = "c2dm.last_try";
-    public static final String PREF_REG_TO_DELETE   = "c2dm.to_delete";
 
     public static final String SENDER            = "android-c2dm@soundcloud.com";
 
@@ -115,7 +114,7 @@ public class C2DMReceiver extends BroadcastReceiver {
         } else {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "device is already registered with " + regId);
 
-            final String devUrl = getRegistrationData(context, PREF_DEVICE_URL);
+            final String devUrl = getRegistrationData(context, Consts.PrefKeys.C2DM_DEVICE_URL);
             // make sure there is a server-side device registered
             if (devUrl == null) {
                 sendRegId(context, regId, lock);
@@ -167,13 +166,13 @@ public class C2DMReceiver extends BroadcastReceiver {
             protected void onPostExecute(String url) {
                 if (url != null) {
                     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "device registered as " + url);
-                    setRegistrationData(context, PREF_DEVICE_URL, url);
+                    setRegistrationData(context, Consts.PrefKeys.C2DM_DEVICE_URL, url);
                 } else {
                     Log.w(TAG, "device registration failed");
 
                     // registering failed, need to retry later
                     // mark the current device as unregistered by removing the url key
-                    setRegistrationData(context, PREF_DEVICE_URL, null);
+                    setRegistrationData(context, Consts.PrefKeys.C2DM_DEVICE_URL, null);
                 }
             }
         }.execute(regId, CloudUtils.getPackagename(context), CloudUtils.getUniqueDeviceID(context));
@@ -184,7 +183,7 @@ public class C2DMReceiver extends BroadcastReceiver {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "onUnregister(" + intent + ")");
 
         // clear local data
-        setRegistrationData(context, PREF_DEVICE_URL, null);
+        setRegistrationData(context, Consts.PrefKeys.C2DM_DEVICE_URL, null);
         setRegistrationData(context, PREF_REG_ID, null);
 
         // clear remote state
@@ -269,25 +268,25 @@ public class C2DMReceiver extends BroadcastReceiver {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "queued " + url + " for later deletion");
             }
-            String _urls = getRegistrationData(context, PREF_REG_TO_DELETE);
+            String _urls = getRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE);
             if (_urls != null) {
-                return !_urls.contains(url) && setRegistrationData(context, PREF_REG_TO_DELETE, _urls + "," + url);
+                return !_urls.contains(url) && setRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE, _urls + "," + url);
             } else {
-                return setRegistrationData(context, PREF_REG_TO_DELETE, url);
+                return setRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE, url);
             }
         } else return false;
     }
 
     private static synchronized boolean removeFromDeletionQueue(Context context, final String url) {
-        final String _urls = getRegistrationData(context, PREF_REG_TO_DELETE);
+        final String _urls = getRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE);
         if (_urls != null && _urls.contains(url)) {
             String[] urls = _urls.split(",");
             if (urls.length == 1) {
-                return setRegistrationData(context, PREF_REG_TO_DELETE, null);
+                return setRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE, null);
             } else {
                 List<String> newUrls = new ArrayList<String>(_urls.length()-1);
                 for (String u : urls) if (!u.equals(url)) newUrls.add(u);
-                return setRegistrationData(context, PREF_REG_TO_DELETE, TextUtils.join(",", newUrls));
+                return setRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE, TextUtils.join(",", newUrls));
             }
         } else return false;
     }
@@ -295,7 +294,7 @@ public class C2DMReceiver extends BroadcastReceiver {
     /* package */ static synchronized boolean processDeletionQueue(Context context, PowerManager.WakeLock lock) {
         if (IOUtils.isConnected(context)) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "processDeletionQueue()");
-            String _urls = getRegistrationData(context, PREF_REG_TO_DELETE);
+            String _urls = getRegistrationData(context, Consts.PrefKeys.C2DM_REG_TO_DELETE);
             if (_urls != null) {
                 for (String url : _urls.split(",")) {
                     deleteDevice(context, lock, url);
@@ -327,13 +326,13 @@ public class C2DMReceiver extends BroadcastReceiver {
 
     private static void clearRegistrationData(Context context) {
         // mark current device_url to be deleted
-        queueForDeletion(context, getRegistrationData(context, PREF_DEVICE_URL));
+        queueForDeletion(context, getRegistrationData(context, Consts.PrefKeys.C2DM_DEVICE_URL));
 
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
                 .remove(PREF_REG_ID)
                 .remove(PREF_REG_LAST_TRY)
-                .remove(PREF_DEVICE_URL)
+                .remove(Consts.PrefKeys.C2DM_DEVICE_URL)
                 .commit();
     }
 

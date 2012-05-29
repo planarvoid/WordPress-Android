@@ -27,14 +27,13 @@ object AndroidBuild extends Build {
     "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
     "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
-    "com.soundcloud" % "java-api-wrapper" % "1.1.1",
+    "com.soundcloud" % "java-api-wrapper" % "1.1.2-SNAPSHOT",
     "com.google.android" % "filecache" % "r153",
     "com.commonsware" % "CWAC-AdapterWrapper" % "0.4",
     "com.at" % "ATInternet" % "1.1.003",
     "com.google.android" % "support-v4" % "r6",
     "com.google.android" % "android" % "4.0.1.2" % "provided",
-    "com.intellij" % "annotations" % "9.0.4" % "compile",
-    "co.bitcode.android" % "android-cropimage" % "1.0.0" % "compile"
+    "com.intellij" % "annotations" % "9.0.4" % "compile"
   )
 
   val testDependencies = Seq(

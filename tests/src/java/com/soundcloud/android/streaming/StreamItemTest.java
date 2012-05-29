@@ -77,4 +77,12 @@ public class StreamItemTest {
         expect(StreamItem.getTrackId("http://api.soundcloud.com/tracks/10853436/stream?secret_token=s-v9jiw")).toEqual(10853436l);
         expect(StreamItem.getTrackId("https://api.soundcloud.com/tracks/blargh/stream")).toEqual(-1l);
     }
+
+    @Test
+    public void shouldMarkUnavailable() throws Exception {
+        StreamItem md = new StreamItem("https://api.soundcloud.com/tracks/1/stream", 100, "etag");
+        md.markUnavailable(404);
+        expect(md.isAvailable()).toBeFalse();
+        expect(md.getHttpError()).toEqual(404);
+    }
 }

@@ -5,14 +5,18 @@ import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTy
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.SQLException;
@@ -389,13 +393,12 @@ public class ScContentProvider extends ContentProvider {
                         : where + " AND " + DBHelper.PlaylistItems.PLAYLIST_ID + "=" + uri.getLastPathSegment();
                 break;
             case ME_ALL_ACTIVITIES:
+                break;
             case ME_ACTIVITIES:
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
-                if (content != Content.ME_ALL_ACTIVITIES) {
-                    where = DBHelper.Activities.CONTENT_ID+"= ?";
-                    whereArgs = new String[] {String.valueOf(content.id) };
-                }
+                where = DBHelper.Activities.CONTENT_ID+"= ?";
+                whereArgs = new String[] {String.valueOf(content.id) };
                 break;
             case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
@@ -472,7 +475,7 @@ public class ScContentProvider extends ContentProvider {
                                         + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.TRACK+ " ," + CollectionItemTypes.FAVORITE+ ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " =  " + DBHelper.Tracks._ID
-                                    + " UNION SELECT DISTINCT " + DBHelper.ActivityView.TRACK_ID + " FROM "+ Table.ACTIVITY_VIEW.name
+                                    + " UNION SELECT DISTINCT " + DBHelper.ActivityView.TRACK_ID + " FROM "+ Table.ACTIVITIES.name
                                     + " UNION SELECT DISTINCT " + DBHelper.PlaylistItems.TRACK_ID + " FROM "+ Table.PLAYLIST_ITEMS.name
                                     + ")"
                                 + ")";
@@ -494,7 +497,7 @@ public class ScContentProvider extends ContentProvider {
                                         + DBHelper.CollectionItems.COLLECTION_TYPE + " IN (" + CollectionItemTypes.FOLLOWER+ " ," + CollectionItemTypes.FOLLOWING+ ") "
                                         + " AND " + DBHelper.CollectionItems.USER_ID + " = " + userId
                                         + " AND  " + DBHelper.CollectionItems.ITEM_ID + " = " + Table.USERS.id
-                                    + " UNION SELECT DISTINCT " + DBHelper.ActivityView.USER_ID + " FROM "+ Table.ACTIVITY_VIEW.name
+                                    + " UNION SELECT DISTINCT " + DBHelper.ActivityView.USER_ID + " FROM "+ Table.ACTIVITIES.name
                                     + ")"
                                 + ") AND _id <> " + userId;
                     final long start = System.currentTimeMillis();
@@ -810,6 +813,27 @@ public class ScContentProvider extends ContentProvider {
     private static void log(String message) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, message);
+        }
+    }
+
+    /**
+     * Handles deletion of tracks which are no longer available (have been marked private / deleted).
+     */
+    public static class TrackUnavailableListener extends BroadcastReceiver {
+        @Override
+        public void onReceive(final Context context, Intent intent) {
+            final long id = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, 0);
+            final long userId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.user_id, 0);
+            // only delete tracks from other users - needs proper state checking
+            if (id > 0 && userId != SoundCloudApplication.getUserIdFromContext(context)) {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        Log.d(TAG, "deleting unavailable track "+id);
+                        context.getContentResolver().delete(Content.TRACK.forId(id), null, null);
+                    }
+                }.start();
+            }
         }
     }
 }

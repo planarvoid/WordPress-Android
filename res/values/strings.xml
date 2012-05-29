@@ -23,4 +23,8 @@
     <string name="savingImage">Saving picture\u2026</string>
 
 
+    <string name="playback_error_logging">Playback error logging : %s</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="player_track_unavailable">This sound is no longer available</string>
 </resources>

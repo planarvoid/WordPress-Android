@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.soundcloud.android"
-      android:versionName="2.2.8"
+      android:versionName="2.2.9"
       android:installLocation="internalOnly"
-      android:versionCode="43">
+      android:versionCode="44">
 
     <supports-screens android:anyDensity="true" />
     <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="11"/>
@@ -283,6 +283,7 @@
 
             <intent-filter>
                 <action android:name="android.provider.Telephony.SECRET_CODE" />
+                <!-- *#*#ALARM#*#* -->
                 <data android:scheme="android_secret_code" android:host="25276"/>
             </intent-filter>
         </receiver>
@@ -324,6 +325,20 @@
         <receiver android:name=".service.beta.WifiMonitor" android:enabled="false">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".service.playback.ToggleErrorReportingReceiver">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SECRET_CODE"/>
+                <!-- *#*#SCPLAYDEBUG#*#* -->
+                <data android:scheme="android_secret_code" android:host="12345"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".provider.ScContentProvider$TrackUnavailableListener">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.trackunavailable"/>
             </intent-filter>
         </receiver>
 

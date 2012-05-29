@@ -2,6 +2,7 @@ package com.soundcloud.android.c2dm;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -43,7 +44,7 @@ public class C2DMReceiverTest {
     @Test
     public void registerWhenAlreadyRegisteredShouldNotTriggerServiceStart() throws Exception {
         C2DMReceiver.setRegistrationData(DefaultTestRunner.application, C2DMReceiver.PREF_REG_ID, "someid");
-        C2DMReceiver.setRegistrationData(DefaultTestRunner.application, C2DMReceiver.PREF_DEVICE_URL, "http://foo.com");
+        C2DMReceiver.setRegistrationData(DefaultTestRunner.application, Consts.PrefKeys.C2DM_DEVICE_URL, "http://foo.com");
         C2DMReceiver.register(DefaultTestRunner.application, new User());
 
         ShadowApplication ctxt = Robolectric.shadowOf(DefaultTestRunner.application);
@@ -58,7 +59,7 @@ public class C2DMReceiverTest {
 
         C2DMReceiver.register(DefaultTestRunner.application, new User());
 
-        expect(C2DMReceiver.getRegistrationData(DefaultTestRunner.application, C2DMReceiver.PREF_DEVICE_URL))
+        expect(C2DMReceiver.getRegistrationData(DefaultTestRunner.application, Consts.PrefKeys.C2DM_DEVICE_URL))
                 .toEqual("http://foo.com");
     }
 
@@ -77,7 +78,7 @@ public class C2DMReceiverTest {
     @Test
     public void testUnregisterWithRegisteredDevice() throws Exception {
         C2DMReceiver.setRegistrationData(DefaultTestRunner.application,
-                C2DMReceiver.PREF_DEVICE_URL, "http://foo");
+                Consts.PrefKeys.C2DM_DEVICE_URL, "http://foo");
 
 
         C2DMReceiver.unregister(DefaultTestRunner.application);
