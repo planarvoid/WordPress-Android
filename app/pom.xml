@@ -18,6 +18,14 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                 <artifactId>android-maven-plugin</artifactId>
+                 <configuration>
+                    <target>soundcloud_audio_encoder</target>
+                 </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3</version>
@@ -46,6 +54,14 @@
                     <filesets>
                         <fileset>
                             <directory>lib</directory>
+                        </fileset>
+
+                        <fileset>
+                            <directory>libs</directory>
+                        </fileset>
+
+                        <fileset>
+                            <directory>obj</directory>
                         </fileset>
                     </filesets>
                 </configuration>
