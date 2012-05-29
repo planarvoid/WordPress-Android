@@ -9,10 +9,8 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
@@ -20,8 +18,10 @@ import android.util.Log;
 import java.io.IOException;
 
 public class Poller extends Handler {
-    private static long DEFAULT_MAX_EXECUTION_TIME = 60000; // TODO, how long is too long?
-    private static long DEFAULT_MIN_TIME_BETWEEN_REQUESTS = 5000;
+
+    private static final long DEFAULT_MAX_EXECUTION_TIME = 60000;
+    private static final long DEFAULT_MIN_TIME_BETWEEN_REQUESTS = 5000;
+    private static final long DEFAULT_MAX_TRIES = 10;
 
     private SoundCloudApplication mApp;
     private Request mRequest;
@@ -35,7 +35,11 @@ public class Poller extends Handler {
         this(looper, app, trackId, notifyUri, DEFAULT_MIN_TIME_BETWEEN_REQUESTS, DEFAULT_MAX_EXECUTION_TIME);
     }
 
-    public Poller(Looper looper, SoundCloudApplication app, long trackId, Uri notifyUri, long delayBetweenRequests, long maxExecutionTime) {
+    public Poller(Looper looper, SoundCloudApplication app,
+                  long trackId,
+                  Uri notifyUri,
+                  long delayBetweenRequests,
+                  long maxExecutionTime) {
         super(looper);
         mApp = app;
         mRequest = Request.to(Endpoints.TRACK_DETAILS, trackId);
@@ -52,6 +56,8 @@ public class Poller extends Handler {
     @Override
     public void handleMessage(Message msg) {
         Track track = null;
+        final int attempt = msg.what;
+        Log.d(TAG, "poll attempt "+(attempt+1));
         final long start = System.currentTimeMillis();
         try {
             HttpResponse resp = mApp.get(mRequest);
@@ -64,16 +70,21 @@ public class Poller extends Handler {
             Log.e(TAG, "error", e);
         }
 
-        if ((track == null || track.state.isProcessing()) && System.currentTimeMillis() - mCreatedAt < mMaxExecutionTime) {
-            sendEmptyMessageDelayed(0, Math.max(0, mMinDelayBetweenRequests - (System.currentTimeMillis() - start)));
+        if ((track == null || track.state.isProcessing()) &&
+                attempt < DEFAULT_MAX_TRIES-1 &&
+                System.currentTimeMillis() - mCreatedAt < mMaxExecutionTime) {
+
+            sendEmptyMessageDelayed(attempt + 1,
+                    Math.max(0, mMinDelayBetweenRequests - (System.currentTimeMillis() - start)));
         } else {
+
             if (track != null && !track.state.isProcessing()) {
                 onTrackProcessed(track);
             } else {
-                Log.e(SoundCloudApplication.TAG, "Track failed to be prepared " + track +
-                        (track != null && track.state != null ? ", [state: " + track.state.value() + "]" : ""));
+                Log.e(TAG, "Track failed to be prepared " + track +
+                        (track != null && track.state != null ? ", [state: " + track.state + "]" : ""));
             }
-            Poller.this.getLooper().quit();
+            getLooper().quit();
         }
     }
 
@@ -85,8 +96,8 @@ public class Poller extends Handler {
         // this will tell any observers to update their UIs to the up to date track
         if (mNotifyUri != null) mApp.getContentResolver().notifyChange(mNotifyUri, null, false);
 
-        if (Log.isLoggable(SoundCloudApplication.TAG, Log.DEBUG)) {
-            Log.i(SoundCloudApplication.TAG, "Track succesfully prepared by the api: " + track);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Track succesfully prepared by the api: " + track);
         }
     }
 }
