@@ -73,6 +73,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     // assets
     @NotNull private File audio_path;
     @Nullable public File artwork_path;
+    @Nullable public File resized_artwork_path;
 
     // sharing
     public String four_square_venue_id; /* hex */
@@ -482,6 +483,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         upload_status = Status.UPLOADED;
         IOUtils.deleteFile(getEncodedFile());
         IOUtils.deleteFile(getFile());
+        IOUtils.deleteFile(resized_artwork_path);
     }
 
     public boolean isUploaded() {
@@ -504,6 +506,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public boolean hasArtwork() {
         return artwork_path != null && artwork_path.exists();
+    }
+
+    public File getArtwork() {
+        return resized_artwork_path != null && resized_artwork_path.exists() ? resized_artwork_path : artwork_path;
     }
 
     public boolean isPrivateMessage() {
@@ -642,6 +648,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
         if (data.containsKey("artwork_path")) {
             artwork_path = new File(data.getString("artwork_path"));
         }
+        if (data.containsKey("resized_artwork_path")) {
+            resized_artwork_path = new File(data.getString("resized_artwork_path"));
+        }
         duration = data.getLong("duration");
         four_square_venue_id = data.getString("four_square_venue_id");
         shared_emails = data.getString("shared_emails");
@@ -666,6 +675,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
         data.putString("audio_path", audio_path.getAbsolutePath());
         if (artwork_path != null) {
             data.putString("artwork_path", artwork_path.getAbsolutePath());
+        }
+        if (resized_artwork_path != null) {
+            data.putString("resized_artwork_path", resized_artwork_path.getAbsolutePath());
         }
         data.putLong("duration", duration);
         data.putString("four_square_venue_id", four_square_venue_id);
