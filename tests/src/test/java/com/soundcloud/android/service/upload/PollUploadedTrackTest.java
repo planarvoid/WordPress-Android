@@ -87,7 +87,7 @@ public class PollUploadedTrackTest {
     }
 
     private void addProcessingTrackAndRunPoll(long id) {
-        addProcessingTrackAndRunPoll(id,1000l);
+        addProcessingTrackAndRunPoll(id, 5000l);
     }
     private void addProcessingTrackAndRunPoll(long id, long maxTime) {
         Track t = new Track();
