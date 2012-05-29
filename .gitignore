@@ -7,13 +7,6 @@
 soundcloud-android.ipr
 soundcloud-android.iws
 
-# output folders
-bin/
-gen/
-lib/
-obj/
-libs/
-
 # keystore
 ks/
 

@@ -1,7 +1,7 @@
 package com.soundcloud.android.activity;
 
 
-import com.android.camera.CropImage;
+//import com.android.camera.CropImage;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -341,16 +341,16 @@ public class ScUpload extends ScActivity {
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = true;
 
-        Intent intent = new Intent(this, CropImage.class)
-            .setData(imageUri)
-            .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
-            .putExtra("crop", "true")
-            .putExtra("aspectX", 1)
-            .putExtra("aspectY", 1)
-            .putExtra("outputX", Recording.RECOMMENDED_IMAGE_SIZE)
-            .putExtra("outputY", Recording.RECOMMENDED_IMAGE_SIZE)
-            .putExtra("noFaceDetection", true);
-
-        startActivityForResult(intent, Consts.RequestCodes.IMAGE_CROP);
+//        Intent intent = new Intent(this, CropImage.class)
+//            .setData(imageUri)
+//            .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
+//            .putExtra("crop", "true")
+//            .putExtra("aspectX", 1)
+//            .putExtra("aspectY", 1)
+//            .putExtra("outputX", Recording.RECOMMENDED_IMAGE_SIZE)
+//            .putExtra("outputY", Recording.RECOMMENDED_IMAGE_SIZE)
+//            .putExtra("noFaceDetection", true);
+//
+//        startActivityForResult(intent, Consts.RequestCodes.IMAGE_CROP);
     }
 }

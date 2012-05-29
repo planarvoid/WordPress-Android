@@ -7,6 +7,7 @@ import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.shadows.ShadowVorbisEncoder;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.res.RobolectricPackageManager;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -15,13 +16,14 @@ import org.junit.runners.model.InitializationError;
 
 import android.content.ContentProvider;
 
+import java.io.File;
 import java.lang.reflect.Method;
 
 public class DefaultTestRunner extends RobolectricTestRunner {
     public static TestApplication application;
 
     public DefaultTestRunner(Class testClass) throws InitializationError {
-        super(testClass);
+        super(testClass,  new RobolectricConfig(new File("../app")));
 
         // remove native calls + replace with shadows
         addClassOrPackageToInstrument("com.soundcloud.android.jni.VorbisEncoder");

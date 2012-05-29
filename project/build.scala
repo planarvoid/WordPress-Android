@@ -5,7 +5,7 @@ import AndroidNdkKeys._
 
 object General {
   val settings = Defaults.defaultSettings ++ Seq(
-    organization := "com.soundcloud",
+    organization := "com.soundcloud.android",
     platformName := "android-14"
   )
 
@@ -61,7 +61,9 @@ object AndroidBuild extends Build {
   val projectSettings = General.androidProjectSettings ++ AndroidNdk.settings ++ Seq(
       libraryDependencies ++= coreDependencies ++ testDependencies,
       resolvers          ++= repos,
-      unmanagedBase      <<= baseDirectory / "lib-unmanaged" // make sure dl'ed libs don't get picked up
+      compileOrder       := CompileOrder.JavaThenScala,
+      unmanagedBase      <<= baseDirectory / "lib-unmanaged", // make sure dl'ed libs don't get picked up
+      javaSource in Compile         <<= (baseDirectory) (_ / "src" / "main" / "java")
     ) ++ inConfig(Android)(Seq(
       keyalias           := "jons keystore",
       keystorePath       <<= (baseDirectory) (_ / "soundcloud_sign" / "soundcloud.ks"),
@@ -75,9 +77,9 @@ object AndroidBuild extends Build {
       ),
       javahOutputDirectory <<= (baseDirectory) (_ / "jni" / "include" / "soundcloud")
     )) ++ inConfig(Test)(Seq(
-      javaSource         <<= (baseDirectory) (_ / "tests" / "src" / "java"),
-      scalaSource        <<= (baseDirectory) (_ / "tests" / "src" / "scala"),
-      resourceDirectory  <<= (baseDirectory) (_ / "tests" / "src" / "resources"),
+      javaSource         <<= (baseDirectory) (_ / "src" / "test" / "java"),
+      scalaSource        <<= (baseDirectory) (_ / "src" / "test" / "scala"),
+      resourceDirectory  <<= (baseDirectory) (_ / "src" / "test" / "resources"),
       parallelExecution  := false,
       unmanagedClasspath := Seq.empty
     ))
@@ -85,14 +87,14 @@ object AndroidBuild extends Build {
   // main project
   lazy val soundcloud_android = Project(
     "soundcloud-android",
-    file("."),
+    file("app"),
     settings = projectSettings ++ Mavenizer.settings ++ CopyLibs.settings ++ AmazonHelper.settings
   )
 
   // beta project
   lazy val soundcloud_android_beta = Project(
     "soundcloud-android-beta",
-    file("."),
+    file("app"),
     settings = projectSettings ++ Seq(
       keyalias in Android := "beta-key"
    ))

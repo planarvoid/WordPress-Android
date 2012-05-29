@@ -13,3 +13,12 @@
 [submodule "android-cropimage"]
 	path = android-cropimage
 	url = git@github.com:soundcloud/android-cropimage.git
+[submodule "app/jni/tremolo"]
+	path = app/jni/tremolo
+	url = git@github.com:soundcloud/tremor.git
+[submodule "app/jni/vorbis"]
+	path = app/jni/vorbis
+	url = git@github.com:soundcloud/vorbis.git
+[submodule "app/jni/ogg"]
+	path = app/jni/ogg
+	url = git@github.com:soundcloud/ogg.git

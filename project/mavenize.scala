@@ -5,45 +5,13 @@ import scala.xml.{Node, Elem, Unparsed}
 
 object Mavenizer {
   val pom =
+    <parent>
+      <groupId>com.soundcloud.android</groupId>
+      <artifactId>parent</artifactId>
+      <version>{versionName}</version>
+    </parent> ++
     <build>
-      <sourceDirectory>src</sourceDirectory>
-      <testSourceDirectory>tests/src/java</testSourceDirectory>
-      <testResources>
-        <testResource>
-          <directory>tests/src/resources</directory>
-        </testResource>
-      </testResources>
-      <plugins>
-
-        <plugin>
-          <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-          <artifactId>android-maven-plugin</artifactId>
-          <version>3.1.0</version>
-          <configuration>
-            <sdk>
-              <platform>14</platform>
-            </sdk>
-            <undeployBeforeDeploy>true</undeployBeforeDeploy>
-            <deleteConflictingFiles>false</deleteConflictingFiles>
-            <target>soundcloud_audio_encoder</target>
-            <attachNativeArtifacts>true</attachNativeArtifacts>
-            <clearNativeArtifacts>false</clearNativeArtifacts>
-            <zipalign>
-              <outputApk>{Unparsed("${project.build.directory}/${project.artifactId}-${project.version}-market.apk")}</outputApk>
-            </zipalign>
-          </configuration>
-          <extensions>true</extensions>
-          <executions>
-            <execution>
-              <id>alignApk</id>
-              <phase>install</phase>
-              <goals>
-                <goal>zipalign</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-
+     <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -51,63 +19,33 @@ object Mavenizer {
         </plugin>
 
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.9</version>
-          <configuration>
-            <includes>
-              <include>**/*Test.java</include>
-            </includes>
-          </configuration>
-      </plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>2.4</version>
+          <executions>
+            <execution>
+              <phase>process-resources</phase>
+              <goals>
+                <goal>copy-dependencies</goal>
+              </goals>
+              <configuration>
+                <outputDirectory>lib</outputDirectory>
+                <excludeTransitive>false</excludeTransitive>
+                <includeScope>runtime</includeScope>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>
           <version>2.4.1</version>
           <configuration>
             <filesets>
               <fileset> <directory>lib</directory> </fileset>
-              <fileset> <directory>tests/lib</directory> </fileset>
-              <fileset> <directory>libs</directory> </fileset>
-              <fileset> <directory>obj</directory> </fileset>
-              <fileset> <directory>tmp</directory> </fileset>
             </filesets>
           </configuration>
       </plugin>
       </plugins>
-    </build> ++
-    <profiles>
-        <profile>
-          <id>sign</id>
-          <build>
-            <plugins>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jarsigner-plugin</artifactId>
-                <version>1.2</version>
-                <executions>
-                  <execution>
-                    <id>signing</id>
-                    <goals>
-                      <goal>sign</goal>
-                    </goals>
-                    <phase>package</phase>
-                    <inherited>true</inherited>
-                    <configuration>
-                      <removeExistingSignatures>true</removeExistingSignatures>
-                      <archiveDirectory></archiveDirectory>
-                      <includes>
-                        <include>{Unparsed("${project.build.directory}/${project.artifactId}.apk")}</include>
-                      </includes>
-                      <keystore>soundcloud_sign/soundcloud.ks</keystore>
-                      <alias>jons keystore</alias>
-                    </configuration>
-                  </execution>
-                </executions>
-              </plugin>
-            </plugins>
-          </build>
-        </profile>
-      </profiles>
+    </build>
 
     def doPomPostProcess(pom: Node, name: String, version: String): Node = pom match {
       case <artifactId>{_}</artifactId> => <artifactId>{name}</artifactId>
@@ -130,8 +68,7 @@ object Mavenizer {
                                 pomAllRepositories) {
          (file, minfo, extra, process, include, all) =>
           new MakePomConfiguration(file, minfo, Some(List(Configurations.Compile,
-                                                   Configurations.Provided,
-                                                   Configurations.Test)), extra, process, include, all)
+                                                   Configurations.Provided)), extra, process, include, all)
       },
       mavenize <<= (makePom, baseDirectory, target) map { (pom, d, outputPath) =>
         val pomPath = d / "pom.xml"
@@ -140,7 +77,7 @@ object Mavenizer {
       }
     )
 
-    lazy val versionName = scala.xml.XML.loadFile("AndroidManifest.xml")
+    lazy val versionName = scala.xml.XML.loadFile("app/AndroidManifest.xml")
                 .attribute("http://schemas.android.com/apk/res/android", "versionName")
                 .map(_.text)
                 .getOrElse(sys.error("no versionName"))

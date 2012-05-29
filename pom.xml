@@ -1,23 +1,14 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.soundcloud</groupId>
-    <artifactId>soundcloud-android</artifactId>
-    <packaging>apk</packaging>
-    <description>soundcloud-android</description>
-    <version>2.2.9-BETA2</version>
-    <name>soundcloud-android</name>
-    <organization>
-        <name>com.soundcloud</name>
-    </organization>
+    <groupId>com.soundcloud.android</groupId>
+    <artifactId>parent</artifactId>
+    <version>2.2.9</version>
+    <packaging>pom</packaging>
+    <name>SoundCloud for Android</name>
+    <description>SoundCloud for Android</description>
+
     <build>
-        <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>tests/src/java</testSourceDirectory>
-        <testResources>
-            <testResource>
-                <directory>tests/src/resources</directory>
-            </testResource>
-        </testResources>
         <plugins>
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
@@ -29,237 +20,20 @@
                     </sdk>
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
                     <deleteConflictingFiles>false</deleteConflictingFiles>
-                    <target>soundcloud_audio_encoder</target>
-                    <attachNativeArtifacts>true</attachNativeArtifacts>
-                    <clearNativeArtifacts>false</clearNativeArtifacts>
                     <zipalign>
                         <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-market.apk</outputApk>
                     </zipalign>
                 </configuration>
                 <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <id>alignApk</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>zipalign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.9</version>
-                <configuration>
-                    <includes>
-                        <include>**/*Test.java</include>
-                    </includes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.4.1</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>lib</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>tests/lib</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>libs</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>obj</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>tmp</directory>
-                        </fileset>
-                    </filesets>
-                </configuration>
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>sign</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jarsigner-plugin</artifactId>
-                        <version>1.2</version>
-                        <executions>
-                            <execution>
-                                <id>signing</id>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <phase>package</phase>
-                                <inherited>true</inherited>
-                                <configuration>
-                                    <removeExistingSignatures>true</removeExistingSignatures>
-                                    <archiveDirectory></archiveDirectory>
-                                    <includes>
-                                        <include>${project.build.directory}/${project.artifactId}.apk</include>
-                                    </includes>
-                                    <keystore>soundcloud_sign/soundcloud.ks</keystore>
-                                    <alias>jons keystore</alias>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-    <dependencies>
-        <dependency>
-            <groupId>org.acra</groupId>
-            <artifactId>acra</artifactId>
-            <version>4.3.0-filter-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.0.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.0.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.0.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.soundcloud</groupId>
-            <artifactId>java-api-wrapper</artifactId>
-            <version>1.1.2-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>filecache</artifactId>
-            <version>r153</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.commonsware</groupId>
-            <artifactId>CWAC-AdapterWrapper</artifactId>
-            <version>0.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.at</groupId>
-            <artifactId>ATInternet</artifactId>
-            <version>1.1.003</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>support-v4</artifactId>
-            <version>r6</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>android</artifactId>
-            <version>4.0.1.2</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.intellij</groupId>
-            <artifactId>annotations</artifactId>
-            <version>9.0.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>co.bitcode.android</groupId>
-            <artifactId>android-cropimage</artifactId>
-            <version>1.0.0</version>
-            <type>apklib</type>
-        </dependency>
-        <dependency>
-            <groupId>com.pivotallabs</groupId>
-            <artifactId>robolectric</artifactId>
-            <version>1.2-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit-dep</artifactId>
-            <version>4.9</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.8.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.xian</groupId>
-            <artifactId>great-expectations</artifactId>
-            <version>0.13</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.9.1</artifactId>
-            <version>1.7.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-compiler</artifactId>
-            <version>2.9.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.novocode</groupId>
-            <artifactId>junit-interface</artifactId>
-            <version>0.8</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-    <repositories>
-        <repository>
-            <id>scintrepo</id>
-            <name>sc int repo</name>
-            <url>http://files.int.s-cloud.net/maven/</url>
-            <layout>default</layout>
-        </repository>
-        <repository>
-            <id>acrareleaserepository</id>
-            <name>acra release repository</name>
-            <url>http://acra.googlecode.com/svn/repository/releases/</url>
-            <layout>default</layout>
-        </repository>
-        <repository>
-            <id>sonatypesnapshots</id>
-            <name>sonatype snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-            <layout>default</layout>
-        </repository>
-        <repository>
-            <id>sonatypereleases</id>
-            <name>sonatype releases</name>
-            <url>https://oss.sonatype.org/content/repositories/releases/</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
+
+
+
+    <modules>
+        <module>app</module>
+        <module>tests</module>
+        <module>tests-integration</module>
+    </modules>
 </project>
