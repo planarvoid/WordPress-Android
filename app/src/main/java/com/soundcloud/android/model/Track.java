@@ -476,6 +476,8 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         return "Track{" +
                 "title='" + title + '\'' +
                 ", user=" + user +
+                ", duration=" + duration +
+                ", state=" + state +
                 '}';
     }
 
