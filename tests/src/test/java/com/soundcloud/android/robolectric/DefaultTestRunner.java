@@ -18,7 +18,7 @@ public class DefaultTestRunner extends RobolectricTestRunner {
     public static TestApplication application;
 
     public DefaultTestRunner(Class testClass) throws InitializationError {
-        super(testClass, new RobolectricConfig(new File(".")) {
+        super(testClass, new RobolectricConfig(new File("../app")) {
             @Override public String getApplicationName() {
                 return TestApplication.class.getSimpleName();
             }
