@@ -160,30 +160,4 @@
             <type>apklib</type>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>scintrepo</id>
-            <name>sc int repo</name>
-            <url>http://files.int.s-cloud.net/maven/</url>
-            <layout>default</layout>
-        </repository>
-        <repository>
-            <id>acrareleaserepository</id>
-            <name>acra release repository</name>
-            <url>http://acra.googlecode.com/svn/repository/releases/</url>
-            <layout>default</layout>
-        </repository>
-        <repository>
-            <id>sonatypesnapshots</id>
-            <name>sonatype snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-            <layout>default</layout>
-        </repository>
-        <repository>
-            <id>sonatypereleases</id>
-            <name>sonatype releases</name>
-            <url>https://oss.sonatype.org/content/repositories/releases/</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
 </project>
