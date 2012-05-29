@@ -119,7 +119,7 @@ namespace :beta do
   BUCKET = "soundcloud-android-beta"
   DEST="s3://#{BUCKET}/#{package}-#{versionCode}.apk"
   CURRENT="s3://#{BUCKET}/#{package}-current.apk"
-  BETA_APK = "target/soundcloud-android-beta-#{versionName}-market.apk"
+  BETA_APK = "app/target/soundcloud-android-beta-#{versionName}-market.apk"
 
   file BETA_APK => 'beta:build'
 
@@ -286,7 +286,7 @@ namespace :c2dm do
 end
 
 namespace :lol do
-  STRINGS = "res/values/strings_lolcatlizr.xml"
+  STRINGS = "app/res/values/strings_lolcatlizr.xml"
 
   desc "download lolcatlizr manged string resources"
   task :fetch do
