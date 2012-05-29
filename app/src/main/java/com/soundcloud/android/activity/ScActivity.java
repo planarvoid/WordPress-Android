@@ -28,7 +28,7 @@ import com.soundcloud.android.utils.NetworkConnectivityListener;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public class ScActivity extends android.app.Activity implements Tracker {
+public abstract class ScActivity extends android.app.Activity implements Tracker {
     protected static final int CONNECTIVITY_MSG = 0;
     private Boolean mIsConnected;
     protected NetworkConnectivityListener connectivityListener;

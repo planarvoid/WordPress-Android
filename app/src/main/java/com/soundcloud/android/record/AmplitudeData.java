@@ -2,6 +2,7 @@ package com.soundcloud.android.record;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.FloatMath;
 
 import java.util.Iterator;
 
@@ -92,8 +93,8 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         } else {
             // scaling up, do interpolation
             final float fIndex = Math.min(size - 1, size * ((float) (x - firstX)) / (lastX - firstX));
-            final float v1 = get((int) Math.floor(fIndex));
-            final float v2 = get((int) Math.ceil(fIndex));
+            final float v1 = get((int) FloatMath.floor(fIndex));
+            final float v2 = get((int) FloatMath.ceil(fIndex));
             return v1 + (v2 - v1) * (fIndex - ((int) fIndex));
         }
     }

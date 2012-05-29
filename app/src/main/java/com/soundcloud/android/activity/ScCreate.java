@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity;
 
+import android.annotation.SuppressLint;
 import android.content.IntentFilter;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
@@ -179,7 +180,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     }
 
-    @Override
+    @Override @SuppressLint("NewApi")
     public void onPause() {
         super.onPause();
         mActive = false;

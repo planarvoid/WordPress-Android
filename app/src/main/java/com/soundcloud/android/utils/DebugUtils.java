@@ -9,6 +9,7 @@ import com.soundcloud.android.streaming.StreamItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -27,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Map;
 
+@SuppressLint("NewApi")
 public class DebugUtils {
     public static void dumpStack(@NotNull Context context) {
         Map<Thread, StackTraceElement[]> traces = Thread.getAllStackTraces();

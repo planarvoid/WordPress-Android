@@ -2,10 +2,12 @@ package com.soundcloud.android.record;
 
 import com.soundcloud.android.audio.AudioConfig;
 
+import android.util.FloatMath;
+
 import java.nio.ByteBuffer;
 
 public class AmplitudeAnalyzer {
-    private static final float MAX_ADJUSTED_AMPLITUDE = (float) Math.sqrt(Math.sqrt(32768.0));
+    private static final float MAX_ADJUSTED_AMPLITUDE = (float) FloatMath.sqrt(FloatMath.sqrt(32768f));
 
     private final AudioConfig config;
 
