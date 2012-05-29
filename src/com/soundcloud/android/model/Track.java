@@ -516,7 +516,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     public Uri commitLocally(ContentResolver resolver, TrackCache cache) {
-        System.out.println("committing " + id);
         last_updated = System.currentTimeMillis();
         full_track_info_loaded = true;
         cache.putWithLocalFields(this);
