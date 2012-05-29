@@ -122,11 +122,7 @@ public class ApiSyncer {
             final Activity lastActivity = Activities.getLastActivity(c, mResolver);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
             if (lastActivity != null) request.add("cursor", lastActivity.toGUID());
-            try {
-                activities = Activities.fetch(mApi, request);
-            } catch (ApiWrapper.BrokenHttpClientException e) {
-                SoundCloudApplication.handleSilentException("error during fetch", e);
-            }
+            activities = Activities.fetch(mApi, request);
             if (activities == null || (activities.size() == 1 && activities.get(0).equals(lastActivity))) {
                 // this can happen at the end of the list
                 inserted = 0;
