@@ -33,7 +33,8 @@ object AndroidBuild extends Build {
     "com.at" % "ATInternet" % "1.1.003",
     "com.google.android" % "support-v4" % "r6",
     "com.google.android" % "android" % "4.0.1.2" % "provided",
-    "com.intellij" % "annotations" % "9.0.4" % "compile"
+    "com.intellij" % "annotations" % "9.0.4" % "compile",
+    "com.soundcloud.android" % "cropimage" % "1.0.0" artifacts(Artifact("cropimage", "apklib", "apklib"))
   )
 
   val testDependencies = Seq(
@@ -53,9 +54,9 @@ object AndroidBuild extends Build {
 
   val repos = Seq(
     MavenRepository("sc int repo", "http://files.int.s-cloud.net/maven/"),
-    MavenRepository("acra release repository", "http://acra.googlecode.com/svn/repository/releases"),
     MavenRepository("sonatype snapshots", "https://oss.sonatype.org/content/repositories/snapshots"),
-    MavenRepository("sonatype releases", "https://oss.sonatype.org/content/repositories/releases")
+    MavenRepository("sonatype releases", "https://oss.sonatype.org/content/repositories/releases"),
+    MavenRepository("Local Maven Repository", "file://" + Path.userHome + "/.m2/repository")
   )
 
   val projectSettings = General.androidProjectSettings ++ AndroidNdk.settings ++ Seq(
@@ -110,7 +111,7 @@ object AndroidBuild extends Build {
       libraryDependencies ++= integrationTestDependencies,
       resolvers           ++= repos,
       unmanagedBase       <<= baseDirectory / "lib-unmanaged", // make sure dl'ed libs don't get picked up
-      javaSource       in Compile <<= (baseDirectory) (_ / "src" / "java"),
+      javaSource       in Compile <<= (baseDirectory) (_ / "src" / "main" / "java"),
       managedClasspath in Compile <<= managedClasspath in Integration,
       // also compile in Test for test discovery
       javaSource       in Test    <<= javaSource in Compile,
