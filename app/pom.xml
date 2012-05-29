@@ -22,6 +22,8 @@
                  <artifactId>android-maven-plugin</artifactId>
                  <configuration>
                     <target>soundcloud_audio_encoder</target>
+                    <attachNativeArtifacts>true</attachNativeArtifacts>
+                    <clearNativeArtifacts>false</clearNativeArtifacts>
                  </configuration>
                  <extensions>true</extensions>
                  <executions>
