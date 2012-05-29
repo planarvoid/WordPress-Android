@@ -141,8 +141,13 @@
             <version>r6</version>
             <scope>compile</scope>
         </dependency>
-
-
+        <dependency>
+            <groupId>com.soundcloud.android</groupId>
+            <artifactId>cropimage</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+            <type>apklib</type>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
