@@ -18,15 +18,14 @@ import android.util.Log;
 import java.io.IOException;
 
 public class Poller extends Handler {
-
-    private static final long DEFAULT_MAX_EXECUTION_TIME = 60000;
+    private static final long DEFAULT_MAX_EXECUTION_TIME = 60 * 1000 * 5; // 5 minutes
     private static final long DEFAULT_MIN_TIME_BETWEEN_REQUESTS = 5000;
     private static final long DEFAULT_MAX_TRIES = 10;
 
     private SoundCloudApplication mApp;
     private Request mRequest;
     private Uri mNotifyUri;
-    private long mCreatedAt;
+    private long mFirstAttempt;
 
     private long mMinDelayBetweenRequests;
     private long mMaxExecutionTime;
@@ -44,7 +43,6 @@ public class Poller extends Handler {
         mApp = app;
         mRequest = Request.to(Endpoints.TRACK_DETAILS, trackId);
         mNotifyUri = notifyUri;
-        mCreatedAt = System.currentTimeMillis();
         mMinDelayBetweenRequests = delayBetweenRequests;
         mMaxExecutionTime = maxExecutionTime;
     }
@@ -55,10 +53,13 @@ public class Poller extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
+        if (msg.what == 0) {
+            mFirstAttempt = msg.getWhen();
+        }
+
         Track track = null;
         final int attempt = msg.what;
-        Log.d(TAG, "poll attempt "+(attempt+1));
-        final long start = System.currentTimeMillis();
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "poll attempt "+(attempt+1));
         try {
             HttpResponse resp = mApp.get(mRequest);
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -72,10 +73,10 @@ public class Poller extends Handler {
 
         if ((track == null || track.state.isProcessing()) &&
                 attempt < DEFAULT_MAX_TRIES-1 &&
-                System.currentTimeMillis() - mCreatedAt < mMaxExecutionTime) {
+                (msg.getWhen() - mFirstAttempt) < mMaxExecutionTime) {
 
-            sendEmptyMessageDelayed(attempt + 1,
-                    Math.max(0, mMinDelayBetweenRequests - (System.currentTimeMillis() - start)));
+            final long backoff = attempt * attempt * 1000;
+            sendEmptyMessageDelayed(attempt + 1, Math.max(backoff, mMinDelayBetweenRequests));
         } else {
 
             if (track != null && !track.state.isProcessing()) {

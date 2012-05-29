@@ -4,7 +4,9 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -22,7 +24,7 @@ import android.os.Looper;
 
 @RunWith(DefaultTestRunner.class)
 public class PollUploadedTrackTest {
-    static final long USER_ID = 100L;
+    static final long USER_ID = 3135930L;
     static final long TRACK_ID = 12345L;
     ContentResolver resolver;
     Scheduler scheduler;
@@ -77,7 +79,7 @@ public class PollUploadedTrackTest {
 
     @Test
     public void testPollUploadedProcessTimeoutFailure() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "track_storing.json", "track_finished.json");
+        TestHelper.addCannedResponses(getClass(), "track_storing.json", "track_storing.json", "track_finished.json");
         addProcessingTrackAndRunPoll(TRACK_ID, 1l);
         expectLocalTracksNotStreamable(TRACK_ID);
     }
@@ -88,12 +90,14 @@ public class PollUploadedTrackTest {
 
     private void addProcessingTrackAndRunPoll(long id, long maxTime) {
         Track t = new Track();
+        t.user = new User();
+        t.user.id = USER_ID;
         t.id = id;
         t.state = Track.State.STORING;
         Uri newUri = t.commitLocally(resolver, SoundCloudApplication.TRACK_CACHE);
         expect(newUri).not.toBeNull();
 
-        new Poller(Looper.myLooper(), DefaultTestRunner.application, id, Content.ME_TRACKS.uri, 1l, maxTime).start();
+        new Poller(Looper.myLooper(), DefaultTestRunner.application, id, Content.ME_TRACKS.uri, 1, maxTime).start();
 
         // make sure all messages have been consumed
         do {
@@ -106,12 +110,9 @@ public class PollUploadedTrackTest {
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeTrue();
 
-        /*
-        TODO : WHY IS THIS NULL, IT GETS STORED SUCCESFULLY ABOVE !!!!!
         track = SoundCloudDB.getTrackById(resolver, id);
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeTrue();
-        */
     }
 
     private void expectLocalTracksNotStreamable(long id) {
@@ -119,10 +120,8 @@ public class PollUploadedTrackTest {
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeFalse();
 
-        /*
         track = SoundCloudDB.getTrackById(resolver, id);
         expect(track).not.toBeNull();
         expect(track.state.isStreamable()).toBeFalse();
-         */
     }
 }
