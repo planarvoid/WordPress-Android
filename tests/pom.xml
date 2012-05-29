@@ -27,6 +27,7 @@
                         <configuration>
                             <outputDirectory>lib</outputDirectory>
                             <excludeTransitive>false</excludeTransitive>
+                            <excludeGroupIds>com.soundcloud.android</excludeGroupIds>
                             <includeScope>test</includeScope>
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>

@@ -23,6 +23,15 @@
                  <configuration>
                     <target>soundcloud_audio_encoder</target>
                  </configuration>
+                 <extensions>true</extensions>
+                 <executions>
+                  <execution>
+                    <phase>compile</phase>
+                    <goals>
+                      <goal>ndk-build</goal>
+                    </goals>
+                  </execution>
+                 </executions>
             </plugin>
 
             <plugin>
