@@ -16,14 +16,4 @@
 
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
-
-    <!-- TODO -->
-    <issue id="ExtraTranslation">
-        <ignore path="res/values-es/strings_es.xml"/>
-    </issue>
-
-    <!-- TODO -->
-    <issue id="UnusedResources">
-        <ignore path="res/values-es/strings_es.xml"/>
-    </issue>
 </lint>
