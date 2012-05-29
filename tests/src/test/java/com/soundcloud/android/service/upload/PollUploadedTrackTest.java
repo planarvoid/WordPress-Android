@@ -11,6 +11,7 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,7 +52,7 @@ public class PollUploadedTrackTest {
         expectLocalTracksStreamable(TRACK_ID);
     }
 
-    @Test
+    @Test @Ignore
     public void testPollUploaded400Success() throws Exception {
         ArrayList<TestHttpResponse> responses = new ArrayList<TestHttpResponse>();
         responses.add(new TestHttpResponse(400, "failed"));
