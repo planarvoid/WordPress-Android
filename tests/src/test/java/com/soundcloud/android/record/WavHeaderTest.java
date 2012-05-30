@@ -11,16 +11,16 @@ import java.io.InputStream;
 
 public class WavHeaderTest {
     /** 44100 16bit signed, 1 channel, 00:00:05.64, 497708 bytes  */
-    public static final String SHORT_TEST_WAV = "/com/soundcloud/android/service/upload/short_test.wav";
-    /** 44100 16bit signed, 2 channels, 00:00:18.95, 3342684 bytes  */
-    public static final String MED_TEST_WAV = "/com/soundcloud/android/service/upload/med_test.wav";
-    /** 8000 16bit signed, 1 channel, 00:00:05.55, 88844 bytes  */
-    public static final String PCM16_8000_1_WAV = "/com/soundcloud/android/service/upload/PCM16_8000_1.wav";
+    public static final String MONO_TEST_WAV = "/com/soundcloud/android/record/mono_16bit_44khz.wav";
+    /** 44100 16bit signed, 2 channels, 00:00:00.27, 47148 bytes  */
+    public static final String STEREO_TEST_WAV = "/com/soundcloud/android/record/stereo_16bit_44khz.wav";
+    /** 8000 16bit signed, 1 channel, 00:00:05.55, 88844 byta es  */
+    public static final String PCM16_8000_1_WAV = "/com/soundcloud/android/record/PCM16_8000_1.wav";
 
     @Test
     public void shouldReadWaveHeaderFromInputStream() throws Exception {
-        File file = new File(getClass().getResource(SHORT_TEST_WAV).toURI());
-        InputStream wav = getClass().getResourceAsStream(SHORT_TEST_WAV);
+        File file = new File(getClass().getResource(MONO_TEST_WAV).toURI());
+        InputStream wav = getClass().getResourceAsStream(MONO_TEST_WAV);
         expect(wav).not.toBeNull();
 
         WavHeader header = new WavHeader(wav);
@@ -33,16 +33,16 @@ public class WavHeaderTest {
     }
 
     @Test
-    public void shouldCalculateDurationMed() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(MED_TEST_WAV);
+    public void shouldCalculateDurationStereo() throws Exception {
+        InputStream wav = getClass().getResourceAsStream(STEREO_TEST_WAV);
         expect(wav).not.toBeNull();
         WavHeader header = new WavHeader(wav);
-        expect(header.getDuration()).toEqual(18949l);
+        expect(header.getDuration()).toEqual(267l);
     }
 
     @Test
-    public void shouldCalculateDurationShort() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(SHORT_TEST_WAV);
+    public void shouldCalculateDurationMono() throws Exception {
+        InputStream wav = getClass().getResourceAsStream(MONO_TEST_WAV);
         expect(wav).not.toBeNull();
         WavHeader header = new WavHeader(wav);
         expect(header.getDuration()).toEqual(5642l);
@@ -57,16 +57,16 @@ public class WavHeaderTest {
     }
 
     @Test
-    public void shouldReturnMatchingAudioConfig_short() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(SHORT_TEST_WAV);
+    public void shouldReturnMatchingAudioConfig_mono() throws Exception {
+        InputStream wav = getClass().getResourceAsStream(MONO_TEST_WAV);
         expect(wav).not.toBeNull();
         WavHeader header = new WavHeader(wav);
         expect(header.getAudioConfig()).toBe(AudioConfig.PCM16_44100_1);
     }
 
     @Test
-    public void shouldReturnMatchingAudioConfig_med() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(MED_TEST_WAV);
+    public void shouldReturnMatchingAudioConfig_stereo() throws Exception {
+        InputStream wav = getClass().getResourceAsStream(STEREO_TEST_WAV);
         expect(wav).not.toBeNull();
         WavHeader header = new WavHeader(wav);
         expect(header.getAudioConfig()).toBe(AudioConfig.PCM16_44100_2);
@@ -81,19 +81,19 @@ public class WavHeaderTest {
     }
 
     @Test
-    public void shouldCalculateOffsetMedium() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(MED_TEST_WAV);
+    public void shouldCalculateOffsetStereo() throws Exception {
+        InputStream wav = getClass().getResourceAsStream(STEREO_TEST_WAV);
         expect(wav).not.toBeNull();
         WavHeader header = new WavHeader(wav);
 
-        expect(header.offset(1000)).toEqual(176444l);
+        expect(header.offset(100)).toEqual(17684l);
         expect(header.offset(-1000)).toEqual(44l);
-        expect(header.offset(Integer.MAX_VALUE)).toEqual(3342684l);
+        expect(header.offset(Integer.MAX_VALUE)).toEqual(47148l);
     }
 
     @Test
     public void shouldCalculateOffsetShort() throws Exception {
-        InputStream wav = getClass().getResourceAsStream(SHORT_TEST_WAV);
+        InputStream wav = getClass().getResourceAsStream(MONO_TEST_WAV);
         expect(wav).not.toBeNull();
         WavHeader header = new WavHeader(wav);
 
