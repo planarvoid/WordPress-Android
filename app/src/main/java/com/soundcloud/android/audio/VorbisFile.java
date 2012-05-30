@@ -70,6 +70,7 @@ public class VorbisFile implements AudioFile {
     private Info getInfo() {
         if (info == null) {
             info = decoder.getInfo();
+            if (info == null) info = new Info();
         }
         return info;
     }

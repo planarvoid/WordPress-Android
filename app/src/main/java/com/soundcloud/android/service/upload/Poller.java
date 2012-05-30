@@ -89,7 +89,6 @@ public class Poller extends Handler {
         }
     }
 
-
     private void onTrackProcessed(Track track) {
         // local storage should reflect full track info
         track.commitLocally(mApp.getContentResolver(), SoundCloudApplication.TRACK_CACHE);

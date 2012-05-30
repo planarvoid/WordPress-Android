@@ -4,15 +4,16 @@ package com.soundcloud.android.record;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.audio.AudioConfig;
-import com.soundcloud.android.audio.FadeFilter;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.ScAudioTrack;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.playback.AudioManagerFactory;
 import com.soundcloud.android.service.playback.IAudioManager;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -65,6 +66,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
       PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS
     };
 
+
     public enum State {
         IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING;
 
@@ -112,7 +114,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         return instance;
     }
 
-    private SoundRecorder(Context context, AudioConfig config) {
+    SoundRecorder(Context context, AudioConfig config) {
         final int bufferSize = config.getMinBufferSize();
         mContext = context;
         mConfig = config;
@@ -188,7 +190,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     // Sets output file path, call directly after construction/reset.
-    public Recording startRecording(User user) throws IOException {
+    public Recording startRecording(@Nullable User user) throws IOException {
         if (!IOUtils.isSDCardAvailable()) {
             throw new IOException(mContext.getString(R.string.record_insert_sd_card));
         } else if (!mRemainingTimeCalculator.isDiskSpaceAvailable()) {
@@ -203,7 +205,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         mRemainingTimeCalculator.reset();
 
         if (mState != State.RECORDING) {
-
             if (mRecording == null) {
                 Recording recording = Recording.create(user);
                 if (mRecordStream != null) {
@@ -248,7 +249,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
             mState = State.STOPPING;
         }
     }
-
 
     public void reload() {
         if (!mState.isPlaying()) {
@@ -303,8 +303,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     public long getPlaybackDuration() {
-            return mPlaybackStream == null ? -1 : mPlaybackStream.getDuration();
-        }
+        return mPlaybackStream == null ? -1 : mPlaybackStream.getDuration();
+    }
 
     public long getCurrentPlaybackPosition() {
         return mSeekToPos != -1 ? mSeekToPos :
@@ -315,14 +315,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         if (mPlaybackStream != null){
             mPlaybackStream.reset();
         }
-
-        //TODO reset optimize
-    }
-
-    public void applyEdits() {
-        Log.d(TAG, "applyEdits");
-
-
     }
 
     public boolean isPlaying() {
@@ -359,6 +351,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     public void onNewStartPosition(double percent) {
+        if (percent < 0d || percent > 1d) throw new IllegalArgumentException("invalid percent "+percent);
         if (mPlaybackStream != null) {
             final long previewPosition = mPlaybackStream.setStartPositionByPercent(percent);
             if (mState == State.PLAYING) {
@@ -369,6 +362,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     public void onNewEndPosition(double percent) {
+        if (percent < 0d || percent > 1d) throw new IllegalArgumentException("invalid percent "+percent);
         if (mPlaybackStream != null) {
             final long previewPosition = mPlaybackStream.setEndPositionByPercent(percent);
             if (mState == State.PLAYING) {
@@ -386,10 +380,12 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         return mRemainingTimeCalculator.currentLowerLimit();
     }
 
-    private void saveState() {
-        if (mRecording != null && mRecording.isSaved()) {
-
-
+    public Recording saveState() {
+        if (mRecording != null) {
+            mRecording.setPlaybackStream(mPlaybackStream);
+            return SoundCloudDB.insertRecording(mContext.getContentResolver(), mRecording);
+        } else {
+            return null;
         }
     }
 
@@ -398,7 +394,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     @Override public void focusLost(boolean isTransient, boolean canDuck) {
     }
-
 
     // Used by the service to determine whether to show notifications or not
     // this is stored here because of the Recorder's lifecycle.
@@ -409,12 +404,20 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
-    public void toggleFade() {
-        if (mPlaybackStream.filter == null) {
-            mPlaybackStream.filter = new FadeFilter(mConfig);
-        } else {
-            mPlaybackStream.filter = null;
-        }
+    public boolean toggleFade() {
+        final boolean enabled = !mPlaybackStream.isFading();
+        mPlaybackStream.setFading(enabled);
+        return enabled;
+    }
+
+    public boolean toggleOptimize() {
+        final boolean enabled = !mPlaybackStream.isOptimized();
+        mPlaybackStream.setOptimize(enabled);
+        return enabled;
+    }
+
+    /* package, for testing */ void setPlaybackStream(PlaybackStream stream) {
+        mPlaybackStream = stream;
     }
 
     private void broadcast(String action) {
@@ -518,6 +521,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 if (mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
                     Log.w(TAG, "audiorecorder is not initialized");
                     mState = SoundRecorder.State.ERROR;
+                    broadcast(RECORD_ERROR);
                     return;
                 }
 

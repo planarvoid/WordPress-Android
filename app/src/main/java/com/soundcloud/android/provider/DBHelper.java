@@ -189,6 +189,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "audio_path VARCHAR(255)," +
             "artwork_path VARCHAR(255)," +
             "duration INTEGER," +
+            "description VARCHAR(255)," +
             "four_square_venue_id VARCHAR(255), " +
             "shared_emails text," +
             "shared_ids text, " +
@@ -199,7 +200,9 @@ public class DBHelper extends SQLiteOpenHelper {
             "upload_status INTEGER DEFAULT 0," +
             "trim_left INTEGER," +
             "trim_right INTEGER," +
-            "filters INTEGER" +
+            "filters INTEGER," +
+            "optimize INTEGER," +
+            "fading INTEGER" +
             ");";
 
     static final String DATABASE_CREATE_COMMENTS = "("+
@@ -368,7 +371,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_TRACKS}
+     * {@link DBHelper#DATABASE_CREATE_TRACKS}
      */
     public static final class Tracks extends ResourceTable  {
         public static final String DURATION = "duration";
@@ -403,7 +406,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_TRACK_METADATA}
+     * {@link DBHelper#DATABASE_CREATE_TRACK_METADATA}
      */
     public static final class TrackMetadata implements BaseColumns {
         public static final String USER_ID    = "user_id";
@@ -421,7 +424,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_COLLECTION_ITEMS}
+     * {@link DBHelper#DATABASE_CREATE_COLLECTION_ITEMS}
      */
     public static final class CollectionItems {
         public static final String ITEM_ID = "item_id";
@@ -433,7 +436,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_USERS}
+     * {@link DBHelper#DATABASE_CREATE_USERS}
      */
     public static final class Users extends ResourceTable  {
         public static final String USERNAME = "username";
@@ -476,7 +479,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_RECORDINGS}
+     * {@link DBHelper#DATABASE_CREATE_RECORDINGS}
      */
     public static final class Recordings implements BaseColumns {
         public static final String USER_ID         = "user_id";
@@ -487,6 +490,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String WHERE_TEXT      = "where_text";
         public static final String AUDIO_PATH      = "audio_path";
         public static final String DURATION        = "duration";
+        public static final String DESCRIPTION     = "description";
         public static final String ARTWORK_PATH    = "artwork_path";
         public static final String SHARED_EMAILS   = "shared_emails";
         public static final String SHARED_IDS      = "shared_ids";
@@ -499,10 +503,20 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String TRIM_LEFT       = "trim_left";
         public static final String TRIM_RIGHT      = "trim_right";
         public static final String FILTERS         = "filters";
+        public static final String OPTIMIZE        = "optimize";
+        public static final String FADING          = "fading";
+
+        public static final String[] ALL_FIELDS = {
+                _ID, USER_ID, TIMESTAMP, LONGITUDE, LATITUDE, WHAT_TEXT,
+                WHERE_TEXT, AUDIO_PATH, DURATION, DESCRIPTION, ARTWORK_PATH,
+                SHARED_EMAILS, SHARED_IDS, PRIVATE_USER_ID, SERVICE_IDS, IS_PRIVATE,
+                EXTERNAL_UPLOAD, UPLOAD_STATUS, FOUR_SQUARE_VENUE_ID,
+                TRIM_LEFT, TRIM_RIGHT, FILTERS, OPTIMIZE, FADING
+        };
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_ACTIVITIES}
+     * {@link DBHelper#DATABASE_CREATE_ACTIVITIES}
      */
     public static class Activities implements BaseColumns {
         public static final String TYPE = "type";
@@ -515,7 +529,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_SEARCHES}
+     * {@link DBHelper#DATABASE_CREATE_SEARCHES}
      */
     public static final class Searches implements BaseColumns {
         public static final String USER_ID = "user_id";
@@ -525,7 +539,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_COLLECTIONS}
+     * {@link DBHelper#DATABASE_CREATE_COLLECTIONS}
      */
     public static final class Collections implements BaseColumns {
         public static final String URI = "uri";                      // local content provider uri
@@ -537,7 +551,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_COLLECTION_PAGES}
+     * {@link DBHelper#DATABASE_CREATE_COLLECTION_PAGES}
      */
     public static final class CollectionPages implements BaseColumns {
         public static final String COLLECTION_ID = "collection_id";
@@ -547,7 +561,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_PLAYLIST_ITEMS}
+     * {@link DBHelper#DATABASE_CREATE_PLAYLIST_ITEMS}
      */
     public final static class PlaylistItems implements BaseColumns{
         public static final String PLAYLIST_ID = "playlist_id";

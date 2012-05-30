@@ -125,26 +125,21 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     }
 
     private void onUploadSuccess(HttpResponse response) {
-        String strTrack = null;
+        Track track = null;
         try {
-            final Track t = app.getMapper().readValue(response.getEntity().getContent(), Track.class);
-            mUpload.track_id = t.id;
-            SoundCloudDB.insertTrack(app.getContentResolver(), t);
-            strTrack = t.toString();
-
+            track = app.getMapper().readValue(response.getEntity().getContent(), Track.class);
+            mUpload.track_id = track.id;
+            SoundCloudDB.insertTrack(app.getContentResolver(), track);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(TAG, e);
         }
-
         //request to update my collection
         LocalCollection.forceToStale(Content.ME_TRACKS.uri, app.getContentResolver());
-        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + ( strTrack == null ? "<track_parsing_error>" : strTrack ));
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + ( track == null ? "<track_parsing_error>" : track ));
 
         mUpload.onUploaded();
         broadcast(UploadService.UPLOAD_SUCCESS);
     }
-
-    ;
 
     private void broadcast(String action) {
         mBroadcastManager.sendBroadcast(new Intent(action)

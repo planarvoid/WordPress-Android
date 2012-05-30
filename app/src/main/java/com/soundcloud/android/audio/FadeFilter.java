@@ -8,9 +8,6 @@ public class FadeFilter implements PlaybackFilter {
 
     private static final int FADE_LENGTH_MS = 3000;
     private static final int FADE_EXP_CURVE = 2;
-
-    public boolean optimize;
-
     private final long fadeSize;
 
     public FadeFilter(AudioConfig config) {

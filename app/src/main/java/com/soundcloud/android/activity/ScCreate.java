@@ -11,6 +11,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.RemainingTimeCalculator;
 import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -231,7 +232,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -312,27 +312,19 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.SAVE, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final Recording rec = mRecorder.saveState();
                 if (mCurrentState.isEdit()) {
-                    mRecorder.applyEdits();
                     updateUi(CreateState.IDLE_PLAYBACK, true);
                 } else {
                     track(Click.Record_next);
-
-                    final Uri recordingUri;
-                    if (mRecording.isSaved()) {
-                        recordingUri = mRecording.toUri();
-                    } else {
-                        mRecording.duration = mRecorder.getPlaybackDuration();
-                        recordingUri = SoundCloudDB.insertRecording(getContentResolver(), mRecording, mRecipient).toUri();
-                        reset();
-                    }
-
-                    startActivity(new Intent(ScCreate.this, ScUpload.class).setData(recordingUri));
+                    reset();
+                    startActivity(new Intent(ScCreate.this, ScUpload.class)
+                            .putExtra(SoundRecorder.EXTRA_RECORDING, rec)
+                            .setData(rec.toUri()));
                 }
             }
         }), R.string.btn_next);
         return buttonBar;
-
     }
 
     private ImageButton setupActionButton() {
@@ -357,8 +349,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         });
         return button;
     }
-
-
 
     private Button setupPlaybutton(int id) {
         final Button button = ((Button) findViewById(id));
@@ -418,9 +408,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private ToggleButton setupToggleOptimize() {
         final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_optimize);
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
+            @Override public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mRecorder.toggleOptimize();
             }
         });
         return tb;
@@ -483,7 +472,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
                 setPlayButtonDrawable(false);
                 if (!IOUtils.isSDCardAvailable()){
-                    // state list drawables wont work forwith the image button
+                    // state list drawables won't work with the image button
                     mActionButton.setClickable(false);
                     mActionButton.setImageResource(R.drawable.btn_rec_deactivated);
                     txtRecordMessage.setText(getString(R.string.record_insert_sd_card));
@@ -833,7 +822,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     for (int i = 0; i < recordings.size(); i++) {
                                         if (checked[i]) {
-                                            SoundCloudDB.insertRecording(getContentResolver(), recordings.get(i), null);
+                                            SoundCloudDB.insertRecording(getContentResolver(), recordings.get(i));
                                         } else {
                                             recordings.get(i).delete(null);
                                         }

@@ -29,7 +29,8 @@ public class BetaServiceTest {
     BetaService bs;
     @Before
     public void before() {
-        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
+        TestHelper.setSDCardMounted();
+
         ConnectivityManager cm = (ConnectivityManager)
                 Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
 

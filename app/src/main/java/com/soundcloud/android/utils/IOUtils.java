@@ -17,6 +17,7 @@ import android.net.NetworkInfo;
 import android.net.Proxy;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
@@ -400,6 +401,15 @@ public final class IOUtils {
         fos.close();
     }
 
+    public static void copy(File in, File out) throws IOException {
+        final FileInputStream is = new FileInputStream(in);
+        try {
+            copy(is, out);
+        } finally {
+            is.close();
+        }
+    }
+
     public static void close(Closeable file) {
         if (file != null) {
             try {
@@ -407,5 +417,20 @@ public final class IOUtils {
             } catch (IOException ignored) {
             }
         }
+    }
+
+    /**
+     * some phones have really low transfer rates when the screen is turned off, so request a full
+     * performance lock on newer devices
+     *
+     * @see <a href="http://code.google.com/p/android/issues/detail?id=9781">http://code.google.com/p/android/issues/detail?id=9781</a>
+     */
+    public static WifiManager.WifiLock createHiPerfWifiLock(Context context, String tag) {
+        return ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
+                .createWifiLock(
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD ?
+                        WifiManager.WIFI_MODE_FULL_HIGH_PERF : WifiManager.WIFI_MODE_FULL,
+                        tag
+                );
     }
 }

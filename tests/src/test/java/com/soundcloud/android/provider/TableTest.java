@@ -155,6 +155,34 @@ public class TableTest {
         expect(snapshot).toMatch("CREATE VIEW");
     }
 
+    @Test
+    public void shouldInsertAndUpsertEntries() {
+        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+
+        long id = Table.RECORDINGS.insertOrReplaceArgs(db,
+            DBHelper.Recordings.WHAT_TEXT,  "what",
+            DBHelper.Recordings.WHERE_TEXT, "where"
+        );
+        expect(id).not.toBe(0l);
+
+        int changed = Table.RECORDINGS.upsertSingleArgs(db,
+            DBHelper.Recordings._ID, id,
+            DBHelper.Recordings.WHAT_TEXT, "was"
+        );
+        expect(changed).toEqual(1);
+
+        Cursor c = DefaultTestRunner.application.getContentResolver().
+                query(Content.RECORDINGS.forId(id),
+                        null, null, null, null);
+
+        expect(c.moveToFirst()).toBeTrue();
+        String what = c.getString(c.getColumnIndex(DBHelper.Recordings.WHAT_TEXT));
+        String where = c.getString(c.getColumnIndex(DBHelper.Recordings.WHERE_TEXT));
+
+        expect(what).toEqual("was");
+        expect(where).toEqual("where");
+    }
+
     public static void main(String[] args) throws IOException {
         File schema = new File("tests/src/resources/com/soundcloud/android/provider/schema_"
                 +DBHelper.DATABASE_VERSION+".sql");

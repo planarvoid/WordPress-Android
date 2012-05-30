@@ -3,18 +3,19 @@ package com.soundcloud.android.service.upload;
 import static com.soundcloud.android.Consts.Notifications.UPLOADED_NOTIFY_ID;
 import static com.soundcloud.android.Consts.Notifications.UPLOADING_NOTIFY_ID;
 
-import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.SoundRecorderService;
 import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.app.Notification;
@@ -27,7 +28,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -38,7 +38,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -152,8 +151,7 @@ public class UploadService extends Service {
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mWakeLock = ((PowerManager) getSystemService(Context.POWER_SERVICE))
                 .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-        mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
-                .createWifiLock(Build.VERSION.SDK_INT >= 9 ? 3 /* WIFI_MODE_FULL_HIGH_PERF */ : WifiManager.WIFI_MODE_FULL, TAG);
+        mWifiLock = IOUtils.createHiPerfWifiLock(this, TAG);
     }
 
     @Override
@@ -218,14 +216,12 @@ public class UploadService extends Service {
                        UPLOAD_CANCELLED.equals(action)) {
 
                 final long track_id = recording.track_id;
-                if (track_id != -1){
+                if (track_id != Track.NOT_SET){
                     new Poller(createLooper("poller_"+ track_id),
                             (SoundCloudApplication) getApplication(),
                             track_id,
                             Content.ME_TRACKS.uri).start();
                 }
-
-
                 // XXX retry on temp. error?
 
                 mUploads.remove(recording.id);
@@ -263,7 +259,7 @@ public class UploadService extends Service {
     };
 
     private void notifyProgress(int progress, int resId) {
-        mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, progress, progress == 0 ? true : false); // just show indeterminate for 0 progress, looks better for quick uploads
+        mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, progress, progress == 0); // just show indeterminate for 0 progress, looks better for quick uploads
         mUploadNotificationView.setTextViewText(R.id.percentage, getString(resId, progress));
         nm.notify(UPLOADING_NOTIFY_ID, mUploadNotification);
     }
@@ -282,7 +278,7 @@ public class UploadService extends Service {
     /* package */ void onUpload(Recording recording) {
         // make sure recording is saved before uploading
         if (!recording.isSaved() &&
-            (recording = SoundCloudDB.insertRecording(getContentResolver(), recording, null)) == null) {
+            (recording = SoundCloudDB.insertRecording(getContentResolver(), recording)) == null) {
             Log.w(TAG, "could not insert "+recording);
         } else {
             recording.upload_status = Recording.Status.UPLOADING;

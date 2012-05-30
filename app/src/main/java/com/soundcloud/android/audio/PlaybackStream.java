@@ -1,8 +1,6 @@
 package com.soundcloud.android.audio;
 
-import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.utils.IOUtils;
-
 
 import android.util.Log;
 
@@ -19,24 +17,25 @@ public class PlaybackStream {
     private AudioConfig mConfig;
     private AudioFile mPlaybackFile;
 
-    public PlaybackFilter filter;
+    private PlaybackFilter mFilter;
+    private boolean mOptimize;
 
-    public PlaybackStream(AudioFile audioFile, AudioConfig config) throws IOException {
+    public PlaybackStream(AudioFile audioFile) throws IOException {
         mPlaybackFile = audioFile;
+        mConfig = audioFile.getConfig();
         resetBounds();
         mCurrentPos = -1;
-
-        mConfig = config;
     }
 
     public void reset() {
         resetBounds();
-        filter = null;
+        mFilter = null;
+        mOptimize = false;
     }
 
     public void resetBounds() {
         mStartPos = 0;
-        mEndPos = mPlaybackFile.getDuration();
+        mEndPos   = mPlaybackFile.getDuration();
     }
 
     public long getDuration(){
@@ -48,11 +47,13 @@ public class PlaybackStream {
     }
 
     public long setStartPositionByPercent(double percent) {
+        if (percent < 0d || percent > 1d) throw new IllegalArgumentException("invalid percent "+percent);
         mStartPos = (long) (percent * mPlaybackFile.getDuration());
         return mStartPos;
     }
 
     public long setEndPositionByPercent(double percent) {
+        if (percent < 0d || percent > 1d) throw new IllegalArgumentException("invalid percent "+percent);
         mEndPos = (long) (percent * mPlaybackFile.getDuration());
         return Math.max(mStartPos, mEndPos - TRIM_PREVIEW_LENGTH);
     }
@@ -62,8 +63,8 @@ public class PlaybackStream {
 
             final int n = mPlaybackFile.read(buffer, bufferSize);
             buffer.flip();
-            if (filter != null) {
-                filter.apply(buffer, mConfig.msToByte(mCurrentPos - mStartPos), mConfig.msToByte(mEndPos - mStartPos));
+            if (mFilter != null) {
+                mFilter.apply(buffer, mConfig.msToByte(mCurrentPos - mStartPos), mConfig.msToByte(mEndPos - mStartPos));
             }
 
             mCurrentPos = mPlaybackFile.getPosition();
@@ -83,12 +84,11 @@ public class PlaybackStream {
     public void initializePlayback() throws IOException {
         mCurrentPos = getValidPosition(mCurrentPos);
         mPlaybackFile.seek(mCurrentPos);
-
     }
 
     public long getValidPosition(long currentPosition) {
-            return (currentPosition < mStartPos || currentPosition >= mEndPos) ? mStartPos : currentPosition;
-        }
+        return (currentPosition < mStartPos || currentPosition >= mEndPos) ? mStartPos : currentPosition;
+    }
 
     public void close() {
         IOUtils.close(mPlaybackFile);
@@ -106,5 +106,34 @@ public class PlaybackStream {
         } catch (IOException e) {
             Log.w(PlaybackStream.class.getSimpleName(), e);
         }
+    }
+
+    public long getStartPos() {
+        return mStartPos;
+    }
+
+    public long getEndPos() {
+        return mEndPos;
+    }
+
+    public boolean isOptimized() {
+        return mOptimize;
+    }
+
+    public boolean isFading() {
+        return mFilter instanceof FadeFilter;
+    }
+
+    public void setFading(boolean enabled) {
+        mFilter = enabled ? new FadeFilter(mPlaybackFile.getConfig()) : null;
+    }
+
+    public void setOptimize(boolean enabled) {
+        mOptimize = enabled;
+    }
+
+    public void setTrim(long start, long end) {
+        mStartPos = start;
+        mEndPos = end;
     }
 }
