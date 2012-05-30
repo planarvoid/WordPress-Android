@@ -14,8 +14,8 @@ public class WavHeaderTest {
     public static final String MONO_TEST_WAV = "/com/soundcloud/android/record/mono_16bit_44khz.wav";
     /** 44100 16bit signed, 2 channels, 00:00:00.27, 47148 bytes  */
     public static final String STEREO_TEST_WAV = "/com/soundcloud/android/record/stereo_16bit_44khz.wav";
-    /** 8000 16bit signed, 1 channel, 00:00:05.55, 88844 byta es  */
-    public static final String PCM16_8000_1_WAV = "/com/soundcloud/android/record/PCM16_8000_1.wav";
+    /** 8000 16bit signed, 1 channel, 00:00:05.55, 88844 bytes  */
+    public static final String PCM16_8000_1_WAV = "/com/soundcloud/android/record/mono_16bit_8khz.wav";
 
     @Test
     public void shouldReadWaveHeaderFromInputStream() throws Exception {
