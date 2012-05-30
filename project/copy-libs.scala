@@ -20,7 +20,7 @@ object CopyLibs {
           }
           val justTest = test -- justCompile
 
-          val compileLibs = for { (_, file) <- justCompile } yield (file, new File("lib", file.getName))
+          val compileLibs = for { (_, file) <- justCompile } yield (file, new File("app/lib", file.getName))
           val testLibs    = for { (_, file) <- justTest } yield (file, new File("tests/lib", file.getName))
           val intLibs     = for { (_, file) <- int } yield (file, new File("tests-integration/lib", file.getName))
 
