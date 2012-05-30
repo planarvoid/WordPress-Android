@@ -11,8 +11,8 @@ Clone and build it:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git
     $ cd SoundCloud-Android
-    $ mvn install
-    $ adb install target/soundcloud-android-X.Y-SNAPSHOT.apk
+    $ mvn install -DskipTests
+    $ adb install app/target/soundcloud-android-X.Y-SNAPSHOT.apk
 
 If you don't want to use maven (who does?!) and have [sbt][] installed:
 
@@ -25,7 +25,7 @@ build file `project/build.scala`, split in `coreDependencies` and `testDependenc
 
 Based on `build.scala` you can regenerate the `pom.xml` using `sbt mavenize`. To
 actually download the dependencies to your working directory use `mvn
-process-resources -U`, this will populate `lib/` and `tests/lib`.
+process-resources -U`, this will populate `app/lib` and `tests/lib`.
 
 ## Betas and releasing
 
