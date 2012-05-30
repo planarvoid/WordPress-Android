@@ -69,17 +69,12 @@ Copy apk received from Amzazon to `target/soundcloud-android-x.y.z.apk`, then ru
   * Tag the current beta version: `rake beta:tag`
   * Upload to S3: `rake beta:upload`
 
-## Integration from other Android apps
+## Coding conventions / guidelines
 
-This is document elsewhere:
-
-  * [Token Sharing][]
-  * [Intent Sharing][]
-
+Documented on the [wiki][].
 
 [Android SDK]: http://developer.android.com/sdk/index.html
 [Builder]: http://builder.soundcloud.com/view/Android/job/soundcloud-android/
 [changelog.txt]: https://github.com/soundcloud/SoundCloud-Android/blob/master/res/raw/changelog.txt
-[Token Sharing]: https://github.com/soundcloud/android-token-sharing
-[Intent Sharing]: https://github.com/soundcloud/android-intent-sharing
 [sbt]: https://github.com/harrah/xsbt/
+[wiki]: https://github.com/soundcloud/SoundCloud-Android/wiki/
