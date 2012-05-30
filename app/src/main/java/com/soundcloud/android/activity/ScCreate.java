@@ -301,14 +301,14 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     showDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
                 }
             }
-        }), getString(R.string.reset));
+        }), R.string.reset);
         buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.DELETE, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 track(Click.Record_delete);
                 showDialog(Consts.Dialogs.DIALOG_DELETE_RECORDING);
             }
-        }), getString(R.string.delete));
+        }), R.string.delete);
         buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.SAVE, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -330,7 +330,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     startActivity(new Intent(ScCreate.this, ScUpload.class).setData(recordingUri));
                 }
             }
-        }), getString(R.string.btn_next));
+        }), R.string.btn_next);
         return buttonBar;
 
     }

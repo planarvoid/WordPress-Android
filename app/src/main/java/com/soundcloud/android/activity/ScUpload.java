@@ -89,7 +89,7 @@ public class ScUpload extends ScActivity {
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
             }
-        }), getString(R.string.record_another_sound)).addItem(new ButtonBar.MenuItem(1, new View.OnClickListener() {
+        }), R.string.record_another_sound).addItem(new ButtonBar.MenuItem(1, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_Upload_and_share);
@@ -106,7 +106,7 @@ public class ScUpload extends ScActivity {
                     finish();
                 }
             }
-        }), getString((mRecording.isPrivateMessage()) ? R.string.private_message_btn_send : R.string.upload_and_share));
+        }), mRecording.isPrivateMessage() ? R.string.private_message_btn_send : R.string.upload_and_share);
 
         if (mRecording.isPrivateMessage()) {
             ((TextView) findViewById(R.id.txt_private_message_upload_message))

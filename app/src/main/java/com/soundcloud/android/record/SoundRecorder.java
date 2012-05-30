@@ -321,6 +321,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     public void applyEdits() {
         Log.d(TAG, "applyEdits");
+
+
     }
 
     public boolean isPlaying() {
