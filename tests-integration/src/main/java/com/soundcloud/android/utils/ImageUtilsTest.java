@@ -48,7 +48,7 @@ public class ImageUtilsTest extends ScAndroidTestCase {
 
     public void testGetExifRotation() throws Exception {
         File file = prepareAsset(IMAGE_LARGE_PORTRAIT_JPG);
-        assertEquals(0, ImageUtils.getExifRotation(file.getAbsolutePath()));
+        assertEquals(0, ImageUtils.getExifRotation(file));
     }
 
     public void testDetermineResizeOptionsLargePortrait() throws Exception {

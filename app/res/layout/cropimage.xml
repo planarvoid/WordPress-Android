@@ -2,7 +2,8 @@
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
 
     <view class="com.android.camera.CropImageView" android:id="@+id/image"
           android:background="#FF333333"
@@ -10,12 +11,12 @@
           android:layout_height="fill_parent"/>
 
     <LinearLayout style="@style/rec_button_bar"
+                  android:background="#66333333"
                   android:layout_alignParentBottom="true"
                   android:orientation="vertical">
-        <View
-                android:layout_height="1dp"
-                android:layout_width="match_parent"
-                android:background="@color/recButtonBarSeparator"/>
+        <View android:layout_height="1dp"
+              android:layout_width="match_parent"
+              android:background="@color/recButtonBarSeparator"/>
 
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="0dp"
