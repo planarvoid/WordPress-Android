@@ -87,9 +87,9 @@ public final class ImageUtils {
         return options;
     }
 
-    public static int getExifRotation(String filepath){
+    public static int getExifRotation(File imageFile){
         try {
-            ExifInterface exif = new ExifInterface(filepath);
+            ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
             // We only recognize a subset of orientation tag values.
             switch (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)) {
                 case ExifInterface.ORIENTATION_ROTATE_90:  return 90;
@@ -165,7 +165,7 @@ public final class ImageUtils {
 
             m.setScale(scale, scale);
             m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
-            int exifRotation = getExifRotation(imageFile.getAbsolutePath());
+            int exifRotation = getExifRotation(imageFile);
             if (exifRotation != 0) {
                 m.postRotate(exifRotation, minWidth / 2, minHeight / 2);
             }
@@ -205,7 +205,7 @@ public final class ImageUtils {
 
             m.setScale(scale, scale);
             m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
-            int exifRotation = getExifRotation(imageFile.getAbsolutePath());
+            int exifRotation = getExifRotation(imageFile);
             if (exifRotation != 0) {
                 m.postRotate(exifRotation, viewWidth / 2, viewHeight / 2);
             }
@@ -247,7 +247,7 @@ public final class ImageUtils {
 
                 m.setScale(scale, scale);
                 m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
-                int exifRotation = getExifRotation(imageFile.getAbsolutePath());
+                int exifRotation = getExifRotation(imageFile);
                 if (exifRotation != 0) {
                     m.postRotate(exifRotation, viewWidth / 2, viewHeight / 2);
                 }
@@ -268,7 +268,7 @@ public final class ImageUtils {
         BitmapFactory.Options options = determineResizeOptions(inputFile, width, height, false);
 
         final int sampleSize = options.inSampleSize;
-        final int degree = getExifRotation(inputFile.getAbsolutePath());
+        final int degree = getExifRotation(inputFile);
 
         if (sampleSize > 1 || degree > 0) {
             InputStream is = new FileInputStream(inputFile);
