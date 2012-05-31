@@ -82,7 +82,7 @@ public class ButtonBar extends LinearLayout {
         }
     }
 
-    public void setTextById(int id, CharSequence cs) {
+    public void setTextById(int id, int cs) {
         if (mMenuItemMap.get(id) != null) mMenuItemMap.get(id).button.setText(cs);
     }
 

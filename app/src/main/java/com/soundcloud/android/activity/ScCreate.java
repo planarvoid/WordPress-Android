@@ -78,10 +78,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private List<Recording> mUnsavedRecordings;
 
     private String[] mRecordSuggestions;
-    private String mRevertString;
-    private String mSaveString;
-    private String mNextString;
-    private String mResetString;
 
     public enum CreateState {
         IDLE_RECORD,
@@ -121,12 +117,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
 
         txtRecordMessage = (TextView) findViewById(R.id.txt_record_message);
-
-        mRevertString = getString(R.string.btn_revert_to_original);
-        mResetString = getString(R.string.reset);
-        mSaveString = getString(R.string.btn_save);
-        mNextString = getString(R.string.btn_next);
-
 
         mChrono = (Chronometer) findViewById(R.id.chronometer);
         mChrono.setVisibility(View.INVISIBLE);
@@ -583,8 +573,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 hideView(txtInstructions,false,View.GONE);
                 hideView(txtRecordMessage,false,View.INVISIBLE);
 
-
-
                 final boolean isPlaying = mCurrentState == CreateState.EDIT_PLAYBACK;
                 setPlayButtonDrawable(isPlaying);
 
@@ -614,8 +602,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     private void configureButtonBar(boolean isEditing) {
-        mButtonBar.setTextById(MenuItems.RESET, isEditing ? mRevertString : mResetString );
-        mButtonBar.setTextById(MenuItems.SAVE, isEditing ? mSaveString : mNextString);
+        mButtonBar.setTextById(MenuItems.RESET, isEditing ? R.string.btn_revert_to_original : R.string.reset);
+        mButtonBar.setTextById(MenuItems.SAVE, isEditing ? R.string.btn_save : R.string.btn_next);
 
         final boolean showDelete = !isEditing && mRecording != null && mRecording.isSaved();
         mButtonBar.toggleVisibility(MenuItems.RESET, !showDelete, false);
@@ -832,6 +820,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                             new DialogInterface.OnClickListener() {
                                 @Override public void onClick(DialogInterface dialog, int whichButton) {
                                     track(Click.Record_discard__ok);
+                                    dialog.dismiss();
                                     reset();
                                 }
                         })
@@ -852,7 +841,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                     @Override
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         track(Click.Record_revert__ok);
-                                        removeDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
+                                        dialog.dismiss();
                                         updateUi(CreateState.IDLE_PLAYBACK, true);
                                     }
                                 })
