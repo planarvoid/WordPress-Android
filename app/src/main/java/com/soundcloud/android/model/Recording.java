@@ -471,7 +471,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
         if (user == null) return null;
         for (File f : directory.listFiles(new RecordingFilter(null))) {
             if (Recording.getUserIdFromFile(f) == user.id) {
-                return new Recording(f);
+                Recording r = new Recording(f);
+                r.recipient = user;
+                return r;
             }
         }
         return null;

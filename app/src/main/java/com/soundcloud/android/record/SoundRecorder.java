@@ -163,7 +163,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         mState = mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
         amplitudeData.clear();
         writeIndex = -1;
-        mRecording = null;
+        if (mRecording != null) {
+            mRecording.delete(mContext.getContentResolver());
+            mRecording = null;
+        }
         if (mRecordStream != null) {
             mRecordStream.release();
             mRecordStream = null;
@@ -245,6 +248,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     public Recording getRecording() {
         return mRecording;
+    }
+
+    public boolean isSaved() {
+        return mRecording != null && mRecording.isSaved();
     }
 
     public void stopReading() {
@@ -427,6 +434,14 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         final boolean enabled = !mPlaybackStream.isOptimized();
         mPlaybackStream.setOptimize(enabled);
         return enabled;
+    }
+
+    public boolean isOptimized() {
+        return mPlaybackStream != null && mPlaybackStream.isOptimized();
+    }
+
+    public boolean isFading() {
+        return mPlaybackStream != null && mPlaybackStream.isFading();
     }
 
     /* package, for testing */ void setPlaybackStream(PlaybackStream stream) {
