@@ -3,7 +3,6 @@ package com.soundcloud.android.audio;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.utils.IOUtils;
 
-
 import android.util.Log;
 
 import java.io.IOException;
@@ -19,24 +18,25 @@ public class PlaybackStream {
     private AudioConfig mConfig;
     private AudioFile mPlaybackFile;
 
-    public PlaybackFilter filter;
+    private PlaybackFilter mFilter;
+    private boolean mOptimize;
 
-    public PlaybackStream(AudioFile audioFile, AudioConfig config) throws IOException {
+    public PlaybackStream(AudioFile audioFile) throws IOException {
         mPlaybackFile = audioFile;
+        mConfig = audioFile.getConfig();
         resetBounds();
         mCurrentPos = -1;
-
-        mConfig = config;
     }
 
     public void reset() {
         resetBounds();
-        filter = null;
+        mFilter = null;
+        mOptimize = false;
     }
 
     public void resetBounds() {
         mStartPos = 0;
-        mEndPos = mPlaybackFile.getDuration();
+        mEndPos   = mPlaybackFile.getDuration();
     }
 
     public long getDuration(){
@@ -47,13 +47,14 @@ public class PlaybackStream {
         return mCurrentPos - mStartPos;
     }
 
-    public TrimPreview setStartPositionByPercent(float newPos, float oldPos, long moveTime) {
+
+    public TrimPreview setStartPositionByPercent(double newPos, double oldPos, long moveTime) {
         final long old = mStartPos;
         mStartPos = (long) (newPos * mPlaybackFile.getDuration());
         return new TrimPreview(this,old,mStartPos, moveTime);
     }
 
-    public TrimPreview setEndPositionByPercent(float newPos, float oldPos, long moveTime) {
+    public TrimPreview setEndPositionByPercent(double newPos, double oldPos, long moveTime) {
         final long old = mEndPos;
         mEndPos = (long) (newPos * mPlaybackFile.getDuration());
         return new TrimPreview(this, old, mEndPos, moveTime);
@@ -69,8 +70,8 @@ public class PlaybackStream {
         if (mCurrentPos < mEndPos) {
             final int n = mPlaybackFile.read(buffer, bufferSize);
             buffer.flip();
-            if (filter != null) {
-                filter.apply(buffer, mConfig.msToByte(mCurrentPos - mStartPos), mConfig.msToByte(mEndPos - mStartPos));
+            if (mFilter != null) {
+                mFilter.apply(buffer, mConfig.msToByte(mCurrentPos - mStartPos), mConfig.msToByte(mEndPos - mStartPos));
             }
             mCurrentPos = mPlaybackFile.getPosition();
             return n;
@@ -97,8 +98,8 @@ public class PlaybackStream {
 
 
     public long getValidPosition(long currentPosition) {
-            return (currentPosition < mStartPos || currentPosition >= mEndPos) ? mStartPos : currentPosition;
-        }
+        return (currentPosition < mStartPos || currentPosition >= mEndPos) ? mStartPos : currentPosition;
+    }
 
     public void close() {
         IOUtils.close(mPlaybackFile);
@@ -118,50 +119,78 @@ public class PlaybackStream {
         }
     }
 
+    public long getStartPos() {
+        return mStartPos;
+    }
+
+    public long getEndPos() {
+        return mEndPos;
+    }
+
+    public boolean isOptimized() {
+        return mOptimize;
+    }
+
+    public boolean isFading() {
+        return mFilter instanceof FadeFilter;
+    }
+
+    public void setFading(boolean enabled) {
+        mFilter = enabled ? new FadeFilter(mPlaybackFile.getConfig()) : null;
+    }
+
+    public void setOptimize(boolean enabled) {
+        mOptimize = enabled;
+    }
+
+    public void setTrim(long start, long end) {
+        mStartPos = start;
+        mEndPos = end;
+    }
 
     public static class TrimPreview {
-        PlaybackStream mStream;
-        long mStartPos;
-        long mEndPos;
-        public long duration;
-        public long playbackRate;
+            PlaybackStream mStream;
+            long mStartPos;
+            long mEndPos;
+            public long duration;
+            public long playbackRate;
 
-        public TrimPreview (PlaybackStream stream, long startPosition, long endPosition, long moveTime){
-            mStream = stream;
-            mStartPos = startPosition;
-            mEndPos = endPosition;
-            duration = moveTime;
+            public TrimPreview (PlaybackStream stream, long startPosition, long endPosition, long moveTime){
+                mStream = stream;
+                mStartPos = startPosition;
+                mEndPos = endPosition;
+                duration = moveTime;
 
-            final long byteRange = getByteRange(stream.mConfig);
-            playbackRate = (int) (byteRange * (1000f / duration)) / stream.mConfig.sampleSize;
-            if (playbackRate > SoundRecorder.MAX_PLAYBACK_RATE){
-                // if this preview is too quick, we have to adjust it to fit the max samplerate. Adjust the duration
-                playbackRate = SoundRecorder.MAX_PLAYBACK_RATE;
-                duration = (long) (1000f / ((playbackRate * stream.mConfig.sampleSize)/byteRange));
+                final long byteRange = getByteRange(stream.mConfig);
+                playbackRate = (int) (byteRange * (1000f / duration)) / stream.mConfig.sampleSize;
+                if (playbackRate > SoundRecorder.MAX_PLAYBACK_RATE){
+                    // if this preview is too quick, we have to adjust it to fit the max samplerate. Adjust the duration
+                    playbackRate = SoundRecorder.MAX_PLAYBACK_RATE;
+                    duration = (long) (1000f / ((playbackRate * stream.mConfig.sampleSize)/byteRange));
+                }
+            }
+
+            public long lowPos(AudioConfig config){
+                return config.validBytePosition(Math.min(mStartPos,mEndPos));
+            }
+
+            public long getByteRange(AudioConfig config) {
+                return config.validBytePosition(config.msToByte((int) Math.abs(mEndPos - mStartPos)));
+            }
+
+            public boolean isReverse() {
+                return mStartPos > mEndPos;
+            }
+
+            @Override
+            public String toString() {
+                return "TrimPreview{" +
+                        "mStream=" + mStream +
+                        ", mStartPos=" + mStartPos +
+                        ", mEndPos=" + mEndPos +
+                        ", duration=" + duration +
+                        ", playbackRate=" + playbackRate +
+                        '}';
             }
         }
-
-        public long lowPos(AudioConfig config){
-            return config.validBytePosition(Math.min(mStartPos,mEndPos));
-        }
-
-        public long getByteRange(AudioConfig config) {
-            return config.validBytePosition(config.msToByte((int) Math.abs(mEndPos - mStartPos)));
-        }
-
-        public boolean isReverse() {
-            return mStartPos > mEndPos;
-        }
-
-        @Override
-        public String toString() {
-            return "TrimPreview{" +
-                    "mStream=" + mStream +
-                    ", mStartPos=" + mStartPos +
-                    ", mEndPos=" + mEndPos +
-                    ", duration=" + duration +
-                    ", playbackRate=" + playbackRate +
-                    '}';
-        }
-    }
 }

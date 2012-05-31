@@ -239,10 +239,6 @@ public class RecordingMetaData extends RelativeLayout {
         return (mRecording == null) ? null : mRecording.generateImageFile(Recording.IMAGE_DIR);
     }
 
-    public void setDefaultImage() {
-        setImage(getCurrentImageFile());
-    }
-
     public void onDestroy(){
         clearArtwork();
     }

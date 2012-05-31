@@ -192,7 +192,6 @@ public class CreateWaveView extends View {
     }
 
     private void drawFullWave(Canvas c) {
-
         assertAmplitudeHistory();
 
         if (mRecordStartIndex == -1) mRecordStartIndex = SoundRecorder.getInstance(getContext()).writeIndex;
@@ -269,10 +268,7 @@ public class CreateWaveView extends View {
         if (animating) invalidate();
     }
 
-
-
     private void drawZoomWave(Canvas c) {
-
         if (mAllAmplitudes == null) return;
 
         float normalizedTime = Math.min(1.0f,(((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));

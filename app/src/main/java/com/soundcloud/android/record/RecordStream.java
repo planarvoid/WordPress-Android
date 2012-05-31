@@ -95,7 +95,7 @@ public class RecordStream implements Closeable {
     }
 
     public PlaybackStream getPlaybackStream() throws IOException {
-        return new PlaybackStream(mEncodedFile == null || !mEncodedFile.exists() ? new WavFile(mWavWriter.file) : new VorbisFile(mEncodedFile), config);
+        return new PlaybackStream(mEncodedFile == null || !mEncodedFile.exists() ? new WavFile(mWavWriter.file) : new VorbisFile(mEncodedFile));
     }
 
     public boolean shouldEncode() {

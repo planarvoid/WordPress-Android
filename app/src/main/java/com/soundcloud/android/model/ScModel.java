@@ -208,7 +208,7 @@ public abstract class ScModel implements Parcelable {
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        if (id != -1) cv.put(BaseColumns._ID, id);
+        if (id != NOT_SET) cv.put(BaseColumns._ID, id);
         return cv;
     }
 
@@ -216,7 +216,7 @@ public abstract class ScModel implements Parcelable {
      * @return whether this object has been saved to the database.
      */
     public boolean isSaved() {
-        return id >= 0;
+        return id > NOT_SET;
     }
 
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}

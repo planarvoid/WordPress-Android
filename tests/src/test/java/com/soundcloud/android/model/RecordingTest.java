@@ -4,6 +4,8 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.provider.SoundCloudDB;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -119,7 +121,7 @@ public class RecordingTest {
 
     @Test
     public void shouldGenerateImageFilename() throws Exception {
-        expect(new Recording(new File("/tmp/foo.mp4")).generateImageFile(new File("/images")).getAbsolutePath()).
+        expect(new Recording(new File("/tmp/foo.wav")).generateImageFile(new File("/images")).getAbsolutePath()).
                 toEqual("/images/foo.bmp");
 
         expect(new Recording(new File("/tmp/foo")).generateImageFile(new File("/images")).getAbsolutePath()).
@@ -225,25 +227,52 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldMapIntentToRecording() throws Exception {
+    public void shouldGetRecordingFromIntent() throws Exception {
         Intent i = new Intent(Actions.SHARE)
                 .putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File("/tmp")))
                 .putExtra(Actions.EXTRA_DESCRIPTION, "description")
                 .putExtra(Actions.EXTRA_GENRE, "genre")
-//                .putExtra(Actions.EXTRA_PUBLIC, false)
+                .putExtra(Actions.EXTRA_PUBLIC, false)
                 .putExtra(Actions.EXTRA_TITLE, "title")
                 .putExtra(Actions.EXTRA_WHERE, "where")
-//                .putExtra(Actions.EXTRA_TAGS, new String[] { "tags" })
+                .putExtra(Actions.EXTRA_TAGS, new String[] { "tags" })
                 ;
 
         Recording r = Recording.fromIntent(i, Robolectric.application.getContentResolver(), -1);
         expect(r).not.toBeNull();
         expect(r.description).toEqual("description");
         expect(r.genre).toEqual("genre");
-//        assertThat(r.is_private, is(false));
+        expect(r.is_private).toBeTrue();
         expect(r.where_text).toEqual("where");
         expect(r.what_text).toEqual("title");
-//        assertThat(r.tags, equalTo(new String[] { "tags" } ));
+        expect(r.tagString()).toEqual("tags soundcloud:source=android-3rdparty-upload");
+    }
+
+    @Test
+    public void shouldGetRecordingFromIntentViaDatabase() throws Exception {
+        Recording r = SoundCloudDB.insertRecording(Robolectric.application.getContentResolver(), createRecording());
+
+        assert r != null;
+        Intent i = new Intent().setData(r.toUri());
+
+        Recording r2 = Recording.fromIntent(i, Robolectric.application.getContentResolver(), -1);
+        expect(r2).not.toBeNull();
+        expect(r2.description).toEqual(r.description);
+        expect(r2.is_private).toEqual(r.is_private);
+        expect(r2.where_text).toEqual(r.where_text);
+        expect(r2.what_text).toEqual(r.what_text);
+    }
+
+    @Test
+    public void shouldGetRecordingFromIntentViaParcelable() throws Exception {
+        Recording r = createRecording();
+        Intent i = new Intent().putExtra(SoundRecorder.EXTRA_RECORDING, r);
+        Recording r2 = Recording.fromIntent(i, Robolectric.application.getContentResolver(), -1);
+        expect(r2).not.toBeNull();
+        expect(r2.description).toEqual(r.description);
+        expect(r2.is_private).toEqual(r.is_private);
+        expect(r2.where_text).toEqual(r.where_text);
+        expect(r2.what_text).toEqual(r.what_text);
     }
 
     @Test
@@ -345,5 +374,23 @@ public class RecordingTest {
         expect(Recording.getUserIdFromFile(new File("_foo/12232_1234.ogg_"))).toEqual(1234l);
     }
 
+    @Test
+    public void shouldHavetoUri() throws Exception {
+        Recording r = createRecording();
+        expect(r.toUri()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/recordings");
+        r.id = 10;
+        expect(r.toUri()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/recordings/10");
+    }
 
+    @Test
+    public void testIsEncodedFilename() throws Exception {
+        expect(Recording.isEncodedFilename("foo.ogg")).toBeTrue();
+        expect(Recording.isEncodedFilename("foo.wav")).toBeFalse();
+    }
+
+    @Test
+    public void testIsRawFilename() throws Exception {
+        expect(Recording.isRawFilename("foo.ogg")).toBeFalse();
+        expect(Recording.isRawFilename("foo.wav")).toBeTrue();
+    }
 }

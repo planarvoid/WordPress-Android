@@ -1,5 +1,8 @@
 package com.soundcloud.android.provider;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -19,7 +22,7 @@ public enum Table {
     USERS("Users", false, DBHelper.DATABASE_CREATE_USERS, DBHelper.Users.ALL_FIELDS),
     COMMENTS("Comments", false, DBHelper.DATABASE_CREATE_COMMENTS),
     ACTIVITIES("Activities", false, DBHelper.DATABASE_CREATE_ACTIVITIES),
-    RECORDINGS("Recordings", false, DBHelper.DATABASE_CREATE_RECORDINGS),
+    RECORDINGS("Recordings", false, DBHelper.DATABASE_CREATE_RECORDINGS, DBHelper.Recordings.ALL_FIELDS),
     SEARCHES("Searches", false, DBHelper.DATABASE_CREATE_SEARCHES),
 
     PLAYLIST("Playlist", false, DBHelper.DATABASE_CREATE_PLAYLIST),
@@ -114,7 +117,7 @@ public enum Table {
         return alterColumns(db, new String[0], new String[0]);
     }
 
-    public List<String> alterColumns(SQLiteDatabase db, String[] fromAppendCols, String[] toAppendCols) {
+    public List<String> alterColumns(SQLiteDatabase db, @Nullable String[] fromAppendCols, @Nullable String[] toAppendCols) {
         return alterColumns(db, name, createString, fromAppendCols, toAppendCols);
     }
 
@@ -171,7 +174,7 @@ public enum Table {
      */
 
     public int upsert(SQLiteDatabase db, ContentValues[] values) {
-        if (fields == null) {
+        if (fields == null || fields.length == 0) {
             throw new IllegalStateException("no fields defined");
         }
         db.beginTransaction();
@@ -197,6 +200,7 @@ public enum Table {
             }
             sb.append(");");
             final String sql = sb.toString();
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "sql:"+sql);
             db.execSQL(sql, bindArgs.toArray());
         }
         db.setTransactionSuccessful();
@@ -204,9 +208,45 @@ public enum Table {
         return values.length;
     }
 
-    @Override
-    public String toString() {
-        return name;
+    public int upsertSingle(SQLiteDatabase db, ContentValues cv) {
+        return upsert(db, new ContentValues[] { cv } );
+    }
+
+    public int upsertSingleArgs(SQLiteDatabase db, Object... args) {
+        return upsertSingle(db, build(args));
+    }
+
+    public long insertOrReplace(SQLiteDatabase db, ContentValues cv) {
+        return db.insertWithOnConflict(name, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public long insertOrReplaceArgs(SQLiteDatabase db, Object... args) {
+        return insertOrReplace(db, build(args));
+    }
+
+    public static @NotNull ContentValues build(@NotNull Object... args) {
+        ContentValues cv = new ContentValues();
+        if (args.length % 2 != 0) throw new IllegalArgumentException("need even number of arguments");
+        for (int i = 0; i < args.length; i += 2) {
+            final Object obj = args[i+1];
+            final String key = args[i].toString();
+            if (obj instanceof String) {
+                cv.put(key, (String)obj);
+            } else if (obj instanceof Double) {
+                cv.put(key, (Double)obj);
+            } else if (obj instanceof Integer) {
+                cv.put(key, (Integer)obj);
+            } else if (obj instanceof Long) {
+                cv.put(key, (Long)obj);
+            } else if (obj instanceof Boolean) {
+                cv.put(key, (Boolean)obj);
+            } else if (obj instanceof Float) {
+                cv.put(key, (Float)obj);
+            } else {
+                Log.w(TAG, "unknown obj: "+obj);
+            }
+        }
+        return cv;
     }
 
     public static String schemaSnapshot() {
@@ -218,5 +258,10 @@ public enum Table {
             }
         }
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

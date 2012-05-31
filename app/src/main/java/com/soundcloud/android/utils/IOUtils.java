@@ -17,6 +17,7 @@ import android.net.NetworkInfo;
 import android.net.Proxy;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
@@ -26,6 +27,7 @@ import android.util.Log;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -104,6 +106,21 @@ public final class IOUtils {
             stream.append(new String(b, 0, n));
         }
         return stream.toString();
+    }
+
+    public static byte[] readInputStreamAsBytes(InputStream in) throws IOException {
+        byte[] b = new byte[BUFFER_SIZE];
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        if (!(in instanceof BufferedInputStream)) {
+            in = new BufferedInputStream(in);
+        }
+        int n;
+        while ((n = in.read(b)) != -1) {
+            bos.write(b, 0, n);
+        }
+        bos.close();
+        in.close();
+        return bos.toByteArray();
     }
 
     public static boolean mkdirs(File d) {
@@ -400,6 +417,15 @@ public final class IOUtils {
         fos.close();
     }
 
+    public static void copy(File in, File out) throws IOException {
+        final FileInputStream is = new FileInputStream(in);
+        try {
+            copy(is, out);
+        } finally {
+            is.close();
+        }
+    }
+
     public static void close(Closeable file) {
         if (file != null) {
             try {
@@ -407,5 +433,20 @@ public final class IOUtils {
             } catch (IOException ignored) {
             }
         }
+    }
+
+    /**
+     * some phones have really low transfer rates when the screen is turned off, so request a full
+     * performance lock on newer devices
+     *
+     * @see <a href="http://code.google.com/p/android/issues/detail?id=9781">http://code.google.com/p/android/issues/detail?id=9781</a>
+     */
+    public static WifiManager.WifiLock createHiPerfWifiLock(Context context, String tag) {
+        return ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
+                .createWifiLock(
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD ?
+                        WifiManager.WIFI_MODE_FULL_HIGH_PERF : WifiManager.WIFI_MODE_FULL,
+                        tag
+                );
     }
 }

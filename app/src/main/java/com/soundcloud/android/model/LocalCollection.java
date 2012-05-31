@@ -177,16 +177,6 @@ public class LocalCollection {
         return (resolver.update(Content.COLLECTIONS.forId(id), cv, null,null) == 1);
     }
 
-    public static int getIdFromUri(Uri contentUri, ContentResolver resolver) {
-        int id = -1;
-        Cursor c = resolver.query(Content.COLLECTIONS.uri, new String[]{DBHelper.Collections._ID}, "uri = ?", new String[]{contentUri.toString()}, null);
-        if (c != null && c.moveToFirst()) {
-            id = c.getInt(0);
-        }
-        if (c != null) c.close();
-        return id;
-    }
-
     public static String getExtraFromUri(Uri contentUri, ContentResolver resolver) {
         String extra = null;
         Cursor c = resolver.query(Content.COLLECTIONS.uri, new String[]{DBHelper.Collections.EXTRA}, "uri = ?", new String[]{contentUri.toString()}, null);

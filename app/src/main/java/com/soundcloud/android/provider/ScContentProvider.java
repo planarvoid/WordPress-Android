@@ -336,10 +336,14 @@ public class ScContentProvider extends ContentProvider {
                 return result;
 
             case RECORDINGS:
-                id = db.insert(content.table.name, null, values);
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null, false);
-                return result;
+                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
+                if (id >= 0) {
+                    result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                    getContext().getContentResolver().notifyChange(result, null, false);
+                    return result;
+                } else {
+                    return null;
+                }
 
             case ME_FAVORITES:
                 id = dbInsertWithOnConflict(db, Table.TRACKS, values, SQLiteDatabase.CONFLICT_IGNORE);
