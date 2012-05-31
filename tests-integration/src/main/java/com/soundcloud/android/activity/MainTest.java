@@ -4,8 +4,10 @@ package com.soundcloud.android.activity;
 import com.jayway.android.robotium.solo.Solo;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.Suppress;
 
 
+@Suppress
 public class MainTest extends ActivityInstrumentationTestCase2<Main> {
     private Solo solo;
 
@@ -26,7 +28,6 @@ public class MainTest extends ActivityInstrumentationTestCase2<Main> {
     }
 
     public void testLogin() throws Exception {
-        /*
         solo.waitForText("Log In");
 
         solo.sendKey(Solo.DOWN);
@@ -39,6 +40,5 @@ public class MainTest extends ActivityInstrumentationTestCase2<Main> {
 
         solo.clickOnButton("Log In");
         assertTrue(solo.waitForText("Stream", 1, 10000));
-        */
     }
 }

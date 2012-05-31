@@ -6,7 +6,9 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.upload.UploadService;
 
 import android.content.Intent;
+import android.test.suitebuilder.annotation.Suppress;
 
+@Suppress
 public class PrivateRecordingTest extends RecordingTestCase {
     @Override
     public void setUp() throws Exception {
