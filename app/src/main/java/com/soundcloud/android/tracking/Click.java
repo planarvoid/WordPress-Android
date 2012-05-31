@@ -41,6 +41,7 @@ public enum Click implements Event {
     Record_play          ("Record", "play",           Type.action, Level2.Record),
     Record_play_stop     ("Record", "play_stop",      Type.action, Level2.Record),
     Record_next          ("Record", "next",           Type.navigation, Level2.Record), // record another sound
+    Record_save          ("Record", "save",           Type.navigation, Level2.Record), // TODO
 
     Record_edit          ("Record", "edit",         Type.navigation, Level2.Record),
 

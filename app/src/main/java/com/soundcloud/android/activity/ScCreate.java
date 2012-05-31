@@ -188,11 +188,12 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
-        if (state.isEmpty()) return;
-        if (!TextUtils.isEmpty(state.getString("createCurrentCreateState"))) {
-            updateUi(CreateState.valueOf(state.getString("createCurrentCreateState")), false);
+        if (!state.isEmpty()) {
+            if (!TextUtils.isEmpty(state.getString("createCurrentCreateState"))) {
+                updateUi(CreateState.valueOf(state.getString("createCurrentCreateState")), false);
+            }
+            mWaveDisplay.onRestoreInstanceState(state);
         }
-        mWaveDisplay.onRestoreInstanceState(state);
     }
 
     @Override
@@ -262,10 +263,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private void onRecordingError(String message) {
         mRecordErrorMessage = message;
-        Recording recording = mRecorder.getRecording();
-        if (recording != null) {
-            recording.delete(getContentResolver());
-        }
         updateUi(CreateState.IDLE_RECORD, true);
     }
 
@@ -294,13 +291,20 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             @Override
             public void onClick(View v) {
                 final Recording rec = mRecorder.saveState();
-                if (mCurrentState.isEdit()) {
-                    updateUi(CreateState.IDLE_PLAYBACK, true);
-                } else {
-                    track(Click.Record_next);
-                    startActivity(new Intent(ScCreate.this, ScUpload.class)
-                            .putExtra(SoundRecorder.EXTRA_RECORDING, rec)
-                            .setData(rec.toUri()));
+                if (rec != null)  {
+                    if (mCurrentState.isEdit()) {
+                        track(Click.Record_save);
+                        updateUi(CreateState.IDLE_PLAYBACK, true);
+                    } else {
+                        track(Click.Record_next);
+                        startActivity(new Intent(ScCreate.this, ScUpload.class)
+                                .putExtra(SoundRecorder.EXTRA_RECORDING, rec)
+                                .setData(rec.toUri()));
+                    }
+                } else  {
+                    onRecordingError("Error saving recording");
+                    // state could not be saved
+
                 }
             }
         }), R.string.btn_next);

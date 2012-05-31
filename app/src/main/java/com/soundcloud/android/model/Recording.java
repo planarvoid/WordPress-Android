@@ -605,7 +605,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         }
     }
 
-    public static Recording create(User user) {
+    public static @NotNull Recording create(User user) {
         File file = new File(SoundRecorder.RECORD_DIR, System.currentTimeMillis() + (user == null ? "" : "_" + user.id));
         Recording recording = new Recording(file);
         recording.recipient = user;

@@ -7,13 +7,10 @@ import android.os.Parcelable;
 import android.util.FloatMath;
 import android.util.Log;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Iterator;
 
 public class AmplitudeData implements Iterable<Float>, Parcelable {
@@ -141,7 +138,7 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         dest.writeInt(initialCapacity);
         dest.writeInt(pos);
         dest.writeInt(data.length);
-        dest.writeInt(data.length);
+        dest.writeInt(data.length); // required for readFloatArray
         for (int i=0; i<pos; i++) {
             dest.writeFloat(data[i]);
         }

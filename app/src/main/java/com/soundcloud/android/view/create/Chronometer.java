@@ -2,9 +2,7 @@ package com.soundcloud.android.view.create;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.TextView;
-import com.soundcloud.android.activity.ScCreate;
 import com.soundcloud.android.utils.CloudUtils;
 
 /**
@@ -12,24 +10,25 @@ import com.soundcloud.android.utils.CloudUtils;
  */
 
 public class Chronometer extends TextView {
-
     private long mDurationSec, mProgressSec;
     private String mDurationString;
-    private ScCreate mCreateRef;
 
     private int mode;
     private static final int MODE_EMPTY = 0;
     private static final int MODE_DURATION_ONLY = 1;
     private static final int MODE_PLAYBACK = 2;
 
+    @SuppressWarnings("UnusedDeclaration")
     public Chronometer(Context context) {
         super(context);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public Chronometer(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public Chronometer(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
