@@ -17,6 +17,7 @@ public enum AudioConfig {
     public final int sampleRate;
     public final int channels;
     public final int bitsPerSample;
+    public final int sampleSize;
     public final int bytesPerSecond;
     public final float quality;
     public final int source = MediaRecorder.AudioSource.MIC;
@@ -33,7 +34,8 @@ public enum AudioConfig {
         this.sampleRate = sampleRate;
         this.channels = channels;
         this.quality = quality;
-        bytesPerSecond = sampleRate * (bitsPerSample / 8) * channels;
+        sampleSize = (bitsPerSample / 8) * channels;
+        bytesPerSecond = sampleRate * sampleSize;
     }
 
 
