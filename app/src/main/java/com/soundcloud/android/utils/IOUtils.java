@@ -27,6 +27,7 @@ import android.util.Log;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -105,6 +106,21 @@ public final class IOUtils {
             stream.append(new String(b, 0, n));
         }
         return stream.toString();
+    }
+
+    public static byte[] readInputStreamAsBytes(InputStream in) throws IOException {
+        byte[] b = new byte[BUFFER_SIZE];
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        if (!(in instanceof BufferedInputStream)) {
+            in = new BufferedInputStream(in);
+        }
+        int n;
+        while ((n = in.read(b)) != -1) {
+            bos.write(b, 0, n);
+        }
+        bos.close();
+        in.close();
+        return bos.toByteArray();
     }
 
     public static boolean mkdirs(File d) {

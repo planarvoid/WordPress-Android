@@ -81,7 +81,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     private Context mContext;
     private volatile State mState;
 
-    public final AmplitudeData amplitudeData;
+    public AmplitudeData amplitudeData;
     public int writeIndex;
 
     private final AudioRecord mAudioRecord;
@@ -174,6 +174,19 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
+    public void setRecording(Recording recording) {
+        mRecording = recording;
+        mRecordStream = new RecordStream(recording.getFile(), recording.getEncodedFile(), mConfig);
+        mPlaybackStream = recording.getPlaybackStream();
+        try {
+            amplitudeData = AmplitudeData.fromFile(mRecording.getAmplitudeFile());
+        } catch (IOException e) {
+            amplitudeData.clear();
+            writeIndex = -1;
+            Log.w(TAG, "error reading amplitude data", e);
+        }
+    }
+
     public boolean isActive() {
         return mState != null && mState.isActive();
     }
@@ -206,18 +219,18 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
         if (mState != State.RECORDING) {
             if (mRecording == null) {
-                Recording recording = Recording.create(user);
+                mRecording = Recording.create(user);
+
                 if (mRecordStream != null) {
                     mRecordStream.release();
                     mRecordStream = null;
                 }
 
                 mRecordStream = new RecordStream(
-                        recording.getFile(),
-                        recording.getEncodedFile(), /* pass in null for no encoding */
+                        mRecording.getFile(),
+                        mRecording.getEncodedFile(), /* pass in null for no encoding */
                         mConfig
                 );
-                mRecording = recording;
             }
 
             // the service will ensure the recording lifecycle and notifications
@@ -560,6 +573,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                     if (mState != SoundRecorder.State.ERROR) {
                         try {
                             mRecordStream.finalizeStream();
+                            amplitudeData.store(mRecording.getAmplitudeFile());
                             mPlaybackStream = mRecordStream.getPlaybackStream();
                             broadcast(RECORD_FINISHED);
                         } catch (IOException e) {

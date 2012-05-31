@@ -1,9 +1,19 @@
 package com.soundcloud.android.record;
 
+import com.soundcloud.android.utils.IOUtils;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.FloatMath;
+import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 
 public class AmplitudeData implements Iterable<Float>, Parcelable {
@@ -151,6 +161,23 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
 
     public float[] get() {
         return data;
+    }
+
+    public void store(File out) throws IOException {
+        Log.d(SoundRecorder.TAG, "writing amplitude data to " + out);
+        FileOutputStream fos = new FileOutputStream(out);
+        Parcel p = Parcel.obtain();
+        writeToParcel(p, 0);
+        fos.write(p.marshall());
+        fos.close();
+    }
+
+    public static AmplitudeData fromFile(File in) throws IOException {
+        byte[] bytes = IOUtils.readInputStreamAsBytes(new FileInputStream(in));
+        Parcel parcel = Parcel.obtain();
+        parcel.unmarshall(bytes, 0, bytes.length);
+        parcel.setDataPosition(0);
+        return new AmplitudeData(parcel);
     }
 
     @Override

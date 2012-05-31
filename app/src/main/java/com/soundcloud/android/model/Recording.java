@@ -153,7 +153,11 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File getEncodedFile() {
-        return Recording.encodedFilename(audio_path);
+        return encodedFilename(audio_path);
+    }
+
+    public File getAmplitudeFile() {
+        return new File(audio_path.getParentFile(), audio_path.getName().concat(".amp"));
     }
 
     public File getUploadFile() {
@@ -302,6 +306,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
         if (!external_upload) {
             deleted = IOUtils.deleteFile(audio_path);
         }
+        IOUtils.deleteFile(getEncodedFile());
+        IOUtils.deleteFile(getAmplitudeFile());
         if (id > 0 && resolver != null) resolver.delete(toUri(), null, null);
         return deleted;
     }
@@ -475,15 +481,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return new File(file.getParentFile(), file.getName().concat(".ogg"));
     }
 
-    public static Recording fromUri(Uri uri, ContentResolver resolver) {
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        try {
-            return cursor != null && cursor.moveToFirst() ? new Recording(cursor) : null;
-        } finally {
-            if (cursor != null) cursor.close();
-        }
-    }
-
     public static Recording pendingFromPrivateUserId(long id, ContentResolver resolver) {
         Cursor cursor = resolver.query(Content.RECORDINGS.uri,
                 null,
@@ -594,6 +591,15 @@ public class Recording extends ScModel implements Comparable<Recording> {
             return Recording.fromUri(intent.getData(), resolver);
         } else {
             return null;
+        }
+    }
+
+    public static Recording fromUri(Uri uri, ContentResolver resolver) {
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        try {
+            return cursor != null && cursor.moveToFirst() ? new Recording(cursor) : null;
+        } finally {
+            if (cursor != null) cursor.close();
         }
     }
 
