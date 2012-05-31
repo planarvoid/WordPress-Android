@@ -10,7 +10,7 @@ public class MainTest extends ActivityInstrumentationTestCase2<Main> {
     private Solo solo;
 
     public MainTest() {
-        super("com.soundcloud.android", Main.class);
+        super(Main.class);
     }
 
     @Override public void setUp() throws Exception {

@@ -38,7 +38,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -55,6 +54,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     public static final int REQUEST_UPLOAD_FILE  = 1;
     public static final int REQUEST_PROCESS_FILE = 2;
     public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
+    public static final String EXTRA_RESET = "reset";
 
     private User mRecipient;
 
@@ -68,7 +68,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private ViewGroup mEditControls;
     private ImageButton mActionButton;
     private CreateWaveDisplay mWaveDisplay;
-    private Button mPlayButton, mEditButton, mPlayEditButton;
+    private View mPlayButton, mEditButton, mPlayEditButton;
     private ToggleButton mToggleOptimize, mToggleFade;
     private String mRecordErrorMessage;
     private ButtonBar mButtonBar;
@@ -163,6 +163,14 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         if (Consts.SdkSwitches.canDetermineActivityBackground) {
             mRecorder.shouldUseNotifications(false);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.hasExtra(EXTRA_RESET)) {
+            reset();
         }
     }
 
@@ -273,7 +281,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             public void onClick(View v) {
                 if (!mCurrentState.isEdit()) {
                     track(Click.Record_discard);
-                    showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
+                    showDialog(Consts.Dialogs.DIALOG_DISCARD_RECORDING);
                 } else {
                     track(Click.Record_revert);
                     showDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
@@ -298,8 +306,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     } else {
                         track(Click.Record_next);
                         startActivity(new Intent(ScCreate.this, ScUpload.class)
-                                .putExtra(SoundRecorder.EXTRA_RECORDING, rec)
-                                .setData(rec.toUri()));
+                                .putExtra(SoundRecorder.EXTRA_RECORDING, rec));
                     }
                 } else  {
                     onRecordingError("Error saving recording");
@@ -334,8 +341,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private Button setupPlaybutton(int id) {
-        final Button button = ((Button) findViewById(id));
+    private View setupPlaybutton(int id) {
+        final View button = findViewById(id);
         if (button != null){
             button.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
@@ -367,8 +374,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private Button setupEditButton() {
-        Button button = ((Button) findViewById(R.id.btn_edit));
+    private View setupEditButton() {
+        View button = findViewById(R.id.btn_edit);
         button.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 track(Click.Record_edit);
@@ -401,7 +408,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return tb;
     }
 
-    private void reset() {
+    /* package */ void reset() {
         mRecorder.reset();
         mWaveDisplay.reset();
         updateUi(CreateState.IDLE_RECORD, true);
@@ -803,7 +810,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 }
                             })
                         .create();
-            case Consts.Dialogs.DIALOG_RESET_RECORDING:
+            case Consts.Dialogs.DIALOG_DISCARD_RECORDING:
                 return new AlertDialog.Builder(this)
                         .setTitle(null)
                         .setMessage(R.string.dialog_reset_recording_message)
@@ -913,4 +920,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    /* package, for testing */ CreateState getState() { return mCurrentState; }
 }

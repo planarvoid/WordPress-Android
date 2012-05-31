@@ -132,14 +132,12 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldIncludeUsernameForPrivateRecordings() throws Exception {
-        Recording r = new Recording(new File("/tmp/test"));
-        r.user_id = USER_ID;
-        r.recipient_user_id = USER_ID;
-
         User user = new User();
         user.id = USER_ID;
         user.username = "current user";
 
+        Recording r = new Recording(new File("/tmp/test"), user);
+        r.user_id = USER_ID;
         expect(resolver.insert(Content.USERS.uri, user.buildContentValues())).not.toBeNull();
         Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
 

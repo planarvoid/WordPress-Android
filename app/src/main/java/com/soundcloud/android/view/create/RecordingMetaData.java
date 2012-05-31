@@ -149,6 +149,7 @@ public class RecordingMetaData extends RelativeLayout {
     public void setRecording(Recording recording){
         setRecording(recording,false);
     }
+
     public void setRecording(Recording recording, boolean map){
         mRecording = recording;
         if (map) mapFromRecording(recording);

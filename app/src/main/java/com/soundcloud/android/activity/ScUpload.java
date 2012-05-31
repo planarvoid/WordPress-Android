@@ -42,9 +42,9 @@ public class ScUpload extends ScActivity {
 
     private ViewFlipper mSharingFlipper;
     private RadioGroup mRdoPrivacy;
-    /* package */ RadioButton mRdoPrivate, mRdoPublic;
-    /* package */ ConnectionList mConnectionList;
-    /* package */ AccessList mAccessList;
+    private RadioButton mRdoPrivate, mRdoPublic;
+    private ConnectionList mConnectionList;
+    private AccessList mAccessList;
     private Recording mRecording;
     private RecordingMetaData mRecordingMetadata;
 
@@ -86,6 +86,7 @@ public class ScUpload extends ScActivity {
             public void onClick(View v) {
                 track(Click.Record_details_record_another);
                 startActivity((new Intent(Actions.RECORD))
+                        .putExtra(ScCreate.EXTRA_RESET, true)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
             }
@@ -110,7 +111,7 @@ public class ScUpload extends ScActivity {
 
         if (mRecording.isPrivateMessage()) {
             ((TextView) findViewById(R.id.txt_private_message_upload_message))
-                            .setText(getString(R.string.private_message_upload_message, mRecording.recipient_username));
+                            .setText(getString(R.string.private_message_upload_message, mRecording.getRecipientUsername()));
         } else {
             mSharingFlipper = (ViewFlipper) findViewById(R.id.vfSharing);
             mRdoPrivacy = (RadioGroup) findViewById(R.id.rdo_privacy);
@@ -165,8 +166,6 @@ public class ScUpload extends ScActivity {
                 }
             });
         }
-
-
     }
 
     @Override
@@ -205,7 +204,7 @@ public class ScUpload extends ScActivity {
         mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
     }
 
-    /* package */ boolean startUpload() {
+    private boolean startUpload() {
         if (mRecording != null) {
             mRecording.upload(this);
             return true;
@@ -238,13 +237,6 @@ public class ScUpload extends ScActivity {
 
         mRecordingMetadata.onRestoreInstanceState(state);
         super.onRestoreInstanceState(state);
-    }
-
-    // for testing purposes
-    void setRecording(Recording r) {
-        mRecording = r;
-        mRecordingMetadata.setRecording(mRecording);
-        mapToRecording(r);
     }
 
     private void mapFromRecording(final Recording recording) {
@@ -338,11 +330,8 @@ public class ScUpload extends ScActivity {
     }
 
     private void doCrop(Uri imageUri, Uri outputUri) {
-
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = true;
-
-
 
         Intent intent = new Intent(this, CropImage.class)
             .setData(imageUri)
