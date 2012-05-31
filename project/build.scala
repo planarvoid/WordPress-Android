@@ -48,7 +48,7 @@ object AndroidBuild extends Build {
   )
 
   val integrationTestDependencies = Seq(
-    "com.jayway.android.robotium" % "robotium-solo" % "3.2" % "int",
+    "com.jayway.android.robotium" % "robotium-solo" % "3.2" % "int,compile",
     junit_interface
   )
 
@@ -111,12 +111,7 @@ object AndroidBuild extends Build {
       libraryDependencies ++= integrationTestDependencies,
       resolvers           ++= repos,
       unmanagedBase       <<= baseDirectory / "lib-unmanaged", // make sure dl'ed libs don't get picked up
-      javaSource       in Compile <<= (baseDirectory) (_ / "src" / "main" / "java"),
-      managedClasspath in Compile <<= managedClasspath in Integration,
-      // also compile in Test for test discovery
-      javaSource       in Test    <<= javaSource in Compile,
-      managedClasspath in Test    <<= managedClasspath in Compile,
-      compile          in Test    <<= (compile in Test) triggeredBy (compile in Compile)
+      javaSource       in Compile <<= (baseDirectory) (_ / "src" / "main" / "java")
     ) ++ inConfig(Android)(Seq(
       useProguard    := false,
       proguardInJars := Seq.empty,
