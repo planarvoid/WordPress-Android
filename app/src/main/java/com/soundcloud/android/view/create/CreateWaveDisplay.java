@@ -10,7 +10,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -22,7 +21,7 @@ public class CreateWaveDisplay extends TouchLayout {
 
     private static final int UI_UPDATE_SEEK = 1;
     private static final int UI_UPDATE_TRIM = 2;
-    private static final int UI_SET_TRIM_DRAWABLES = 3;
+    private static final int UI_ON_TRIM_STATE = 3;
 
     private int mLeftHandleTouchIndex;
     private int mRightHandleTouchIndex;
@@ -48,12 +47,16 @@ public class CreateWaveDisplay extends TouchLayout {
     private float trimPercentLeft, trimPercentRight;
     private int waveformWidth;
 
-    private int leftDragOffsetX, rightDragOffsetX, lastTrimLeftX = -1, lastTrimRightX = -1;
+    private TrimAction newTrimActionLeft, newTrimActionRight, lastTrimActionLeft, lastTrimActionRight;
+
+
+
+    private int leftDragOffsetX, rightDragOffsetX;
 
     public static interface Listener {
         void onSeek(float pos);
-        void onAdjustTrimLeft(float pos);
-        void onAdjustTrimRight(float pos);
+        void onAdjustTrimLeft(float newPos, float oldPos, long moveTimeMs);
+        void onAdjustTrimRight(float newPos, float oldPos, long moveTimeMs);
     }
 
     public CreateWaveDisplay(Context context) {
@@ -130,10 +133,10 @@ public class CreateWaveDisplay extends TouchLayout {
             seekTouch(input.x);
         } else if (mLeftHandleTouchIndex > -1 && input.actionIndex == mLeftHandleTouchIndex) {
             leftDragOffsetX = x - leftHandle.getLeft();
-            queueUnique(UI_SET_TRIM_DRAWABLES);
+            queueUnique(UI_ON_TRIM_STATE);
         } else if (mRightHandleTouchIndex > -1 && input.actionIndex == mRightHandleTouchIndex) {
             rightDragOffsetX = x - rightHandle.getRight();
-            queueUnique(UI_SET_TRIM_DRAWABLES);
+            queueUnique(UI_ON_TRIM_STATE);
         }
     }
 
@@ -142,16 +145,17 @@ public class CreateWaveDisplay extends TouchLayout {
         if (mSeekMode){
                seekTouch(input.x);
         } else {
-
             if (mLeftHandleTouchIndex > -1){
-                lastTrimLeftX = Math.max(0,Math.min(rightHandle.getLeft() - leftHandle.getWidth(),
-                        (mLeftHandleTouchIndex == 0 ? input.x : input.pointerX) - leftDragOffsetX));
+                newTrimActionLeft = new TrimAction(System.currentTimeMillis(),
+                        Math.max(0,Math.min(rightHandle.getLeft() - leftHandle.getWidth(),
+                        (mLeftHandleTouchIndex == 0 ? input.x : input.pointerX) - leftDragOffsetX)));
 
             }
 
             if (mRightHandleTouchIndex > -1){
-                lastTrimRightX = Math.min(getWidth(), Math.max(leftHandle.getRight() + rightHandle.getWidth(),
-                        (mRightHandleTouchIndex == 0 ? input.x : input.pointerX) - rightDragOffsetX));
+                newTrimActionRight = new TrimAction(System.currentTimeMillis(),
+                        Math.min(getWidth(), Math.max(leftHandle.getRight() + rightHandle.getWidth(),
+                        (mRightHandleTouchIndex == 0 ? input.x : input.pointerX) - rightDragOffsetX)));
             }
 
             queueUnique(UI_UPDATE_TRIM);
@@ -162,7 +166,7 @@ public class CreateWaveDisplay extends TouchLayout {
     @Override
     protected void processUpInput(InputObject input) {
         processHandleUpFromPointer(input.actionIndex);
-        queueUnique(UI_SET_TRIM_DRAWABLES);
+        queueUnique(UI_ON_TRIM_STATE);
         mTouchHandler.removeMessages(UI_UPDATE_SEEK);
         lastSeekX = -1;
         mSeekMode = false;
@@ -182,11 +186,13 @@ public class CreateWaveDisplay extends TouchLayout {
 
     private void processHandleUpFromPointer(int pointerIndex){
         if (mLeftHandleTouchIndex == pointerIndex) {
+            newTrimActionLeft = null;
             mLeftHandleTouchIndex = -1;
             leftDragOffsetX = 0;
             if (mRightHandleTouchIndex > pointerIndex) mRightHandleTouchIndex--;
         }
         if (mRightHandleTouchIndex == pointerIndex) {
+            newTrimActionRight = null;
             mRightHandleTouchIndex = -1;
             rightDragOffsetX = 0;
             if (mLeftHandleTouchIndex > pointerIndex) mLeftHandleTouchIndex--;
@@ -262,31 +268,41 @@ public class CreateWaveDisplay extends TouchLayout {
                     break;
 
                 case UI_UPDATE_TRIM:
-                    final int adjustedLeftMargin = lastTrimLeftX + leftMarginOffset;
-                    if (lastTrimLeftX != -1 && leftLp.leftMargin != adjustedLeftMargin){
-                        leftLp.leftMargin = adjustedLeftMargin;
+                    if (newTrimActionLeft != null && newTrimActionLeft.hasMovedFrom(lastTrimActionLeft)) {
+                        leftLp.leftMargin = newTrimActionLeft.position + leftMarginOffset;
                         leftHandle.requestLayout();
 
-                        mWaveformView.setTrimLeft(lastTrimLeftX);
-                        trimPercentLeft = Math.max(0,((float) lastTrimLeftX  / waveformWidth));
-                        if (mListener != null) {
-                            mListener.onAdjustTrimLeft(trimPercentLeft);
-                        }
-                    }
+                        mWaveformView.setTrimLeft(newTrimActionLeft.position);
 
-                    final int adjustedRightMargin = (waveformWidth - lastTrimRightX) + rightMarginOffset;
-                    if (lastTrimRightX != -1 && rightLp.rightMargin != adjustedRightMargin) {
-                        rightLp.rightMargin = adjustedRightMargin;
-                        rightHandle.requestLayout();
-                        mWaveformView.setTrimRight(lastTrimRightX);
-                        trimPercentRight = Math.min(1, ((float) lastTrimRightX / waveformWidth));
+                        final float oldTrimPercentLeft = trimPercentLeft;
+                        trimPercentLeft = Math.max(0, ((float) newTrimActionLeft.position / waveformWidth));
+
                         if (mListener != null) {
-                            mListener.onAdjustTrimRight(trimPercentRight);
+                            mListener.onAdjustTrimLeft(trimPercentLeft, oldTrimPercentLeft, newTrimActionLeft.timestamp - lastTrimActionLeft.timestamp);
                         }
                     }
+                    lastTrimActionLeft = newTrimActionLeft;
+
+                    if (newTrimActionRight != null && newTrimActionRight.hasMovedFrom(lastTrimActionRight)) {
+                        rightLp.rightMargin = waveformWidth - newTrimActionRight.position + rightMarginOffset;
+                        rightHandle.requestLayout();
+
+                        mWaveformView.setTrimRight(newTrimActionRight.position);
+
+                        final float oldTrimPercentRight = trimPercentRight;
+                        trimPercentRight = Math.min(1, ((float) newTrimActionRight.position / waveformWidth));
+
+                        if (mListener != null) {
+                            mListener.onAdjustTrimRight(trimPercentRight, oldTrimPercentRight, newTrimActionRight.timestamp - lastTrimActionRight.timestamp);
+                        }
+                    }
+                    lastTrimActionRight = newTrimActionRight;
                     break;
 
-                case UI_SET_TRIM_DRAWABLES:
+                case UI_ON_TRIM_STATE:
+                    lastTrimActionLeft = newTrimActionLeft;
+                    lastTrimActionRight = newTrimActionRight;
+
                     rightHandle.setPressed(mRightHandleTouchIndex != -1);
                     leftHandle.setPressed(mLeftHandleTouchIndex != -1);
                     break;
@@ -372,5 +388,20 @@ public class CreateWaveDisplay extends TouchLayout {
         trimPercentRight = state.getFloat(prepend + "_trimPercentRight", 1.0f);
         setIsEditing(state.getBoolean(prepend + "_inEditMode", mIsEditing));
         mWaveformView.setMode(mMode, false);
+    }
+
+
+    private class TrimAction {
+        long timestamp;
+        int position;
+
+        public TrimAction(long timestamp, int position) {
+            this.timestamp = timestamp;
+            this.position = position;
+        }
+
+        public boolean hasMovedFrom(TrimAction lastTrimActionLeft) {
+            return lastTrimActionLeft != null && lastTrimActionLeft.position != position;
+        }
     }
 }
