@@ -52,7 +52,7 @@ import java.util.List;
 public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     public static final int REQUEST_UPLOAD_FILE  = 1;
-    public static final int REQUEST_PROCESS_FILE = 2;
+    public static final int REQUEST_PROCESS_SOUND = 2;
     public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
     public static final String EXTRA_RESET = "reset";
 
@@ -244,18 +244,16 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     startActivity(intent);
                 }
                 break;
-            case REQUEST_PROCESS_FILE:
+            case REQUEST_PROCESS_SOUND:
                 if (resultCode == RESULT_OK) {
                     String message = data.getStringExtra("message");
                     if (message != null) {
-                        CloudUtils.showToast(this, "Error processing file: " + message);
+                        CloudUtils.showToast(this, R.string.sound_processed_error, message);
                     } else {
-                        CloudUtils.showToast(this, "processed");
+                        CloudUtils.showToast(this, R.string.sound_processed);
                     }
-
                     String in = data.getStringExtra(Actions.RECORDING_EXTRA_IN);
                     String out = data.getStringExtra(Actions.RECORDING_EXTRA_OUT);
-
                     Log.d(SoundCloudApplication.TAG, "processed " + in + " => " + out);
                     if (out != null) {
                         if (new File(out).renameTo(new File(in))) {
@@ -882,9 +880,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file).setIcon(R.drawable.ic_menu_incoming);
-        menu.add(menu.size(), Consts.OptionsMenu.PROCESS, 0, R.string.process).setIcon(R.drawable.ic_menu_incoming);
-        return super.onCreateOptionsMenu(menu);
+        menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file).setIcon(android.R.drawable.ic_menu_add);
+        menu.add(menu.size(), Consts.OptionsMenu.PROCESS, 0, R.string.process).setIcon(android.R.drawable.ic_menu_manage);
+        return true;
     }
 
     @Override
@@ -909,7 +907,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                             .putExtra("com.soundcloud.android.pd.extra.out",
                                     recording.getFile().getAbsolutePath()+"-processed.wav");
                     try {
-                        startActivityForResult(process, REQUEST_PROCESS_FILE);
+                        startActivityForResult(process, REQUEST_PROCESS_SOUND);
                     } catch (ActivityNotFoundException e) {
                         showDialog(Consts.Dialogs.DIALOG_INSTALL_PROCESSOR);
                     }
