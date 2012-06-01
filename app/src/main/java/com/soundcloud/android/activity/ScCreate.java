@@ -906,18 +906,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             case Consts.OptionsMenu.PROCESS:
                 Recording recording = mRecorder.getRecording();
                 if (recording != null) {
-                    Intent process = new Intent(Actions.RECORDING_PROCESS)
-                            .setData(Uri.fromFile(recording.getFile()))
-                            .putExtra("com.soundcloud.android.pd.extra.out",
-                                    recording.getFile().getAbsolutePath()+"-processed.wav");
-                    try {
-                        startActivityForResult(process, REQUEST_PROCESS_SOUND);
-                    } catch (ActivityNotFoundException e) {
-                        showDialog(Consts.Dialogs.DIALOG_INSTALL_PROCESSOR);
-                    }
+                    startActivityForResult(Intent.createChooser(recording.getProcessIntent(),
+                            getString(R.string.sound_processed_pick_app)
+                            ), REQUEST_PROCESS_SOUND);
                 }
                 return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }

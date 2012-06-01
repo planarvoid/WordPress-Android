@@ -30,4 +30,5 @@
 
     <string name="sound_processed">Processed sound</string>
     <string name="sound_processed_error">Error processing sound: %s</string>
+    <string name="sound_processed_pick_app">Pick app to process sound</string>
 </resources>
