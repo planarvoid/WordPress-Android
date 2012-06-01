@@ -880,8 +880,12 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file).setIcon(android.R.drawable.ic_menu_add);
-        menu.add(menu.size(), Consts.OptionsMenu.PROCESS, 0, R.string.process).setIcon(android.R.drawable.ic_menu_manage);
+        menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file)
+             .setIcon(android.R.drawable.ic_menu_add);
+        menu.add(menu.size(), Consts.OptionsMenu.PROCESS, 0, R.string.process)
+             .setIcon(android.R.drawable.ic_menu_rotate);
+        menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
+             .setIcon(android.R.drawable.ic_menu_preferences);
         return true;
     }
 

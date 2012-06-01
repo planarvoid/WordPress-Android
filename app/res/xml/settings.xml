@@ -15,14 +15,6 @@
                 android:title="@string/pref_notifications"
                 android:summary="@string/pref_notifications_description" />
 
-        <ListPreference
-                android:title="@string/pref_record_quality"
-                android:summary="@string/pref_record_quality_desc"
-                android:key="defaultRecordingQuality"
-                android:defaultValue="high"
-                android:entries="@array/pref_record_quality_entries"
-                android:entryValues="@array/pref_record_quality_values"/>
-
         <Preference
                 android:title="@string/pref_revoke_access"
                 android:summary="@string/pref_revoke_desc"
@@ -92,12 +84,12 @@
             android:entryValues="@array/pref_dashboard_store_max_values"/>
 
         <ListPreference
-            android:title="@string/pref_record_high_quality_type"
-            android:summary="@string/pref_record_high_quality_type_desc"
-            android:key="dev.defaultRecordingHighQualityType"
+            android:title="@string/pref_dev_record_type"
+            android:summary="@string/pref_dev_record_type_desc"
+            android:key="dev.defaultRecordingType"
             android:defaultValue="compressed"
-            android:entries="@array/pref_record_high_quality_type_entries"
-            android:entryValues="@array/pref_record_high_quality_type_values"/>
+            android:entries="@array/pref_dev_record_type_entries"
+            android:entryValues="@array/pref_dev_record_type_values"/>
 
         <Preference
             android:title="@string/pref_dev_clear_notification"
