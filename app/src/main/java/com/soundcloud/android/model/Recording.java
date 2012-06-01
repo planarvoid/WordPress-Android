@@ -87,9 +87,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public String service_ids;
 
     // private message to another user
-    public User   recipient;
-    public String recipient_username;
-    public long   recipient_user_id;
+    private User   recipient;
+    /* package */ String recipient_username;
+    /* package */ long   recipient_user_id;
 
     // status
     public boolean external_upload;
@@ -115,8 +115,15 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public Recording(File f) {
+        this(f, null);
+    }
+
+    public Recording(File f, @Nullable User user) {
         if (f == null) throw new IllegalArgumentException("file is null");
         audio_path = f;
+        if (user != null) {
+            setRecipient(user);
+        }
     }
 
     public Recording(Cursor c) {
@@ -145,7 +152,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         is_private = c.getInt(c.getColumnIndex(Recordings.IS_PRIVATE)) == 1;
         external_upload = c.getInt(c.getColumnIndex(Recordings.EXTERNAL_UPLOAD)) == 1;
         upload_status = c.getInt(c.getColumnIndex(Recordings.UPLOAD_STATUS));
-        initializePlaybackStream(c);
+        mPlaybackStream = initializePlaybackStream(c);
     }
 
     public File getFile() {
@@ -164,9 +171,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return getEncodedFile().exists() ? getEncodedFile() : getFile();
     }
 
+    public User getRecipient()           { return recipient; }
+    public String getRecipientUsername() { return recipient_username; }
+
     public PlaybackStream getPlaybackStream() {
         if (mPlaybackStream == null) {
-            initializePlaybackStream(null);
+            mPlaybackStream = initializePlaybackStream(null);
         }
         return mPlaybackStream;
     }
@@ -213,8 +223,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return audio_path.exists();
     }
 
-    public void setRecipient(User recipient) {
-        recipient_user_id = recipient.id;
+    private void setRecipient(User recipient) {
+        this.recipient     = recipient;
+        recipient_user_id  = recipient.id;
         recipient_username = recipient.getDisplayName();
         is_private = true;
     }
@@ -607,9 +618,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public static @NotNull Recording create(User user) {
         File file = new File(SoundRecorder.RECORD_DIR, System.currentTimeMillis() + (user == null ? "" : "_" + user.id));
-        Recording recording = new Recording(file);
-        recording.recipient = user;
-        return recording;
+        return new Recording(file, user);
     }
 
     @Override
@@ -668,8 +677,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
         four_square_venue_id = data.getString("four_square_venue_id");
         shared_emails = data.getString("shared_emails");
         shared_ids = data.getString("shared_ids");
-        recipient_user_id = data.getLong("private_user_id");
-        recipient_username = data.getString("private_username");
+        recipient_user_id = data.getLong("recipient_user_id");
+        recipient_username = data.getString("recipient_username");
         service_ids = data.getString("service_ids");
         is_private = data.getBoolean("is_private", false);
         external_upload = data.getBoolean("external_upload", false);
@@ -698,8 +707,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
         data.putString("shared_ids", shared_ids);
         data.putString("description", description);
         data.putString("genre", genre);
-        data.putLong("private_user_id", recipient_user_id);
-        data.putString("private_username", recipient_username);
+        data.putLong("recipient_user_id", recipient_user_id);
+        data.putString("recipient_username", recipient_username);
         data.putString("service_ids", service_ids);
         data.putBoolean("is_private", is_private);
         data.putBoolean("external_upload", external_upload);
@@ -735,9 +744,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return new Intent(Actions.UPLOAD_CANCEL).putExtra(SoundRecorder.EXTRA_RECORDING, this);
     }
 
-    private void initializePlaybackStream(@Nullable Cursor c) {
+    private PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
         try {
-            mPlaybackStream = new PlaybackStream(isEncodedFilename(audio_path.getName()) ?
+            PlaybackStream stream = new PlaybackStream(isEncodedFilename(audio_path.getName()) ?
                     new VorbisFile(audio_path) : new WavFile(audio_path));
 
             if (c != null) {
@@ -746,12 +755,15 @@ public class Recording extends ScModel implements Comparable<Recording> {
                 boolean optimize  = c.getInt(c.getColumnIndex(Recordings.OPTIMIZE)) == 1;
                 boolean fade  = c.getInt(c.getColumnIndex(Recordings.FADING)) == 1;
 
-                mPlaybackStream.setFading(fade);
-                mPlaybackStream.setOptimize(optimize);
-                mPlaybackStream.setTrim(startPos, endPos);
+                stream.setFading(fade);
+                stream.setOptimize(optimize);
+                stream.setTrim(startPos, endPos);
             }
+
+            return stream;
         } catch (IOException e) {
             Log.w(TAG, "could not initialize playback stream", e);
+            return null;
         }
     }
 }

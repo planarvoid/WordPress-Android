@@ -20,7 +20,6 @@ import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,7 +31,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
@@ -56,7 +54,6 @@ public class Settings extends PreferenceActivity {
     public static final String EXTRAS = "extras";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
-    public static final String DEFAULT_RECORDING_QUALITY = "defaultRecordingQuality";
 
     private ProgressDialog mDeleteDialog;
 
@@ -215,9 +212,6 @@ public class Settings extends PreferenceActivity {
                         return true;
                     }
                 });
-
-        SharedPreferencesUtils.listWithLabel((ListPreference) findPreference(DEFAULT_RECORDING_QUALITY),
-                R.string.pref_record_quality);
 
         if (!SoundCloudApplication.DEV_MODE) {
             getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));

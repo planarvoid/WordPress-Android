@@ -209,8 +209,8 @@ public class SoundCloudDB {
     }
 
     public static @Nullable Recording insertRecording(ContentResolver resolver, Recording r) {
-        if (r.recipient != null) {
-            SoundCloudDB.upsertUser(resolver, r.recipient);
+        if (r.getRecipient() != null) {
+            SoundCloudDB.upsertUser(resolver, r.getRecipient());
         }
         Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
         if (uri != null) {

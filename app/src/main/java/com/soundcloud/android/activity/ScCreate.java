@@ -38,7 +38,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -53,8 +52,9 @@ import java.util.List;
 public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     public static final int REQUEST_UPLOAD_FILE  = 1;
-    public static final int REQUEST_PROCESS_FILE = 2;
+    public static final int REQUEST_PROCESS_SOUND = 2;
     public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
+    public static final String EXTRA_RESET = "reset";
 
     private User mRecipient;
 
@@ -68,7 +68,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private ViewGroup mEditControls;
     private ImageButton mActionButton;
     private CreateWaveDisplay mWaveDisplay;
-    private Button mPlayButton, mEditButton, mPlayEditButton;
+    private View mPlayButton, mEditButton, mPlayEditButton;
     private ToggleButton mToggleOptimize, mToggleFade;
     private String mRecordErrorMessage;
     private ButtonBar mButtonBar;
@@ -166,6 +166,14 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.hasExtra(EXTRA_RESET)) {
+            reset();
+        }
+    }
+
     @Override @SuppressLint("NewApi")
     public void onPause() {
         super.onPause();
@@ -236,18 +244,16 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     startActivity(intent);
                 }
                 break;
-            case REQUEST_PROCESS_FILE:
+            case REQUEST_PROCESS_SOUND:
                 if (resultCode == RESULT_OK) {
                     String message = data.getStringExtra("message");
                     if (message != null) {
-                        CloudUtils.showToast(this, "Error processing file: " + message);
+                        CloudUtils.showToast(this, R.string.sound_processed_error, message);
                     } else {
-                        CloudUtils.showToast(this, "processed");
+                        CloudUtils.showToast(this, R.string.sound_processed);
                     }
-
                     String in = data.getStringExtra(Actions.RECORDING_EXTRA_IN);
                     String out = data.getStringExtra(Actions.RECORDING_EXTRA_OUT);
-
                     Log.d(SoundCloudApplication.TAG, "processed " + in + " => " + out);
                     if (out != null) {
                         if (new File(out).renameTo(new File(in))) {
@@ -273,7 +279,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             public void onClick(View v) {
                 if (!mCurrentState.isEdit()) {
                     track(Click.Record_discard);
-                    showDialog(Consts.Dialogs.DIALOG_RESET_RECORDING);
+                    showDialog(Consts.Dialogs.DIALOG_DISCARD_RECORDING);
                 } else {
                     track(Click.Record_revert);
                     showDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
@@ -298,8 +304,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     } else {
                         track(Click.Record_next);
                         startActivity(new Intent(ScCreate.this, ScUpload.class)
-                                .putExtra(SoundRecorder.EXTRA_RECORDING, rec)
-                                .setData(rec.toUri()));
+                                .putExtra(SoundRecorder.EXTRA_RECORDING, rec));
                     }
                 } else  {
                     onRecordingError("Error saving recording");
@@ -334,8 +339,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private Button setupPlaybutton(int id) {
-        final Button button = ((Button) findViewById(id));
+    private View setupPlaybutton(int id) {
+        final View button = findViewById(id);
         if (button != null){
             button.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
@@ -367,8 +372,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return button;
     }
 
-    private Button setupEditButton() {
-        Button button = ((Button) findViewById(R.id.btn_edit));
+    private View setupEditButton() {
+        View button = findViewById(R.id.btn_edit);
         button.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 track(Click.Record_edit);
@@ -401,7 +406,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         return tb;
     }
 
-    private void reset() {
+    /* package */ void reset() {
         mRecorder.reset();
         mWaveDisplay.reset();
         updateUi(CreateState.IDLE_RECORD, true);
@@ -803,7 +808,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                 }
                             })
                         .create();
-            case Consts.Dialogs.DIALOG_RESET_RECORDING:
+            case Consts.Dialogs.DIALOG_DISCARD_RECORDING:
                 return new AlertDialog.Builder(this)
                         .setTitle(null)
                         .setMessage(R.string.dialog_reset_recording_message)
@@ -875,9 +880,13 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     @Override public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file).setIcon(R.drawable.ic_menu_incoming);
-        menu.add(menu.size(), Consts.OptionsMenu.PROCESS, 0, R.string.process).setIcon(R.drawable.ic_menu_incoming);
-        return super.onCreateOptionsMenu(menu);
+        menu.add(menu.size(), Consts.OptionsMenu.SELECT_FILE, 0, R.string.menu_select_file)
+             .setIcon(android.R.drawable.ic_menu_add);
+        menu.add(menu.size(), Consts.OptionsMenu.PROCESS, 0, R.string.process)
+             .setIcon(android.R.drawable.ic_menu_rotate);
+        menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
+             .setIcon(android.R.drawable.ic_menu_preferences);
+        return true;
     }
 
     @Override
@@ -902,7 +911,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                             .putExtra("com.soundcloud.android.pd.extra.out",
                                     recording.getFile().getAbsolutePath()+"-processed.wav");
                     try {
-                        startActivityForResult(process, REQUEST_PROCESS_FILE);
+                        startActivityForResult(process, REQUEST_PROCESS_SOUND);
                     } catch (ActivityNotFoundException e) {
                         showDialog(Consts.Dialogs.DIALOG_INSTALL_PROCESSOR);
                     }
@@ -913,4 +922,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    /* package, for testing */ CreateState getState() { return mCurrentState; }
 }

@@ -20,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -89,7 +88,7 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
             Intent intent = new Intent(getContext(), EmailPicker.class);
             if (accessList != null) {
                 intent.putExtra(EmailPicker.BUNDLE_KEY, accessList.toArray(new String[accessList.size()]));
-                intent.putExtra(EmailPicker.SELECTED, ((TextView)((RelativeLayout)v).findViewById(R.id.email)).getText());
+                intent.putExtra(EmailPicker.SELECTED, ((TextView) v.findViewById(R.id.email)).getText());
             }
             ((Activity)getContext()).startActivityForResult(
                     intent,
@@ -129,14 +128,12 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
                     new String[] {getItem(position).toString()}, null);
 
            if (c != null && c.moveToFirst()){
-
                View view;
                if (convertView == null) {
                    view = ((LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.email_picker_item, parent, false);
                } else {
                    view = convertView;
                }
-
 
                ((TextView) view.findViewById(R.id.name)).setText(c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));
                ((TextView) view.findViewById(R.id.email)).setText(c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA)));
@@ -155,8 +152,6 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
                text.setText(getItem(position).toString());
                return text;
            }
-
-
         }
 
         public void setAccessList(List<String> accessList) {
