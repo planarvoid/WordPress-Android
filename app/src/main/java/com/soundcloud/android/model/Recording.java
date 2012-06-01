@@ -350,6 +350,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return new Intent(Actions.UPLOAD_MONITOR).putExtra(UploadService.EXTRA_RECORDING, this);
     }
 
+    public Intent getProcessIntent() {
+        return new Intent(Actions.RECORDING_PROCESS)
+                .setData(Uri.fromFile(getFile()))
+                .putExtra("com.soundcloud.android.pd.extra.out",
+                        getFile().getAbsolutePath()+"-processed.wav");
+    }
 
     public Intent getViewIntent() {
         if (recipient_user_id > 0) {
