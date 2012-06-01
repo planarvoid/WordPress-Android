@@ -9,7 +9,7 @@ import com.soundcloud.android.service.upload.UploadService;
 
 import android.test.suitebuilder.annotation.Suppress;
 
-//@Suppress
+@Suppress
 public class NormalRecordingTest extends RecordingTestCase {
 
     public void testRecordAndPlayback() throws Exception {
