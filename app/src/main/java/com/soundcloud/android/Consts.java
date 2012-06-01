@@ -36,6 +36,10 @@ public final class Consts {
     public static final int ITEM_TYPE_LOADING = -1;
     public static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
 
+    public interface SecretCodes {
+        String TOGGLE_ERROR_REPORTING = "12345";
+    }
+
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
         int DIALOG_UNAUTHORIZED = 2;

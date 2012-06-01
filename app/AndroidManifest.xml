@@ -317,7 +317,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".service.playback.ToggleErrorReportingReceiver">
+        <receiver android:name=".CodeReceiver">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SECRET_CODE"/>
                 <!-- *#*#SCPLAYDEBUG#*#* -->
