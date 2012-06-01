@@ -88,17 +88,17 @@ public abstract class RecordingTestCase  extends ActivityInstrumentationTestCase
         assertSame(state, getActivity().getState());
     }
 
-    protected void waitForIntent(String action, long timeout) {
+    protected boolean waitForIntent(String action, long timeout) {
         final long startTime = SystemClock.uptimeMillis();
         final long endTime = startTime + timeout;
         while (SystemClock.uptimeMillis() < endTime) {
             solo.sleep(300);
             for (Intent intent : intents) {
                 if (action.equals(intent.getAction())) {
-                    return;
+                    return true;
                 }
             }
         }
-        fail("did not get intent: "+action+ ", current: "+intents);
+        return false;
     }
 }

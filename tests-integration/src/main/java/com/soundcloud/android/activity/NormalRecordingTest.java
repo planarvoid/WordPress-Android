@@ -40,17 +40,17 @@ public class NormalRecordingTest extends RecordingTestCase {
         assertState(IDLE_PLAYBACK);
 
         solo.clickOnText("Delete");
-        solo.waitForText("Are you sure you want to delete this recording?");
+        assert solo.waitForText("Are you sure you want to delete this recording?");
         solo.clickOnText("OK");
         solo.sleep(500);
-        assertTrue(getActivity().isFinishing());
+        assert getActivity().isFinishing();
     }
 
     public void testRecordAndDiscard() throws Exception {
         record(1000);
 
         solo.clickOnText("Discard");
-        solo.waitForText("Reset? Recording will be deleted.");
+        assert solo.waitForText("Reset?");
         solo.clickOnText("OK");
         solo.sleep(100);
         assertState(IDLE_RECORD);
@@ -60,14 +60,14 @@ public class NormalRecordingTest extends RecordingTestCase {
         record(1000);
 
         solo.clickOnButton("Next");
-        solo.waitForActivity(ScUpload.class.getSimpleName());
+        assert solo.waitForActivity(ScUpload.class.getSimpleName());
 
         solo.enterText(0, "A test upload");
         solo.clickOnRadioButton(1);  // make it private
         solo.clickOnText("Upload & Share");
 
-        waitForIntent(UploadService.UPLOAD_SUCCESS, 10000);
-        assertTrue(getActivity().isFinishing());
+        assertTrue("did not get upload notification", waitForIntent(UploadService.UPLOAD_SUCCESS, 10000));
+        assert getActivity().isFinishing();
     }
 
 
@@ -75,13 +75,11 @@ public class NormalRecordingTest extends RecordingTestCase {
         record(1000);
 
         solo.clickOnButton("Next");
-        solo.waitForActivity(ScUpload.class.getSimpleName());
+        assert solo.waitForActivity(ScUpload.class.getSimpleName());
 
         solo.clickOnText("Record another sound");
 
-        solo.waitForActivity(ScCreate.class.getSimpleName());
-
-        solo.sleep(400);
+        assert solo.waitForActivity(ScCreate.class.getSimpleName());
         assertState(IDLE_RECORD); // should be read to record a new track
     }
 
@@ -89,13 +87,11 @@ public class NormalRecordingTest extends RecordingTestCase {
         record(1000);
 
         solo.clickOnButton("Next");
-        solo.waitForActivity(ScUpload.class.getSimpleName());
+        assert solo.waitForActivity(ScUpload.class.getSimpleName());
 
         solo.goBack();
 
-        solo.waitForActivity(ScCreate.class.getSimpleName());
-
-        solo.sleep(400);
+        assert solo.waitForActivity(ScCreate.class.getSimpleName());
         assertState(IDLE_PLAYBACK); // should be old recording
     }
 }
