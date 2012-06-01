@@ -207,11 +207,9 @@ public final class Consts {
         String NOTIFICATIONS_COMMENTS               = "notificationsComments";
         String NOTIFICATIONS_FREQUENCY              = "notificationsFrequency";
         String VERSION_KEY                          = "changeLogVersionCode";
-        String DEFAULT_REC_QUALITY                  = "defaultRecordingQuality";
         String PLAYBACK_ERROR_REPORTING_ENABLED     = "playbackErrorReportingEnabled";
         String LAST_USER_SYNC                       = "lastUserSync";
 
-        String DEV_DEFAULT_REC_HIGH_QUALITY_TYPE    = "dev.defaultRecordingHighQualityType";
         String DEV_HTTP_PROXY                       = "dev.http.proxy";
         String DEV_ALARM_CLOCK_ENABLED              = "dev.alarmClock.enabled";
         String DEV_ALARM_CLOCK_URI                  = "dev.alarmClock.uri";
