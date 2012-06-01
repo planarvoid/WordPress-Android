@@ -4,6 +4,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.EmailPicker;
 import com.soundcloud.android.utils.ImageUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.content.Context;
@@ -154,7 +155,7 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
            }
         }
 
-        public void setAccessList(List<String> accessList) {
+        public void setAccessList(@Nullable List<String> accessList) {
             this.mAccessList = accessList;
             notifyDataSetChanged();
         }

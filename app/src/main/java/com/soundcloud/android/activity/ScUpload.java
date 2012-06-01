@@ -2,7 +2,6 @@ package com.soundcloud.android.activity;
 
 
 import com.android.camera.CropImage;
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Recording;
@@ -85,26 +84,21 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_record_another);
-                startActivity((new Intent(Actions.RECORD))
-                        .putExtra(ScCreate.EXTRA_RESET, true)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                setResult(RESULT_OK);
+                finish();
             }
         }), R.string.record_another_sound).addItem(new ButtonBar.MenuItem(1, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_Upload_and_share);
-
                 if (mRecording != null) {
                     mapToRecording(mRecording);
                     saveRecording(mRecording);
-                }
-
-                if (startUpload()) {
-                    mRecording = null;
-                    mRecordingMetadata.setRecording(null);
-                    setResult(RESULT_OK);
+                    mRecording.upload(ScUpload.this);
+                    setResult(RESULT_OK, new Intent().putExtra("uploading", true));
                     finish();
+                } else {
+                    errorOut(R.string.recording_not_found);
                 }
             }
         }), mRecording.isPrivateMessage() ? R.string.private_message_btn_send : R.string.upload_and_share);
@@ -202,13 +196,6 @@ public class ScUpload extends ScActivity {
 
     private void setPrivateShareEmails(String[] emails) {
         mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
-    }
-
-    private boolean startUpload() {
-        if (mRecording != null) {
-            mRecording.upload(this);
-            return true;
-        } else return false;
     }
 
     private void errorOut(int error) {

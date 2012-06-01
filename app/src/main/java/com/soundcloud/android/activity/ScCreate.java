@@ -50,8 +50,10 @@ import java.util.List;
 @Tracking(page = Page.Record_main)
 public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
-    public static final int REQUEST_UPLOAD_FILE  = 1;
+    public static final int REQUEST_GET_FILE      = 1;
     public static final int REQUEST_PROCESS_SOUND = 2;
+    public static final int REQUEST_UPLOAD_SOUND  = 3;
+
     public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
     public static final String EXTRA_RESET = "reset";
 
@@ -225,16 +227,24 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case 0:
+                if (resultCode == RESULT_OK) finish();
+                break;
+            case REQUEST_UPLOAD_SOUND:
                 if (resultCode == RESULT_OK) {
-                    finish();
+                    if (data == null) {
+                        reset();  // record another sound, reset
+                    } else {
+                        finish(); // upload started, finish
+                    }
+                } else {
+                    // back button pressed, do nothing
                 }
                 break;
-            case REQUEST_UPLOAD_FILE:
+            case REQUEST_GET_FILE:
                 if (resultCode == RESULT_OK) {
+                    // what's this for?
                     final Uri uri = data.getData();
-                    final Intent intent = (new Intent(Actions.EDIT))
-                            .putExtra(Intent.EXTRA_STREAM, uri);
-
+                    final Intent intent = (new Intent(Actions.EDIT)).putExtra(Intent.EXTRA_STREAM, uri);
                     final String file = uri.getLastPathSegment();
                     if (file != null && file.lastIndexOf(".") != -1) {
                         intent.putExtra(Actions.EXTRA_TITLE,
@@ -302,8 +312,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         updateUi(CreateState.IDLE_PLAYBACK, true);
                     } else {
                         track(Click.Record_next);
-                        startActivity(new Intent(ScCreate.this, ScUpload.class)
-                                .putExtra(SoundRecorder.EXTRA_RECORDING, rec));
+                        startActivityForResult(new Intent(ScCreate.this, ScUpload.class)
+                                .putExtra(SoundRecorder.EXTRA_RECORDING, rec), REQUEST_UPLOAD_SOUND);
                     }
                 } else  {
                     onRecordingError("Error saving recording");
@@ -436,7 +446,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         //TODO: renable later
         //noinspection ConstantIfStatement
         if (false) {
-            if (!(mCurrentState == CreateState.RECORD) && mRecipient == null) {
+            if (mCurrentState != CreateState.RECORD && mRecipient == null) {
                 mUnsavedRecordings = Recording.getUnsavedRecordings(
                     getContentResolver(),
                     SoundRecorder.RECORD_DIR,
@@ -903,7 +913,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case Consts.OptionsMenu.SELECT_FILE:
-                startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("audio/*"), REQUEST_UPLOAD_FILE);
+                startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("audio/*"), REQUEST_GET_FILE);
                 return true;
 
             case Consts.OptionsMenu.PROCESS:

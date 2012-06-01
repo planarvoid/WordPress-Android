@@ -9,7 +9,7 @@ import com.soundcloud.android.service.upload.UploadService;
 
 import android.test.suitebuilder.annotation.Suppress;
 
-@Suppress
+//@Suppress
 public class NormalRecordingTest extends RecordingTestCase {
 
     public void testRecordAndPlayback() throws Exception {
@@ -67,6 +67,7 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.clickOnText("Upload & Share");
 
         waitForIntent(UploadService.UPLOAD_SUCCESS, 10000);
+        assertTrue(getActivity().isFinishing());
     }
 
 
@@ -81,6 +82,20 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.waitForActivity(ScCreate.class.getSimpleName());
 
         solo.sleep(400);
-        assertState(IDLE_RECORD); // should be read to recording a new track
+        assertState(IDLE_RECORD); // should be read to record a new track
+    }
+
+    public void testRecordAndUploadThenGoBack() throws Exception {
+        record(1000);
+
+        solo.clickOnButton("Next");
+        solo.waitForActivity(ScUpload.class.getSimpleName());
+
+        solo.goBack();
+
+        solo.waitForActivity(ScCreate.class.getSimpleName());
+
+        solo.sleep(400);
+        assertState(IDLE_PLAYBACK); // should be old recording
     }
 }
