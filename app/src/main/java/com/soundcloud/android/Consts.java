@@ -37,6 +37,7 @@ public final class Consts {
     public static final int ITEM_TYPE_LOADING = -1;
     public static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
 
+
     public static interface RequestCodes {
         int GALLERY_IMAGE_PICK  = 9000;
         int GALLERY_IMAGE_TAKE  = 9001;
@@ -49,6 +50,9 @@ public final class Consts {
     public static interface SdkSwitches {
         boolean useRichNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
         boolean canDetermineActivityBackground = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    }
+    public interface SecretCodes {
+        String TOGGLE_ERROR_REPORTING = "12345";
     }
 
     public interface Dialogs {
