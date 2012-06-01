@@ -273,6 +273,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     private ButtonBar setupButtonBar() {
+        // TODO, fix trim state after save / discard
         ButtonBar buttonBar = (ButtonBar) findViewById(R.id.bottom_bar);
         buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.RESET, new View.OnClickListener() {
             @Override
@@ -281,6 +282,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     track(Click.Record_discard);
                     showDialog(Consts.Dialogs.DIALOG_DISCARD_RECORDING);
                 } else {
+                    mWaveDisplay.resetTrim();
                     track(Click.Record_revert);
                     showDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
                 }
@@ -454,6 +456,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
                 setPlayButtonDrawable(false);
                 if (!IOUtils.isSDCardAvailable()){
+
                     // state list drawables won't work with the image button
                     mActionButton.setClickable(false);
                     mActionButton.setImageResource(R.drawable.btn_rec_deactivated);
@@ -504,7 +507,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         case PLAYBACK:
                         case EDIT:
                         case EDIT_PLAYBACK:
-                            mWaveDisplay.resetTrim();
                             mRecorder.revertFile();
                             if (mRecorder.isPlaying()) {
                                 mRecorder.togglePlayback();

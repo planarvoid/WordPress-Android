@@ -12,6 +12,7 @@ import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -35,7 +36,7 @@ public class CreateWaveView extends View {
     private int mMaxWaveHeight;
 
     private float mCurrentProgress = -1f;
-    private int mTrimLeft, mTrimRight;
+    private double mTrimLeft, mTrimRight;
 
     private int mMode;
     private boolean mIsEditing;
@@ -104,8 +105,8 @@ public class CreateWaveView extends View {
     }
 
     public void resetTrim() {
-        mTrimLeft = -1;
-        mTrimRight = getWidth();
+        mTrimLeft = 0d;
+        mTrimRight = 1d;
     }
 
 
@@ -130,7 +131,6 @@ public class CreateWaveView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         mMaxWaveHeight = h - mGlowHeight;
-        mTrimRight = w;
         LinearGradient lg =  new LinearGradient(0, 0, 0, mMaxWaveHeight,
             new int[]{
                     getResources().getColor(R.color.cloudProgressStart),
@@ -181,12 +181,12 @@ public class CreateWaveView extends View {
         invalidate();
     }
 
-    public void setTrimLeft(int trimLeft) {
+    public void setTrimLeft(double trimLeft) {
         mTrimLeft = trimLeft;
         invalidate();
     }
 
-    public void setTrimRight(int trimRight) {
+    public void setTrimRight(double trimRight) {
         mTrimRight = trimRight;
         invalidate();
     }
@@ -200,20 +200,31 @@ public class CreateWaveView extends View {
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
 
         boolean animating = (normalizedTime < 1.0f);
-
         final int width = getWidth();
         final int totalAmplitudeSize = mAllAmplitudes.size();
         final int recordedAmplitudeSize = mAllAmplitudes.size() - (mRecordStartIndex);
 
+        final int recordEndIndexWithTrim = mIsEditing ? totalAmplitudeSize : (int) (totalAmplitudeSize - recordedAmplitudeSize * (1d - mTrimRight));
+        final int recordStartIndexWithTrim = mIsEditing ? mRecordStartIndex : (int) (mRecordStartIndex + mTrimLeft * recordedAmplitudeSize); //
+
+        // figure out where in the amplitude array we should set our first index
         int start;
         if (totalAmplitudeSize < width) {
-            start = Math.max(0, (int) (mRecordStartIndex * interpolatedTime));
+            // all recorded data will always be on the screen, just interpolated the preview data out
+            start = Math.max(0, (int) (recordStartIndexWithTrim * interpolatedTime));
         } else {
-            final int gap = (totalAmplitudeSize - width) - mRecordStartIndex;
+            // interpolate all the recorded data on to the screen
+            final int gap = (totalAmplitudeSize - width) - recordStartIndexWithTrim;
             start = (int) Math.max(0, (totalAmplitudeSize - width) - gap * interpolatedTime);
         }
-        final AmplitudeData subData = mAllAmplitudes.slice(start, mAllAmplitudes.size() - start);
+
+        // this represents whatever should be on the screen now, taken from our calculated start position
+        final AmplitudeData subData = mAllAmplitudes.slice(start, recordEndIndexWithTrim - start);
+
+        // now figure out how to draw it
         if (subData.size() > 0) {
+
+            // where should the last drawn X-coordinate be
             final int lastDrawX = (totalAmplitudeSize < width) ? (int) (totalAmplitudeSize + (width - totalAmplitudeSize) * interpolatedTime) : width;
             float[] points = getAmplitudePoints(subData, 0, lastDrawX);
             if (animating) {
@@ -222,7 +233,7 @@ public class CreateWaveView extends View {
                 } else if (mRecordStartIndex <= start) {
                     c.drawLines(points, PLAYED_PAINT);
                 } else {
-                    final int gap = (mRecordStartIndex - start);
+                    final int gap = (recordStartIndexWithTrim - start);
                     final int recordStartIndex = (recordedAmplitudeSize >= width) ? gap * 4
                             : Math.round(gap * ((float) lastDrawX) / subData.size()) * 4; // incorporate the scaling
 
@@ -232,8 +243,8 @@ public class CreateWaveView extends View {
 
             } else {
 
-                final int currentProgressIndex = mTrimLeft + (int) ((mTrimRight - mTrimLeft) * mCurrentProgress);
                 if (!mIsEditing) {
+                    final int currentProgressIndex = (int) (mCurrentProgress * width);
                     // just draw progress (full orange if no current progress)
                     if (currentProgressIndex < 0) {
                         drawPointsOnCanvas(c, points, PLAYED_PAINT);
@@ -242,24 +253,27 @@ public class CreateWaveView extends View {
                         drawPointsOnCanvas(c, points, UNPLAYED_PAINT, currentProgressIndex, -1);
                     }
                 } else {
+                    final int trimIndexLeft = (int) (mTrimLeft * width);
+                    final int trimIndexRight = (int) (mTrimRight * width);
+                    int currentProgressIndex = (int) (trimIndexLeft + ((trimIndexRight - trimIndexLeft)  * mCurrentProgress));
 
                     // left handle
-                    drawPointsOnCanvas(c, points, DARK_PAINT, 0, Math.max(mTrimLeft - 1, 0));
-                    drawPointsOnCanvas(c, points, TRIM_LINE_PAINT, Math.max(mTrimLeft - 1, 0), Math.max(mTrimLeft, 1));
+                    drawPointsOnCanvas(c, points, DARK_PAINT, 0, Math.max(trimIndexLeft - 1, 0));
+                    drawPointsOnCanvas(c, points, TRIM_LINE_PAINT, Math.max(trimIndexLeft - 1, 0), Math.max(trimIndexLeft, 1));
 
                     // progress inside handles
                     if (currentProgressIndex < 0) {
-                        drawPointsOnCanvas(c, points, PLAYED_PAINT, Math.max(mTrimLeft, 1), mTrimRight - 1);
+                        drawPointsOnCanvas(c, points, PLAYED_PAINT, Math.max(trimIndexLeft, 1), trimIndexRight - 1);
                     } else {
 
-                        final int playMin = Math.max(mTrimLeft + 1, currentProgressIndex);
-                        drawPointsOnCanvas(c, points, PLAYED_PAINT, mTrimLeft + 1, playMin);
-                        drawPointsOnCanvas(c, points, UNPLAYED_PAINT, Math.min(mTrimRight - 1, Math.max(playMin, currentProgressIndex)), mTrimRight - 1);
+                        final int playMin = Math.max(trimIndexLeft + 1, currentProgressIndex);
+                        drawPointsOnCanvas(c, points, PLAYED_PAINT, trimIndexLeft + 1, playMin);
+                        drawPointsOnCanvas(c, points, UNPLAYED_PAINT, Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)), trimIndexRight - 1);
                     }
 
                     // right handle
-                    drawPointsOnCanvas(c, points, TRIM_LINE_PAINT, mTrimRight - 1, Math.min(width-1, mTrimRight));
-                    drawPointsOnCanvas(c, points, DARK_PAINT, Math.min(width-1, mTrimRight), -1);
+                    drawPointsOnCanvas(c, points, TRIM_LINE_PAINT, trimIndexRight - 1, Math.min(width-1, trimIndexRight));
+                    drawPointsOnCanvas(c, points, DARK_PAINT, Math.min(width-1, trimIndexRight), -1);
                 }
             }
 
