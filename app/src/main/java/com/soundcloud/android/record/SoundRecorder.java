@@ -574,13 +574,14 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 mAudioTrack.play();
                 try {
                     do {
-                        if (mState == SoundRecorder.State.SEEKING) {
-                            assert mPlaybackStream != null;
-                            mPlaybackStream.setCurrentPosition(mSeekToPos);
-                            mSeekToPos = -1;
-                        } else if (mState == SoundRecorder.State.TRIMMING) {
+                        if (mState == SoundRecorder.State.TRIMMING) {
                             previewTrim(mPlaybackStream);
                         } else {
+                            if (mState == SoundRecorder.State.SEEKING) {
+                                assert mPlaybackStream != null;
+                                mPlaybackStream.setCurrentPosition(mSeekToPos);
+                                mSeekToPos = -1;
+                            }
                             play(mPlaybackStream);
                         }
                     } while (mState == SoundRecorder.State.SEEKING || (mState == SoundRecorder.State.TRIMMING && !previewQueue.isEmpty()));
