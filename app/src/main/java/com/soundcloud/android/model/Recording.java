@@ -544,7 +544,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static class RecordingFilter implements FilenameFilter {
         private Recording toIgnore;
 
-        public RecordingFilter(Recording ignore) {
+        public RecordingFilter(@Nullable Recording ignore) {
             toIgnore = ignore;
         }
 

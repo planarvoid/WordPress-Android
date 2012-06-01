@@ -23,7 +23,6 @@ import com.soundcloud.android.view.create.CreateWaveDisplay;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -434,16 +433,21 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 takeAction = true;
             }
         }
+        //TODO: renable later
+        //noinspection ConstantIfStatement
+        if (false) {
+            if (!(mCurrentState == CreateState.RECORD) && mRecipient == null) {
+                mUnsavedRecordings = Recording.getUnsavedRecordings(
+                    getContentResolver(),
+                    SoundRecorder.RECORD_DIR,
+                    mRecorder.getRecording(),
+                    getCurrentUserId());
 
-        /*
-        TODO: renable later
-        if (!(mCurrentState == CreateState.RECORD) && mPrivateUser == null) {
-            mUnsavedRecordings = Recording.getUnsavedRecordings(getContentResolver(), SoundRecorder.RECORD_DIR,mRecording, getCurrentUserId());
-            if (!mUnsavedRecordings.isEmpty()) {
-                showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
+                if (!mUnsavedRecordings.isEmpty()) {
+                    showDialog(Consts.Dialogs.DIALOG_UNSAVED_RECORDING);
+                }
             }
         }
-        */
         updateUi(newState, takeAction);
     }
 
@@ -736,7 +740,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             mLastDisplayedTime = (elapsed / 1000)*1000;
         }
     }
-
 
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
