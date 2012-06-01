@@ -45,13 +45,9 @@ public class CreateWaveDisplay extends TouchLayout {
     private int leftMarginOffset, rightMarginOffset;
 
     private float trimPercentLeft, trimPercentRight;
-    private int waveformWidth;
+    private int waveformWidth,leftDragOffsetX, rightDragOffsetX;
 
     private TrimAction newTrimActionLeft, newTrimActionRight, lastTrimActionLeft, lastTrimActionRight;
-
-
-
-    private int leftDragOffsetX, rightDragOffsetX;
 
     public static interface Listener {
         void onSeek(float pos);
@@ -118,8 +114,8 @@ public class CreateWaveDisplay extends TouchLayout {
 
             // dimension caching
             waveformWidth = mWaveformView.getWidth();
-            mWaveformView.setTrimLeft((int) (trimPercentLeft * waveformWidth));
-            mWaveformView.setTrimRight((int) (trimPercentRight * waveformWidth));
+            mWaveformView.setTrimLeft(trimPercentLeft);
+            mWaveformView.setTrimRight(trimPercentRight);
             setTrimHandles();
         }
     }
@@ -272,10 +268,9 @@ public class CreateWaveDisplay extends TouchLayout {
                         leftLp.leftMargin = newTrimActionLeft.position + leftMarginOffset;
                         leftHandle.requestLayout();
 
-                        mWaveformView.setTrimLeft(newTrimActionLeft.position);
-
                         final float oldTrimPercentLeft = trimPercentLeft;
                         trimPercentLeft = Math.max(0, ((float) newTrimActionLeft.position / waveformWidth));
+                        mWaveformView.setTrimLeft(trimPercentLeft);
 
                         if (mListener != null) {
                             mListener.onAdjustTrimLeft(trimPercentLeft, oldTrimPercentLeft, newTrimActionLeft.timestamp - lastTrimActionLeft.timestamp);
@@ -287,10 +282,9 @@ public class CreateWaveDisplay extends TouchLayout {
                         rightLp.rightMargin = waveformWidth - newTrimActionRight.position + rightMarginOffset;
                         rightHandle.requestLayout();
 
-                        mWaveformView.setTrimRight(newTrimActionRight.position);
-
                         final float oldTrimPercentRight = trimPercentRight;
                         trimPercentRight = Math.min(1, ((float) newTrimActionRight.position / waveformWidth));
+                        mWaveformView.setTrimRight(trimPercentRight);
 
                         if (mListener != null) {
                             mListener.onAdjustTrimRight(trimPercentRight, oldTrimPercentRight, newTrimActionRight.timestamp - lastTrimActionRight.timestamp);
