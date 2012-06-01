@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="list_icon_width">100px</dimen>
+    <dimen name="list_icon_height">100px</dimen>
+
+    <dimen name="share_user_icon_width">67px</dimen>
+    <dimen name="share_user_icon_height">67px</dimen>
+</resources>
