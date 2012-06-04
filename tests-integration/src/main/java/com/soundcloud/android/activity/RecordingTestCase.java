@@ -89,13 +89,13 @@ public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2
     protected void playback() {
         assertState(ScCreate.CreateState.IDLE_PLAYBACK);
         solo.clickOnView(getActivity().findViewById(R.id.btn_play));
-        if (!EMULATOR) assertState(ScCreate.CreateState.PLAYBACK);
+        assertState(ScCreate.CreateState.PLAYBACK);
     }
 
     protected void playbackEdit() {
         assertState(ScCreate.CreateState.EDIT);
         solo.clickOnView(getActivity().findViewById(R.id.btn_play_edit));
-        if (!EMULATOR) assertState(ScCreate.CreateState.EDIT_PLAYBACK);
+        assertState(ScCreate.CreateState.EDIT_PLAYBACK);
     }
 
     protected void assertState(ScCreate.CreateState state) {
