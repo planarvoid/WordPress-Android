@@ -524,7 +524,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private boolean isBetaMode() {
-        return EMULATOR || hasKey(getResources().getStringArray(R.array.beta_sigs));
+        return hasKey(getResources().getStringArray(R.array.beta_sigs));
     }
 
     private boolean isDevMode() {
