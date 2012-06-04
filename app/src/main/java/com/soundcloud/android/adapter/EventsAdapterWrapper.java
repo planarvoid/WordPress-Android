@@ -174,8 +174,12 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
             case ApiSyncService.STATUS_APPEND_FINISHED: {
 
                 if (!resultData.getBoolean(mContentUri.toString())) mKeepGoing = false; // no items to append, so don't keep going
-                mState = IDLE;
-                notifyDataSetChanged();
+
+                // this conditional prevent double appends that may be caused by the initial sync
+                if (mAppendTask == null) {
+                    mState = IDLE;
+                    notifyDataSetChanged();
+                }
                 break;
             }
         }
