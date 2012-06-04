@@ -85,17 +85,17 @@ public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2
 
     protected void playback() {
         assertState(ScCreate.CreateState.IDLE_PLAYBACK);
-
+        solo.sleep(250); // account for button animation
         solo.clickOnView(getActivity().findViewById(R.id.btn_play));
         assertState(ScCreate.CreateState.PLAYBACK);
     }
 
     protected void playbackEdit() {
         assertState(ScCreate.CreateState.EDIT);
+        solo.sleep(250); // account for button animation
         solo.clickOnView(getActivity().findViewById(R.id.btn_play_edit));
         assertState(ScCreate.CreateState.EDIT_PLAYBACK);
     }
-
 
     protected void assertState(ScCreate.CreateState state) {
         assertTrue(waitForState(state, 5000));
