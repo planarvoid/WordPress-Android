@@ -20,7 +20,7 @@ public class NormalRecordingTest extends RecordingTestCase {
         gotoEditMode();
 
         solo.clickOnText("Revert to original");
-        solo.waitForText("You will lose all of your edits.");
+        assertTrue(solo.waitForText("You will lose all of your edits."));
         solo.clickOnText("OK");
 
         assertState(IDLE_PLAYBACK);
