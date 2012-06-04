@@ -124,10 +124,7 @@ public class WaveformController extends TouchLayout {
         mOverlay = (ImageView) findViewById(R.id.progress_overlay);
 
         mPlayerTouchBar = (PlayerTouchBar) findViewById(R.id.track_touch_bar);
-        mPlayerTouchBar.setOnTouchListener(this);
-
         mPlayerAvatarBar = (PlayerAvatarBar) findViewById(R.id.player_avatar_bar);
-        mPlayerAvatarBar.setOnTouchListener(this);
         mPlayerAvatarBar.setIsLandscape(isLandscape());
 
         mCommentLines = new WaveformCommentLines(mPlayer, null);
@@ -144,6 +141,10 @@ public class WaveformController extends TouchLayout {
         setStaticTransformationsEnabled(true);
         mPlayerTouchBar.setLandscape(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
 
+        // override default touch layout functionality, these views are all we want to respond
+        mPlayerTouchBar.setOnTouchListener(this);
+        mPlayerAvatarBar.setOnTouchListener(this);
+        setOnTouchListener(null);
     }
 
     public void setOnScreen(boolean onScreen){
