@@ -73,7 +73,7 @@ public class ScTextUtils {
             }
         }
         MovementMethod m = view.getMovementMethod();
-        if ((m == null) || !(m instanceof LinkMovementMethod)) {
+        if (!(m instanceof LinkMovementMethod)) {
             view.setMovementMethod(LinkMovementMethod.getInstance());
         }
         return true;

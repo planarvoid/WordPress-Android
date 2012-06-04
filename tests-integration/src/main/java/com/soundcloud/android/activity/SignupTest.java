@@ -41,14 +41,14 @@ public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
 
         solo.clickOnButton("Sign Up");
         assertTrue(solo.waitForText("Signing you up"));
-        assertTrue(solo.waitForDialogToClose(5000));
+        assertTrue(solo.waitForDialogToClose(20000));
         assertTrue(solo.waitForText("Almost done"));
 
         // username (max 25 characters)
         solo.enterText(0, uuid.substring(0, 24).replace("-", ""));
         solo.clickOnButton("Save");
 
-        assertTrue(solo.waitForDialogToClose(5000));
+        assertTrue(solo.waitForDialogToClose(20000));
 
         // Tour
         assertTrue(solo.waitForText("Welcome to SoundCloud"));
