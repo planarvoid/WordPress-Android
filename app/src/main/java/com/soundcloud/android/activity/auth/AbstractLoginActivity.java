@@ -54,7 +54,7 @@ public abstract class AbstractLoginActivity extends Activity {
 
     protected void login(final Bundle data) {
         if (data.getString(SCOPES_EXTRA) == null) {
-            // default to non-expiring scope+playcount
+            // default to non-expiring scope
             data.putStringArray(SCOPES_EXTRA, SCOPES_TO_REQUEST);
         }
         final SoundCloudApplication app = (SoundCloudApplication) getApplication();

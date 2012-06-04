@@ -45,8 +45,8 @@ public final class InstrumentationHelper {
             loginAs(instrumentation, username, password);
         } else if (account == null) {
             Log.d(TAG, "logging in");
-            Token token = app.login(username, password);
-            User user = new FetchUserTask(app, -1).execute(Request.to(Endpoints.MY_DETAILS)).get();
+            Token token = app.login(username, password, Token.SCOPE_NON_EXPIRING);
+            User user = new FetchUserTask(app).execute(Request.to(Endpoints.MY_DETAILS)).get();
             assertNotNull(user);
             assertTrue(app.addUserAccount(user, token, SignupVia.API));
         } else {
