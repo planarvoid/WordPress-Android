@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class RecordingTestCase  extends ActivityInstrumentationTestCase2<ScCreate> {
+public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2<ScCreate> {
     protected Solo solo;
     protected LocalBroadcastManager lbm;
     protected List<Intent> intents;
@@ -74,19 +74,31 @@ public abstract class RecordingTestCase  extends ActivityInstrumentationTestCase
 
     protected void gotoEditMode() {
         solo.clickOnView(getActivity().findViewById(R.id.btn_edit));
-        solo.waitForText("Revert to original");
+        assertTrue(solo.waitForText("Revert to original"));
         assertState(ScCreate.CreateState.EDIT);
     }
 
     protected void playback() {
+        assertState(ScCreate.CreateState.IDLE_PLAYBACK);
+
         solo.clickOnView(getActivity().findViewById(R.id.btn_play));
         solo.sleep(100);
         assertState(ScCreate.CreateState.PLAYBACK);
     }
 
+    protected void playbackEdit() {
+        assertState(ScCreate.CreateState.EDIT);
+
+        solo.clickOnView(getActivity().findViewById(R.id.btn_play_edit));
+        solo.sleep(100);
+        assertState(ScCreate.CreateState.EDIT_PLAYBACK);
+    }
+
+
     protected void assertState(ScCreate.CreateState state) {
         assertSame(state, getActivity().getState());
     }
+
 
     protected boolean waitForIntent(String action, long timeout) {
         final long startTime = SystemClock.uptimeMillis();
