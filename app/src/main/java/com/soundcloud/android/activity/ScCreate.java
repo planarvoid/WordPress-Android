@@ -423,6 +423,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         updateUi(CreateState.IDLE_RECORD, true);
     }
 
+    /* package */ SoundRecorder getRecorder() {
+        return mRecorder;
+    }
+
     private void configureInitialState() {
         if (mRecorder == null || !mActive) return;
 

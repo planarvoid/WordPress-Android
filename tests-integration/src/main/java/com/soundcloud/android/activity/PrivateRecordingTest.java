@@ -1,9 +1,11 @@
 package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.activity.ScCreate.CreateState.IDLE_PLAYBACK;
+import static junit.framework.Assert.assertTrue;
 
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.upload.UploadService;
+import junit.framework.Assert;
 
 import android.content.Intent;
 import android.test.suitebuilder.annotation.Suppress;
@@ -32,8 +34,8 @@ public class PrivateRecordingTest extends RecordingTestCase {
         solo.clickOnButton("Next");
         solo.waitForActivity(ScUpload.class.getSimpleName());
 
-        solo.waitForText("Your sound message got saved.");
-        solo.waitForText("Before we send it out privately to Super Hans, maybe you want to add some more info?");
+        assertTrue(solo.waitForText("Your sound message got saved."));
+        assertTrue(solo.waitForText("Before we send it out privately to Super Hans, maybe you want to add some more info?"));
 
         solo.enterText(0, "Hallo Hans");
 
