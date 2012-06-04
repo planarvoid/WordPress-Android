@@ -17,7 +17,6 @@ import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.cache.UserCache;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.WifiMonitor;
@@ -80,7 +79,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     public static final boolean DALVIK = Build.VERSION.SDK_INT > 0;
 
-    public static final boolean API_PRODUCTION = true;
+    public static boolean API_PRODUCTION;
     public static final TrackCache TRACK_CACHE = new TrackCache();
     public static final UserCache USER_CACHE = new UserCache();
 
@@ -102,6 +101,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         instance = this;
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
+        API_PRODUCTION = isProductionApi();
 
         if (DALVIK) {
             if (!EMULATOR) {
@@ -113,7 +113,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         mImageLoader = createImageLoader();
         final Account account = getAccount();
-        //noinspection ConstantConditions
+
         mCloudApi = new Wrapper(
                 this,
                 getClientId(API_PRODUCTION),
@@ -519,23 +519,25 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
+    private boolean isProductionApi() {
+        return !hasKey(getString(R.string.builder_sig));
+    }
+
     private boolean isBetaMode() {
-        return EMULATOR || hasKey(R.array.beta_sigs);
+        return EMULATOR || hasKey(getResources().getStringArray(R.array.beta_sigs));
     }
 
     private boolean isDevMode() {
-        return hasKey(R.array.debug_sigs);
+        return hasKey(getResources().getStringArray(R.array.debug_sigs));
     }
 
-    private boolean hasKey(final int resource) {
+    private boolean hasKey(String... keys) {
         try {
              PackageInfo info = getPackageManager().getPackageInfo(
                      getPackageName(),
                      GET_SIGNATURES);
             if (info != null && info.signatures != null) {
-                final String[] keys = getResources().getStringArray(resource);
                 final String sig =  info.signatures[0].toCharsString();
-                Log.d(TAG, "sig:"+sig);
                 Arrays.sort(keys);
                 return Arrays.binarySearch(keys, sig) > -1;
             } else {

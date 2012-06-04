@@ -112,7 +112,7 @@ public interface AndroidCloudAPI extends CloudAPI {
         @SuppressWarnings({"PointlessBooleanExpression", "ConstantConditions"})
         @Override protected SSLSocketFactory getSSLSocketFactory() {
             if (SoundCloudApplication.DALVIK &&
-                SoundCloudApplication.API_PRODUCTION &&
+                env == Env.LIVE &&
                 Build.VERSION.SDK_INT >= 8) {
                 // make use of android's implementation
                 return SSLCertificateSocketFactory.getHttpSocketFactory(ApiWrapper.TIMEOUT,
