@@ -6,12 +6,11 @@ import com.soundcloud.android.tests.AudioTestCase;
 
 import android.os.Environment;
 import android.test.suitebuilder.annotation.LargeTest;
-import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.File;
 import java.io.InputStream;
 
-@LargeTest @Suppress
+@LargeTest
 public class VorbisEncoderTest extends AudioTestCase {
     public void testEncodeShortHighQuality() throws Exception {
         encodeWav("audio/short_test.wav", 5548, 1.0f);
