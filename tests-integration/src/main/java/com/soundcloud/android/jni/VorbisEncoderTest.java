@@ -2,13 +2,16 @@ package com.soundcloud.android.jni;
 
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.WavHeader;
+import com.soundcloud.android.tests.AudioTestCase;
 
 import android.os.Environment;
+import android.test.suitebuilder.annotation.LargeTest;
 
 import java.io.File;
 import java.io.InputStream;
 
-public class VorbisEncoderTest extends AudioTest {
+@LargeTest
+public class VorbisEncoderTest extends AudioTestCase {
     public void testEncodeShortHighQuality() throws Exception {
         encodeWav("audio/short_test.wav", 5548, 1.0f);
     }

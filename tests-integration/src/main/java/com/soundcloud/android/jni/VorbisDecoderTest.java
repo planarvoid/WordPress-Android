@@ -1,13 +1,17 @@
 package com.soundcloud.android.jni;
 
 import com.soundcloud.android.audio.WavHeader;
+import com.soundcloud.android.tests.AudioTestCase;
+
+import android.test.suitebuilder.annotation.LargeTest;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class VorbisDecoderTest extends AudioTest {
+@LargeTest
+public class VorbisDecoderTest extends AudioTestCase {
     public static final String MED_TEST_OGG = "audio/med_test.ogg";
 
     public void testDecodeToFile() throws Exception {

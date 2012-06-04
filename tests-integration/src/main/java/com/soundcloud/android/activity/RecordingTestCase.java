@@ -5,6 +5,7 @@ import static com.soundcloud.android.activity.ScCreate.CreateState.IDLE_PLAYBACK
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.android.tests.InstrumentationHelper;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,6 +19,8 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2<ScCreate> {
+    protected static final int RECORDING_TIME = 2000;
+
     protected Solo solo;
     protected LocalBroadcastManager lbm;
     protected List<Intent> intents;
@@ -35,6 +38,8 @@ public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2
 
     @Override
     public void setUp() throws Exception {
+        InstrumentationHelper.loginAsDefault(getInstrumentation());
+
         intents = Collections.synchronizedList(new ArrayList<Intent>());
         lbm = LocalBroadcastManager.getInstance(getActivity());
         lbm.registerReceiver(receiver, UploadService.getIntentFilter());
@@ -62,13 +67,13 @@ public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2
     }
 
     protected void record(int howlong, String text) {
-        solo.waitForText(text);
+        assertTrue(solo.waitForText(text));
         assertState(ScCreate.CreateState.IDLE_RECORD);
         solo.clickOnView(getActivity().findViewById(R.id.btn_action));
         solo.sleep(howlong);
         assertState(ScCreate.CreateState.RECORD);
         solo.clickOnView(getActivity().findViewById(R.id.btn_action));
-        solo.waitForText("Discard");
+        assertTrue(solo.waitForText("Discard"));
         assertState(IDLE_PLAYBACK);
     }
 
@@ -82,29 +87,38 @@ public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2
         assertState(ScCreate.CreateState.IDLE_PLAYBACK);
 
         solo.clickOnView(getActivity().findViewById(R.id.btn_play));
-        solo.sleep(100);
         assertState(ScCreate.CreateState.PLAYBACK);
     }
 
     protected void playbackEdit() {
         assertState(ScCreate.CreateState.EDIT);
-
         solo.clickOnView(getActivity().findViewById(R.id.btn_play_edit));
-        solo.sleep(100);
         assertState(ScCreate.CreateState.EDIT_PLAYBACK);
     }
 
 
     protected void assertState(ScCreate.CreateState state) {
-        assertSame(state, getActivity().getState());
+        assertTrue(waitForState(state, 5000));
     }
 
+    protected boolean waitForState(ScCreate.CreateState state, long timeout) {
+
+        final long startTime = SystemClock.uptimeMillis();
+        final long endTime = startTime + timeout;
+        while (SystemClock.uptimeMillis() < endTime) {
+            solo.sleep(100);
+            if (getActivity().getState() == state) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     protected boolean waitForIntent(String action, long timeout) {
         final long startTime = SystemClock.uptimeMillis();
         final long endTime = startTime + timeout;
         while (SystemClock.uptimeMillis() < endTime) {
-            solo.sleep(300);
+            solo.sleep(100);
             for (Intent intent : intents) {
                 if (action.equals(intent.getAction())) {
                     return true;

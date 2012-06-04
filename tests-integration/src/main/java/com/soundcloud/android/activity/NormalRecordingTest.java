@@ -3,27 +3,21 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.activity.ScCreate.CreateState.IDLE_PLAYBACK;
 import static com.soundcloud.android.activity.ScCreate.CreateState.IDLE_RECORD;
-import static com.soundcloud.android.activity.ScCreate.CreateState.PLAYBACK;
 
 import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.android.tests.InstrumentationHelper;
 
-import android.test.suitebuilder.annotation.Suppress;
-
-@Suppress
 public class NormalRecordingTest extends RecordingTestCase {
 
-
     public void testRecordAndPlayback() throws Exception {
-        record(1000);
+        record(RECORDING_TIME);
         playback();
-        solo.sleep(100);
-        assertState(PLAYBACK);
-        solo.sleep(1500);
+        solo.sleep(RECORDING_TIME + 500);
         assertState(IDLE_PLAYBACK);
     }
 
     public void testRecordAndEditRevert() throws Exception {
-        record(1000);
+        record(RECORDING_TIME);
         gotoEditMode();
 
         solo.clickOnText("Revert to original");
@@ -34,7 +28,7 @@ public class NormalRecordingTest extends RecordingTestCase {
     }
 
     public void testRecordAndEditSaveAndDelete() throws Exception {
-        record(1000);
+        record(RECORDING_TIME);
         gotoEditMode();
 
         solo.clickOnText("Save");
@@ -48,17 +42,16 @@ public class NormalRecordingTest extends RecordingTestCase {
     }
 
     public void testRecordAndDiscard() throws Exception {
-        record(1000);
+        record(RECORDING_TIME);
 
         solo.clickOnText("Discard");
         assertTrue(solo.waitForText("Reset?"));
         solo.clickOnText("OK");
-        solo.sleep(100);
         assertState(IDLE_RECORD);
     }
 
     public void testRecordAndUpload() throws Exception {
-        record(1000);
+        record(RECORDING_TIME);
 
         solo.clickOnButton("Next");
         assertTrue(solo.waitForActivity(ScUpload.class.getSimpleName()));
@@ -73,7 +66,7 @@ public class NormalRecordingTest extends RecordingTestCase {
 
 
     public void testRecordAndUploadThenRecordAnotherSound() throws Exception {
-        record(1000);
+        record(RECORDING_TIME);
 
         solo.clickOnButton("Next");
         assertTrue(solo.waitForActivity(ScUpload.class.getSimpleName()));
@@ -85,7 +78,7 @@ public class NormalRecordingTest extends RecordingTestCase {
     }
 
     public void testRecordAndUploadThenGoBack() throws Exception {
-        record(1000);
+        record(RECORDING_TIME);
 
         solo.clickOnButton("Next");
         assertTrue(solo.waitForActivity(ScUpload.class.getSimpleName()));

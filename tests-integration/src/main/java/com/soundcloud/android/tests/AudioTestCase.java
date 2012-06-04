@@ -1,4 +1,4 @@
-package com.soundcloud.android.jni;
+package com.soundcloud.android.tests;
 
 import com.soundcloud.android.tests.ScAndroidTestCase;
 
@@ -7,7 +7,7 @@ import android.media.MediaPlayer;
 import java.io.File;
 import java.io.IOException;
 
-public abstract class AudioTest extends ScAndroidTestCase {
+public abstract class AudioTestCase extends ScAndroidTestCase {
     protected void checkAudioFile(File file, @SuppressWarnings("UnusedParameters") int expectedDuration) throws IOException {
         assertTrue("file should exist", file.exists());
         assertTrue("file should not be empty", file.length() > 0);
