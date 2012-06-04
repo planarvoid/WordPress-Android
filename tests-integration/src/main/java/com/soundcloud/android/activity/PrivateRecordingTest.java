@@ -21,7 +21,7 @@ public class PrivateRecordingTest extends RecordingTestCase {
     public void testRecordAndPlayback() throws Exception {
         record(RECORDING_TIME, "Record a sound for Super Hans");
         playback();
-        solo.sleep(RECORDING_TIME + 500);
+        solo.sleep(RECORDING_TIME + 1000);
         assertState(IDLE_PLAYBACK);
     }
 

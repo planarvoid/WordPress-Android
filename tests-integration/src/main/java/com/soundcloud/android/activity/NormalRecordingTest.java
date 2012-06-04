@@ -5,7 +5,6 @@ import static com.soundcloud.android.activity.ScCreate.CreateState.IDLE_PLAYBACK
 import static com.soundcloud.android.activity.ScCreate.CreateState.IDLE_RECORD;
 
 import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.tests.InstrumentationHelper;
 
 public class NormalRecordingTest extends RecordingTestCase {
 

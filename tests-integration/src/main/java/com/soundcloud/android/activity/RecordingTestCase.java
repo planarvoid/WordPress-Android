@@ -10,6 +10,7 @@ import com.soundcloud.android.tests.InstrumentationHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.test.ActivityInstrumentationTestCase2;
@@ -19,7 +20,9 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2<ScCreate> {
-    protected static final int RECORDING_TIME = 2000;
+    protected static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
+    // longer recordings on emulator
+    protected static final int RECORDING_TIME = EMULATOR ? 6000 : 1000;
 
     protected Solo solo;
     protected LocalBroadcastManager lbm;
@@ -85,14 +88,12 @@ public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2
 
     protected void playback() {
         assertState(ScCreate.CreateState.IDLE_PLAYBACK);
-        solo.sleep(250); // account for button animation
         solo.clickOnView(getActivity().findViewById(R.id.btn_play));
         assertState(ScCreate.CreateState.PLAYBACK);
     }
 
     protected void playbackEdit() {
         assertState(ScCreate.CreateState.EDIT);
-        solo.sleep(250); // account for button animation
         solo.clickOnView(getActivity().findViewById(R.id.btn_play_edit));
         assertState(ScCreate.CreateState.EDIT_PLAYBACK);
     }
