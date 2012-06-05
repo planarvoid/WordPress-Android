@@ -29,7 +29,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
 
     public EventsAdapterWrapper(ScListActivity activity, LazyBaseAdapter wrapped, Content content) {
         super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
-        mAutoAppend = mLocalCollection.last_sync > 0; // never synced, wait on items to allow appending to prevent premature empty view
+        mAutoAppend = mLocalCollection.hasSyncedBefore(); // if never synced, wait on items to allow appending to prevent premature empty view
     }
 
      @Override

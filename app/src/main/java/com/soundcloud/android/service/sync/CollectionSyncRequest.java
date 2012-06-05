@@ -40,6 +40,7 @@ import java.io.IOException;
         if (localCollection == null) throw new IllegalStateException("request has not been queued");
 
         ApiSyncer syncer = new ApiSyncer(context);
+
         localCollection.updateSyncState(LocalCollection.SyncState.SYNCING, context.getContentResolver());
         try {
             result = syncer.syncContent(contentUri, action);

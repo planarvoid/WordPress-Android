@@ -243,14 +243,4 @@ public enum Content {
                 DBHelper.CollectionItems.SORT_ORDER));
 
     }
-
-    public boolean isStale(long lastSync) {
-        // do not auto refresh users when the list opens, because users are always changing
-        if (User.class.equals(resourceType)) return lastSync <= 0;
-        final long staleTime = (Track.class.equals(resourceType)) ? SyncConfig.TRACK_STALE_TIME :
-                (Activity.class.equals(resourceType)) ? SyncConfig.ACTIVITY_STALE_TIME :
-                        SyncConfig.DEFAULT_STALE_TIME;
-
-        return System.currentTimeMillis() - lastSync > staleTime;
-    }
 }

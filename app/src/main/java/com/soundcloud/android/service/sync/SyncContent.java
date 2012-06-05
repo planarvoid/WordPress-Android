@@ -57,7 +57,7 @@ enum SyncContent {
         for (SyncContent sc : SyncContent.values()) {
             if (sc.isEnabled(prefs)) {
                 final LocalCollection lc = LocalCollection.fromContent(sc.content, c.getContentResolver(), false);
-                if (manual || lc == null || sc.shouldSync(lc.syncMisses(), lc.last_sync)) {
+                if (manual || lc == null || sc.shouldSync(lc.syncMisses(), lc.last_sync_success)) {
                     urisToSync.add(sc.content.uri);
                 }
             }
