@@ -63,7 +63,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserBrowser extends ScActivity implements
+public class UserBrowser extends ActionActivity implements
         ParcelCache.Listener<Connection>,
         FollowStatus.Listener,
         FetchUserTask.FetchUserListener,

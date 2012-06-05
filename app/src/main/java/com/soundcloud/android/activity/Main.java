@@ -41,6 +41,9 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -98,7 +101,7 @@ public class Main extends TabActivity implements
                 }
             }, SPLASH_DELAY);
         }
-
+        /*
         buildTabHost(getApp(), getTabHost(), getTabWidget());
         handleIntent(getIntent());
 
@@ -113,6 +116,7 @@ public class Main extends TabActivity implements
             mFetchUserTask = (FetchUserTask) previousState[2];
             if (mFetchUserTask != null) mFetchUserTask.addListener(onFetchUserListener);
         }
+        */
     }
 
     private boolean showSplash(Bundle state) {
@@ -572,6 +576,42 @@ public class Main extends TabActivity implements
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // app icon in action bar clicked; go home
+                Intent intent = new Intent(this, Dashboard.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                return true;
+            case R.id.menu_record:
+                // app icon in action bar clicked; go home
+                intent = new Intent(this, ScCreate.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_search:
+                // app icon in action bar clicked; go home
+                intent = new Intent(this, ScSearch.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_you:
+                // app icon in action bar clicked; go home
+                intent = new Intent(this, UserBrowser.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

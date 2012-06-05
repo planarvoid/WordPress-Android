@@ -28,7 +28,7 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 
-public class Dashboard extends ScActivity {
+public class Dashboard extends ActionActivity {
     protected ScListView mListView;
     private Page mTrackingPage;
     private Main.Tab mCurrentTab;
@@ -44,7 +44,49 @@ public class Dashboard extends ScActivity {
 
         mCurrentTab = Main.Tab.fromIntent(intent);
         switch(mCurrentTab) {
-            case STREAM:
+            case ACTIVITY:
+                            if (getApp().getLoggedInUser() == null || getApp().getLoggedInUser().track_count > 0) {
+                                ec.setMessageText(R.string.list_empty_activity_message)
+                                        .setImage(R.drawable.empty_share)
+                                        .setActionText(R.string.list_empty_activity_action)
+                                        .setSecondaryText(R.string.list_empty_activity_secondary)
+                                        .setActionListener(new EmptyCollection.ActionListener() {
+                                            @Override public void onAction() {
+                                                startActivity(new Intent(Actions.MY_PROFILE)
+                                                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                                        .putExtra("userBrowserTag", UserBrowser.Tab.tracks.name()));
+                                            }
+
+                                            @Override public void onSecondaryAction() {
+                                                goTo101s();
+                                            }
+                                        });
+                            } else {
+                                ec.setMessageText(R.string.list_empty_activity_nosounds_message)
+                                        .setImage(R.drawable.empty_rec)
+                                        .setActionText(R.string.list_empty_activity_nosounds_action)
+                                        .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
+                                        .setActionListener(new EmptyCollection.ActionListener() {
+                                            @Override
+                                            public void onAction() {
+                                                startActivity(new Intent(Actions.RECORD)
+                                                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                                            }
+
+                                            @Override
+                                            public void onSecondaryAction() {
+                                                goTo101s();
+                                            }
+                                        });
+                            }
+                            trackListView = createList(Content.ME_ACTIVITIES,
+                                    Activity.class,
+                                    ec,
+                                    Consts.ListId.LIST_ACTIVITY, true);
+
+                            mTrackingPage = Page.Activity_activity;
+                            break;
+            default:
                 ec.setMessageText(R.string.list_empty_stream_message)
                         .setImage(R.drawable.empty_follow)
                         .setActionText(R.string.list_empty_stream_action)
@@ -69,50 +111,6 @@ public class Dashboard extends ScActivity {
                 mTrackingPage = Page.Stream_main;
                 break;
 
-            case ACTIVITY:
-                if (getApp().getLoggedInUser() == null || getApp().getLoggedInUser().track_count > 0) {
-                    ec.setMessageText(R.string.list_empty_activity_message)
-                            .setImage(R.drawable.empty_share)
-                            .setActionText(R.string.list_empty_activity_action)
-                            .setSecondaryText(R.string.list_empty_activity_secondary)
-                            .setActionListener(new EmptyCollection.ActionListener() {
-                                @Override public void onAction() {
-                                    startActivity(new Intent(Actions.MY_PROFILE)
-                                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                            .putExtra("userBrowserTag", UserBrowser.Tab.tracks.name()));
-                                }
-
-                                @Override public void onSecondaryAction() {
-                                    goTo101s();
-                                }
-                            });
-                } else {
-                    ec.setMessageText(R.string.list_empty_activity_nosounds_message)
-                            .setImage(R.drawable.empty_rec)
-                            .setActionText(R.string.list_empty_activity_nosounds_action)
-                            .setSecondaryText(R.string.list_empty_activity_nosounds_secondary)
-                            .setActionListener(new EmptyCollection.ActionListener() {
-                                @Override
-                                public void onAction() {
-                                    startActivity(new Intent(Actions.RECORD)
-                                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
-                                }
-
-                                @Override
-                                public void onSecondaryAction() {
-                                    goTo101s();
-                                }
-                            });
-                }
-                trackListView = createList(Content.ME_ACTIVITIES,
-                        Activity.class,
-                        ec,
-                        Consts.ListId.LIST_ACTIVITY, true);
-
-                mTrackingPage = Page.Activity_activity;
-                break;
-            default:
-                throw new IllegalArgumentException("no valid tab extra");
         }
 
         setContentView(trackListView);
