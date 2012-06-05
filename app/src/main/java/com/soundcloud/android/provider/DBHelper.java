@@ -260,7 +260,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "uri VARCHAR(255)," +
             "last_addition INTEGER, " +
             "last_sync INTEGER, " +
-            "last_sync_ATTEMPT INTEGER, " +
+            "last_sync_attempt INTEGER, " +
             "size INTEGER, " +
             "sync_state INTEGER, " +
             "extra VARCHAR(255), " +
