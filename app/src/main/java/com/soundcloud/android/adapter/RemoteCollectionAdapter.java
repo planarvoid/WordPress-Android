@@ -66,11 +66,11 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter implements Local
         if (isSyncable()) {
             setListLastUpdated();
 
-            if ((mContent != null) && mContent.isStale(mLocalCollection.last_sync) && !isRefreshing()) {
+            if ((mContent != null) && mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
                 refresh(false);
                 // TODO : Causes loop with stale collection and server error
                 // this is to show the user something at the initial load
-                if (mLocalCollection.last_sync <= 0) mListView.setRefreshing();
+                if (mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
             }
         }
     }
@@ -124,7 +124,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter implements Local
 
     @Override
     protected boolean canShowEmptyView() {
-        return (!isSyncable() || mLocalCollection.last_sync > 0) && super.canShowEmptyView();
+        return (!isSyncable() || mLocalCollection.hasSyncedBefore()) && super.canShowEmptyView();
     }
 
     protected void setNextHref(String nextHref) {
@@ -168,7 +168,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter implements Local
 
     public void setListLastUpdated() {
         if (mListView != null) {
-            if (mLocalCollection.last_sync > 0) mListView.setLastUpdated(mLocalCollection.last_sync);
+            if (mLocalCollection.hasSyncedBefore()) mListView.setLastUpdated(mLocalCollection.last_sync_success);
         }
     }
 

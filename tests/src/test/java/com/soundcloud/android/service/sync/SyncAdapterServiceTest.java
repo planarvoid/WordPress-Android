@@ -428,7 +428,7 @@ public class SyncAdapterServiceTest {
         expect(lc).not.toBeNull();
         expect(lc.extra).toEqual("0");
         expect(lc.size).toEqual(3);
-        expect(lc.last_sync).not.toEqual(0L);
+        expect(lc.last_sync_success).not.toEqual(0L);
 
         // reset sync time & rerun sync
         addCannedActivities(
@@ -436,7 +436,7 @@ public class SyncAdapterServiceTest {
                 "empty_events.json",
                 "empty_events.json");
 
-        lc.updateLastSyncTime(0, DefaultTestRunner.application.getContentResolver());
+        lc.updateLastSyncSuccessTime(0, DefaultTestRunner.application.getContentResolver());
 
         doPerformSync(DefaultTestRunner.application, false, null);
 
@@ -444,7 +444,7 @@ public class SyncAdapterServiceTest {
         expect(lc).not.toBeNull();
         expect(lc.extra).toEqual("1");    // 1 miss
         expect(lc.size).toEqual(3);
-        expect(lc.last_sync).not.toEqual(0L);
+        expect(lc.last_sync_success).not.toEqual(0L);
     }
 
     @Test

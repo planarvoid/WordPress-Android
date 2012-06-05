@@ -260,6 +260,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "uri VARCHAR(255)," +
             "last_addition INTEGER, " +
             "last_sync INTEGER, " +
+            "last_sync_attempt INTEGER, " +
             "size INTEGER, " +
             "sync_state INTEGER, " +
             "extra VARCHAR(255), " +
@@ -545,6 +546,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String URI = "uri";                      // local content provider uri
         public static final String LAST_ADDITION = "last_addition";  // last addition (from API, not used)
         public static final String LAST_SYNC = "last_sync";          // timestamp of last sync
+        public static final String LAST_SYNC_ATTEMPT = "last_sync_attempt";          // timestamp of last sync
         public static final String SIZE = "size";
         public static final String SYNC_STATE = "sync_state";        // are we currently syncing?
         public static final String EXTRA = "extra";                  // general purpose field
@@ -758,6 +760,7 @@ public class DBHelper extends SQLiteOpenHelper {
             try {
                 Table.TRACKS.alterColumns(db);
                 Table.TRACK_VIEW.recreate(db);
+                Table.COLLECTIONS.alterColumns(db);
                 return true;
             } catch (SQLException e) {
                 SoundCloudApplication.handleSilentException("error during upgrade13 " +

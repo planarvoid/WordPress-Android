@@ -7,11 +7,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.service.sync.ApiSyncer;
+import com.soundcloud.android.service.sync.SyncConfig;
 
 /**
  * Represents the state of a local collection sync, including last sync and size.
@@ -21,8 +21,10 @@ public class LocalCollection {
     public final int id;
     public final Uri uri;
 
-    /** timestamp of last sync */
-    public long last_sync = -1;
+    /** timestamp of last successful sync */
+    public long last_sync_success = -1;
+    /** timestamp of last sync attempt */
+    public long last_sync_attempt = -1;
     /** see {@link SyncState}, for display/UI purposes ({@link com.soundcloud.android.adapter.RemoteCollectionAdapter}) */
     public int sync_state = -1;
     /** collection size */
@@ -34,6 +36,11 @@ public class LocalCollection {
     private ContentObserver mChangeObserver;
 
     private OnChangeListener mChangeListener;
+
+    public boolean hasSyncedBefore() {
+        return last_sync_success > 0;
+    }
+
     public interface OnChangeListener {
         void onLocalCollectionChanged();
     }
@@ -59,16 +66,18 @@ public class LocalCollection {
     }
 
     public void setFromCursor(Cursor c) {
-        last_sync = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
+        last_sync_attempt = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC_ATTEMPT));
+        last_sync_success = c.getLong(c.getColumnIndex(DBHelper.Collections.LAST_SYNC));
         sync_state = c.getInt(c.getColumnIndex(DBHelper.Collections.SYNC_STATE));
         extra = c.getString(c.getColumnIndex(DBHelper.Collections.EXTRA));
         size = c.getInt(c.getColumnIndex(DBHelper.Collections.SIZE));
     }
 
-    public LocalCollection(int id, Uri uri, long lastSync, int syncState, int size, String extra) {
+    public LocalCollection(int id, Uri uri, long lastSyncAttempt, long lastSyncSuccess, int syncState, int size, String extra) {
         this.id = id;
         this.uri = uri;
-        this.last_sync = lastSync;
+        this.last_sync_attempt = lastSyncAttempt;
+        this.last_sync_success = lastSyncSuccess;
         this.sync_state = syncState;
         this.size = size;
         this.extra = extra;
@@ -76,7 +85,7 @@ public class LocalCollection {
 
     public boolean onSyncComplete(ApiSyncer.Result result, ContentResolver resolver) {
         if (result == null) return false;
-        if (result.synced_at > 0) last_sync = result.synced_at;
+        if (result.synced_at > 0) last_sync_success = result.synced_at;
         size = result.new_size;
         extra = result.extra;
         sync_state = SyncState.IDLE;
@@ -105,14 +114,15 @@ public class LocalCollection {
     }
 
     public static LocalCollection insertLocalCollection(Uri contentUri, ContentResolver resolver) {
-        return insertLocalCollection(contentUri, 0, -1, -1, null, resolver);
+        return insertLocalCollection(contentUri, 0, -1, -1, -1, null, resolver);
     }
 
-    public static LocalCollection insertLocalCollection(Uri contentUri, int syncState, long lastRefresh, int size, String extra, ContentResolver resolver) {
+    public static LocalCollection insertLocalCollection(Uri contentUri, int syncState, long lastSyncAttempt, long lastSyncSuccess, int size, String extra, ContentResolver resolver) {
         // insert if not there
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.URI, contentUri.toString());
-        if (lastRefresh != -1) cv.put(DBHelper.Collections.LAST_SYNC, lastRefresh);
+        if (lastSyncAttempt != -1) cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, lastSyncAttempt);
+        if (lastSyncSuccess != -1) cv.put(DBHelper.Collections.LAST_SYNC, lastSyncSuccess);
         if (size != -1)        cv.put(DBHelper.Collections.SIZE, size);
         cv.put(DBHelper.Collections.SYNC_STATE, syncState);
         cv.put(DBHelper.Collections.EXTRA, extra);
@@ -120,7 +130,7 @@ public class LocalCollection {
         Uri inserted = resolver.insert(Content.COLLECTIONS.uri, cv);
         if (inserted != null) {
             return new LocalCollection(Integer.parseInt(inserted.getLastPathSegment()),
-                    contentUri, lastRefresh, syncState, size, extra);
+                    contentUri, lastSyncAttempt,lastSyncSuccess, syncState, size, extra);
         } else {
             return null;
         }
@@ -133,27 +143,37 @@ public class LocalCollection {
 
     }
 
-    public static long getLastSync(Uri contentUri, ContentResolver resolver) {
+    public static long getLastSyncAttempt(Uri contentUri, ContentResolver resolver) {
         LocalCollection lc = fromContentUri(contentUri, resolver, false);
         if (lc == null) {
             return -1;
         } else {
-            return lc.last_sync;
+            return lc.last_sync_attempt;
         }
     }
+
+    public static long getLastSyncSuccess(Uri contentUri, ContentResolver resolver) {
+            LocalCollection lc = fromContentUri(contentUri, resolver, false);
+            if (lc == null) {
+                return -1;
+            } else {
+                return lc.last_sync_success;
+            }
+        }
 
     @Override
     public String toString() {
         return "LocalCollection{" +
                 "id=" + id +
                 ", uri=" + uri +
-                ", last_sync=" + last_sync +
+                ", last_sync_attempt=" + last_sync_attempt +
+                ", last_sync_success=" + last_sync_success +
                 ", sync_state='" + sync_state + '\'' +
                 ", size=" + size +
                 '}';
     }
 
-    public boolean updateLastSyncTime(long time, ContentResolver resolver) {
+    public boolean updateLastSyncSuccessTime(long time, ContentResolver resolver) {
         ContentValues cv = buildContentValues();
         cv.put(DBHelper.Collections.LAST_SYNC, time);
         return resolver.update(Content.COLLECTIONS.forId(id), cv, null, null) == 1;
@@ -164,16 +184,19 @@ public class LocalCollection {
         cv.put(DBHelper.Collections._ID, id);
         if (sync_state != -1) cv.put(DBHelper.Collections.SYNC_STATE, sync_state);
         if (size != -1) cv.put(DBHelper.Collections.SIZE, size);
-        if (last_sync != -1) cv.put(DBHelper.Collections.LAST_SYNC, last_sync);
+        if (last_sync_attempt != -1) cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT, last_sync_attempt);
+        if (last_sync_success != -1) cv.put(DBHelper.Collections.LAST_SYNC, last_sync_success);
         if (!TextUtils.isEmpty(extra)) cv.put(DBHelper.Collections.EXTRA, extra);
         cv.put(DBHelper.Collections.URI, uri.toString());
         return cv;
     }
 
-
     public boolean updateSyncState(int newSyncState, ContentResolver resolver) {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.Collections.SYNC_STATE, newSyncState);
+        if (newSyncState == SyncState.SYNCING) {
+            cv.put(DBHelper.Collections.LAST_SYNC_ATTEMPT,System.currentTimeMillis());
+        }
         return (resolver.update(Content.COLLECTIONS.forId(id), cv, null,null) == 1);
     }
 
@@ -205,7 +228,22 @@ public class LocalCollection {
     }
 
     public static boolean forceToStale(Uri uri, ContentResolver resolver) {
-        return LocalCollection.fromContentUri(uri,resolver, true).updateLastSyncTime(0, resolver);
+        return LocalCollection.fromContentUri(uri,resolver, true).updateLastSyncSuccessTime(0, resolver);
+    }
+
+    public boolean shouldAutoRefresh() {
+        // only auto refresh once every hour at most, that we won't hammer their phone or the api if there are errors
+        if (last_sync_attempt > System.currentTimeMillis() - SyncConfig.DEFAULT_ATTEMPT_DELAY) return false;
+
+        Content c = Content.byUri(uri);
+
+        // do not auto refresh users when the list opens, because users are always changing
+        if (User.class.equals(c.resourceType)) return last_sync_success <= 0;
+        final long staleTime = (Track.class.equals(c.resourceType))    ? SyncConfig.TRACK_STALE_TIME :
+                               (Activity.class.equals(c.resourceType)) ? SyncConfig.ACTIVITY_STALE_TIME :
+                               SyncConfig.DEFAULT_STALE_TIME;
+
+        return System.currentTimeMillis() - last_sync_success > staleTime;
     }
 
     public void startObservingSelf(ContentResolver contentResolver, OnChangeListener listener) {
@@ -247,7 +285,8 @@ public class LocalCollection {
         LocalCollection that = (LocalCollection) o;
 
         if (id != that.id) return false;
-        if (last_sync != that.last_sync) return false;
+        if (last_sync_attempt != that.last_sync_attempt) return false;
+        if (last_sync_success != that.last_sync_success) return false;
         if (size != that.size) return false;
         if (sync_state != that.sync_state) return false;
         if (extra != null ? !extra.equals(that.extra) : that.extra != null) return false;
@@ -260,7 +299,8 @@ public class LocalCollection {
     public int hashCode() {
         int result = id;
         result = 31 * result + (uri != null ? uri.hashCode() : 0);
-        result = 31 * result + (int) (last_sync ^ (last_sync >>> 32));
+        result = 31 * result + (int) (last_sync_attempt ^ (last_sync_attempt >>> 32));
+        result = 31 * result + (int) (last_sync_success ^ (last_sync_success >>> 32));
         result = 31 * result + size;
         result = 31 * result + sync_state;
         result = 31 * result + (extra != null ? extra.hashCode() : 0);

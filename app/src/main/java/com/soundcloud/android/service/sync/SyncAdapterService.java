@@ -149,7 +149,7 @@ public class SyncAdapterService extends Service {
                 } else {
                     // set last sync time to 0 so it auto-refreshes on next load
                     final LocalCollection lc = LocalCollection.fromContent(Content.ME_FOLLOWERS, app.getContentResolver(), false);
-                    if (lc != null) lc.updateLastSyncTime(0, app.getContentResolver());
+                    if (lc != null) lc.updateLastSyncSuccessTime(0, app.getContentResolver());
                 }
 
                 break;
@@ -160,7 +160,7 @@ public class SyncAdapterService extends Service {
                 } else {
                     // set last sync time to 0 so it auto-refreshes on next load
                     final LocalCollection lc = LocalCollection.fromContent(Content.ME_ACTIVITIES, app.getContentResolver(), false);
-                    if (lc != null) lc.updateLastSyncTime(0, app.getContentResolver());
+                    if (lc != null) lc.updateLastSyncSuccessTime(0, app.getContentResolver());
                 }
                 break;
 

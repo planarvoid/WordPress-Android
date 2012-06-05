@@ -253,7 +253,7 @@ public class ActivitiesTest {
         expect(Content.ME_SOUND_STREAM).toHaveCount(50);
 
         LocalCollection.insertLocalCollection(Content.ME_SOUND_STREAM.uri,
-                0, System.currentTimeMillis(), a.size(),a.future_href,
+                0, System.currentTimeMillis(), System.currentTimeMillis(), a.size(),a.future_href,
                 Robolectric.application.getContentResolver());
 
         Activities.clear(null, Robolectric.application.getContentResolver());
