@@ -98,13 +98,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     private @Nullable RecordStream mRecordStream;
     private @Nullable PlaybackStream mPlaybackStream;
     private PlayerThread mPlaybackThread;
+    private @Nullable ReaderThread mReaderThread;
 
     final private AudioConfig mConfig;
     final private ByteBuffer buffer;
     final private int bufferReadSize;
 
     private IAudioManager mAudioManager;
-    private @Nullable ReaderThread mReaderThread;
 
     private boolean mShouldUseNotifications = true;
 

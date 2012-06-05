@@ -4,6 +4,7 @@ import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.tests.InstrumentationHelper;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.FlakyTest;
 
 import java.util.UUID;
 
@@ -29,6 +30,7 @@ public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
         super.tearDown();
     }
 
+    @FlakyTest
     public void testSignup() throws Exception {
         solo.clickOnButton("Sign Up");
         assertTrue(solo.waitForText("Sign Up"));
