@@ -103,6 +103,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         BETA_MODE = isBetaMode();
         API_PRODUCTION = isProductionApi();
 
+        if (Log.isLoggable(TAG, Log.DEBUG))  {
+            Log.d(TAG, String.format("DEV_MODE: %s BETA_MODE: %s API_PRODUCTION: %s",
+                    DEV_MODE, BETA_MODE, API_PRODUCTION));
+        }
+
         if (DALVIK) {
             if (!EMULATOR) {
                 ACRA.init(this); // don't use ACRA when running unit tests / emulator
