@@ -114,12 +114,14 @@ public class AmplitudeDataTest {
     @Test
     public void shouldParcelAndUnparcelAmplitudeData() throws Exception {
         data.add(new float[]{1, 2, 3, 4, 5});
-
+        data.writeIndex = 2;
         Parcel parcel = Parcel.obtain();
+
         data.writeToParcel(parcel, 0);
 
         AmplitudeData unparceled = new AmplitudeData(parcel);
-        expect(data.size()).toEqual(unparceled.size());
-        expect(Arrays.equals(data.get(), unparceled.get())).toBeTrue();
+        expect(data.getWrittenSize()).toEqual(unparceled.size());
+        expect(Arrays.equals(data.sliceToWritten().get(), unparceled.get())).toBeTrue();
+        expect(unparceled.writeIndex).toEqual(0); // parcels shouldn't save pre-recording data
     }
 }

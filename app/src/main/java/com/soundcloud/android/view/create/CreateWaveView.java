@@ -42,7 +42,6 @@ public class CreateWaveView extends View {
     private boolean mIsEditing;
 
     private AmplitudeData mAllAmplitudes;
-    private int mRecordStartIndex = -1;
 
     private long mAnimationStartTime;
 
@@ -88,7 +87,6 @@ public class CreateWaveView extends View {
 
     public void reset() {
         mAllAmplitudes = null;
-        mRecordStartIndex = -1;
 
         mCurrentProgress = -1f;
         mAnimationStartTime = -1l;
@@ -169,10 +167,6 @@ public class CreateWaveView extends View {
             drawAmplitude(new Canvas(mZoomBitmap), nextBufferX,maxAmplitude, isRecording ? PLAYED_PAINT : DARK_PAINT);
             nextBufferX++;
         }
-
-        if (isRecording && mRecordStartIndex == -1) {
-            mRecordStartIndex = SoundRecorder.getInstance(getContext()).writeIndex;
-        }
         invalidate();
     }
 
@@ -194,18 +188,16 @@ public class CreateWaveView extends View {
     private void drawFullWave(Canvas c) {
         assertAmplitudeHistory();
 
-        if (mRecordStartIndex == -1) mRecordStartIndex = SoundRecorder.getInstance(getContext()).writeIndex;
-
         float normalizedTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
 
         boolean animating = (normalizedTime < 1.0f);
         final int width = getWidth();
         final int totalAmplitudeSize = mAllAmplitudes.size();
-        final int recordedAmplitudeSize = mAllAmplitudes.size() - (mRecordStartIndex);
+        final int recordedAmplitudeSize = mAllAmplitudes.getWrittenSize();
 
         final int recordEndIndexWithTrim = mIsEditing ? totalAmplitudeSize : (int) (totalAmplitudeSize - recordedAmplitudeSize * (1d - mTrimRight));
-        final int recordStartIndexWithTrim = mIsEditing ? mRecordStartIndex : (int) (mRecordStartIndex + mTrimLeft * recordedAmplitudeSize); //
+        final int recordStartIndexWithTrim = mIsEditing ? mAllAmplitudes.writeIndex : (int) (mAllAmplitudes.writeIndex + mTrimLeft * recordedAmplitudeSize); //
 
         // figure out where in the amplitude array we should set our first index
         int start;
@@ -228,9 +220,9 @@ public class CreateWaveView extends View {
             final int lastDrawX = (totalAmplitudeSize < width) ? (int) (totalAmplitudeSize + (width - totalAmplitudeSize) * interpolatedTime) : width;
             float[] points = getAmplitudePoints(subData, 0, lastDrawX);
             if (animating) {
-                if (mRecordStartIndex == -1) {
+                if (mAllAmplitudes.writeIndex == -1) {
                     c.drawLines(points, DARK_PAINT);
-                } else if (mRecordStartIndex <= start) {
+                } else if (mAllAmplitudes.writeIndex <= start) {
                     c.drawLines(points, PLAYED_PAINT);
                 } else {
                     final int gap = (recordStartIndexWithTrim - start);
@@ -294,14 +286,14 @@ public class CreateWaveView extends View {
         boolean animating = (normalizedTime < 1.0f);
 
         if (animating){
-            final int recordedAmplitudeSize = mAllAmplitudes.size() - (mRecordStartIndex);
+            final int recordedAmplitudeSize = mAllAmplitudes.size() - (mAllAmplitudes.writeIndex);
             int start;
             if (totalAmplitudeSize < width) {
-                start = (int) (mRecordStartIndex - mRecordStartIndex * interpolatedTime);
+                start = (int) (mAllAmplitudes.writeIndex - mAllAmplitudes.writeIndex * interpolatedTime);
             } else if (recordedAmplitudeSize < width) {
-                start = mRecordStartIndex - (int) ((width - recordedAmplitudeSize) * interpolatedTime);
+                start = mAllAmplitudes.writeIndex - (int) ((width - recordedAmplitudeSize) * interpolatedTime);
             } else {
-                start = Math.max(0,mRecordStartIndex + (int) (interpolatedTime * (recordedAmplitudeSize - width)));
+                start = Math.max(0,mAllAmplitudes.writeIndex + (int) (interpolatedTime * (recordedAmplitudeSize - width)));
             }
 
             final AmplitudeData amplitudesSubArray = mAllAmplitudes.slice(start, mAllAmplitudes.size() - start);
@@ -309,12 +301,12 @@ public class CreateWaveView extends View {
                 final int lastDrawX = (totalAmplitudeSize < width) ? (int) (width - (width - totalAmplitudeSize) * interpolatedTime) : width;
                 float[] points = getAmplitudePoints(amplitudesSubArray,0,lastDrawX);
 
-                if (mRecordStartIndex == -1) {
+                if (mAllAmplitudes.writeIndex == -1) {
                     c.drawLines(points, DARK_PAINT);
-                } else if (mRecordStartIndex <= start){
+                } else if (mAllAmplitudes.writeIndex <= start){
                     c.drawLines(points, PLAYED_PAINT);
                 } else {
-                    final int gap = (mRecordStartIndex - start);
+                    final int gap = (mAllAmplitudes.writeIndex - start);
                     final int recordStartIndex = (recordedAmplitudeSize >= width) ? gap * 4
                             : Math.round(gap * ((float) lastDrawX) / amplitudesSubArray.size()) * 4; // incorporate the scaling
 
@@ -333,7 +325,7 @@ public class CreateWaveView extends View {
                 for (nextBufferX = 0; nextBufferX < drawCount; nextBufferX++){
                     final int index = totalAmplitudeSize - drawCount + nextBufferX;
                     drawAmplitude(bitmapCanvas, nextBufferX,mAllAmplitudes.get(index),
-                            (mRecordStartIndex == -1) || (index < mRecordStartIndex) ? DARK_PAINT : PLAYED_PAINT);
+                            (mAllAmplitudes.writeIndex == -1) || (index < mAllAmplitudes.writeIndex) ? DARK_PAINT : PLAYED_PAINT);
                 }
             }
             // draw amplitudes cached to canvas
