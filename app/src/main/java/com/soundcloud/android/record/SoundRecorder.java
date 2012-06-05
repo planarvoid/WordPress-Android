@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.ScAudioTrack;
+import com.soundcloud.android.audio.TrimPreview;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -390,7 +391,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
-    private void previewTrim(PlaybackStream.TrimPreview trimPreview) {
+    private void previewTrim(TrimPreview trimPreview) {
         final boolean wasPlaying = isPlaying();
         mState = State.TRIMMING;
         if (!wasPlaying) {
@@ -405,7 +406,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         mPlaybackThread.start();
     }
 
-    private void startPlaybackThread(PlaybackStream.TrimPreview preview) {
+    private void startPlaybackThread(TrimPreview preview) {
         mPlaybackThread = new PlayerThread(preview);
         mPlaybackThread.start();
     }
@@ -483,15 +484,14 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     private class PlayerThread extends Thread {
 
-        public static final int MAX_PREVIEWS_IN_QUEUE = 5;
-        Queue<PlaybackStream.TrimPreview> previewQueue = new ConcurrentLinkedQueue<PlaybackStream.TrimPreview>();
+        Queue<TrimPreview> previewQueue = new ConcurrentLinkedQueue<TrimPreview>();
 
         PlayerThread() {
             super("PlayerThread");
             setPriority(Thread.MAX_PRIORITY);
         }
 
-        PlayerThread(PlaybackStream.TrimPreview preview) {
+        PlayerThread(TrimPreview preview) {
             this();
             previewQueue.add(preview);
         }
@@ -519,12 +519,11 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         private void previewTrim(PlaybackStream playbackStream) throws IOException {
 
             // TODO : proper buffer size
-            final int bufferSize = MAX_PLAYBACK_RATE * mConfig.sampleSize;
-
+            final int bufferSize = 1024;
             ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
             while (!previewQueue.isEmpty()) {
-                PlaybackStream.TrimPreview preview = previewQueue.poll();
+                TrimPreview preview = previewQueue.poll();
                 playbackStream.initializePlayback(preview.lowPos(mConfig));
 
                 final int byteRange = (int) preview.getByteRange(mConfig);
@@ -532,13 +531,12 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 int lastRead;
 
                 byte[] readBuff = new byte[byteRange];
-
-                // read in the whole preview
-                while (read < byteRange && (lastRead = playbackStream.read(buffer, byteRange - read)) > 0) {
-                    buffer.get(readBuff,read,lastRead);
-                    read += lastRead;
-                    buffer.clear();
-                }
+                    // read in the whole preview
+                    while (read < byteRange && (lastRead = playbackStream.read(buffer, byteRange - read)) > 0) {
+                        buffer.get(readBuff, read, Math.min(lastRead, byteRange - read));
+                        read += lastRead;
+                        buffer.clear();
+                    }
 
                 // try to get the speed close to the actual speed of the swipe movement
                 mAudioTrack.setPlaybackRate((int) preview.playbackRate);
@@ -616,9 +614,20 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
             }
         }
 
-        public void addPreview(PlaybackStream.TrimPreview trimPreview) {
+        public void addPreview(TrimPreview trimPreview) {
             previewQueue.add(trimPreview);
-            while (previewQueue.size() > MAX_PREVIEWS_IN_QUEUE) previewQueue.poll();
+
+            long currentDuration = 0;
+            for (TrimPreview preview : previewQueue){
+                currentDuration += preview.duration;
+            }
+
+            // try to keep up with the users scrubbing by dropping old previews
+            while (currentDuration > TrimPreview.MAX_PREVIEW_DURATION && previewQueue.size() > 1){
+                currentDuration -= previewQueue.poll().duration;
+            }
+
+
         }
     }
 

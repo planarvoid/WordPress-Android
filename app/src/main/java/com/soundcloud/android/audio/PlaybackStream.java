@@ -1,6 +1,5 @@
 package com.soundcloud.android.audio;
 
-import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.util.Log;
@@ -45,6 +44,10 @@ public class PlaybackStream {
 
     public long getPosition() {
         return mCurrentPos - mStartPos;
+    }
+
+    public AudioConfig getConfig() {
+        return mConfig;
     }
 
 
@@ -148,49 +151,4 @@ public class PlaybackStream {
         mEndPos = end;
     }
 
-    public static class TrimPreview {
-            PlaybackStream mStream;
-            long mStartPos;
-            long mEndPos;
-            public long duration;
-            public long playbackRate;
-
-            public TrimPreview (PlaybackStream stream, long startPosition, long endPosition, long moveTime){
-                mStream = stream;
-                mStartPos = startPosition;
-                mEndPos = endPosition;
-                duration = moveTime;
-
-                final long byteRange = getByteRange(stream.mConfig);
-                playbackRate = (int) (byteRange * (1000f / duration)) / stream.mConfig.sampleSize;
-                if (playbackRate > SoundRecorder.MAX_PLAYBACK_RATE){
-                    // if this preview is too quick, we have to adjust it to fit the max samplerate. Adjust the duration
-                    playbackRate = SoundRecorder.MAX_PLAYBACK_RATE;
-                    duration = (long) (1000f / ((playbackRate * stream.mConfig.sampleSize)/byteRange));
-                }
-            }
-
-            public long lowPos(AudioConfig config){
-                return config.validBytePosition(Math.min(mStartPos,mEndPos));
-            }
-
-            public long getByteRange(AudioConfig config) {
-                return config.validBytePosition(config.msToByte((int) Math.abs(mEndPos - mStartPos)));
-            }
-
-            public boolean isReverse() {
-                return mStartPos > mEndPos;
-            }
-
-            @Override
-            public String toString() {
-                return "TrimPreview{" +
-                        "mStream=" + mStream +
-                        ", mStartPos=" + mStartPos +
-                        ", mEndPos=" + mEndPos +
-                        ", duration=" + duration +
-                        ", playbackRate=" + playbackRate +
-                        '}';
-            }
-        }
 }
