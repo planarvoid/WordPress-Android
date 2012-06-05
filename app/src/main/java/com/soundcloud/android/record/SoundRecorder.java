@@ -520,6 +520,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
             // TODO : proper buffer size
             final int bufferSize = 1024;
+
             ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
             while (!previewQueue.isEmpty()) {
@@ -529,14 +530,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 final int byteRange = (int) preview.getByteRange(mConfig);
                 int read = 0;
                 int lastRead;
-
                 byte[] readBuff = new byte[byteRange];
-                    // read in the whole preview
-                    while (read < byteRange && (lastRead = playbackStream.read(buffer, byteRange - read)) > 0) {
-                        buffer.get(readBuff, read, Math.min(lastRead, byteRange - read));
-                        read += lastRead;
-                        buffer.clear();
-                    }
+                // read in the whole preview
+                while (read < byteRange && (lastRead = playbackStream.read(buffer, Math.min(bufferSize,byteRange - read))) > 0) {
+                    buffer.get(readBuff, read, Math.min(lastRead, byteRange - read));
+                    read += lastRead;
+                    buffer.clear();
+                }
 
                 // try to get the speed close to the actual speed of the swipe movement
                 mAudioTrack.setPlaybackRate((int) preview.playbackRate);
