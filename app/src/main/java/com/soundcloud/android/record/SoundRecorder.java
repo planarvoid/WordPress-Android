@@ -540,6 +540,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                     buffer.clear();
                 }
 
+                // try to get the speed close to the actual speed of the swipe movement
+                mAudioTrack.setPlaybackRate((int) preview.playbackRate);
                 if (preview.isReverse()) {
                     for (int i = (byteRange / mConfig.sampleSize) - 1; i >= 0; i--) {
                         int written = mAudioTrack.write(readBuff, i * mConfig.sampleSize, mConfig.sampleSize);
