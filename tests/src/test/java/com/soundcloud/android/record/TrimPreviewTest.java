@@ -19,7 +19,6 @@ public class TrimPreviewTest {
 
     @Test
     public void shouldMakeCompletePreview() throws Exception {
-        long moveDuration = 1000l;
-        expect(new TrimPreview(new PlaybackStream(new WavFile(wavFile)), 0, 44100 * AudioConfig.PCM16_44100_1.sampleSize, moveDuration).duration).toEqual(1000l);
+        expect(new TrimPreview(new PlaybackStream(new WavFile(wavFile)), 0, 44100 * AudioConfig.PCM16_44100_1.sampleSize, TrimPreview.MAX_PREVIEW_DURATION).duration).toEqual(TrimPreview.MAX_PREVIEW_DURATION);
     }
 }
