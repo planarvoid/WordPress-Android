@@ -353,8 +353,8 @@ public class User extends ScModel implements  Refreshable, Origin {
         return Plan.fromApi(plan);
     }
 
-    public static void clearLoggedInUserFromStorage(SoundCloudApplication app) {
-        final ContentResolver resolver = app.getContentResolver();
+    public static void clearLoggedInUserFromStorage(Context context) {
+        final ContentResolver resolver = context.getContentResolver();
         // TODO move to model
         for (Content c : EnumSet.of(
                 Content.ME_TRACKS,
@@ -365,7 +365,7 @@ public class User extends ScModel implements  Refreshable, Origin {
                 DBHelper.Collections.URI + " = ?", new String[]{ c.uri.toString() });
         }
         Activities.clear(null, resolver);
-        PlaylistManager.clearState(app);
+        PlaylistManager.clearState(context);
         Search.clearState(resolver, SoundCloudApplication.getUserId());
     }
 

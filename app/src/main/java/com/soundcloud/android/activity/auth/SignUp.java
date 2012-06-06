@@ -11,6 +11,7 @@ import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Token;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -150,7 +151,7 @@ public class SignUp extends Activity {
         }.execute(email, password);
     }
 
-    private void signupFail(String error) {
+    private void signupFail(@Nullable String error) {
         if (!isFinishing()) {
           new AlertDialog.Builder(this)
                   .setTitle(error != null ? R.string.authentication_signup_failure_title :  R.string.authentication_signup_error_title)

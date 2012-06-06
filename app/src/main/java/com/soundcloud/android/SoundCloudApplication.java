@@ -20,6 +20,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.beta.BetaService;
 import com.soundcloud.android.service.beta.WifiMonitor;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.android.tracking.ATTracker;
 import com.soundcloud.android.tracking.Click;
@@ -54,6 +55,7 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -182,32 +184,39 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mLoggedInUser;
     }
 
-
-    public void clearSoundCloudAccount(final Runnable success, final Runnable error) {
-        mCloudApi.invalidateToken();
-
-        Account account = getAccount();
+    public void clearSoundCloudAccount(final Runnable onSuccess, final Runnable onError) {
+        final Account account = getAccount();
         if (account != null) {
             getAccountManager().removeAccount(account, new AccountManagerCallback<Boolean>() {
                 @Override public void run(AccountManagerFuture<Boolean> future) {
                     try {
                         if (future.getResult()) {
-                            if (success != null) success.run();
-                        } else if (error != null) error.run();
+                            onAccountRemoved(account);
+                            if (onSuccess != null) onSuccess.run();
+                        } else if (onError != null) onError.run();
                     } catch (OperationCanceledException e) {
-                        if (error != null) error.run();
+                        if (onError != null) onError.run();
                     } catch (IOException e) {
-                        if (error != null) error.run();
+                        if (onError != null) onError.run();
                     } catch (AuthenticatorException e) {
-                        if (error != null) error.run();
+                        if (onError != null) onError.run();
                     }
                 }
             }, /*handler, null == main*/ null);
+        } else {
+            onError.run();
         }
+    }
 
+    public void onAccountRemoved(Account account) {
+        sendBroadcast(new Intent(Actions.LOGGING_OUT));
+        sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
+        User.clearLoggedInUserFromStorage(this);
+        C2DMReceiver.unregister(this);
         FollowStatus.set(null);
         Connections.set(null);
         mLoggedInUser = null;
+        mCloudApi.invalidateToken();
     }
 
     protected ImageLoader createImageLoader() {

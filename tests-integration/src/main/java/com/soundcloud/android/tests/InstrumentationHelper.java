@@ -33,10 +33,7 @@ public final class InstrumentationHelper {
                                final String username,
                                final String password) throws Exception {
 
-        SoundCloudApplication app = (SoundCloudApplication) Instrumentation.newApplication(
-                        SoundCloudApplication.class,
-                        instrumentation.getTargetContext());
-        app.onCreate();
+        SoundCloudApplication app = getAppFromInstrumentation(instrumentation);
 
         final Account account = app.getAccount();
         if (account != null && !account.name.equals(username)) {
@@ -58,15 +55,26 @@ public final class InstrumentationHelper {
     }
 
     public static boolean logOut(final Instrumentation instrumentation) throws Exception {
+        SoundCloudApplication app = getAppFromInstrumentation(instrumentation);
+
         AccountManager am = AccountManager.get(instrumentation.getTargetContext());
         Account[] accounts = am.getAccountsByType(instrumentation.getTargetContext().getString(R.string.account_type));
         if (accounts.length > 0) {
             for (Account a : accounts) {
                 assertTrue(am.removeAccount(a, null, null).getResult());
+                app.onAccountRemoved(a);
             }
             return true;
         } else {
             return false;
         }
+    }
+
+    public static SoundCloudApplication getAppFromInstrumentation(Instrumentation instrumentation) throws Exception {
+        SoundCloudApplication app = (SoundCloudApplication) Instrumentation.newApplication(
+                SoundCloudApplication.class,
+                instrumentation.getTargetContext());
+        app.onCreate();
+        return app;
     }
 }

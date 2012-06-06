@@ -40,8 +40,18 @@ public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
         solo.enterText(1, InstrumentationHelper.PASSWORD);
 
         solo.clickOnButton("Log In");
-        assertTrue(solo.waitForText("Logging you in"));
         assertTrue(solo.waitForDialogToClose(15000));
         assertTrue(solo.waitForText("Stream", 1, 5000));
+    }
+
+    public void testLoginAndLogout() throws Exception {
+        testLogin();
+        solo.clickOnMenuItem("Settings");
+        solo.clickOnText("Log Out");
+        assertTrue(solo.waitForText("Clear user data?"));
+        solo.clickOnButton("OK");
+
+        assertTrue(solo.waitForText("Log In"));
+        assertTrue(solo.getCurrentActivity() instanceof Main);
     }
 }

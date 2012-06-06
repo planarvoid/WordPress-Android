@@ -62,5 +62,6 @@ public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
         solo.clickOnButton("Done");
 
         assertTrue(solo.waitForText("Stream"));
+        // TODO assert db state etc is gone
     }
 }

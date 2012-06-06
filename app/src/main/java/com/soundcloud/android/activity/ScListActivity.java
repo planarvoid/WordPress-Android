@@ -280,7 +280,7 @@ public abstract class ScListActivity extends ScActivity {
     };
 
     private void setPlayingTrack(long id, boolean isPlaying) {
-        if (mLists == null || mLists.size() == 0)
+        if (mLists == null || mLists.isEmpty())
             return;
 
         for (ScListView list : mLists) {

@@ -3,17 +3,13 @@ package com.soundcloud.android.activity.settings;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.About;
 import com.soundcloud.android.activity.Tour;
-import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.beta.BetaPreferences;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -288,11 +284,7 @@ public class Settings extends PreferenceActivity {
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                a.sendBroadcast(new Intent(Actions.LOGGING_OUT));
-                                a.sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
                                 app.track(Click.Log_out_box_ok);
-                                User.clearLoggedInUserFromStorage(app);
-                                C2DMReceiver.unregister(a);
                                 app.clearSoundCloudAccount(
                                         new Runnable() {
                                             @Override
