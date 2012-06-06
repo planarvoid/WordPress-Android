@@ -42,11 +42,9 @@ public class RecordAppWidgetProvider extends AppWidgetProvider {
 
     private void linkButtons(Context context, RemoteViews views) {
         // Connect up various buttons and touch events
-        Intent i = (new Intent(Actions.RECORD))
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Intent i = (new Intent(Actions.RECORD_START));
 
         views.setOnClickPendingIntent(R.id.btn_action,
-                PendingIntent.getActivity(context, 0, i, 0));
+                PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT));
     }
 }

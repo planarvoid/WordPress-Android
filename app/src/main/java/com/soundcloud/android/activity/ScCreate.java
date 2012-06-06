@@ -139,6 +139,26 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mRecordSuggestions = getResources().getStringArray(R.array.record_suggestions);
 
         updateUi(CreateState.IDLE_RECORD, false);
+        handleIntent();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent();
+        super.onNewIntent(intent);
+    }
+
+    private void handleIntent() {
+        final Intent intent = getIntent();
+        if (Actions.RECORD_START.equals(intent.getAction())){
+            if (!mRecorder.isRecording()){
+                reset();
+                startRecording();
+            }
+            // don't want to receive the RECORD_START action on config changes, so set it as a normal record intent
+            intent.setAction(Actions.RECORD);
+        }
     }
 
     @Override
@@ -164,14 +184,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         if (Consts.SdkSwitches.canDetermineActivityBackground) {
             mRecorder.shouldUseNotifications(false);
-        }
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if (intent.hasExtra(EXTRA_RESET)) {
-            reset();
         }
     }
 
@@ -231,10 +243,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 break;
             case REQUEST_UPLOAD_SOUND:
                 if (resultCode == RESULT_OK) {
-                    if (data == null) {
-                        reset();  // record another sound, reset
-                    } else {
+                    if (data.getBooleanExtra(Actions.UPLOAD_EXTRA_UPLOADING, false)) {
                         finish(); // upload started, finish
+                    } else {
+                        reset(); // they chose to record another sound
                     }
                 } else {
                     // back button pressed, do nothing
