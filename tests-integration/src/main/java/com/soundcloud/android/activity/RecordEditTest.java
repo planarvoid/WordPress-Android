@@ -5,9 +5,11 @@ import com.soundcloud.android.R;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.test.suitebuilder.annotation.Suppress;
 
 public class RecordEditTest extends RecordingTestCase {
 
+    @Suppress
     public void testEditModesGetPersisted() {
         record(RECORDING_TIME);
         gotoEditMode();
