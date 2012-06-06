@@ -20,6 +20,7 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.ButtonBar;
 import com.soundcloud.android.view.create.Chronometer;
 import com.soundcloud.android.view.create.CreateWaveDisplay;
+import com.soundcloud.android.view.create.RecordMessageView;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -27,6 +28,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -63,7 +65,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private CreateState mLastState, mCurrentState;
     private long mLastDisplayedTime;
 
-    private TextView txtInstructions, txtRecordMessage;
+    private TextView txtInstructions;
+    private RecordMessageView txtRecordMessage;
     private Chronometer mChrono;
 
     private ViewGroup mEditControls;
@@ -77,7 +80,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private boolean mActive, mHasEditControlGroup;
     private List<Recording> mUnsavedRecordings;
 
-    private String[] mRecordSuggestions;
+
 
     public enum CreateState {
         IDLE_RECORD,
@@ -115,7 +118,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         if (recording != null) {
             mRecorder.setRecording(recording);
         }
-        txtRecordMessage = (TextView) findViewById(R.id.txt_record_message);
+        txtRecordMessage = (RecordMessageView) findViewById(R.id.txt_record_message);
 
         mChrono = (Chronometer) findViewById(R.id.chronometer);
         mChrono.setVisibility(View.INVISIBLE);
@@ -136,7 +139,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mWaveDisplay.setTrimListener(this);
         ((ViewGroup) findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
 
-        mRecordSuggestions = getResources().getStringArray(R.array.record_suggestions);
+
 
         updateUi(CreateState.IDLE_RECORD, false);
         handleIntent();
@@ -320,7 +323,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             @Override
             public void onClick(View v) {
                 final Recording rec = mRecorder.saveState();
-                if (rec != null)  {
+                if (rec != null) {
                     if (mCurrentState.isEdit()) {
                         track(Click.Record_save);
                         updateUi(CreateState.IDLE_PLAYBACK, true);
@@ -329,7 +332,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         startActivityForResult(new Intent(ScCreate.this, ScUpload.class)
                                 .putExtra(SoundRecorder.EXTRA_RECORDING, rec), REQUEST_UPLOAD_SOUND);
                     }
-                } else  {
+                } else {
                     onRecordingError("Error saving recording");
                     // state could not be saved
 
@@ -398,7 +401,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private View setupEditButton() {
         View button = findViewById(R.id.btn_edit);
         button.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
                 track(Click.Record_edit);
                 updateUi(CreateState.EDIT, true);
             }
@@ -421,7 +425,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private ToggleButton setupToggleOptimize() {
         final ToggleButton tb = (ToggleButton) findViewById(R.id.toggle_optimize);
         tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 mRecorder.toggleOptimize();
             }
         });
@@ -490,14 +495,14 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     // state list drawables won't work with the image button
                     mActionButton.setClickable(false);
                     mActionButton.setImageResource(R.drawable.btn_rec_deactivated);
-                    txtRecordMessage.setText(getString(R.string.record_insert_sd_card));
+                    txtRecordMessage.setMessage(getString(R.string.record_insert_sd_card));
                 } else {
                     mActionButton.setClickable(true);
                     mActionButton.setImageResource(R.drawable.btn_rec_states);
                     if (!TextUtils.isEmpty(mRecordErrorMessage)) {
-                        txtRecordMessage.setText(mRecordErrorMessage);
+                        txtRecordMessage.setMessage(mRecordErrorMessage);
                     } else {
-                        txtRecordMessage.setText(mRecordSuggestions[((int) Math.floor(Math.random() * mRecordSuggestions.length))]);
+                        txtRecordMessage.loadSuggestion(mRecipient == null ? null : mRecipient.getDisplayName());
                     }
                 }
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
@@ -527,7 +532,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 showView(mActionButton, false);
 
                 mActionButton.setImageResource(R.drawable.btn_rec_pause_states);
-                txtRecordMessage.setText("");
+                txtRecordMessage.setMessage("");
                 mChrono.setDurationOnly(mRecorder.getRecordingElapsedTime());
                 break;
 
@@ -699,7 +704,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 final int minutes = (int) (t / 60 + 1);
                 msg = getResources().getQuantityString(R.plurals.minutes_available, minutes, minutes);
             }
-            txtRecordMessage.setText(msg);
+            txtRecordMessage.setMessage(msg);
             txtRecordMessage.setVisibility(View.VISIBLE);
             return t;
         } else {

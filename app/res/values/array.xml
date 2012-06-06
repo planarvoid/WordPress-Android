@@ -40,9 +40,56 @@
         <item>86400000</item>
     </string-array>
 
-    <string-array name="record_suggestions">
-        <item>Why don\'t you record the sounds of your street?</item>
-        <item>Why don\'t you record the sound of your roommate sleeping?</item>
-        <item>Why don\'t you record a hot dubstep track?</item>
+    <string-array name="record_suggestion_keys">
+        <item>memories_voice_notes</item>
+        <item>memories_voice_blog</item>
+        <item>memories_what_are_you_doing_right_now</item>
+        <item>memories_child_first_words</item>
+        <item>memories_sound_your_pet_makes</item>
+        <item>memories_voice_of_someone_you_care_about</item>
+        <item>memories_shopping_reminders</item>
+        <item>memories_great_idea</item>
+
+        <item>social_good_joke</item>
+        <item>social_great_conversaion</item>
+        <item>social_hilarious_moment</item>
+
+        <item>general_did_you_know</item>
+        <item>general_best_recording_device</item>
+        <item>general_unmute_yourself</item>
+        <item>general_unmute_internet</item>
+        <item>general_unmute_the_world</item>
+        <item>general_express_yourself</item>
+
+        <item>general_professional_minutes_of_meeting</item>
+        <item>general_professional_capture_ideas_for_later</item>
+        <item>general_professional_study_aid</item>
+        <item>general_professional_record_interviews_and_meetings</item>
+
+        <item>environmental_ocean_waves</item>
+        <item>environmental_vibrant_rush_hour</item>
+        <item>environmental_crazy_sound</item>
+
+        <item>music_feel_inspired</item>
+        <item>music_track_idea</item>
+        <item>music_tune_stuck</item>
+        <item>music_song_lyric_ideas</item>
+
+        <item>events_whats_going_on</item>
+        <item>events_current_events_as_they_happen</item>
+        <item>events_something_interesting</item>
+        <item>events_citizen_reporter</item>
+
     </string-array>
+
+    <string-array name="record_suggestion_keys_private">
+
+            <item>private_happy_birthday</item>
+            <item>private_record_a_message</item>
+            <item>private_how_much_they_mean</item>
+            <item>private_send_reminder</item>
+            <item>private_liked_their_sound</item>
+            <item>private_leave_feedback</item>
+        </string-array>
+
 </resources>
