@@ -1,8 +1,9 @@
 package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.model.User;
+import org.jetbrains.annotations.Nullable;
 
 
 public interface IUserlistAdapter {
-    public User getUserAt(int index);
+    @Nullable public User getUserAt(int index);
 }
