@@ -108,12 +108,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                     DEV_MODE, BETA_MODE, API_PRODUCTION));
         }
 
-        if (DALVIK) {
-            if (!EMULATOR) {
-                ACRA.init(this); // don't use ACRA when running unit tests / emulator
-                mTracker = new ATTracker(this);
-            }
+        if (DALVIK && !EMULATOR && instance == null) {
+            ACRA.init(this); // don't use ACRA when running unit tests / emulator
+            mTracker = new ATTracker(this);
         }
+
         IOUtils.checkState(this);
 
         mImageLoader = createImageLoader();

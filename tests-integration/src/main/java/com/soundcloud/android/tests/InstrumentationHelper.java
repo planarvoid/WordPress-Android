@@ -41,8 +41,11 @@ public final class InstrumentationHelper {
         final Account account = app.getAccount();
         if (account != null && !account.name.equals(username)) {
             Log.d(TAG, "clearing account and logging in again");
-            logOut(instrumentation);
-            loginAs(instrumentation, username, password);
+            if (logOut(instrumentation)) {
+                loginAs(instrumentation, username, password);
+            } else {
+                throw new RuntimeException("Could not log out");
+            }
         } else if (account == null) {
             Log.d(TAG, "logging in");
             Token token = app.login(username, password, Token.SCOPE_NON_EXPIRING);
