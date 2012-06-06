@@ -87,7 +87,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     private volatile State mState;
 
     public AmplitudeData amplitudeData;
-    public int writeIndex;
 
     private final AudioRecord mAudioRecord;
     private final ScAudioTrack mAudioTrack;
@@ -168,7 +167,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         if (isPlaying())   stopPlayback();
         mState = mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
         amplitudeData.clear();
-        writeIndex = -1;
+
         if (mRecording != null) {
             mRecording.delete(mContext.getContentResolver());
             mRecording = null;
@@ -191,7 +190,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
             amplitudeData = AmplitudeData.fromFile(mRecording.getAmplitudeFile());
         } catch (IOException e) {
             amplitudeData.clear();
-            writeIndex = -1;
             Log.w(TAG, "error reading amplitude data", e);
         }
     }
@@ -289,6 +287,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         //release();
     }
 
+    public int getWriteIndex() {
+        return amplitudeData.writeIndex;
+    }
+
     private void release() {
         if (mAudioRecord != null) mAudioRecord.release();
         mAudioTrack.release();
@@ -310,8 +312,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     private final Handler refreshHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (mState == State.RECORDING && writeIndex == -1) {
-                writeIndex = amplitudeData.size();
+            if (mState == State.RECORDING && amplitudeData.writeIndex == -1) {
+                amplitudeData.onWritingStarted();
             }
 
             final float frameAmplitude = mAmplitudeAnalyzer.frameAmplitude();

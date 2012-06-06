@@ -184,10 +184,16 @@
         <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>
         <activity android:name=".activity.LocationPicker"/>
         <activity android:name=".activity.EmailConfirm"/>
-        <activity android:name=".activity.ScCreate" android:theme="@style/Theme.ScNoBackground">
+        <activity android:name=".activity.ScCreate"
+                  android:theme="@style/Theme.ScNoBackground"
+                  android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.RECORD"/>
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.RECORD_START"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
         <activity android:name="com.android.camera.CropImage" />

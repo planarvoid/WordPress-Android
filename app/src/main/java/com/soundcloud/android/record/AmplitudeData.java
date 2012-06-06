@@ -19,6 +19,8 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
     private float[] data;
     private int pos;
 
+    public int writeIndex = -1;
+
     private final int initialCapacity;
 
     public AmplitudeData() {
@@ -42,6 +44,7 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         assert pos <= length;
         data = new float[length];
         source.readFloatArray(data);
+        writeIndex = 0;
     }
 
     public void add(float sample) {
@@ -79,10 +82,18 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
     public void clear() {
         data = new float[initialCapacity];
         pos = 0;
+        writeIndex = -1;
     }
 
     public boolean isEmpty() {
         return size() == 0;
+    }
+
+    public AmplitudeData sliceToWritten() {
+        final int first = Math.max(0, writeIndex);
+        float[] copy = new float[initialCapacity - first];
+        System.arraycopy(data, first, copy, 0, getWrittenSize());
+        return new AmplitudeData(copy);
     }
 
     public AmplitudeData slice(int start, int size) {
@@ -135,11 +146,13 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        // parcels shouldn't save pre-recording data
+        int unwanted = Math.max(0,writeIndex);
         dest.writeInt(initialCapacity);
-        dest.writeInt(pos);
-        dest.writeInt(data.length);
-        dest.writeInt(data.length); // required for readFloatArray
-        for (int i=0; i<pos; i++) {
+        dest.writeInt(pos - unwanted);
+        dest.writeInt(data.length - unwanted);
+        dest.writeInt(data.length - unwanted); // required for readFloatArray
+        for (int i = unwanted; i<pos; i++) {
             dest.writeFloat(data[i]);
         }
     }
@@ -183,5 +196,13 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
                 "pos=" + pos +
                 ", initialCapacity=" + initialCapacity +
                 '}';
+    }
+
+    public void onWritingStarted() {
+        writeIndex = size();
+    }
+
+    public int getWrittenSize() {
+        return size() - Math.max(0, writeIndex);
     }
 }

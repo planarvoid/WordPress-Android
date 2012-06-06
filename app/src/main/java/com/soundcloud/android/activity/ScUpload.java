@@ -2,6 +2,7 @@ package com.soundcloud.android.activity;
 
 
 import com.android.camera.CropImage;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Recording;
@@ -84,7 +85,7 @@ public class ScUpload extends ScActivity {
             @Override
             public void onClick(View v) {
                 track(Click.Record_details_record_another);
-                setResult(RESULT_OK);
+                setResult(RESULT_OK, new Intent().setData(mRecording.toUri()));
                 finish();
             }
         }), R.string.record_another_sound).addItem(new ButtonBar.MenuItem(1, new View.OnClickListener() {
@@ -95,7 +96,7 @@ public class ScUpload extends ScActivity {
                     mapToRecording(mRecording);
                     saveRecording(mRecording);
                     mRecording.upload(ScUpload.this);
-                    setResult(RESULT_OK, new Intent().putExtra("uploading", true));
+                    setResult(RESULT_OK, new Intent().setData(mRecording.toUri()).putExtra(Actions.UPLOAD_EXTRA_UPLOADING,true));
                     finish();
                 } else {
                     errorOut(R.string.recording_not_found);

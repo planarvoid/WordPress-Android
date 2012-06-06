@@ -5,6 +5,7 @@ import android.content.Intent;
 public final class Actions {
     // public intent API (do not change)
     public static final String RECORD       = "com.soundcloud.android.action.RECORD";
+    public static final String RECORD_START = "com.soundcloud.android.action.RECORD_START";
     public static final String MESSAGE      = "com.soundcloud.android.action.MESSAGE";
     public static final String STREAM       = "com.soundcloud.android.action.STREAM";
     public static final String ACTIVITY     = "com.soundcloud.android.action.ACTIVITY";
@@ -20,6 +21,8 @@ public final class Actions {
     public static final String RECORDING_PROCESS   = "com.soundcloud.android.recording.PROCESS";
     public static final String RECORDING_EXTRA_IN  = "com.soundcloud.android.recording.extra.in";
     public static final String RECORDING_EXTRA_OUT = "com.soundcloud.android.recording.extra.out";
+
+    public static final String UPLOAD_EXTRA_UPLOADING = "com.soundcloud.android.upload.uploading";
 
     public static final String EXTRA_TITLE       = "com.soundcloud.android.extra.title";
     public static final String EXTRA_WHERE       = "com.soundcloud.android.extra.where";

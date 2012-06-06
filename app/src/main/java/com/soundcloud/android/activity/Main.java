@@ -4,6 +4,7 @@ import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.FacebookSSO;
@@ -12,6 +13,7 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.auth.AuthenticatorService;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.ResolveTask;
@@ -224,9 +226,7 @@ public class Main extends TabActivity implements
         } else if (Actions.PLAYER.equals(intent.getAction())) {
             // start another activity to control history
             startActivity(new Intent(this, ScPlayer.class));
-        } else if (Actions.RECORD.equals(intent.getAction())) {
-            // start another activity to control history
-            startActivity(new Intent(this, ScCreate.class).setFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY));
+
         } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             getTabHost().setCurrentTabByTag(Main.Tab.SEARCH.tag);
             if (getCurrentActivity() instanceof ScSearch) {
