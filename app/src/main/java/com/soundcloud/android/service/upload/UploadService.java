@@ -164,6 +164,9 @@ public class UploadService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy()");
 
+        // ensure notification is gone
+        nm.cancel(UPLOADING_NOTIFY_ID);
+
         mServiceHandler.getLooper().quit();
         mUploadHandler.getLooper().quit();
 
@@ -232,7 +235,7 @@ public class UploadService extends Service {
                 queueUpload(recording);
 
             } else if (PROCESSING_ERROR.equals(action)) {
-                // todo, failed  notification
+                // todo, fail properly, kill ongoing notification and alert user somehow
                 updateProcessingProgress(R.string.cloud_uploader_event_processing_failed, intent.getIntExtra(EXTRA_PROGRESS, 0), true);
 
             } else if (TRANSFER_STARTED.equals(action)) {
@@ -261,18 +264,18 @@ public class UploadService extends Service {
 
                 // XXX retry on temp. error?
                 mUploads.remove(recording.id);
-                Notification n = notifyUploadCurrentUploadFinished(recording);
-                if (n != null) {
-                    nm.cancel(UPLOADING_NOTIFY_ID);
-                    nm.notify(UPLOADED_NOTIFY_ID, n);
-                } else {
-                    nm.cancel(UPLOADING_NOTIFY_ID);
-                }
                 releaseLocks();
 
                 if (!isUploading()) { // last one switch off the lights
-                    Log.d(TAG, "no more uploads, stopping service");
-                    stopSelf();
+                    stopForeground(true);
+
+                    // leave a note
+                    Notification n = notifyUploadCurrentUploadFinished(recording);
+                    if (n != null) {
+                        nm.notify(UPLOADED_NOTIFY_ID, n);
+                    }
+
+                    stopSelf(); // necessary?, can't hurt
                 }
             }
         }
@@ -335,18 +338,13 @@ public class UploadService extends Service {
 
     private Notification showUploadingNotification(Recording recording, String action) {
         mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.upload_status);
-
         mUploadNotificationView.setTextViewText(R.id.time, CloudUtils.getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
         mUploadNotificationView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
-        String tickerText;
         if (PROCESSING_STARTED.equals(action)) {
             updateProcessingProgress(R.string.cloud_uploader_event_processing, 0, false);
             updateProcessingProgress(R.string.cloud_upload_not_yet_uploaded, -1, false);
-            tickerText = getString(R.string.cloud_uploader_notification_ticker_processing);
-
         } else {
-            tickerText = getString(R.string.cloud_uploader_notification_ticker);
             if (TRANSFER_STARTED.equals(action)) {
                 updateProcessingProgress(R.string.cloud_uploader_event_processing_finished, 100, false);
                 updateUploadingProgress(R.string.cloud_uploader_event_uploading, -1, false);
@@ -362,13 +360,9 @@ public class UploadService extends Service {
             }
         }
 
-        mUploadNotification = SoundRecorderService.createOngoingNotification(
-                tickerText,
-                PendingIntent.getActivity(this, 0, recording.getMonitorIntent(), PendingIntent.FLAG_UPDATE_CURRENT));
-
+        mUploadNotification = SoundRecorderService.createOngoingNotification(PendingIntent.getActivity(this, 0, recording.getMonitorIntent(), PendingIntent.FLAG_UPDATE_CURRENT));
         mUploadNotification.contentView = mUploadNotificationView;
         startForeground(UPLOADING_NOTIFY_ID, mUploadNotification);
-
         return mUploadNotification;
     }
 
