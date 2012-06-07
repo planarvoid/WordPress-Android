@@ -9,12 +9,25 @@
         <item name="android:windowExitAnimation">@anim/add_comment_exit</item>
     </style>
 
+    <style name="notification_progress_bar_label" parent="@android:style/TextAppearance.StatusBar.EventContent">
+        <item name="android:textSize">10sp</item>
+    </style>
     <style name="notification_progress_bar" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:minHeight">3dp</item>
         <item name="android:maxHeight">3dp</item>
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
-     </style>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="notification_progress_bar_processing" parent="notification_progress_bar">
+
+    </style>
+    <style name="notification_progress_bar_uploading" parent="notification_progress_bar">
+
+    </style>
+
 
     <style name="auth_input">
         <item name="android:textColor">#ffffffff</item>

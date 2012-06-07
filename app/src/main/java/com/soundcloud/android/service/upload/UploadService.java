@@ -35,6 +35,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -50,12 +51,13 @@ public class UploadService extends Service {
     public static final String EXTRA_TOTAL       = "total";
     public static final String EXTRA_PROGRESS    = "progress";
 
-    public static final String UPLOAD_STARTED    = "com.soundcloud.android.service.upload.started";
-    public static final String UPLOAD_PROGRESS   = "com.soundcloud.android.service.upload.progress";
-    public static final String UPLOAD_SUCCESS    = "com.soundcloud.android.service.upload.success";
-    public static final String UPLOAD_ERROR      = "com.soundcloud.android.service.upload.error";
-    public static final String UPLOAD_CANCELLED  = "com.soundcloud.android.service.upload.cancelled";
     public static final String UPLOAD_CANCEL     = "com.soundcloud.android.service.upload.cancel";
+
+    public static final String TRANSFER_STARTED = "com.soundcloud.android.service.upload.transfer.started";
+    public static final String TRANSFER_PROGRESS = "com.soundcloud.android.service.upload.transfer.progress";
+    public static final String TRANSFER_SUCCESS = "com.soundcloud.android.service.upload.transfer.success";
+    public static final String TRANSFER_ERROR = "com.soundcloud.android.service.upload.transfer.error";
+    public static final String TRANSFER_CANCELLED = "com.soundcloud.android.service.upload.transfer.cancelled";
 
     public static final String ENCODING_STARTED  = "com.soundcloud.android.service.upload.encoding_started";
     public static final String ENCODING_SUCCESS  = "com.soundcloud.android.service.upload.encoding_success";
@@ -68,12 +70,13 @@ public class UploadService extends Service {
     public static final String RESIZE_ERROR      = "com.soundcloud.android.service.upload.resize_error";
 
     public static final String[] ALL_ACTIONS = {
-            UPLOAD_STARTED,
-            UPLOAD_PROGRESS,
-            UPLOAD_SUCCESS,
-            UPLOAD_ERROR,
-            UPLOAD_CANCELLED,
             UPLOAD_CANCEL,
+            TRANSFER_STARTED,
+            TRANSFER_PROGRESS,
+            TRANSFER_SUCCESS,
+            TRANSFER_ERROR,
+            TRANSFER_CANCELLED,
+
 
             ENCODING_STARTED,
             ENCODING_SUCCESS,
@@ -119,12 +122,17 @@ public class UploadService extends Service {
         @Override
         public void handleMessage(Message msg) {
             Recording recording = (Recording) msg.obj;
+
+            // problem: this happens everytime a step is completed. how can we get this to happen only once per upload?
+            showUploadingNotification(recording);
+
             if (recording.hasArtwork() && recording.resized_artwork_path == null) {
                 post(new ImageResizer(UploadService.this, recording));
             } else {
                 if (!recording.getEncodedFile().exists()) {
                     mEncodingHandler.post(new Encoder(UploadService.this, recording));
                 } else {
+                    notifyProgressProcessing(R.string.cloud_uploader_event_encoding_finished, 100); // fake it, cause of above
                     post(new Uploader((SoundCloudApplication) getApplication(), recording));
                 }
             }
@@ -205,15 +213,19 @@ public class UploadService extends Service {
             final String action = intent.getAction();
             final Recording recording = intent.getParcelableExtra(EXTRA_RECORDING);
 
-            if (UPLOAD_STARTED.equals(action)) {
+            if (TRANSFER_STARTED.equals(action)) {
                 acquireLocks();
-                showUploadingNotification(recording);
 
-            } else if (UPLOAD_PROGRESS.equals(action)) {
-                notifyProgress(intent.getIntExtra(EXTRA_PROGRESS, 0), R.string.cloud_uploader_event_uploading);
-            } else if (UPLOAD_SUCCESS.equals(action) ||
-                       UPLOAD_ERROR.equals(action) ||
-                       UPLOAD_CANCELLED.equals(action)) {
+            } else if (TRANSFER_PROGRESS.equals(action)) {
+
+                notifyProgressUploading(R.string.cloud_uploader_event_uploading, Math.max(50,intent.getIntExtra(EXTRA_PROGRESS, 0)));
+
+            } else if (TRANSFER_SUCCESS.equals(action) ||
+                       TRANSFER_ERROR.equals(action) ||
+                       TRANSFER_CANCELLED.equals(action)) {
+
+                notifyProgressUploading(TRANSFER_SUCCESS.equals(action) ? R.string.cloud_uploader_event_uploading_finished : R.string.cloud_uploader_event_uploading_failed,
+                        intent.getIntExtra(EXTRA_PROGRESS, 0));
 
                 final long track_id = recording.track_id;
                 if (track_id != Track.NOT_SET){
@@ -247,20 +259,28 @@ public class UploadService extends Service {
                 releaseWakelock();
                 // XXX notify
             } else if (ENCODING_STARTED.equals(action)) {
-
+                notifyProgressProcessing(R.string.cloud_uploader_event_encoding, intent.getIntExtra(EXTRA_PROGRESS, 0));
             } else if (ENCODING_PROGRESS.equals(action)) {
-                notifyProgress(intent.getIntExtra(EXTRA_PROGRESS, 0), R.string.cloud_uploader_event_encoding);
+                notifyProgressProcessing(R.string.cloud_uploader_event_encoding, intent.getIntExtra(EXTRA_PROGRESS, 0));
+
             } else if (ENCODING_SUCCESS.equals(action)) {
                 queueUpload(recording);
             } else if (ENCODING_ERROR.equals(action)) {
                 // XXX notify
+                notifyProgressProcessing(R.string.cloud_uploader_event_encoding_failed, intent.getIntExtra(EXTRA_PROGRESS, 0));
             }
         }
     };
 
-    private void notifyProgress(int progress, int resId) {
-        mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, progress, progress == 0); // just show indeterminate for 0 progress, looks better for quick uploads
-        mUploadNotificationView.setTextViewText(R.id.percentage, getString(resId, progress));
+    private void notifyProgressProcessing(int stringId, int progress) {
+        mUploadNotificationView.setTextViewText(R.id.txt_processing, getString(stringId, progress));
+        mUploadNotificationView.setProgressBar(R.id.progress_bar_processing, 100, progress, progress == 0); // just show indeterminate for 0 progress, looks better for quick uploads
+        nm.notify(UPLOADING_NOTIFY_ID, mUploadNotification);
+    }
+
+    private void notifyProgressUploading(int stringId, int progress) {
+        mUploadNotificationView.setTextViewText(R.id.txt_uploading, getString(stringId, progress));
+        mUploadNotificationView.setProgressBar(R.id.progress_bar_uploading, 100, progress, progress == 0);
         nm.notify(UPLOADING_NOTIFY_ID, mUploadNotification);
     }
 
@@ -308,9 +328,9 @@ public class UploadService extends Service {
     private Notification showUploadingNotification(Recording recording) {
         mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.upload_status);
         mUploadNotificationView.setTextViewText(R.id.time, CloudUtils.getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
-        mUploadNotificationView.setTextViewText(R.id.message, recording.title);
-        mUploadNotificationView.setTextViewText(R.id.percentage, "");
-        mUploadNotificationView.setProgressBar(R.id.progress_bar, 100, 0, true);
+        mUploadNotificationView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
+        mUploadNotificationView.setProgressBar(R.id.progress_bar_processing, 100, 0, true);
+        mUploadNotificationView.setProgressBar(R.id.progress_bar_uploading, 100, 0, false);
 
 
         if (Consts.SdkSwitches.useRichNotifications && recording.hasArtwork()){
