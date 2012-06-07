@@ -42,7 +42,6 @@ public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
         solo.enterText(2, "password");
 
         solo.clickOnButton("Sign Up");
-        assertTrue(solo.waitForText("Signing you up"));
         assertTrue(solo.waitForDialogToClose(20000));
         assertTrue(solo.waitForText("Almost done"));
 
