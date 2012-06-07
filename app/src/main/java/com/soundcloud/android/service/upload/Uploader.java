@@ -74,7 +74,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             if (isCancelled()) throw new UserCanceledException();
             Log.v(TAG, "starting upload of " + toUpload);
 
-            broadcast(UploadService.UPLOAD_STARTED);
+            broadcast(UploadService.TRANSFER_STARTED);
             HttpResponse response = app.post(mUpload.getRequest(app, toUpload, new Request.TransferProgressListener() {
                 long lastPublished;
 
@@ -84,7 +84,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
                     if (System.currentTimeMillis() - lastPublished > 1000) {
                         final int progress = (int) Math.min(100, (100 * transferred) / totalTransfer);
-                        mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_PROGRESS)
+                        mBroadcastManager.sendBroadcast(new Intent(UploadService.TRANSFER_PROGRESS)
                                 .putExtra(UploadService.EXTRA_RECORDING, mUpload)
                                 .putExtra(UploadService.EXTRA_TRANSFERRED, transferred)
                                 .putExtra(UploadService.EXTRA_PROGRESS, progress)
@@ -115,13 +115,13 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
     private void onUploadCancelled(UserCanceledException e) {
         mUpload.setUploadException(e);
-        broadcast(UploadService.UPLOAD_CANCELLED);
+        broadcast(UploadService.TRANSFER_CANCELLED);
     }
 
     private void onUploadFailed(Exception e) {
         Log.e(TAG, "Error uploading", e);
         mUpload.setUploadException(e);
-        broadcast(UploadService.UPLOAD_ERROR);
+        broadcast(UploadService.TRANSFER_ERROR);
     }
 
     private void onUploadSuccess(HttpResponse response) {
@@ -138,7 +138,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + ( track == null ? "<track_parsing_error>" : track ));
 
         mUpload.onUploaded();
-        broadcast(UploadService.UPLOAD_SUCCESS);
+        broadcast(UploadService.TRANSFER_SUCCESS);
     }
 
     private void broadcast(String action) {

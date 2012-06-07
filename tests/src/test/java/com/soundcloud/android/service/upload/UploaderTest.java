@@ -47,13 +47,13 @@ public class UploaderTest {
     public void shouldErrorWhenFileIsMissing() throws Exception {
         Recording upload = new Recording(new File("/boom/"));
         uploader(upload).run();
-        expect(actions).toContainExactly(UploadService.UPLOAD_ERROR);
+        expect(actions).toContainExactly(UploadService.TRANSFER_ERROR);
     }
 
     public void shouldThrowWhenFileIsEmpty() throws Exception {
         File tmp = File.createTempFile("temp", ".ogg");
         uploader(new Recording(tmp)).run();
-        expect(actions).toContainExactly(UploadService.UPLOAD_ERROR);
+        expect(actions).toContainExactly(UploadService.TRANSFER_ERROR);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class UploaderTest {
 
         final Recording recording = TestApplication.getValidRecording();
         uploader(recording).run();
-        expect(actions).toContainExactly(UploadService.UPLOAD_STARTED, UploadService.UPLOAD_SUCCESS);
+        expect(actions).toContainExactly(UploadService.TRANSFER_STARTED, UploadService.TRANSFER_SUCCESS);
         expect(recording.isUploaded()).toBeTrue();
     }
 
@@ -74,7 +74,7 @@ public class UploaderTest {
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "Failz"));
         final Recording recording = TestApplication.getValidRecording();
         uploader(recording).run();
-        expect(actions).toContainExactly(UploadService.UPLOAD_STARTED, UploadService.UPLOAD_ERROR);
+        expect(actions).toContainExactly(UploadService.TRANSFER_STARTED, UploadService.TRANSFER_ERROR);
         expect(recording.getUploadException()).not.toBeNull();
         expect(recording.isCanceled()).toBeFalse();
         expect(recording.isUploaded()).toBeFalse();

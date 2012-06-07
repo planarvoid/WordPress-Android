@@ -83,13 +83,13 @@
     </string-array>
 
     <string-array name="record_suggestion_keys_private">
+        <item>private_happy_birthday</item>
+        <item>private_record_a_message</item>
+        <item>private_how_much_they_mean</item>
+        <item>private_send_reminder</item>
+        <item>private_liked_their_sound</item>
+        <item>private_leave_feedback</item>
 
-            <item>private_happy_birthday</item>
-            <item>private_record_a_message</item>
-            <item>private_how_much_they_mean</item>
-            <item>private_send_reminder</item>
-            <item>private_liked_their_sound</item>
-            <item>private_leave_feedback</item>
-        </string-array>
+    </string-array>
 
 </resources>

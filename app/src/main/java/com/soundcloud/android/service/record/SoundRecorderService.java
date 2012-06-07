@@ -182,12 +182,9 @@ public class SoundRecorderService extends Service  {
         nm.cancel(id);
     }
 
-
-
-
     private Notification createRecordingNotification(Recording recording) {
         mRecordPendingIntent = PendingIntent.getActivity(this, 0, recording.getViewIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
-        mRecordNotification = createOngoingNotification(getString(R.string.cloud_recorder_notification_ticker), mRecordPendingIntent);
+        mRecordNotification = createOngoingNotification(mRecordPendingIntent);
         mRecordNotification.setLatestEventInfo(this, getString(R.string.cloud_recorder_event_title),
                 getString(R.string.cloud_recorder_event_message, 0),
                 mRecordPendingIntent);
@@ -220,7 +217,6 @@ public class SoundRecorderService extends Service  {
                 getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = createOngoingNotification(
-                getString(R.string.cloud_recorder_playback_notification_ticker, title),
                 pi);
 
         notification.setLatestEventInfo(getApplicationContext(), getApplicationContext()
@@ -238,9 +234,10 @@ public class SoundRecorderService extends Service  {
         nm.notify(RECORD_NOTIFY_ID, notification);
     }
 
-    public static Notification createOngoingNotification(CharSequence tickerText, PendingIntent pendingIntent) {
-        int icon = R.drawable.ic_notification_cloud;
-        Notification notification = new Notification(icon, tickerText, System.currentTimeMillis());
+    public static Notification createOngoingNotification(PendingIntent pendingIntent) {
+        Notification notification = new Notification();
+        notification.icon = R.drawable.ic_notification_cloud;
+        notification.when = System.currentTimeMillis();
         notification.contentIntent = pendingIntent;
         notification.flags |= Notification.FLAG_ONGOING_EVENT;
         return notification;

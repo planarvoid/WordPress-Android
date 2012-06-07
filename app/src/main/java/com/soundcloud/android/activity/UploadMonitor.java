@@ -104,12 +104,12 @@ public class UploadMonitor extends Activity {
             if (!mUpload.equals(recording)) return;
 
             String action = intent.getAction();
-            if (UploadService.UPLOAD_STARTED.equals(action)) {
+            if (UploadService.TRANSFER_STARTED.equals(action)) {
                 // from a retry
                 mUploadingLayout.setVisibility(View.VISIBLE);
                 mFinishedLayout.setVisibility(View.GONE);
                 mProgressBar.setProgress(0);
-            } else if (UploadService.UPLOAD_PROGRESS.equals(action)) {
+            } else if (UploadService.TRANSFER_PROGRESS.equals(action)) {
                 mProgressBar.setProgress(intent.getIntExtra(UploadService.EXTRA_PROGRESS, 0));
 
                 if (!mProgressModeEncoding && intent.hasExtra("encoding")) {
@@ -119,11 +119,11 @@ public class UploadMonitor extends Activity {
                     mProgressModeEncoding = false;
                     mProgressText.setText(R.string.share_uploading);
                 }
-            } else if (UploadService.UPLOAD_SUCCESS.equals(action)) {
+            } else if (UploadService.TRANSFER_SUCCESS.equals(action)) {
                 onUploadFinished(true);
-            } else if (UploadService.UPLOAD_ERROR.equals(action)) {
+            } else if (UploadService.TRANSFER_ERROR.equals(action)) {
                 onUploadFinished(false);
-            } else if (UploadService.UPLOAD_CANCELLED.equals(action)) {
+            } else if (UploadService.TRANSFER_CANCELLED.equals(action)) {
                 finish();
             }
         }
