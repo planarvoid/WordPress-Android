@@ -57,7 +57,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     public static final int REQUEST_UPLOAD_SOUND  = 3;
 
     public static final String EXTRA_PRIVATE_MESSAGE_RECIPIENT = "privateMessageRecipient";
-    public static final String EXTRA_RESET = "reset";
 
     private User mRecipient;
 
@@ -244,12 +243,12 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             case 0:
                 if (resultCode == RESULT_OK) finish();
                 break;
+
             case REQUEST_UPLOAD_SOUND:
                 if (resultCode == RESULT_OK) {
+                    reset();
                     if (data.getBooleanExtra(Actions.UPLOAD_EXTRA_UPLOADING, false)) {
                         finish(); // upload started, finish
-                    } else {
-                        reset(); // they chose to record another sound
                     }
                 } else {
                     // back button pressed, do nothing
@@ -435,7 +434,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     /* package */ void reset() {
-        mRecorder.reset();
+        reset(false);
+    }
+    /* package */ void reset(boolean deleteRecording) {
+        mRecorder.reset(deleteRecording);
         mWaveDisplay.reset();
         updateUi(CreateState.IDLE_RECORD, true);
     }
@@ -852,7 +854,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                             new DialogInterface.OnClickListener() {
                                 @Override public void onClick(DialogInterface dialog, int whichButton) {
                                     track(Click.Record_discard__ok);
-                                    reset();
+                                    reset(true);
                                 }
                         })
                         .setNegativeButton(android.R.string.no,
@@ -891,7 +893,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         .setPositiveButton(android.R.string.yes,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        mRecorder.reset();
+                                        mRecorder.reset(true);
                                         finish();
                                     }
                                 })

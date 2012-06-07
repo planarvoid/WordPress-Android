@@ -163,13 +163,17 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     public void reset(){
+        reset(false);
+    }
+
+    public void reset(boolean deleteRecording){
         if (isRecording()) stopRecording();
         if (isPlaying())   stopPlayback();
         mState = mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
         amplitudeData.clear();
 
         if (mRecording != null) {
-            mRecording.delete(mContext.getContentResolver());
+            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
             mRecording = null;
         }
         if (mRecordStream != null) {
@@ -179,6 +183,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         if (mPlaybackStream != null) {
             mPlaybackStream.close();
             mPlaybackStream = null;
+        }
+    }
+
+    public void deleteRecording() {
+        if (mRecording != null && !mRecording.isSaved()) {
+            mRecording.delete(mContext.getContentResolver());
+            mRecording = null;
         }
     }
 

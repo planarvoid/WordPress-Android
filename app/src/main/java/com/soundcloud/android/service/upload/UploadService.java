@@ -235,8 +235,7 @@ public class UploadService extends Service {
                 queueUpload(recording);
 
             } else if (PROCESSING_ERROR.equals(action)) {
-                // todo, fail properly, kill ongoing notification and alert user somehow
-                updateProcessingProgress(R.string.cloud_uploader_event_processing_failed, intent.getIntExtra(EXTRA_PROGRESS, 0), true);
+                uploadDone(recording);
 
             } else if (TRANSFER_STARTED.equals(action)) {
                 showUploadingNotification(recording, TRANSFER_STARTED);
@@ -263,23 +262,28 @@ public class UploadService extends Service {
                 }
 
                 // XXX retry on temp. error?
-                mUploads.remove(recording.id);
-                releaseLocks();
+                uploadDone(recording);
 
-                if (!isUploading()) { // last one switch off the lights
-                    stopForeground(true);
-
-                    // leave a note
-                    Notification n = notifyUploadCurrentUploadFinished(recording);
-                    if (n != null) {
-                        nm.notify(UPLOADED_NOTIFY_ID, n);
-                    }
-
-                    stopSelf(); // necessary?, can't hurt
-                }
             }
         }
     };
+
+    private void uploadDone(Recording recording) {
+        mUploads.remove(recording.id);
+        releaseLocks();
+
+        if (!isUploading()) { // last one switch off the lights
+            stopForeground(true);
+
+            // leave a note
+            Notification n = notifyUploadCurrentUploadFinished(recording);
+            if (n != null) {
+                nm.notify(UPLOADED_NOTIFY_ID, n);
+            }
+
+            stopSelf(); // necessary?, can't hurt
+        }
+    }
 
     private void updateProcessingProgress(int stringId, int progress, boolean notify) {
         final int positiveProgress = Math.max(0, progress);

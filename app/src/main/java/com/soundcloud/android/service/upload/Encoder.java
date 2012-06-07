@@ -35,20 +35,6 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
             final File in = mRecording.getFile();
             broadcast(UploadService.PROCESSING_STARTED);
             VorbisEncoder.encodeWav(in, mRecording.getEncodedFile(), AudioConfig.DEFAULT.quality, this);
-            /*
-            progress testing
-            for (int i = 0; i < 100; i++) {
-                mBroadcastManager.sendBroadcast(new Intent(UploadService.ENCODING_PROGRESS)
-                                                .putExtra(UploadService.EXTRA_RECORDING, mRecording)
-                                                .putExtra(UploadService.EXTRA_PROGRESS, i)
-                                                .putExtra(UploadService.EXTRA_TOTAL, 100));
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-            }
-            }*/
-
             // double check
             if (mRecording.getEncodedFile().exists()) {
                 broadcast(UploadService.PROCESSING_SUCCESS);
