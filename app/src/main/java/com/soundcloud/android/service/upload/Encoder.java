@@ -33,7 +33,7 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
     public void run() {
         try {
             final File in = mRecording.getFile();
-            broadcast(UploadService.ENCODING_STARTED);
+            broadcast(UploadService.PROCESSING_STARTED);
             VorbisEncoder.encodeWav(in, mRecording.getEncodedFile(), AudioConfig.DEFAULT.quality, this);
             /*
             progress testing
@@ -51,14 +51,14 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
 
             // double check
             if (mRecording.getEncodedFile().exists()) {
-                broadcast(UploadService.ENCODING_SUCCESS);
+                broadcast(UploadService.PROCESSING_SUCCESS);
             } else {
-                broadcast(UploadService.ENCODING_ERROR);
+                broadcast(UploadService.PROCESSING_ERROR);
             }
         } catch (UserCanceledException e) {
-            broadcast(UploadService.ENCODING_CANCELED);
+            broadcast(UploadService.PROCESSING_CANCELED);
         } catch (IOException e) {
-            broadcast(UploadService.ENCODING_ERROR);
+            broadcast(UploadService.PROCESSING_ERROR);
         }
 
     }

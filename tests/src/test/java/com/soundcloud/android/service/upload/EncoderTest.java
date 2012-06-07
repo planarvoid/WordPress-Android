@@ -15,7 +15,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +39,6 @@ public class EncoderTest {
         Recording rec = TestApplication.getValidRecording();
         Encoder encoder = new Encoder(Robolectric.application, rec);
         encoder.run();
-        expect(actions).toContainExactly(UploadService.ENCODING_STARTED, UploadService.ENCODING_SUCCESS);
+        expect(actions).toContainExactly(UploadService.PROCESSING_STARTED, UploadService.PROCESSING_SUCCESS);
     }
 }

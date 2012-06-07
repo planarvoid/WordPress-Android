@@ -182,9 +182,6 @@ public class SoundRecorderService extends Service  {
         nm.cancel(id);
     }
 
-
-
-
     private Notification createRecordingNotification(Recording recording) {
         mRecordPendingIntent = PendingIntent.getActivity(this, 0, recording.getViewIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
         mRecordNotification = createOngoingNotification(getString(R.string.cloud_recorder_notification_ticker), mRecordPendingIntent);
