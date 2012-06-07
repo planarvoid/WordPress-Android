@@ -248,7 +248,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-    public Account getAccount() {
+    public @Nullable Account getAccount() {
         Account[] account = getAccountManager().getAccountsByType(getString(R.string.account_type));
         if (account.length == 0) {
             return null;
@@ -292,7 +292,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return token;
     }
 
-    public String getAccountData(String key) {
+    public @Nullable String getAccountData(String key) {
         Account account = getAccount();
         return account == null ? null : getAccountManager().getUserData(account, key);
     }
