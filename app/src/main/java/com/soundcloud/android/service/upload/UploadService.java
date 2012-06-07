@@ -269,14 +269,17 @@ public class UploadService extends Service {
     };
 
     private void uploadDone(Recording recording) {
+
         mUploads.remove(recording.id);
         releaseLocks();
 
         if (!isUploading()) { // last one switch off the lights
+
             stopForeground(true);
 
             // leave a note
             Notification n = notifyUploadCurrentUploadFinished(recording);
+            System.out.println("UPLOAD DONE " + n);
             if (n != null) {
                 nm.notify(UPLOADED_NOTIFY_ID, n);
             }
