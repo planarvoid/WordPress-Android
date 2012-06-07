@@ -495,7 +495,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     // state list drawables won't work with the image button
                     mActionButton.setClickable(false);
                     mActionButton.setImageResource(R.drawable.btn_rec_deactivated);
-                    txtRecordMessage.setMessage(getString(R.string.record_insert_sd_card));
+                    txtRecordMessage.setMessage(R.string.record_insert_sd_card);
                 } else {
                     mActionButton.setClickable(true);
                     mActionButton.setImageResource(R.drawable.btn_rec_states);
