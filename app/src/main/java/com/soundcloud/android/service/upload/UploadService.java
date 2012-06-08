@@ -1,6 +1,5 @@
 package com.soundcloud.android.service.upload;
 
-import static com.soundcloud.android.Consts.Notifications.UPLOADED_NOTIFY_ID;
 import static com.soundcloud.android.Consts.Notifications.UPLOADING_NOTIFY_ID;
 
 import com.soundcloud.android.Actions;
@@ -90,7 +89,15 @@ public class UploadService extends Service {
             RESIZE_ERROR
     };
 
-    private final Map<Long, Recording> mUploads = new HashMap<Long, Recording>();
+    private static class Upload {
+        Recording recording;
+        Notification notification;
+        public Upload(Recording r){
+            recording = r;
+        }
+    }
+
+    private final Map<Long, Upload> mUploads = new HashMap<Long, Upload>();
 
     private PowerManager.WakeLock mWakeLock;
     private WifiManager.WifiLock mWifiLock;
@@ -101,9 +108,6 @@ public class UploadService extends Service {
 
     // notifications
     private NotificationManager nm;
-    private RemoteViews mUploadNotificationView;
-
-    private Notification mUploadNotification;
     private LocalBroadcastManager mBroadcastManager;
 
     private final class ServiceHandler extends Handler {
@@ -123,7 +127,7 @@ public class UploadService extends Service {
 
         @Override
         public void handleMessage(Message msg) {
-            Recording recording = (Recording) msg.obj;
+            Recording recording = ((Upload) msg.obj).recording;
             if (recording.hasArtwork() && recording.resized_artwork_path == null) {
                 post(new ImageResizer(UploadService.this, recording));
             } else {
@@ -171,8 +175,8 @@ public class UploadService extends Service {
 
         if (isUploading()) {
             Log.w(TAG, "Service being destroyed while still uploading.");
-            for (Recording r : mUploads.values()) {
-                onCancel(r);
+            for (Upload u : mUploads.values()) {
+                onCancel(u);
             }
         }
         mBroadcastManager.unregisterReceiver(mReceiver);
@@ -219,19 +223,25 @@ public class UploadService extends Service {
 
             } else if (RESIZE_SUCCESS.equals(action)) {
                 releaseWakelock();
-                queueUpload(recording);
+                queueUpload(mUploads.get(recording.id));
 
             } else if (RESIZE_ERROR.equals(action)) {
                 releaseWakelock();
 
             } else if (PROCESSING_STARTED.equals(action)) {
-                nm.notify((int) recording.id, showUploadingNotification(recording, PROCESSING_STARTED));
+                showUploadingNotification(recording, PROCESSING_STARTED);
 
             } else if (PROCESSING_PROGRESS.equals(action)) {
-                updateProcessingProgress(R.string.cloud_uploader_event_processing, intent.getIntExtra(EXTRA_PROGRESS, 0), true);
+                sendNotification(recording,
+                        updateProcessingProgress(
+                                getOngoingNotification(recording),
+                                R.string.cloud_uploader_event_processing,
+                                intent.getIntExtra(EXTRA_PROGRESS, 0)
+                        )
+                );
 
             } else if (PROCESSING_SUCCESS.equals(action)) {
-                queueUpload(recording);
+                queueUpload(mUploads.get(recording.id));
 
             } else if (PROCESSING_ERROR.equals(action)) {
                 uploadDone(recording);
@@ -241,7 +251,13 @@ public class UploadService extends Service {
                 acquireLocks();
 
             } else if (TRANSFER_PROGRESS.equals(action)) {
-                updateUploadingProgress(R.string.cloud_uploader_event_uploading, intent.getIntExtra(EXTRA_PROGRESS, 0), true);
+                sendNotification(recording,
+                        updateUploadingProgress(
+                                getOngoingNotification(recording),
+                                R.string.cloud_uploader_event_uploading,
+                                intent.getIntExtra(EXTRA_PROGRESS, 0)
+                        )
+                );
 
             } else if (TRANSFER_SUCCESS.equals(action) ||
                     TRANSFER_ERROR.equals(action) ||
@@ -275,7 +291,7 @@ public class UploadService extends Service {
         // leave a note
         Notification n = notifyUploadCurrentUploadFinished(recording);
         if (n != null) {
-            nm.notify(UPLOADED_NOTIFY_ID, n);
+            sendNotification(recording,n);
         }
 
         if (!isUploading()) { // last one switch off the lights
@@ -283,18 +299,23 @@ public class UploadService extends Service {
         }
     }
 
-    private void updateProcessingProgress(int stringId, int progress, boolean notify) {
-        final int positiveProgress = Math.max(0, progress);
-        mUploadNotificationView.setTextViewText(R.id.txt_processing, getString(stringId, positiveProgress));
-        mUploadNotificationView.setProgressBar(R.id.progress_bar_processing, 100, positiveProgress, progress == -1); // just show indeterminate for 0 progress, looks better for quick uploads
-        if (notify) nm.notify(UPLOADING_NOTIFY_ID, mUploadNotification);
+    private void sendNotification(Recording r, Notification n){
+        // ugly way to help uniqueness
+        nm.notify((int) (9990000 + r.id), n);
     }
 
-    private void updateUploadingProgress(int stringId, int progress, boolean notify) {
+    private Notification updateProcessingProgress(Notification n, int stringId, int progress) {
         final int positiveProgress = Math.max(0, progress);
-        mUploadNotificationView.setTextViewText(R.id.txt_uploading, getString(stringId, positiveProgress));
-        mUploadNotificationView.setProgressBar(R.id.progress_bar_uploading, 100, positiveProgress, progress == -1);
-        if (notify) nm.notify(UPLOADING_NOTIFY_ID, mUploadNotification);
+        n.contentView.setTextViewText(R.id.txt_processing, getString(stringId, positiveProgress));
+        n.contentView.setProgressBar(R.id.progress_bar_processing, 100, positiveProgress, progress == -1); // just show indeterminate for 0 progress, looks better for quick uploads
+        return n;
+    }
+
+    private Notification updateUploadingProgress(Notification n, int stringId, int progress) {
+        final int positiveProgress = Math.max(0, progress);
+        n.contentView.setTextViewText(R.id.txt_uploading, getString(stringId, positiveProgress));
+        n.contentView.setProgressBar(R.id.progress_bar_uploading, 100, positiveProgress, progress == -1);
+        return n;
     }
 
     private void onHandleIntent(Intent intent) {
@@ -316,40 +337,60 @@ public class UploadService extends Service {
         } else {
             recording.upload_status = Recording.Status.UPLOADING;
             recording.updateStatus(getContentResolver());
-
-            queueUpload(recording);
+            queueUpload(getUpload(recording));
         }
     }
 
-    private void queueUpload(Recording recording) {
-        mUploads.put(recording.id, recording);
-        Message.obtain(mUploadHandler, 0, recording).sendToTarget();
+    private void queueUpload(Upload upload) {
+        mUploads.put(upload.recording.id, upload);
+        Message.obtain(mUploadHandler, 0, upload).sendToTarget();
     }
 
     /* package */  void onCancel(Recording r) {
-        mUploadHandler.removeMessages(0, r);
+        onCancel(getUpload(r));
+    }
+
+    /* package */  void onCancel(Upload u) {
+        mUploadHandler.removeMessages(0, u);
 
         if (mUploads.isEmpty()) {
             Log.d(TAG, "onCancel() called without any active uploads");
             stopSelf();
         }  else {
-            mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_CANCEL).putExtra(EXTRA_RECORDING, r));
+            mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_CANCEL).putExtra(EXTRA_RECORDING, u.recording));
         }
     }
 
+    private Upload getUpload(Recording r){
+        if (!mUploads.containsKey(r.id)){
+            mUploads.put(r.id, new Upload(r));
+        }
+        return mUploads.get(r.id);
+    }
 
-    private Notification showUploadingNotification(Recording recording, String action) {
-        mUploadNotificationView = new RemoteViews(getPackageName(), R.layout.upload_status);
-        mUploadNotificationView.setTextViewText(R.id.time, CloudUtils.getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
-        mUploadNotificationView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
+    private Notification getOngoingNotification(Recording recording){
+        final Upload u = getUpload(recording);
+        if (u.notification == null) {
+            u.notification = SoundRecorderService.createOngoingNotification(PendingIntent.getActivity(this, 0, recording.getMonitorIntent(), PendingIntent.FLAG_UPDATE_CURRENT));
+            u.notification.contentView = new RemoteViews(getPackageName(), R.layout.upload_status);
+        }
+        return u.notification;
+    }
+
+
+    private void showUploadingNotification(Recording recording, String action) {
+
+        Notification n = getOngoingNotification(recording);
+        n.contentView.setTextViewText(R.id.time, CloudUtils.getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
+        n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
         if (PROCESSING_STARTED.equals(action)) {
-            updateProcessingProgress(R.string.cloud_uploader_event_processing, 0, false);
-            updateProcessingProgress(R.string.cloud_upload_not_yet_uploaded, -1, false);
+            updateProcessingProgress(n, R.string.cloud_uploader_event_processing, 0);
+            updateProcessingProgress(n, R.string.cloud_upload_not_yet_uploaded, -1);
         } else {
             if (TRANSFER_STARTED.equals(action)) {
-                updateProcessingProgress(R.string.cloud_uploader_event_processing_finished, 100, false);
-                updateUploadingProgress(R.string.cloud_uploader_event_uploading, -1, false);
+                updateProcessingProgress(n, R.string.cloud_uploader_event_processing_finished, 100);
+                updateUploadingProgress(n, R.string.cloud_uploader_event_uploading, -1);
             }
         }
 
@@ -358,13 +399,11 @@ public class UploadService extends Service {
                     (int) getResources().getDimension(R.dimen.notification_image_width),
                     (int) getResources().getDimension(R.dimen.notification_image_height));
             if (b != null){
-                mUploadNotificationView.setImageViewBitmap(R.id.icon,b);
+                n.contentView.setImageViewBitmap(R.id.icon,b);
             }
         }
 
-        mUploadNotification = SoundRecorderService.createOngoingNotification(PendingIntent.getActivity(this, 0, recording.getMonitorIntent(), PendingIntent.FLAG_UPDATE_CURRENT));
-        mUploadNotification.contentView = mUploadNotificationView;
-        return mUploadNotification;
+        sendNotification(recording,n);
     }
 
     private Notification notifyUploadCurrentUploadFinished(Recording recording) {
@@ -388,7 +427,6 @@ public class UploadService extends Service {
         Notification notification = new Notification(R.drawable.ic_notification_cloud, tickerText, System.currentTimeMillis());
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
         notification.setLatestEventInfo(this,title ,message , contentIntent);
-
         return notification;
     }
 

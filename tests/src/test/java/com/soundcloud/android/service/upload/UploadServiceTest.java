@@ -66,8 +66,37 @@ public class UploadServiceTest {
         expect(notification.tickerText).toEqual("Upload Finished");
         expect(shadowOf(notification).getLatestEventInfo().getContentText()).toEqual("testing has been uploaded");
         expect(shadowOf(notification).getLatestEventInfo().getContentTitle()).toEqual("Upload Finished");
+        expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
+    }
 
+    @Test
+    public void shouldNotifyMixedResults() throws Exception {
+        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
 
+        final Recording upload = TestApplication.getValidRecording();
+        upload.what_text = "testing";
+
+        svc.onUpload(upload);
+        ShadowNotificationManager m = shadowOf((NotificationManager)
+                Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
+
+        expect(m.getAllNotifications().size()).toEqual(1);
+        Notification notification = m.getAllNotifications().get(0);
+        expect(notification.tickerText).toEqual("Upload Finished");
+        expect(shadowOf(notification).getLatestEventInfo().getContentText()).toEqual("testing has been uploaded");
+        expect(shadowOf(notification).getLatestEventInfo().getContentTitle()).toEqual("Upload Finished");
+
+        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "ohnoez"));
+        final Recording upload2 = TestApplication.getValidRecording();
+        upload2.what_text = "testing 2";
+
+        svc.onUpload(upload2);
+
+        expect(m.getAllNotifications().size()).toEqual(2);
+        notification = m.getAllNotifications().get(1);
+        expect(notification.tickerText).toEqual("Upload Error");
+        expect(shadowOf(notification).getLatestEventInfo().getContentText()).toEqual("There was an error uploading testing 2");
+        expect(shadowOf(notification).getLatestEventInfo().getContentTitle()).toEqual("Upload Error");
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
     }
 
