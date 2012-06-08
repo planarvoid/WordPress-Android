@@ -124,7 +124,6 @@ public class UploadService extends Service {
         @Override
         public void handleMessage(Message msg) {
             Recording recording = (Recording) msg.obj;
-
             if (recording.hasArtwork() && recording.resized_artwork_path == null) {
                 post(new ImageResizer(UploadService.this, recording));
             } else {
@@ -226,7 +225,7 @@ public class UploadService extends Service {
                 releaseWakelock();
 
             } else if (PROCESSING_STARTED.equals(action)) {
-                showUploadingNotification(recording, PROCESSING_STARTED);
+                nm.notify((int) recording.id, showUploadingNotification(recording, PROCESSING_STARTED));
 
             } else if (PROCESSING_PROGRESS.equals(action)) {
                 updateProcessingProgress(R.string.cloud_uploader_event_processing, intent.getIntExtra(EXTRA_PROGRESS, 0), true);
@@ -273,18 +272,14 @@ public class UploadService extends Service {
         mUploads.remove(recording.id);
         releaseLocks();
 
+        // leave a note
+        Notification n = notifyUploadCurrentUploadFinished(recording);
+        if (n != null) {
+            nm.notify(UPLOADED_NOTIFY_ID, n);
+        }
+
         if (!isUploading()) { // last one switch off the lights
-
-            stopForeground(true);
-
-            // leave a note
-            Notification n = notifyUploadCurrentUploadFinished(recording);
-            System.out.println("UPLOAD DONE " + n);
-            if (n != null) {
-                nm.notify(UPLOADED_NOTIFY_ID, n);
-            }
-
-            stopSelf(); // necessary?, can't hurt
+            stopSelf();
         }
     }
 
@@ -369,7 +364,6 @@ public class UploadService extends Service {
 
         mUploadNotification = SoundRecorderService.createOngoingNotification(PendingIntent.getActivity(this, 0, recording.getMonitorIntent(), PendingIntent.FLAG_UPDATE_CURRENT));
         mUploadNotification.contentView = mUploadNotificationView;
-        startForeground(UPLOADING_NOTIFY_ID, mUploadNotification);
         return mUploadNotification;
     }
 

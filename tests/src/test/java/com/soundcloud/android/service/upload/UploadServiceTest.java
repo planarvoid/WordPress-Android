@@ -66,6 +66,9 @@ public class UploadServiceTest {
         expect(notification.tickerText).toEqual("Upload Finished");
         expect(shadowOf(notification).getLatestEventInfo().getContentText()).toEqual("testing has been uploaded");
         expect(shadowOf(notification).getLatestEventInfo().getContentTitle()).toEqual("Upload Finished");
+
+
+        expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
     }
 
     @Test
