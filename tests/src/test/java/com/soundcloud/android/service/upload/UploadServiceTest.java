@@ -49,6 +49,26 @@ public class UploadServiceTest {
         expect(svc.onBind(null) instanceof LocalBinder).toBeTrue();
     }
 
+    @Test
+    public void shouldStopServiceAfterLastUploadCompletes() throws Exception {
+        Robolectric.setDefaultHttpResponse(500, "Error");
+
+        getUploadScheduler().pause();
+        // 2 uploads queued
+        svc.onUpload(TestApplication.getValidRecording());
+        svc.onUpload(TestApplication.getValidRecording());
+
+        getUploadScheduler().runOneTask(); // on normal queue
+        getUploadScheduler().runOneTask(); // post()
+        getUploadScheduler().runOneTask(); // upload
+
+        expect(shadowOf(svc).isStoppedBySelf()).toBeFalse();
+
+        getUploadScheduler().runOneTask();
+        getUploadScheduler().runOneTask();
+        getUploadScheduler().runOneTask();
+        expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
+    }
 
     @Test
     public void shouldNotifyAboutUploadSuccess() throws Exception {
