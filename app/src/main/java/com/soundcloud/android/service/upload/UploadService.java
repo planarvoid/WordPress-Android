@@ -379,7 +379,6 @@ public class UploadService extends Service {
 
 
     private void showUploadingNotification(Recording recording, String action) {
-
         Notification n = getOngoingNotification(recording);
         n.contentView.setTextViewText(R.id.time, CloudUtils.getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
         n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
@@ -387,11 +386,9 @@ public class UploadService extends Service {
         if (PROCESSING_STARTED.equals(action)) {
             updateProcessingProgress(n, R.string.cloud_uploader_event_processing, 0);
             updateProcessingProgress(n, R.string.cloud_upload_not_yet_uploaded, -1);
-        } else {
-            if (TRANSFER_STARTED.equals(action)) {
-                updateProcessingProgress(n, R.string.cloud_uploader_event_processing_finished, 100);
-                updateUploadingProgress(n, R.string.cloud_uploader_event_uploading, -1);
-            }
+        } else if (TRANSFER_STARTED.equals(action)) {
+            updateProcessingProgress(n, R.string.cloud_uploader_event_processing_finished, 100);
+            updateUploadingProgress(n, R.string.cloud_uploader_event_uploading, -1);
         }
 
         if (Consts.SdkSwitches.useRichNotifications && recording.hasArtwork()){
