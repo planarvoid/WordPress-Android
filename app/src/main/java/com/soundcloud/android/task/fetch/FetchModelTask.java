@@ -48,6 +48,24 @@ public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Re
         mListenerWeakReferences.add(new WeakReference<FetchModelListener>(listener));
     }
 
+    public boolean removeListener(FetchModelListener toRemove) {
+        if (mListenerWeakReferences != null) {
+            WeakReference<FetchModelListener> needle = null;
+            for (WeakReference<FetchModelListener> listenerRef : mListenerWeakReferences) {
+                FetchModelListener listener = listenerRef.get();
+                if (listener != null && listener == toRemove) {
+                    needle = listenerRef;
+                    break;
+                }
+            }
+            if (needle != null){
+                mListenerWeakReferences.remove(needle);
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     protected void onPostExecute(Model result) {

@@ -30,6 +30,8 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.app.TabActivity;
 import android.content.Context;
@@ -55,6 +57,8 @@ import java.util.List;
 
 public class Main extends TabActivity implements
         ResolveTask.ResolveListener {
+
+    private static final int RESOLVING = 0;
 
     private View mSplash;
 
@@ -112,8 +116,25 @@ public class Main extends TabActivity implements
 
             mFetchUserTask = (FetchUserTask) previousState[2];
             if (mFetchUserTask != null) mFetchUserTask.addListener(onFetchUserListener);
+
+            if (!CloudUtils.isTaskFinished(mResolveTask) || !CloudUtils.isTaskFinished(mFetchTrackTask) || !CloudUtils.isTaskFinished(mFetchUserTask)) {
+                showDialog(RESOLVING);
+            }
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // clean up listeners for orientation changes
+        if (mFetchTrackTask != null) {
+            mFetchTrackTask.removeListener(onFetchTrackListener);
+        }
+        if (mFetchUserTask != null) {
+            mFetchUserTask.removeListener(onFetchUserListener);
+        }
+    }
+
 
     private boolean showSplash(Bundle state) {
         // don't show splash on configChanges (screen rotate)
@@ -290,6 +311,7 @@ public class Main extends TabActivity implements
             mResolveTask = new ResolveTask(getApp());
             mResolveTask.setListener(this);
             mResolveTask.execute(data);
+            showDialog(RESOLVING);
             return true;
         } else {
             return false;
@@ -405,12 +427,19 @@ public class Main extends TabActivity implements
                 mFetchUserTask = new FetchUserTask(getApp(), 0);
                 mFetchUserTask.addListener(onFetchUserListener);
                 mFetchUserTask.execute(request);
+            } else {
+                dismissDialog(RESOLVING);
             }
+        } else {
+
+            dismissDialog(RESOLVING);
         }
     }
 
+
     @Override
     public void onUrlError() {
+        dismissDialog(RESOLVING);
         Toast.makeText(this,getString(R.string.error_resolving_url),Toast.LENGTH_LONG).show();
     }
 
@@ -441,15 +470,18 @@ public class Main extends TabActivity implements
     };
 
     protected void onTrackLoaded(Track track, String action) {
+
         startService(new Intent(Main.this, CloudPlaybackService.class)
                 .setAction(CloudPlaybackService.PLAY_ACTION)
                 .putExtra("track", track));
 
         startActivity(new Intent(Main.this, ScPlayer.class));
+        dismissDialog(RESOLVING);
     }
 
     protected void onTrackError(long trackId) {
         Toast.makeText(Main.this, getString(R.string.error_loading_sound), Toast.LENGTH_LONG).show();
+        dismissDialog(RESOLVING);
     }
 
     protected void onUserLoaded(User u, String action) {
@@ -457,10 +489,12 @@ public class Main extends TabActivity implements
             i.putExtra("user", u);
             i.putExtra("updateInfo", false);
             startActivity(i);
+        dismissDialog(RESOLVING);
     }
 
     protected void onUserError(long userId) {
         Toast.makeText(Main.this, getString(R.string.error_loading_user), Toast.LENGTH_LONG).show();
+        dismissDialog(RESOLVING);
     }
 
     static class InstallNotification extends Exception {
@@ -594,4 +628,18 @@ public class Main extends TabActivity implements
 
         tabWidget.getLayoutParams().height = height;
     }
+
+    @Override
+        protected Dialog onCreateDialog(int id) {
+            switch (id) {
+                case RESOLVING:
+                    ProgressDialog progress = new ProgressDialog(this);
+                    progress.setMessage(getString(R.string.resolve_progress));
+                    progress.setCancelable(true);
+                    progress.setIndeterminate(true);
+                    return progress;
+                default:
+                    return super.onCreateDialog(id);
+            }
+        }
 }
