@@ -58,8 +58,6 @@ import java.util.List;
 public class Main extends TabActivity implements
         ResolveTask.ResolveListener {
 
-    private static final int RESOLVING = 0;
-
     private View mSplash;
 
     public static final String TAB_TAG = "tab";
@@ -70,6 +68,8 @@ public class Main extends TabActivity implements
     private FetchTrackTask mFetchTrackTask;
     private FetchUserTask mFetchUserTask;
     private ChangeLog mChangeLog;
+
+    private ProgressDialog mResolveDialog;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -118,10 +118,12 @@ public class Main extends TabActivity implements
             if (mFetchUserTask != null) mFetchUserTask.addListener(onFetchUserListener);
 
             if (!CloudUtils.isTaskFinished(mResolveTask) || !CloudUtils.isTaskFinished(mFetchTrackTask) || !CloudUtils.isTaskFinished(mFetchUserTask)) {
-                showDialog(RESOLVING);
+                mResolveDialog = CloudUtils.showProgress(this, R.string.resolve_progress);
             }
         }
     }
+
+
 
     @Override
     protected void onDestroy() {
@@ -311,7 +313,7 @@ public class Main extends TabActivity implements
             mResolveTask = new ResolveTask(getApp());
             mResolveTask.setListener(this);
             mResolveTask.execute(data);
-            showDialog(RESOLVING);
+            mResolveDialog = CloudUtils.showProgress(this, R.string.resolve_progress);
             return true;
         } else {
             return false;
@@ -428,32 +430,32 @@ public class Main extends TabActivity implements
                 mFetchUserTask.addListener(onFetchUserListener);
                 mFetchUserTask.execute(request);
             } else {
-                removeDialog(RESOLVING);
+                safeRemoveResolveDialog();
             }
         } else {
-
-            removeDialog(RESOLVING);
+            safeRemoveResolveDialog();
         }
     }
 
 
     @Override
     public void onUrlError() {
-        removeDialog(RESOLVING);
+        safeRemoveResolveDialog();
         Toast.makeText(this,getString(R.string.error_resolving_url),Toast.LENGTH_LONG).show();
     }
 
 
-    /** this handling is overkill but avoids breaking the tests for now **/
     public FetchTrackTask.FetchTrackListener onFetchTrackListener = new FetchTrackTask.FetchTrackListener() {
         @Override
         public void onSuccess(Track track, String action) {
             onTrackLoaded(track,action);
+            safeRemoveResolveDialog();
         }
 
         @Override
         public void onError(long modelId) {
             onTrackError(modelId);
+            safeRemoveResolveDialog();
         }
     };
 
@@ -461,13 +463,22 @@ public class Main extends TabActivity implements
         @Override
         public void onSuccess(User user, String action) {
             onUserLoaded(user, action);
+            safeRemoveResolveDialog();
         }
 
         @Override
         public void onError(long modelId) {
             onUserError(modelId);
+            safeRemoveResolveDialog();
         }
     };
+
+    private void safeRemoveResolveDialog() {
+        if (!isFinishing() && mResolveDialog != null) {
+            if (mResolveDialog.isShowing()) mResolveDialog.cancel();
+            mResolveDialog = null;
+        }
+    }
 
     protected void onTrackLoaded(Track track, String action) {
         startService(new Intent(Main.this, CloudPlaybackService.class)
@@ -475,12 +486,10 @@ public class Main extends TabActivity implements
                 .putExtra("track", track));
 
         startActivity(new Intent(Main.this, ScPlayer.class));
-        removeDialog(RESOLVING);
     }
 
     protected void onTrackError(long trackId) {
         Toast.makeText(Main.this, getString(R.string.error_loading_sound), Toast.LENGTH_LONG).show();
-        removeDialog(RESOLVING);
     }
 
     protected void onUserLoaded(User u, String action) {
@@ -488,12 +497,10 @@ public class Main extends TabActivity implements
             i.putExtra("user", u);
             i.putExtra("updateInfo", false);
             startActivity(i);
-        removeDialog(RESOLVING);
     }
 
     protected void onUserError(long userId) {
         Toast.makeText(Main.this, getString(R.string.error_loading_user), Toast.LENGTH_LONG).show();
-        removeDialog(RESOLVING);
     }
 
     static class InstallNotification extends Exception {
@@ -627,18 +634,4 @@ public class Main extends TabActivity implements
 
         tabWidget.getLayoutParams().height = height;
     }
-
-    @Override
-        protected Dialog onCreateDialog(int id) {
-            switch (id) {
-                case RESOLVING:
-                    ProgressDialog progress = new ProgressDialog(this);
-                    progress.setMessage(getString(R.string.resolve_progress));
-                    progress.setCancelable(true);
-                    progress.setIndeterminate(true);
-                    return progress;
-                default:
-                    return super.onCreateDialog(id);
-            }
-        }
 }
