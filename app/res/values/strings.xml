@@ -92,4 +92,6 @@
     <string name="rectip_private_liked_their_sound">Tell %s how much you liked their sound</string>
     <string name="rectip_private_leave_feedback">Leave some feedback for %s</string>
 
+    <string name="resolve_progress">Loading</string>
+    <string name="error_loading_url">There was a problem loading that url</string>
 </resources>

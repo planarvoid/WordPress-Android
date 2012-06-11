@@ -445,6 +445,10 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mCloudApi.getMapper();
     }
 
+    public Context getContext() {
+        return this;
+    }
+
     public Token authorizationCode(String code, String... scopes) throws IOException {
         return mCloudApi.authorizationCode(code, scopes);
     }
@@ -468,6 +472,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     @Override
     public String getUserAgent() {
         return mCloudApi.getUserAgent();
+    }
+
+    @Override
+    public Env getEnv() {
+        return mCloudApi.env;
     }
 
     public void onFirstRun(int oldVersionCode, int newVersionCode) {

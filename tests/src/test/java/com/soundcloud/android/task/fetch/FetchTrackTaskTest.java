@@ -1,4 +1,4 @@
-package com.soundcloud.android.task;
+package com.soundcloud.android.task.fetch;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
@@ -8,7 +8,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
@@ -18,15 +17,15 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(DefaultTestRunner.class)
-public class FetchTrackInfoTaskTest {
+public class FetchTrackTaskTest {
     FetchTrackTask.FetchTrackListener listener;
 
     @Test
-    public void testFetchTrackInfo() throws Exception {
+    public void testFetchTrack() throws Exception {
         FetchTrackTask task = new FetchTrackTask(DefaultTestRunner.application, 0);
 
         addHttpResponseRule("GET", "/tracks/12345",
-                new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("track.json"))));
+                new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("../track.json"))));
 
         Track t = new Track();
         t.id = 12345;
