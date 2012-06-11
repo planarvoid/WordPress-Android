@@ -202,7 +202,7 @@ public class UploadService extends Service {
     }
 
     public boolean isUploading() {
-        return mUploads.size() > 0 || mUploadHandler.hasMessages(0);
+        return !mUploads.isEmpty() || mUploadHandler.hasMessages(0);
     }
 
     private final IBinder mBinder = new LocalBinder<UploadService>() {
