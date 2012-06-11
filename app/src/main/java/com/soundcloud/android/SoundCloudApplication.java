@@ -350,15 +350,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     }
 
     private String getClientId(boolean production) {
-        return getResources().getString(production ?
-                R.string.client_id :
-                R.string.sandbox_client_id);
+        return getString(production ? R.string.client_id : R.string.sandbox_client_id);
     }
 
     private String getClientSecret(boolean production) {
-        return getResources().getString(production ?
-                R.string.client_secret :
-                R.string.sandbox_client_secret);
+        return getString(production ? R.string.client_secret : R.string.sandbox_client_secret);
     }
 
     private Token getToken(Account account) {
@@ -476,7 +472,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
     @Override
     public Env getEnv() {
-        return mCloudApi.env;
+        return mCloudApi.getEnv();
     }
 
     public void onFirstRun(int oldVersionCode, int newVersionCode) {
