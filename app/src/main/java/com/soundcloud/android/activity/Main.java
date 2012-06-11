@@ -428,18 +428,18 @@ public class Main extends TabActivity implements
                 mFetchUserTask.addListener(onFetchUserListener);
                 mFetchUserTask.execute(request);
             } else {
-                dismissDialog(RESOLVING);
+                removeDialog(RESOLVING);
             }
         } else {
 
-            dismissDialog(RESOLVING);
+            removeDialog(RESOLVING);
         }
     }
 
 
     @Override
     public void onUrlError() {
-        dismissDialog(RESOLVING);
+        removeDialog(RESOLVING);
         Toast.makeText(this,getString(R.string.error_resolving_url),Toast.LENGTH_LONG).show();
     }
 
@@ -470,18 +470,17 @@ public class Main extends TabActivity implements
     };
 
     protected void onTrackLoaded(Track track, String action) {
-
         startService(new Intent(Main.this, CloudPlaybackService.class)
                 .setAction(CloudPlaybackService.PLAY_ACTION)
                 .putExtra("track", track));
 
         startActivity(new Intent(Main.this, ScPlayer.class));
-        dismissDialog(RESOLVING);
+        removeDialog(RESOLVING);
     }
 
     protected void onTrackError(long trackId) {
         Toast.makeText(Main.this, getString(R.string.error_loading_sound), Toast.LENGTH_LONG).show();
-        dismissDialog(RESOLVING);
+        removeDialog(RESOLVING);
     }
 
     protected void onUserLoaded(User u, String action) {
@@ -489,12 +488,12 @@ public class Main extends TabActivity implements
             i.putExtra("user", u);
             i.putExtra("updateInfo", false);
             startActivity(i);
-        dismissDialog(RESOLVING);
+        removeDialog(RESOLVING);
     }
 
     protected void onUserError(long userId) {
         Toast.makeText(Main.this, getString(R.string.error_loading_user), Toast.LENGTH_LONG).show();
-        dismissDialog(RESOLVING);
+        removeDialog(RESOLVING);
     }
 
     static class InstallNotification extends Exception {
