@@ -1,4 +1,4 @@
-package com.soundcloud.android.task;
+package com.soundcloud.android.task.fetch;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
@@ -8,7 +8,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
@@ -18,7 +17,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(DefaultTestRunner.class)
-public class FetchUserInfoTaskTest {
+public class FetchUserTaskTest {
     FetchUserTask.FetchUserListener listener;
 
     @Test
@@ -26,7 +25,7 @@ public class FetchUserInfoTaskTest {
         FetchUserTask task = new FetchUserTask(DefaultTestRunner.application, 0);
 
         addHttpResponseRule("GET", "/users/12345",
-                new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("user.json"))));
+                new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("../user.json"))));
 
         User u = new User();
         u.id = 3135930;

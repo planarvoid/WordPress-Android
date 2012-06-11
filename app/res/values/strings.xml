@@ -4,4 +4,6 @@
     <string name="disabled">Disabled</string>
     <string name="player_track_unavailable">This sound is no longer available</string>
     <string name="resolve_progress">Loading</string>
+
+    <string name="error_loading_url">There was a problem loading that url</string>
 </resources>

@@ -14,16 +14,16 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.auth.AuthenticatorService;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.task.ResolveTask;
-import com.soundcloud.android.task.fetch.FetchTrackTask;
+import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
+import com.soundcloud.android.task.fetch.ResolveFetchTask;
 import com.soundcloud.android.utils.ChangeLog;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
+import org.jetbrains.annotations.Nullable;
 
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
@@ -40,7 +40,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -53,10 +52,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.util.List;
 
 public class Main extends TabActivity implements
-        ResolveTask.ResolveListener {
+        FetchModelTask.FetchModelListener<ScModel> {
 
     private static final int RESOLVING = 0;
 
@@ -66,9 +64,7 @@ public class Main extends TabActivity implements
     private static final long SPLASH_DELAY = 1200;
     private static final long FADE_DELAY   = 400;
 
-    private ResolveTask mResolveTask;
-    private FetchTrackTask mFetchTrackTask;
-    private FetchUserTask mFetchUserTask;
+    private ResolveFetchTask mResolveTask;
     private ChangeLog mChangeLog;
 
     @Override
@@ -106,35 +102,14 @@ public class Main extends TabActivity implements
         buildTabHost(getApp(), getTabHost(), getTabWidget());
         handleIntent(getIntent());
 
-        Object[] previousState = (Object[]) getLastNonConfigurationInstance();
-        if (previousState != null) {
-            mResolveTask = (ResolveTask) previousState[0];
-            if (mResolveTask != null) mResolveTask.setListener(this);
-
-            mFetchTrackTask = (FetchTrackTask) previousState[1];
-            if (mFetchTrackTask != null) mFetchTrackTask.addListener(onFetchTrackListener);
-
-            mFetchUserTask = (FetchUserTask) previousState[2];
-            if (mFetchUserTask != null) mFetchUserTask.addListener(onFetchUserListener);
-
-            if (!CloudUtils.isTaskFinished(mResolveTask) || !CloudUtils.isTaskFinished(mFetchTrackTask) || !CloudUtils.isTaskFinished(mFetchUserTask)) {
+        mResolveTask  = (ResolveFetchTask) getLastNonConfigurationInstance();
+        if (mResolveTask != null) {
+            mResolveTask.setListener(this);
+            if (!CloudUtils.isTaskFinished(mResolveTask)) {
                 showDialog(RESOLVING);
             }
         }
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // clean up listeners for orientation changes
-        if (mFetchTrackTask != null) {
-            mFetchTrackTask.removeListener(onFetchTrackListener);
-        }
-        if (mFetchUserTask != null) {
-            mFetchUserTask.removeListener(onFetchUserListener);
-        }
-    }
-
 
     private boolean showSplash(Bundle state) {
         // don't show splash on configChanges (screen rotate)
@@ -143,11 +118,6 @@ public class Main extends TabActivity implements
 
     @Override
     protected void onResume() {
-        if (SoundCloudApplication.BETA_MODE && mChangeLog.isFirstRun()) {
-            SoundCloudApplication.handleSilentException("Install",
-                    new InstallNotification(CloudUtils.getAppVersionCode(Main.this, -1), CloudUtils.getAppVersion(Main.this, "")));
-        }
-
         if (getApp().getAccount() == null) {
             dismissSplash();
             getApp().addAccount(Main.this, managerCallback);
@@ -275,47 +245,14 @@ public class Main extends TabActivity implements
     protected boolean handleViewUrl(Intent intent) {
         if (!Intent.ACTION_VIEW.equals(intent.getAction()) && !FacebookSSO.isFacebookView(this, intent))
             return false;
-
         Uri data = intent.getData();
         if (data == null) return false;
-        ScModel model = ResolveTask.resolveLocally(getContentResolver(), data);
-        if (model instanceof Track) {
-            onFetchTrackListener.onSuccess((Track) model, null);
-            return true;
-        } else if (model == null) {
-            Uri uri = ResolveTask.resolveSoundCloudURI(data, Env.LIVE);
-            if (uri != null) {
-                onUrlResolved(uri, null);
-                return true;
-            }
-        }
 
-        // not a client url (e.g. soundcloud:tracks:123456)
-        if (!data.getPathSegments().isEmpty()) {
-            // TODO put this code under test
-            // only handle the first 3 path segments (resource only for now, actions to be implemented later)
-            final int cutoff;
-            final int segments = data.getPathSegments().size();
-            if (segments > 1 &&
-                ("follow".equals(data.getPathSegments().get(1)) ||
-                 "favorite".equals(data.getPathSegments().get(1)))) {
-                cutoff = 1;
-            } else {
-                cutoff = segments;
-            }
-
-            if (cutoff > 0) {
-                data = data.buildUpon().path(TextUtils.join("/", data.getPathSegments().subList(0, cutoff))).build();
-            }
-
-            mResolveTask = new ResolveTask(getApp());
-            mResolveTask.setListener(this);
-            mResolveTask.execute(data);
-            showDialog(RESOLVING);
-            return true;
-        } else {
-            return false;
-        }
+        mResolveTask = new ResolveFetchTask(getApp());
+        mResolveTask.setListener(this);
+        mResolveTask.execute(data);
+        showDialog(RESOLVING);
+        return true;
     }
 
     @SuppressLint("NewApi")
@@ -401,115 +338,39 @@ public class Main extends TabActivity implements
         return intent != null && intent.hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
     }
 
-
    @Override
     public Object onRetainNonConfigurationInstance() {
-        return new Object[]{
-                mResolveTask,
-                mFetchTrackTask,
-                mFetchUserTask
-        };
+        return mResolveTask;
     }
 
-    @Override
-    public void onUrlResolved(Uri uri, String action) {
-        List<String> params = uri.getPathSegments();
-        if (params.size() >= 2) {
-            final Request request = Request.to(uri.getPath() +
-                    (uri.getQuery() != null ? ("?"+uri.getQuery()) : ""));
-
-            if ("tracks".equalsIgnoreCase(params.get(0))) {
-                mFetchTrackTask = new FetchTrackTask(getApp(), 0);
-                mFetchTrackTask.addListener(onFetchTrackListener);
-                mFetchTrackTask.action = action;
-                mFetchTrackTask.execute(request);
-            } else if ("users".equalsIgnoreCase(params.get(0))) {
-                mFetchUserTask = new FetchUserTask(getApp(), 0);
-                mFetchUserTask.addListener(onFetchUserListener);
-                mFetchUserTask.execute(request);
-            } else {
-                removeDialog(RESOLVING);
-            }
-        } else {
-
-            removeDialog(RESOLVING);
-        }
-    }
-
-
-    @Override
-    public void onUrlError() {
-        removeDialog(RESOLVING);
-        Toast.makeText(this,getString(R.string.error_resolving_url),Toast.LENGTH_LONG).show();
-    }
-
-
-    /** this handling is overkill but avoids breaking the tests for now **/
-    public FetchTrackTask.FetchTrackListener onFetchTrackListener = new FetchTrackTask.FetchTrackListener() {
-        @Override
-        public void onSuccess(Track track, String action) {
-            onTrackLoaded(track,action);
-        }
-
-        @Override
-        public void onError(long modelId) {
-            onTrackError(modelId);
-        }
-    };
-
-    public FetchUserTask.FetchUserListener onFetchUserListener = new FetchUserTask.FetchUserListener() {
-        @Override
-        public void onSuccess(User user, String action) {
-            onUserLoaded(user, action);
-        }
-
-        @Override
-        public void onError(long modelId) {
-            onUserError(modelId);
-        }
-    };
-
-    protected void onTrackLoaded(Track track, String action) {
+    protected void onTrackLoaded(Track track, @Nullable String action) {
         startService(new Intent(Main.this, CloudPlaybackService.class)
                 .setAction(CloudPlaybackService.PLAY_ACTION)
                 .putExtra("track", track));
 
         startActivity(new Intent(Main.this, ScPlayer.class));
-        removeDialog(RESOLVING);
+
     }
 
-    protected void onTrackError(long trackId) {
-        Toast.makeText(Main.this, getString(R.string.error_loading_sound), Toast.LENGTH_LONG).show();
-        removeDialog(RESOLVING);
+    protected void onUserLoaded(User u, @Nullable String action) {
+        startActivity(new Intent(this, UserBrowser.class)
+            .putExtra("user", u)
+            .putExtra("updateInfo", false));
     }
 
-    protected void onUserLoaded(User u, String action) {
-        Intent i = new Intent(Main.this, UserBrowser.class);
-            i.putExtra("user", u);
-            i.putExtra("updateInfo", false);
-            startActivity(i);
+    @Override
+    public void onError(long modelId) {
         removeDialog(RESOLVING);
+        Toast.makeText(Main.this, R.string.error_loading_url, Toast.LENGTH_LONG).show();
     }
 
-    protected void onUserError(long userId) {
-        Toast.makeText(Main.this, getString(R.string.error_loading_user), Toast.LENGTH_LONG).show();
+    @Override
+    public void onSuccess(ScModel m, @Nullable String action) {
         removeDialog(RESOLVING);
-    }
-
-    static class InstallNotification extends Exception {
-        int versionCode;
-        String versionName;
-        InstallNotification(int versionCode, String versionName) {
-            super();
-            this.versionCode = versionCode;
-            this.versionName = versionName;
-        }
-
-        @Override
-        public String getMessage() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("versionCode: ").append(versionCode).append(" ").append("versionName: ").append(versionName);
-            return sb.toString();
+        if (m instanceof Track) {
+            onTrackLoaded((Track) m, null);
+        } else if (m instanceof User) {
+            onUserLoaded((User) m, null);
         }
     }
 

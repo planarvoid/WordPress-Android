@@ -3,11 +3,11 @@ package com.soundcloud.android.task.fetch;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Request, Void, Model> {
     private AndroidCloudAPI mApi;
-    private ArrayList<WeakReference<FetchModelListener>> mListenerWeakReferences;
+    private ArrayList<WeakReference<FetchModelListener<Model>>> mListenerWeakReferences;
     private long mModelId;
     private Class<? extends Model> mModel;
 
@@ -33,56 +33,22 @@ public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Re
         mModelId = modelId;
     }
 
-    protected WeakReference<ScActivity> mActivityReference;
-
-    public void setActivity(ScActivity activity) {
-        if (activity != null) {
-            mActivityReference = new WeakReference<ScActivity>(activity);
-        }
-    }
-
-    public void addListener(FetchModelListener listener){
+    public void addListener(FetchModelListener<Model> listener){
         if (mListenerWeakReferences == null){
-            mListenerWeakReferences = new ArrayList<WeakReference<FetchModelListener>>();
+            mListenerWeakReferences = new ArrayList<WeakReference<FetchModelListener<Model>>>();
         }
-        mListenerWeakReferences.add(new WeakReference<FetchModelListener>(listener));
+        mListenerWeakReferences.add(new WeakReference<FetchModelListener<Model>>(listener));
     }
-
-    public boolean removeListener(FetchModelListener toRemove) {
-        if (mListenerWeakReferences != null) {
-            WeakReference<FetchModelListener> needle = null;
-            for (WeakReference<FetchModelListener> listenerRef : mListenerWeakReferences) {
-                FetchModelListener listener = listenerRef.get();
-                if (listener != null && listener == toRemove) {
-                    needle = listenerRef;
-                    break;
-                }
-            }
-            if (needle != null){
-                mListenerWeakReferences.remove(needle);
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     @Override
     protected void onPostExecute(Model result) {
-        if (result != null) {
-            if (mListenerWeakReferences != null) {
-                for (WeakReference<FetchModelListener> listenerRef : mListenerWeakReferences) {
-                    FetchModelListener listener = listenerRef.get();
-                    if (listener != null){
+        if (mListenerWeakReferences != null) {
+            for (WeakReference<FetchModelListener<Model>> listenerRef : mListenerWeakReferences) {
+                FetchModelListener<Model> listener = listenerRef.get();
+                if (listener != null) {
+                    if (result != null) {
                         listener.onSuccess(result, action);
-                    }
-                }
-            }
-        } else {
-            if (mListenerWeakReferences != null){
-                for (WeakReference<FetchModelListener> listenerRef : mListenerWeakReferences) {
-                    FetchModelListener listener = listenerRef.get();
-                    if (listener != null){
+                    } else {
                         listener.onError(mModelId);
                     }
                 }
@@ -115,7 +81,7 @@ public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Re
     }
 
     public interface FetchModelListener<Model extends Parcelable> {
-        void onSuccess(Model m, String action);
+        void onSuccess(Model m, @Nullable String action);
         void onError(long modelId);
     }
 
