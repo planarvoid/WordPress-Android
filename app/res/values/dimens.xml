@@ -60,4 +60,6 @@
 
     <dimen name="trim_handle_left_margin_offset">-3dip</dimen>
     <dimen name="trim_handle_right_margin_offset">-2dip</dimen>
+
+    <dimen name="round_progress_bar_corner_radius">10dp</dimen>
 </resources>

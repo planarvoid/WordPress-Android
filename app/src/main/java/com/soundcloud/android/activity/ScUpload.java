@@ -59,7 +59,8 @@ public class ScUpload extends ScActivity {
             mRecordingMetadata.setRecording(mRecording);
             if (mRecording.external_upload) {
                 // 3rd party upload, disable "record another sound button"
-                findViewById(R.id.btn_cancel).setVisibility(View.GONE);
+                // TODO, this needs to be fixed, there is no cancel button on this screen
+                // findViewById(R.id.btn_cancel).setVisibility(View.GONE);
                 ((ViewGroup) findViewById(R.id.share_user_layout)).addView(
                         new ShareUserHeader(this, getApp().getLoggedInUser()));
             }
