@@ -1,7 +1,6 @@
 
 package com.soundcloud.android.model;
 
-import android.util.Log;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -36,6 +35,7 @@ import android.text.TextUtils;
 import android.util.FloatMath;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -349,7 +349,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         return state != null && created_at != null && duration > 0;
     }
 
-    public void fillTags(FlowLayout ll, final Context context){
+    public void fillTags(ViewGroup view, final Context context){
         TextView txt;
         FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
 
@@ -366,7 +366,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
                     }
                 });
             txt.setText(genre);
-            ll.addView(txt, flowLP);
+            view.addView(txt, flowLP);
         }
         for (final String t : humanTags()) {
             if (!TextUtils.isEmpty(t)) {
@@ -380,7 +380,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
                     }
                 });
                 txt.setText(t);
-                ll.addView(txt, flowLP);
+                view.addView(txt, flowLP);
             }
         }
     }
@@ -622,11 +622,11 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
         public boolean isStreamable(){
             // TODO: we can probably get away without including UNDEFINED in a subsequent release, as it will get updated lazily on first load
-            return FINISHED.equals(this) || UNDEFINED.equals(this);
+            return FINISHED == this || UNDEFINED == this;
         }
 
         public boolean isFailed() {
-            return FAILED.equals(this);
+            return FAILED == this;
         }
 
         public boolean isProcessing() {
@@ -662,7 +662,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         }
 
         public boolean isPublic() {
-            return PUBLIC.equals(this);
+            return PUBLIC == this;
         }
     }
 }

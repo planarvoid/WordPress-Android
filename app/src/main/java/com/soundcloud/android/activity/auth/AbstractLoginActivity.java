@@ -17,6 +17,7 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -73,7 +74,7 @@ public abstract class AbstractLoginActivity extends Activity {
             @Override
             protected void onPostExecute(final Token token) {
                 if (token != null) {
-                    new FetchUserTask(app, -1) {
+                    new FetchUserTask(app) {
                         @Override
                         protected void onPostExecute(User user) {
                             if (user != null) {
@@ -97,7 +98,7 @@ public abstract class AbstractLoginActivity extends Activity {
         }.execute(data);
     }
 
-    protected void showError(IOException e) {
+    protected void showError(@Nullable IOException e) {
         if (!isFinishing()) {
             final boolean tokenError = e instanceof CloudAPI.InvalidTokenException;
             new AlertDialog.Builder(AbstractLoginActivity.this)
