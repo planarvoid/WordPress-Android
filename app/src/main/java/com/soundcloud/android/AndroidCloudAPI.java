@@ -22,6 +22,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -55,7 +56,9 @@ public interface AndroidCloudAPI extends CloudAPI {
     URI REDIRECT_URI = URI.create("soundcloud://auth");
 
     String getUserAgent();
+    Env getEnv();
     ObjectMapper getMapper();
+    Context getContext();
 
     @SuppressLint("NewApi")
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
@@ -125,6 +128,16 @@ public interface AndroidCloudAPI extends CloudAPI {
 
         @Override public ObjectMapper getMapper() {
             return Mapper;
+        }
+
+        @Override
+        public Context getContext() {
+            return  mContext;
+        }
+
+        @Override
+        public Env getEnv() {
+            return env;
         }
 
         @Override public String getUserAgent() {

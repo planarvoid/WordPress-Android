@@ -25,7 +25,6 @@ import android.net.Uri;
 public class MainTest {
     Main main;
     boolean error;
-    Uri resolved;
     String action;
     Track track;
     User user;
@@ -33,15 +32,9 @@ public class MainTest {
     @Before
     public void before() {
         main = new Main() {
-            public void onUrlResolved(Uri uri, String action) {
-                MainTest.this.resolved = uri;
-                MainTest.this.action = action;
-                super.onUrlResolved(uri, action);
-            }
-
-            public void onUrlError() {
+            @Override
+            public void onError(long modelId) {
                 error = true;
-                super.onUrlError();
             }
 
             @Override
@@ -79,7 +72,6 @@ public class MainTest {
                 Uri.parse("http://soundcloud.com/tracks/sometrack")));
 
         expect(error).toBeFalse();
-        expect(resolved.toString()).toEqual("https://api.soundcloud.com/tracks/12345");
         expect(action).toBeNull();
         expect(track).not.toBeNull();
         expect(track.id).toEqual(12345L);
@@ -94,7 +86,6 @@ public class MainTest {
                 Uri.parse("https://api.soundcloud.com/tracks/12345")));
 
         expect(error).toBeTrue();
-        expect(resolved).toBeNull();
         expect(action).toBeNull();
     }
 
@@ -106,7 +97,6 @@ public class MainTest {
                 Uri.parse("https://api.soundcloud.com/tracks/12345")));
 
         expect(error).toBeTrue();
-        expect(resolved).toBeNull();
         expect(action).toBeNull();
     }
 
@@ -122,7 +112,6 @@ public class MainTest {
         main.handleViewUrl(new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud:tracks:12345")));
 
         expect(error).toBeFalse();
-        expect(resolved).toBeNull();
         expect(action).toBeNull();
         expect(track).not.toBeNull();
         expect(track.id).toEqual(12345L);
@@ -136,7 +125,6 @@ public class MainTest {
         main.handleViewUrl(new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud:tracks:12345")));
 
         expect(error).toBeFalse();
-        expect(resolved.toString()).toEqual("https://api.soundcloud.com/tracks/12345");
         expect(action).toBeNull();
         expect(track).not.toBeNull();
         expect(track.id).toEqual(12345L);
@@ -155,7 +143,6 @@ public class MainTest {
                 Uri.parse("http://soundcloud.com/tracks/sometrack/s-SECRET")));
 
         expect(error).toBeFalse();
-        expect(resolved.toString()).toEqual("https://api.soundcloud.com/tracks/12345?secret_token=s-SECRET");
         expect(action).toBeNull();
         expect(track).not.toBeNull();
         expect(track.id).toEqual(12345L);
@@ -172,7 +159,6 @@ public class MainTest {
                 Uri.parse("http://soundcloud.com/johnpeelarchive?fb_action_ids=10151612282280249&fb_action_types=soundcloud:follow&fb_source=aggregation&fb_aggregation_id=10150389352581799")));
 
         expect(error).toBeFalse();
-        expect(resolved.toString()).toEqual("https://api.soundcloud.com/users/12345");
         expect(action).toBeNull();
         expect(user).not.toBeNull();
         expect(user.id).toEqual(3135930L);

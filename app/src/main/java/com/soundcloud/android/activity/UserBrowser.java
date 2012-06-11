@@ -333,7 +333,6 @@ public class UserBrowser extends ScListActivity implements
 
         if (mLoadUserTask == null) {
             mLoadUserTask = new FetchUserTask(getApp(), mUser.id);
-            mLoadUserTask.setActivity(this);
             mLoadUserTask.addListener(this);
             mLoadUserTask.execute(Request.to(Endpoints.USER_DETAILS, mUser.id));
         }
@@ -831,7 +830,6 @@ public class UserBrowser extends ScListActivity implements
 
         if (c.loadUserTask != null) {
             mLoadUserTask = c.loadUserTask;
-            mLoadUserTask.setActivity(this);
         }
         if (isMe()) mConnections = c.connections;
         mUserlistBrowser.initWorkspace(c.workspaceIndex);

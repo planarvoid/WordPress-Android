@@ -16,17 +16,25 @@ import android.net.Uri;
 
 @RunWith(DefaultTestRunner.class)
 public class ResolveTaskTest {
-    ResolveTask.ResolveListener listener;
+    @Test
+    public void testResolve() throws Exception {
+        ResolveTask task = new ResolveTask(DefaultTestRunner.application);
+
+        addHttpResponseRule("GET", "/resolve?url=http%3A%2F%2Fsoundcloud.com%2Ffoo%2Fbar",
+                new TestHttpResponse(302, "", new BasicHeader("Location", "http://foo.com")));
+
+        expect(task.execute(Uri.parse("http://soundcloud.com/foo/bar")).get()).toEqual(Uri.parse("http://foo.com"));
+    }
 
     @Test
-    public void testResolving() throws Exception {
+    public void testResolvingWithListener() throws Exception {
         ResolveTask task = new ResolveTask(DefaultTestRunner.application);
 
         addHttpResponseRule("GET", "/resolve?url=http%3A%2F%2Fsoundcloud.com%2Ffoo%2Fbar",
                 new TestHttpResponse(302, "", new BasicHeader("Location", "http://foo.com")));
 
         final Uri[] result = {null};
-        listener = new ResolveTask.ResolveListener() {
+        ResolveTask.ResolveListener listener = new ResolveTask.ResolveListener() {
             @Override public void onUrlResolved(Uri uri, String action) {
                 result[0] = uri;
             }
@@ -80,13 +88,11 @@ public class ResolveTaskTest {
                 Uri.parse("foobar:blaz"), Env.LIVE)).toBeNull();
     }
 
-
     @Test
     public void shouldResolveWithAction() throws Exception {
         final Uri[] uri = {null};
         final String[] action = {null};
-
-        listener = new ResolveTask.ResolveListener() {
+        ResolveTask.ResolveListener listener = new ResolveTask.ResolveListener() {
             @Override public void onUrlResolved(Uri _uri, String _action) {
                 uri[0] = _uri;
                 action[0] = _action;
