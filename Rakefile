@@ -24,71 +24,85 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                SoundCloudApplication
               )
 
+
 [:device, :emu].each do |t|
+  def android_home
+    dir = %w(ANDROID_HOME ANDROID_SDK_ROOT ANDROID_SDK_HOME).map { |e| ENV[e] }.find { |d| File.directory?(d) }
+    dir or raise "no android home defined"
+  end
   def package() "com.soundcloud.android" end
-  flag = (t == :device ? '-d' : '-e')
-    namespace t do
+  adb = lambda do |*args|
+    flag = (t == :device ? '-d' : '-e')
+    adb_path = "#{android_home}/platform-tools/adb"
+    if args.size == 1
+      sh "#{adb_path} #{flag} #{args.first}"
+    else
+      sh adb_path, *args.unshift(flag)
+    end
+  end
+  namespace t do
+    namespace :beta do
+      beta_path = "/mnt/sdcard/Android/data/com.soundcloud.android/files/beta"
+      desc "delete beta cache"
+      task :delete do
+        adb["shell 'rm #{beta_path}/*'"]
+      end
 
-      namespace :beta do
-        beta_path = "/mnt/sdcard/Android/data/com.soundcloud.android/files/beta"
-        desc "delete beta cache"
-        task :delete do
-          sh "adb #{flag} shell 'rm #{beta_path}/*'"
+      desc "list beta cache"
+      task :list do
+        adb["shell 'ls #{beta_path}'"]
+        adb["shell 'cat #{beta_path}/*.json'"]
+      end
+    end
+
+    namespace :prefs do
+      pref_path = "/data/data/#{package}/shared_prefs/#{package}_preferences.xml"
+      desc "get prefs from #{t}"
+        task :pull do
+          adb["pull #{pref_path} ."]
         end
 
-        desc "list beta cache"
-        task :list do
-          sh "adb #{flag} shell 'ls #{beta_path}'"
-          sh "adb #{flag} shell 'cat #{beta_path}/*.json'"
+        desc "pushes prefs to #{t}"
+        task :push do
+          adb["push #{package}_preferences.xml #{pref_path}"]
+        end
+    end
+
+    namespace :db do
+      # needs root on device
+      db_path = "/data/data/#{package}/databases/SoundCloud"
+      tmp_path = "/sdcard/SoundCloud.sqlite"
+      desc "get db from #{t}"
+        task :pull do
+          adb["shell su -c 'cp -f #{db_path} #{tmp_path}'"]
+          adb["pull #{tmp_path} ."]
+        end
+    end
+
+    namespace :logging do
+      %w(verbose debug info warn error).each do |level|
+        task level do
+          DEFAULT_LEVELS.each do |tag|
+            adb["shell setprop log.tag.#{tag} #{level.upcase}"]
+          end
         end
       end
+    end
 
-      namespace :prefs do
-        pref_path = "/data/data/#{package}/shared_prefs/#{package}_preferences.xml"
-        desc "get prefs from #{t}"
-          task :pull do
-            sh "adb #{flag} pull #{pref_path} ."
-          end
+    desc "run lolcat with filtering"
+    task :lolcat do
+      adb["lolcat -v time #{DEFAULT_LEVELS.join(' ')} *:S"]
+    end
 
-          desc "pushes prefs to #{t}"
-          task :push do
-            sh "adb #{flag} push #{package}_preferences.xml #{pref_path}"
-          end
-      end
+    desc "run integration tests"
+    task :test do
+      adb['shell', 'am', 'instrument', '-r', '-w', package.to_s+'.tests/android.test.InstrumentationTestRunner']
+    end
 
-      namespace :db do
-        # needs root on device
-        db_path = "/data/data/#{package}/databases/SoundCloud"
-        tmp_path = "/sdcard/SoundCloud.sqlite"
-        desc "get db from #{t}"
-          task :pull do
-            sh "adb shell su -c 'cp -f #{db_path} #{tmp_path}'"
-            sh "adb #{flag} pull #{tmp_path} ."
-          end
-      end
-
-      namespace :logging do
-        %w(verbose debug info warn error).each do |level|
-          task level do
-            DEFAULT_LEVELS.each do |tag|
-              sh "adb #{flag} shell setprop log.tag.#{tag} #{level.upcase}"
-            end
-          end
-        end
-
-      end
-
-      desc "run lolcat with filtering"
-      task :lolcat do
-        sh "adb #{flag} lolcat -v time #{DEFAULT_LEVELS.join(' ')} *:S"
-      end
-
-      desc "run integration tests"
-      task :test do
-        sh 'adb', [ flag, 'shell', 'am', 'instrument', '-r', '-w',
-                    package.to_s+'.tests/android.test.InstrumentationTestRunner' ]
-      end
-   end
+    task :anr do
+      adb["pull /data/anr/traces.txt"]
+    end
+  end
 end
 
 def manifest
@@ -104,10 +118,6 @@ def gitsha1()
     raise "could not get current HEAD" unless $?.success?
     head.strip!
   end
-end
-
-task :anr do
-  sh "adb -e pull /data/anr/traces.txt"
 end
 
 namespace :release do

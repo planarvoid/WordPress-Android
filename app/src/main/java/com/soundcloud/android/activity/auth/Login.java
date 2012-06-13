@@ -31,7 +31,7 @@ public class Login extends AbstractLoginActivity {
 
         final EditText emailField = (EditText) findViewById(R.id.txt_email_address);
         final EditText passwordField = (EditText) findViewById(R.id.txt_password);
-        final Button loginBtn = (Button) findViewById(R.id.btn_login);
+        final View loginBtn = findViewById(R.id.btn_login);
 
         emailField.setText(CloudUtils.suggestEmail(this));
 
