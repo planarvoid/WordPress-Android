@@ -19,7 +19,7 @@ import android.util.Log;
 
 public final class InstrumentationHelper {
     public static final String USERNAME = "android-testing";
-    public static final String PASSWORD = "android";
+    public static final String PASSWORD = "android-testing";
 
     private InstrumentationHelper() {}
     private static final String TAG = InstrumentationHelper.class.getSimpleName();
