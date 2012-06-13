@@ -40,7 +40,7 @@ public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
         solo.enterText(1, InstrumentationHelper.PASSWORD);
 
         solo.clickOnButton("Log In");
-        waitForDialogToClose(15000);
+        waitForDialogToClose(60 * 1000);
         assertTrue(solo.waitForText("Stream", 1, 5000));
     }
 
