@@ -65,7 +65,10 @@ public class UploadMonitor extends Activity {
         findViewById(R.id.close_icon).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mUpload.cancelUpload(UploadMonitor.this);
+                if (mUpload.isUploading()) {
+                    mUpload.cancelUpload(UploadMonitor.this);
+                    onCancelling();
+                }
             }
         });
 
@@ -119,6 +122,9 @@ public class UploadMonitor extends Activity {
         public void onReceive(Context context, Intent intent) {
             Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
             if (!mUpload.equals(recording)) return;
+
+            // update with latest broadcasted attributes
+            mUpload = recording;
 
             String action = intent.getAction();
             final int progress = intent.getIntExtra(UploadService.EXTRA_PROGRESS, 0);
@@ -178,6 +184,19 @@ public class UploadMonitor extends Activity {
 
         mProgressProcessingText.setText(R.string.uploader_event_processing);
         mProgressUploadingText.setText(R.string.uploader_event_not_yet_uploading);
+    }
+
+    private void onCancelling() {
+        if (!isFinishing()) {
+            mUploadingLayout.setVisibility(View.VISIBLE);
+            mFinishedLayout.setVisibility(View.GONE);
+
+            mProgressBarProcessing.setIndeterminate(true);
+            mProgressBarUploading.setIndeterminate(true);
+
+            mProgressProcessingText.setText(R.string.uploader_event_cancelling);
+            mProgressUploadingText.setText("");
+        }
     }
 
     private void onUploadFinished(boolean success) {

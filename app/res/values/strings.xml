@@ -36,6 +36,7 @@
     <string name="uploader_event_not_yet_uploading">Not yet uploading</string>
     <string name="uploader_event_uploading">Uploading</string>
     <string name="uploader_event_uploading_percent">Uploading: %d%%</string>
+    <string name="uploader_event_cancelling">Cancelling</string>
 
     <string name="uploader_event_processing_failed">Processing failed</string>
     <string name="uploader_event_uploading_failed">Uploading failed</string>

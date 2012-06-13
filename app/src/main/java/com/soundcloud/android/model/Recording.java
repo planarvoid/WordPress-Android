@@ -448,6 +448,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return upload_status == Status.UPLOADED;
     }
 
+    public boolean isUploading() {
+        return upload_status == Status.UPLOADING;
+    }
+
     public boolean isCanceled() {
         return mUploadException instanceof UserCanceledException;
     }
