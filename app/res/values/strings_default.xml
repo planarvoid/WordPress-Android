@@ -72,6 +72,7 @@
   <string name="cloud_upload_currently_uploading">Uploading. You can check on progress in Notifications</string>
   <string name="cloud_upload_not_yet_uploaded">not yet uploaded</string>
   <string name="cloud_upload_upload_failed">upload failed</string>
+  <string name="cloud_uploader_event_uploading">Uploading: %d%%</string>
   <string name="cloud_uploader_notification_error_message">There was an error uploading %s</string>
   <string name="cloud_uploader_notification_error_ticker">Upload Error</string>
   <string name="cloud_uploader_notification_error_title">Upload Error</string>
