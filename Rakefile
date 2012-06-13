@@ -78,8 +78,15 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
 
       end
 
+      desc "run lolcat with filtering"
       task :lolcat do
         sh "adb #{flag} lolcat -v time #{DEFAULT_LEVELS.join(' ')} *:S"
+      end
+
+      desc "run integration tests"
+      task :test do
+        sh 'adb', [ flag, 'shell', 'am', 'instrument', '-r', '-w',
+                    package.to_s+'.tests/android.test.InstrumentationTestRunner' ]
       end
    end
 end
