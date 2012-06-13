@@ -40,7 +40,7 @@ public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
         solo.enterText(1, InstrumentationHelper.PASSWORD);
 
         solo.clickOnButton("Log In");
-        assertTrue(solo.waitForDialogToClose(15000));
+        waitForDialogToClose(15000);
         assertTrue(solo.waitForText("Stream", 1, 5000));
     }
 
@@ -53,5 +53,12 @@ public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
 
         assertTrue(solo.waitForText("Log In"));
         assertTrue(solo.getCurrentActivity() instanceof Main);
+    }
+
+    private void waitForDialogToClose(long timeout) {
+        if (!solo.waitForDialogToClose(timeout)) {
+            solo.takeScreenshot();
+            throw new AssertionError("dialog did not close");
+        }
     }
 }

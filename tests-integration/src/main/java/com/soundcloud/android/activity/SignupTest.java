@@ -42,14 +42,14 @@ public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
         solo.enterText(2, "password");
 
         solo.clickOnButton("Sign Up");
-        assertTrue(solo.waitForDialogToClose(20000));
+        waitForDialogToClose(20000);
         assertTrue(solo.waitForText("Almost done"));
 
         // username (max 25 characters)
         solo.enterText(0, uuid.substring(0, 24).replace("-", ""));
         solo.clickOnButton("Save");
 
-        assertTrue(solo.waitForDialogToClose(20000));
+        waitForDialogToClose(20000);
 
         // Tour
         assertTrue(solo.waitForText("Welcome to SoundCloud"));
@@ -63,5 +63,12 @@ public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
 
         assertTrue(solo.waitForText("Stream"));
         // TODO assert db state etc is gone
+    }
+
+    private void waitForDialogToClose(long timeout) {
+        if (!solo.waitForDialogToClose(timeout)) {
+            solo.takeScreenshot();
+            throw new AssertionError("dialog did not close");
+        }
     }
 }
