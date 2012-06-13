@@ -58,6 +58,10 @@ public final class InstrumentationHelper {
         }
     }
 
+    public static boolean logOut(Instrumentation instrumentation) throws Exception {
+        return logOut(instrumentation.getTargetContext());
+    }
+
     public static boolean logOut(Context context) throws Exception {
         Account account = getAccount(context);
         if (account != null) {
