@@ -99,6 +99,12 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
       adb['shell', 'am', 'instrument', '-r', '-w', package.to_s+'.tests/android.test.InstrumentationTestRunner']
     end
 
+    desc "runs a single integration test [CLASS=com.soundcloud...]"
+    task :test_single do
+      adb['shell', 'am', 'instrument', '-r', '-w', '-e', 'class', ENV['CLASS'],
+          package.to_s+'.tests/android.test.InstrumentationTestRunner']
+    end
+
     task :anr do
       adb["pull /data/anr/traces.txt"]
     end
@@ -130,7 +136,6 @@ namespace :release do
     end
   end
 end
-
 
 namespace :beta do
   BUCKET = "soundcloud-android-beta"
@@ -208,100 +213,6 @@ namespace :beta do
   end
 end
 
-namespace :c2dm do
-  CL_URL   = URI.parse("https://www.google.com/accounts/ClientLogin")
-  C2DM_URL = URI.parse("https://android.apis.google.com/c2dm/send")
-
-  def login(opts={})
-    raise "You need to set PASSWORD env" if ENV['PASSWORD'].nil?
-    params = {
-        'accountType' => 'HOSTED_OR_GOOGLE',
-        'Email'       => ENV['EMAIL'] || 'android-c2dm@soundcloud.com',
-        'Passwd'      => ENV['PASSWORD'],
-        'service'     => 'ac2dm',
-        'source'      => "SoundCloud-Android-#{versionName}"
-    }.merge(opts)
-    http = Net::HTTP.new(CL_URL.host, CL_URL.port)
-    http.use_ssl = true
-    req = Net::HTTP::Post.new(CL_URL.path)
-    req.set_form_data(params)
-    resp = http.start do |h|
-      h.request(req)
-    end
-    case resp
-      when Net::HTTPSuccess
-        Hash[resp.body.split(/\n/).map {|l| l.split('=', 2) }]
-      when Net::HTTPForbidden
-        STDERR.puts "Forbidden (403)"
-        keys = Hash[resp.body.split(/\n/).map {|l| l.split('=', 2) }]
-        if keys['Error'] == 'CaptchaRequired'
-          STDERR.puts "captcha required, enter below and hit enter"
-          url = keys['CaptchaUrl']
-          sh "open https://www.google.com/accounts/" + url
-          c = STDIN.readline.strip
-          login('logintoken'=>keys['CaptchaToken'], 'logincaptcha'=>c)
-        end
-    else
-      STDERR.puts "Error logging in: #{resp.inspect}"
-      nil
-    end
-  end
-
-
-
-  desc "get a client login token (PASSWORD=)"
-  task :login do
-    if !File.exists?(c2dm_credentials) && tokens = login
-      File.open(c2dm_credentials, 'w') do |f|
-        f.puts "export TOKEN="+ tokens['Auth']
-      end
-    end
-  end
-
-  def post(reg_id, data={}, collapse_key='key', opts={})
-    raise "need reg_id" if reg_id.nil?
-
-    params = {
-      'registration_id' => reg_id,
-      'collapse_key'    => collapse_key,
-    }.merge(opts)
-    data.each do |k, v|
-      params["data.#{k}"] = v
-    end
-
-    http = Net::HTTP.new(C2DM_URL.host, C2DM_URL.port)
-    http.use_ssl = true
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    req = Net::HTTP::Post.new(C2DM_URL.path, {
-      'Authorization' => "GoogleLogin auth=#{ENV['TOKEN']}"
-    })
-    req.set_form_data(params)
-
-    resp = http.start do |h|
-      h.request(req)
-    end
-    case resp
-      when Net::HTTPSuccess
-        Hash[*resp.body.strip.split("=", 2)]
-     when Net::HTTPUnauthorized
-        STDERR.puts "unauthorized: #{resp.inspect}"
-        nil
-     when Net::HTTPServiceUnavailable
-        STDERR.puts "service unavailable: #{resp.inspect}"
-        nil
-     else
-        STDERR.puts "unexpected response: #{resp.inspect}"
-        nil
-     end
-  end
-
-  desc "post a message (REG_ID=)"
-  task :post => c2dm_credentials do
-    ENV['TOKEN'] = IO.read(c2dm_credentials)[/\Aexport TOKEN=(.+)$/, 1]
-    puts post(ENV['REG_ID'], 'event_type' => 'like')
-  end
-end
-
 namespace :lol do
   STRINGS = "app/res/values/strings_lolcatlizr.xml"
 
@@ -334,67 +245,4 @@ namespace :keyhash do
      sh "keytool -exportcert -alias '#{config[:alias]}' -keystore #{config[:keystore]} | openssl sha1 -binary | openssl base64"
     end
   end
-end
-
-namespace :doc do
-  desc "Render markdown as if it were shown on github, expects FILE=path/to/doc.md"
-  task :preview do
-    infile = File.expand_path(ENV['FILE'].to_s)
-    outfile = "/tmp/#{File.basename(infile)}.html"
-    revision = `git rev-parse HEAD`.strip
-    markdown = `which markdown`.strip
-
-    unless $?.success?
-      puts "Make sure you have 'markdown' in your path, usage: brew install markdown"
-      exit 1
-    end
-
-    unless File.exists?(infile)
-      puts "Cannot find FILE=#{ENV['FILE'].inspect}, usage: rake soundcloud:doc:preview FILE=doc/hello.md"
-      exit 2
-    end
-
-    File.open(outfile, "w") do |out|
-      body = `#{markdown} #{infile}`
-      template = <<-END
-        <html>
-          <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-          <meta http-equiv="X-UA-Compatible" content="chrome=1">
-          <head>
-            <link href="https://assets0.github.com/stylesheets/bundle_common.css?#{revision}" media="screen" rel="stylesheet" type="text/css" />
-            <link href="https://assets3.github.com/stylesheets/bundle_github.css?#{revision}" media="screen" rel="stylesheet" type="text/css" />
-          </head>
-          <body>
-            <div id="readme" class="blob">
-              <div class="wikistyle">
-                #{body}
-              </div>
-            </div>
-          </body>
-        </html>
-      END
-      out.write(template)
-    end
-
-    puts "Launching: open #{outfile}"
-    system("open #{outfile}")
-  end
-
-  desc "spellchecks the file (FILE=doc/file.md)"
-  task :spellcheck do
-    aspell = `which aspell`.strip
-    infile = File.expand_path(ENV['FILE'].to_s)
-
-    unless $?.success?
-      puts "Make sure you have 'apsell' in your path, usage: brew install aspell --lang=en"
-      exit 1
-    end
-
-    unless File.exists?(infile)
-      puts "Cannot find FILE=#{ENV['FILE'].inspect}, usage: rake doc:spellcheck FILE=doc/hello.md"
-      exit 2
-    end
-    sh aspell, "--mode", "html", "--dont-backup", "check", infile
-  end
-
 end
