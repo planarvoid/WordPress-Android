@@ -48,7 +48,7 @@ object AndroidBuild extends Build {
   )
 
   val integrationTestDependencies = Seq(
-    "com.jayway.android.robotium" % "robotium-solo" % "3.2" % "int,compile",
+    "com.jayway.android.robotium" % "robotium-solo" % "3.3" % "int,compile",
     junit_interface
   )
 

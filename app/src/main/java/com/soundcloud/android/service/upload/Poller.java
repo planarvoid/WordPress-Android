@@ -2,6 +2,7 @@ package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.api.Endpoints;
@@ -9,6 +10,7 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -22,7 +24,7 @@ public class Poller extends Handler {
     private static final long DEFAULT_MIN_TIME_BETWEEN_REQUESTS = 5000;
     private static final long DEFAULT_MAX_TRIES = 10;
 
-    private SoundCloudApplication mApp;
+    private AndroidCloudAPI mApp;
     private Request mRequest;
     private Uri mNotifyUri;
     private long mFirstAttempt;
@@ -30,11 +32,11 @@ public class Poller extends Handler {
     private long mMinDelayBetweenRequests;
     private long mMaxExecutionTime;
 
-    public Poller(Looper looper, SoundCloudApplication app, long trackId, Uri notifyUri) {
+    public Poller(Looper looper, AndroidCloudAPI app, long trackId, Uri notifyUri) {
         this(looper, app, trackId, notifyUri, DEFAULT_MIN_TIME_BETWEEN_REQUESTS, DEFAULT_MAX_EXECUTION_TIME);
     }
 
-    public Poller(Looper looper, SoundCloudApplication app,
+    public Poller(Looper looper, AndroidCloudAPI app,
                   long trackId,
                   Uri notifyUri,
                   long delayBetweenRequests,
@@ -91,10 +93,12 @@ public class Poller extends Handler {
 
     private void onTrackProcessed(Track track) {
         // local storage should reflect full track info
-        track.commitLocally(mApp.getContentResolver(), SoundCloudApplication.TRACK_CACHE);
+        ContentResolver resolver = mApp.getContext().getContentResolver();
+
+        track.commitLocally(resolver, SoundCloudApplication.TRACK_CACHE);
 
         // this will tell any observers to update their UIs to the up to date track
-        if (mNotifyUri != null) mApp.getContentResolver().notifyChange(mNotifyUri, null, false);
+        if (mNotifyUri != null) resolver.notifyChange(mNotifyUri, null, false);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Track succesfully prepared by the api: " + track);

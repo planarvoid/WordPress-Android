@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity.auth;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -7,6 +9,8 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -73,10 +77,14 @@ public abstract class AbstractLoginActivity extends Activity {
 
             @Override
             protected void onPostExecute(final Token token) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+token+")");
+
                 if (token != null) {
                     new FetchUserTask(app) {
                         @Override
                         protected void onPostExecute(User user) {
+                            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "GetTokensTask#onPostExecute("+user+")");
+
                             if (user != null) {
                                 dismissDialog(progress);
                                 setResult(RESULT_OK,

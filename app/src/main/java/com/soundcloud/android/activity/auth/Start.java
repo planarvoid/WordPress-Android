@@ -30,13 +30,6 @@ public class Start extends AccountAuthenticatorActivity {
     public static final String FB_CONNECTED_EXTRA = "facebook_connected";
     private final Handler mHandler = new Handler();
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        ((SoundCloudApplication)getApplication()).track(Page.Entry_main);
-    }
-
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -97,6 +90,11 @@ public class Start extends AccountAuthenticatorActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ((SoundCloudApplication)getApplication()).track(Page.Entry_main);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

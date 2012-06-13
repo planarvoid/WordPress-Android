@@ -56,8 +56,11 @@ public interface AndroidCloudAPI extends CloudAPI {
     URI REDIRECT_URI = URI.create("soundcloud://auth");
 
     String getUserAgent();
+
     Env getEnv();
+
     ObjectMapper getMapper();
+
     Context getContext();
 
     @SuppressLint("NewApi")
