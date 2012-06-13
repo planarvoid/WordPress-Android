@@ -15,6 +15,7 @@ import com.soundcloud.api.Token;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.util.Log;
 
 public final class InstrumentationHelper {
@@ -24,7 +25,6 @@ public final class InstrumentationHelper {
     private InstrumentationHelper() {}
     private static final String TAG = InstrumentationHelper.class.getSimpleName();
 
-
     public static void loginAsDefault(final Instrumentation instrumentation) throws Exception {
         loginAs(instrumentation, USERNAME, PASSWORD);
     }
@@ -33,12 +33,16 @@ public final class InstrumentationHelper {
                                final String username,
                                final String password) throws Exception {
 
-        SoundCloudApplication app = getAppFromInstrumentation(instrumentation);
+        // TODO avoid creating app instances here, conflicts with instrumented app
+        SoundCloudApplication app = (SoundCloudApplication) Instrumentation.newApplication(
+                SoundCloudApplication.class,
+                instrumentation.getTargetContext());
+        app.onCreate();
 
-        final Account account = app.getAccount();
+        final Account account = getAccount(instrumentation.getTargetContext());
         if (account != null && !account.name.equals(username)) {
             Log.d(TAG, "clearing account and logging in again");
-            if (logOut(instrumentation)) {
+            if (logOut(instrumentation.getTargetContext())) {
                 loginAs(instrumentation, username, password);
             } else {
                 throw new RuntimeException("Could not log out");
@@ -54,27 +58,25 @@ public final class InstrumentationHelper {
         }
     }
 
-    public static boolean logOut(final Instrumentation instrumentation) throws Exception {
-        SoundCloudApplication app = getAppFromInstrumentation(instrumentation);
-
-        AccountManager am = AccountManager.get(instrumentation.getTargetContext());
-        Account[] accounts = am.getAccountsByType(instrumentation.getTargetContext().getString(R.string.account_type));
-        if (accounts.length > 0) {
-            for (Account a : accounts) {
-                assertTrue(am.removeAccount(a, null, null).getResult());
-                app.onAccountRemoved(a);
-            }
+    public static boolean logOut(Context context) throws Exception {
+        Account account = getAccount(context);
+        if (account != null) {
+            assertTrue(AccountManager.get(context).removeAccount(account, null, null).getResult());
             return true;
         } else {
             return false;
         }
     }
 
-    public static SoundCloudApplication getAppFromInstrumentation(Instrumentation instrumentation) throws Exception {
-        SoundCloudApplication app = (SoundCloudApplication) Instrumentation.newApplication(
-                SoundCloudApplication.class,
-                instrumentation.getTargetContext());
-        app.onCreate();
-        return app;
+    public static Account getAccount(Context context) {
+        AccountManager am = AccountManager.get(context);
+        Account[] accounts = am.getAccountsByType(context.getString(R.string.account_type));
+        if (accounts.length == 0) {
+            return null;
+        } else if (accounts.length == 1) {
+            return accounts[0];
+        } else {
+            throw new AssertionError("More than one account found");
+        }
     }
 }
