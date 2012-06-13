@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
               android:background="@drawable/bg_rec"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
               android:orientation="vertical">
+
     <ScrollView android:id="@+id/ScrollView01"
                 android:layout_weight="1"
                 android:layout_height="0dp"
@@ -46,31 +48,60 @@
                                 android:layout_below="@id/icon"
                                 android:layout_marginTop="10dip"
                                 android:layout_marginBottom="10dip">
-                    <TextView android:id="@+id/progress_txt"
-                              android:layout_alignParentTop="true"
-                              android:layout_alignParentLeft="true"
-                              android:layout_toLeftOf="@+id/close_icon"
-                              android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              style="@style/txt_list_main"
-                              android:gravity="center_vertical"
-                              android:textStyle="normal"
-                              android:singleLine="true"
-                              android:text="@string/share_uploading"/>
-                    <ProgressBar android:id="@+id/progress_bar"
-                                 android:layout_marginTop="5dip"
-                                 android:layout_marginBottom="5dip"
-                                 android:layout_below="@id/progress_txt"
-                                 android:layout_alignParentLeft="true"
-                                 android:layout_toLeftOf="@+id/close_icon"
-                                 android:layout_width="0dp"
-                                 android:layout_height="wrap_content"
-                                 android:layout_margin="10dip"
-                                 android:indeterminate="false"
-                                 style="@style/ScProgressBarRound"/>
+
+                    <LinearLayout android:id="@+id/progress_layout"
+                                  android:layout_width="fill_parent"
+                                  android:layout_height="wrap_content"
+                                  android:layout_marginTop="10dip"
+                                  android:layout_marginBottom="10dip"
+                                  android:layout_alignParentLeft="true"
+                                  android:layout_marginRight="10dp"
+                                  android:layout_toLeftOf="@+id/close_icon"
+                                  android:baselineAligned="false">
+                        <LinearLayout android:layout_width="0dp"
+                                      android:layout_weight="1"
+                                      android:layout_height="wrap_content"
+                                      android:orientation="vertical">
+                            <TextView android:id="@+id/txt_progress_processing"
+                                      android:layout_marginBottom="5dp"
+                                      android:layout_width="fill_parent"
+                                      android:layout_height="wrap_content"
+                                      android:layout_marginLeft="10dp"
+                                      style="@style/txt_upload_monitor_events"
+                                      android:gravity="center_vertical"
+                                      android:textStyle="normal"
+                                      android:singleLine="true"
+                                      android:text="@string/uploader_event_processing"/>
+                            <ProgressBar android:id="@+id/progress_bar_processing"
+                                         android:layout_height="wrap_content"
+                                         android:layout_width="fill_parent"
+                                         android:indeterminate="false"
+                                         style="@style/ScProgressBarRoundLeft"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp"
+                                      android:layout_weight="1"
+                                      android:layout_height="wrap_content"
+                                      android:orientation="vertical">
+                            <TextView android:id="@+id/txt_progress_uploading"
+                                      android:layout_width="fill_parent"
+                                      android:layout_height="wrap_content"
+                                      android:layout_marginLeft="5dp"
+                                      android:layout_marginBottom="5dp"
+                                      style="@style/txt_upload_monitor_events_inactive"
+                                      android:gravity="center_vertical"
+                                      android:textStyle="normal"
+                                      android:singleLine="true"
+                                      android:text="@string/uploader_event_not_yet_uploading"/>
+                            <ProgressBar android:id="@+id/progress_bar_uploading"
+                                         android:layout_width="fill_parent"
+                                         android:layout_height="wrap_content"
+                                         android:indeterminate="false"
+                                         style="@style/ScProgressBarRoundRight"/>
+                        </LinearLayout>
+                    </LinearLayout>
                     <ImageView android:id="@+id/close_icon"
                                android:layout_alignParentRight="true"
-                               android:layout_alignBottom="@id/progress_bar"
+                               android:layout_alignBottom="@id/progress_layout"
                                android:src="@drawable/rec_close"
                                android:scaleType="center"
                                android:layout_width="wrap_content"
@@ -99,43 +130,10 @@
                               android:text="@string/share_success_message"/>
                 </RelativeLayout>
             </RelativeLayout>
-            <View android:layout_width="fill_parent"
-                  android:layout_below="@id/track_info_holder" android:layout_height="5dip"
-                  android:background="@drawable/drop_shadow_down"/>
         </RelativeLayout>
     </ScrollView>
-    <RelativeLayout android:id="@+id/control_layout"
-                    android:layout_width="fill_parent"
-                    android:background="@color/playerControlAlphaBackground"
-                    android:layout_height="wrap_content">
-
-        <LinearLayout android:paddingBottom="5dip"
-                      android:orientation="horizontal"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      android:paddingTop="5dip"
-                      android:layout_marginTop="5dip">
-
-            <Button android:id="@+id/btn_cancel"
-                    android:text="@android:string/cancel"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginRight="15dip"
-                    android:layout_height="fill_parent"/>
-
-            <Button android:id="@+id/btn_retry"
-                    android:text="@string/share_retry_upload"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_marginLeft="15dip"
-                    android:layout_marginRight="10dip"
-                    android:layout_height="fill_parent"/>
-        </LinearLayout>
-
-        <View android:layout_width="fill_parent"
-              android:layout_height="5dip"
-              android:background="@drawable/drop_shadow_down"/>
-
-    </RelativeLayout>
+    <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
+                                           style="@style/rec_button_bar"
+                                           app:button_background="@drawable/btn_transparent_bg_states"
+                                           app:separator_color="@color/recButtonBarSeparator"/>
 </LinearLayout>

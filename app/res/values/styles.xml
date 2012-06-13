@@ -309,6 +309,15 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="txt_upload_monitor_events">
+        <item name="android:textColor">#ff000000</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="txt_upload_monitor_events_inactive" parent="txt_upload_monitor_events">
+        <item name="android:textColor">#ff9e9e9e</item>
+    </style>
+
     <style name="txt_player_time">
         <item name="android:textColor">@android:color/black</item>
         <item name="android:textSize">@dimen/player_time_text_size</item>
@@ -452,6 +461,12 @@
         <item name="android:maxWidth">76dip</item>
         <item name="android:progressDrawable">@drawable/progress_bar_round</item>
         <item name="android:indeterminateDrawable">@drawable/progress_indeterminate_horizontal</item>
+    </style>
+    <style name="ScProgressBarRoundLeft" parent="ScProgressBarRound">
+        <item name="android:background">@drawable/progress_bar_round_bg_left</item>
+    </style>
+    <style name="ScProgressBarRoundRight" parent="ScProgressBarRound">
+        <item name="android:background">@drawable/progress_bar_round_bg_right</item>
     </style>
 
     <style name="ScSeekBarRound" parent="ScProgressBarRound">

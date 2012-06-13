@@ -384,11 +384,11 @@ public class UploadService extends Service {
         n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
         if (PROCESSING_STARTED.equals(action)) {
-            updateProcessingProgress(n, R.string.cloud_uploader_event_processing, 0);
-            updateProcessingProgress(n, R.string.cloud_upload_not_yet_uploaded, -1);
+            updateProcessingProgress(n, R.string.uploader_event_processing_percent, -1);
+            updateProcessingProgress(n, R.string.uploader_event_not_yet_uploading, 0);
         } else if (TRANSFER_STARTED.equals(action)) {
-            updateProcessingProgress(n, R.string.cloud_uploader_event_processing_finished, 100);
-            updateUploadingProgress(n, R.string.cloud_uploader_event_uploading, -1);
+            updateProcessingProgress(n, R.string.uploader_event_processing_finished, 100);
+            updateUploadingProgress(n, R.string.uploader_event_uploading_percent, -1);
         }
 
         if (Consts.SdkSwitches.useRichNotifications && recording.hasArtwork()){

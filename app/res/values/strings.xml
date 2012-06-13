@@ -31,13 +31,18 @@
     <string name="sound_processed_error">Error processing sound: %s</string>
     <string name="sound_processed_pick_app">Pick app to process sound</string>
 
-    <string name="cloud_uploader_event_processing_finished">Encoding finished</string>
-    <string name="cloud_uploader_event_uploading_finished">Uploading finished</string>
+    <string name="uploader_event_processing">Processing</string>
+    <string name="uploader_event_processing_percent">Processing: %d%%</string>
+    <string name="uploader_event_not_yet_uploading">Not yet uploading</string>
+    <string name="uploader_event_uploading">Uploading</string>
+    <string name="uploader_event_uploading_percent">Uploading: %d%%</string>
 
-    <string name="cloud_uploader_notification_ticker_processing">Processing Started</string>
-    <string name="cloud_uploader_notification_ticker">Upload Started</string>
-    <string name="cloud_uploader_event_processing_failed">Processing failed</string>
-    <string name="cloud_uploader_event_uploading_failed">Uploading failed</string>
+    <string name="uploader_event_processing_failed">Processing failed</string>
+    <string name="uploader_event_uploading_failed">Uploading failed</string>
+    <string name="uploader_event_processing_finished">Processing finished</string>
+    <string name="uploader_event_uploading_finished">Uploading finished</string>
+
+    <string name="btn_share_cancel">Cancel</string>
 
     <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
 

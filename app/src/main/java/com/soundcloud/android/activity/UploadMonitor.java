@@ -1,9 +1,16 @@
 package com.soundcloud.android.activity;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.service.upload.Poller;
 import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.view.ButtonBar;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -12,6 +19,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -21,33 +29,37 @@ import android.widget.TextView;
 public class UploadMonitor extends Activity {
     private Recording mUpload;
 
-    private ProgressBar mProgressBar;
+    private ProgressBar mProgressBarProcessing;
+    private ProgressBar mProgressBarUploading;
     private RelativeLayout mUploadingLayout;
     private RelativeLayout mFinishedLayout;
-    private RelativeLayout mControlLayout;
-    private TextView mProgressText;
+    private ButtonBar mButtonBar;
+
+    private TextView mProgressProcessingText;
+    private TextView mProgressUploadingText;
     private TextView mTrackTitle;
-    private boolean mProgressModeEncoding;
     private final Handler mHandler = new Handler();
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.upload_monitor);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mUploadStatusListener,
-                UploadService.getIntentFilter());
-
         mUploadingLayout = (RelativeLayout) findViewById(R.id.uploading_layout);
         mFinishedLayout = (RelativeLayout) findViewById(R.id.finished_layout);
-        mControlLayout = (RelativeLayout) findViewById(R.id.control_layout);
+        mButtonBar = (ButtonBar) findViewById(R.id.bottom_bar);
 
         mFinishedLayout.setVisibility(View.GONE);
-        mControlLayout.setVisibility(View.GONE);
+        mButtonBar.setVisibility(View.GONE);
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        mProgressBar.setMax(100);
+        mProgressBarProcessing = (ProgressBar) findViewById(R.id.progress_bar_processing);
+        mProgressBarProcessing.setMax(100);
 
-        mProgressText = (TextView) findViewById(R.id.progress_txt);
+        mProgressBarUploading = (ProgressBar) findViewById(R.id.progress_bar_uploading);
+        mProgressBarUploading.setMax(100);
+
+        mProgressProcessingText = (TextView) findViewById(R.id.txt_progress_processing);
+        mProgressUploadingText = (TextView) findViewById(R.id.txt_progress_uploading);
+
         mTrackTitle = (TextView) findViewById(R.id.track);
 
         findViewById(R.id.close_icon).setOnClickListener(new View.OnClickListener() {
@@ -57,23 +69,27 @@ public class UploadMonitor extends Activity {
             }
         });
 
-        findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+        mButtonBar.addItem(new ButtonBar.MenuItem(0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
-        });
+        }), R.string.btn_share_cancel);
 
-        findViewById(R.id.btn_retry).setOnClickListener(new View.OnClickListener() {
+        mButtonBar.addItem(new ButtonBar.MenuItem(0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mControlLayout.setVisibility(View.GONE);
+                mButtonBar.setVisibility(View.GONE);
                 mUpload.upload(UploadMonitor.this);
             }
-        });
+        }), R.string.btn_share_cancel);
+
 
         mUpload = getIntent().getParcelableExtra(UploadService.EXTRA_RECORDING);
         fillDataFromUpload(mUpload);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mUploadStatusListener,
+                        UploadService.getIntentFilter());
     }
 
     @Override
@@ -83,7 +99,7 @@ public class UploadMonitor extends Activity {
     }
 
     private void fillDataFromUpload(final Recording upload) {
-        mTrackTitle.setText(upload.title);
+        mTrackTitle.setText(upload.sharingNote(getResources()));
         if (upload.artwork_path != null) {
             ImageUtils.setImage(upload.artwork_path, ((ImageView) findViewById(R.id.icon)),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_width),
@@ -94,6 +110,8 @@ public class UploadMonitor extends Activity {
             onUploadFinished(true);
         } else if (upload.isError()) {
             onUploadFinished(false);
+        } else {
+            onProcessing(); // indeterminate state, wait for broadcasts
         }
     }
 
@@ -104,30 +122,64 @@ public class UploadMonitor extends Activity {
             if (!mUpload.equals(recording)) return;
 
             String action = intent.getAction();
-            if (UploadService.TRANSFER_STARTED.equals(action)) {
-                // from a retry
-                mUploadingLayout.setVisibility(View.VISIBLE);
-                mFinishedLayout.setVisibility(View.GONE);
-                mProgressBar.setProgress(0);
-            } else if (UploadService.TRANSFER_PROGRESS.equals(action)) {
-                mProgressBar.setProgress(intent.getIntExtra(UploadService.EXTRA_PROGRESS, 0));
+            final int progress = intent.getIntExtra(UploadService.EXTRA_PROGRESS, 0);
 
-                if (!mProgressModeEncoding && intent.hasExtra("encoding")) {
-                    mProgressModeEncoding = true;
-                    mProgressText.setText(R.string.share_encoding);
-                } else if (mProgressModeEncoding && !intent.hasExtra("encoding")) {
-                    mProgressModeEncoding = false;
-                    mProgressText.setText(R.string.share_uploading);
-                }
+            if (UploadService.PROCESSING_STARTED.equals(action)) {
+                onProcessing();
+
+            } else if (UploadService.PROCESSING_PROGRESS.equals(action)) {
+                mProgressBarProcessing.setProgress(progress);
+                mProgressBarUploading.setProgress(0);
+
+                mProgressProcessingText.setText(getString(R.string.uploader_event_processing_percent, progress));
+                mProgressUploadingText.setText(R.string.uploader_event_not_yet_uploading);
+
+            } else if (UploadService.PROCESSING_SUCCESS.equals(action)) {
+                mProgressBarProcessing.setProgress(100);
+                mProgressBarUploading.setProgress(0);
+
+                mProgressProcessingText.setText(R.string.uploader_event_processing_finished);
+                mProgressUploadingText.setText(R.string.uploader_event_not_yet_uploading);
+
+            } else if (UploadService.PROCESSING_ERROR.equals(action)) {
+                onUploadFinished(false);
+
+            } else if (UploadService.TRANSFER_STARTED.equals(action)) {
+                mProgressBarProcessing.setProgress(100);
+                mProgressBarUploading.setProgress(0);
+
+                mProgressProcessingText.setText(R.string.uploader_event_processing_failed);
+                mProgressUploadingText.setText(R.string.uploader_event_not_yet_uploading);
+
+            } else if (UploadService.TRANSFER_PROGRESS.equals(action)) {
+                mProgressBarProcessing.setProgress(100);
+                mProgressBarUploading.setProgress(progress);
+
+                mProgressProcessingText.setText(R.string.uploader_event_processing_finished);
+                mProgressUploadingText.setText(getString(R.string.uploader_event_uploading_percent, progress));
+
             } else if (UploadService.TRANSFER_SUCCESS.equals(action)) {
                 onUploadFinished(true);
+
             } else if (UploadService.TRANSFER_ERROR.equals(action)) {
                 onUploadFinished(false);
+
             } else if (UploadService.TRANSFER_CANCELLED.equals(action)) {
                 finish();
             }
         }
     };
+
+    private void onProcessing() {
+        mUploadingLayout.setVisibility(View.VISIBLE);
+        mFinishedLayout.setVisibility(View.GONE);
+
+        mProgressBarProcessing.setIndeterminate(true);
+        mProgressBarUploading.setProgress(0);
+
+        mProgressProcessingText.setText(R.string.uploader_event_processing);
+        mProgressUploadingText.setText(R.string.uploader_event_not_yet_uploading);
+    }
 
     private void onUploadFinished(boolean success) {
         mUploadingLayout.setVisibility(View.GONE);
@@ -146,7 +198,7 @@ public class UploadMonitor extends Activity {
         } else {
             ((ImageView) findViewById(R.id.result_icon)).setImageResource(R.drawable.fail);
             ((TextView) findViewById(R.id.result_message)).setText(R.string.share_fail_message);
-            mControlLayout.setVisibility(View.VISIBLE);
+            mButtonBar.setVisibility(View.VISIBLE);
         }
     }
 }
