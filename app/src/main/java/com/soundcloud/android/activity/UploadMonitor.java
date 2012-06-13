@@ -74,15 +74,15 @@ public class UploadMonitor extends Activity {
             public void onClick(View v) {
                 finish();
             }
-        }), R.string.btn_share_cancel);
+        }), R.string.cancel);
 
         mButtonBar.addItem(new ButtonBar.MenuItem(0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mButtonBar.setVisibility(View.GONE);
+                onProcessing();
                 mUpload.upload(UploadMonitor.this);
             }
-        }), R.string.btn_share_cancel);
+        }), R.string.retry);
 
 
         mUpload = getIntent().getParcelableExtra(UploadService.EXTRA_RECORDING);
@@ -105,7 +105,6 @@ public class UploadMonitor extends Activity {
                     (int) getResources().getDimension(R.dimen.share_progress_icon_width),
                     (int) getResources().getDimension(R.dimen.share_progress_icon_height));
         }
-
         if (upload.isUploaded()) {
             onUploadFinished(true);
         } else if (upload.isError()) {

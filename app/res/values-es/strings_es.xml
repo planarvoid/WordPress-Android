@@ -69,8 +69,6 @@
   <string name="cloud_upload_currently_uploading">Subida en curso. Puede comprobar el progreso en Avisos</string>
   <string name="cloud_upload_not_yet_uploaded">Aún no se ha subido</string>
   <string name="cloud_upload_upload_failed">fallo en la subida</string>
-  <string name="cloud_uploader_event_processing">Codificando: %d\%%%</string>
-  <string name="cloud_uploader_event_uploading">Subiendo: %d\%%%</string>
   <string name="cloud_uploader_notification_error_message">Ocurrió un error al subir %s</string>
   <string name="cloud_uploader_notification_error_ticker">Error en la subida</string>
   <string name="cloud_uploader_notification_error_title">Error en la subida</string>

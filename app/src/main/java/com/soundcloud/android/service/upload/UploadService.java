@@ -235,7 +235,7 @@ public class UploadService extends Service {
                 sendNotification(recording,
                         updateProcessingProgress(
                                 getOngoingNotification(recording),
-                                R.string.cloud_uploader_event_processing,
+                                R.string.uploader_event_processing,
                                 intent.getIntExtra(EXTRA_PROGRESS, 0)
                         )
                 );
@@ -254,7 +254,7 @@ public class UploadService extends Service {
                 sendNotification(recording,
                         updateUploadingProgress(
                                 getOngoingNotification(recording),
-                                R.string.cloud_uploader_event_uploading,
+                                R.string.uploader_event_uploading,
                                 intent.getIntExtra(EXTRA_PROGRESS, 0)
                         )
                 );
@@ -407,20 +407,26 @@ public class UploadService extends Service {
         final CharSequence title;
         final CharSequence message;
         final CharSequence tickerText;
+
+        PendingIntent contentIntent;
         if (recording.isUploaded()) {
             title  = getString(R.string.cloud_uploader_notification_finished_title);
             message = getString(R.string.cloud_uploader_notification_finished_message, recording.title);
             tickerText = getString(R.string.cloud_uploader_notification_finished_ticker);
+            contentIntent = PendingIntent.getActivity(this, 0,
+                    new Intent(Actions.MY_PROFILE).putExtra("userBrowserTag", UserBrowser.Tab.tracks),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
         } else if (!recording.isCanceled()) {
             title = getString(R.string.cloud_uploader_notification_error_title);
             message = getString(R.string.cloud_uploader_notification_error_message, recording.title);
             tickerText = getString(R.string.cloud_uploader_notification_error_ticker);
+            contentIntent = PendingIntent.getActivity(this, 0, recording.getMonitorIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
+
         } else { // upload canceled, don't notify
             return null;
         }
 
-        Intent userTracks = (new Intent(Actions.MY_PROFILE).putExtra("userBrowserTag", UserBrowser.Tab.tracks));
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, userTracks, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = new Notification(R.drawable.ic_notification_cloud, tickerText, System.currentTimeMillis());
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
         notification.setLatestEventInfo(this,title ,message , contentIntent);

@@ -42,7 +42,8 @@
     <string name="uploader_event_processing_finished">Processing finished</string>
     <string name="uploader_event_uploading_finished">Uploading finished</string>
 
-    <string name="btn_share_cancel">Cancel</string>
+    <string name="cancel">Cancel</string>
+    <string name="retry">Retry</string>
 
     <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
 

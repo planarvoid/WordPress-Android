@@ -431,7 +431,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public boolean isError() {
-        return mUploadException != null;
+        return upload_status == Status.ERROR;
     }
 
     /**
