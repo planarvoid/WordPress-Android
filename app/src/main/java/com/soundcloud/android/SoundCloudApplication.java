@@ -100,7 +100,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     @Override
     public void onCreate() {
         super.onCreate();
-        instance = this;
         DEV_MODE = isDevMode();
         BETA_MODE = isBetaMode();
         API_PRODUCTION = isProductionApi();
@@ -109,11 +108,11 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
             Log.d(TAG, String.format("DEV_MODE: %s BETA_MODE: %s API_PRODUCTION: %s",
                     DEV_MODE, BETA_MODE, API_PRODUCTION));
         }
-
         if (DALVIK && !EMULATOR && instance == null) {
             ACRA.init(this); // don't use ACRA when running unit tests / emulator
             mTracker = new ATTracker(this);
         }
+        instance = this;
 
         IOUtils.checkState(this);
 
