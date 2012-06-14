@@ -473,8 +473,7 @@ public final class ImageUtils {
                         @Override
                         public void onClick(DialogInterface dialog, int whichButton) {
                             onExistingImage();
-                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                            intent.setType("image/*");
+                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
                             try {
                                 mActivity.startActivityForResult(intent, Consts.RequestCodes.GALLERY_IMAGE_PICK);
                             } catch (ActivityNotFoundException e) {

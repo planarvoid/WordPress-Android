@@ -1,13 +1,13 @@
 package com.soundcloud.android.activity;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.auth.SignupDetails;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.FlakyTest;
-import android.test.suitebuilder.annotation.Suppress;
 
+import java.io.File;
 import java.util.UUID;
 
 public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
@@ -63,6 +63,36 @@ public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
         solo.clickOnButtonResId(R.string.btn_done);
 
         solo.assertText(R.string.tab_stream);
+    }
+
+    public void testSignupWithPhoto() throws Exception {
+        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.assertText(R.string.authentication_sign_up);
+
+        solo.clearEditText(0);
+        String uuid = UUID.randomUUID().toString();
+        solo.enterText(0, "someemail-"+uuid+"@example.com");
+        solo.enterText(1, "password");
+        solo.enterText(2, "password");
+
+        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.assertDialogClosed();
+        solo.assertText(R.string.authentication_add_info_msg);
+
+        solo.clickOnText(R.string.add_image);
+        solo.assertText(R.string.image_where); // How would you like to add an image?
+
+        solo.clickOnText(R.string.take_new_picture);
+
+        // FakeCamera will provide an image
+        solo.sleep(1000);
+
+        // make sure add image prompt is gone
+        assertFalse(solo.searchText(solo.getString(R.string.add_image), true));
+
+        // clear image
+        solo.clickLongOnView(R.id.artwork);
+        solo.assertText(R.string.add_image);
     }
 
     public void testSignupWithNonMatchingPasswords() throws Exception {

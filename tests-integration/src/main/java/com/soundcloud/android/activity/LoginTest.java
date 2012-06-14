@@ -52,7 +52,7 @@ public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
         solo.assertActivity(FacebookWebFlow.class);
 
         WebView webView = ((FacebookWebFlow) solo.getCurrentActivity()).getWebView();
-        assertTrue(webView.getUrl().startsWith("http://m.facebook.com/login.php"));
+        assertTrue("got url:"+webView.getUrl(), webView.getUrl().startsWith("http://m.facebook.com/login.php"));
         assertEquals("Facebook", webView.getTitle());
     }
 

@@ -38,6 +38,11 @@ public class Han extends Solo {
         clickOnView(getCurrentActivity().findViewById(resId));
     }
 
+    public void clickLongOnView(int resId) {
+        clickLongOnView(getCurrentActivity().findViewById(resId));
+    }
+
+
     public void clickOnMenuItem(int resId) {
         clickOnMenuItem(getString(resId));
     }
