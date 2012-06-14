@@ -17,6 +17,7 @@ public class Han extends Solo {
         super(instrumentation, activity);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public Han(Instrumentation instrumentation) {
         super(instrumentation);
     }

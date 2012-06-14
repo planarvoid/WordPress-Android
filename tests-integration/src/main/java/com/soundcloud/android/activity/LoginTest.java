@@ -9,6 +9,7 @@ import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.webkit.WebView;
 
 public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
     private Han solo;
@@ -49,6 +50,10 @@ public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
         solo.clickOnButtonResId(R.string.authentication_log_in_with_facebook);
         solo.assertDialogClosed();
         solo.assertActivity(FacebookWebFlow.class);
+
+        WebView webView = ((FacebookWebFlow) solo.getCurrentActivity()).getWebView();
+        assertTrue(webView.getUrl().startsWith("http://m.facebook.com/login.php"));
+        assertEquals("Facebook", webView.getTitle());
     }
 
     public void testLoginWithWrongCredentials() {
