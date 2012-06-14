@@ -305,7 +305,7 @@ public final class IOUtils {
             while ((n = f.read(buffer)) != -1) {
                 digest.update(buffer, 0, n);
             }
-            return CloudUtils.hexString(digest.digest());
+            return ScTextUtils.hexString(digest.digest());
         } catch (NoSuchAlgorithmException e) {
             Log.e(TAG, "error", e);
             return "";

@@ -17,7 +17,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.ScListView;
 
@@ -87,7 +87,7 @@ public abstract class ScListActivity extends ScActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        CloudUtils.bindToService(this, UploadService.class, uploadOsc);
+        AndroidUtils.bindToService(this, UploadService.class, uploadOsc);
         final long trackId = CloudPlaybackService.getCurrentTrackId();
             if (trackId != -1) {
                 setPlayingTrack(trackId, CloudPlaybackService.getState().isSupposedToBePlaying());
@@ -97,7 +97,7 @@ public abstract class ScListActivity extends ScActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        CloudUtils.unbindFromService(this, UploadService.class);
+        AndroidUtils.unbindFromService(this, UploadService.class);
         mIgnorePlaybackStatus = false;
     }
 

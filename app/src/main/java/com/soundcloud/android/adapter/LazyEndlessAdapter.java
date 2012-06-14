@@ -24,7 +24,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ILazyAdapterTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
@@ -373,18 +373,18 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     }
 
     protected void clearAppendTask() {
-        if (mAppendTask != null && !CloudUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
+        if (mAppendTask != null && !AndroidUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
         mAppendTask = null;
         mPendingView = null;
     }
 
     protected void clearRefreshTask() {
-        if (mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
+        if (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
         mRefreshTask = null;
     }
 
     protected void clearUpdateTask() {
-        if (mUpdateCollectionTask != null && !CloudUtils.isTaskFinished(mUpdateCollectionTask)) mUpdateCollectionTask.cancel(true);
+        if (mUpdateCollectionTask != null && !AndroidUtils.isTaskFinished(mUpdateCollectionTask)) mUpdateCollectionTask.cancel(true);
         mUpdateCollectionTask = null;
     }
 
@@ -403,7 +403,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     }
 
     public boolean isRefreshing() {
-        return mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask);
+        return mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask);
     }
 
     public boolean isEmpty(){

@@ -18,8 +18,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 public class CommentPanel extends RelativeLayout {
 
@@ -154,9 +154,9 @@ public class CommentPanel extends RelativeLayout {
         if (mComment == null) return;
 
         mTxtUsername.setText(mComment.user.username);
-        mTxtTimestamp.setText(String.format(at_timestamp, CloudUtils.formatTimestamp(mComment.timestamp)));
+        mTxtTimestamp.setText(String.format(at_timestamp, ScTextUtils.formatTimestamp(mComment.timestamp)));
         mTxtComment.setText(mComment.body);
-        mTxtElapsed.setText(CloudUtils.getElapsedTimeString(getResources(), mComment.created_at.getTime(), true));
+        mTxtElapsed.setText(ScTextUtils.getElapsedTimeString(getResources(), mComment.created_at.getTime(), true));
         mTxtUsername.setVisibility(View.VISIBLE);
         mTxtTimestamp.setVisibility(View.VISIBLE);
         mTxtElapsed.setVisibility(View.VISIBLE);

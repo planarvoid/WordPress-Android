@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.*;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +11,8 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 public class PlayerTime extends RelativeLayout {
     protected TextView mCurrentTime;
@@ -110,7 +109,7 @@ public class PlayerTime extends RelativeLayout {
     }
 
     public void setCurrentTime(long time, boolean commenting) {
-        mCurrentTime.setText(CloudUtils.formatTimestamp(time));
+        mCurrentTime.setText(ScTextUtils.formatTimestamp(time));
         final RelativeLayout.LayoutParams lp = (LayoutParams) getLayoutParams();
 
         if (this.getParent() == null) return;
@@ -202,7 +201,7 @@ public class PlayerTime extends RelativeLayout {
         requestLayout();
 
         mDuration = time;
-        mTotalTime.setText(CloudUtils.formatTimestamp(time));
+        mTotalTime.setText(ScTextUtils.formatTimestamp(time));
         invalidate();
     }
 }

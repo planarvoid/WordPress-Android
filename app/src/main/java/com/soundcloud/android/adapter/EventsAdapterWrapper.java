@@ -10,7 +10,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.LoadActivitiesTask;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.Request;
 
 import android.content.Intent;
@@ -167,7 +167,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
                     allowInitialLoading();
                     notifyDataSetChanged();
                 }
-                if (CloudUtils.isTaskFinished(mRefreshTask)) doneRefreshing(); // no refresh task so no need to show the refresh header
+                if (AndroidUtils.isTaskFinished(mRefreshTask)) doneRefreshing(); // no refresh task so no need to show the refresh header
                 break;
             }
             case ApiSyncService.STATUS_APPEND_ERROR:

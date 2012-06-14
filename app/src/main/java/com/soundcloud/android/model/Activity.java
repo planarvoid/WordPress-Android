@@ -9,7 +9,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -87,7 +87,7 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
 
     @Override
     public void refreshTimeSinceCreated(Context context) {
-        _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
+        _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
     }
 
     public Comment getComment() {

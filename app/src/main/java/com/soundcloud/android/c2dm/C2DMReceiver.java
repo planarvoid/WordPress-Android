@@ -7,7 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.sync.SyncAdapterService;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
@@ -175,7 +175,7 @@ public class C2DMReceiver extends BroadcastReceiver {
                     setRegistrationData(context, Consts.PrefKeys.C2DM_DEVICE_URL, null);
                 }
             }
-        }.execute(regId, CloudUtils.getPackagename(context), CloudUtils.getUniqueDeviceID(context));
+        }.execute(regId, AndroidUtils.getPackagename(context), AndroidUtils.getUniqueDeviceID(context));
     }
 
     /** callback when device is unregistered */

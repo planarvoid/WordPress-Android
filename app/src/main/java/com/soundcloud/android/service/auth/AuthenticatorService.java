@@ -2,7 +2,7 @@ package com.soundcloud.android.service.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.auth.Start;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
@@ -64,7 +64,7 @@ public class AuthenticatorService extends Service {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        CloudUtils.showToast(mContext, R.string.account_one_active);
+                        AndroidUtils.showToast(mContext, R.string.account_one_active);
                     }
                 });
             }

@@ -11,7 +11,7 @@ import com.soundcloud.android.task.AddUserInfoTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -92,7 +92,7 @@ public class SignupDetails extends Activity {
         mArtwork.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CloudUtils.showToast(SignupDetails.this, R.string.cloud_upload_clear_artwork);
+                AndroidUtils.showToast(SignupDetails.this, R.string.cloud_upload_clear_artwork);
             }
         });
 
@@ -123,7 +123,7 @@ public class SignupDetails extends Activity {
         new AddUserInfoTask((AndroidCloudAPI) getApplication()) {
             ProgressDialog dialog;
             @Override protected void onPreExecute() {
-                dialog = CloudUtils.showProgress(SignupDetails.this,
+                dialog = AndroidUtils.showProgress(SignupDetails.this,
                         R.string.authentication_add_info_progress_message);
             }
 
@@ -137,9 +137,9 @@ public class SignupDetails extends Activity {
                     if (user != null) {
                         finishSignup();
                     } else {
-                        CloudUtils.showToast(SignupDetails.this, getFirstError() == null ?
-                            getString(R.string.authentication_add_info_error) :
-                            getString(R.string.authentication_add_info_error_reason, getFirstError()));
+                        AndroidUtils.showToast(SignupDetails.this, getFirstError() == null ?
+                                getString(R.string.authentication_add_info_error) :
+                                getString(R.string.authentication_add_info_error_reason, getFirstError()));
                     }
                 }
             }

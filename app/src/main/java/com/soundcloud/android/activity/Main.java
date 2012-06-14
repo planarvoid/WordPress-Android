@@ -17,8 +17,8 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.task.fetch.ResolveFetchTask;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ChangeLog;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Endpoints;
@@ -76,10 +76,6 @@ public class Main extends TabActivity implements
 
         final SoundCloudApplication app = getApp();
 
-        if (mChangeLog.isFirstRun()) {
-            app.onFirstRun(mChangeLog.getOldVersionCode(), mChangeLog.getCurrentVersionCode());
-        }
-
         final boolean showSplash = showSplash(state);
         mSplash = findViewById(R.id.splash);
         mSplash.setVisibility(showSplash ? View.VISIBLE : View.GONE);
@@ -105,7 +101,7 @@ public class Main extends TabActivity implements
         mResolveTask  = (ResolveFetchTask) getLastNonConfigurationInstance();
         if (mResolveTask != null) {
             mResolveTask.setListener(this);
-            if (!CloudUtils.isTaskFinished(mResolveTask)) {
+            if (!AndroidUtils.isTaskFinished(mResolveTask)) {
                 showDialog(RESOLVING);
             }
         }

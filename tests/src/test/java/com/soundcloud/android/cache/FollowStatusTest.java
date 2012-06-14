@@ -2,7 +2,6 @@ package com.soundcloud.android.cache;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
@@ -13,7 +12,7 @@ import android.os.Message;
 
 
 @RunWith(DefaultTestRunner.class)
-public class FollowStatusTest extends ApiTests {
+public class FollowStatusTest  {
     static final String FOLLOWINGS = "[ 1, 2, 3, 4, 5 ]";
 
     @Test
@@ -22,7 +21,7 @@ public class FollowStatusTest extends ApiTests {
         FollowStatus status = new FollowStatus();
 
         final boolean[] called = new boolean[1];
-        status.requestUserFollowings(api, new FollowStatus.Listener() {
+        status.requestUserFollowings(DefaultTestRunner.application, new FollowStatus.Listener() {
                     @Override
                     public void onChange(boolean success, FollowStatus status) {
                         called[0] = true;
@@ -50,7 +49,7 @@ public class FollowStatusTest extends ApiTests {
     public void testToggleFollowingWithApiCall() throws Exception {
         FollowStatus status = new FollowStatus();
         Robolectric.addPendingHttpResponse(201, "CREATED");
-        status.toggleFollowing(10, api, new Handler() {
+        status.toggleFollowing(10, DefaultTestRunner.application, new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 expect(msg.what).toEqual(1);
@@ -63,7 +62,7 @@ public class FollowStatusTest extends ApiTests {
     public void testToggleFollowingWithFailedApiCall() throws Exception {
         FollowStatus status = new FollowStatus();
         Robolectric.addPendingHttpResponse(500, "ERROR");
-        status.toggleFollowing(23, api, null);
+        status.toggleFollowing(23, DefaultTestRunner.application, null);
         expect(status.isFollowing(23)).toBeFalse();
     }
 

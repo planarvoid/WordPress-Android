@@ -12,17 +12,17 @@ import com.soundcloud.android.json.ActivityDeserializer;
 import com.soundcloud.android.json.UserDeserializer;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.jetbrains.annotations.Nullable;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -80,26 +80,35 @@ public interface AndroidCloudAPI extends CloudAPI {
         private Context mContext;
         private String userAgent;
 
+        public static Wrapper create(Context context, @Nullable Token initialToken) {
+            final Env env = AndroidUtils.isRunOnBuilder(context) ? Env.SANDBOX : Env.LIVE;
+            String clientId = context.getString(env == Env.LIVE ? R.string.client_id : R.string.sandbox_client_id);
+            String clientSecret = context.getString(env == Env.LIVE ? R.string.client_secret : R.string.sandbox_client_secret);
+
+            return new Wrapper(context, clientId, clientSecret, REDIRECT_URI, initialToken, env);
+        }
+
         public Wrapper(Context context, String clientId, String clientSecret, URI redirectUri, Token token, Env env) {
             super(clientId, clientSecret, redirectUri, token, env);
-            if (context != null) {
-                mContext = context;
-                userAgent = "SoundCloud Android ("+CloudUtils.getAppVersion(context, "unknown")+")";
-                final IntentFilter filter = new IntentFilter();
-                filter.addAction(Actions.CHANGE_PROXY_ACTION);
-                context.registerReceiver(new BroadcastReceiver() {
-                    @Override public void onReceive(Context context, Intent intent) {
-                        final String proxy = intent.getStringExtra(Actions.EXTRA_PROXY);
-                        Log.d(TAG, "proxy changed: "+proxy);
-                        setProxy(proxy == null ? null : URI.create(proxy));
-                    }
-                }, filter);
+            // context can be null in tests
+            if (context == null) return;
 
-                if (SoundCloudApplication.DEV_MODE) {
-                    final String proxy =
-                            PreferenceManager.getDefaultSharedPreferences(context).getString(Consts.PrefKeys.DEV_HTTP_PROXY, null);
-                    setProxy(TextUtils.isEmpty(proxy) ? null : URI.create(proxy));
+            mContext = context;
+            userAgent = "SoundCloud Android ("+ AndroidUtils.getAppVersion(context, "unknown")+")";
+            final IntentFilter filter = new IntentFilter();
+            filter.addAction(Actions.CHANGE_PROXY_ACTION);
+            context.registerReceiver(new BroadcastReceiver() {
+                @Override public void onReceive(Context context, Intent intent) {
+                    final String proxy = intent.getStringExtra(Actions.EXTRA_PROXY);
+                    Log.d(TAG, "proxy changed: "+proxy);
+                    setProxy(proxy == null ? null : URI.create(proxy));
                 }
+            }, filter);
+
+            if (SoundCloudApplication.DEV_MODE) {
+                final String proxy =
+                        PreferenceManager.getDefaultSharedPreferences(context).getString(Consts.PrefKeys.DEV_HTTP_PROXY, null);
+                setProxy(TextUtils.isEmpty(proxy) ? null : URI.create(proxy));
             }
         }
 

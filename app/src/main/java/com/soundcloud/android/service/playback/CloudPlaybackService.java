@@ -22,7 +22,7 @@ import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Media;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracker;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
@@ -406,7 +406,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
 
                 if (track.isStreamable()) {
                     onStreamableTrack(track);
-                } else if (!CloudUtils.isTaskFinished(track.load_info_task)) {
+                } else if (!AndroidUtils.isTaskFinished(track.load_info_task)) {
                     track.load_info_task.addListener(mInfoListener);
                 } else {
                     onUnstreamableTrack(track.id);

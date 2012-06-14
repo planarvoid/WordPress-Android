@@ -12,8 +12,7 @@ import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -141,7 +140,7 @@ public class ActivityRow extends LazyRow {
         setImageSpan();
 
         mUser.setText(getOriginUser().username);
-        mCreatedAt.setText(CloudUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
+        mCreatedAt.setText(ScTextUtils.getTimeElapsed(getContext().getResources(), getOriginCreatedAt().getTime()));
 
     }
 

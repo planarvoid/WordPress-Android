@@ -3,6 +3,7 @@ package com.soundcloud.android.tests;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.auth.SignupVia;
@@ -18,12 +19,14 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.util.Log;
 
-public final class InstrumentationHelper {
+import java.io.IOException;
+
+public final class IntegrationTestHelper {
     public static final String USERNAME = "android-testing";
     public static final String PASSWORD = "android-testing";
 
-    private InstrumentationHelper() {}
-    private static final String TAG = InstrumentationHelper.class.getSimpleName();
+    private IntegrationTestHelper() {}
+    private static final String TAG = IntegrationTestHelper.class.getSimpleName();
 
     public static void loginAsDefault(final Instrumentation instrumentation) throws Exception {
         loginAs(instrumentation, USERNAME, PASSWORD);
@@ -33,11 +36,6 @@ public final class InstrumentationHelper {
                                final String username,
                                final String password) throws Exception {
 
-        // TODO avoid creating app instances here, conflicts with instrumented app
-        SoundCloudApplication app = (SoundCloudApplication) Instrumentation.newApplication(
-                SoundCloudApplication.class,
-                instrumentation.getTargetContext());
-        app.onCreate();
 
         final Account account = getAccount(instrumentation.getTargetContext());
         if (account != null && !account.name.equals(username)) {
@@ -49,10 +47,17 @@ public final class InstrumentationHelper {
             }
         } else if (account == null) {
             Log.d(TAG, "logging in");
-            Token token = app.login(username, password, Token.SCOPE_NON_EXPIRING);
-            User user = new FetchUserTask(app).execute(Request.to(Endpoints.MY_DETAILS)).get();
-            assertNotNull(user);
-            assertTrue(app.addUserAccount(user, token, SignupVia.API));
+            Context context = instrumentation.getTargetContext();
+            AndroidCloudAPI.Wrapper wrapper = AndroidCloudAPI.Wrapper.create(context, null);
+            Token token;
+            try {
+                token = wrapper.login(username, password, Token.SCOPE_NON_EXPIRING);
+            } catch (IOException e) {
+                throw new AssertionError("error logging in: "+e.getMessage());
+            }
+            User user = new FetchUserTask(wrapper).execute(Request.to(Endpoints.MY_DETAILS)).get();
+            assertNotNull("could not get test user", user);
+            assertNotNull("addAccount failed", SoundCloudApplication.addAccount(context, user, token, SignupVia.UNKNOWN));
         } else {
             Log.d(TAG, "already logged in as user "+account);
         }

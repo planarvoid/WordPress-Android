@@ -14,8 +14,8 @@ import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.ButtonBar;
 import com.soundcloud.android.view.create.Chronometer;
@@ -28,7 +28,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -271,9 +270,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 if (resultCode == RESULT_OK) {
                     String message = data.getStringExtra("message");
                     if (message != null) {
-                        CloudUtils.showToast(this, R.string.sound_processed_error, message);
+                        AndroidUtils.showToast(this, R.string.sound_processed_error, message);
                     } else {
-                        CloudUtils.showToast(this, R.string.sound_processed);
+                        AndroidUtils.showToast(this, R.string.sound_processed);
                     }
                     String in = data.getStringExtra(Actions.RECORDING_EXTRA_IN);
                     String out = data.getStringExtra(Actions.RECORDING_EXTRA_OUT);

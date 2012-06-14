@@ -14,13 +14,12 @@ import android.util.Log;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.LocalCollection;
-import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Request;
@@ -30,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 public class RemoteCollectionAdapter extends LazyEndlessAdapter implements LocalCollection.OnChangeListener {
@@ -197,7 +195,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter implements Local
     }
 
     protected void clearUpdateTask() {
-        if (mUpdateCollectionTask != null && !CloudUtils.isTaskFinished(mUpdateCollectionTask))
+        if (mUpdateCollectionTask != null && !AndroidUtils.isTaskFinished(mUpdateCollectionTask))
             mUpdateCollectionTask.cancel(true);
         mUpdateCollectionTask = null;
     }

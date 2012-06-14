@@ -4,7 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.service.sync.SyncAdapterService;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.content.Intent;
@@ -64,7 +64,7 @@ public final class DevSettings {
                 new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        if (!CloudUtils.isUserAMonkey()) {
+                        if (!AndroidUtils.isUserAMonkey()) {
                             throw new RuntimeException("developer requested crash");
                         } else {
                             return true;

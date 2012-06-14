@@ -5,8 +5,9 @@ import static org.junit.Assert.assertNotNull;
 
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.robolectric.ApiTests;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.task.create.LoadConnectionsTask;
+import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,13 +15,13 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class LoadConnectionTaskTest extends ApiTests {
+public class LoadConnectionTaskTest {
     @Test
     public void shouldDeserializeJsonProperly() throws Exception {
-        expectGetRequestAndReturn(MY_CONNECTIONS, 200,"connections.json");
+        TestHelper.addCannedResponses(getClass(), "connections.json");
 
-        LoadConnectionsTask task = new LoadConnectionsTask(mockedApi);
-        List<Connection> connections = task.list(Request.to(MY_CONNECTIONS), Connection.class);
+        LoadConnectionsTask task = new LoadConnectionsTask(DefaultTestRunner.application);
+        List<Connection> connections = task.list(Request.to(Endpoints.MY_CONNECTIONS), Connection.class);
 
         assertEquals(6, connections.size());
         // make sure date gets deserialized properly

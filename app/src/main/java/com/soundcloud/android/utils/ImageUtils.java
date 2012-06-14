@@ -465,7 +465,7 @@ public final class ImageUtils {
                                 try {
                                     mActivity.startActivityForResult(i, Consts.RequestCodes.GALLERY_IMAGE_TAKE);
                                 } catch (ActivityNotFoundException e) {
-                                    CloudUtils.showToast(mActivity, R.string.take_new_picture_error);
+                                    AndroidUtils.showToast(mActivity, R.string.take_new_picture_error);
                                 }
                             }
                         }
@@ -478,7 +478,7 @@ public final class ImageUtils {
                             try {
                                 mActivity.startActivityForResult(intent, Consts.RequestCodes.GALLERY_IMAGE_PICK);
                             } catch (ActivityNotFoundException e) {
-                                CloudUtils.showToast(mActivity, R.string.use_existing_image_error);
+                                AndroidUtils.showToast(mActivity, R.string.use_existing_image_error);
                             }
                         }
             })

@@ -13,8 +13,8 @@ import com.soundcloud.android.service.beta.BetaPreferences;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ChangeLog;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.app.Activity;
@@ -114,7 +114,7 @@ public class Settings extends PreferenceActivity {
         findPreference(LOGOUT).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        if (!CloudUtils.isUserAMonkey()) {
+                        if (!AndroidUtils.isUserAMonkey()) {
                             // don't let the monkey log out
                             safeShowDialog(DIALOG_USER_LOGOUT_CONFIRM);
                         }

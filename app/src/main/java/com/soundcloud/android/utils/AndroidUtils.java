@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import static android.content.pm.PackageManager.GET_SIGNATURES;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
@@ -18,7 +19,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -26,33 +26,20 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Display;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.math.BigInteger;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-public final class CloudUtils {
-
-    private CloudUtils() {}
-
-    private static final String DURATION_FORMAT_SHORT = "%2$d.%5$02d";
-    private static final String DURATION_FORMAT_LONG  = "%1$d.%3$02d.%5$02d";
-    private static final DateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.getDefault());
-
-    private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
-        "[a-zA-Z0-9\\+\\._%\\-\\+]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+"
-    );
+/**
+ * Android related utility functions.
+ */
+public final class AndroidUtils {
+    private AndroidUtils() {}
 
     private static HashMap<Context, HashMap<Class<? extends Service>, ServiceConnection>> sConnectionMap
             = new HashMap<Context, HashMap<Class<? extends Service>, ServiceConnection>>();
@@ -90,10 +77,6 @@ public final class CloudUtils {
         toast.show();
     }
 
-    public static String hexString(byte[] bytes) {
-        return String.format("%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
-    }
-
     public static boolean bindToService(Context context, Class<? extends Service> service, ServiceConnection callback) {
         //http://blog.tourizo.com/2009/04/binding-services-while-in-activitygroup.html
         context.startService(new Intent(context, service));
@@ -122,53 +105,6 @@ public final class CloudUtils {
     }
     public static boolean isTaskPending(AsyncTask lt) {
         return lt != null && lt.getStatus() == AsyncTask.Status.PENDING;
-
-    }
-
-    /**
-     * @param pos play position in ms
-     * @return formatted time string in the form of 0.05 or 2.12.04
-     */
-    public static String formatTimestamp(long pos){
-        StringBuilder builder = new StringBuilder();
-        int secs = (int) (pos / 1000);
-        int minutes = secs  / 60;
-        int hours = minutes / 60;
-        if (hours > 0) {
-            builder.append(hours);
-            builder.append('.');
-        }
-        minutes = minutes % 60;
-        if (hours > 0 && minutes < 10) builder.append('0');
-        secs = secs % 60;
-        builder.append(minutes).append('.');
-        if (secs < 10) builder.append('0');
-        builder.append(secs);
-        return builder.toString();
-    }
-
-    public static CharSequence getElapsedTimeString(Resources r, long start, boolean longerText) {
-        double elapsed = Double.valueOf(Math.ceil((System.currentTimeMillis() - start) / 1000d)).longValue();
-        return getTimeString(r, elapsed, longerText);
-    }
-
-    public static String getTimeString(Resources r, double elapsedSeconds, boolean longerText) {
-        if (elapsedSeconds < 60)
-            return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsedSeconds, (int) elapsedSeconds);
-        else if (elapsedSeconds < 3600)
-            return r.getQuantityString(longerText ? R.plurals.elapsed_minutes_ago : R.plurals.elapsed_minutes, (int) (elapsedSeconds / 60), (int) (elapsedSeconds / 60));
-        else if (elapsedSeconds < 86400)
-            return r.getQuantityString(longerText ? R.plurals.elapsed_hours_ago : R.plurals.elapsed_hours, (int) (elapsedSeconds / 3600), (int) (elapsedSeconds / 3600));
-        else if (elapsedSeconds < 2592000)
-            return r.getQuantityString(longerText ? R.plurals.elapsed_days_ago : R.plurals.elapsed_days, (int) (elapsedSeconds / 86400), (int) (elapsedSeconds / 86400));
-        else if (elapsedSeconds < 31536000)
-            return r.getQuantityString(longerText ? R.plurals.elapsed_months_ago : R.plurals.elapsed_months, (int) (elapsedSeconds / 2592000), (int) (elapsedSeconds / 2592000));
-        else
-            return r.getQuantityString(longerText ? R.plurals.elapsed_years_ago : R.plurals.elapsed_years, (int) (elapsedSeconds / 31536000), (int) (elapsedSeconds / 31536000));
-    }
-
-    public static String getTimeElapsed(Resources r, long timestamp){
-        return getTimeString(r, Math.max(0, (System.currentTimeMillis() - timestamp)/1000), false);
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -243,6 +179,26 @@ public final class CloudUtils {
         }
     }
 
+    public static boolean isRunOnBuilder(Context context) {
+        return appSignedBy(context, context.getString(R.string.builder_sig));
+    }
+
+    public static boolean appSignedBy(Context context, String... keys) {
+        try {
+            PackageInfo info = context.getPackageManager().getPackageInfo(
+                    context.getPackageName(),
+                    GET_SIGNATURES);
+            if (info != null && info.signatures != null) {
+                final String sig =  info.signatures[0].toCharsString();
+                Arrays.sort(keys);
+                return Arrays.binarySearch(keys, sig) > -1;
+            } else {
+                return false;
+            }
+        } catch (PackageManager.NameNotFoundException ignored) {
+            return false;
+        }
+    }
 
     /**
      * @param context
@@ -299,15 +255,11 @@ public final class CloudUtils {
         tv.setShadowLayer(1, 0, 1, Color.WHITE);
     }
 
-    public static boolean checkEmail(CharSequence email) {
-        return EMAIL_ADDRESS_PATTERN.matcher(email).matches();
-    }
-
     public static String suggestEmail(Context context) {
         Map<String, Integer> counts = new HashMap<String, Integer>();
         Account[] accounts = AccountManager.get(context).getAccounts();
         for (Account account : accounts) {
-            if (checkEmail(account.name)) {
+            if (ScTextUtils.checkEmail(account.name)) {
                 if (counts.get(account.name) == null) {
                     counts.put(account.name, 1);
                 } else {
@@ -328,25 +280,5 @@ public final class CloudUtils {
             }
             return candidate;
         }
-    }
-
-    public static String[] longListToStringArr(List<Long> deletions) {
-        int i = 0;
-        String[] idList = new String[deletions.size()];
-        for (Long id : deletions) {
-            idList[i] = String.valueOf(id);
-            i++;
-        }
-        return idList;
-    }
-
-    public static String removeFileExtension(String str){
-        return str.contains(".") ? str.substring(0, str.lastIndexOf(".")) : str;
-    }
-
-    public static CharSequence getFormattedNotificationTimestamp(Context context, long when) {
-        final Date date = new Date(when);
-        return DateUtils.isToday(when) ? android.text.format.DateFormat.getTimeFormat(context).format(date)
-            : android.text.format.DateFormat.getDateFormat(context).format(date);
     }
 }

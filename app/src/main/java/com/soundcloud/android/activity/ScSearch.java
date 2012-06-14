@@ -11,7 +11,7 @@ import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.android.view.WorkspaceView;
@@ -65,8 +65,8 @@ public class ScSearch extends ScListActivity {
         rdoUser = (RadioButton) findViewById(R.id.rdo_users);
         rdoTrack = (RadioButton) findViewById(R.id.rdo_tracks);
 
-        CloudUtils.setTextShadowForGrayBg(rdoUser);
-        CloudUtils.setTextShadowForGrayBg(rdoTrack);
+        AndroidUtils.setTextShadowForGrayBg(rdoUser);
+        AndroidUtils.setTextShadowForGrayBg(rdoTrack);
 
         txtQuery = (EditText) findViewById(R.id.query);
 

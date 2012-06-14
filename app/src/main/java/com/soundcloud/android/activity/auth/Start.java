@@ -6,7 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.Token;
 
 import android.accounts.AccountAuthenticatorActivity;
@@ -135,10 +135,10 @@ public class Start extends AccountAuthenticatorActivity {
                             finish();
                         }
                     } else {
-                        CloudUtils.showToast(this, R.string.error_creating_account);
+                        AndroidUtils.showToast(this, R.string.error_creating_account);
                     }
                 } else {
-                    CloudUtils.showToast(this, error);
+                    AndroidUtils.showToast(this, error);
                 }
                 break;
             case SUGGESTED_USERS:
@@ -158,10 +158,10 @@ public class Start extends AccountAuthenticatorActivity {
     static void handleRecoverResult(Context context, Intent data) {
         final boolean success = data.getBooleanExtra("success", false);
         if (success) {
-            CloudUtils.showToast(context, R.string.authentication_recover_password_success);
+            AndroidUtils.showToast(context, R.string.authentication_recover_password_success);
         } else {
             String error = data.getStringExtra("error");
-            CloudUtils.showToast(context,
+            AndroidUtils.showToast(context,
                     error == null ?
                             context.getString(R.string.authentication_recover_password_failure) :
                             context.getString(R.string.authentication_recover_password_failure_reason, error));
