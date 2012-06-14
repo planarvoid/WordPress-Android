@@ -11,6 +11,8 @@ import android.app.Instrumentation;
 import java.util.regex.Pattern;
 
 public class Han extends Solo {
+    private static final long DEFAULT_TIMEOUT = 20 * 1000;
+
     public Han(Instrumentation instrumentation, Activity activity) {
         super(instrumentation, activity);
     }
@@ -53,6 +55,10 @@ public class Han extends Solo {
 
     public void assertActivityFinished() {
         assertTrue(getCurrentActivity().isFinishing());
+    }
+
+    public void assertDialogClosed() {
+        assertDialogClosed(DEFAULT_TIMEOUT);
     }
 
     public void assertDialogClosed(long timeout) {

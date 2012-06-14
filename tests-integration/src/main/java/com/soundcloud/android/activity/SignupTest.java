@@ -6,6 +6,7 @@ import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.FlakyTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import java.util.UUID;
 
@@ -31,9 +32,8 @@ public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
         super.tearDown();
     }
 
-    @FlakyTest
     public void testSignup() throws Exception {
-        solo.clickOnButton(solo.getString(R.string.btn_signup));
+        solo.clickOnButtonResId(R.string.btn_signup);
         solo.assertText(R.string.authentication_sign_up);
 
         solo.clearEditText(0);
@@ -43,14 +43,14 @@ public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
         solo.enterText(2, "password");
 
         solo.clickOnButtonResId(R.string.btn_signup);
-        solo.assertDialogClosed(20 * 1000);
+        solo.assertDialogClosed();
         solo.assertText(R.string.authentication_add_info_msg);
 
         // username (max 25 characters)
         solo.enterText(0, uuid.substring(0, 24).replace("-", ""));
         solo.clickOnButtonResId(R.string.btn_save);
 
-        solo.assertDialogClosed(20 * 1000);
+        solo.assertDialogClosed();
 
         // Tour
         solo.assertText(R.string.tour_start_welcome);
@@ -63,5 +63,53 @@ public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
         solo.clickOnButtonResId(R.string.btn_done);
 
         solo.assertText(R.string.tab_stream);
+    }
+
+    public void testSignupWithNonMatchingPasswords() throws Exception {
+        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.assertText(R.string.authentication_sign_up);
+
+        solo.clearEditText(0);
+        solo.enterText(0, "someemail-"+ UUID.randomUUID().toString() +"@example.com");
+        solo.enterText(1, "password");
+        solo.enterText(2, "anotherpassword");
+
+        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.assertText(R.string.authentication_error_password_mismatch);
+    }
+
+    public void testSignupWithoutInput() throws Exception {
+        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.assertText(R.string.authentication_sign_up);
+
+        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.assertText(R.string.authentication_error_incomplete_fields);
+    }
+
+    public void testSignupWithInvalidEmail() throws Exception {
+        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.assertText(R.string.authentication_sign_up);
+
+        solo.clearEditText(0);
+        solo.enterText(0, "not-an-email");
+        solo.enterText(1, "password");
+        solo.enterText(2, "password");
+
+        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.assertText(R.string.authentication_error_invalid_email);
+    }
+
+
+    public void testSignupWithTooShortPassword() throws Exception {
+        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.assertText(R.string.authentication_sign_up);
+
+        solo.clearEditText(0);
+        solo.enterText(0, "someemail-"+ UUID.randomUUID().toString() +"@example.com");
+        solo.enterText(1, "123");
+        solo.enterText(2, "123");
+
+        solo.clickOnButtonResId(R.string.btn_signup);
+        solo.assertText(R.string.authentication_error_password_too_short);
     }
 }

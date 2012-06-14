@@ -2,6 +2,8 @@ package com.soundcloud.android.activity;
 
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.auth.FacebookWebFlow;
+import com.soundcloud.android.activity.auth.Recover;
 import com.soundcloud.android.activity.auth.Start;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.IntegrationTestHelper;
@@ -39,8 +41,14 @@ public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
         solo.enterText(1, IntegrationTestHelper.PASSWORD);
 
         solo.clickOnButtonResId(R.string.btn_login);
-        solo.assertDialogClosed(20 * 1000);
+        solo.assertDialogClosed();
         solo.assertText(R.string.tab_stream);
+    }
+
+    public void testLoginWithFacebook() throws Exception {
+        solo.clickOnButtonResId(R.string.authentication_log_in_with_facebook);
+        solo.assertDialogClosed();
+        solo.assertActivity(FacebookWebFlow.class);
     }
 
     public void testLoginWithWrongCredentials() {
@@ -65,5 +73,25 @@ public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
 
         solo.assertText(R.string.authentication_log_in);
         assertTrue(solo.getCurrentActivity() instanceof Start);
+    }
+
+    public void testRecoverPassword() throws Exception {
+        solo.clickOnText(R.string.authentication_I_forgot_my_password);
+        solo.assertActivity(Recover.class);
+
+        solo.enterText(0, "some-email@example.com");
+        solo.clickOnOK();
+
+        solo.assertDialogClosed();
+        solo.assertText(R.string.authentication_recover_password_failure_reason, "Unknown Email Address");
+        solo.assertActivity(Start.class);
+    }
+
+    public void testRecoverPasswordNoInput() throws Exception {
+        solo.clickOnText(R.string.authentication_I_forgot_my_password);
+        solo.assertActivity(Recover.class);
+
+        solo.clickOnOK();
+        solo.assertText(R.string.authentication_error_incomplete_fields);
     }
 }
