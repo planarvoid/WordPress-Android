@@ -51,6 +51,7 @@ public class SoundRecorderTest {
         ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 100, 10, 10);
         Recording r = recorder.startRecording(null);
         expect(r).not.toBeNull();
+        recorder.mReaderThread.join(); // wait for failure
         expect(recorder.isRecording()).toBeFalse(); // recording not supported w/ Robolectric
     }
 

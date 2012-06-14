@@ -97,7 +97,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     private @Nullable RecordStream mRecordStream;
     private @Nullable PlaybackStream mPlaybackStream;
     private PlayerThread mPlaybackThread;
-    private @Nullable ReaderThread mReaderThread;
+    /*package*/ @Nullable ReaderThread mReaderThread;
 
     final private AudioConfig mConfig;
     final private ByteBuffer buffer;
@@ -158,7 +158,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
         amplitudeData = new AmplitudeData();
         mAudioManager = AudioManagerFactory.createAudioManager(context);
-
         reset();
     }
 
@@ -642,7 +641,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
-    private class ReaderThread extends Thread {
+    /*package*/ class ReaderThread extends Thread {
         ReaderThread() {
             super("ReaderThread");
             setPriority(Thread.MAX_PRIORITY);
