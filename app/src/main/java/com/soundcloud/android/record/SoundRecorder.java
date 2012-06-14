@@ -97,7 +97,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     private @Nullable RecordStream mRecordStream;
     private @Nullable PlaybackStream mPlaybackStream;
     private PlayerThread mPlaybackThread;
-    private @Nullable ReaderThread mReaderThread;
+    /*package*/ @Nullable ReaderThread mReaderThread;
 
     final private AudioConfig mConfig;
     final private ByteBuffer buffer;
@@ -158,7 +158,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         mAmplitudeAnalyzer = new AmplitudeAnalyzer(config);
         amplitudeData = new AmplitudeData();
         mAudioManager = AudioManagerFactory.createAudioManager(context);
-
         reset();
     }
 
@@ -390,17 +389,15 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
-    public void onNewStartPosition(double newPos, double oldPos, long moveTime) {
-        if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("invalid percent "+newPos);
+    public void onNewStartPosition(double newPos, long moveTime) {
         if (mPlaybackStream != null) {
-            previewTrim(mPlaybackStream.setStartPositionByPercent(newPos, oldPos, moveTime));
+            previewTrim(mPlaybackStream.setStartPositionByPercent(newPos, moveTime));
         }
     }
 
-    public void onNewEndPosition(double newPos, double oldPos, long moveTime) {
-        if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("invalid percent "+newPos);
+    public void onNewEndPosition(double newPos, long moveTime) {
         if (mPlaybackStream != null) {
-            previewTrim(mPlaybackStream.setEndPositionByPercent(newPos, oldPos, moveTime));
+            previewTrim(mPlaybackStream.setEndPositionByPercent(newPos, moveTime));
         }
     }
 
@@ -644,7 +641,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
-    private class ReaderThread extends Thread {
+    /*package*/ class ReaderThread extends Thread {
         ReaderThread() {
             super("ReaderThread");
             setPriority(Thread.MAX_PRIORITY);

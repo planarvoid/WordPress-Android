@@ -50,14 +50,17 @@ public class PlaybackStream {
         return mConfig;
     }
 
+    public TrimPreview setStartPositionByPercent(double newPos, long moveTime) {
+        if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal start percent " + newPos);
 
-    public TrimPreview setStartPositionByPercent(double newPos, double oldPos, long moveTime) {
         final long old = mStartPos;
         mStartPos = (long) (newPos * mPlaybackFile.getDuration());
         return new TrimPreview(this,old,mStartPos, moveTime);
     }
 
-    public TrimPreview setEndPositionByPercent(double newPos, double oldPos, long moveTime) {
+    public TrimPreview setEndPositionByPercent(double newPos, long moveTime) {
+        if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal end percent " + newPos);
+
         final long old = mEndPos;
         mEndPos = (long) (newPos * mPlaybackFile.getDuration());
         return new TrimPreview(this, old, mEndPos, moveTime);
