@@ -14,8 +14,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
-import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -117,7 +115,7 @@ public class ApiSyncer {
 
         final Content c = Content.match(uri);
         final int inserted;
-        Activities activities = null;
+        Activities activities;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
             final Activity lastActivity = Activities.getLastActivity(c, mResolver);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
@@ -198,7 +196,7 @@ public class ApiSyncer {
                         mApi,
                         mResolver,
                         new ArrayList<Long>(remote.subList(0, Math.min(remote.size(), MINIMUM_LOCAL_ITEMS_STORED))),
-                        content.resourceType.equals(Track.class) ? Content.TRACKS : Content.USERS,
+                        Track.class.equals(content.resourceType) ? Content.TRACKS : Content.USERS,
                         false
                 ));
                 break;
@@ -253,7 +251,7 @@ public class ApiSyncer {
             int i = 0;
             while (i < itemDeletions.size()) {
                 List<Long> batch = itemDeletions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, itemDeletions.size()));
-                mResolver.delete(content.uri, DBHelper.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), CloudUtils.longListToStringArr(batch));
+                mResolver.delete(content.uri, DBHelper.getWhereIds(DBHelper.CollectionItems.ITEM_ID, batch), longListToStringArr(batch));
                 i += RESOLVER_BATCH_SIZE;
             }
         }
@@ -284,7 +282,7 @@ public class ApiSyncer {
                                                        Content content,
                                                        boolean ignoreStored) throws IOException {
 
-        if (additions == null || additions.size() == 0) return new ArrayList<Parcelable>();
+        if (additions == null || additions.isEmpty()) return new ArrayList<Parcelable>();
 
         // copy so we don't modify the original
         additions = new ArrayList<Long>(additions);
@@ -297,7 +295,7 @@ public class ApiSyncer {
                 List<Long> batch = additions.subList(i, Math.min(i + RESOLVER_BATCH_SIZE, additions.size()));
                 storedIds.addAll(SoundCloudDB.idCursorToList(resolver.query(content.uri, new String[]{DBHelper.Tracks._ID},
                         DBHelper.getWhereIds(DBHelper.Tracks._ID, batch) + " AND " + DBHelper.Tracks.LAST_UPDATED + " > 0"
-                        , CloudUtils.longListToStringArr(batch), null)));
+                        , longListToStringArr(batch), null)));
                 i += RESOLVER_BATCH_SIZE;
             }
             additions.removeAll(storedIds);
@@ -412,5 +410,15 @@ public class ApiSyncer {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, message);
         }
+    }
+
+    private static String[] longListToStringArr(List<Long> deletions) {
+        int i = 0;
+        String[] idList = new String[deletions.size()];
+        for (Long id : deletions) {
+            idList[i] = String.valueOf(id);
+            i++;
+        }
+        return idList;
     }
 }

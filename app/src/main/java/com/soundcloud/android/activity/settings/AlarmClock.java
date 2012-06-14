@@ -7,8 +7,9 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlaylistManager;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.app.AlarmManager;
@@ -92,7 +93,7 @@ public final class AlarmClock {
         double in = (alarm.toMillis(false) - now.toMillis(false)) / 1000d;
 
         Toast toast = Toast.makeText(mContext, mContext.getString(R.string.dev_alarm_in,
-                CloudUtils.getTimeString(mContext.getResources(), in, false)), Toast.LENGTH_LONG);
+                ScTextUtils.getTimeString(mContext.getResources(), in, false)), Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, toast.getXOffset() / 2, toast.getYOffset() / 2);
         toast.show();
 
@@ -399,7 +400,7 @@ public final class AlarmClock {
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             boolean newState = !prefs.getBoolean(Consts.PrefKeys.DEV_ALARM_CLOCK_ENABLED, false);
             prefs.edit().putBoolean(Consts.PrefKeys.DEV_ALARM_CLOCK_ENABLED, newState).commit();
-            CloudUtils.showToast(context, "SC AlarmClock " + (newState ? "enabled" : "disabled"));
+            AndroidUtils.showToast(context, "SC AlarmClock " + (newState ? "enabled" : "disabled"));
         }
     }
 }

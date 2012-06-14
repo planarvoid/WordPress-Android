@@ -14,8 +14,8 @@ import com.soundcloud.android.task.LoadCommentsTask;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.TrackInfoBar;
 import com.soundcloud.api.Endpoints;
@@ -210,12 +210,12 @@ public class PlayerTrackView extends LinearLayout implements
         setLikeStatus();
 
         if (!mTrack.full_track_info_loaded) {
-            if (CloudUtils.isTaskFinished(mTrack.load_info_task)) {
+            if (AndroidUtils.isTaskFinished(mTrack.load_info_task)) {
                 mTrack.load_info_task = new FetchTrackTask(mPlayer.getApp(), mTrack.id);
             }
 
             mTrack.load_info_task.addListener(this);
-            if (CloudUtils.isTaskPending(mTrack.load_info_task)) {
+            if (AndroidUtils.isTaskPending(mTrack.load_info_task)) {
                 mTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mTrack.id));
             }
         }
@@ -245,13 +245,13 @@ public class PlayerTrackView extends LinearLayout implements
 
     void refreshComments() {
         if (mTrack == null) return;
-        if (CloudUtils.isTaskFinished(mTrack.load_comments_task)) {
+        if (AndroidUtils.isTaskFinished(mTrack.load_comments_task)) {
             mTrack.load_comments_task =
                     new LoadCommentsTask(mPlayer.getApp());
         }
         mTrack.load_comments_task.addListener(this);
 
-        if (CloudUtils.isTaskPending(mTrack.load_comments_task)) {
+        if (AndroidUtils.isTaskPending(mTrack.load_comments_task)) {
             mTrack.load_comments_task.execute(mTrack.id);
         }
     }

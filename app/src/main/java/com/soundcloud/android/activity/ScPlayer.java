@@ -12,7 +12,7 @@ import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlaylistManager;
 import com.soundcloud.android.tracking.Media;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.WorkspaceView;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.TransportBar;
@@ -484,7 +484,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         super.onStart();
         mActivityPaused = false;
 
-        CloudUtils.bindToService(this, CloudPlaybackService.class, osc);
+        AndroidUtils.bindToService(this, CloudPlaybackService.class, osc);
 
         IntentFilter f = new IntentFilter();
         f.addAction(CloudPlaybackService.PLAYLIST_CHANGED);
@@ -514,7 +514,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     protected void onStop() {
         super.onStop();
 
-        CloudUtils.unbindFromService(this, CloudPlaybackService.class);
+        AndroidUtils.unbindFromService(this, CloudPlaybackService.class);
 
         for (int i = 0; i < mTrackWorkspace.getScreenCount(); i++){
             ((PlayerTrackView) mTrackWorkspace.getScreenAt(i)).onStop(true);

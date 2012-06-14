@@ -3,7 +3,8 @@ package com.soundcloud.android.view.create;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
-import com.soundcloud.android.utils.CloudUtils;
+
+import com.soundcloud.android.utils.ScTextUtils;
 
 /**
  * Simple chronometer that handles its own formatting and tries to minimize duplicate results
@@ -53,7 +54,7 @@ public class Chronometer extends TextView {
             mProgressSec = newProgressSec;
             mode = MODE_PLAYBACK;
             setText(new StringBuilder()
-                .append(CloudUtils.formatTimestamp(ms))
+                .append(ScTextUtils.formatTimestamp(ms))
                 .append(" / ")
                 .append(mDurationString));
 
@@ -64,7 +65,7 @@ public class Chronometer extends TextView {
         final long newDurationSec = ms / 1000;
         if (newDurationSec != mDurationSec) {
             mDurationSec = newDurationSec;
-            mDurationString = CloudUtils.formatTimestamp(ms);
+            mDurationString = ScTextUtils.formatTimestamp(ms);
             return true;
         }
         return false;

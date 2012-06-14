@@ -21,7 +21,7 @@ import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Event;
 import com.soundcloud.android.tracking.Tracker;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 
@@ -102,7 +102,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     }
 
     public void showToast(int stringId) {
-        CloudUtils.showToast(this, stringId);
+        AndroidUtils.showToast(this, stringId);
     }
 
     public void safeShowDialog(int dialogId) {

@@ -17,8 +17,8 @@ import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.service.upload.UserCanceledException;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
@@ -291,7 +291,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         if (upload_status == Status.UPLOADING) {
             return resources.getString(R.string.cloud_upload_currently_uploading);
         } else {
-            return CloudUtils.getTimeElapsed(resources, lastModified())
+            return ScTextUtils.getTimeElapsed(resources, lastModified())
                     + ", "
                     + formattedDuration()
                     + ", "
@@ -309,7 +309,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public String formattedDuration() {
-        return CloudUtils.formatTimestamp(duration);
+        return ScTextUtils.formatTimestamp(duration);
     }
 
     public boolean delete(@Nullable ContentResolver resolver) {

@@ -19,8 +19,8 @@ import com.soundcloud.android.provider.DBHelper.Tracks;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.LoadCommentsTask;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
 
 import android.content.ContentResolver;
@@ -174,7 +174,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
     @Override
     public void refreshTimeSinceCreated(Context context) {
-        _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(), created_at.getTime());
+        _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
     }
 
     public void refreshListArtworkUri(Context context) {

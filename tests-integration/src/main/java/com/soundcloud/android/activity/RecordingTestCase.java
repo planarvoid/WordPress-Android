@@ -2,10 +2,10 @@ package com.soundcloud.android.activity;
 
 import static com.soundcloud.android.activity.ScCreate.CreateState.IDLE_PLAYBACK;
 
-import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.tests.InstrumentationHelper;
+import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -24,7 +24,7 @@ public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2
     // longer recordings on emulator
     protected static final int RECORDING_TIME = EMULATOR ? 6000 : 2000;
 
-    protected Solo solo;
+    protected Han solo;
     protected LocalBroadcastManager lbm;
     protected List<Intent> intents;
 
@@ -41,7 +41,7 @@ public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2
 
     @Override
     public void setUp() throws Exception {
-        InstrumentationHelper.loginAsDefault(getInstrumentation());
+        IntegrationTestHelper.loginAsDefault(getInstrumentation());
 
         intents = Collections.synchronizedList(new ArrayList<Intent>());
         lbm = LocalBroadcastManager.getInstance(getActivity());
@@ -52,7 +52,7 @@ public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2
                 getActivity().reset();
             }
         });
-        solo = new Solo(getInstrumentation(), getActivity());
+        solo = new Han(getInstrumentation(), getActivity());
         super.setUp();
     }
 
@@ -66,35 +66,35 @@ public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2
     }
 
     protected void record(int howlong) {
-        record(howlong, "Share your Sounds");
+        record(howlong, solo.getString(R.string.record_instructions));
     }
 
     protected void record(int howlong, String text) {
-        assertTrue(solo.waitForText(text));
+        solo.assertText(text);
         assertState(ScCreate.CreateState.IDLE_RECORD);
-        solo.clickOnView(getActivity().findViewById(R.id.btn_action));
+        solo.clickOnView(R.id.btn_action);
         solo.sleep(howlong);
         assertState(ScCreate.CreateState.RECORD);
-        solo.clickOnView(getActivity().findViewById(R.id.btn_action));
-        assertTrue(solo.waitForText("Discard"));
+        solo.clickOnView(R.id.btn_action);
+        solo.assertText(R.string.reset); // "Discard"
         assertState(IDLE_PLAYBACK);
     }
 
     protected void gotoEditMode() {
         solo.clickOnView(getActivity().findViewById(R.id.btn_edit));
-        assertTrue(solo.waitForText("Revert to original"));
+        solo.assertText(R.string.btn_revert_to_original);
         assertState(ScCreate.CreateState.EDIT);
     }
 
     protected void playback() {
         assertState(ScCreate.CreateState.IDLE_PLAYBACK);
-        solo.clickOnView(getActivity().findViewById(R.id.btn_play));
+        solo.clickOnView(R.id.btn_play);
         assertState(ScCreate.CreateState.PLAYBACK);
     }
 
     protected void playbackEdit() {
         assertState(ScCreate.CreateState.EDIT);
-        solo.clickOnView(getActivity().findViewById(R.id.btn_play_edit));
+        solo.clickOnView(R.id.btn_play_edit);
         assertState(ScCreate.CreateState.EDIT_PLAYBACK);
     }
 

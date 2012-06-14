@@ -6,7 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.task.RecoverPasswordTask;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.app.Activity;
@@ -58,7 +58,7 @@ public class Recover extends Activity {
             @Override
             public void onClick(View v) {
                 if (emailField.getText().length() == 0) {
-                    CloudUtils.showToast(Recover.this, R.string.authentication_error_incomplete_fields);
+                    AndroidUtils.showToast(Recover.this, R.string.authentication_error_incomplete_fields);
                 } else {
                     recoverPassword(emailField.getText().toString());
                 }
@@ -87,7 +87,7 @@ public class Recover extends Activity {
             @Override
             protected void onPreExecute() {
                 if (!isFinishing()) {
-                    progressDialog = CloudUtils.showProgress(Recover.this,
+                    progressDialog = AndroidUtils.showProgress(Recover.this,
                             R.string.authentication_recover_progress_message);
                 }
             }

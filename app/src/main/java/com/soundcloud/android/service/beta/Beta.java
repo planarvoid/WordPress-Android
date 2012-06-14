@@ -1,6 +1,6 @@
 package com.soundcloud.android.service.beta;
 
-import static com.soundcloud.android.utils.CloudUtils.*;
+import static com.soundcloud.android.utils.AndroidUtils.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;

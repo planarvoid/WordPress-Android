@@ -5,14 +5,13 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -33,7 +32,7 @@ public class Login extends AbstractLoginActivity {
         final EditText passwordField = (EditText) findViewById(R.id.txt_password);
         final View loginBtn = findViewById(R.id.btn_login);
 
-        emailField.setText(CloudUtils.suggestEmail(this));
+        emailField.setText(AndroidUtils.suggestEmail(this));
 
         passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
@@ -52,7 +51,7 @@ public class Login extends AbstractLoginActivity {
             @Override
             public void onClick(View v) {
                 if (emailField.getText().length() == 0 || passwordField.getText().length() == 0) {
-                    CloudUtils.showToast(Login.this, R.string.authentication_error_incomplete_fields);
+                    AndroidUtils.showToast(Login.this, R.string.authentication_error_incomplete_fields);
                 } else {
                     ((SoundCloudApplication)getApplication()).track(Click.Login_Login_done);
 

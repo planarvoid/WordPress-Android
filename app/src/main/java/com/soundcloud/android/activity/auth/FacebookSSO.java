@@ -2,9 +2,11 @@ package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Env;
 
 import android.content.Context;
 import android.content.Intent;
@@ -83,12 +85,12 @@ public class FacebookSSO extends AbstractLoginActivity {
                 !intent.getAction().startsWith(COM_FACEBOOK_APPLICATION)) {
             return false;
         } else {
-            return intent.getAction().equals(COM_FACEBOOK_APPLICATION + getFacebookAppId(context));
+            return intent.getAction().equals(COM_FACEBOOK_APPLICATION + getFacebookAppId(SoundCloudApplication.instance));
         }
     }
 
     static Intent getAuthIntent(Context context, String... permissions) {
-        final String applicationId = getFacebookAppId(context);
+        final String applicationId = getFacebookAppId(SoundCloudApplication.instance);
         Intent intent = new Intent();
         intent.setClassName("com.facebook.katana", "com.facebook.katana.ProxyAuth");
         intent.putExtra(FB_CLIENT_ID_EXTRA, applicationId);
@@ -110,9 +112,9 @@ public class FacebookSSO extends AbstractLoginActivity {
         }
     }
 
-    private static String getFacebookAppId(Context context) {
-        return context.getString(SoundCloudApplication.API_PRODUCTION ?
-                R.string.production_facebook_app_id : R.string.sandbox_facebook_app_id);
+    private static String getFacebookAppId(AndroidCloudAPI api) {
+        return api.getContext().getString(
+               api.getEnv() == Env.LIVE ? R.string.production_facebook_app_id : R.string.sandbox_facebook_app_id);
     }
 
     static boolean validateAppSignatureForIntent(Context context, Intent intent) {

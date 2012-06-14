@@ -13,7 +13,6 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.record.SoundRecorderService;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -35,9 +34,11 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -380,7 +381,7 @@ public class UploadService extends Service {
 
     private void showUploadingNotification(Recording recording, String action) {
         Notification n = getOngoingNotification(recording);
-        n.contentView.setTextViewText(R.id.time, CloudUtils.getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
+        n.contentView.setTextViewText(R.id.time, getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
         n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
         if (PROCESSING_STARTED.equals(action)) {
@@ -478,5 +479,11 @@ public class UploadService extends Service {
         HandlerThread thread = new HandlerThread(name);
         thread.start();
         return thread.getLooper();
+    }
+
+    private static CharSequence getFormattedNotificationTimestamp(Context context, long when) {
+        final Date date = new Date(when);
+        return DateUtils.isToday(when) ? android.text.format.DateFormat.getTimeFormat(context).format(date)
+                : android.text.format.DateFormat.getDateFormat(context).format(date);
     }
 }

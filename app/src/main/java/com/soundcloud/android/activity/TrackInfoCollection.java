@@ -9,7 +9,7 @@ import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.task.fetch.FetchTrackTask;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.android.view.TrackInfoBar;
 import com.soundcloud.api.Endpoints;
@@ -51,11 +51,11 @@ public abstract class TrackInfoCollection extends ScListActivity implements Sect
         adapter.sections.add(createSection());
 
         if (!mTrack.full_track_info_loaded) {
-            if (CloudUtils.isTaskFinished(mTrack.load_info_task)) {
+            if (AndroidUtils.isTaskFinished(mTrack.load_info_task)) {
                 mTrack.load_info_task = new FetchTrackTask(getApp(), mTrack.id);
             }
             mTrack.load_info_task.addListener(this);
-            if (CloudUtils.isTaskPending(mTrack.load_info_task)) {
+            if (AndroidUtils.isTaskPending(mTrack.load_info_task)) {
                 mTrack.load_info_task.execute(Request.to(Endpoints.TRACK_DETAILS, mTrack.id));
             }
         }

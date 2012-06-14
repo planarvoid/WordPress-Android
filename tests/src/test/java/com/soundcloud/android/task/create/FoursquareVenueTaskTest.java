@@ -4,8 +4,8 @@ package com.soundcloud.android.task.create;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.model.FoursquareVenue;
-import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,11 +15,11 @@ import android.location.Location;
 import java.util.List;
 
 @RunWith(DefaultTestRunner.class)
-public class FoursquareVenueTaskTest extends ApiTests {
+public class FoursquareVenueTaskTest {
 
     @Test
     public void taskShouldReturnVenues() throws Exception {
-        Robolectric.addPendingHttpResponse(200, resource("foursquare_venues.json"));
+        TestHelper.addCannedResponses(getClass(), "foursquare_venues.json");
 
         FoursquareVenueTask task = new FoursquareVenueTask();
         Location loc = new Location("mock");

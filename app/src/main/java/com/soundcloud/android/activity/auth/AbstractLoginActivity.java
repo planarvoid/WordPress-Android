@@ -16,7 +16,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.GetTokensTask;
 import com.soundcloud.android.task.fetch.FetchUserTask;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
@@ -70,7 +70,7 @@ public abstract class AbstractLoginActivity extends Activity {
             @Override
             protected void onPreExecute() {
                 if (!isFinishing()) {
-                    progress = CloudUtils.showProgress(AbstractLoginActivity.this,
+                    progress = AndroidUtils.showProgress(AbstractLoginActivity.this,
                             R.string.authentication_login_progress_message);
                 }
             }

@@ -26,7 +26,7 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.EventAware;
 import com.soundcloud.android.tracking.Level2;
 import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyCollection;
@@ -124,10 +124,10 @@ public class UserBrowser extends ScListActivity implements
         mTrackCount = (TextView) findViewById(R.id.tracks);
         mVrStats = findViewById(R.id.vr_stats);
 
-        CloudUtils.setTextShadowForGrayBg(mUsername);
-        CloudUtils.setTextShadowForGrayBg(mFullName);
-        CloudUtils.setTextShadowForGrayBg(mFollowerCount);
-        CloudUtils.setTextShadowForGrayBg(mTrackCount);
+        AndroidUtils.setTextShadowForGrayBg(mUsername);
+        AndroidUtils.setTextShadowForGrayBg(mFullName);
+        AndroidUtils.setTextShadowForGrayBg(mFollowerCount);
+        AndroidUtils.setTextShadowForGrayBg(mTrackCount);
 
         mLocation = (TextView) mInfoView.findViewById(R.id.location);
         mWebsite = (TextView) mInfoView.findViewById(R.id.website);
@@ -565,7 +565,7 @@ public class UserBrowser extends ScListActivity implements
 
                 if (msg.what == 0) {
                     setFollowingButton();
-                    CloudUtils.showToast(UserBrowser.this, R.string.error_change_following_status);
+                    AndroidUtils.showToast(UserBrowser.this, R.string.error_change_following_status);
                 }
             }
         });
