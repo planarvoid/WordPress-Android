@@ -1,3 +1,4 @@
 <resources>
     <string name="fakecamera">FakeCamera</string>
+    <string name="fakegallery">FakeGallery</string>
 </resources>

@@ -9,6 +9,7 @@ import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.Suppress;
 import android.webkit.WebView;
 
 public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
@@ -46,6 +47,7 @@ public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
         solo.assertText(R.string.tab_stream);
     }
 
+    @Suppress
     public void testLoginWithFacebook() throws Exception {
         solo.clickOnButtonResId(R.string.authentication_log_in_with_facebook);
         solo.assertDialogClosed();

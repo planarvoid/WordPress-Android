@@ -64,7 +64,7 @@ public class FakeCamera extends Activity {
         return new File(uri.getPath());
     }
 
-    private boolean generatePicture(File destination) throws IOException {
+    static boolean generatePicture(File destination) throws IOException {
         Log.d(TAG, "Generating "+destination);
 
         OutputStream out = new FileOutputStream(destination);
