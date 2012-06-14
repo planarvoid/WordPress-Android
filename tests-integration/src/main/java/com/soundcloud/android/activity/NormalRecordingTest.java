@@ -38,7 +38,7 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.assertText(R.string.dialog_confirm_delete_recording_message);
         solo.clickOnOK();
         solo.sleep(500);
-        assertTrue(getActivity().isFinishing());
+        solo.assertActivityFinished();
     }
 
     public void testRecordAndDiscard() throws Exception {
@@ -54,7 +54,7 @@ public class NormalRecordingTest extends RecordingTestCase {
         record(RECORDING_TIME);
 
         solo.clickOnNext();
-        assertTrue(solo.waitForActivity(ScUpload.class.getSimpleName()));
+        solo.assertActivity(ScUpload.class);
 
         solo.enterText(0, "A test upload");
         solo.clickOnRadioButton(1);  // make it private
@@ -69,11 +69,11 @@ public class NormalRecordingTest extends RecordingTestCase {
         record(RECORDING_TIME);
 
         solo.clickOnNext();
-        assertTrue(solo.waitForActivity(ScUpload.class.getSimpleName()));
+        solo.assertActivity(ScUpload.class);
 
         solo.clickOnText(R.string.record_another_sound);
 
-        assertTrue(solo.waitForActivity(ScCreate.class.getSimpleName()));
+        solo.assertActivity(ScCreate.class);
         assertState(IDLE_RECORD); // should be read to record a new track
     }
 
