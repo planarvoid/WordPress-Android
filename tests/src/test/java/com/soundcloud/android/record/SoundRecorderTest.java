@@ -81,8 +81,8 @@ public class SoundRecorderTest {
         // change settings
         recorder.toggleFade();
         recorder.toggleOptimize();
-        recorder.onNewStartPosition(0.1d, 0.0d, 100);
-        recorder.onNewEndPosition(0.9d, 1d, 100);
+        recorder.onNewStartPosition(0.1d, 100);
+        recorder.onNewEndPosition(0.9d, 100);
 
         // and persist
         Recording saved = recorder.saveState();
@@ -98,15 +98,5 @@ public class SoundRecorderTest {
         expect(ps.isOptimized()).toBeTrue();
         expect(ps.getStartPos()).toEqual(564L);
         expect(ps.getEndPos()).toEqual(5077L);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldCheckForValidEndPosition() throws Exception {
-        recorder.onNewEndPosition(90d, 1d, 100);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldCheckForValidStartPosition() throws Exception {
-        recorder.onNewStartPosition(-20d, 1d, 100);
     }
 }

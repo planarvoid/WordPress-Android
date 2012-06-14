@@ -225,14 +225,14 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     @Override
-    public void onAdjustTrimLeft(float newPos, float oldPos, long moveTime) {
-        mRecorder.onNewStartPosition(newPos, oldPos, moveTime);
+    public void onAdjustTrimLeft(float newPos, long moveTime) {
+        mRecorder.onNewStartPosition(newPos, moveTime);
         if (!mRecorder.isPlaying()) configurePlaybackInfo();
     }
 
     @Override
-    public void onAdjustTrimRight(float newPos, float oldPos, long moveTime) {
-        mRecorder.onNewEndPosition(newPos, oldPos, moveTime);
+    public void onAdjustTrimRight(float newPos, long moveTime) {
+        mRecorder.onNewEndPosition(newPos, moveTime);
         if (!mRecorder.isPlaying()) configurePlaybackInfo();
     }
 

@@ -390,17 +390,15 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
-    public void onNewStartPosition(double newPos, double oldPos, long moveTime) {
-        if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("invalid percent "+newPos);
+    public void onNewStartPosition(double newPos, long moveTime) {
         if (mPlaybackStream != null) {
-            previewTrim(mPlaybackStream.setStartPositionByPercent(newPos, oldPos, moveTime));
+            previewTrim(mPlaybackStream.setStartPositionByPercent(newPos, moveTime));
         }
     }
 
-    public void onNewEndPosition(double newPos, double oldPos, long moveTime) {
-        if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("invalid percent "+newPos);
+    public void onNewEndPosition(double newPos, long moveTime) {
         if (mPlaybackStream != null) {
-            previewTrim(mPlaybackStream.setEndPositionByPercent(newPos, oldPos, moveTime));
+            previewTrim(mPlaybackStream.setEndPositionByPercent(newPos, moveTime));
         }
     }
 

@@ -51,8 +51,8 @@ public class CreateWaveDisplay extends TouchLayout {
 
     public static interface Listener {
         void onSeek(float pos);
-        void onAdjustTrimLeft(float newPos, float oldPos, long moveTimeMs);
-        void onAdjustTrimRight(float newPos, float oldPos, long moveTimeMs);
+        void onAdjustTrimLeft(float newPos, long moveTimeMs);
+        void onAdjustTrimRight(float newPos, long moveTimeMs);
     }
 
     public CreateWaveDisplay(Context context) {
@@ -268,12 +268,11 @@ public class CreateWaveDisplay extends TouchLayout {
                         leftLp.leftMargin = newTrimActionLeft.position + leftMarginOffset;
                         leftHandle.requestLayout();
 
-                        final float oldTrimPercentLeft = trimPercentLeft;
                         trimPercentLeft = Math.max(0, ((float) newTrimActionLeft.position / waveformWidth));
                         mWaveformView.setTrimLeft(trimPercentLeft);
 
                         if (mListener != null) {
-                            mListener.onAdjustTrimLeft(trimPercentLeft, oldTrimPercentLeft, newTrimActionLeft.timestamp - lastTrimActionLeft.timestamp);
+                            mListener.onAdjustTrimLeft(trimPercentLeft, newTrimActionLeft.timestamp - lastTrimActionLeft.timestamp);
                         }
                     }
                     lastTrimActionLeft = newTrimActionLeft;
@@ -282,12 +281,11 @@ public class CreateWaveDisplay extends TouchLayout {
                         rightLp.rightMargin = waveformWidth - newTrimActionRight.position + rightMarginOffset;
                         rightHandle.requestLayout();
 
-                        final float oldTrimPercentRight = trimPercentRight;
                         trimPercentRight = Math.min(1, ((float) newTrimActionRight.position / waveformWidth));
                         mWaveformView.setTrimRight(trimPercentRight);
 
                         if (mListener != null) {
-                            mListener.onAdjustTrimRight(trimPercentRight, oldTrimPercentRight, newTrimActionRight.timestamp - lastTrimActionRight.timestamp);
+                            mListener.onAdjustTrimRight(trimPercentRight, newTrimActionRight.timestamp - lastTrimActionRight.timestamp);
                         }
                     }
                     lastTrimActionRight = newTrimActionRight;
