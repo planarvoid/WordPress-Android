@@ -4,7 +4,7 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_P
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.content.BroadcastReceiver;
@@ -13,18 +13,16 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
-import android.test.ActivityInstrumentationTestCase2;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2<ScCreate> {
+public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
     protected static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     // longer recordings on emulator
     protected static final int RECORDING_TIME = EMULATOR ? 6000 : 2000;
 
-    protected Han solo;
     protected LocalBroadcastManager lbm;
     protected List<Intent> intents;
 
@@ -52,15 +50,11 @@ public abstract class RecordingTestCase extends ActivityInstrumentationTestCase2
                 getActivity().reset();
             }
         });
-        solo = new Han(getInstrumentation(), getActivity());
         super.setUp();
     }
 
     @Override
     public void tearDown() throws Exception {
-        if (solo != null) {
-            solo.finishOpenedActivities();
-        }
         lbm.unregisterReceiver(receiver);
         super.tearDown();
     }

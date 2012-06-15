@@ -1,19 +1,15 @@
 package com.soundcloud.android.activity.auth;
 
-import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Main;
-import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
-import android.test.ActivityInstrumentationTestCase2;
 import android.text.Html;
 
 import java.util.UUID;
 
-public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
-    private Han solo;
-
+public class SignupTest extends ActivityTestCase<Main> {
     public SignupTest() {
         super(Main.class);
     }
@@ -21,18 +17,8 @@ public class SignupTest extends ActivityInstrumentationTestCase2<Main> {
     @Override
     public void setUp() throws Exception {
         IntegrationTestHelper.logOut(getInstrumentation());
-        solo = new Han(getInstrumentation(), getActivity());
         super.setUp();
     }
-
-    @Override
-    public void tearDown() throws Exception {
-        if (solo != null) {
-            solo.finishOpenedActivities();
-        }
-        super.tearDown();
-    }
-
 
     public void testSignup() throws Exception {
         performSignup(generateEmail(), "password", "password");

@@ -3,19 +3,13 @@ package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Main;
-import com.soundcloud.android.activity.auth.FacebookWebFlow;
-import com.soundcloud.android.activity.auth.Recover;
-import com.soundcloud.android.activity.auth.Start;
-import com.soundcloud.android.tests.Han;
+import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
-import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.Suppress;
 import android.webkit.WebView;
 
-public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
-    private Han solo;
-
+public class LoginTest extends ActivityTestCase<Main> {
     public LoginTest() {
         super(Main.class);
     }
@@ -23,16 +17,7 @@ public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
     @Override
     public void setUp() throws Exception {
         IntegrationTestHelper.logOut(getInstrumentation());
-        solo = new Han(getInstrumentation(), getActivity());
         super.setUp();
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        if (solo != null) {
-            solo.finishOpenedActivities();
-        }
-        super.tearDown();
     }
 
     public void testLogin() throws Exception {
