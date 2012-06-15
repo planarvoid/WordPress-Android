@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.create;
 
 
 import static org.junit.Assert.assertEquals;

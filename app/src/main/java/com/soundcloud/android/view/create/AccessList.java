@@ -1,4 +1,4 @@
-package com.soundcloud.android.view;
+package com.soundcloud.android.view.create;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -25,15 +25,16 @@ import android.widget.TextView;
 
 import java.util.List;
 
-@SuppressWarnings({"UnusedDeclaration"})
 public class AccessList extends LinearLayout implements View.OnClickListener {
     private Adapter listAdapter;
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public AccessList(Context context) {
         super(context);
         setOrientation(LinearLayout.VERTICAL);
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public AccessList(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOrientation(LinearLayout.VERTICAL);
@@ -116,7 +117,7 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, @Nullable View convertView, ViewGroup parent) {
 
            Cursor c = parent.getContext().getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,
                     new String[] {

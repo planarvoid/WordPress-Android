@@ -12,9 +12,9 @@ import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
-import com.soundcloud.android.view.AccessList;
+import com.soundcloud.android.view.create.AccessList;
 import com.soundcloud.android.view.ButtonBar;
-import com.soundcloud.android.view.ConnectionList;
+import com.soundcloud.android.view.create.ConnectionList;
 import com.soundcloud.android.view.create.RecordingMetaData;
 import com.soundcloud.android.view.create.ShareUserHeader;
 

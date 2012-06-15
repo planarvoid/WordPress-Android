@@ -72,7 +72,7 @@
                   android:layout_height="fill_parent"
                   android:layout_below="@+id/share_options_separator">
 
-                <com.soundcloud.android.view.ConnectionList
+                <com.soundcloud.android.view.create.ConnectionList
                       android:id="@+id/connectionList"
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"/>
@@ -108,7 +108,7 @@
                                 android:layout_width="fill_parent"
                                 android:layout_below="@id/btn_add_emails" android:layout_height="1dip"/>
 
-                          <com.soundcloud.android.view.AccessList
+                          <com.soundcloud.android.view.create.AccessList
                                   android:layout_below="@id/share_access_seperator"
                                   android:id="@+id/accessList"
                                   android:layout_width="fill_parent"
