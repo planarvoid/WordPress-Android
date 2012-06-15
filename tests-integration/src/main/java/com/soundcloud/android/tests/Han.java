@@ -110,7 +110,7 @@ public class Han extends Solo {
         float x = screenWidth / 2.0f;
         float y = screenHeight / 2.0f;
 
-        final int steps = 2;
+        final int steps = 1;
         if (side == Solo.LEFT) {
             drag(x, 0, y, y, steps);
         } else if (side == Solo.RIGHT) {
