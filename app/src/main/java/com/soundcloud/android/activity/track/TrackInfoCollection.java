@@ -1,9 +1,10 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.track;
 
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Playable;

@@ -40,8 +40,8 @@ public class ATTracker {
     private static final String CUSTOM_FB_SIGNUP   = "6";
 
     private final ArrayList<ATParams> mQueue = new ArrayList<ATParams>();
-    private boolean mQueueFlushing = false;
-    private ATParams[] mEvents = null; // temporary working set, held globally to avoid pointless repeated allocations
+    private boolean mQueueFlushing;
+    private ATParams[] mEvents; // temporary working set, held globally to avoid pointless repeated allocations
 
     final private SoundCloudApplication app;
 

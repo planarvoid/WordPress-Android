@@ -1,6 +1,6 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.create;
 
-import static com.soundcloud.android.activity.ScCreate.CreateState.IDLE_PLAYBACK;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_PLAYBACK;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.User;

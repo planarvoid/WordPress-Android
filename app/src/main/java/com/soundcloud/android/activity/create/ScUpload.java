@@ -1,10 +1,11 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.create;
 
 
 import com.android.camera.CropImage;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;

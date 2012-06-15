@@ -15,9 +15,7 @@ import android.widget.Toast;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Connect;
 import com.soundcloud.android.activity.ScListActivity;
-import com.soundcloud.android.activity.Tour;
 import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;

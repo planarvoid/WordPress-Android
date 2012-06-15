@@ -2,7 +2,7 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.EmailPicker;
+import com.soundcloud.android.activity.create.EmailPicker;
 import com.soundcloud.android.utils.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 

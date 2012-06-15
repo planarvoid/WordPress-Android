@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.create;
 
 import static junit.framework.Assert.assertNotSame;
 

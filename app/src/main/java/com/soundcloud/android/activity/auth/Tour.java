@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.create;
 
 import android.annotation.SuppressLint;
 import android.content.IntentFilter;
@@ -6,6 +6,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -441,7 +442,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         updateUi(CreateState.IDLE_RECORD, true);
     }
 
-    /* package */ SoundRecorder getRecorder() {
+    public  SoundRecorder getRecorder() {
         return mRecorder;
     }
 

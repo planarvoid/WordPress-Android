@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Connect;
+import com.soundcloud.android.activity.auth.Connect;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.FriendFinderAdapter;

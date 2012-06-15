@@ -1,14 +1,8 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.create;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.service.upload.Poller;
 import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 
@@ -19,7 +13,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;

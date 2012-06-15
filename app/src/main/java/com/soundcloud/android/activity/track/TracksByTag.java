@@ -1,6 +1,7 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.track;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.adapter.SectionedTracklistAdapter;

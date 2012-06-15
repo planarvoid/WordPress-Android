@@ -4,8 +4,8 @@ import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScPlayer;
-import com.soundcloud.android.activity.TrackComments;
-import com.soundcloud.android.activity.TrackFavoriters;
+import com.soundcloud.android.activity.track.TrackComments;
+import com.soundcloud.android.activity.track.TrackFavoriters;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;

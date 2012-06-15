@@ -148,7 +148,7 @@
         <activity android:name=".activity.auth.FacebookSSO"/>
         <activity android:name=".activity.auth.SuggestedUsers" android:label="@string/app_name" android:configChanges="orientation"/>
 
-        <activity android:name=".activity.Connect"
+        <activity android:name=".activity.auth.Connect"
             android:label="Connect"
             android:configChanges="orientation|keyboardHidden">
 
@@ -172,19 +172,19 @@
                   android:windowSoftInputMode="adjustPan"
                   android:theme="@style/Theme.ScNoBackground" />
 
-        <activity android:name=".activity.Tour" android:screenOrientation="portrait" />
-        <activity android:name=".activity.TrackFavoriters" />
-        <activity android:name=".activity.TrackComments" />
-        <activity android:name=".activity.TracksByTag" />
+        <activity android:name=".activity.auth.Tour" android:screenOrientation="portrait" />
+        <activity android:name=".activity.track.TrackFavoriters" />
+        <activity android:name=".activity.track.TrackComments" />
+        <activity android:name=".activity.track.TracksByTag" />
         <activity android:name=".activity.ScSearch"/>
         <activity android:name=".activity.settings.Settings" android:label="Settings"/>
         <activity android:name=".activity.settings.AccountSettings" />
         <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" />
         <activity android:name=".activity.UserBrowser" android:label="Profile"/>
-        <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>
-        <activity android:name=".activity.LocationPicker"/>
-        <activity android:name=".activity.EmailConfirm"/>
-        <activity android:name=".activity.ScCreate"
+        <activity android:name=".activity.create.EmailPicker" android:theme="@style/ScDark"/>
+        <activity android:name=".activity.create.LocationPicker"/>
+        <activity android:name=".activity.auth.EmailConfirm"/>
+        <activity android:name=".activity.create.ScCreate"
                   android:theme="@style/Theme.ScNoBackground"
                   android:launchMode="singleTask">
             <intent-filter>
@@ -197,14 +197,14 @@
             </intent-filter>
         </activity>
         <activity android:name="com.android.camera.CropImage" />
-        <activity android:name=".activity.UploadMonitor" android:launchMode="singleTask">
+        <activity android:name=".activity.create.UploadMonitor" android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="com.soundcloud.android.actions.upload.monitor"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.ScUpload" android:windowSoftInputMode="adjustPan" android:theme="@style/Theme.ScNoBackground" >
+        <activity android:name=".activity.create.ScUpload" android:windowSoftInputMode="adjustPan" android:theme="@style/Theme.ScNoBackground" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
                 <data android:mimeType="audio/*"/>
@@ -218,7 +218,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.About"/>
+        <activity android:name=".activity.settings.About"/>
 
         <!-- providers -->
         <provider android:name=".provider.ScContentProvider"

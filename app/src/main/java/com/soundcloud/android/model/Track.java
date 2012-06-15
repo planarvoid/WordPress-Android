@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.TracksByTag;
+import com.soundcloud.android.activity.track.TracksByTag;
 import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;

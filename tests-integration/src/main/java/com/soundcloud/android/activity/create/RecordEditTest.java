@@ -1,4 +1,4 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.create;
 
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;

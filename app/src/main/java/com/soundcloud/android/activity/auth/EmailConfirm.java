@@ -1,5 +1,5 @@
 
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.auth;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 

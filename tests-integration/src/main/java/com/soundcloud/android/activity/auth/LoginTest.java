@@ -1,7 +1,8 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.auth;
 
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.activity.auth.FacebookWebFlow;
 import com.soundcloud.android.activity.auth.Recover;
 import com.soundcloud.android.activity.auth.Start;

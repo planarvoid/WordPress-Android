@@ -3,7 +3,7 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.Connect;
+import com.soundcloud.android.activity.auth.Connect;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.ParcelCache;
 import com.soundcloud.android.model.Connection;

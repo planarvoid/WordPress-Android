@@ -1,13 +1,12 @@
-package com.soundcloud.android.activity;
+package com.soundcloud.android.activity.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.auth.SignupDetails;
+import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.tests.Han;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.test.ActivityInstrumentationTestCase2;
 
-import java.io.File;
 import java.util.UUID;
 
 public class SignupTest extends ActivityInstrumentationTestCase2<Main> {

@@ -2,32 +2,24 @@ package com.soundcloud.android.audio;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.record.AmplitudeData;
-import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.record.SoundRecorderTest;
 import com.soundcloud.android.record.WavHeaderTest;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.utils.IOUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.os.Parcel;
-import android.support.v4.content.LocalBroadcastManager;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
-import java.util.Arrays;
 
 
 @RunWith(DefaultTestRunner.class)
 public class PlaybackStreamTest {
     PlaybackStream stream;
-        private File wavFile = new File(SoundRecorderTest.class.getResource(WavHeaderTest.PCM16_8000_1_WAV).getFile());
-
+    private File wavFile = new File(SoundRecorderTest.class.getResource(WavHeaderTest.PCM16_8000_1_WAV).getFile());
 
     @Before
     public void before() throws IOException {
@@ -82,7 +74,7 @@ public class PlaybackStreamTest {
                 total += Math.abs(sb.get());
                 read++;
             }
-            System.out.println( "avg chunk amplitude is " + (total / read) + " at " + totalRead / ((float) stream.getConfig().bytesPerSecond));
+            System.out.println("avg chunk amplitude is " + (total / read) + " at " + totalRead / ((float) stream.getConfig().bytesPerSecond));
             buffer.clear();
         }
 
