@@ -9,6 +9,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
@@ -138,8 +139,8 @@ public class ScTextUtils {
         return getTimeString(r, Math.max(0, (System.currentTimeMillis() - timestamp)/1000), false);
     }
 
-    public static boolean checkEmail(CharSequence email) {
-        return EMAIL_ADDRESS_PATTERN.matcher(email).matches();
+    public static boolean isEmail(CharSequence string) {
+        return !TextUtils.isEmpty(string) && EMAIL_ADDRESS_PATTERN.matcher(string).matches();
     }
 
     public static class ClickSpan extends ClickableSpan {

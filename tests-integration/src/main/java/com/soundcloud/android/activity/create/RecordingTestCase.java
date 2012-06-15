@@ -1,6 +1,6 @@
 package com.soundcloud.android.activity.create;
 
-import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_PLAYBACK;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.*;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.service.upload.UploadService;
@@ -10,7 +10,6 @@ import com.soundcloud.android.tests.IntegrationTestHelper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -19,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
-    protected static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
     // longer recordings on emulator
     protected static final int RECORDING_TIME = EMULATOR ? 6000 : 2000;
 
@@ -65,10 +63,10 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
 
     protected void record(int howlong, String text) {
         solo.assertText(text);
-        assertState(ScCreate.CreateState.IDLE_RECORD);
+        assertState(IDLE_RECORD);
         solo.clickOnView(R.id.btn_action);
         solo.sleep(howlong);
-        assertState(ScCreate.CreateState.RECORD);
+        assertState(RECORD);
         solo.clickOnView(R.id.btn_action);
         solo.assertText(R.string.reset); // "Discard"
         assertState(IDLE_PLAYBACK);
@@ -77,19 +75,19 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
     protected void gotoEditMode() {
         solo.clickOnView(getActivity().findViewById(R.id.btn_edit));
         solo.assertText(R.string.btn_revert_to_original);
-        assertState(ScCreate.CreateState.EDIT);
+        assertState(EDIT);
     }
 
     protected void playback() {
-        assertState(ScCreate.CreateState.IDLE_PLAYBACK);
+        assertState(IDLE_PLAYBACK);
         solo.clickOnView(R.id.btn_play);
-        assertState(ScCreate.CreateState.PLAYBACK);
+        assertState(PLAYBACK);
     }
 
     protected void playbackEdit() {
-        assertState(ScCreate.CreateState.EDIT);
+        assertState(EDIT);
         solo.clickOnView(R.id.btn_play_edit);
-        assertState(ScCreate.CreateState.EDIT_PLAYBACK);
+        assertState(EDIT_PLAYBACK);
     }
 
     protected void assertState(ScCreate.CreateState state) {

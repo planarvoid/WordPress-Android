@@ -587,7 +587,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         final int workspacePos = mCurrentQueuePosition > 0 ? 1 : 0;
         if (!mTrackWorkspace.isInitialized()){
             mTrackWorkspace.setVisibility(View.VISIBLE);
-            mTrackWorkspace.setSeparator(R.drawable.track_view_seperator);
+            mTrackWorkspace.setSeparator(R.drawable.track_view_separator);
             mTrackWorkspace.initWorkspace(workspacePos);
         } else if (workspacePos != mTrackWorkspace.getCurrentScreen()){
             mTrackWorkspace.setCurrentScreenNow(mCurrentQueuePosition > 0 ? 1 : 0, false);

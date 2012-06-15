@@ -259,7 +259,7 @@ public final class AndroidUtils {
         Map<String, Integer> counts = new HashMap<String, Integer>();
         Account[] accounts = AccountManager.get(context).getAccounts();
         for (Account account : accounts) {
-            if (ScTextUtils.checkEmail(account.name)) {
+            if (ScTextUtils.isEmail(account.name)) {
                 if (counts.get(account.name) == null) {
                     counts.put(account.name, 1);
                 } else {

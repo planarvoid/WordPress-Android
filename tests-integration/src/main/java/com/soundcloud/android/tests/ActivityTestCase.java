@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests;
 
 import android.app.Activity;
+import android.os.Build;
 import android.test.ActivityInstrumentationTestCase2;
 
 /**
@@ -8,6 +9,8 @@ import android.test.ActivityInstrumentationTestCase2;
  * screenshots for test failures.
  */
 public abstract class ActivityTestCase<T extends Activity> extends ActivityInstrumentationTestCase2<T> {
+    protected static final boolean EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT);
+
     protected Han solo;
 
     public ActivityTestCase(Class<T> activityClass) {

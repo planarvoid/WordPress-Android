@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests;
 
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 import com.jayway.android.robotium.solo.Solo;
@@ -62,6 +63,11 @@ public class Han extends Solo {
 
     public void assertText(String text) {
         assertTrue(waitForText(text));
+    }
+
+    public void assertNoText(int resId, Object... args) {
+        String text = getString(resId, args);
+        assertFalse("Did not expect to find text: "+text, searchText(Pattern.quote(text), true));
     }
 
     @SuppressWarnings("unchecked")

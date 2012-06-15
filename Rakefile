@@ -85,6 +85,7 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
           DEFAULT_LEVELS.each do |tag|
             adb["shell setprop log.tag.#{tag} #{level.upcase}"]
           end
+          adb["shell setprop debug.assert 1"]
         end
       end
     end

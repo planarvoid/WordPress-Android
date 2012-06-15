@@ -78,7 +78,7 @@ public class SignUp extends Activity {
                         choosePasswordField.getText().length() == 0 ||
                         repeatPasswordField.getText().length() == 0) {
                     AndroidUtils.showToast(SignUp.this, R.string.authentication_error_incomplete_fields);
-                } else if (!ScTextUtils.checkEmail(emailField.getText())) {
+                } else if (!ScTextUtils.isEmail(emailField.getText())) {
                     AndroidUtils.showToast(SignUp.this, R.string.authentication_error_invalid_email);
                 } else if (!choosePasswordField.getText().toString().equals(repeatPasswordField.getText().toString())) {
                     AndroidUtils.showToast(SignUp.this, R.string.authentication_error_password_mismatch);

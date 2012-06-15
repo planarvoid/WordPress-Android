@@ -103,13 +103,13 @@
                                           android:layout_centerVertical="true" />
                            </RelativeLayout>
 
-                          <View android:id="@+id/share_access_seperator"
+                          <View android:id="@+id/share_access_separator"
                                 android:background="@color/recordUploadBorder"
                                 android:layout_width="fill_parent"
                                 android:layout_below="@id/btn_add_emails" android:layout_height="1dip"/>
 
                           <com.soundcloud.android.view.create.AccessList
-                                  android:layout_below="@id/share_access_seperator"
+                                  android:layout_below="@id/share_access_separator"
                                   android:id="@+id/accessList"
                                   android:layout_width="fill_parent"
                                   android:layout_height="fill_parent"/>

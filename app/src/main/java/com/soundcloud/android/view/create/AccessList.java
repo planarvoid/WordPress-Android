@@ -3,7 +3,6 @@ package com.soundcloud.android.view.create;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.create.EmailPicker;
-import com.soundcloud.android.utils.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
@@ -11,17 +10,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.provider.ContactsContract;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -30,36 +25,14 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
 
     @SuppressWarnings({"UnusedDeclaration"})
     public AccessList(Context context) {
-        super(context);
-        setOrientation(LinearLayout.VERTICAL);
+        this(context, null);
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    public AccessList(Context context, AttributeSet attrs) {
+    public AccessList(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         setOrientation(LinearLayout.VERTICAL);
-    }
-
-    protected void handleDataChanged() {
-
-        removeAllViews();
-        if (listAdapter.getCount() != 0) {
-            for (int i = 0; i < listAdapter.getCount(); i++) {
-                View item = listAdapter.getView(i, null, this);
-                item.setOnClickListener(this);
-
-                addView(item);
-                addView(getSeparator());
-            }
-        }
-    }
-
-    public Adapter getAdapter() {
-        return listAdapter;
-    }
-
-    public void setAdapter(Adapter listAdapter) {
-        this.listAdapter = listAdapter;
+        listAdapter = new Adapter();
         listAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
             public void onChanged() {
@@ -73,32 +46,62 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
         });
     }
 
-    private View getSeparator() {
-        final View v = new View(this.getContext());
-        v.setLayoutParams(new LayoutParams(
-                LayoutParams.FILL_PARENT,
-                1));
+    public List<String> get() {
+        return listAdapter.getAccessList();
+    }
 
-        v.setBackgroundColor(getResources().getColor(R.color.recordUploadBorder));
-        return v;
+    public void set(List<String> strings) {
+        listAdapter.setAccessList(strings);
+    }
+
+    public boolean isEmpty() {
+        return listAdapter.getCount() == 0;
+    }
+
+    public void registerDataSetObserver(DataSetObserver observer) {
+        listAdapter.registerDataSetObserver(observer);
     }
 
     @Override
-    public void onClick(View v) {
-        if (getContext() instanceof  Activity) {
-            List<String> accessList = getAdapter().getAccessList();
+    public void onClick(View view) {
+        if (getContext() instanceof Activity) {
+            List<String> accessList = listAdapter.getAccessList();
             Intent intent = new Intent(getContext(), EmailPicker.class);
             if (accessList != null) {
-                intent.putExtra(EmailPicker.BUNDLE_KEY, accessList.toArray(new String[accessList.size()]));
-                intent.putExtra(EmailPicker.SELECTED, ((TextView) v.findViewById(R.id.email)).getText());
+                EmailPickerItem item = (EmailPickerItem) view;
+
+                intent.putExtra(EmailPicker.BUNDLE_KEY,
+                        accessList.toArray(new String[accessList.size()]));
+                intent.putExtra(EmailPicker.SELECTED, item.getEmail());
             }
-            ((Activity)getContext()).startActivityForResult(
+            ((Activity) getContext()).startActivityForResult(
                     intent,
                     Consts.RequestCodes.PICK_EMAILS);
         }
     }
 
-    public static class Adapter extends BaseAdapter {
+    private void handleDataChanged() {
+        removeAllViews();
+        if (listAdapter.getCount() != 0) {
+            for (int i = 0; i < listAdapter.getCount(); i++) {
+                View item = listAdapter.getView(i, null, this);
+                item.setOnClickListener(this);
+
+                addView(item);
+                addView(getSeparator());
+            }
+        }
+    }
+
+    private View getSeparator() {
+        final View v = new View(this.getContext());
+        v.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, 1));
+        v.setBackgroundColor(getResources().getColor(R.color.recordUploadBorder));
+        return v;
+    }
+
+
+    private static class Adapter extends BaseAdapter {
         private List<String> mAccessList;
 
         @Override
@@ -107,7 +110,7 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
         }
 
         @Override
-        public Object getItem(int position) {
+        public String getItem(int position) {
             return mAccessList.get(position);
         }
 
@@ -118,46 +121,41 @@ public class AccessList extends LinearLayout implements View.OnClickListener {
 
         @Override
         public View getView(int position, @Nullable View convertView, ViewGroup parent) {
+            final String email = getItem(position);
 
-           Cursor c = parent.getContext().getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,
-                    new String[] {
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
-                            ContactsContract.Contacts.DISPLAY_NAME,
-                            ContactsContract.CommonDataKinds.Email._ID,
-                            ContactsContract.CommonDataKinds.Email.DATA
-                    },
-                    ContactsContract.CommonDataKinds.Email.DATA + "=  ?",
-                    new String[] {getItem(position).toString()}, null);
+            EmailPickerItem view;
+            if (convertView instanceof EmailPickerItem) {
+                view = (EmailPickerItem) convertView;
+            } else {
+                view = (EmailPickerItem)
+                        ((LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                                .inflate(R.layout.email_picker_item, parent, false);
+            }
 
-           if (c != null && c.moveToFirst()){
-               View view;
-               if (convertView == null) {
-                   view = ((LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.email_picker_item, parent, false);
-               } else {
-                   view = convertView;
-               }
+            final Cursor c = parent.getContext().getContentResolver()
+                    .query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                            new String[]{
+                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+                                    ContactsContract.Contacts.DISPLAY_NAME,
+                                    ContactsContract.CommonDataKinds.Email._ID,
+                                    ContactsContract.CommonDataKinds.Email.DATA
+                            },
+                            ContactsContract.CommonDataKinds.Email.DATA + "=  ?",
+                            new String[]{email}, null);
 
-               ((TextView) view.findViewById(R.id.name)).setText(c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));
-               ((TextView) view.findViewById(R.id.email)).setText(c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA)));
+            if (c != null && c.moveToFirst()) {
+                view.initializeFromCursor(c);
+            } else {
+                // set as email as name (for display purposes)
+                view.setName(email);
+            }
 
-               Bitmap bitmap = ImageUtils.loadContactPhoto(parent.getContext().getContentResolver(), c.getLong(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)));
-               ((ImageView) view.findViewById(R.id.icon))
-                       .setImageBitmap(bitmap == null ? BitmapFactory.decodeResource(
-                               parent.getContext().getResources(), R.drawable.ic_contact_list_picture) : bitmap);
-               return view;
-
-           } else {
-               TextView text = new TextView(parent.getContext());
-               text.setPadding(10, 10, 10, 10);
-               text.setTextSize(20f);
-               text.setTextColor(parent.getResources().getColor(R.color.white)); // XXX hardcoded color
-               text.setText(getItem(position).toString());
-               return text;
-           }
+            if (c != null) c.close();
+            return view;
         }
 
         public void setAccessList(@Nullable List<String> accessList) {
-            this.mAccessList = accessList;
+            mAccessList = accessList;
             notifyDataSetChanged();
         }
 

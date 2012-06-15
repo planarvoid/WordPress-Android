@@ -46,10 +46,11 @@ public class ScTextUtilsTest {
     }
 
     @Test
-    public void shouldCheckEmail() throws Exception {
-        expect(ScTextUtils.checkEmail("foo@bar.com")).toBeTrue();
-        expect(ScTextUtils.checkEmail("Foo+special@bar.com")).toBeTrue();
-        expect(ScTextUtils.checkEmail("foo@barcom")).toBeFalse();
-        expect(ScTextUtils.checkEmail("foobar.com")).toBeFalse();
+    public void testIsEmail() throws Exception {
+        expect(ScTextUtils.isEmail(null)).toBeFalse();
+        expect(ScTextUtils.isEmail("foo@bar.com")).toBeTrue();
+        expect(ScTextUtils.isEmail("Foo+special@bar.com")).toBeTrue();
+        expect(ScTextUtils.isEmail("foo@barcom")).toBeFalse();
+        expect(ScTextUtils.isEmail("foobar.com")).toBeFalse();
     }
 }

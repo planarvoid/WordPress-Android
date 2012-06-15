@@ -15,6 +15,7 @@ import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.android.view.create.AccessList;
 import com.soundcloud.android.view.ButtonBar;
 import com.soundcloud.android.view.create.ConnectionList;
+import com.soundcloud.android.view.create.EmailPickerItem;
 import com.soundcloud.android.view.create.RecordingMetaData;
 import com.soundcloud.android.view.create.ShareUserHeader;
 
@@ -115,7 +116,6 @@ public class ScUpload extends ScActivity {
             mRdoPublic = (RadioButton) findViewById(R.id.rdo_public);
             mRdoPrivate = (RadioButton) findViewById(R.id.rdo_private);
 
-
             mRdoPrivacy.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -136,14 +136,10 @@ public class ScUpload extends ScActivity {
             mConnectionList.setAdapter(new ConnectionList.Adapter(this.getApp()));
 
             mAccessList = (AccessList) findViewById(R.id.accessList);
-            mAccessList.setAdapter(new AccessList.Adapter());
-            mAccessList.getAdapter().setAccessList(null);
-
-            mAccessList.getAdapter().registerDataSetObserver(new DataSetObserver() {
-                @Override
-                public void onChanged() {
+            mAccessList.registerDataSetObserver(new DataSetObserver() {
+                @Override public void onChanged() {
                     findViewById(R.id.btn_add_emails).setVisibility(
-                            mAccessList.getAdapter().getCount() > 0 ? View.GONE : View.VISIBLE
+                        mAccessList.isEmpty() ? View.VISIBLE : View.GONE
                     );
                 }
             });
@@ -151,12 +147,12 @@ public class ScUpload extends ScActivity {
             findViewById(R.id.btn_add_emails).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    List<String> accessList = mAccessList.getAdapter().getAccessList();
+                    List<String> accessList = mAccessList.get();
                     Intent intent = new Intent(ScUpload.this, EmailPicker.class);
                     if (accessList != null) {
                         intent.putExtra(EmailPicker.BUNDLE_KEY, accessList.toArray(new String[accessList.size()]));
-                        if (v instanceof TextView) {
-                            intent.putExtra(EmailPicker.SELECTED, ((TextView) v).getText());
+                        if (v instanceof EmailPickerItem) {
+                            intent.putExtra(EmailPicker.SELECTED, ((EmailPickerItem) v).getEmail());
                         }
                     }
                     startActivityForResult(intent, Consts.RequestCodes.PICK_EMAILS);
@@ -198,7 +194,7 @@ public class ScUpload extends ScActivity {
     }
 
     private void setPrivateShareEmails(String[] emails) {
-        mAccessList.getAdapter().setAccessList(Arrays.asList(emails));
+        mAccessList.set(Arrays.asList(emails));
     }
 
     private void errorOut(int error) {
@@ -252,8 +248,8 @@ public class ScUpload extends ScActivity {
                 recording.shared_emails = null;
             } else {
                 recording.service_ids = null;
-                if (mAccessList.getAdapter().getAccessList() != null) {
-                    recording.shared_emails = TextUtils.join(",", mAccessList.getAdapter().getAccessList());
+                if (mAccessList.get() != null) {
+                    recording.shared_emails = TextUtils.join(",", mAccessList.get());
                 }
             }
         }
