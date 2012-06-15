@@ -5,6 +5,6 @@ import java.io.IOException;
 public class DecoderException extends IOException {
 
     public DecoderException(String detailMessage, int error) {
-        super(detailMessage);
+        super(detailMessage + ": " + VorbisConstants.getString(error));
     }
 }

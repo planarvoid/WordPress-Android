@@ -3,7 +3,6 @@ package com.soundcloud.android.audio;
 import com.soundcloud.android.jni.Info;
 import com.soundcloud.android.jni.VorbisDecoder;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -13,7 +12,7 @@ public class VorbisFile implements AudioFile {
     private Info info;
 
 
-    public VorbisFile(File file) {
+    public VorbisFile(File file) throws IOException {
         this(new VorbisDecoder(file));
     }
 

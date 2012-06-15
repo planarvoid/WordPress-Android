@@ -16,9 +16,12 @@ public class VorbisDecoder {
     @SuppressWarnings("UnusedDeclaration") // used in JNI code
     private int decoder_state;
 
-    public VorbisDecoder(File file) {
+    public VorbisDecoder(File file) throws DecoderException {
         this.file = file;
-        init(file.getAbsolutePath());
+        int ret = init(file.getAbsolutePath());
+        if (ret != 0) {
+            throw new DecoderException("Error initializing decoder", ret);
+        }
     }
 
     /**
@@ -118,7 +121,13 @@ public class VorbisDecoder {
     }
 
     // private methods
+
+    /**
+     * @param file file to be decoded
+     * @return 0 success or one of {@link VorbisConstants}
+     */
     private native int init(String file);
+
     private native int decodeToFile(String out);
 
     @Override protected void finalize() throws Throwable {
