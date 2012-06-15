@@ -10,6 +10,7 @@ import com.soundcloud.android.view.tour.Follow;
 import com.soundcloud.android.view.tour.Record;
 import com.soundcloud.android.view.tour.Share;
 import com.soundcloud.android.view.tour.Start;
+import com.soundcloud.android.view.tour.TourLayout;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ public class Tour extends Activity {
         final View.OnClickListener done = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //noinspection ObjectEquality
                 ((SoundCloudApplication) getApplication()).track(
                         view == btnDone ? Click.Tour_Tour_done : Click.Tour_Tour_skip);
                 finish();
@@ -53,9 +55,9 @@ public class Tour extends Activity {
 
         mWorkspaceView.setOnScreenChangeListener(new WorkspaceView.OnScreenChangeListener() {
             @Override
-            public void onScreenChanged(View newScreen, int newScreenIndex) {
-                ((RadioButton) ((RadioGroup) findViewById(R.id.rdo_tour_step)).getChildAt(newScreenIndex)).setChecked(true);
-                if (newScreenIndex < mWorkspaceView.getScreenCount() - 1) {
+            public void onScreenChanged(View newScreen, int index) {
+                ((RadioButton) ((RadioGroup) findViewById(R.id.rdo_tour_step)).getChildAt(index)).setChecked(true);
+                if (index < mWorkspaceView.getScreenCount() - 1) {
                     btnDone.setVisibility(View.GONE);
                     btnSkip.setVisibility(View.VISIBLE);
                 } else {
@@ -74,4 +76,13 @@ public class Tour extends Activity {
             }
         }, true);
     }
+
+    /* package */ String getMessage() {
+        return getActiveTour().getMessage().toString();
+    }
+
+    private TourLayout getActiveTour() {
+        return (TourLayout) mWorkspaceView.getScreenAt(mWorkspaceView.getCurrentScreen());
+    }
+
 }

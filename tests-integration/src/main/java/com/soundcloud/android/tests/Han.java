@@ -7,9 +7,13 @@ import com.soundcloud.android.R;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.view.Display;
 
 import java.util.regex.Pattern;
 
+/**
+ * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
+ */
 public class Han extends Solo {
     private static final long DEFAULT_TIMEOUT = 20 * 1000;
 
@@ -51,12 +55,18 @@ public class Han extends Solo {
         assertTrue(waitForText(Pattern.quote(getString(resId, args))));
     }
 
+    public void assertVisibleText(int resId, Object... args) {
+        assertTrue(waitForText(Pattern.quote(getString(resId, args)), 0, DEFAULT_TIMEOUT, false, true));
+    }
+
     public void assertText(String text) {
         assertTrue(waitForText(text));
     }
 
-    public void assertActivity(Class<? extends Activity> a) {
+    @SuppressWarnings("unchecked")
+    public <T extends Activity> T assertActivity(Class<T> a) {
         assertTrue(waitForActivity(a.getSimpleName()));
+        return (T) getCurrentActivity();
     }
 
     public void assertActivityFinished() {
@@ -77,5 +87,42 @@ public class Han extends Solo {
 
     public String getString(int resId, Object... args) {
         return getCurrentActivity().getString(resId, args);
+    }
+
+    public void swipeLeft() {
+        swipe(Solo.LEFT);
+        sleep(500);
+    }
+
+    public void swipeRight() {
+        swipe(Solo.RIGHT);
+        sleep(500);
+    }
+
+    public void swipe(int side) {
+        Display display = getCurrentActivity().getWindowManager().getDefaultDisplay();
+
+        final int screenHeight = display.getHeight();
+        final int screenWidth = display.getWidth();
+
+        // center of the screen
+        float x = screenWidth / 2.0f;
+        float y = screenHeight / 2.0f;
+
+        final int steps = 2;
+        if (side == Solo.LEFT) {
+            drag(x, 0, y, y, steps);
+        } else if (side == Solo.RIGHT) {
+            drag(x, screenWidth, y, y, steps);
+        }
+    }
+
+
+    public void logoutViaSettings() {
+        clickOnMenuItem(R.string.menu_settings);
+        clickOnText(R.string.pref_revoke_access);
+        assertText(R.string.menu_clear_user_title);
+        clickOnOK();
+        assertText(R.string.authentication_log_in);
     }
 }

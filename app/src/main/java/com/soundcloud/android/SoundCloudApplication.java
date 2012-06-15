@@ -254,7 +254,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
     public boolean addUserAccount(User user, Token token, SignupVia via) {
         Account account = addAccount(this, user, token, via);
         if (account != null) {
-            mLoggedInUser = null;
+            mLoggedInUser = user;
             // move this when we can't guarantee we will only have 1 account active at a time
             FollowStatus.initialize(this, user.id);
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);

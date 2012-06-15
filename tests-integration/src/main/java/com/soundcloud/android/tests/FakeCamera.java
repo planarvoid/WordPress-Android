@@ -22,7 +22,7 @@ import java.io.OutputStream;
 /**
  * @see https://github.com/bryanl/FakeCamera
  */
-public class FakeCamera extends Activity {
+public final class FakeCamera extends Activity {
     private final static String TAG = FakeCamera.class.getSimpleName();
 
     @Override

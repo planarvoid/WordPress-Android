@@ -10,7 +10,10 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 
-public class FakeGallery extends Activity {
+/**
+ * {@link FakeCamera}
+ */
+public final class FakeGallery extends Activity {
 
     @Override
     protected void onCreate(Bundle bundle) {

@@ -76,12 +76,7 @@ public class LoginTest extends ActivityInstrumentationTestCase2<Main> {
 
     public void testLoginAndLogout() throws Exception {
         testLogin();
-        solo.clickOnMenuItem(R.string.menu_settings);
-        solo.clickOnText(R.string.pref_revoke_access);
-        solo.assertText(R.string.menu_clear_user_title);
-        solo.clickOnOK();
-
-        solo.assertText(R.string.authentication_log_in);
+        solo.logoutViaSettings();
         assertTrue(solo.getCurrentActivity() instanceof Start);
     }
 

@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
+/**
+ * Base test case for resource handling.
+ */
 public abstract class ScAndroidTestCase extends AndroidTestCase {
     public static final String TEST_DIR = "sc-tests";
 
