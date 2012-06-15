@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
  */
 public class Han extends Solo {
     private static final long DEFAULT_TIMEOUT = 20 * 1000;
+    private static final int SWIPE_SLEEP = 1000;
 
     public Han(Instrumentation instrumentation, Activity activity) {
         super(instrumentation, activity);
@@ -91,12 +92,12 @@ public class Han extends Solo {
 
     public void swipeLeft() {
         swipe(Solo.LEFT);
-        sleep(500);
+        sleep(SWIPE_SLEEP);
     }
 
     public void swipeRight() {
         swipe(Solo.RIGHT);
-        sleep(500);
+        sleep(SWIPE_SLEEP);
     }
 
     public void swipe(int side) {
