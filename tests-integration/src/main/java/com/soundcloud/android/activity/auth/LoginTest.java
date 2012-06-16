@@ -21,6 +21,7 @@ public class LoginTest extends ActivityTestCase<Main> {
     }
 
     public void testLogin() throws Exception {
+        // TODO: make first in suite sleep
         solo.sleep(1000);
 
         solo.clickOnButtonResId(R.string.btn_login);

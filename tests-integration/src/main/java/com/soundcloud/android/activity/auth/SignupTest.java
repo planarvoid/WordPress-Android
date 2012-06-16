@@ -6,6 +6,7 @@ import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.test.FlakyTest;
+import android.test.suitebuilder.annotation.Suppress;
 import android.text.Html;
 
 import java.util.UUID;
@@ -64,6 +65,7 @@ public class SignupTest extends ActivityTestCase<Main> {
         solo.assertText(R.string.tab_stream);
     }
 
+    @Suppress
     @FlakyTest
     public void testSignupSwipeThroughTour() throws Exception {
         performSignup(generateEmail(), "password", "password");
