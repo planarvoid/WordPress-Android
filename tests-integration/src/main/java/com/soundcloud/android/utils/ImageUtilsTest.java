@@ -12,6 +12,8 @@ public class ImageUtilsTest extends ScAndroidTestCase {
     private static final String IMAGE_LARGE_PORTRAIT_JPG = "image/large-portrait.jpg";
 
     private File resize(String file) throws Exception {
+        System.gc();
+
         File input = prepareAsset(file);
         File resized = externalPath(newFilename(file, "_resized"));
 

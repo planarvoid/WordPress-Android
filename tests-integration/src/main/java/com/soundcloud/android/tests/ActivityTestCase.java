@@ -3,6 +3,7 @@ package com.soundcloud.android.tests;
 import android.app.Activity;
 import android.os.Build;
 import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
 
 /**
  * Base class for activity tests. Sets up robotium (via {@link Han} and handles
@@ -35,8 +36,14 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
     protected void runTest() throws Throwable {
         try {
             super.runTest();
-        } catch (Error e) {
-            solo.takeScreenshot();
+        } catch (Throwable e) {
+            if (!(e instanceof OutOfMemoryError)) {
+                try {
+                    solo.takeScreenshot();
+                } catch (Throwable ignore) {
+                    Log.w(getClass().getSimpleName(), "error taking screenshot", ignore);
+                }
+            }
             throw e;
         }
     }
