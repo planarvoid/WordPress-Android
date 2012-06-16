@@ -225,6 +225,8 @@ public class SignupTest extends ActivityTestCase<Main> {
         setActivity(null);
         getActivity();
 
+        solo.sleep(500); // should not be needed
+
         solo.assertText(R.string.email_confirmation_you_need_to_confirm);
         solo.clickOnText(R.string.email_confirmation_resend);
         solo.assertText(R.string.tab_stream);
