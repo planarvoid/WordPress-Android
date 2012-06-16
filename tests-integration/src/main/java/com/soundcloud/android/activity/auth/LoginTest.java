@@ -21,6 +21,8 @@ public class LoginTest extends ActivityTestCase<Main> {
     }
 
     public void testLogin() throws Exception {
+        solo.sleep(1000);
+
         solo.clickOnButtonResId(R.string.btn_login);
         solo.assertText(R.string.authentication_log_in);
 

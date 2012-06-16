@@ -4,6 +4,7 @@ import com.soundcloud.android.tests.ScAndroidTestCase;
 
 import android.graphics.BitmapFactory;
 import android.test.FlakyTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.File;
 
@@ -41,6 +42,7 @@ public class ImageUtilsTest extends ScAndroidTestCase {
         assertEquals("image/jpeg", opts.outMimeType);
     }
 
+    @Suppress
     @FlakyTest // OutOfMemory
     public void testResizeLargePortrait() throws Exception {
         File resized = resize(IMAGE_LARGE_PORTRAIT_JPG);
