@@ -109,7 +109,7 @@ public class UploadService extends Service {
     private PowerManager.WakeLock mWakeLock;
     private WifiManager.WifiLock mWifiLock;
 
-    private ServiceHandler mServiceHandler;
+    private IntentHandler mIntentHandler;
     private UploadHandler mUploadHandler;
     private ProcessingHandler mProcessingHandler;
 
@@ -123,9 +123,9 @@ public class UploadService extends Service {
         Log.d(TAG, "upload service started");
 
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
-        mServiceHandler = new ServiceHandler(createLooper("UploadService", Process.THREAD_PRIORITY_DEFAULT));
+        mIntentHandler = new IntentHandler(createLooper("UploadService", Process.THREAD_PRIORITY_DEFAULT));
         mUploadHandler = new UploadHandler(createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT));
-        mProcessingHandler = new ProcessingHandler(createLooper("Encoder", Process.THREAD_PRIORITY_BACKGROUND));
+        mProcessingHandler = new ProcessingHandler(createLooper("Processing", Process.THREAD_PRIORITY_BACKGROUND));
 
         mBroadcastManager.registerReceiver(mReceiver, getIntentFilter());
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -143,7 +143,7 @@ public class UploadService extends Service {
         // ensure notification is gone
         nm.cancel(UPLOADING_NOTIFY_ID);
 
-        mServiceHandler.getLooper().quit();
+        mIntentHandler.getLooper().quit();
         mUploadHandler.getLooper().quit();
         mProcessingHandler.getLooper().quit();
 
@@ -159,11 +159,7 @@ public class UploadService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Message msg = mServiceHandler.obtainMessage();
-        msg.arg1 = startId;
-        msg.obj = intent;
-        mServiceHandler.sendMessage(msg);
-
+        mIntentHandler.obtainMessage(0, startId, 0, intent).sendToTarget();
         return START_REDELIVER_INTENT;
     }
 
@@ -174,21 +170,6 @@ public class UploadService extends Service {
 
     private boolean isUploading() {
         return !mUploads.isEmpty() || mUploadHandler.hasMessages(0);
-    }
-
-    /**
-     * Entry point for upload service.
-     * @param intent
-     */
-    private void onHandleIntent(Intent intent) {
-        Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
-        if (r != null) {
-            if (Actions.UPLOAD.equals(intent.getAction())) {
-                upload(r);
-            } else if (Actions.UPLOAD_CANCEL.equals(intent.getAction())) {
-                cancel(r);
-            }
-        }
     }
 
     /**
@@ -331,7 +312,7 @@ public class UploadService extends Service {
         // make sure recording is saved before uploading
         if (!recording.isSaved() &&
             (recording = SoundCloudDB.insertRecording(getContentResolver(), recording)) == null) {
-            Log.w(TAG, "could not insert "+recording);
+            Log.w(TAG, "could not insert " + recording);
         } else {
             recording.upload_status = Recording.Status.UPLOADING;
             recording.updateStatus(getContentResolver());
@@ -399,7 +380,7 @@ public class UploadService extends Service {
                 n.contentView.setImageViewBitmap(R.id.icon,b);
             }
         }
-        sendNotification(recording,n);
+        sendNotification(recording, n);
     }
 
     private Notification notifyUploadCurrentUploadFinished(Recording recording) {
@@ -458,7 +439,7 @@ public class UploadService extends Service {
     }
 
     /* package, for testing*/ Handler getServiceHandler() {
-        return mServiceHandler;
+        return mIntentHandler;
     }
 
     /* package, for testing*/ Handler getUploadHandler() {
@@ -490,13 +471,22 @@ public class UploadService extends Service {
                 : android.text.format.DateFormat.getDateFormat(context).format(date);
     }
 
-    private final class ServiceHandler extends Handler {
-        public ServiceHandler(Looper looper) {
+    private final class IntentHandler extends Handler {
+        public IntentHandler(Looper looper) {
             super(looper);
         }
         @Override
         public void handleMessage(Message msg) {
-            onHandleIntent((Intent) msg.obj);
+            final Intent intent = (Intent) msg.obj;
+
+            Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
+            if (r != null) {
+                if (Actions.UPLOAD.equals(intent.getAction())) {
+                    upload(r);
+                } else if (Actions.UPLOAD_CANCEL.equals(intent.getAction())) {
+                    cancel(r);
+                }
+            }
         }
     }
 
