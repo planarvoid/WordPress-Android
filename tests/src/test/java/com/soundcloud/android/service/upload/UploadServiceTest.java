@@ -28,8 +28,13 @@ public class UploadServiceTest {
 
     @Before
     public void before() throws Exception {
-        svc = new UploadService();
-        svc.onCreate();
+        svc = startService();
+    }
+
+    private UploadService startService() {
+        UploadService service = new UploadService();
+        service.onCreate();
+        return service;
     }
 
     private Scheduler getServiceScheduler() {
@@ -55,19 +60,22 @@ public class UploadServiceTest {
 
         getUploadScheduler().pause();
         // 2 uploads queued
-        svc.onUpload(TestApplication.getValidRecording());
-        svc.onUpload(TestApplication.getValidRecording());
+        final Recording r1 = TestApplication.getValidRecording();
+        final Recording r2 = TestApplication.getValidRecording();
+        svc.upload(r1);
+        svc.upload(r2);
 
-        getUploadScheduler().runOneTask(); // on normal queue
-        getUploadScheduler().runOneTask(); // post()
-        getUploadScheduler().runOneTask(); // upload
+        getUploadScheduler().runOneTask(); // 2 messages on
+        getUploadScheduler().runOneTask(); // service queue
 
+        getUploadScheduler().runOneTask(); // first track upload
         expect(shadowOf(svc).isStoppedBySelf()).toBeFalse();
+        getUploadScheduler().runOneTask(); // second track upload
 
-        getUploadScheduler().runOneTask();
-        getUploadScheduler().runOneTask();
-        getUploadScheduler().runOneTask();
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
+
+        expect(r1.upload_status).toEqual(Recording.Status.ERROR);
+        expect(r2.upload_status).toEqual(Recording.Status.ERROR);
     }
 
     @Test
@@ -76,7 +84,7 @@ public class UploadServiceTest {
         final Recording upload = TestApplication.getValidRecording();
         upload.what_text = "testing";
 
-        svc.onUpload(upload);
+        svc.upload(upload);
 
         ShadowNotificationManager m = shadowOf((NotificationManager)
                 Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
@@ -96,7 +104,7 @@ public class UploadServiceTest {
         final Recording upload = TestApplication.getValidRecording();
         upload.what_text = "testing";
 
-        svc.onUpload(upload);
+        svc.upload(upload);
         ShadowNotificationManager m = shadowOf((NotificationManager)
                 Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
 
@@ -110,7 +118,7 @@ public class UploadServiceTest {
         final Recording upload2 = TestApplication.getValidRecording();
         upload2.what_text = "testing 2";
 
-        svc.onUpload(upload2);
+        svc.upload(upload2);
 
         expect(m.getAllNotifications().size()).toEqual(2);
         notification = m.getAllNotifications().get(1);
@@ -126,7 +134,7 @@ public class UploadServiceTest {
         final Recording upload = TestApplication.getValidRecording();
         upload.what_text = "testing";
 
-        svc.onUpload(upload);
+        svc.upload(upload);
 
         ShadowNotificationManager m = shadowOf((NotificationManager)
                 Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
@@ -145,7 +153,7 @@ public class UploadServiceTest {
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
         getUploadScheduler().pause();
 
-        svc.onUpload(recording);
+        svc.upload(recording);
 
         Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.UPLOADING);
@@ -162,7 +170,7 @@ public class UploadServiceTest {
 
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(401, "ERROR"));
 
-        svc.onUpload(recording);
+        svc.upload(recording);
 
         Recording updated = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), recording.toUri());
         expect(updated.upload_status).toEqual(Recording.Status.ERROR);
@@ -175,7 +183,7 @@ public class UploadServiceTest {
         final Recording upload = TestApplication.getValidRecording();
         upload.artwork_path = File.createTempFile("some_artwork", ".png");
 
-        svc.onUpload(upload);
+        svc.upload(upload);
 
         expect(upload.isUploaded()).toBeTrue();
         expect(upload.resized_artwork_path).toEqual(upload.artwork_path);
@@ -193,7 +201,7 @@ public class UploadServiceTest {
         getServiceScheduler().pause();
         getMainScheduler().pause();
 
-        svc.onUpload(recording);
+        svc.upload(recording);
 
         expect(svc.getWifiLock().isHeld()).toBeFalse();
         expect(svc.getWakeLock().isHeld()).toBeFalse();
@@ -211,10 +219,10 @@ public class UploadServiceTest {
         Recording recording = TestApplication.getValidRecording();
 
         getUploadScheduler().pause();
-        svc.onUpload(recording);
+        svc.upload(recording);
         expect(svc.getUploadHandler().hasMessages(0)).toBeTrue();
 
-        svc.onCancel(recording);
+        svc.cancel(recording);
         expect(svc.getUploadHandler().hasMessages(0)).toBeFalse();
 
         getUploadScheduler().unPause();
@@ -223,5 +231,21 @@ public class UploadServiceTest {
     @Test
     public void shouldRespectLifecycle() throws Exception {
         svc.onDestroy();
+        expect(shadowOf(svc.getUploadHandler().getLooper()).hasQuit()).toBeTrue();
+        expect(shadowOf(svc.getProcessingHandler().getLooper()).hasQuit()).toBeTrue();
+        expect(shadowOf(svc.getServiceHandler().getLooper()).hasQuit()).toBeTrue();
+    }
+
+
+    @Test
+    public void shouldCheckForStuckRecordingsOnStartup() throws Exception {
+        Recording stuck = TestApplication.getValidRecording();
+        stuck.upload_status = Recording.Status.UPLOADING;
+        SoundCloudDB.insertRecording(svc.getContentResolver(), stuck);
+
+        UploadService service = startService();
+        Recording r = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), stuck.toUri());
+        expect(r.upload_status).toEqual(Recording.Status.NOT_YET_UPLOADED);
+//        expect(shadowOf(service).isStoppedBySelf()).toBeTrue();
     }
 }

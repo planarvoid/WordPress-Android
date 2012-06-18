@@ -3,9 +3,9 @@ package com.soundcloud.android.service.upload;
 import static com.soundcloud.android.Consts.Notifications.UPLOADING_NOTIFY_ID;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
@@ -26,12 +26,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.wifi.WifiManager;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
-import android.os.PowerManager;
+import android.os.*;
+import android.os.Process;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -41,7 +37,6 @@ import android.widget.RemoteViews;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class UploadService extends Service {
     /* package */ static final String TAG = UploadService.class.getSimpleName();
@@ -71,23 +66,23 @@ public class UploadService extends Service {
     public static final String RESIZE_ERROR      = "com.soundcloud.android.service.upload.resize_error";
 
     public static final String[] ALL_ACTIONS = {
-            UPLOAD_SUCCESS,
-            UPLOAD_CANCEL,
+        UPLOAD_SUCCESS,
+        UPLOAD_CANCEL,
 
-            TRANSFER_STARTED,
-            TRANSFER_PROGRESS,
-            TRANSFER_ERROR,
-            TRANSFER_CANCELLED,
-            TRANSFER_SUCCESS,
+        TRANSFER_STARTED,
+        TRANSFER_PROGRESS,
+        TRANSFER_ERROR,
+        TRANSFER_CANCELLED,
+        TRANSFER_SUCCESS,
 
-            PROCESSING_STARTED,
-            PROCESSING_SUCCESS,
-            PROCESSING_ERROR,
-            PROCESSING_PROGRESS,
+        PROCESSING_STARTED,
+        PROCESSING_SUCCESS,
+        PROCESSING_ERROR,
+        PROCESSING_PROGRESS,
 
-            RESIZE_STARTED,
-            RESIZE_SUCCESS,
-            RESIZE_ERROR
+        RESIZE_STARTED,
+        RESIZE_SUCCESS,
+        RESIZE_ERROR
     };
 
     private static class Upload {
@@ -95,6 +90,17 @@ public class UploadService extends Service {
         Notification notification;
         public Upload(Recording r){
             recording = r;
+        }
+
+        public boolean needsEncoding() {
+            return !recording.getEncodedFile().exists();
+        }
+
+        public boolean needsResizing() {
+            //noinspection ConstantConditions
+            return recording.hasArtwork() &&
+                    (recording.resized_artwork_path == null ||
+                    !recording.resized_artwork_path.exists());
         }
     }
 
@@ -111,57 +117,23 @@ public class UploadService extends Service {
     private NotificationManager nm;
     private LocalBroadcastManager mBroadcastManager;
 
-    private final class ServiceHandler extends Handler {
-        public ServiceHandler(Looper looper) {
-            super(looper);
-        }
-        @Override
-        public void handleMessage(Message msg) {
-            onHandleIntent((Intent) msg.obj);
-        }
-    }
-
-    private final class UploadHandler extends Handler {
-        public UploadHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            Recording recording = ((Upload) msg.obj).recording;
-            if (recording.hasArtwork() && recording.resized_artwork_path == null) {
-                post(new ImageResizer(UploadService.this, recording));
-            } else {
-                if (!recording.getEncodedFile().exists()) {
-                    mProcessingHandler.post(new Encoder(UploadService.this, recording));
-                } else {
-                    post(new Uploader((SoundCloudApplication) getApplication(), recording));
-                }
-            }
-        }
-    }
-
-    private final class ProcessingHandler extends Handler {
-        public ProcessingHandler(Looper looper) {
-            super(looper);
-        }
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "upload service started");
 
         mBroadcastManager = LocalBroadcastManager.getInstance(this);
-        mServiceHandler = new ServiceHandler(createLooper("UploadService"));
-        mUploadHandler = new UploadHandler(createLooper("Uploader"));
-        mProcessingHandler = new ProcessingHandler(createLooper("Encoder"));
+        mServiceHandler = new ServiceHandler(createLooper("UploadService", Process.THREAD_PRIORITY_DEFAULT));
+        mUploadHandler = new UploadHandler(createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT));
+        mProcessingHandler = new ProcessingHandler(createLooper("Encoder", Process.THREAD_PRIORITY_BACKGROUND));
 
         mBroadcastManager.registerReceiver(mReceiver, getIntentFilter());
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mWakeLock = ((PowerManager) getSystemService(Context.POWER_SERVICE))
                 .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         mWifiLock = IOUtils.createHiPerfWifiLock(this, TAG);
+
+        mUploadHandler.post(new StuckUploadCheck(this));
     }
 
     @Override
@@ -173,11 +145,12 @@ public class UploadService extends Service {
 
         mServiceHandler.getLooper().quit();
         mUploadHandler.getLooper().quit();
+        mProcessingHandler.getLooper().quit();
 
         if (isUploading()) {
             Log.w(TAG, "Service being destroyed while still uploading.");
             for (Upload u : mUploads.values()) {
-                onCancel(u);
+                cancel(u);
             }
         }
         mBroadcastManager.unregisterReceiver(mReceiver);
@@ -194,16 +167,51 @@ public class UploadService extends Service {
         return START_REDELIVER_INTENT;
     }
 
+
     @Override public IBinder onBind(Intent intent) {
         return mBinder;
     }
 
-    public Set<Long> getUploadLocalIds() {
-        return mUploads.keySet();
+    private boolean isUploading() {
+        return !mUploads.isEmpty() || mUploadHandler.hasMessages(0);
     }
 
-    public boolean isUploading() {
-        return !mUploads.isEmpty() || mUploadHandler.hasMessages(0);
+    /**
+     * Entry point for upload service.
+     * @param intent
+     */
+    private void onHandleIntent(Intent intent) {
+        Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
+        if (r != null) {
+            if (Actions.UPLOAD.equals(intent.getAction())) {
+                upload(r);
+            } else if (Actions.UPLOAD_CANCEL.equals(intent.getAction())) {
+                cancel(r);
+            }
+        }
+    }
+
+    /**
+     * Handles incoming upload request.
+     * Note: success/failure signalling is handled via {@link LocalBroadcastManager}, which also handles
+     * the (re-)queuing of tasks to correct queue.
+     */
+    private final class UploadHandler extends Handler {
+        public UploadHandler(Looper looper) {
+            super(looper);
+        }
+        @Override public void handleMessage(Message msg) {
+            Upload upload = (Upload) msg.obj;
+
+            if (upload.needsResizing()) {
+                post(new ImageResizer(UploadService.this, upload.recording));
+            } else if (upload.needsEncoding()) {
+                mProcessingHandler.post(new Encoder(UploadService.this, upload.recording));
+            } else {
+                // perform the actual upload
+                post(new Uploader((AndroidCloudAPI) getApplication(), upload.recording));
+            }
+        }
     }
 
     private final IBinder mBinder = new LocalBinder<UploadService>() {
@@ -224,7 +232,7 @@ public class UploadService extends Service {
 
             } else if (RESIZE_SUCCESS.equals(action)) {
                 releaseWakelock();
-                queueUpload(mUploads.get(recording.id));
+                queueUpload(recording);
 
             } else if (RESIZE_ERROR.equals(action)) {
                 releaseWakelock();
@@ -242,7 +250,7 @@ public class UploadService extends Service {
                 );
 
             } else if (PROCESSING_SUCCESS.equals(action)) {
-                queueUpload(mUploads.get(recording.id));
+                queueUpload(recording);
 
             } else if (PROCESSING_ERROR.equals(action)) {
                 uploadDone(recording);
@@ -267,8 +275,8 @@ public class UploadService extends Service {
                 if (TRANSFER_SUCCESS.equals(action)) {
                     final long track_id = recording.track_id;
                     if (track_id != Track.NOT_SET) {
-                        new Poller(createLooper("poller_" + track_id),
-                                (SoundCloudApplication) getApplication(),
+                        new Poller(createLooper("poller_" + track_id, Process.THREAD_PRIORITY_BACKGROUND),
+                                (AndroidCloudAPI) getApplication(),
                                 track_id,
                                 Content.ME_TRACKS.uri).start();
                     }
@@ -285,7 +293,6 @@ public class UploadService extends Service {
     };
 
     private void uploadDone(Recording recording) {
-
         mUploads.remove(recording.id);
         releaseLocks();
 
@@ -319,18 +326,8 @@ public class UploadService extends Service {
         return n;
     }
 
-    private void onHandleIntent(Intent intent) {
-        Recording r = intent.getParcelableExtra(EXTRA_RECORDING);
-        if (Actions.UPLOAD.equals(intent.getAction())) {
-            if (r != null) {
-                onUpload(r);
-            }
-        } else if (Actions.UPLOAD_CANCEL.equals(intent.getAction())) {
-            onCancel(r);
-        }
-    }
 
-    /* package */ void onUpload(Recording recording) {
+    /* package */ void upload(Recording recording) {
         // make sure recording is saved before uploading
         if (!recording.isSaved() &&
             (recording = SoundCloudDB.insertRecording(getContentResolver(), recording)) == null) {
@@ -338,20 +335,15 @@ public class UploadService extends Service {
         } else {
             recording.upload_status = Recording.Status.UPLOADING;
             recording.updateStatus(getContentResolver());
-            queueUpload(getUpload(recording));
         }
+        queueUpload(recording);
     }
 
-    private void queueUpload(Upload upload) {
-        mUploads.put(upload.recording.id, upload);
-        Message.obtain(mUploadHandler, 0, upload).sendToTarget();
+    /* package */  void cancel(Recording r) {
+        cancel(getUpload(r));
     }
 
-    /* package */  void onCancel(Recording r) {
-        onCancel(getUpload(r));
-    }
-
-    /* package */  void onCancel(Upload u) {
+    /* package */  void cancel(Upload u) {
         mUploadHandler.removeMessages(0, u);
 
         if (mUploads.isEmpty()) {
@@ -360,6 +352,11 @@ public class UploadService extends Service {
         }  else {
             mBroadcastManager.sendBroadcast(new Intent(UploadService.UPLOAD_CANCEL).putExtra(EXTRA_RECORDING, u.recording));
         }
+    }
+
+    private void queueUpload(Recording recording) {
+        Upload upload = getUpload(recording);
+        Message.obtain(mUploadHandler, 0, upload).sendToTarget();
     }
 
     private Upload getUpload(Recording r){
@@ -372,7 +369,9 @@ public class UploadService extends Service {
     private Notification getOngoingNotification(Recording recording){
         final Upload u = getUpload(recording);
         if (u.notification == null) {
-            u.notification = SoundRecorderService.createOngoingNotification(PendingIntent.getActivity(this, 0, recording.getMonitorIntent(), PendingIntent.FLAG_UPDATE_CURRENT));
+            u.notification = SoundRecorderService.createOngoingNotification(PendingIntent.getActivity(this, 0,
+                    recording.getMonitorIntent(),
+                    PendingIntent.FLAG_UPDATE_CURRENT));
             u.notification.contentView = new RemoteViews(getPackageName(), R.layout.upload_status);
         }
         return u.notification;
@@ -400,7 +399,6 @@ public class UploadService extends Service {
                 n.contentView.setImageViewBitmap(R.id.icon,b);
             }
         }
-
         sendNotification(recording,n);
     }
 
@@ -467,6 +465,11 @@ public class UploadService extends Service {
         return mUploadHandler;
     }
 
+    /* package, for testing*/ Handler getProcessingHandler() {
+        return mProcessingHandler;
+    }
+
+
     /* package, for testing */ WifiManager.WifiLock getWifiLock() {
         return mWifiLock;
     }
@@ -475,8 +478,8 @@ public class UploadService extends Service {
         return mWakeLock;
     }
 
-    static Looper createLooper(String name) {
-        HandlerThread thread = new HandlerThread(name);
+    private static Looper createLooper(String name, int prio) {
+        HandlerThread thread = new HandlerThread(name, prio);
         thread.start();
         return thread.getLooper();
     }
@@ -485,5 +488,21 @@ public class UploadService extends Service {
         final Date date = new Date(when);
         return DateUtils.isToday(when) ? android.text.format.DateFormat.getTimeFormat(context).format(date)
                 : android.text.format.DateFormat.getDateFormat(context).format(date);
+    }
+
+    private final class ServiceHandler extends Handler {
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
+        @Override
+        public void handleMessage(Message msg) {
+            onHandleIntent((Intent) msg.obj);
+        }
+    }
+
+    private final class ProcessingHandler extends Handler {
+        public ProcessingHandler(Looper looper) {
+            super(looper);
+        }
     }
 }

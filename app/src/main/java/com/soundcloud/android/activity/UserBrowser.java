@@ -272,7 +272,7 @@ public class UserBrowser extends ScListActivity implements
     }
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Configuration onRetainNonConfigurationInstance() {
         return toConfiguration();
     }
 
@@ -812,7 +812,7 @@ public class UserBrowser extends ScListActivity implements
         }
     }
 
-    private Configuration toConfiguration(){
+    private Configuration toConfiguration() {
         Configuration c = new Configuration();
         c.loadUserTask = mLoadUserTask;
         c.user = mUser;
