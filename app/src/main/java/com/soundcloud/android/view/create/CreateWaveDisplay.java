@@ -23,6 +23,9 @@ public class CreateWaveDisplay extends TouchLayout {
     private static final int UI_UPDATE_TRIM = 2;
     private static final int UI_ON_TRIM_STATE = 3;
 
+    private static final long TRIM_REPORT_INTERVAL = 200;
+    private long mLastTrimAction;
+
     private int mLeftHandleTouchIndex;
     private int mRightHandleTouchIndex;
     private boolean mSeekMode;
@@ -46,6 +49,7 @@ public class CreateWaveDisplay extends TouchLayout {
 
     private float trimPercentLeft, trimPercentRight;
     private int waveformWidth,leftDragOffsetX, rightDragOffsetX;
+
 
     private TrimAction newTrimActionLeft, newTrimActionRight, lastTrimActionLeft, lastTrimActionRight;
 
@@ -207,6 +211,20 @@ public class CreateWaveDisplay extends TouchLayout {
         if (!mTouchHandler.hasMessages(what)) mTouchHandler.sendEmptyMessage(what);
     }
 
+    protected void queueTrim(int what, long interval) {
+        if (mLastTrimAction == 0) {
+            queueUnique(what);
+            mLastTrimAction = System.currentTimeMillis();
+        } else {
+            final long delay = Math.max(0, TRIM_REPORT_INTERVAL - System.currentTimeMillis() - mLastTrimAction);
+
+            if (mTouchHandler.hasMessages(what)) {
+                mTouchHandler.removeMessages(what);
+            }
+            mTouchHandler.sendEmptyMessageDelayed(what, delay);
+        }
+    }
+
     private void setTouchMode(InputObject input) {
         if (mMode == MODE_REC || input.actionIndex > 1) return;
 
@@ -264,6 +282,8 @@ public class CreateWaveDisplay extends TouchLayout {
                     break;
 
                 case UI_UPDATE_TRIM:
+                    mLastTrimAction = System.currentTimeMillis();
+
                     if (newTrimActionLeft != null && newTrimActionLeft.hasMovedFrom(lastTrimActionLeft)) {
                         leftLp.leftMargin = newTrimActionLeft.position + leftMarginOffset;
                         leftHandle.requestLayout();

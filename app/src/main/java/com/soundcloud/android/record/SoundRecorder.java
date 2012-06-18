@@ -4,6 +4,7 @@ package com.soundcloud.android.record;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.audio.AudioConfig;
+import com.soundcloud.android.audio.FadeFilter;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.ScAudioTrack;
 import com.soundcloud.android.audio.TrimPreview;
@@ -527,23 +528,24 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
 
         private void previewTrim(PlaybackStream playbackStream) throws IOException {
-
-            // TODO : proper buffer size
             final int bufferSize = 1024;
-
             ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
+
             while (!previewQueue.isEmpty()) {
-                TrimPreview preview = previewQueue.poll();
+                final TrimPreview preview = previewQueue.poll();
+                final FadeFilter fadeFilter = preview.getFadeFilter();
+                final int byteRange = (int) preview.getByteRange(mConfig);
                 playbackStream.initializePlayback(preview.lowPos(mConfig));
 
-                final int byteRange = (int) preview.getByteRange(mConfig);
                 int read = 0;
                 int lastRead;
                 byte[] readBuff = new byte[byteRange];
                 // read in the whole preview
                 while (read < byteRange && (lastRead = playbackStream.read(buffer, Math.min(bufferSize,byteRange - read))) > 0) {
-                    buffer.get(readBuff, read, Math.min(lastRead, byteRange - read));
+                    final int size = Math.min(lastRead, byteRange - read);
+                    fadeFilter.apply(buffer, read, byteRange); // fade out to avoid distortion when chaining samples
+                    buffer.get(readBuff, read, size);
                     read += lastRead;
                     buffer.clear();
                 }
