@@ -2,6 +2,7 @@ package com.soundcloud.android.tests;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.R;
@@ -15,6 +16,7 @@ import com.soundcloud.api.Token;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.util.Log;
@@ -71,6 +73,8 @@ public final class IntegrationTestHelper {
         Account account = getAccount(context);
         if (account != null) {
             assertTrue(AccountManager.get(context).removeAccount(account, null, null).getResult());
+            SoundCloudApplication app = (SoundCloudApplication) context.getApplicationContext();
+            app.onAccountRemoved(account);
             return true;
         } else {
             return false;

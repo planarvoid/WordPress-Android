@@ -109,6 +109,10 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
     task :anr do
       adb["pull /data/anr/traces.txt"]
     end
+
+    task :screenshots do
+      adb["pull /sdcard/Robotium-Screenshots"]
+    end
   end
 end
 
