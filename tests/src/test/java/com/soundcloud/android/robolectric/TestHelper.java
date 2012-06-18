@@ -7,6 +7,7 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.provider.Content;
 import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import com.xtremelabs.robolectric.tester.org.apache.http.FakeHttpLayer;
@@ -17,6 +18,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
 
@@ -134,5 +136,9 @@ public class TestHelper {
 
     public static void setSDCardMounted() {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
+    }
+
+    public static void setSdkVersion(int version) {
+        RobolectricTestRunner.setStaticValue(Build.VERSION.class, "SDK_INT", version);
     }
 }

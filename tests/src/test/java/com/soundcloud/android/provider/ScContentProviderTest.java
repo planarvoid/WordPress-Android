@@ -391,7 +391,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldEnableSyncing() throws Exception {
-        RobolectricTestRunner.setStaticValue(Build.VERSION.class, "SDK_INT", 8);
+        TestHelper.setSdkVersion(8);
         Account account = new Account("name", "type");
         ScContentProvider.enableSyncing(account, 3600);
 
@@ -407,7 +407,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldDisableSyncing() throws Exception {
-        RobolectricTestRunner.setStaticValue(Build.VERSION.class, "SDK_INT", 8);
+        TestHelper.setSdkVersion(8);
         Account account = new Account("name", "type");
         ScContentProvider.enableSyncing(account, 3600);
         List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, ScContentProvider.AUTHORITY);
