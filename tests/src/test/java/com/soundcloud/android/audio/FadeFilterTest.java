@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.record.WavHeaderTest;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.streaming.BufferUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,7 +28,7 @@ public class FadeFilterTest {
         FadeFilter fadeFilter = new FadeFilter(FadeFilter.FADE_TYPE_BOTH, FADE_SIZE);
 
         ByteBuffer buffer = getFilledBuffer(SIZE);
-        ByteBuffer original = cloneBuffer(buffer);
+        ByteBuffer original = BufferUtils.clone(buffer);
 
         expect(buffer).toEqual(original);
         fadeFilter.apply(buffer, 0, SIZE);
@@ -43,7 +44,7 @@ public class FadeFilterTest {
         FadeFilter fadeFilter = new FadeFilter(FadeFilter.FADE_TYPE_BEGINNING, FADE_SIZE);
 
         ByteBuffer buffer = getFilledBuffer(SIZE);
-        ByteBuffer original = cloneBuffer(buffer);
+        ByteBuffer original = BufferUtils.clone(buffer);
 
         expect(buffer).toEqual(original);
         fadeFilter.apply(buffer, 0, SIZE);
@@ -59,7 +60,7 @@ public class FadeFilterTest {
         FadeFilter fadeFilter = new FadeFilter(FadeFilter.FADE_TYPE_END, FADE_SIZE);
 
         ByteBuffer buffer = getFilledBuffer(SIZE);
-        ByteBuffer original = cloneBuffer(buffer);
+        ByteBuffer original = BufferUtils.clone(buffer);
 
         expect(buffer).toEqual(original);
         fadeFilter.apply(buffer, 0, SIZE);
@@ -90,15 +91,5 @@ public class FadeFilterTest {
         buffer.rewind();
         return buffer;
     }
-
-    private static ByteBuffer cloneBuffer(ByteBuffer original) {
-        ByteBuffer clone = ByteBuffer.allocate(original.capacity());
-        original.rewind();
-        clone.put(original);
-        original.rewind();
-        clone.flip();
-        return clone;
-    }
-
 
 }
