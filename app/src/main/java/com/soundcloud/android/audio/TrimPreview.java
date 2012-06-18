@@ -5,12 +5,14 @@ import com.soundcloud.android.record.SoundRecorder;
 public class TrimPreview {
 
     public static long MAX_PREVIEW_DURATION = 500; // ms, max length of each preview chunk
+    public static long PREVIEW_FADE_LENGTH = 30; // ms
+    public static int PREVIEW_FADE_EXP_CURVE = 10;
 
     PlaybackStream mStream;
     long startPos;
     long endPos;
     public long duration;
-    public long playbackRate;
+    public int playbackRate;
 
     public TrimPreview(PlaybackStream stream, long startPosition, long endPosition, long moveTime) {
         this(stream,startPosition, endPosition, moveTime, SoundRecorder.MAX_PLAYBACK_RATE);
@@ -69,5 +71,18 @@ public class TrimPreview {
                 ", duration=" + duration +
                 ", playbackRate=" + playbackRate +
                 '}';
+    }
+
+    /**
+     * get a fade out filter adjusted for this preview's playback rate
+     */
+    public FadeFilter getFadeFilter() {
+        return new FadeFilter(
+                FadeFilter.FADE_TYPE_END,
+                AudioConfig.msToByte(
+                        PREVIEW_FADE_LENGTH,
+                        playbackRate,
+                        mStream.getConfig().sampleSize)
+        );
     }
 }

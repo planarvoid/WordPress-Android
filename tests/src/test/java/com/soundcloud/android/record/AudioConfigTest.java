@@ -34,11 +34,17 @@ public class AudioConfigTest {
         expect(AudioConfig.PCM16_44100_2.bytesToMs(3313920)).toEqual(18786l);
     }
 
+
     @Test
     public void shouldMillisecondsToBytes() throws Exception {
         expect(AudioConfig.PCM16_44100_2.msToByte(18786l)).toEqual(3313850l);
         expect(AudioConfig.PCM16_44100_1.msToByte(500)).toEqual(44100l);
         expect(AudioConfig.PCM16_44100_1.msToByte(1000)).toEqual(88200l);
+    }
+
+    @Test
+    public void shouldMillisecondsToBytesAdjusted() throws Exception {
+        expect(AudioConfig.msToByte(1000, 22050, AudioConfig.PCM16_44100_1.sampleSize)).toEqual(44100l);
     }
 
     @Test

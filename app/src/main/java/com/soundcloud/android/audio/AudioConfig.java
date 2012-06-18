@@ -76,7 +76,7 @@ public enum AudioConfig {
     }
 
     public long msToByte(long ms) {
-        return (long) (ms * (sampleRate / 1000d) * (bitsPerSample / 8d) * channels);
+        return msToByte(ms,sampleRate,sampleSize);
     }
 
     public long bytesToMs(long bytePos){
@@ -94,5 +94,9 @@ public enum AudioConfig {
             }
         }
         return null;
+    }
+
+    public static long msToByte(long ms, int sampleRate, int sampleSize){
+        return (long) (ms * (sampleRate / 1000d) * sampleSize);
     }
 }
