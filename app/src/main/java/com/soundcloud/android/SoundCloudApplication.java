@@ -172,7 +172,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         return mLoggedInUser;
     }
 
-    public void clearSoundCloudAccount(final Runnable onSuccess, final Runnable onError) {
+    public void clearSoundCloudAccount(@Nullable final Runnable onSuccess, @Nullable final Runnable onError) {
         final Account account = getAccount();
         if (account != null) {
             getAccountManager().removeAccount(account, new AccountManagerCallback<Boolean>() {
@@ -191,7 +191,7 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                     }
                 }
             }, /*handler, null == main*/ null);
-        } else {
+        } else if (onError != null) {
             onError.run();
         }
     }

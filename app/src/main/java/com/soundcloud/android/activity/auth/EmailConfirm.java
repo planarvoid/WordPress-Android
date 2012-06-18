@@ -32,9 +32,8 @@ public class EmailConfirm extends Activity  {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final long lastReminded = getLastReminded();
-        final long elapsed = System.currentTimeMillis() - lastReminded;
 
-        if (lastReminded > 0 && elapsed < REMIND_PERIOD) {
+        if (lastReminded > 0 && System.currentTimeMillis() - lastReminded < REMIND_PERIOD) {
             setResult(RESULT_CANCELED);
             finish();
         } else {

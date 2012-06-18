@@ -10,6 +10,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -51,7 +52,7 @@ public class FollowStatus implements Parcelable {
         return sInstance;
     }
 
-    public synchronized static void set(FollowStatus status) {
+    public synchronized static void set(@Nullable FollowStatus status) {
         sInstance = status;
     }
 
