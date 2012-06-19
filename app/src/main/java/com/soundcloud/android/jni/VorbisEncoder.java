@@ -164,7 +164,7 @@ public class VorbisEncoder {
 
     static {
         try {
-            System.loadLibrary("soundcloud_audio_encoder");
+            System.loadLibrary("soundcloud_vorbis_encoder");
         } catch (UnsatisfiedLinkError e) {
             // only ignore exception in non-android env
             if ("Dalvik".equals(System.getProperty("java.vm.name"))) throw e;

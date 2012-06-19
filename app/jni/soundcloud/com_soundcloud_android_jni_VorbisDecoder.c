@@ -1,7 +1,24 @@
 #include <soundcloud/com_soundcloud_android_jni_VorbisDecoder.h>
 
-#include <ivorbiscodec.h>
-#include <ivorbisfile.h>
+#ifdef TREMOLO
+    #include <ivorbiscodec.h>
+    #include <ivorbisfile.h>
+
+    #define OV_READ(file, buffer, length, bitstream) \
+        ov_read(file, buffer, length, bitstream)
+    #define CHANNELS(state) state->vf.vi.channels
+    #define RATE(state)     state->vf.vi.rate
+#else
+    #include <ogg/ogg.h>
+    #include <vorbis/vorbisfile.h>
+
+    #define OV_READ(file, buffer, length, bitstream) \
+        ov_read(file, buffer, length, 0, 2, 1, bitstream)
+
+    #define CHANNELS(state) state->vf.vi->channels
+    #define RATE(state)     state->vf.vi->rate
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <libwav/libwav.h>
@@ -26,7 +43,6 @@ static jfieldID decoder_state_field;
 jint Java_com_soundcloud_android_jni_VorbisDecoder_init(JNIEnv *env, jobject obj, jstring path) {
     const char *cPath = (*env)->GetStringUTFChars(env, path, 0);
     LOG_D("init(%s)", cPath);
-
     decoder_state *state = malloc(sizeof(decoder_state));
     state->file = fopen(cPath, "r");
 
@@ -56,9 +72,10 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_decodeToFile(JNIEnv* env, job
     outFile = fopen(cOut, "w+");
     (*env)->ReleaseStringUTFChars(env, out, cOut);
 
-    writeWavHeader(outFile, state->numSamples, state->vf.vi.channels, state->vf.vi.rate, 16);
+    writeWavHeader(outFile, state->numSamples, CHANNELS(state), RATE(state), 16);
+
     while (!eof) {
-      long ret = ov_read(&state->vf, pcmout, sizeof(pcmout), &current_section);
+      long ret = OV_READ(&state->vf, pcmout, sizeof(pcmout), &current_section);
       if (ret == 0) {
         eof = 1;
       } else if (ret < 0) {
@@ -68,7 +85,6 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_decodeToFile(JNIEnv* env, job
         fwrite(pcmout, 1, ret, outFile);
       }
     }
-
     fclose(outFile);
     return 0;
 }
@@ -85,8 +101,9 @@ jobject Java_com_soundcloud_android_jni_VorbisDecoder_getInfo(JNIEnv *env, jobje
     jfieldID bitrate = (*env)->GetFieldID(env, infoCls, "bitrate", "J");
     jfieldID duration = (*env)->GetFieldID(env, infoCls, "duration", "D");
 
-    (*env)->SetIntField(env,    info, channels,   state->vf.vi.channels);
-    (*env)->SetIntField(env,    info, sampleRate, state->vf.vi.rate);
+    (*env)->SetIntField(env,    info, channels,   CHANNELS(state));
+    (*env)->SetIntField(env,    info, sampleRate, RATE(state));
+
     (*env)->SetLongField(env,   info, numSamples, state->numSamples);
     (*env)->SetLongField(env,   info, bitrate,    state->bitrate);
     (*env)->SetDoubleField(env, info, duration,   state->duration);
@@ -115,7 +132,7 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_decode(JNIEnv *env, jobject o
     decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
     int current_section;
     jbyte* bbuffer = (jbyte*) (*env)->GetDirectBufferAddress(env, buffer);
-    int ret = ov_read(&state->vf, bbuffer, length, &current_section);
+    int ret = OV_READ(&state->vf, bbuffer, length, &current_section);
     return ret;
 }
 
@@ -155,6 +172,13 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
           LOG_E("JNI_OnLoad: could not get state field");
           return -1;
        }
+
+       #ifdef TREMOLO
+           LOG_D("using tremolo decoder");
+       #else
+           LOG_D("using standard vorbis decoder");
+       #endif
+
        return JNI_VERSION_1_6;
     }
 }
