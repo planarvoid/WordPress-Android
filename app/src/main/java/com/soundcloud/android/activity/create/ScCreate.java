@@ -296,7 +296,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     private ButtonBar setupButtonBar() {
-        // TODO, fix trim state after save / discard
         ButtonBar buttonBar = (ButtonBar) findViewById(R.id.bottom_bar);
         buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.RESET, new View.OnClickListener() {
             @Override
