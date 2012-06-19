@@ -1,6 +1,6 @@
 package com.soundcloud.android.audio;
 
-import com.soundcloud.android.jni.Info;
+import com.soundcloud.android.jni.VorbisInfo;
 import com.soundcloud.android.jni.VorbisDecoder;
 
 import java.io.File;
@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class VorbisFile extends AudioFile {
-    private VorbisDecoder decoder;
-    private Info info;
+    private final VorbisDecoder decoder;
+    private VorbisInfo info;
 
     public static final String EXTENSION = "ogg";
 
@@ -28,18 +28,18 @@ public class VorbisFile extends AudioFile {
 
     @Override
     public void seek(long pos) throws IOException {
-        final int ret = decoder.timeSeek(pos);
+        final int ret = decoder.timeSeek(pos / 1000d);
         if (ret < 0) throw new IOException("timeSeek returned "+ret);
     }
 
     @Override
     public long getDuration() {
-        return (long) getInfo().duration;
+        return (long) (getInfo().duration * 1000d);
     }
 
     @Override
     public long getPosition() {
-        return (long) decoder.timeTell();
+        return (long) (decoder.timeTell() * 1000d);
     }
 
     @Override
@@ -67,10 +67,10 @@ public class VorbisFile extends AudioFile {
         decoder.release();
     }
 
-    private Info getInfo() {
+    private VorbisInfo getInfo() {
         if (info == null) {
             info = decoder.getInfo();
-            if (info == null) info = new Info();
+            if (info == null) info = new VorbisInfo();
         }
         return info;
     }

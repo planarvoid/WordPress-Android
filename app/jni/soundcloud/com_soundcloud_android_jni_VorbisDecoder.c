@@ -3,18 +3,22 @@
 #ifdef TREMOLO
     #include <ivorbiscodec.h>
     #include <ivorbisfile.h>
+    // tremor and vorbis have slightly different apis since tremor is
+    // based on an older version of vorbis
+    // set up some macros to work around differences
+    // - the API used in the code should be of the most recent libvorbis implementation
 
-    #define OV_READ(file, buffer, length, bitstream) \
+    #define ov_read(file, buffer, length, bigendianp, word, sgned, bitstream) \
         ov_read(file, buffer, length, bitstream)
+    #define ov_time_tell(vf) ov_time_tell(vf) /  1000.0
+    #define ov_time_total(vf, i) ov_time_total(vf, i) /  1000.0
+    #define ov_time_seek(vf, pos) ov_time_seek(vf, pos * 1000.0)
+    #define ov_time_seek_page(vf, pos) ov_time_seek_page(vf, pos * 1000.0)
     #define CHANNELS(state) state->vf.vi.channels
     #define RATE(state)     state->vf.vi.rate
 #else
     #include <ogg/ogg.h>
     #include <vorbis/vorbisfile.h>
-
-    #define OV_READ(file, buffer, length, bitstream) \
-        ov_read(file, buffer, length, 0, 2, 1, bitstream)
-
     #define CHANNELS(state) state->vf.vi->channels
     #define RATE(state)     state->vf.vi->rate
 #endif
@@ -75,7 +79,7 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_decodeToFile(JNIEnv* env, job
     writeWavHeader(outFile, state->numSamples, CHANNELS(state), RATE(state), 16);
 
     while (!eof) {
-      long ret = OV_READ(&state->vf, pcmout, sizeof(pcmout), &current_section);
+      long ret = ov_read(&state->vf, pcmout, sizeof(pcmout), 0, 2, 1, &current_section);
       if (ret == 0) {
         eof = 1;
       } else if (ret < 0) {
@@ -90,7 +94,7 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_decodeToFile(JNIEnv* env, job
 }
 
 jobject Java_com_soundcloud_android_jni_VorbisDecoder_getInfo(JNIEnv *env, jobject obj) {
-    jclass infoCls = (*env)->FindClass(env, "com/soundcloud/android/jni/Info");
+    jclass infoCls = (*env)->FindClass(env, "com/soundcloud/android/jni/VorbisInfo");
     jmethodID ctor = (*env)->GetMethodID(env, infoCls, "<init>", "()V");
     jobject info = (*env)->NewObject(env, infoCls, ctor);
     decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
@@ -132,7 +136,7 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_decode(JNIEnv *env, jobject o
     decoder_state *state = (decoder_state*) (*env)->GetIntField(env, obj, decoder_state_field);
     int current_section;
     jbyte* bbuffer = (jbyte*) (*env)->GetDirectBufferAddress(env, buffer);
-    int ret = OV_READ(&state->vf, bbuffer, length, &current_section);
+    int ret = ov_read(&state->vf, bbuffer, length, 0, 2, 1, &current_section);
     return ret;
 }
 

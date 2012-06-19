@@ -50,12 +50,12 @@ public class VorbisDecoder {
     /**
      * @return vorbis metadata
      */
-    public native Info getInfo();
+    public native VorbisInfo getInfo();
 
 
     /**
      * @see <a href="http://xiph.org/vorbis/doc/vorbisfile/ov_time_tell.html">ov_time_tell</a>
-     * @return current decoding time offset in milliseconds.
+     * @return current decoding time offset seconds.
      */
     public native double timeTell();
 
@@ -97,7 +97,7 @@ public class VorbisDecoder {
 
 
     /**
-     * @param pos position in milliseconds
+     * @param pos position in seconds
      * @param alignOnPage if yes, find closest sample on page boundary (faster)
      * @return nonzero indicates failure, described by several error codes:
      * <ul>
@@ -116,6 +116,9 @@ public class VorbisDecoder {
         return pcmSeek(pos, ALIGN_SEEK_ON_PAGE);
     }
 
+    /**
+     * @param pos time in seconds
+     */
     public int timeSeek(double pos) {
         return timeSeek(pos, ALIGN_SEEK_ON_PAGE);
     }
