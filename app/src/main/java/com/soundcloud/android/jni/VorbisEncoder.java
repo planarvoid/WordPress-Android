@@ -131,6 +131,15 @@ public class VorbisEncoder {
     native int getState();
 
 
+    /**
+     * Extract the part of an Ogg file between given start and/or end times.
+     *
+     * @param in ogg input file path
+     * @param out ogg output file path
+     * @param start start time in secs
+     * @param end end time in secs, -1 for whole length
+     * @throws  EncoderException if case of error
+     */
     public static void extract(File in, File out, double start, double end) throws EncoderException {
         int res = chop(in.getAbsolutePath(), out.getAbsolutePath(), start, end);
         if (res != 0) {
@@ -139,15 +148,10 @@ public class VorbisEncoder {
     }
 
     /**
-     * Extract the part of an Ogg file between given start and/or end times.
-     *
-     * @param in ogg input file path
-     * @param out ogg output file path
-     * @param start start time in secs
-     * @param end end time in secs
+     * {@link #extract(java.io.File, java.io.File, double, double)}
      * @return 0 for success
      */
-    native public static int chop(String in, String out, double start, double end);
+    native private static int chop(String in, String out, double start, double end);
 
     @Override
     protected void finalize() throws Throwable {

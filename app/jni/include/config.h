@@ -1,8 +1,3 @@
-#ifndef _OS_TYPE
-typedef unsigned short ogg_uint16_t;
-#define _OS_TYPE
-#endif
-
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
@@ -68,10 +63,10 @@ typedef unsigned short ogg_uint16_t;
 #define OGGZ_CONFIG_WRITE 1
 
 /* Set to maximum allowed value of sf_count_t type. */
-#define OGGZ_OFF_MAX 0x7FFFFFFFFFFFFFFFLL
+#define OGGZ_OFF_MAX 0x7FFFFFFF
 
 /* Define if <ogg/ogg.h> is const-correct */
-/* #undef OGG_H_CONST_CORRECT */
+#define OGG_H_CONST_CORRECT /**/
 
 /* Name of package */
 #define PACKAGE "liboggz"
@@ -95,19 +90,19 @@ typedef unsigned short ogg_uint16_t;
 #define PACKAGE_VERSION ""
 
 /* The size of `loff_t', as computed by sizeof. */
-/* #undef SIZEOF_LOFF_T */
+#define SIZEOF_LOFF_T 8
 
 /* The size of `off64_t', as computed by sizeof. */
-/* #undef SIZEOF_OFF64_T */
+#define SIZEOF_OFF64_T 8
 
 /* The size of `off_t', as computed by sizeof. */
-#define SIZEOF_OFF_T 8
+#define SIZEOF_OFF_T 4
 
 /* Set to sizeof (long) if unknown. */
-#define SIZEOF_OGGZ_OFF_T 8
+#define SIZEOF_OGGZ_OFF_T 4
 
 /* The size of `ssize_t', as computed by sizeof. */
-#define SIZEOF_SSIZE_T 8
+#define SIZEOF_SSIZE_T 4
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -148,3 +143,7 @@ typedef unsigned short ogg_uint16_t;
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 /* #undef size_t */
 
+#ifndef _OS_TYPE
+typedef unsigned short ogg_uint16_t;
+#define _OS_TYPE
+#endif

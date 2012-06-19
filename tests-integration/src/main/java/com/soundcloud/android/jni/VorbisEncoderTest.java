@@ -6,14 +6,14 @@ import com.soundcloud.android.tests.AudioTestCase;
 
 import android.os.Environment;
 import android.test.suitebuilder.annotation.LargeTest;
-import android.util.Log;
 
 import java.io.File;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
 @LargeTest
 public class VorbisEncoderTest extends AudioTestCase {
+    public static final String MED_TEST_OGG = "audio/med_test.ogg";
+
     public void testEncodeShortHighQuality() throws Exception {
         encodeWav("audio/short_test.wav", 5548, 1.0f);
     }
@@ -37,26 +37,22 @@ public class VorbisEncoderTest extends AudioTestCase {
         assertEquals(-1, enc.getState());
     }
 
-
-    public static final String MED_TEST_OGG = "audio/med_test.ogg";
     public void testExtract() throws Exception {
-
         File ogg = prepareAsset(MED_TEST_OGG);
-        File out =  externalPath("out.ogg");
+        File extracted =  externalPath("extracted.ogg");
+        File extracted_wav =  externalPath("extracted.wav");
 
-        VorbisEncoder.extract(ogg, out, 4.1d, 8.5d);
-        assertTrue(out.exists());
+        VorbisEncoder.extract(ogg, extracted, 4.1d, 8.5d);
 
-        VorbisDecoder dec = new VorbisDecoder(out);
-        Log.d("VorbisDecoder", "info:"+dec.getInfo());
+        checkAudioFile(extracted, 4333);
 
-        ByteBuffer bb = ByteBuffer.allocateDirect(4096);
-        int n, total = 0;
-        while ((n = dec.decode(bb, bb.capacity())) > 0) {
-            total += n;
-        }
+        VorbisDecoder decoder = new VorbisDecoder(extracted);
+        Info info = decoder.getInfo();
+        assertEquals("got: "+info, 4433d, info.duration);
+        assertEquals("got: " + info, 195520, info.numSamples);
 
-        assertEquals(123, total);
+        decoder.decodeToFile(extracted_wav);
+        decoder.release();
     }
 
     private void encodeWav(String file, int expectedDuration, float quality) throws Exception {

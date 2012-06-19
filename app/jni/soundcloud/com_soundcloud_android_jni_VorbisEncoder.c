@@ -190,7 +190,8 @@ void Java_com_soundcloud_android_jni_VorbisEncoder_release(JNIEnv *env, jobject 
 }
 
 jint Java_com_soundcloud_android_jni_VorbisEncoder_chop(JNIEnv *env, jclass klass, jstring in, jstring out, jdouble start, jdouble end) {
-    OCState *state = malloc(sizeof(state));
+    OCState _state;
+    OCState *state = &_state;
     memset(state, 0, sizeof(*state));
 
     state->infilename = (char *) (*env)->GetStringUTFChars(env, in, 0);
@@ -202,12 +203,10 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_chop(JNIEnv *env, jclass klas
 
     LOG_D("about to chop %s -> %s (%.2lf-%.2lf)", state->infilename, state->outfilename, state->start, state->end);
     int result = chop(state);
-    LOG_D("finished");
+    LOG_D("finished (result=%d)", result);
 
     (*env)->ReleaseStringUTFChars(env, in, state->infilename);
     (*env)->ReleaseStringUTFChars(env, out, state->outfilename);
-    free(state);
-
     return result;
 }
 

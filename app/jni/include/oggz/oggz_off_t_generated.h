@@ -61,6 +61,6 @@
 
 typedef off_t oggz_off_t;
 
-#define PRI_OGGZ_OFF_T "ll"
+#define PRI_OGGZ_OFF_T "l"
 
 #endif /* __OGGZ_OFF_T_GENERATED__ */
