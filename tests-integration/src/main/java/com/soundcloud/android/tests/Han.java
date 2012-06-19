@@ -8,8 +8,11 @@ import com.soundcloud.android.R;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.util.Log;
 import android.view.Display;
+import android.view.View;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
@@ -121,6 +124,31 @@ public class Han extends Solo {
         }
     }
 
+    public int getScreenWidth() {
+        Display display = getCurrentActivity().getWindowManager().getDefaultDisplay();
+        return display.getWidth();
+    }
+
+    public int getScreenHeight() {
+        Display display = getCurrentActivity().getWindowManager().getDefaultDisplay();
+        return display.getWidth();
+    }
+
+    public void dragViewHorizontally(View view, int n, int steps) {
+        int[] xy = new int[2];
+        view.getLocationOnScreen(xy);
+        drag(Math.max(xy[0], 0),
+             Math.max(Math.min(getScreenWidth(), xy[0] + n), 0),
+                xy[1],
+                xy[1],
+                steps);
+    }
+
+    @Override
+    public void drag(float fromX, float toX, float fromY, float toY, int stepCount) {
+        log("dragging: (%.2f, %.2f) -> (%.2f, %.2f) count: %d", fromX, fromY, toX, toY, stepCount);
+        super.drag(fromX, toX, fromY, toY, stepCount);
+    }
 
     public void logoutViaSettings() {
         clickOnMenuItem(R.string.menu_settings);
@@ -128,5 +156,15 @@ public class Han extends Solo {
         assertText(R.string.menu_clear_user_title);
         clickOnOK();
         assertText(R.string.authentication_log_in);
+    }
+
+    public void log(Object msg, Object... args) {
+        Log.d(getClass().getSimpleName(), msg == null ? null : String.format(msg.toString(), args));
+    }
+
+    public void log(View view) {
+        int[] xy = new int[2];
+        view.getLocationOnScreen(xy);
+        log("View: "+view.getClass().getSimpleName() + " loc: "+ Arrays.toString(xy));
     }
 }

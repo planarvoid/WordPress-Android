@@ -62,7 +62,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private SoundRecorder mRecorder;
     private CreateState mLastState, mCurrentState;
-    private long mLastDisplayedTime;
 
     private TextView txtInstructions;
     private RecordMessageView txtRecordMessage;
@@ -78,7 +77,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private boolean mActive, mHasEditControlGroup;
     private List<Recording> mUnsavedRecordings;
-
 
 
     public enum CreateState {
@@ -137,8 +135,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         mWaveDisplay = new CreateWaveDisplay(this);
         mWaveDisplay.setTrimListener(this);
         ((ViewGroup) findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
-
-
 
         updateUi(CreateState.IDLE_RECORD, false);
         handleIntent();
@@ -667,7 +663,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private void startRecording() {
         mRecordErrorMessage = null;
-        mLastDisplayedTime = -1;
         mWaveDisplay.gotoRecordMode();
 
         try {
@@ -767,14 +762,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         }
     }
 
-    private void onRecProgressUpdate(long elapsed) {
-        if (elapsed - mLastDisplayedTime > 1000) {
-            mChrono.setDurationOnly(elapsed);
-            updateTimeRemaining();
-            mLastDisplayedTime = (elapsed / 1000)*1000;
-        }
-    }
-
     private final BroadcastReceiver mStatusListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -786,9 +773,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             } else if (SoundRecorder.RECORD_SAMPLE.equals(action)) {
                 if (mCurrentState == CreateState.IDLE_RECORD || mCurrentState == CreateState.RECORD) {
                     mWaveDisplay.updateAmplitude(intent.getFloatExtra(SoundRecorder.EXTRA_AMPLITUDE, -1f), mCurrentState == CreateState.RECORD);
-                    if (mCurrentState == CreateState.RECORD) onRecProgressUpdate(intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l));
                 }
-
+            } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
+                mChrono.setDurationOnly(intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l));
+                updateTimeRemaining();
             } else if (SoundRecorder.RECORD_ERROR.equals(action)) {
                 onRecordingError(getString(R.string.error_recording_message));
             } else if (SoundRecorder.RECORD_FINISHED.equals(action)) {
