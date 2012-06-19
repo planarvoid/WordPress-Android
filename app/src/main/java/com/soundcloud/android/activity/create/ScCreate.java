@@ -292,7 +292,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     }
 
     private ButtonBar setupButtonBar() {
-        // TODO, fix trim state after save / discard
         ButtonBar buttonBar = (ButtonBar) findViewById(R.id.bottom_bar);
         buttonBar.addItem(new ButtonBar.MenuItem(MenuItems.RESET, new View.OnClickListener() {
             @Override
@@ -352,6 +351,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     case RECORD:
                         track(Click.Record_rec_stop);
                         mRecorder.stopRecording();
+                        if (!getApp().getAccountDataBoolean(User.DataKeys.SEEN_CREATE_AUTOSAVE)){
+                            showDialog(Consts.Dialogs.DIALOG_CREATE_AUTOSAVE_MESSAGE);
+                            getApp().setAccountData(User.DataKeys.SEEN_CREATE_AUTOSAVE, true);
+                        }
                         break;
                 }
             }
@@ -900,6 +903,15 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         })
                         .setNegativeButton(android.R.string.no, null)
                         .create();
+
+            case Consts.Dialogs.DIALOG_CREATE_AUTOSAVE_MESSAGE:
+                return new AlertDialog.Builder(this)
+                        .setMessage(R.string.create_autosave_message).setPositiveButton(
+                                android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                removeDialog(Consts.Dialogs.DIALOG_CREATE_AUTOSAVE_MESSAGE);
+                            }
+                        }).create();
 
             default:
                 return null;

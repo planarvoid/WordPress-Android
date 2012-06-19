@@ -13,6 +13,8 @@
 
     <string name="cloud_recorder_notification_ticker">Recording</string>
 
+    <string name="create_autosave_message">Your recordings will automatically be saved as you create them. Please refer to your list of sounds in your profile tab to find them.</string>
+
     <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
 
     <string name="process">Process</string>

@@ -252,6 +252,8 @@ public class User extends ScModel implements  Refreshable, Origin {
         String LAST_OWN_NOTIFIED_ITEM = "last_own_notified_timestamp";
 
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
+        String SEEN_CREATE_AUTOSAVE           = "seenCreateAutoSave";
+
     }
 
     @Override

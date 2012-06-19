@@ -693,6 +693,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                             mRecordStream.finalizeStream();
                             amplitudeData.store(mRecording.getAmplitudeFile());
                             mPlaybackStream = mRecordStream.getPlaybackStream();
+                            saveState();
                             broadcast(RECORD_FINISHED);
                         } catch (IOException e) {
                             mState = SoundRecorder.State.ERROR;

@@ -65,6 +65,7 @@ public final class Consts {
         int DIALOG_LOGOUT = 9;
         int DIALOG_INSTALL_PROCESSOR = 10;
         int DIALOG_REVERT_RECORDING = 11;
+        int DIALOG_CREATE_AUTOSAVE_MESSAGE = 12;
     }
 
     public interface OptionsMenu {
