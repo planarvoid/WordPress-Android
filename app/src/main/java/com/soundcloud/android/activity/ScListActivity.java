@@ -7,7 +7,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.TrackFavoriters;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
@@ -15,23 +14,17 @@ import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.service.upload.UploadService;
-import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.ScListView;
 
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +36,6 @@ import java.util.List;
 public abstract class ScListActivity extends ScActivity {
 
     protected Object[] mPreviousState;
-    protected UploadService mUploadService;
     protected List<ScListView> mLists;
     private boolean mIgnorePlaybackStatus;
 
@@ -88,17 +80,15 @@ public abstract class ScListActivity extends ScActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        AndroidUtils.bindToService(this, UploadService.class, uploadOsc);
         final long trackId = CloudPlaybackService.getCurrentTrackId();
-            if (trackId != -1) {
-                setPlayingTrack(trackId, CloudPlaybackService.getState().isSupposedToBePlaying());
-            }
+        if (trackId != -1) {
+            setPlayingTrack(trackId, CloudPlaybackService.getState().isSupposedToBePlaying());
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        AndroidUtils.unbindFromService(this, UploadService.class);
         mIgnorePlaybackStatus = false;
     }
 
@@ -139,15 +129,6 @@ public abstract class ScListActivity extends ScActivity {
         }
     }
 
-    protected void onUploadServiceBound() {
-        if (mLists == null || mLists.isEmpty() || !(this instanceof UserBrowser)) return;
-        for (ScListView lv : mLists){
-            if (lv.getBaseAdapter() instanceof MyTracksAdapter && mUploadService != null) {
-                ((MyTracksAdapter) lv.getBaseAdapter()).checkUploadStatus(mUploadService.getUploadLocalIds());
-            }
-        }
-    }
-
     protected void onDataConnectionChanged(boolean isConnected) {
         super.onDataConnectionChanged(isConnected);
         if (isConnected) {
@@ -158,17 +139,6 @@ public abstract class ScListActivity extends ScActivity {
             }
         }
     }
-
-    private final ServiceConnection uploadOsc = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder binder) {
-            if (binder instanceof LocalBinder) {
-                mUploadService = (UploadService) ((LocalBinder) binder).getService();
-                onUploadServiceBound();
-            }
-        }
-        public void onServiceDisconnected(ComponentName className) {}
-    };
-
 
     public void playTrack(Playable.PlayInfo info) {
         playTrack(info, true, false);

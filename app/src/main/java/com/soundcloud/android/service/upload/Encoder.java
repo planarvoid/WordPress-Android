@@ -19,7 +19,6 @@ import java.io.IOException;
 
 public class Encoder extends BroadcastReceiver implements Runnable, ProgressListener {
     private final Recording mRecording;
-
     private LocalBroadcastManager mBroadcastManager;
     private volatile boolean mCancelled;
 
@@ -31,6 +30,8 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
 
     @Override
     public void run() {
+        Log.d(UploadService.TAG, "Encoder.run("+mRecording+")");
+
         try {
             final File in = mRecording.getFile();
             broadcast(UploadService.PROCESSING_STARTED);

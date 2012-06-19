@@ -7,16 +7,15 @@ import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper.Recordings;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
+import com.soundcloud.android.view.TrackInfoBar;
 
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.Parcelable;
-import com.soundcloud.android.view.TrackInfoBar;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class MyTracksAdapter extends TracklistAdapter {
     private Cursor mCursor;
@@ -90,23 +89,6 @@ public class MyTracksAdapter extends TracklistAdapter {
             recordings.add(new Recording(cursor));
         }
         return recordings;
-    }
-
-    /*
-     * fix false upload statuses that may have resulted from a crash
-     */
-    public void checkUploadStatus(Set<Long> uploadIds) {
-        if (mRecordingData == null || mRecordingData.size() == 0) return;
-
-        boolean changed = false;
-        for (Recording r : mRecordingData) {
-            if (r.upload_status == Recording.Status.UPLOADING && !uploadIds.contains(r.id)) {
-                r.upload_status = Recording.Status.NOT_YET_UPLOADED;
-                r.updateStatus(mContext.getContentResolver());
-                changed = true;
-            }
-        }
-        if (changed) onContentChanged();
     }
 
     @Override

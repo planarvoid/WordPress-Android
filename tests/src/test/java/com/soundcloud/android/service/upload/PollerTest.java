@@ -12,33 +12,25 @@ import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import com.xtremelabs.robolectric.util.Scheduler;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.ContentResolver;
 import android.net.Uri;
-import android.os.Looper;
+import android.os.HandlerThread;
 
 
 @RunWith(DefaultTestRunner.class)
-public class PollUploadedTrackTest {
-    static final long USER_ID = 3135930L;
+public class PollerTest {
+    static final long USER_ID  = 3135930L;
     static final long TRACK_ID = 12345L;
     ContentResolver resolver;
-    Scheduler scheduler;
 
     @Before
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
-        scheduler = Robolectric.getUiThreadScheduler();
-    }
-
-    @After
-    public void after() {
-        expect(scheduler.size()).toEqual(0);
     }
 
     @Test
@@ -97,7 +89,11 @@ public class PollUploadedTrackTest {
         Uri newUri = t.commitLocally(resolver, SoundCloudApplication.TRACK_CACHE);
         expect(newUri).not.toBeNull();
 
-        new Poller(Looper.myLooper(), DefaultTestRunner.application, id, Content.ME_TRACKS.uri, 1, maxTime).start();
+        HandlerThread ht = new HandlerThread("poll");
+        ht.start();
+
+        Scheduler scheduler = Robolectric.shadowOf(ht.getLooper()).getScheduler();
+        new Poller(ht.getLooper(), DefaultTestRunner.application, id, Content.ME_TRACKS.uri, 1, maxTime).start();
 
         // make sure all messages have been consumed
         do {

@@ -1,6 +1,8 @@
 #include <soundcloud/com_soundcloud_android_jni_VorbisEncoder.h>
 #include <ogg/ogg.h>
 #include <vorbis/vorbisenc.h>
+#include <config.h>
+#include <oggz-chop/oggz-chop.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -185,6 +187,27 @@ void Java_com_soundcloud_android_jni_VorbisEncoder_release(JNIEnv *env, jobject 
        free(state);
        (*env)->SetIntField(env, obj, encoder_state_field, (int) NULL);
    }
+}
+
+jint Java_com_soundcloud_android_jni_VorbisEncoder_chop(JNIEnv *env, jclass klass, jstring in, jstring out, jdouble start, jdouble end) {
+    OCState _state;
+    OCState *state = &_state;
+    memset(state, 0, sizeof(*state));
+
+    state->infilename = (char *) (*env)->GetStringUTFChars(env, in, 0);
+    state->outfilename =  (char *) (*env)->GetStringUTFChars(env, out, 0);
+    state->start = start;
+    state->end = end;
+    state->do_skeleton = 0;
+    state->verbose = 1;
+
+    LOG_D("about to chop %s -> %s (%.2lf-%.2lf)", state->infilename, state->outfilename, state->start, state->end);
+    int result = chop(state);
+    LOG_D("finished (result=%d)", result);
+
+    (*env)->ReleaseStringUTFChars(env, in, state->infilename);
+    (*env)->ReleaseStringUTFChars(env, out, state->outfilename);
+    return result;
 }
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {

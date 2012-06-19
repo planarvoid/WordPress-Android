@@ -2,7 +2,7 @@ package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
@@ -25,15 +25,15 @@ import java.io.File;
 import java.io.IOException;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
-    private SoundCloudApplication app;
+    private AndroidCloudAPI api;
     private Recording mUpload;
     private volatile boolean mCanceled;
     private LocalBroadcastManager mBroadcastManager;
 
-    public Uploader(SoundCloudApplication app, Recording recording) {
-        this.app = app;
+    public Uploader(AndroidCloudAPI api, Recording recording) {
+        this.api = api;
         mUpload = recording;
-        mBroadcastManager = LocalBroadcastManager.getInstance(app);
+        mBroadcastManager = LocalBroadcastManager.getInstance(api.getContext());
         mBroadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
     }
 
@@ -47,13 +47,15 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
     @Override
     public void run() {
+        Log.d(UploadService.TAG, "Uploader.run("+ mUpload+")");
+
         try {
             upload();
         } catch (IllegalArgumentException e) {
             onUploadFailed(e);
         } finally {
             mBroadcastManager.unregisterReceiver(this);
-            mUpload.updateStatus(app.getContentResolver());
+            mUpload.updateStatus(api.getContext().getContentResolver());
         }
     }
 
@@ -75,7 +77,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             Log.v(TAG, "starting upload of " + toUpload);
 
             broadcast(UploadService.TRANSFER_STARTED);
-            HttpResponse response = app.post(mUpload.getRequest(app, toUpload, new Request.TransferProgressListener() {
+            HttpResponse response = api.post(mUpload.getRequest(api.getContext(), toUpload, new Request.TransferProgressListener() {
                 long lastPublished;
 
                 @Override
@@ -127,14 +129,14 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private void onUploadSuccess(HttpResponse response) {
         Track track = null;
         try {
-            track = app.getMapper().readValue(response.getEntity().getContent(), Track.class);
+            track = api.getMapper().readValue(response.getEntity().getContent(), Track.class);
             mUpload.track_id = track.id;
-            SoundCloudDB.insertTrack(app.getContentResolver(), track);
+            SoundCloudDB.insertTrack(api.getContext().getContentResolver(), track);
         } catch (IOException e) {
             Log.w(TAG, e);
         }
         //request to update my collection
-        LocalCollection.forceToStale(Content.ME_TRACKS.uri, app.getContentResolver());
+        LocalCollection.forceToStale(Content.ME_TRACKS.uri, api.getContext().getContentResolver());
         if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Upload successful : " + ( track == null ? "<track_parsing_error>" : track ));
 
         mUpload.onUploaded();
