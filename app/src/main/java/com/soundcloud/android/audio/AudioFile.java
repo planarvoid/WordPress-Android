@@ -1,34 +1,37 @@
 package com.soundcloud.android.audio;
 
+import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public interface AudioFile extends Closeable {
+public abstract class AudioFile implements Closeable {
     int EOF = -1;
 
     /**
      * @return the audio config associated with this file, or null
      */
-    AudioConfig getConfig();
+    public abstract AudioConfig getConfig();
 
     /**
      * @param pos the position in milliseconds
      * @throws IOException if seek failed
      */
-    void seek(long pos) throws IOException;
+    public abstract void seek(long pos) throws IOException;
 
     /**
      * @return the duration in milliseconds
      */
-    long getDuration();
+    public abstract long getDuration();
 
 
     /**
      * @return the current position in milliseconds
      */
-    long getPosition();
+    public abstract long getPosition();
 
     /**
      * Reads up to length bytes audiodata into the buffer, starting from the current position
@@ -37,13 +40,23 @@ public interface AudioFile extends Closeable {
      * @return the number of read bytes, or -1 for EOF
      * @throws IOException
      */
-    int read(ByteBuffer buffer, int length) throws IOException;
+    public abstract int read(ByteBuffer buffer, int length) throws IOException;
 
 
     /**
      * @return the underlying file or null
      */
-    File getFile();
+    public abstract File getFile();
 
-    void reopen();
+    public abstract void reopen();
+
+    public @Nullable static AudioFile guess(File file) throws IOException {
+        if (IOUtils.extension(file).equals(WavFile.EXTENSION)) {
+            return new WavFile(file);
+        } else if (IOUtils.extension(file).equals(VorbisFile.EXTENSION)) {
+            return new VorbisFile(file);
+        } else {
+            return null;
+        }
+    }
 }

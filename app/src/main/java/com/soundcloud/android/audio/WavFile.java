@@ -8,10 +8,12 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
-public class WavFile implements AudioFile {
+public class WavFile extends AudioFile {
     private RandomAccessFile file;
     private final File backing;
     private final WavHeader header;
+
+    public static final String EXTENSION = "wav";
 
     public WavFile(File backing) throws IOException {
         this.backing = backing;

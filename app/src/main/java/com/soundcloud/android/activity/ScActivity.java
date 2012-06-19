@@ -67,7 +67,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
     @Override
     protected void onResume() {
         super.onResume();
-        if (getApp().getAccount() == null){
+        if (getApp().getAccount() == null) {
             pausePlayback();
             finish();
         }

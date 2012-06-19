@@ -435,6 +435,27 @@ public final class IOUtils {
         }
     }
 
+    public static File appendToFilename(File file, String text) {
+        String name = file.getName();
+        final int lastDot = name.lastIndexOf('.');
+        if (lastDot != -1) {
+            String ext = name.substring(lastDot, name.length());
+            return new File(file.getParentFile(), name.substring(0, lastDot)+text+ext);
+        } else {
+            return new File(file.getParentFile(), file.getName()+text);
+        }
+    }
+
+    public static String extension(File file) {
+        String name = file.getName();
+        final int lastDot = name.lastIndexOf('.');
+        if (lastDot != -1 && lastDot != name.length() -1) {
+            return name.substring(lastDot+1, name.length()).toLowerCase();
+        } else {
+            return null;
+        }
+    }
+
     /**
      * some phones have really low transfer rates when the screen is turned off, so request a full
      * performance lock on newer devices

@@ -3,10 +3,8 @@ package com.soundcloud.android.audio;
 import com.soundcloud.android.record.SoundRecorder;
 
 public class TrimPreview {
-
     public static long MAX_PREVIEW_DURATION = 500; // ms, max length of each preview chunk
-    public static long PREVIEW_FADE_LENGTH = 30; // ms
-    public static int PREVIEW_FADE_EXP_CURVE = 10;
+    public static long PREVIEW_FADE_LENGTH  = 30; // ms
 
     PlaybackStream mStream;
     long startPos;
@@ -18,7 +16,6 @@ public class TrimPreview {
         this(stream,startPosition, endPosition, moveTime, SoundRecorder.MAX_PLAYBACK_RATE);
     }
     public TrimPreview(PlaybackStream stream, long startPosition, long endPosition, long moveTime, int maxPlaybackRate) {
-
         mStream = stream;
         startPos = startPosition;
         endPos = endPosition;

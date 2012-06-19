@@ -7,10 +7,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class VorbisFile implements AudioFile {
+public class VorbisFile extends AudioFile {
     private VorbisDecoder decoder;
     private Info info;
 
+    public static final String EXTENSION = "ogg";
 
     public VorbisFile(File file) throws IOException {
         this(new VorbisDecoder(file));

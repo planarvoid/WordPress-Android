@@ -4,6 +4,8 @@ import static com.soundcloud.android.Expect.expect;
 
 import org.junit.Test;
 
+import java.io.File;
+
 public class IOUtilsTest {
     @Test
     public void testMD5() throws Exception {
@@ -34,4 +36,22 @@ public class IOUtilsTest {
         expect(IOUtils.inMbFormatted(1024*1024)).toEqual("1");
         expect(IOUtils.inMbFormatted(2.3d * 1024*1024)).toEqual("2.3");
     }
+
+    @Test
+    public void shouldAppendToFilename() throws Exception {
+        File f = new File("/foo/bar/test.ogg");
+        expect(IOUtils.appendToFilename(f, "_processed").getAbsolutePath()).toEqual("/foo/bar/test_processed.ogg");
+
+        File g = new File("/foo/bar/test");
+        expect(IOUtils.appendToFilename(g, "_processed").getAbsolutePath()).toEqual("/foo/bar/test_processed");
+    }
+
+    @Test
+    public void shouldGetExtension() throws Exception {
+        expect(IOUtils.extension(new File("foo.ogg"))).toEqual("ogg");
+        expect(IOUtils.extension(new File("foo.baz.Ogg"))).toEqual("ogg");
+        expect(IOUtils.extension(new File("foo."))).toBeNull();
+        expect(IOUtils.extension(new File("foo"))).toBeNull();
+    }
+
 }
