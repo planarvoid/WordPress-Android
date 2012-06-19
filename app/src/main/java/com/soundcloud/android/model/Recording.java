@@ -164,7 +164,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File getProcessedFile() {
-        return IOUtils.appendToFilename(getEncodedFile(), "processed");
+        return IOUtils.appendToFilename(getEncodedFile(), "_processed");
     }
 
     public File getAmplitudeFile() {

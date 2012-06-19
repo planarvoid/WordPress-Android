@@ -36,7 +36,7 @@ public class Processor implements Runnable {
         if (start > 0 || end != -1) {
             try {
                 broadcast(UploadService.PROCESSING_STARTED);
-                VorbisEncoder.extract(mRecording.getEncodedFile(), processFile, start, end);
+                VorbisEncoder.extract(mRecording.getEncodedFile(), processFile, start / 1000d, end / 1000d);
                 broadcast(UploadService.PROCESSING_SUCCESS);
             } catch (EncoderException e) {
                 Log.w(TAG, "error processing "+encoded, e);
