@@ -9,17 +9,15 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-import java.util.EnumSet;
-
 public class TrimHandle extends ImageButton {
 
     public enum HandleType {
         LEFT(getLeftLayoutParams(), R.drawable.left_handle_states, R.dimen.trim_handle_left_margin_offset),
         RIGHT(getRightLayoutParams(), R.drawable.right_handle_states, R.dimen.trim_handle_right_margin_offset);
 
-        private RelativeLayout.LayoutParams layoutParams;
-        private int backgroundResId;
-        private int marginOffsetDimenId;
+        private final RelativeLayout.LayoutParams layoutParams;
+        private final int backgroundResId;
+        private final int marginOffsetDimenId;
 
         HandleType(RelativeLayout.LayoutParams layoutParams, int backgroundResId, int marginOffsetDimenId) {
             this.layoutParams = layoutParams;
@@ -40,13 +38,18 @@ public class TrimHandle extends ImageButton {
         mMarginOffset = (int) context.getResources().getDimension(type.marginOffsetDimenId);
     }
 
+
+    @Override
+    public RelativeLayout.LayoutParams getLayoutParams() {
+        return (RelativeLayout.LayoutParams) super.getLayoutParams();
+    }
+
     public void update(int position){
         if (mType == HandleType.LEFT){
-            ((RelativeLayout.LayoutParams)getLayoutParams()).leftMargin = position + mMarginOffset;
+            getLayoutParams().leftMargin = position + mMarginOffset;
         } else {
-            ((RelativeLayout.LayoutParams)getLayoutParams()).rightMargin = position + mMarginOffset;
+            getLayoutParams().rightMargin = position + mMarginOffset;
         }
-
         requestLayout();
     }
 
@@ -63,5 +66,4 @@ public class TrimHandle extends ImageButton {
         lp.addRule(ALIGN_PARENT_RIGHT, 1);
         return lp;
     }
-
 }

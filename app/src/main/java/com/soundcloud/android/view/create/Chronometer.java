@@ -1,10 +1,10 @@
 package com.soundcloud.android.view.create;
 
+import com.soundcloud.android.utils.ScTextUtils;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
-
-import com.soundcloud.android.utils.ScTextUtils;
 
 /**
  * Simple chronometer that handles its own formatting and tries to minimize duplicate results
@@ -34,40 +34,40 @@ public class Chronometer extends TextView {
         super(context, attrs, defStyle);
     }
 
-    public void clear(){
+    public void clear() {
         setText("");
         mode = MODE_EMPTY;
     }
 
-    public void setDurationOnly(long ms){
-        if (mode != MODE_DURATION_ONLY || setDuration(ms)){
+    public void setDurationOnly(long ms) {
+        if (mode != MODE_DURATION_ONLY || setDuration(ms)) {
             mode = MODE_DURATION_ONLY;
             setText(mDurationString);
         }
-
     }
 
-    public void setPlaybackProgress(long ms, long durationMs){
+    public void setPlaybackProgress(long ms, long durationMs) {
         setDuration(durationMs);
         final long newProgressSec = ms / 1000;
         if (newProgressSec != mProgressSec || mode != MODE_PLAYBACK) {
             mProgressSec = newProgressSec;
             mode = MODE_PLAYBACK;
             setText(new StringBuilder()
-                .append(ScTextUtils.formatTimestamp(ms))
-                .append(" / ")
-                .append(mDurationString));
+                    .append(ScTextUtils.formatTimestamp(ms))
+                    .append(" / ")
+                    .append(mDurationString));
 
         }
     }
 
-    private boolean setDuration(long ms){
+    private boolean setDuration(long ms) {
         final long newDurationSec = ms / 1000;
         if (newDurationSec != mDurationSec) {
             mDurationSec = newDurationSec;
             mDurationString = ScTextUtils.formatTimestamp(ms);
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 }
