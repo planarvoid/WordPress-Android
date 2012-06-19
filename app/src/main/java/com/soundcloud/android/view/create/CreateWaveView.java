@@ -36,7 +36,7 @@ public class CreateWaveView extends View {
     private int mMaxWaveHeight;
 
     private float mCurrentProgress = -1f;
-    private double mTrimLeft, mTrimRight;
+    private float mTrimLeft, mTrimRight;
 
     private int mMode;
     private boolean mIsEditing;
@@ -64,6 +64,7 @@ public class CreateWaveView extends View {
     public CreateWaveView(Context context) {
         super(context);
         mGlowHeight = (int) (5 * getContext().getResources().getDisplayMetrics().density);
+        reset();
     }
 
     public void setMode(int mode, boolean animate) {
@@ -103,8 +104,8 @@ public class CreateWaveView extends View {
     }
 
     public void resetTrim() {
-        mTrimLeft = 0d;
-        mTrimRight = 1d;
+        mTrimLeft = 0f;
+        mTrimRight = 1f;
     }
 
 
@@ -175,12 +176,12 @@ public class CreateWaveView extends View {
         invalidate();
     }
 
-    public void setTrimLeft(double trimLeft) {
+    public void setTrimLeft(float trimLeft) {
         mTrimLeft = trimLeft;
         invalidate();
     }
 
-    public void setTrimRight(double trimRight) {
+    public void setTrimRight(float trimRight) {
         mTrimRight = trimRight;
         invalidate();
     }
@@ -247,7 +248,8 @@ public class CreateWaveView extends View {
                 } else {
                     final int trimIndexLeft = (int) (mTrimLeft * width);
                     final int trimIndexRight = (int) (mTrimRight * width);
-                    int currentProgressIndex = (int) (trimIndexLeft + ((trimIndexRight - trimIndexLeft)  * mCurrentProgress));
+                    int currentProgressIndex = mCurrentProgress == -1 ? -1 :
+                            (int) (trimIndexLeft + ((trimIndexRight - trimIndexLeft)  * mCurrentProgress));
 
                     // left handle
                     drawPointsOnCanvas(c, points, DARK_PAINT, 0, Math.max(trimIndexLeft - 1, 0));
@@ -259,6 +261,7 @@ public class CreateWaveView extends View {
                     } else {
 
                         final int playMin = Math.max(trimIndexLeft + 1, currentProgressIndex);
+
                         drawPointsOnCanvas(c, points, PLAYED_PAINT, trimIndexLeft + 1, playMin);
                         drawPointsOnCanvas(c, points, UNPLAYED_PAINT, Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)), trimIndexRight - 1);
                     }
@@ -378,6 +381,14 @@ public class CreateWaveView extends View {
         // draw amplitude
         c.drawLine(xIndex, this.getHeight() / 2 - amplitude * mMaxWaveHeight / 2,
                 xIndex, this.getHeight() / 2 + amplitude * mMaxWaveHeight / 2, p);
+    }
+
+    public float getTrimPercentLeft() {
+        return mTrimLeft;
+    }
+
+    public float getTrimPercentRight() {
+        return mTrimRight;
     }
 }
 

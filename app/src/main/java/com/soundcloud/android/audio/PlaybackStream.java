@@ -43,7 +43,7 @@ public class PlaybackStream {
     }
 
     public long getPosition() {
-        return mCurrentPos - mStartPos;
+        return Math.max(0,mCurrentPos - mStartPos);
     }
 
     public AudioConfig getConfig() {
