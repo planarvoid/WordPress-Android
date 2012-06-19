@@ -906,12 +906,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
             case Consts.Dialogs.DIALOG_CREATE_AUTOSAVE_MESSAGE:
                 return new AlertDialog.Builder(this)
-                        .setMessage(R.string.create_autosave_message).setPositiveButton(
-                                android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                removeDialog(Consts.Dialogs.DIALOG_CREATE_AUTOSAVE_MESSAGE);
-                            }
-                        }).create();
+                        .setMessage(R.string.create_autosave_message)
+                        .setPositiveButton(android.R.string.ok, null).create();
 
             default:
                 return null;

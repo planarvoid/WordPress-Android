@@ -9,9 +9,11 @@ import android.media.AudioTrack;
 import android.media.MediaRecorder;
 
 public enum AudioConfig {
-    PCM16_44100_2(16, 44100, 2, .5f),
-    PCM16_44100_1(16, 44100, 1, .5f),
-    PCM16_8000_1 (16, 8000,  1, .5f),
+    PCM16_44100_2 (16, 44100, 2, .5f),
+    PCM16_44100_1 (16, 44100, 1, .5f),
+    PCM16_8000_1  (16, 8000,  1, .5f),
+    PCM16_22050_1 (16, 22050, 1, .5f),
+    PCM16_16000_1 (16, 16000, 1, .5f),
     ;
 
     public final int sampleRate;
