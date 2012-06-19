@@ -11,4 +11,15 @@ public class Info {
     public long bitrate;
     /** duration in msecs */
     public double duration;
+
+    @Override
+    public String toString() {
+        return "Info{" +
+                "numSamples=" + numSamples +
+                ", channels=" + channels +
+                ", sampleRate=" + sampleRate +
+                ", bitrate=" + bitrate +
+                ", duration=" + duration +
+                '}';
+    }
 }

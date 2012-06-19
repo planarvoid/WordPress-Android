@@ -47,6 +47,14 @@ JNIEXPORT void JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_release
 JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_getState
   (JNIEnv *, jobject);
 
+/*
+ * Class:     com_soundcloud_android_jni_VorbisEncoder
+ * Method:    chop
+ * Signature: (Ljava/lang/String;Ljava/lang/String;JJ)I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_chop
+  (JNIEnv *, jclass, jstring, jstring, jdouble, jdouble);
+
 #ifdef __cplusplus
 }
 #endif
