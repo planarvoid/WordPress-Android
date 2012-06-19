@@ -79,7 +79,8 @@ public class TrimPreview {
                 AudioConfig.msToByte(
                         PREVIEW_FADE_LENGTH,
                         playbackRate,
-                        mStream.getConfig().sampleSize)
+                        mStream.getConfig().sampleSize),
+                PREVIEW_FADE_EXP_CURVE
         );
     }
 }

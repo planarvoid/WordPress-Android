@@ -77,10 +77,11 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING, TRIMMING;
 
         public static final EnumSet<State> ACTIVE = EnumSet.of(RECORDING, PLAYING, SEEKING, TRIMMING);
-        public static final EnumSet<State> PLAYBACK = EnumSet.of(PLAYING, SEEKING, TRIMMING);
+        public static final EnumSet<State> PLAYBACK = EnumSet.of(PLAYING, SEEKING);
 
         public boolean isActive() { return ACTIVE.contains(this); }
         public boolean isPlaying() { return PLAYBACK.contains(this); }
+        public boolean isTrimming() { return this == TRIMMING; }
         public boolean isRecording() { return this == RECORDING; }
     }
 
@@ -377,7 +378,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     public void seekTo(float pct) {
         if (mPlaybackStream != null) {
             long position = (long) (getPlaybackDuration() * pct);
-            if (isPlaying() && position >= 0) {
+            if ((isPlaying() || mState.isTrimming()) && position >= 0) {
                 mSeekToPos = position;
                 mState = State.SEEKING;
             } else {
@@ -399,13 +400,14 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     private void previewTrim(TrimPreview trimPreview) {
-        final boolean wasPlaying = isPlaying();
-        mState = State.TRIMMING;
-        if (!wasPlaying) {
+        final boolean startThread = !(isPlaying() || mState.isTrimming());
+        if (startThread) {
             startPlaybackThread(trimPreview);
         } else {
             mPlaybackThread.addPreview(trimPreview);
+            if (isPlaying()) broadcast(PLAYBACK_STOPPED);
         }
+        mState = State.TRIMMING;
     }
 
     private void startPlaybackThread() {

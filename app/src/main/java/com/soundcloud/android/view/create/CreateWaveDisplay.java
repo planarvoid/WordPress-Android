@@ -11,8 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
 public class CreateWaveDisplay extends TouchLayout {
@@ -41,16 +39,9 @@ public class CreateWaveDisplay extends TouchLayout {
     private long lastSeekX = -1;
     private final int touchSlop;
 
-    private final ImageButton rightHandle, leftHandle;
-    private final LayoutParams rightLp, leftLp;
+    private final TrimHandle rightHandle, leftHandle;
     private Listener mListener;
-
-    private int leftMarginOffset, rightMarginOffset;
-
-    private float trimPercentLeft, trimPercentRight;
     private int waveformWidth,leftDragOffsetX, rightDragOffsetX;
-
-
     private TrimAction newTrimActionLeft, newTrimActionRight, lastTrimActionLeft, lastTrimActionRight;
 
     public static interface Listener {
@@ -62,29 +53,10 @@ public class CreateWaveDisplay extends TouchLayout {
     public CreateWaveDisplay(Context context) {
         super(context);
         touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
-
-        leftHandle = new ImageButton(getContext());
-        leftHandle.setBackgroundResource(R.drawable.left_handle_states);
-        leftHandle.setClickable(false);
-        leftLp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        leftLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,1);
-        leftLp.addRule(RelativeLayout.ALIGN_PARENT_LEFT,1);
-        trimPercentLeft = 0.0f;
-
-        rightHandle = new ImageButton(getContext());
-        rightHandle.setBackgroundResource(R.drawable.right_handle_states);
-        rightHandle.setClickable(false);
-        rightLp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        rightLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,1);
-        rightLp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,1);
-        trimPercentRight = 1.0f;
-
-        leftMarginOffset = (int) getResources().getDimension(R.dimen.trim_handle_left_margin_offset);
-        rightMarginOffset = (int) getResources().getDimension(R.dimen.trim_handle_right_margin_offset);
-
+        leftHandle = new TrimHandle(getContext(), TrimHandle.HandleType.LEFT);
+        rightHandle = new TrimHandle(getContext(), TrimHandle.HandleType.RIGHT);
         mSeekMode = false;
         mLeftHandleTouchIndex = mRightHandleTouchIndex = -1;
-
         refreshWaveView();
     }
 
@@ -94,10 +66,8 @@ public class CreateWaveDisplay extends TouchLayout {
         }
 
         mWaveformView = new CreateWaveView(getContext());
-
         LayoutParams viewParams = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
-        //viewParams.rightMargin = viewParams.leftMargin = (int) (getContext().getResources().getDisplayMetrics().density * 15);
-        viewParams.bottomMargin = (int) (getContext().getResources().getDisplayMetrics().density * 20);
+        viewParams.bottomMargin = (int) getResources().getDimension(R.dimen.create_wave_view_bottom_margin);
         addView(mWaveformView, viewParams);
         return mWaveformView;
     }
@@ -113,13 +83,11 @@ public class CreateWaveDisplay extends TouchLayout {
         if (changed && getWidth() > 0 && mWaveformView != null && mWaveformView.getWidth() > 0) {
             calcualteWaveformRect();
 
-            leftLp.addRule(RelativeLayout.ALIGN_LEFT,mWaveformView.getId());
-            rightLp.addRule(RelativeLayout.ALIGN_RIGHT,mWaveformView.getId());
+            ((RelativeLayout.LayoutParams) leftHandle.getLayoutParams()).addRule(RelativeLayout.ALIGN_LEFT,mWaveformView.getId());
+            ((RelativeLayout.LayoutParams) rightHandle.getLayoutParams()).addRule(RelativeLayout.ALIGN_RIGHT, mWaveformView.getId());
 
             // dimension caching
             waveformWidth = mWaveformView.getWidth();
-            mWaveformView.setTrimLeft(trimPercentLeft);
-            mWaveformView.setTrimRight(trimPercentRight);
             setTrimHandles();
         }
     }
@@ -158,7 +126,7 @@ public class CreateWaveDisplay extends TouchLayout {
                         (mRightHandleTouchIndex == 0 ? input.x : input.pointerX) - rightDragOffsetX)));
             }
 
-            queueUnique(UI_UPDATE_TRIM);
+            queueTrim(UI_UPDATE_TRIM);
         }
 
     }
@@ -170,8 +138,6 @@ public class CreateWaveDisplay extends TouchLayout {
         mTouchHandler.removeMessages(UI_UPDATE_SEEK);
         lastSeekX = -1;
         mSeekMode = false;
-
-
     }
 
     @Override
@@ -197,7 +163,7 @@ public class CreateWaveDisplay extends TouchLayout {
             rightDragOffsetX = 0;
             if (mLeftHandleTouchIndex > pointerIndex) mLeftHandleTouchIndex--;
         }
-        queueUnique(UI_UPDATE_TRIM);
+        queueTrim(UI_UPDATE_TRIM);
     }
 
     private void seekTouch(int x) {
@@ -211,10 +177,9 @@ public class CreateWaveDisplay extends TouchLayout {
         if (!mTouchHandler.hasMessages(what)) mTouchHandler.sendEmptyMessage(what);
     }
 
-    protected void queueTrim(int what, long interval) {
-        if (mLastTrimAction == 0) {
+    protected void queueTrim(int what) {
+        if (mLastTrimAction != 0) {
             queueUnique(what);
-            mLastTrimAction = System.currentTimeMillis();
         } else {
             final long delay = Math.max(0, TRIM_REPORT_INTERVAL - System.currentTimeMillis() - mLastTrimAction);
 
@@ -285,10 +250,9 @@ public class CreateWaveDisplay extends TouchLayout {
                     mLastTrimAction = System.currentTimeMillis();
 
                     if (newTrimActionLeft != null && newTrimActionLeft.hasMovedFrom(lastTrimActionLeft)) {
-                        leftLp.leftMargin = newTrimActionLeft.position + leftMarginOffset;
-                        leftHandle.requestLayout();
+                        leftHandle.update(newTrimActionLeft.position);
 
-                        trimPercentLeft = Math.max(0, ((float) newTrimActionLeft.position / waveformWidth));
+                        final float trimPercentLeft = Math.max(0, ((float) newTrimActionLeft.position / waveformWidth));
                         mWaveformView.setTrimLeft(trimPercentLeft);
 
                         if (mListener != null) {
@@ -298,10 +262,9 @@ public class CreateWaveDisplay extends TouchLayout {
                     lastTrimActionLeft = newTrimActionLeft;
 
                     if (newTrimActionRight != null && newTrimActionRight.hasMovedFrom(lastTrimActionRight)) {
-                        rightLp.rightMargin = waveformWidth - newTrimActionRight.position + rightMarginOffset;
-                        rightHandle.requestLayout();
+                        rightHandle.update(waveformWidth - newTrimActionRight.position);
 
-                        trimPercentRight = Math.min(1, ((float) newTrimActionRight.position / waveformWidth));
+                        final float trimPercentRight = Math.min(1, ((float) newTrimActionRight.position / waveformWidth));
                         mWaveformView.setTrimRight(trimPercentRight);
 
                         if (mListener != null) {
@@ -312,6 +275,7 @@ public class CreateWaveDisplay extends TouchLayout {
                     break;
 
                 case UI_ON_TRIM_STATE:
+                    mLastTrimAction = System.currentTimeMillis();
                     lastTrimActionLeft = newTrimActionLeft;
                     lastTrimActionRight = newTrimActionRight;
 
@@ -324,14 +288,14 @@ public class CreateWaveDisplay extends TouchLayout {
 
     private void setTrimHandles() {
         if (mIsEditing) {
-            leftLp.leftMargin = (int) (waveformWidth * trimPercentLeft) + leftMarginOffset;
+            leftHandle.update((int) (waveformWidth * mWaveformView.getTrimPercentLeft()));
             if (leftHandle.getParent() != this) {
-                addView(leftHandle, leftLp);
+                addView(leftHandle);
             }
 
-            rightLp.rightMargin = (int) ((1.0f - trimPercentRight) * waveformWidth) + rightMarginOffset;
+            rightHandle.update((int) ((1.0f - mWaveformView.getTrimPercentRight()) * waveformWidth));
             if (rightHandle.getParent() != this) {
-                addView(rightHandle, rightLp);
+                addView(rightHandle);
             }
         }
     }
@@ -351,8 +315,6 @@ public class CreateWaveDisplay extends TouchLayout {
     }
 
     public void resetTrim(){
-        trimPercentLeft = 0.0f;
-        trimPercentRight = 1.0f;
         mWaveformView.resetTrim();
     }
 
@@ -388,16 +350,16 @@ public class CreateWaveDisplay extends TouchLayout {
         final String prepend = this.getClass().getSimpleName();
         state.putInt(prepend + "_mode", mMode);
         state.putBoolean(prepend + "_inEditMode", mIsEditing);
-        state.putFloat(prepend+"_trimPercentLeft",trimPercentLeft);
-        state.putFloat(prepend + "_trimPercentRight", trimPercentRight);
+        state.putFloat(prepend+"_trimPercentLeft",mWaveformView.getTrimPercentLeft());
+        state.putFloat(prepend + "_trimPercentRight", mWaveformView.getTrimPercentRight());
     }
 
     public void onRestoreInstanceState(Bundle state) {
 
         final String prepend = this.getClass().getSimpleName();
         mMode = state.getInt(prepend + "_mode", mMode);
-        trimPercentLeft = state.getFloat(prepend + "_trimPercentLeft", 0.0f);
-        trimPercentRight = state.getFloat(prepend + "_trimPercentRight", 1.0f);
+        mWaveformView.setTrimLeft(state.getFloat(prepend + "_trimPercentLeft", 0.0f));
+        mWaveformView.setTrimRight(state.getFloat(prepend + "_trimPercentRight", 1.0f));
         setIsEditing(state.getBoolean(prepend + "_inEditMode", mIsEditing));
         mWaveformView.setMode(mMode, false);
     }

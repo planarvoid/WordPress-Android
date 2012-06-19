@@ -227,13 +227,13 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     @Override
     public void onAdjustTrimLeft(float newPos, long moveTime) {
         mRecorder.onNewStartPosition(newPos, moveTime);
-        if (!mRecorder.isPlaying()) configurePlaybackInfo();
+        configurePlaybackInfo();
     }
 
     @Override
     public void onAdjustTrimRight(float newPos, long moveTime) {
         mRecorder.onNewEndPosition(newPos, moveTime);
-        if (!mRecorder.isPlaying()) configurePlaybackInfo();
+        configurePlaybackInfo();
     }
 
 
@@ -305,7 +305,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     track(Click.Record_discard);
                     showDialog(Consts.Dialogs.DIALOG_DISCARD_RECORDING);
                 } else {
-                    mWaveDisplay.resetTrim();
                     track(Click.Record_revert);
                     showDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
                 }
@@ -544,7 +543,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         case PLAYBACK:
                         case EDIT:
                         case EDIT_PLAYBACK:
-                            mRecorder.revertFile();
                             if (mRecorder.isPlaying()) {
                                 mRecorder.togglePlayback();
                             }
@@ -718,6 +716,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private void configurePlaybackInfo() {
         final long currentPlaybackPosition = mRecorder.getCurrentPlaybackPosition();
         final long duration = mRecorder.getPlaybackDuration();
+
         if ((currentPlaybackPosition > 0 || mRecorder.isPlaying()) && currentPlaybackPosition < duration) {
             mChrono.setPlaybackProgress(currentPlaybackPosition,duration);
             mWaveDisplay.setProgress(((float) currentPlaybackPosition) / duration);
@@ -800,7 +799,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 setProgressInternal(intent.getLongExtra(SoundRecorder.EXTRA_POSITION, 0),
                         intent.getLongExtra(SoundRecorder.EXTRA_DURATION, 0));
 
-            } else if (SoundRecorder.PLAYBACK_COMPLETE.equals(action) || SoundRecorder.PLAYBACK_ERROR.equals(action)) {
+            } else if (SoundRecorder.PLAYBACK_COMPLETE.equals(action) || SoundRecorder.PLAYBACK_STOPPED.equals(action) || SoundRecorder.PLAYBACK_ERROR.equals(action)) {
                 if (mCurrentState == CreateState.PLAYBACK || mCurrentState == CreateState.EDIT_PLAYBACK) {
                     updateUi(mCurrentState == CreateState.EDIT_PLAYBACK ? CreateState.EDIT : CreateState.IDLE_PLAYBACK, true);
                 }
@@ -874,6 +873,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                     @Override
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         track(Click.Record_revert__ok);
+                                        mWaveDisplay.resetTrim();
+                                        mRecorder.revertFile();
                                         updateUi(CreateState.IDLE_PLAYBACK, true);
                                     }
                                 })
