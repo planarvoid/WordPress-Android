@@ -2,7 +2,7 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := soundcloud_audio_encoder
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/vorbis/lib $(LOCAL_PATH)/vorbis/include $(LOCAL_PATH)/ogg/include $(LOCAL_PATH)/liboggz/include $(LOCAL_PATH)/include
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/vorbis/lib $(LOCAL_PATH)/vorbis/include $(LOCAL_PATH)/ogg/include $(LOCAL_PATH)/liboggz/include $(LOCAL_PATH)/liboggz/src/tools $(LOCAL_PATH)/include
 
 LOCAL_CFLAGS := $(LOCAL_C_INCLUDES:%=-I%) -O2 -Wall -D__ANDROID__ -DFIXED_POINT -D_ARM_ASSEM_ -D__ANDROID__ -DOPT_GENERIC -DHAVE_STRERROR
 LOCAL_CPPFLAGS := $(LOCAL_C_INCLUDES:%=-I%) -O2 -Wall -D__ANDROID__ -DFIXED_POINT -D_ARM_ASSEM_ -D__ANDROID__ -DOPT_GENERIC -DHAVE_STRERROR
@@ -47,6 +47,9 @@ LOCAL_SRC_FILES := ogg/src/bitwise.c \
 	liboggz/src/liboggz/oggz_table.c \
 	liboggz/src/liboggz/oggz_vector.c \
 	liboggz/src/liboggz/oggz_write.c \
+	liboggz/src/tools/skeleton.c \
+	liboggz/src/tools/mimetypes.c \
+	liboggz/src/tools/oggz-chop/oggz-chop.c \
 	soundcloud/com_soundcloud_android_jni_VorbisEncoder.c
 
 include $(BUILD_SHARED_LIBRARY)
