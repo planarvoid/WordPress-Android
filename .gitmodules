@@ -13,3 +13,6 @@
 [submodule "app/jni/ogg"]
 	path = app/jni/ogg
 	url = git@github.com:soundcloud/ogg.git
+[submodule "app/jni/liboggz"]
+	path = app/jni/liboggz
+	url = https://github.com/soundcloud/liboggz.git
