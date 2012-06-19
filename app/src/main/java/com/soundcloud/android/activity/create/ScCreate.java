@@ -305,7 +305,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                     track(Click.Record_discard);
                     showDialog(Consts.Dialogs.DIALOG_DISCARD_RECORDING);
                 } else {
-                    mWaveDisplay.resetTrim();
                     track(Click.Record_revert);
                     showDialog(Consts.Dialogs.DIALOG_REVERT_RECORDING);
                 }
@@ -544,7 +543,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         case PLAYBACK:
                         case EDIT:
                         case EDIT_PLAYBACK:
-                            mRecorder.revertFile();
                             if (mRecorder.isPlaying()) {
                                 mRecorder.togglePlayback();
                             }
@@ -875,6 +873,8 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                     @Override
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         track(Click.Record_revert__ok);
+                                        mWaveDisplay.resetTrim();
+                                        mRecorder.revertFile();
                                         updateUi(CreateState.IDLE_PLAYBACK, true);
                                     }
                                 })
