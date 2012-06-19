@@ -14,12 +14,12 @@ import android.view.View;
 import android.widget.*;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.LocationPicker;
 import com.soundcloud.android.model.FoursquareVenue;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.task.create.FoursquareVenueTask;
 import com.soundcloud.android.tracking.Click;
+import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ImageUtils;
 
@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecordingMetaData extends RelativeLayout {
-
-    private Activity mActivity;
     private Recording mRecording;
     private File mArtworkFile;
 
@@ -74,9 +72,7 @@ public class RecordingMetaData extends RelativeLayout {
         if (mLocation == null) preloadLocations();
     }
 
-    public void setActivity(Activity activity) {
-        mActivity = activity;
-
+    public void setActivity(final Activity activity) {
          mWhereText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,10 +86,10 @@ public class RecordingMetaData extends RelativeLayout {
                     intent.putExtra("lat", mRecording.latitude);
                 }
                 synchronized (this) {
-                  intent.putParcelableArrayListExtra("venues", mVenues);
-                  intent.putExtra("location", mLocation);
+                    intent.putParcelableArrayListExtra("venues", mVenues);
+                    intent.putExtra("location", mLocation);
                 }
-                mActivity.startActivityForResult(intent, Consts.RequestCodes.PICK_VENUE);
+                activity.startActivityForResult(intent, Consts.RequestCodes.PICK_VENUE);
             }
         });
 
@@ -107,15 +103,15 @@ public class RecordingMetaData extends RelativeLayout {
 
         findViewById(R.id.txt_artwork_bg).setOnClickListener(
 
-            new ImageUtils.ImagePickListener(mActivity) {
+            new ImageUtils.ImagePickListener(activity) {
                 @Override protected File getFile() {
                     return getCurrentImageFile();
                 }
 
                 // tracking shizzle
-                @Override public void onClick() { getApp().track(Click.Record_details_add_image); }
-                @Override public void onExistingImage() { getApp().track(Click.Record_details_existing_image); }
-                @Override public void onNewImage() { getApp().track(Click.Record_details_new_image); }
+                @Override public void onClick() { getTracker().track(Click.Record_details_add_image); }
+                @Override public void onExistingImage() { getTracker().track(Click.Record_details_existing_image); }
+                @Override public void onNewImage() { getTracker().track(Click.Record_details_new_image); }
             }
         );
 
@@ -144,10 +140,6 @@ public class RecordingMetaData extends RelativeLayout {
                 }
             }.execute(location);
         }
-    }
-
-    public void setRecording(Recording recording){
-        setRecording(recording,false);
     }
 
     public void setRecording(Recording recording, boolean map){
@@ -244,7 +236,7 @@ public class RecordingMetaData extends RelativeLayout {
         clearArtwork();
     }
 
-    private SoundCloudApplication getApp() {
-        return (SoundCloudApplication) mActivity.getApplication();
+    private Tracker getTracker() {
+        return (Tracker) getContext().getApplicationContext();
     }
 }

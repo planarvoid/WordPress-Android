@@ -466,7 +466,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 takeAction = true;
             }
         }
-        //TODO: renable later
+        //TODO: re-enable later
         //noinspection ConstantIfStatement
         if (false) {
             if (mCurrentState != CreateState.RECORD && mRecipient == null) {

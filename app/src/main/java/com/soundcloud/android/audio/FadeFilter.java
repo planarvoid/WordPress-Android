@@ -1,5 +1,7 @@
 package com.soundcloud.android.audio;
 
+import android.os.Parcel;
+
 import java.nio.ByteBuffer;
 
 public class FadeFilter implements PlaybackFilter {
@@ -77,5 +79,14 @@ public class FadeFilter implements PlaybackFilter {
             final short faded = (short) (orig * (invert ? 1 - v : v));
             buffer.putShort(i, faded);
         }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
     }
 }

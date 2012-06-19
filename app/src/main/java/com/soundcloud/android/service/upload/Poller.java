@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.upload;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
+
+import static com.soundcloud.android.service.upload.UploadService.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.SoundCloudApplication;

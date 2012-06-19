@@ -52,7 +52,43 @@ public class PlaybackStreamTest {
     public void testReset() throws Exception {
         stream.setStartPositionByPercent(.1f, 1);
         stream.setEndPositionByPercent(.9f, 1);
+        stream.setOptimize(true);
+        stream.setFading(true);
+
         stream.reset();
+
+        expect(stream.getStartPos()).toEqual(0l);
+        expect(stream.getEndPos()).toEqual(-1l);
+        expect(stream.isOptimized()).toBeFalse();
+        expect(stream.isFading()).toBeFalse();
+    }
+
+    @Test
+    public void testIsModified() throws Exception {
+        expect(stream.isModified()).toBeFalse();
+        stream.setOptimize(true);
+        expect(stream.isModified()).toBeTrue();
+
+        stream.reset();
+        expect(stream.isModified()).toBeFalse();
+
+        stream.setFading(true);
+        expect(stream.isModified()).toBeTrue();
+
+        stream.reset();
+        expect(stream.isModified()).toBeFalse();
+
+        stream.setStartPositionByPercent(.1f, 1);
+        expect(stream.isModified()).toBeTrue();
+
+        stream.reset();
+        expect(stream.isModified()).toBeFalse();
+
+        stream.setEndPositionByPercent(.1f, 1);
+        expect(stream.isModified()).toBeTrue();
+
+        stream.setEndPositionByPercent(1f, 1);
+        expect(stream.isModified()).toBeFalse();
     }
 
     @Ignore

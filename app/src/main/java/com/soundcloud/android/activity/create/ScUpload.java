@@ -58,7 +58,7 @@ public class ScUpload extends ScActivity {
         if (intent != null && (mRecording = Recording.fromIntent(intent, getContentResolver(), getCurrentUserId())) != null) {
             setContentView(mRecording.isPrivateMessage() ? R.layout.sc_message_upload : R.layout.sc_upload);
 
-            mRecordingMetadata.setRecording(mRecording);
+            mRecordingMetadata.setRecording(mRecording, false);
             if (mRecording.external_upload) {
                 // 3rd party upload, disable "record another sound button"
                 // TODO, this needs to be fixed, there is no cancel button on this screen

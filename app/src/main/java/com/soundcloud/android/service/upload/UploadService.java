@@ -7,6 +7,7 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.UserBrowser;
+import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
@@ -102,6 +103,20 @@ public class UploadService extends Service {
                     (recording.resized_artwork_path == null ||
                     !recording.resized_artwork_path.exists());
         }
+
+        public boolean needsProcessing() {
+            return needsEncoding() ||
+                   (recording.getPlaybackStream().isModified() && !recording.getProcessedFile().exists());
+        }
+
+
+        @Override
+        public String toString() {
+            return "Upload{" +
+                    "recording=" + recording +
+                    ", playbackStream=" + recording.getPlaybackStream() +
+                    '}';
+        }
     }
 
     private final Map<Long, Upload> mUploads = new HashMap<Long, Upload>();
@@ -184,8 +199,12 @@ public class UploadService extends Service {
         @Override public void handleMessage(Message msg) {
             Upload upload = (Upload) msg.obj;
 
+            Log.d(TAG, "handleMessage("+upload+")");
+
             if (upload.needsResizing()) {
                 post(new ImageResizer(UploadService.this, upload.recording));
+            } else if (upload.needsProcessing()) {
+                mProcessingHandler.post(new Processor(UploadService.this, upload.recording));
             } else if (upload.needsEncoding()) {
                 mProcessingHandler.post(new Encoder(UploadService.this, upload.recording));
             } else {

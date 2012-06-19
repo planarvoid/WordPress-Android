@@ -299,10 +299,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         //release();
     }
 
-    public int getWriteIndex() {
-        return amplitudeData.writeIndex;
-    }
-
     private void release() {
         if (mAudioRecord != null) mAudioRecord.release();
         mAudioTrack.release();
@@ -424,8 +420,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         mPlaybackThread.start();
     }
 
-
-
     public long timeRemaining() {
         return mRemainingTimeCalculator.timeRemaining() + 2; // adding 2 seconds to make up for lag
     }
@@ -510,7 +504,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
 
         private void play(PlaybackStream playbackStream) throws IOException {
-
             final int bufferSize = 1024; //arbitrary small buffer. makes for more accurate progress reporting
             ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -522,7 +515,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
             broadcast(PLAYBACK_STARTED);
 
             int n;
-            while (mState == SoundRecorder.State.PLAYING && (n = mPlaybackStream.readForPlayback(buffer, bufferSize)) > -1) {
+            while (mState == SoundRecorder.State.PLAYING && (n = playbackStream.readForPlayback(buffer, bufferSize)) > -1) {
                 int written = mAudioTrack.write(buffer, n);
                 if (written < 0) onWriteError(written);
                 buffer.clear();
@@ -553,7 +546,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 }
 
                 // try to get the speed close to the actual speed of the swipe movement
-                mAudioTrack.setPlaybackRate((int) preview.playbackRate);
+                mAudioTrack.setPlaybackRate(preview.playbackRate);
                 if (preview.isReverse()) {
                     for (int i = (byteRange / mConfig.sampleSize) - 1; i >= 0; i--) {
                         int written = mAudioTrack.write(readBuff, i * mConfig.sampleSize, mConfig.sampleSize);

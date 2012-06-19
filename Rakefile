@@ -21,9 +21,9 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                ScContentProvider
                ApiSyncService
                ATTracker
+               UploadService
                SoundCloudApplication
               )
-
 
 [:device, :emu].each do |t|
   def android_home

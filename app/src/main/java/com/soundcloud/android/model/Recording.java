@@ -163,12 +163,21 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return encodedFilename(audio_path);
     }
 
+    public File getProcessedFile() {
+        return IOUtils.appendToFilename(getEncodedFile(), "_processed");
+    }
+
     public File getAmplitudeFile() {
         return new File(audio_path.getParentFile(), audio_path.getName().concat(".amp"));
     }
 
-    public File getUploadFile() {
-        return getEncodedFile().exists() ? getEncodedFile() : getFile();
+    /**
+     * @return the file to upload, or null. this will select a processed file if there is one.
+     */
+    public @Nullable File getUploadFile() {
+        return getProcessedFile().exists() ? getProcessedFile() :
+                (getEncodedFile().exists() ? getEncodedFile() :
+                (getFile().exists() ? getFile() : null));
     }
 
     public User getRecipient()           { return recipient; }
@@ -421,7 +430,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         if (!external_upload) {
             String title = map.get(Params.Track.TITLE).toString();
             final String newTitle = title == null ? "unknown" : title;
-            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), "ogg");
+            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), VorbisFile.EXTENSION);
         } else {
             fileName = file.getName();
         }
@@ -500,22 +509,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return null;
     }
 
-    public static File encodedFilename(File file) {
-        return new File(file.getParentFile(), file.getName().concat(".ogg"));
-    }
-
-    public static Recording pendingFromPrivateUserId(long id, ContentResolver resolver) {
-        Cursor cursor = resolver.query(Content.RECORDINGS.uri,
-                null,
-                Recordings.PRIVATE_USER_ID + " = ? AND " + Recordings.UPLOAD_STATUS + " = ?",
-                new String[] { Long.toString(id), String.valueOf(Recording.Status.NOT_YET_UPLOADED) },
-                null);
-
-        try {
-            return cursor != null && cursor.moveToFirst() ? new Recording(cursor) : null;
-        } finally {
-            if (cursor != null) cursor.close();
-        }
+    private static File encodedFilename(File file) {
+        return new File(file.getParentFile(), file.getName()+"."+VorbisFile.EXTENSION);
     }
 
     public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
@@ -693,6 +688,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         is_private = data.getBoolean("is_private", false);
         external_upload = data.getBoolean("external_upload", false);
         upload_status = data.getInt("upload_status");
+        mPlaybackStream = data.getParcelable("playback_stream");
     }
 
     @Override
@@ -723,6 +719,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         data.putBoolean("is_private", is_private);
         data.putBoolean("external_upload", external_upload);
         data.putInt("upload_status", upload_status);
+        data.putParcelable("playback_stream", mPlaybackStream);
         out.writeBundle(data);
     }
 
