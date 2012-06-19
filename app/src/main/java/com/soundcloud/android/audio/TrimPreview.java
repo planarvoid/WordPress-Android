@@ -5,6 +5,7 @@ import com.soundcloud.android.record.SoundRecorder;
 public class TrimPreview {
     public static long MAX_PREVIEW_DURATION = 500; // ms, max length of each preview chunk
     public static long PREVIEW_FADE_LENGTH  = 30; // ms
+    public static int PREVIEW_FADE_EXP_CURVE = 10;
 
     PlaybackStream mStream;
     long startPos;
