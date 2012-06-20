@@ -122,7 +122,7 @@ public class PlaybackStream implements Parcelable {
         try {
             mPlaybackFile.reopen();
             mPlaybackFile.seek(mCurrentPos);
-            mEndPos = mPlaybackFile.getDuration();
+            mEndPos = Math.min(mPlaybackFile.getDuration(), mEndPos);
         } catch (IOException e) {
             Log.w(PlaybackStream.class.getSimpleName(), e);
         }
