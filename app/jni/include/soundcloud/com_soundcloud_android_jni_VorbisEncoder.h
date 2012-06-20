@@ -7,6 +7,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef com_soundcloud_android_jni_VorbisEncoder_STATE_READY
+#define com_soundcloud_android_jni_VorbisEncoder_STATE_READY 0L
+#undef com_soundcloud_android_jni_VorbisEncoder_STATE_PAUSED
+#define com_soundcloud_android_jni_VorbisEncoder_STATE_PAUSED 1L
+#undef com_soundcloud_android_jni_VorbisEncoder_STATE_CLOSED
+#define com_soundcloud_android_jni_VorbisEncoder_STATE_CLOSED 2L
 /*
  * Class:     com_soundcloud_android_jni_VorbisEncoder
  * Method:    init
@@ -22,6 +28,14 @@ JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_init
  */
 JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_write
   (JNIEnv *, jobject, jobject, jlong);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisEncoder
+ * Method:    closeStream
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_closeStream
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_soundcloud_android_jni_VorbisEncoder
@@ -50,10 +64,18 @@ JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_getState
 /*
  * Class:     com_soundcloud_android_jni_VorbisEncoder
  * Method:    chop
- * Signature: (Ljava/lang/String;Ljava/lang/String;JJ)I
+ * Signature: (Ljava/lang/String;Ljava/lang/String;DD)I
  */
 JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_chop
   (JNIEnv *, jclass, jstring, jstring, jdouble, jdouble);
+
+/*
+ * Class:     com_soundcloud_android_jni_VorbisEncoder
+ * Method:    validate
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_soundcloud_android_jni_VorbisEncoder_validate
+  (JNIEnv *, jclass, jstring);
 
 #ifdef __cplusplus
 }

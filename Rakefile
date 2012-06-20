@@ -20,9 +20,11 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                SyncAdapterService
                ScContentProvider
                ApiSyncService
-               ATTracker
                UploadService
                SoundCloudApplication
+               VorbisEncoder
+               VorbisDecoder
+               SoundRecorder
               )
 
 [:device, :emu].each do |t|
@@ -113,6 +115,14 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
     task :screenshots do
       adb["pull /sdcard/Robotium-Screenshots"]
     end
+
+    task :redirect_stdio_true do
+      adb["shell setprop log.redirect-stdio true"]
+    end
+    task :redirect_stdio_false do
+      adb["shell setprop log.redirect-stdio false"]
+    end
+
   end
 end
 

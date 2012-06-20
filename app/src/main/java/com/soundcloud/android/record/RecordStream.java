@@ -102,4 +102,11 @@ public class RecordStream implements Closeable {
         return "compressed".equals(PreferenceManager.getDefaultSharedPreferences(SoundCloudApplication.instance)
                 .getString(DevSettings.DEV_RECORDING_TYPE, "compressed"));
     }
+
+    public void setNextRecordingPosition(long pos) throws IOException {
+        mWavWriter.setNewPosition(pos);
+        if (mEncoder != null) {
+            mEncoder.startNewStream(pos / 1000d);
+        }
+    }
 }

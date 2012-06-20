@@ -68,6 +68,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/vorbis/include \
 	$(LOCAL_PATH)/ogg/include \
 	$(LOCAL_PATH)/liboggz/include \
 	$(LOCAL_PATH)/liboggz/src/tools \
+	$(LOCAL_PATH)/liboggz/src/liboggz \
 	$(LOCAL_PATH)/include
 
 LOCAL_SRC_FILES := liboggz/src/liboggz/dirac.c \
@@ -85,7 +86,9 @@ LOCAL_SRC_FILES := liboggz/src/liboggz/dirac.c \
 	liboggz/src/liboggz/oggz_write.c \
 	liboggz/src/tools/skeleton.c \
 	liboggz/src/tools/mimetypes.c \
-	liboggz/src/tools/oggz-chop/oggz-chop.c
+	liboggz/src/tools/oggz-chop/oggz-chop.c \
+	liboggz/src/tools/oggz_tools.c \
+	liboggz/src/tools/oggz-validate.c
 
 include $(BUILD_STATIC_LIBRARY)
 
@@ -124,6 +127,36 @@ LOCAL_SRC_FILES := tremolo/bitwise.c \
 include $(BUILD_STATIC_LIBRARY)
 
 #
+# tremor
+# https://github.com/soundcloud/tremor/
+include $(CLEAR_VARS)
+LOCAL_MODULE := tremor
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/tremor $(LOCAL_PATH)/include $(LOCAL_PATH)/ogg/include
+
+LOCAL_CFLAGS   := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
+LOCAL_CPPFLAGS := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
+LOCAL_LDLIBS := -lm
+LOCAL_ARM_MODE  := arm
+
+LOCAL_SRC_FILES := tremor/block.c \
+	tremor/codebook.c \
+	tremor/floor0.c \
+	tremor/floor1.c \
+	tremor/info.c \
+	tremor/mapping0.c \
+	tremor/mdct.c \
+	tremor/registry.c \
+	tremor/res012.c \
+	tremor/sharedbook.c \
+	tremor/synthesis.c \
+	tremor/vorbisfile.c \
+	tremor/window.c
+
+LOCAL_STATIC_LIBRARIES := ogg
+
+include $(BUILD_STATIC_LIBRARY)
+
+#
 # libwav
 #
 include $(CLEAR_VARS)
@@ -141,11 +174,11 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 LOCAL_SRC_FILES := soundcloud/com_soundcloud_android_jni_VorbisDecoder.c
 LOCAL_LDLIBS := -llog
 
-ifneq (,$(findstring armeabi, $(TARGET_ARCH_ABI)))
-    # use faster tremolo decoder on ARM architectures
-    LOCAL_CFLAGS = -DTREMOLO
-    LOCAL_C_INCLUDES +=  $(LOCAL_PATH)/tremolo
-    LOCAL_STATIC_LIBRARIES := tremolo wav
+ifeq (armeabi, $(TARGET_ARCH_ABI))
+    # use faster tremolo decoder on ARM architectures without fp
+    LOCAL_CFLAGS += -DTREMOR
+    LOCAL_C_INCLUDES +=  $(LOCAL_PATH)/tremor $(LOCAL_PATH)/ogg/include
+    LOCAL_STATIC_LIBRARIES := tremor wav
 else
     # fallback to standard vorbis decoder
     LOCAL_C_INCLUDES += $(LOCAL_PATH)/vorbis/include $(LOCAL_PATH)/ogg/include

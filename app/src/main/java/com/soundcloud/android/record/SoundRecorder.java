@@ -431,6 +431,16 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     public @Nullable Recording saveState() {
         if (mRecording != null) {
             mRecording.setPlaybackStream(mPlaybackStream);
+
+            if (mRecordStream != null && mPlaybackStream != null) {
+                try {
+                    mRecordStream.setNextRecordingPosition(mPlaybackStream.getEndPos());
+                    mPlaybackStream.reopen();
+
+                } catch (IOException e) {
+                    Log.w(TAG, "error setting position");
+                }
+            }
             return SoundCloudDB.insertRecording(mContext.getContentResolver(), mRecording);
         } else {
             return null;
@@ -693,7 +703,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                             mRecordStream.finalizeStream();
                             amplitudeData.store(mRecording.getAmplitudeFile());
                             mPlaybackStream = mRecordStream.getPlaybackStream();
-                            saveState();
                             broadcast(RECORD_FINISHED);
                         } catch (IOException e) {
                             mState = SoundRecorder.State.ERROR;

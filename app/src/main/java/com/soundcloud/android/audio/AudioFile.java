@@ -1,5 +1,6 @@
 package com.soundcloud.android.audio;
 
+import com.soundcloud.android.jni.DecoderException;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +49,7 @@ public abstract class AudioFile implements Closeable {
      */
     public abstract File getFile();
 
-    public abstract void reopen();
+    public abstract void reopen() throws IOException;
 
     public @Nullable static AudioFile guess(File file) throws IOException {
         if (IOUtils.extension(file).equals(WavFile.EXTENSION)) {

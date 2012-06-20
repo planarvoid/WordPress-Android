@@ -1,8 +1,14 @@
 #include <soundcloud/com_soundcloud_android_jni_VorbisDecoder.h>
 
-#ifdef TREMOLO
+#if defined TREMOLO || TREMOR
     #include <ivorbiscodec.h>
     #include <ivorbisfile.h>
+#else
+    #include <ogg/ogg.h>
+    #include <vorbis/vorbisfile.h>
+#endif
+
+#if defined TREMOLO || TREMOR
     // tremor and vorbis have slightly different apis since tremor is
     // based on an older version of vorbis
     // set up some macros to work around differences
@@ -14,11 +20,12 @@
     #define ov_time_total(vf, i) ov_time_total(vf, i) /  1000.0
     #define ov_time_seek(vf, pos) ov_time_seek(vf, pos * 1000.0)
     #define ov_time_seek_page(vf, pos) ov_time_seek_page(vf, pos * 1000.0)
+#endif
+
+#if defined TREMOLO
     #define CHANNELS(state) state->vf.vi.channels
     #define RATE(state)     state->vf.vi.rate
 #else
-    #include <ogg/ogg.h>
-    #include <vorbis/vorbisfile.h>
     #define CHANNELS(state) state->vf.vi->channels
     #define RATE(state)     state->vf.vi->rate
 #endif
@@ -137,6 +144,7 @@ jint Java_com_soundcloud_android_jni_VorbisDecoder_decode(JNIEnv *env, jobject o
     int current_section;
     jbyte* bbuffer = (jbyte*) (*env)->GetDirectBufferAddress(env, buffer);
     int ret = ov_read(&state->vf, bbuffer, length, 0, 2, 1, &current_section);
+
     return ret;
 }
 

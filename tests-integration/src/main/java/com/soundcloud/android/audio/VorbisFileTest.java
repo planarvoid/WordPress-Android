@@ -1,12 +1,13 @@
 package com.soundcloud.android.audio;
 
+import static com.soundcloud.android.tests.AudioTestCase.MED_TEST_OGG;
+
 import com.soundcloud.android.tests.ScAndroidTestCase;
 
 import java.io.File;
 import java.io.IOException;
 
 public class VorbisFileTest extends ScAndroidTestCase {
-    public static final String MED_TEST_OGG = "audio/med_test.ogg";
 
     public void testDuration() throws Exception {
         File ogg = prepareAsset(MED_TEST_OGG);
@@ -31,6 +32,5 @@ public class VorbisFileTest extends ScAndroidTestCase {
             fail("expected exception");
         } catch (IOException e) {
         }
-
     }
 }

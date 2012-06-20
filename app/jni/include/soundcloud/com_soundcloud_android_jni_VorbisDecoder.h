@@ -28,7 +28,7 @@ JNIEXPORT void JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_release
 /*
  * Class:     com_soundcloud_android_jni_VorbisDecoder
  * Method:    getInfo
- * Signature: ()Lcom/soundcloud/android/jni/Info;
+ * Signature: ()Lcom/soundcloud/android/jni/VorbisInfo;
  */
 JNIEXPORT jobject JNICALL Java_com_soundcloud_android_jni_VorbisDecoder_getInfo
   (JNIEnv *, jobject);
