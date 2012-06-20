@@ -160,7 +160,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
                 return super.onCreateDialog(which);
         }
     }
-
+    /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (getParent() == null) {
@@ -209,7 +209,7 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
+    }  */
 
     public long getCurrentUserId() {
         if (mCurrentUserId == 0) {
