@@ -1,6 +1,7 @@
 package com.soundcloud.android.utils;
 
 
+import com.android.camera.CropImage;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -46,6 +47,7 @@ import java.util.EnumSet;
 public final class ImageUtils {
     private static final String TAG = ImageUtils.class.getSimpleName();
     public static final int GRAPHIC_DIMENSIONS_BADGE = 47;
+    public static final int RECOMMENDED_IMAGE_SIZE = 2048;
 
     private ImageUtils() {}
 
@@ -541,5 +543,28 @@ public final class ImageUtils {
             }
             return imageLoader.getBitmap(targetUri, callback, options);
         }
+    }
+
+    public static void sendCropIntent(Activity activity, Uri imageUri) {
+        sendCropIntent(activity, imageUri, imageUri, RECOMMENDED_IMAGE_SIZE, RECOMMENDED_IMAGE_SIZE);
+    }
+
+    public static void sendCropIntent(Activity activity, Uri inputUri, Uri outputUri) {
+        sendCropIntent(activity, inputUri, outputUri, RECOMMENDED_IMAGE_SIZE, RECOMMENDED_IMAGE_SIZE);
+    }
+
+    public static void sendCropIntent(Activity activity, Uri inputUri, Uri outputUri, int width, int height) {
+        Intent intent = new Intent(activity, CropImage.class)
+                .setData(inputUri)
+                .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
+                .putExtra("crop", "true")
+                .putExtra("aspectX", 1)
+                .putExtra("aspectY", 1)
+                .putExtra("outputX", width)
+                .putExtra("outputY", width)
+                .putExtra("exifRotation", ImageUtils.getExifRotation(IOUtils.getFromMediaUri(activity.getContentResolver(), inputUri)))
+                .putExtra("noFaceDetection", true);
+
+        activity.startActivityForResult(intent, Consts.RequestCodes.IMAGE_CROP);
     }
 }

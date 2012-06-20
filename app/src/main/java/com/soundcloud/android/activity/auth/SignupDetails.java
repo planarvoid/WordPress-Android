@@ -18,6 +18,7 @@ import com.soundcloud.android.utils.ImageUtils;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -193,12 +194,20 @@ public class SignupDetails extends Activity {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case Consts.RequestCodes.GALLERY_IMAGE_PICK:
-                    setImage(IOUtils.getFromMediaUri(getContentResolver(), result.getData()));
+                    mAvatarFile = createTempAvatarFile();
+                    ImageUtils.sendCropIntent(this, result.getData(), Uri.fromFile(mAvatarFile));
                     break;
                 case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
-                    setImage(mAvatarFile);
+                    ImageUtils.sendCropIntent(this, Uri.fromFile(mAvatarFile));
                     break;
+                case Consts.RequestCodes.IMAGE_CROP: {
+                    if (resultCode == RESULT_OK) {
+                        setImage(mAvatarFile);
+                    }
+                    break;
+                }
             }
         }
     }
+
 }

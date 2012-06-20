@@ -55,7 +55,6 @@ import java.util.regex.Pattern;
 
 public class Recording extends ScModel implements Comparable<Recording> {
 
-    public static final int RECOMMENDED_IMAGE_SIZE = 2048;
     public static final File IMAGE_DIR = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
 
     // basic properties

@@ -21,7 +21,6 @@ import com.soundcloud.android.view.create.ShareUserHeader;
 
 import android.content.Intent;
 import android.database.DataSetObserver;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -260,12 +259,12 @@ public class ScUpload extends ScActivity {
         switch (requestCode) {
             case Consts.RequestCodes.GALLERY_IMAGE_PICK:
                 if (resultCode == RESULT_OK) {
-                    doCrop(result.getData(), Uri.fromFile(mRecording.generateImageFile(Recording.IMAGE_DIR)));
+                    ImageUtils.sendCropIntent(this, result.getData(), Uri.fromFile(mRecording.generateImageFile(Recording.IMAGE_DIR)));
                 }
                 break;
             case Consts.RequestCodes.GALLERY_IMAGE_TAKE:
                 if (resultCode == RESULT_OK) {
-                    doCrop(Uri.fromFile(mRecording.generateImageFile(Recording.IMAGE_DIR)));
+                    ImageUtils.sendCropIntent(this, Uri.fromFile(mRecording.generateImageFile(Recording.IMAGE_DIR)));
                 }
                 break;
 
@@ -311,25 +310,6 @@ public class ScUpload extends ScActivity {
         }
     }
 
-    private void doCrop(Uri imageUri) {
-        doCrop(imageUri,imageUri);
-    }
 
-    private void doCrop(Uri imageUri, Uri outputUri) {
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inJustDecodeBounds = true;
 
-        Intent intent = new Intent(this, CropImage.class)
-            .setData(imageUri)
-            .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
-            .putExtra("crop", "true")
-            .putExtra("aspectX", 1)
-            .putExtra("aspectY", 1)
-            .putExtra("outputX", Recording.RECOMMENDED_IMAGE_SIZE)
-            .putExtra("outputY", Recording.RECOMMENDED_IMAGE_SIZE)
-            .putExtra("exifRotation", ImageUtils.getExifRotation(IOUtils.getFromMediaUri(getContentResolver(), imageUri)))
-            .putExtra("noFaceDetection", true);
-
-        startActivityForResult(intent, Consts.RequestCodes.IMAGE_CROP);
-    }
 }
