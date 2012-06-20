@@ -47,7 +47,7 @@ public class VorbisEncoderTest extends AudioTestCase {
         checkAudioFile(extracted, 4333);
 
         VorbisDecoder decoder = new VorbisDecoder(extracted);
-        Info info = decoder.getInfo();
+        VorbisInfo info = decoder.getInfo();
         assertEquals("got: "+info, 4433d, info.duration);
         assertEquals("got: " + info, 195520, info.numSamples);
 

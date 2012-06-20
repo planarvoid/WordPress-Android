@@ -59,7 +59,7 @@ public class VorbisDecoderTest extends AudioTestCase {
 
     public void testTimeSeek() throws Exception {
         VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
-        assertEquals(0, decoder.timeSeek(10000d));
+        assertEquals(0, decoder.timeSeek(10d));
 
         ByteBuffer bb = ByteBuffer.allocateDirect(4096);
         int n, total = 0;
@@ -74,8 +74,8 @@ public class VorbisDecoderTest extends AudioTestCase {
 
     public void testTimeTell() throws Exception {
         VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
-        assertEquals(0, decoder.timeSeek(10000d));
-        assertEquals(10000d, decoder.timeTell());
+        assertEquals(0, decoder.timeSeek(10d));
+        assertEquals(10d, decoder.timeTell());
 
         // decode some stuff
         ByteBuffer bb = ByteBuffer.allocateDirect(4096);
@@ -85,7 +85,7 @@ public class VorbisDecoderTest extends AudioTestCase {
         }  while (read < 44100 * 2 * 2 /* around 1sec worth of data */);
 
         // and check time
-        assertEquals(11004d, decoder.timeTell());
+        assertEquals(11.004807256235827d, decoder.timeTell(), 0.001d);
 
         decoder.release();
     }
@@ -93,14 +93,14 @@ public class VorbisDecoderTest extends AudioTestCase {
 
     public void testGetInfo() throws Exception {
         VorbisDecoder decoder = new VorbisDecoder(prepareAsset(MED_TEST_OGG));
-        Info info = decoder.getInfo();
+        VorbisInfo info = decoder.getInfo();
 
         assertNotNull(info);
         assertEquals(44100, info.sampleRate);
         assertEquals(2, info.channels);
         assertEquals(828480,  info.numSamples);
-        assertEquals(330825,  info.bitrate);
-        assertEquals(18786.0, info.duration);
+        assertEquals(330819,  info.bitrate, 10);
+        assertEquals(18.78639455782313d, info.duration, 0.001d);
 
         decoder.release();
     }

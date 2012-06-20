@@ -903,7 +903,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                         })
                         .setNegativeButton(android.R.string.no, null)
                         .create();
-
             default:
                 return null;
         }

@@ -1,17 +1,37 @@
 LOCAL_PATH:= $(call my-dir)
+
+MY_CFLAGS := -O2 -Wall -D__ANDROID__ -DFIXED_POINT -D_ARM_ASSEM_ -DOPT_GENERIC -DHAVE_STRERROR
+#
+# libogg
+# https://github.com/soundcloud/ogg
+#
 include $(CLEAR_VARS)
+LOCAL_MODULE    := ogg
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/ogg/include $(LOCAL_PATH)/include
 
-LOCAL_MODULE    := soundcloud_audio_encoder
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/vorbis/lib $(LOCAL_PATH)/vorbis/include $(LOCAL_PATH)/ogg/include $(LOCAL_PATH)/liboggz/include $(LOCAL_PATH)/liboggz/src/tools $(LOCAL_PATH)/include
+LOCAL_CFLAGS   := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
+LOCAL_CPPFLAGS := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
+LOCAL_LDLIBS := -lm
+LOCAL_SRC_FILES := ogg/src/bitwise.c ogg/src/framing.c
 
-LOCAL_CFLAGS := $(LOCAL_C_INCLUDES:%=-I%) -O2 -Wall -D__ANDROID__ -DFIXED_POINT -D_ARM_ASSEM_ -D__ANDROID__ -DOPT_GENERIC -DHAVE_STRERROR
-LOCAL_CPPFLAGS := $(LOCAL_C_INCLUDES:%=-I%) -O2 -Wall -D__ANDROID__ -DFIXED_POINT -D_ARM_ASSEM_ -D__ANDROID__ -DOPT_GENERIC -DHAVE_STRERROR
-LOCAL_LDLIBS := -lm -llog
-LOCAL_ARM_MODE  := arm
+include $(BUILD_STATIC_LIBRARY)
 
-LOCAL_SRC_FILES := ogg/src/bitwise.c \
-	ogg/src/framing.c \
-	vorbis/lib/analysis.c \
+#
+# libvorbis
+# https://github.com/soundcloud/vorbis
+#
+include $(CLEAR_VARS)
+LOCAL_MODULE    := vorbis
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/vorbis/lib \
+	$(LOCAL_PATH)/vorbis/include \
+	$(LOCAL_PATH)/ogg/include \
+	$(LOCAL_PATH)/include
+
+LOCAL_CFLAGS   := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
+LOCAL_CPPFLAGS := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
+LOCAL_LDLIBS := -lm
+
+LOCAL_SRC_FILES := vorbis/lib/analysis.c \
 	vorbis/lib/bitrate.c \
 	vorbis/lib/block.c \
 	vorbis/lib/codebook.c \
@@ -33,8 +53,24 @@ LOCAL_SRC_FILES := ogg/src/bitwise.c \
 	vorbis/lib/synthesis.c \
 	vorbis/lib/vorbisenc.c \
 	vorbis/lib/vorbisfile.c \
-	vorbis/lib/window.c \
-	liboggz/src/liboggz/dirac.c \
+	vorbis/lib/window.c
+
+LOCAL_STATIC_LIBRARIES := ogg
+include $(BUILD_STATIC_LIBRARY)
+
+#
+# liboggz
+# https://github.com/soundcloud/liboggz
+#
+include $(CLEAR_VARS)
+LOCAL_MODULE := oggz
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/vorbis/include \
+	$(LOCAL_PATH)/ogg/include \
+	$(LOCAL_PATH)/liboggz/include \
+	$(LOCAL_PATH)/liboggz/src/tools \
+	$(LOCAL_PATH)/include
+
+LOCAL_SRC_FILES := liboggz/src/liboggz/dirac.c \
 	liboggz/src/liboggz/metric_internal.c \
 	liboggz/src/liboggz/oggz.c \
 	liboggz/src/liboggz/oggz_auto.c \
@@ -49,19 +85,21 @@ LOCAL_SRC_FILES := ogg/src/bitwise.c \
 	liboggz/src/liboggz/oggz_write.c \
 	liboggz/src/tools/skeleton.c \
 	liboggz/src/tools/mimetypes.c \
-	liboggz/src/tools/oggz-chop/oggz-chop.c \
-	soundcloud/com_soundcloud_android_jni_VorbisEncoder.c
+	liboggz/src/tools/oggz-chop/oggz-chop.c
 
-include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
+
+#
+# libtremolo
+# https://github.com/soundcloud/tremor/tree/tremolo
+#
 include $(CLEAR_VARS)
-
-# tremor/tremolo module
-LOCAL_MODULE := soundcloud_audio_decoder
+LOCAL_MODULE := tremolo
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/tremolo $(LOCAL_PATH)/include
 
-LOCAL_CFLAGS := $(LOCAL_C_INCLUDES:%=-I%) -O2 -Wall -D__ANDROID__ -DFIXED_POINT -D_ARM_ASSEM_ -D__ANDROID__ -DOPT_GENERIC -DHAVE_STRERROR
-LOCAL_CPPFLAGS := $(LOCAL_C_INCLUDES:%=-I%) -O2 -Wall -D__ANDROID__ -DFIXED_POINT -D_ARM_ASSEM_ -D__ANDROID__ -DOPT_GENERIC -DHAVE_STRERROR
-LOCAL_LDLIBS := -lm -llog
+LOCAL_CFLAGS   := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
+LOCAL_CPPFLAGS := $(LOCAL_C_INCLUDES:%=-I%) $(MY_CFLAGS)
+LOCAL_LDLIBS := -lm
 LOCAL_ARM_MODE  := arm
 
 LOCAL_SRC_FILES := tremolo/bitwise.c \
@@ -81,8 +119,53 @@ LOCAL_SRC_FILES := tremolo/bitwise.c \
 	tremolo/misc.c \
 	tremolo/res012.c \
 	tremolo/speed.s \
-	tremolo/vorbisfile.c \
-	libwav/libwav.c \
-	soundcloud/com_soundcloud_android_jni_VorbisDecoder.c
+	tremolo/vorbisfile.c
+
+include $(BUILD_STATIC_LIBRARY)
+
+#
+# libwav
+#
+include $(CLEAR_VARS)
+LOCAL_MODULE := wav
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
+LOCAL_SRC_FILES := libwav/libwav.c
+include $(BUILD_STATIC_LIBRARY)
+
+#
+# libsoundcloud_vorbis_decoder
+#
+include $(CLEAR_VARS)
+LOCAL_MODULE := soundcloud_vorbis_decoder
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
+LOCAL_SRC_FILES := soundcloud/com_soundcloud_android_jni_VorbisDecoder.c
+LOCAL_LDLIBS := -llog
+
+ifneq (,$(findstring armeabi, $(TARGET_ARCH_ABI)))
+    # use faster tremolo decoder on ARM architectures
+    LOCAL_CFLAGS = -DTREMOLO
+    LOCAL_C_INCLUDES +=  $(LOCAL_PATH)/tremolo
+    LOCAL_STATIC_LIBRARIES := tremolo wav
+else
+    # fallback to standard vorbis decoder
+    LOCAL_C_INCLUDES += $(LOCAL_PATH)/vorbis/include $(LOCAL_PATH)/ogg/include
+    LOCAL_STATIC_LIBRARIES := vorbis wav
+endif
+
+include $(BUILD_SHARED_LIBRARY)
+
+#
+# libsoundcloud_vorbis_encoder
+#
+include $(CLEAR_VARS)
+LOCAL_MODULE := soundcloud_vorbis_encoder
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/include \
+	$(LOCAL_PATH)/vorbis/include \
+	$(LOCAL_PATH)/liboggz/include \
+	$(LOCAL_PATH)/ogg/include \
+	$(LOCAL_PATH)/liboggz/src/tools
+LOCAL_SRC_FILES := soundcloud/com_soundcloud_android_jni_VorbisEncoder.c
+LOCAL_LDLIBS := -llog
+LOCAL_STATIC_LIBRARIES := vorbis oggz
 
 include $(BUILD_SHARED_LIBRARY)
