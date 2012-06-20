@@ -17,15 +17,13 @@
                     android:layout_width="fill_parent"
                     android:layout_alignParentBottom="true"
                     android:background="@color/playerControlAlphaBackground"
-                    android:layout_height="wrap_content">
+                    android:layout_height="@dimen/button_bar_height">
 
         <Button android:id="@+id/btn_done"
                 android:text="@string/btn_done"
-                android:layout_marginTop="10dip"
+                style="@style/btn_transparent_light"
                 android:layout_width="fill_parent"
-                android:layout_marginLeft="15dip"
-                android:layout_marginRight="15dip"
-                android:layout_height="wrap_content"/>
+                android:layout_height="fill_parent"/>
 
     </RelativeLayout>
 </RelativeLayout>

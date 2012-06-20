@@ -65,17 +65,28 @@
         <item name="android:clickable">true</item>
     </style>
 
-    <style name="btn_dark" parent="btn_default">
+    <style name="btn_transparent" parent="btn_default">
         <item name="android:background">@drawable/btn_transparent_bg_states</item>
         <item name="android:textColor">@drawable/txt_btn_dark_states</item>
         <item name="android:shadowColor">#B3000000</item>
     </style>
+
+    <style name="btn_transparent_light" parent="btn_default">
+        <item name="android:background">@drawable/btn_transparent_bg_states</item>
+        <item name="android:textColor">@drawable/txt_btn_light_states</item>
+    </style>
+
+    <style name="btn_dark" parent="btn_default">
+            <item name="android:background">@drawable/btn_dark</item>
+            <item name="android:textColor">@drawable/txt_btn_dark_states</item>
+            <item name="android:shadowColor">#B3000000</item>
+        </style>
     <style name="btn_orange" parent="btn_default">
         <item name="android:background">@drawable/btn_orange</item>
         <item name="android:textColor">@drawable/txt_btn_orange_states</item>
         <item name="android:shadowColor">#80B21C00</item>
     </style>
-    <style name="btn_blue" parent="btn_dark">
+    <style name="btn_blue" parent="style/btn_transparent">
         <item name="android:background">@drawable/btn_blue</item>
         <item name="android:textColor">@drawable/txt_btn_blue_states</item>
         <item name="android:shadowColor">#803F6BCE</item>
@@ -418,7 +429,7 @@
     </style>
 
     <style name="rec_button_bar">
-        <item name="android:layout_height">60dp</item>
+        <item name="android:layout_height">@dimen/button_bar_height</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:background">@drawable/btn_bar_rec_bg</item>
     </style>

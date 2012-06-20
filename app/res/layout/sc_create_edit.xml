@@ -20,7 +20,7 @@
                       android:layout_centerInParent="true">
 
             <Button android:id="@+id/btn_stop"
-                    style="@style/btn_dark"
+                    style="@style/btn_transparent"
                     android:text="stop"
                     android:layout_weight="1"
                     android:layout_width="0dp"
@@ -30,7 +30,7 @@
                     android:layout_marginRight="10dip"/>
 
             <Button android:id="@+id/btn_play"
-                    style="@style/btn_dark"
+                    style="@style/btn_transparent"
                     android:text="play"
                     android:padding="15dip"
                     android:layout_weight="1"

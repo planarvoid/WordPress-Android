@@ -24,7 +24,7 @@
                       android:orientation="horizontal">
             <Button
                     android:id="@+id/save"
-                    style="@style/btn_dark"
+                    style="@style/btn_transparent"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
@@ -35,7 +35,7 @@
                     android:background="@color/recButtonBarSeparator"/>
             <Button
                     android:id="@+id/discard"
-                    style="@style/btn_dark"
+                    style="@style/btn_transparent"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
