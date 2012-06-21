@@ -319,7 +319,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
             cv.put(Tracks.USER_ID, user.id);
         }
 
-        if (state != null) cv.put(Tracks.STATE, state.value);
+        if (state != null) cv.put(Tracks.STATE, state.name);
         if (created_at != null) cv.put(Tracks.CREATED_AT, created_at.getTime());
         if (tag_list != null) cv.put(Tracks.TAG_LIST, tag_list);
         if (track_type != null) cv.put(Tracks.TRACK_TYPE, track_type);
@@ -474,7 +474,8 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     @Override
     public String toString() {
         return "Track{" +
-                "title='" + title + '\'' +
+                "id="+id+
+                ", title='" + title + '\'' +
                 ", user=" + user +
                 ", duration=" + duration +
                 ", state=" + state +
@@ -592,46 +593,38 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
     public static enum State {
         UNDEFINED(""),
-        STORING("storing"),
-        STORED("stored"),
-        FAILED("failed"),
         FINISHED("finished"),
-        REVIEWED("reviewed"),
-        REPLACING("replacing");
+        FAILED("failed"),
+        READY("ready"),
+        PROCESSING("processing");
 
-        private final String value;
-        private State(String value){
-            this.value = value;
+        private final String name;
+        private State(String name){
+            this.name = name;
         }
 
         @JsonValue
         public String value() {
-            return value;
+            return name;
         }
 
         // don't use built in valueOf to create so we can handle nulls and unknowns ourself
         @JsonCreator
         public static State fromString(String str) {
-            if (!TextUtils.isEmpty(str)) {
-                for (State s : values()) {
-                    if (s.value.equalsIgnoreCase(str)) return s;
-                }
+            for (State s : values()) {
+                if (s.name.equalsIgnoreCase(str)) return s;
             }
             return UNDEFINED;
         }
 
         public boolean isStreamable(){
-            // TODO: we can probably get away without including UNDEFINED in a subsequent release, as it will get updated lazily on first load
+            // TODO: we can probably get away without including UNDEFINED in a subsequent release,
+            // as it will get updated lazily on first load
             return FINISHED == this || UNDEFINED == this;
         }
 
-        public boolean isFailed() {
-            return FAILED == this;
-        }
-
-        public boolean isProcessing() {
-            return !isStreamable() && !isFailed();
-        }
+        public boolean isFailed()     { return FAILED == this; }
+        public boolean isProcessing() { return PROCESSING == this; }
     }
 
     public static enum Sharing {
@@ -661,8 +654,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
             return UNDEFINED;
         }
 
-        public boolean isPublic() {
-            return PUBLIC == this;
-        }
+        public boolean isPublic() { return PUBLIC == this; }
     }
 }
