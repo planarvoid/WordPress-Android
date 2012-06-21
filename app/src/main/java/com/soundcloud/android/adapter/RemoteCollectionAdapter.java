@@ -41,7 +41,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter implements Local
 
     protected String mNextHref;
 
-    public RemoteCollectionAdapter(ScListActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
+    public RemoteCollectionAdapter(ScListActivity activity, ScBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(activity, wrapped, contentUri, request, autoAppend);
 
         if (contentUri != null) {

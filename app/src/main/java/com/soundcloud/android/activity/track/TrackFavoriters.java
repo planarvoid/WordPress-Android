@@ -2,7 +2,6 @@ package com.soundcloud.android.activity.track;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SectionedAdapter;
-import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.api.Endpoints;
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 public class TrackFavoriters extends TrackInfoCollection {
     @Override
     protected SectionedAdapter createSectionedAdapter() {
-        return new SectionedUserlistAdapter(this);
+        return new SectionedAdapter(this);
     }
 
     @Override

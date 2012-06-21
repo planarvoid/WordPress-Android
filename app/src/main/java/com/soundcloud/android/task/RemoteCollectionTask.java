@@ -10,7 +10,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.RemoteCollectionAdapter;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.LocalCollectionPage;
 import com.soundcloud.android.model.ScModel;
@@ -202,8 +201,6 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
                         final Parcelable t = TRACK_CACHE.fromCursor(itemsCursor);
                         items.add(t);
                     } else if (User.class.equals(mParams.loadModel)) {
-                        items.add(USER_CACHE.fromCursor(itemsCursor));
-                    } else if (Friend.class.equals(mParams.loadModel)) {
                         items.add(USER_CACHE.fromCursor(itemsCursor));
                     }
                 } while (itemsCursor.moveToNext());

@@ -61,7 +61,7 @@ public abstract class TrackInfoCollection extends ScListActivity implements Sect
             }
         }
 
-        mPreviousState = (Object[]) getLastNonConfigurationInstance();
+        mPreviousState = (Object[]) getLastCustomNonConfigurationInstance();
         if (mPreviousState != null) {
             mListView.getWrapper().restoreState(mPreviousState);
         }
@@ -72,7 +72,7 @@ public abstract class TrackInfoCollection extends ScListActivity implements Sect
     abstract protected SectionedAdapter.Section createSection();
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         if (mListView != null) {
             return  mListView.getWrapper().saveState();
         }

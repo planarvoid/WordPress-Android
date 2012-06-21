@@ -7,7 +7,7 @@ import android.os.Parcelable;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Track;
@@ -41,7 +41,7 @@ public class ActivityRow extends LazyRow {
         Comment,Favorite
     }
 
-    public ActivityRow(Context activity, LazyBaseAdapter adapter) {
+    public ActivityRow(Context activity, ScBaseAdapter adapter) {
         super(activity, adapter);
 
         mTitle = (TextView) findViewById(R.id.title);

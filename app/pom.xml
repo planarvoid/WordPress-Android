@@ -158,6 +158,18 @@
             <version>1.0.0</version>
             <scope>compile</scope>
             <type>apklib</type>
-        </dependency>
+    	</dependency>
+	<dependency>
+	    <groupId>com.actionbarsherlock</groupId>
+	    <artifactId>library</artifactId>
+	    <version>4.1.0</version>
+	    <type>apklib</type>
+    	</dependency>
+	<dependency>
+	    <groupId>com.viewpagerindicator</groupId>
+	    <artifactId>library</artifactId>
+            <version>2.3.1</version>
+	    <type>apklib</type>
+    	</dependency>
     </dependencies>
 </project>

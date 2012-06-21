@@ -5,12 +5,11 @@ import android.os.Parcelable;
 import android.text.SpannableStringBuilder;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.SectionedCommentAdapter;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.ImageUtils;
 
 import java.util.Date;
 
@@ -18,7 +17,7 @@ public class CommentRow extends ActivityRow {
     private Comment mComment;
     private Track mTrack;
 
-    public CommentRow(Context activity, LazyBaseAdapter adapter) {
+    public CommentRow(Context activity, ScBaseAdapter adapter) {
         super(activity, adapter);
     }
 

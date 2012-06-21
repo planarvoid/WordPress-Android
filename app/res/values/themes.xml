@@ -5,10 +5,10 @@
 		<item name="android:windowNoTitle">true</item>
 	</style>
 
-    <style name="Theme.ScLight" parent="android:Theme.Light">
-		<item name="android:windowNoTitle">true</item>
+    <style name="Theme.ScLight" parent="Theme.Sherlock.Light.DarkActionBar">
         <item name="android:buttonStyle">@style/btn_default</item>
-	</style>
+        <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
+    </style>
 
     <style name="Theme.ScNoBackground" parent="Theme.ScLight">
 		<item name="android:windowBackground">@null</item>
@@ -16,6 +16,14 @@
 
     <style name="ScDark">
         <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Widget.ScTabPageIndicator" parent="Widget.TabPageIndicator">
+        <item name="android:textAppearance">@style/TextAppearance.ScTabPageIndicator</item>
+    </style>
+
+    <style name="TextAppearance.ScTabPageIndicator" parent="TextAppearance.TabPageIndicator">
+        <item name="android:textColor">@color/vpi__light_theme</item>
     </style>
     
     <style name="Dialog" parent="android:Theme.Dialog">

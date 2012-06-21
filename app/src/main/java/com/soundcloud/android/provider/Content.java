@@ -6,7 +6,6 @@ import android.util.SparseArray;
 
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -46,7 +45,7 @@ public enum Content {
     ME_ACTIVITIES("me/activities/all/own", Endpoints.MY_NEWS, 142, Activity.class, -1, Table.ACTIVITIES),
     ME_ALL_ACTIVITIES("me/activities", null, 150, Activity.class, -1, Table.ACTIVITIES),
 
-    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, Friend.class, FRIEND, null),
+    ME_FRIENDS("me/connections/friends", Endpoints.MY_FRIENDS, 160, User.class, FRIEND, null),
     SUGGESTED_USERS("users/suggested", null, 161, User.class, SUGGESTED_USER, null),
 
     TRACKS("tracks", Endpoints.TRACKS, 201, Track.class, ScContentProvider.CollectionItemTypes.TRACK, Table.TRACKS),

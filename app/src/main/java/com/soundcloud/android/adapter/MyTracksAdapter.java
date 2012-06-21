@@ -17,7 +17,7 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyTracksAdapter extends TracklistAdapter {
+public class MyTracksAdapter extends ScBaseAdapter {
     private Cursor mCursor;
     private boolean mDataValid;
     private List<Recording> mRecordingData;
@@ -26,9 +26,8 @@ public class MyTracksAdapter extends TracklistAdapter {
     private static final int TYPE_TRACK = 1;
     private ChangeObserver mChangeObserver;
 
-    public MyTracksAdapter(ScListActivity activity, ArrayList<Parcelable> data,
-            Class<?> model) {
-        super(activity, data, model);
+    public MyTracksAdapter(ScListActivity activity, Content content) {
+        super(activity, content);
         refreshCursor();
 
         mChangeObserver = new ChangeObserver();

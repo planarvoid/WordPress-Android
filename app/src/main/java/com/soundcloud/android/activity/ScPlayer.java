@@ -1,6 +1,7 @@
 
 package com.soundcloud.android.activity;
 
+import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -29,7 +30,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -80,7 +80,7 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
         mTransportBar.setOnFavoriteListener(mFavoriteListener);
 
         mShouldShowComments = getApp().getAccountDataBoolean("playerShowingComments");
-        final Object[] saved = (Object[]) getLastNonConfigurationInstance();
+        final Object[] saved = (Object[]) getLastCustomNonConfigurationInstance();
         if (saved != null && saved[0] != null) mPlayingTrack = (Track) saved[0];
 
         // this is to make sure keyboard is hidden after commenting
@@ -238,12 +238,13 @@ public class ScPlayer extends ScListActivity implements WorkspaceView.OnScreenCh
     }
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         return new Object[] {mPlayingTrack};
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case Consts.OptionsMenu.REFRESH:
                 mPlayingTrack.full_track_info_loaded = false;

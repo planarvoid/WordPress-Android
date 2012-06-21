@@ -8,8 +8,10 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.adapter.ITracklistAdapter;
+import com.soundcloud.android.adapter.IScAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.ImageUtils;
 
 public class QuickTrackMenu extends QuickAction {
@@ -27,9 +29,9 @@ public class QuickTrackMenu extends QuickAction {
     private Drawable mPauseDrawable;
 
     private ScListActivity mActivity;
-    private ITracklistAdapter mAdapter;
+    private IScAdapter mAdapter;
 
-    public QuickTrackMenu(ScListActivity activity, ITracklistAdapter tracklistAdapter) {
+    public QuickTrackMenu(ScListActivity activity, ScBaseAdapter tracklistAdapter) {
         super(activity);
 
         mActivity = activity;
@@ -58,8 +60,7 @@ public class QuickTrackMenu extends QuickAction {
         if (track == null) return;
 
         mPlayActionItem.setVisibility(track.isStreamable() ? View.VISIBLE : View.GONE);
-        mPlayActionItem.setIcon((track.id == mAdapter.getPlayingId() && mAdapter.isPlaying())
-                ? getPauseDrawable() : getPlayDrawable());
+        mPlayActionItem.setIcon(CloudPlaybackService.isTrackPlaying(track.id) ? getPauseDrawable() : getPlayDrawable());
 
         mShareActionItem.setVisibility(track.isPublic() ? View.VISIBLE : View.GONE);
         mFavoriteActionItem.setIcon(track.user_favorite ? getLikedDrawable() : getLikeDrawable());
@@ -68,14 +69,19 @@ public class QuickTrackMenu extends QuickAction {
                 ImageUtils.loadImageSubstitute(mActivity, mProfileActionItem.getIconView(), track.user.avatar_url,
                         Consts.GraphicSize.getListItemGraphicSize(mActivity), null, null) != ImageLoader.BindResult.OK) {
             mProfileActionItem.getIconView().setImageDrawable(mActivity.getResources().getDrawable(R.drawable.avatar_badge));
+
         }
+
+        // TODO fix
+
+        /*
 
         setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
             public void onItemClick(int pos) {
                 switch (pos) {
                     case 0:
-                        if (track.id == mAdapter.getPlayingId() && mAdapter.isPlaying()) {
+                        if (CloudPlaybackService.isTrackPlaying(track.id)) {
                             mActivity.pausePlayback();
                         } else {
                             mActivity.playTrack(mAdapter.getWrapper().getPlayInfo(itemPosition), false, false);
@@ -112,7 +118,7 @@ public class QuickTrackMenu extends QuickAction {
 
             }
         });
-
+        */
         show(anchor);
     }
 

@@ -7,7 +7,6 @@ import android.util.Log;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.CollectionHolder;
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.TracklistItem;
@@ -35,7 +34,7 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ScModel>, String, 
     public UpdateCollectionTask(SoundCloudApplication app,Class<?> loadModel) {
         mApp = app;
         mLoadModel = loadModel;
-        if (!(Track.class.equals(mLoadModel) || User.class.equals(mLoadModel) || Friend.class.equals(mLoadModel))) {
+        if (!(Track.class.equals(mLoadModel) || User.class.equals(mLoadModel))) {
             throw new IllegalArgumentException("Collection updating only allowed for tracks, users and Friends");
         }
     }
@@ -78,11 +77,6 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ScModel>, String, 
                     objectsToWrite.add(((Track) itemsToUpdate.get(t.id)).updateFrom(mApp, t));
                 }
             } else if (User.class.equals(mLoadModel)) {
-                holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.UserlistItemHolder.class);
-                for (UserlistItem u : (ScModel.UserlistItemHolder) holder) {
-                    objectsToWrite.add(((User) itemsToUpdate.get(u.id)).updateFrom(u));
-                }
-            } else if (Friend.class.equals(mLoadModel)) {
                 holder = mApp.getMapper().readValue(resp.getEntity().getContent(), ScModel.UserlistItemHolder.class);
                 for (UserlistItem u : (ScModel.UserlistItemHolder) holder) {
                     objectsToWrite.add(((User) itemsToUpdate.get(u.id)).updateFrom(u));

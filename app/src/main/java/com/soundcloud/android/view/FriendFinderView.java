@@ -18,7 +18,6 @@ import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Connection;
 import com.soundcloud.android.model.Connection.Service;
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.create.NewConnectionTask;
 import com.soundcloud.api.Endpoints;
@@ -220,19 +219,17 @@ public class FriendFinderView extends ScTabView implements SectionedEndlessAdapt
             addFriendsSection();
             addSuggestedSection();
             mFriendList.getWrapper().setRequest(Request.to(Endpoints.MY_FRIENDS));
-            mFriendList.getBaseAdapter().setModel(Friend.class);
 
         } else {
             addSuggestedSection();
             mFriendList.getWrapper().setRequest(Request.to(Endpoints.SUGGESTED_USERS));
-            mFriendList.getBaseAdapter().setModel(User.class);
 
         }
     }
 
     private void addFriendsSection() {
         mFriendsSection = new SectionedAdapter.Section(R.string.list_header_fb_friends,
-                Friend.class, new ArrayList<Parcelable>(), null, Request.to(Endpoints.MY_FRIENDS));
+                User.class, new ArrayList<Parcelable>(), null, Request.to(Endpoints.MY_FRIENDS));
         mAdapter.addSection(mFriendsSection);
     }
 

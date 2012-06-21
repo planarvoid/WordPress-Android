@@ -1,5 +1,24 @@
 package com.soundcloud.android.activity;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.tracking.Event;
+import com.soundcloud.android.tracking.Tracker;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.NetworkConnectivityListener;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -9,26 +28,13 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v4.app.FragmentActivity;
 import android.view.WindowManager;
-import com.google.android.imageloader.ImageLoader;
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.settings.Settings;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.soundcloud.android.tracking.Event;
-import com.soundcloud.android.tracking.Tracker;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.NetworkConnectivityListener;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends android.app.Activity implements Tracker {
+public abstract class ScActivity extends SherlockFragmentActivity implements Tracker {
     protected static final int CONNECTIVITY_MSG = 0;
     private Boolean mIsConnected;
     protected NetworkConnectivityListener connectivityListener;
@@ -160,36 +166,55 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
                 return super.onCreateDialog(which);
         }
     }
-    /*
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getSupportMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+
         if (getParent() == null) {
             menu.add(menu.size(), Consts.OptionsMenu.STREAM,
-                menu.size(), R.string.menu_incoming).setIcon(R.drawable.ic_menu_incoming);
+                    menu.size(), R.string.menu_incoming).setIcon(R.drawable.ic_menu_incoming);
         }
 
         menu.add(menu.size(), Consts.OptionsMenu.FRIEND_FINDER, menu.size(), R.string.menu_friend_finder)
                 .setIcon(R.drawable.ic_menu_friendfinder);
 
-         if (this instanceof ScPlayer) {
+        if (this instanceof ScPlayer) {
             menu.add(menu.size(), Consts.OptionsMenu.REFRESH, 0, R.string.menu_refresh).setIcon(
-                R.drawable.ic_menu_refresh);
+                    R.drawable.ic_menu_refresh);
         } else {
-             menu.add(menu.size(), Consts.OptionsMenu.VIEW_CURRENT_TRACK,
-                menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
+            menu.add(menu.size(), Consts.OptionsMenu.VIEW_CURRENT_TRACK,
+                    menu.size(), R.string.menu_view_current_track).setIcon(R.drawable.ic_menu_player);
         }
 
         menu.add(menu.size(), Consts.OptionsMenu.SETTINGS, menu.size(), R.string.menu_settings)
                 .setIcon(android.R.drawable.ic_menu_preferences);
-
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent intent = new Intent(this, Dashboard.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                return true;
+            case R.id.menu_record:
+                intent = new Intent(this, ScCreate.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_search:
+                intent = new Intent(this, ScSearch.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_my_info:
+                intent = new Intent(this, UserBrowser.class);
+                startActivity(intent);
+                return true;
             case Consts.OptionsMenu.SETTINGS:
-                Intent intent = new Intent(this, Settings.class);
+                intent = new Intent(this, Settings.class);
                 startActivity(intent);
                 return true;
             case Consts.OptionsMenu.VIEW_CURRENT_TRACK:
@@ -202,14 +227,15 @@ public abstract class ScActivity extends android.app.Activity implements Tracker
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:
                 intent = new Intent(Actions.MY_PROFILE)
-                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    .putExtra("userBrowserTag", UserBrowser.Tab.friend_finder.name());
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        .putExtra("userBrowserTag", UserBrowser.Tab.friend_finder.name());
                 startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }  */
+
+    }
 
     public long getCurrentUserId() {
         if (mCurrentUserId == 0) {

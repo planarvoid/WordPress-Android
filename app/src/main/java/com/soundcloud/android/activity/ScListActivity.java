@@ -7,7 +7,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.track.TrackFavoriters;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
@@ -15,6 +14,9 @@ import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.task.FavoriteAddTask;
+import com.soundcloud.android.task.FavoriteRemoveTask;
+import com.soundcloud.android.task.FavoriteTask;
 import com.soundcloud.android.view.AddCommentDialog;
 import com.soundcloud.android.view.ScListView;
 
@@ -254,12 +256,33 @@ public abstract class ScListActivity extends ScActivity {
         if (mLists == null || mLists.isEmpty())
             return;
 
-        for (ScListView list : mLists) {
-            if (list.getBaseAdapter() instanceof TracklistAdapter) {
-                ((TracklistAdapter) list.getBaseAdapter()).setPlayingId(id, isPlaying);
-            }
-        }
+        // todo, notify lists
     }
+
+    public void addFavorite(Track track) {
+        FavoriteAddTask f = new FavoriteAddTask(getApp());
+        f.setOnFavoriteListener(mFavoriteListener);
+        f.execute(track);
+    }
+
+    public void removeFavorite(Track track) {
+        FavoriteRemoveTask f = new FavoriteRemoveTask(getApp());
+        f.setOnFavoriteListener(mFavoriteListener);
+        f.execute(track);
+    }
+
+
+    private FavoriteTask.FavoriteListener mFavoriteListener = new FavoriteTask.FavoriteListener() {
+        @Override
+        public void onNewFavoriteStatus(long trackId, boolean isFavorite) {
+            // todo, notify lists
+        }
+
+        @Override
+        public void onException(long trackId, Exception e) {
+            // todo, notify lists
+        }
+    };
 
     protected void handleRecordingClick(Recording recording) {
     }

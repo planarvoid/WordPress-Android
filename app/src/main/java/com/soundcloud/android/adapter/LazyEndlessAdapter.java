@@ -17,7 +17,6 @@ import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Playable;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -64,7 +63,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     int ERROR           = 4; // idle with error, no more appends
 
 
-    public LazyEndlessAdapter(ScListActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
+    public LazyEndlessAdapter(ScListActivity activity, ScBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(wrapped);
 
         mActivity = activity;
@@ -135,7 +134,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         final boolean error = mState == ERROR;
         if (Track.class.equals(loadModel)) {
             return error ? R.string.tracklist_error : R.string.tracklist_empty;
-        } else if (User.class.equals(loadModel) || Friend.class.equals(loadModel)) {
+        } else if (User.class.equals(loadModel)) {
             return error ? R.string.userlist_error : R.string.userlist_empty;
         } else if (Comment.class.equals(loadModel)) {
             return error ? R.string.commentslist_error : R.string.tracklist_empty;
@@ -150,8 +149,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
      * Get the wrapped adapter (casted)
      */
     @Override
-    public LazyBaseAdapter getWrappedAdapter() {
-        return (LazyBaseAdapter) super.getWrappedAdapter();
+    public ScBaseAdapter getWrappedAdapter() {
+        return (ScBaseAdapter) super.getWrappedAdapter();
     }
 
     @Override

@@ -11,6 +11,16 @@
 
     <string name="menu_private_message">Private Message</string>
 
+    <string name="menu_my_sounds">My Sounds</string>
+    <string name="menu_my_likes">My Likes</string>
+    <string name="menu_my_followings">People I Follow</string>
+    <string name="menu_my_followers">My Followings</string>
+    <string name="menu_my_info">My Info</string>
+    <string name="menu_friend_finder">My Info</string>
+
+    <string name="tab_title_my_sound_stream">My Stream</string>
+    <string name="tab_title_my_likes">My Likes</string>
+
     <string name="cloud_recorder_notification_ticker">Recording</string>
 
     <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>

@@ -27,14 +27,9 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     private long mSetLastSeenTo = -1;
     private Activities mActivities = Activities.EMPTY;
 
-    public EventsAdapterWrapper(ScListActivity activity, LazyBaseAdapter wrapped, Content content) {
+    public EventsAdapterWrapper(ScListActivity activity, ScBaseAdapter wrapped, Content content) {
         super(activity, wrapped, content.uri, Request.to(content.remoteUri), true);
         mAutoAppend = mLocalCollection.hasSyncedBefore(); // if never synced, wait on items to allow appending to prevent premature empty view
-    }
-
-     @Override
-    public EventsAdapter getWrappedAdapter() {
-        return (EventsAdapter) super.getWrappedAdapter();
     }
 
     @Override
@@ -116,7 +111,7 @@ public class EventsAdapterWrapper extends RemoteCollectionAdapter {
     }
 
     private void setLastSeen(long time) {
-        final String lastSeenKey = getWrappedAdapter().isActivityFeed() ?
+        final String lastSeenKey = getWrappedAdapter().getContent() == Content.ME_ACTIVITIES ?
                 User.DataKeys.LAST_OWN_SEEN : User.DataKeys.LAST_INCOMING_SEEN;
 
         SoundCloudApplication app = mActivity.getApp();

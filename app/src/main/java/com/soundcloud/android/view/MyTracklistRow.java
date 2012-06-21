@@ -11,7 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.utils.ImageUtils;
@@ -31,7 +31,7 @@ public class MyTracklistRow extends TrackInfoBar {
     private Drawable mVeryPrivateBgDrawable;
     private ImageView mCloseIcon;
 
-    public MyTracklistRow(Context activity, LazyBaseAdapter adapter) {
+    public MyTracklistRow(Context activity, ScBaseAdapter adapter) {
         super(activity, adapter);
         mTitle = (TextView) findViewById(R.id.track);
         mCreatedAt = (TextView) findViewById(R.id.track_created_at);

@@ -1,5 +1,7 @@
 package com.soundcloud.android.activity;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.ImageLoader.BindResult;
 import com.soundcloud.android.Actions;
@@ -7,12 +9,10 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
 import com.soundcloud.android.adapter.RemoteCollectionAdapter;
-import com.soundcloud.android.adapter.TracklistAdapter;
-import com.soundcloud.android.adapter.UserlistAdapter;
 import com.soundcloud.android.cache.Connections;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.cache.ParcelCache;
@@ -51,8 +51,6 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -175,7 +173,7 @@ public class UserBrowser extends ScListActivity implements
         // XXX in case user is already loaded - should be handled here, not in caller
         mUpdateInfo = intent.getBooleanExtra("updateInfo",true);
 
-        Configuration c = (Configuration) getLastNonConfigurationInstance();
+        Configuration c = (Configuration) getLastCustomNonConfigurationInstance();
         if (c != null) {
             fromConfiguration(c);
         } else {
@@ -273,7 +271,7 @@ public class UserBrowser extends ScListActivity implements
     }
 
     @Override
-    public Configuration onRetainNonConfigurationInstance() {
+    public Configuration onRetainCustomNonConfigurationInstance() {
         return toConfiguration();
     }
 
@@ -359,9 +357,9 @@ public class UserBrowser extends ScListActivity implements
         final boolean isMe = isMe();
 
         // Tracks View
-        LazyBaseAdapter adp = isOtherUser() ? new TracklistAdapter(this,
-                new ArrayList<Parcelable>(), Track.class) : new MyTracksAdapter(this,
-                new ArrayList<Parcelable>(), Track.class);
+        ScBaseAdapter adp = isOtherUser() ?
+                new ScBaseAdapter(this, Content.TRACK) :
+                new MyTracksAdapter(this, Content.TRACK);
 
         LazyEndlessAdapter adpWrap = new RemoteCollectionAdapter(this, adp,
                 isMe ?  Content.ME_TRACKS.uri : null,
@@ -395,7 +393,7 @@ public class UserBrowser extends ScListActivity implements
         mMyTracksView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_TRACKS, true);
 
         // Favorites View
-        adp = new TracklistAdapter(this, new ArrayList<Parcelable>(), Track.class);
+        adp = new ScBaseAdapter(this, Content.TRACK);
 
         adpWrap = new RemoteCollectionAdapter(this, adp,
                 isMe ?  Content.ME_FAVORITES.uri : null,//CloudUtils.replaceWildcard(Content.USER_FAVORITES.uri, mUser.id),
@@ -430,7 +428,7 @@ public class UserBrowser extends ScListActivity implements
         favoritesView.setLazyListView(buildList(), adpWrap, Consts.ListId.LIST_USER_FAVORITES, true);
 
         // Followings View
-        adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class);
+        adp = new ScBaseAdapter(this, Content.USER);
         adpWrap = new RemoteCollectionAdapter(this, adp,
                 isMe ?  Content.ME_FOLLOWINGS.uri : null, //CloudUtils.replaceWildcard(Content.USER_FOLLOWINGS.uri, mUser.id),
                 isMe ?  null : Request.to(Endpoints.USER_FOLLOWINGS, mUser.id), false);
@@ -462,7 +460,7 @@ public class UserBrowser extends ScListActivity implements
 
 
         // Followers View
-        adp = new UserlistAdapter(this, new ArrayList<Parcelable>(), User.class, isMe);
+        adp = new ScBaseAdapter(this, Content.USER);
         adpWrap = new RemoteCollectionAdapter(this, adp,
                 isMe ?  Content.ME_FOLLOWERS.uri : null,//CloudUtils.replaceWildcard(Content.USER_FOLLOWERS.uri, mUser.id),
                 isMe ?  null : Request.to(Endpoints.USER_FOLLOWERS, mUser.id), false);

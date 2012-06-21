@@ -16,7 +16,7 @@
 
 package com.google.android.imageloader;
 
-import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.cache.FileCache;
 import com.soundcloud.android.utils.ImageUtils;
 import org.jetbrains.annotations.Nullable;
@@ -1113,8 +1113,8 @@ public class ImageLoader {
                 return;
             }
             if (!adapter.isEmpty()) {
-                if (adapter instanceof LazyBaseAdapter){
-                    ((LazyBaseAdapter) adapter).scheduleNotifyDataSetChanged();
+                if (adapter instanceof ScBaseAdapter){
+                    ((ScBaseAdapter) adapter).scheduleNotifyDataSetChanged();
                 } else {
                     adapter.notifyDataSetChanged();
                 }

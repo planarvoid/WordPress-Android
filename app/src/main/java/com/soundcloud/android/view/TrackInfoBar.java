@@ -1,24 +1,26 @@
 package com.soundcloud.android.view;
 
-import android.database.Cursor;
-import android.os.Parcelable;
-import android.view.animation.Transformation;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.adapter.ITracklistAdapter;
-import com.soundcloud.android.model.*;
+import com.soundcloud.android.model.Playable;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.Transformation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -79,13 +81,14 @@ public class TrackInfoBar extends LazyRow {
             setId(R.id.track_info_bar);
             setBackgroundResource(R.color.playerControlBackground);
         } else {
-            if (mIcon != null && ((ITracklistAdapter) mAdapter).getQuickTrackMenu() != null) {
+            if (mIcon != null && mAdapter.getQuickActionMenu() != null) {
+                final QuickTrackMenu quickTrackMenu = (QuickTrackMenu) mAdapter.getQuickActionMenu();
                 mIcon.setFocusable(false);
                 mIcon.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (mAdapter != null && mIcon != null && mPlayable != null && mPlayable.getTrack() != null){
-                            ((ITracklistAdapter) mAdapter).getQuickTrackMenu().show(mIcon, mPlayable.getTrack(), mCurrentPosition);
+                            quickTrackMenu.show(mIcon, mPlayable.getTrack(), mCurrentPosition);
                         }
                     }
                 });
@@ -235,7 +238,7 @@ public class TrackInfoBar extends LazyRow {
             setStaticTransformationsEnabled(true);
         }
 
-        display(mPlayable, false, ((ITracklistAdapter) mAdapter).getPlayingId(), false, mCurrentUserId);
+        display(mPlayable, false, CloudPlaybackService.getCurrentTrackId(), false, mCurrentUserId);
     }
 
     @Override

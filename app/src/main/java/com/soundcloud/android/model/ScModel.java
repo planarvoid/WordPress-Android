@@ -56,11 +56,6 @@ public abstract class ScModel implements Parcelable {
             for (Activity e : (Activities) holder) {
                 items.add(e);
             }
-        } else if (Friend.class.equals(loadModel)) {
-            holder = mapper.readValue(is, FriendHolder.class);
-            for (Friend f : (FriendHolder) holder) {
-                items.add(f);
-            }
         } else if (Comment.class.equals(loadModel)) {
             holder = mapper.readValue(is, CommentHolder.class);
             for (Comment f : (CommentHolder) holder) {
@@ -221,6 +216,5 @@ public abstract class ScModel implements Parcelable {
 
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}
     public static class UserlistItemHolder extends CollectionHolder<UserlistItem> {}
-    public static class FriendHolder extends CollectionHolder<Friend> {}
     public static class CommentHolder extends CollectionHolder<Comment> {}
 }

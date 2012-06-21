@@ -58,6 +58,7 @@ public class CloudPlaybackService extends Service implements IAudioManager.Music
     private static Track currentTrack;
     public static Track getCurrentTrack()  { return currentTrack; }
     public static long getCurrentTrackId() { return currentTrack == null ? -1 : currentTrack.id; }
+    public static Boolean isTrackPlaying(long id) { return getCurrentTrackId() == id && state.isSupposedToBePlaying(); }
 
     private static State state = STOPPED;
     public static State getState() { return state; }

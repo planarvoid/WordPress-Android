@@ -69,7 +69,7 @@ public class ScSearchTest {
     @Test
     public void shouldNotCrashOnOrientationChange() throws Exception {
         expect(search.perform(new Search("Testing", 666))).toBeFalse();
-        Object[] o = search.onRetainNonConfigurationInstance();
+        Object[] o = search.onRetainCustomNonConfigurationInstance();
         search.restorePreviousState(o);
     }
 

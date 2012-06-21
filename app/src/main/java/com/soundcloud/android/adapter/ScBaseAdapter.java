@@ -9,23 +9,34 @@ import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.view.ActivityRow;
 import com.soundcloud.android.view.LazyRow;
+import com.soundcloud.android.view.TrackInfoBar;
+import com.soundcloud.android.view.UserlistRow;
+import com.soundcloud.android.view.quickaction.QuickAction;
+import com.soundcloud.android.view.quickaction.QuickTrackMenu;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter {
+public class ScBaseAdapter extends BaseAdapter implements IScAdapter {
     public static final int NOTIFY_DELAY = 300;
     protected Context mContext;
+    protected Content mContent;
     protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
     protected int mPage = 1;
-    private Class<?> mLoadModel;
+    private QuickAction mQuickActionMenu;
 
     protected Map<Long, Drawable> mIconAnimations = new HashMap<Long, Drawable>();
     protected Set<Long> mLoadingIcons = new HashSet<Long>();
@@ -33,10 +44,14 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
     private Handler mNotifyHandler = new NotifyHandler();
 
     @SuppressWarnings("unchecked")
-    public LazyBaseAdapter(Context context, List<? extends Parcelable> data, Class<?> model) {
-        mData = (List<Parcelable>) data;
+    public ScBaseAdapter(Context context, Content content) {
         mContext = context;
-        mLoadModel = model;
+        mContent = content;
+        mData = new ArrayList<Parcelable>();
+
+        if (Track.class.isAssignableFrom(content.resourceType) ){
+            mQuickActionMenu = new QuickTrackMenu((ScListActivity) context, this);
+        }
     }
 
     public void setWrapper(LazyEndlessAdapter wrapper) {
@@ -47,8 +62,8 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
         return mWrapper;
     }
 
-    public void setModel( Class<?> model ) {
-        mLoadModel = model;
+    public void setContent(Content content) {
+        mContent = content;
     }
 
     public List<Parcelable> getData() {
@@ -87,12 +102,32 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
 
     public View getView(int index, View row, ViewGroup parent) {
         LazyRow rowView = row instanceof LazyRow ? (LazyRow) row : createRow(index);
-        // update the cell renderer, and handle selection state
         rowView.display(index, (Parcelable) getItem(index));
         return rowView;
     }
 
-    protected abstract LazyRow createRow(int position);
+    protected LazyRow createRow(int position){
+        switch (mContent){
+            case TRACK:
+            case ME_SOUND_STREAM:
+            case ME_EXCLUSIVE_STREAM:
+            case ME_FAVORITES:
+                return new TrackInfoBar(mContext,this);
+
+            case ME_ACTIVITIES:
+                return new ActivityRow(mContext,this);
+
+            case USER:
+            case ME_FOLLOWINGS:
+                return new UserlistRow(mContext, this);
+
+            case ME_FOLLOWERS:
+                return new UserlistRow(mContext,this, true);
+
+            default:
+                throw new IllegalArgumentException("No row type available for content " + mContent);
+        }
+    }
 
     public void clearData() {
         clearIcons();
@@ -101,7 +136,7 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
     }
 
     public Class<?> getLoadModel() {
-        return mLoadModel;
+        return mContent.resourceType;
     }
 
     public void onDestroy(){}
@@ -131,6 +166,16 @@ public abstract class LazyBaseAdapter extends BaseAdapter implements IScAdapter 
 
     public void onEndOfList(){
 
+    }
+
+    @Override
+    public Content getContent() {
+        return mContent;
+    }
+
+    @Override
+    public QuickAction getQuickActionMenu() {
+        return mQuickActionMenu;
     }
 
     public boolean needsItems() {

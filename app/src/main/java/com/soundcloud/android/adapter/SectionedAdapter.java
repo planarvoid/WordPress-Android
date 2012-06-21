@@ -2,6 +2,7 @@ package com.soundcloud.android.adapter;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Track;
+import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.view.SectionedListView;
 import com.soundcloud.api.Request;
 
@@ -17,7 +18,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SectionedAdapter extends LazyBaseAdapter implements SectionIndexer {
+public class SectionedAdapter extends ScBaseAdapter implements SectionIndexer {
 
     public static final String TAG = "SectionedAdapter";
 
@@ -75,7 +76,7 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
     }
 
     public SectionedAdapter(Context context) {
-        super(context, new ArrayList<Parcelable>(), Track.class);
+        super(context, Content.TRACK);
     }
 
     @Override

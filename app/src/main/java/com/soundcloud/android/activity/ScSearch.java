@@ -5,9 +5,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.SearchHistoryAdapter;
+import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
-import com.soundcloud.android.adapter.SectionedTracklistAdapter;
-import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.model.Search;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
@@ -86,8 +85,8 @@ public class ScSearch extends ScListActivity {
         mListHolder.addView(mList);
         mList.setVisibility(View.GONE);
 
-        mSoundAdpWrapper = new SectionedEndlessAdapter(this, new SectionedTracklistAdapter(this), true);
-        mUserAdpWrapper = new SectionedEndlessAdapter(this, new SectionedUserlistAdapter(this), true);
+        mSoundAdpWrapper = new SectionedEndlessAdapter(this, new SectionedAdapter(this), true);
+        mUserAdpWrapper = new SectionedEndlessAdapter(this, new SectionedAdapter(this), true);
 
         final View root = findViewById(R.id.search_root);
         root.setOnFocusChangeListener(keyboardHideFocusListener);
@@ -118,7 +117,7 @@ public class ScSearch extends ScListActivity {
         mHistoryAdapter = new SearchHistoryAdapter(this);
         recentSearches.setAdapter(mHistoryAdapter);
 
-        Object[] previousState = getLastNonConfigurationInstance();
+        Object[] previousState = getLastCustomNonConfigurationInstance();
         if (previousState != null) {
             restorePreviousState(previousState);
         } else {
@@ -127,8 +126,8 @@ public class ScSearch extends ScListActivity {
     }
 
     @Override
-    public Object[] getLastNonConfigurationInstance() {
-        return (Object[]) super.getLastNonConfigurationInstance();
+    public Object[] getLastCustomNonConfigurationInstance() {
+        return (Object[]) super.getLastCustomNonConfigurationInstance();
     }
 
     @Override
@@ -240,7 +239,7 @@ public class ScSearch extends ScListActivity {
     }
 
     @Override
-    public Object[] onRetainNonConfigurationInstance() {
+    public Object[] onRetainCustomNonConfigurationInstance() {
         return new Object[] {
                 mCurrentSearch,
                 mList.getVisibility(),

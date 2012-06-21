@@ -4,6 +4,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.widget.BaseAdapter;
 import com.soundcloud.android.model.User;
+import com.soundcloud.android.provider.Content;
+import com.soundcloud.android.view.quickaction.QuickAction;
 
 public interface IScAdapter {
     long getItemId(int position);
@@ -17,4 +19,8 @@ public interface IScAdapter {
     void setIconNotReady(Long id);
 
     void onEndOfList();
+
+    Content getContent();
+
+    QuickAction getQuickActionMenu();
 }

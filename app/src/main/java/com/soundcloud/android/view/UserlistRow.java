@@ -6,7 +6,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.adapter.IScAdapter;
-import com.soundcloud.android.adapter.IUserlistAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Click;
@@ -36,6 +36,10 @@ public class UserlistRow extends LazyRow {
     private View mVrStats;
     private Button mFollowBtn;
     private Button mFollowingBtn;
+
+    public UserlistRow(Context context, ScBaseAdapter baseAdapter) {
+        this(context, baseAdapter, false);
+    }
 
     public UserlistRow(Context _activity, IScAdapter _adapter, boolean useFollowBack) {
         super(_activity, _adapter);
@@ -98,7 +102,10 @@ public class UserlistRow extends LazyRow {
 
     @Override
     public void display(int position, Parcelable p) {
-        mUser = ((IUserlistAdapter) mAdapter).getUserAt(position);
+        if (!(p instanceof User)) throw new IllegalArgumentException("Not a valid user");
+
+        mUser = (User) p;
+
         super.display(position);
         if (mUser != null) {
             mUsername.setText(mUser.username);

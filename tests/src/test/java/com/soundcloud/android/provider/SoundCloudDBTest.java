@@ -2,7 +2,6 @@ package com.soundcloud.android.provider;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -246,11 +245,7 @@ public class SoundCloudDBTest {
         u2_.permalink = "u2";
         u2_.id = 300L;
 
-        Friend f = new Friend();
-        f.user = u2;
-
         items.add(u1);
-        items.add(f);
         items.add(t);
         items.add(u2_);
         return items;

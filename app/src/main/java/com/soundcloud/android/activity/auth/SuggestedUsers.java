@@ -16,11 +16,9 @@ import android.widget.Toast;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScListActivity;
-import com.soundcloud.android.adapter.SectionedUserlistAdapter;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
 import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.create.NewConnectionTask;
@@ -38,7 +36,7 @@ import java.util.ArrayList;
 public class SuggestedUsers extends ScListActivity implements SectionedEndlessAdapter.SectionListener {
     private ScListView mListView;
     private SectionedAdapter.Section mFriendsSection;
-    private SectionedUserlistAdapter ffAdp;
+    private SectionedAdapter ffAdp;
     private SectionedEndlessAdapter ffAdpWrap;
     private Button facebookBtn;
     private boolean resumedBefore;
@@ -48,7 +46,7 @@ public class SuggestedUsers extends ScListActivity implements SectionedEndlessAd
         super.onCreate(bundle);
         setContentView(R.layout.suggested_users);
 
-        ffAdp = new SectionedUserlistAdapter(this);
+        ffAdp = new SectionedAdapter(this);
         ffAdpWrap = new SectionedEndlessAdapter(this, ffAdp, true);
         ffAdpWrap.addListener(this);
 
@@ -85,7 +83,7 @@ public class SuggestedUsers extends ScListActivity implements SectionedEndlessAd
 
         addSuggestedUsersSection();
 
-        mPreviousState = (Object[]) getLastNonConfigurationInstance();
+        mPreviousState = (Object[]) getLastCustomNonConfigurationInstance();
         if (mPreviousState != null) {
             mListView.getWrapper().restoreState(mPreviousState);
         }
@@ -108,7 +106,7 @@ public class SuggestedUsers extends ScListActivity implements SectionedEndlessAd
     }
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         if (mListView != null) {
             return  mListView.getWrapper().saveState();
         } else {
@@ -129,7 +127,7 @@ public class SuggestedUsers extends ScListActivity implements SectionedEndlessAd
 
     private void addFriendsSection() {
         mFriendsSection = new SectionedAdapter.Section(R.string.list_header_fb_friends,
-                Friend.class, new ArrayList<Parcelable>(), Content.ME_FRIENDS.uri, Request.to(Endpoints.MY_FRIENDS));
+                User.class, new ArrayList<Parcelable>(), Content.ME_FRIENDS.uri, Request.to(Endpoints.MY_FRIENDS));
         ffAdp.sections.add(mFriendsSection);
     }
 

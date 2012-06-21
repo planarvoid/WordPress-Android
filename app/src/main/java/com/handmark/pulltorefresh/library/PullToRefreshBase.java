@@ -556,7 +556,7 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout {
 
 		// Styleables from XML
 		final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PullToRefresh);
-		mode = a.getInteger(R.styleable.PullToRefresh_mode, MODE_PULL_DOWN_TO_REFRESH);
+		mode = a.getInteger(R.styleable.PullToRefresh_ptr_mode, MODE_PULL_DOWN_TO_REFRESH);
         if (mode == 0) mode = MODE_PULL_DOWN_TO_REFRESH; // TODO robolectric
 
 		// Refreshable View
@@ -587,8 +587,8 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout {
 		}
 
 		// Styleables from XML
-		if (a.hasValue(R.styleable.PullToRefresh_headerTextColor)) {
-			final int color = a.getColor(R.styleable.PullToRefresh_headerTextColor, Color.BLACK);
+		if (a.hasValue(R.styleable.PullToRefresh_ptr_headerTextColor)) {
+			final int color = a.getColor(R.styleable.PullToRefresh_ptr_headerTextColor, Color.BLACK);
 			if (null != headerLayout) {
 				headerLayout.setTextColor(color);
 			}
@@ -596,11 +596,11 @@ public abstract class PullToRefreshBase<T extends View> extends LinearLayout {
 				footerLayout.setTextColor(color);
 			}
 		}
-		if (a.hasValue(R.styleable.PullToRefresh_headerBackground)) {
-			this.setBackgroundResource(a.getResourceId(R.styleable.PullToRefresh_headerBackground, Color.WHITE));
+		if (a.hasValue(R.styleable.PullToRefresh_ptr_headerBackground)) {
+			this.setBackgroundResource(a.getResourceId(R.styleable.PullToRefresh_ptr_headerBackground, Color.WHITE));
 		}
-		if (a.hasValue(R.styleable.PullToRefresh_adapterViewBackground)) {
-			refreshableView.setBackgroundResource(a.getResourceId(R.styleable.PullToRefresh_adapterViewBackground,
+		if (a.hasValue(R.styleable.PullToRefresh_ptr_adapterViewBackground)) {
+			refreshableView.setBackgroundResource(a.getResourceId(R.styleable.PullToRefresh_ptr_adapterViewBackground,
 					Color.WHITE));
 		}
 		a.recycle();

@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.SectionedAdapter;
 import com.soundcloud.android.adapter.SectionedEndlessAdapter;
-import com.soundcloud.android.adapter.SectionedTracklistAdapter;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.android.view.SectionedListView;
@@ -25,7 +24,7 @@ public class TracksByTag extends ScListActivity implements SectionedEndlessAdapt
         super.onCreate(bundle);
         setContentView(R.layout.tracks_by_tag);
 
-        SectionedTracklistAdapter adp = new SectionedTracklistAdapter(this);
+        SectionedAdapter adp = new SectionedAdapter(this);
         SectionedEndlessAdapter adpWrap = new SectionedEndlessAdapter(this, adp, true);
         adpWrap.addListener(this);
 
@@ -54,14 +53,14 @@ public class TracksByTag extends ScListActivity implements SectionedEndlessAdapt
                     Request.to(Endpoints.TRACKS).add("linked_partitioning", "1").add("genres", i.getStringExtra("genre"))));
         } else throw new IllegalArgumentException("No tag or genre supplied with intent");
 
-        mPreviousState = (Object[]) getLastNonConfigurationInstance();
+        mPreviousState = (Object[]) getLastCustomNonConfigurationInstance();
         if (mPreviousState != null) {
             mListView.getWrapper().restoreState(mPreviousState);
         }
     }
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         if (mListView != null) {
             return  mListView.getWrapper().saveState();
         }

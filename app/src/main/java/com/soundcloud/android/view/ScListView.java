@@ -15,11 +15,10 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
-import com.soundcloud.android.adapter.LazyBaseAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
@@ -88,7 +87,7 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
      *
      * @return
      */
-    public LazyBaseAdapter getBaseAdapter() {
+    public ScBaseAdapter getBaseAdapter() {
         if (getRefreshableView().getAdapter() == null) return null;
         if (getRefreshableView().getAdapter() instanceof HeaderViewListAdapter &&
                 ((HeaderViewListAdapter) getRefreshableView().getAdapter()).getWrappedAdapter() instanceof LazyEndlessAdapter) {
@@ -141,7 +140,7 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
             position -= getRefreshableView().getHeaderViewsCount();
 
             LazyEndlessAdapter wrapper = getWrapper();
-            LazyBaseAdapter adp = getBaseAdapter();
+            ScBaseAdapter adp = getBaseAdapter();
 
             final int count = adp.getCount();
             if (count <= 0 || position < 0 || position >= count)
@@ -161,8 +160,6 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
                 mListener.onEventClick((EventsAdapterWrapper) wrapper, position);
             } else if (item instanceof User) {
                 mListener.onUserClick((User) item);
-            } else if (item instanceof Friend) {
-                mListener.onUserClick(((Friend) item).user);
             } else if (item instanceof Comment) {
                 mListener.onCommentClick((Comment) item);
             } else if (item instanceof Recording) {
