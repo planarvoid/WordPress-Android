@@ -69,6 +69,7 @@ public class CreateWaveView extends View {
     public void setMode(int mode, boolean animate) {
         if (mMode != mode){
             mMode = mode;
+            refreshTrim();
             if (mZoomBitmap != null){
                 mZoomBitmap.recycle();
                 mZoomBitmap = null;
@@ -92,7 +93,7 @@ public class CreateWaveView extends View {
         mAnimationStartTime = -1l;
         mMode = CreateWaveDisplay.MODE_REC;
         mIsEditing = false;
-        resetTrim();
+        refreshTrim();
 
         if (mZoomBitmap != null) {
             mZoomBitmap.recycle();
@@ -102,14 +103,14 @@ public class CreateWaveView extends View {
         invalidate();
     }
 
-    public void resetTrim() {
-        mTrimLeft = 0f;
-        mTrimRight = 1f;
-    }
-
-
     public void setIsEditing(boolean isEditing) {
         mIsEditing = isEditing;
+        refreshTrim();
+    }
+
+    private void refreshTrim() {
+        mTrimLeft = SoundRecorder.getInstance(getContext()).getTrimPercentLeft();
+        mTrimRight = SoundRecorder.getInstance(getContext()).getTrimPercentRight();
     }
 
     @Override

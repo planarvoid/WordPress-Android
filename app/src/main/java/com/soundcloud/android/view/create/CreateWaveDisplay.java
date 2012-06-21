@@ -314,10 +314,6 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
-    public void resetTrim(){
-        mWaveformView.resetTrim();
-    }
-
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {
         mWaveformView.updateAmplitude(maxAmplitude, isRecording);
     }

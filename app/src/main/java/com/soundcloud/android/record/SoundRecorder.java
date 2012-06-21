@@ -72,7 +72,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     };
     public static int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
 
-
     public enum State {
         IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING, TRIMMING;
 
@@ -436,6 +435,14 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     public int currentLowerLimit() {
         return mRemainingTimeCalculator.currentLowerLimit();
+    }
+
+    public float getTrimPercentLeft() {
+        return mPlaybackStream == null ? 0.0f : ((float) mPlaybackStream.getStartPos()) / mPlaybackStream.getDuration();
+    }
+
+    public float getTrimPercentRight() {
+        return mPlaybackStream == null || mPlaybackStream.getEndPos() == -1 ? 1.0f : ((float) mPlaybackStream.getEndPos()) / mPlaybackStream.getDuration();
     }
 
     public @Nullable Recording saveState() {
