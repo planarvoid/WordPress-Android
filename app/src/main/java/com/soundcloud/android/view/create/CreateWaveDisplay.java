@@ -83,8 +83,8 @@ public class CreateWaveDisplay extends TouchLayout {
         if (changed && getWidth() > 0 && mWaveformView != null && mWaveformView.getWidth() > 0) {
             calcualteWaveformRect();
 
-            ((RelativeLayout.LayoutParams) leftHandle.getLayoutParams()).addRule(RelativeLayout.ALIGN_LEFT,mWaveformView.getId());
-            ((RelativeLayout.LayoutParams) rightHandle.getLayoutParams()).addRule(RelativeLayout.ALIGN_RIGHT, mWaveformView.getId());
+            leftHandle.getLayoutParams().addRule(RelativeLayout.ALIGN_LEFT, mWaveformView.getId());
+            rightHandle.getLayoutParams().addRule(RelativeLayout.ALIGN_RIGHT, mWaveformView.getId());
 
             // dimension caching
             waveformWidth = mWaveformView.getWidth();

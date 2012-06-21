@@ -12,7 +12,6 @@ import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -149,7 +148,8 @@ public class CreateWaveView extends View {
         assertAmplitudeHistory();
 
         if (mZoomBitmap != null) {
-            // if the new line would go over the edge, copy the last half of the old bitmap into the first half of the new bitmap
+            // if the new line would go over the edge, copy the last half of the old bitmap
+            // into the first half of the new bitmap
             if (nextBufferX + 1 > mZoomBitmap.getWidth()) {
 
                 final Bitmap old = mZoomBitmap;
@@ -195,7 +195,7 @@ public class CreateWaveView extends View {
         boolean animating = (normalizedTime < 1.0f);
         final int width = getWidth();
         final int totalAmplitudeSize = mAllAmplitudes.size();
-        final int recordedAmplitudeSize = mAllAmplitudes.getWrittenSize();
+        final int recordedAmplitudeSize = mAllAmplitudes.writtenSize();
 
         final int recordEndIndexWithTrim = mIsEditing ? totalAmplitudeSize : (int) (totalAmplitudeSize - recordedAmplitudeSize * (1d - mTrimRight));
         final int recordStartIndexWithTrim = mIsEditing ? mAllAmplitudes.writeIndex : (int) (mAllAmplitudes.writeIndex + mTrimLeft * recordedAmplitudeSize); //
@@ -215,8 +215,7 @@ public class CreateWaveView extends View {
         final AmplitudeData subData = mAllAmplitudes.slice(start, recordEndIndexWithTrim - start);
 
         // now figure out how to draw it
-        if (subData.size() > 0) {
-
+        if (!subData.isEmpty()) {
             // where should the last drawn X-coordinate be
             final int lastDrawX = (totalAmplitudeSize < width) ? (int) (totalAmplitudeSize + (width - totalAmplitudeSize) * interpolatedTime) : width;
             float[] points = getAmplitudePoints(subData, 0, lastDrawX);

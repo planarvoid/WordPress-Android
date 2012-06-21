@@ -80,6 +80,9 @@ public class RecordStream implements Closeable {
         return Uri.fromFile(mWavWriter.file);
     }
 
+    /**
+     * @return recording time in ms
+     */
     public long elapsedTime() {
         return mWavWriter.getDuration();
     }
