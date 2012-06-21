@@ -177,7 +177,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         amplitudeData.clear();
 
         if (mRecording != null) {
-            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
+            if (deleteRecording) deleteRecording();
             mRecording = null;
         }
         if (mRecordStream != null) {

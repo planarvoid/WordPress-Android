@@ -120,7 +120,7 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
     @Override
     public Iterator<Float> iterator() {
         return new Iterator<Float>() {
-            int index = 0;
+            int index;
 
             @Override
             public boolean hasNext() {
@@ -208,12 +208,13 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
 
     public void cutRight(int n) {
         int newSize = writtenSize() - n;
-        if (newSize <= 0)  throw new IllegalArgumentException("invalid size "+n);
-        float[] newData = new float[newSize];
-        System.arraycopy(data, Math.max(0, writeIndex), newData, 0, newSize);
-        data = newData;
-        pos = newSize;
-        writeIndex = 0;
+        if (newSize > 0) {
+            float[] newData = new float[newSize];
+            System.arraycopy(data, Math.max(0, writeIndex), newData, 0, newSize);
+            data = newData;
+            pos = newSize;
+            writeIndex = 0;
+        }
     }
 
     public void set(AmplitudeData adata) {
