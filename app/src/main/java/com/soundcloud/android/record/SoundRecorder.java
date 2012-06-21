@@ -252,6 +252,20 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                         mRecording.getEncodedFile(), /* pass in null for no encoding */
                         mConfig
                 );
+            } else {
+                // truncate if we are appending
+                if (mRecordStream != null && mPlaybackStream != null) {
+                    try {
+                        long trimRight = mPlaybackStream.getTrimRight();
+                        if (trimRight > 0 && trimRight < mPlaybackStream.getDuration()) {
+                            amplitudeData.cutRight((int) ((trimRight / 1000d) * valuesPerSecond));
+                            mRecordStream.setNextRecordingPosition(mPlaybackStream.getEndPos());
+                            mPlaybackStream.reopen();
+                        }
+                    } catch (IOException e) {
+                        Log.w(TAG, "error setting position");
+                    }
+                }
             }
 
             // the service will ensure the recording lifecycle and notifications
@@ -438,29 +452,16 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     public float getTrimPercentLeft() {
-        return mPlaybackStream == null ? 0.0f : ((float) mPlaybackStream.getStartPos()) / mPlaybackStream.getDuration();
+        return mPlaybackStream == null ? 0.0f : ((float) mPlaybackStream.getStartPos()) / mPlaybackStream.getTotalDuration();
     }
 
     public float getTrimPercentRight() {
-        return mPlaybackStream == null || mPlaybackStream.getEndPos() == -1 ? 1.0f : ((float) mPlaybackStream.getEndPos()) / mPlaybackStream.getDuration();
+        return mPlaybackStream == null || mPlaybackStream.getEndPos() == -1 ? 1.0f : ((float) mPlaybackStream.getEndPos()) / mPlaybackStream.getTotalDuration();
     }
 
     public @Nullable Recording saveState() {
         if (mRecording != null) {
             mRecording.setPlaybackStream(mPlaybackStream);
-
-            if (mRecordStream != null && mPlaybackStream != null) {
-                try {
-                    long trimRight = mPlaybackStream.getTrimRight();
-                    if (trimRight > 0) {
-                        amplitudeData.cutRight((int) ((trimRight / 1000d) * valuesPerSecond));
-                        mRecordStream.setNextRecordingPosition(mPlaybackStream.getEndPos());
-                        mPlaybackStream.reopen();
-                    }
-                } catch (IOException e) {
-                    Log.w(TAG, "error setting position");
-                }
-            }
             return SoundCloudDB.insertRecording(mContext.getContentResolver(), mRecording);
         } else {
             return null;
@@ -725,6 +726,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                             mRecordStream.finalizeStream();
                             amplitudeData.store(mRecording.getAmplitudeFile());
                             mPlaybackStream = mRecordStream.getPlaybackStream();
+                            saveState();
                             broadcast(RECORD_FINISHED);
                         } catch (IOException e) {
                             mState = SoundRecorder.State.ERROR;
