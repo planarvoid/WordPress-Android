@@ -82,7 +82,7 @@ public class Poller extends Handler {
             sendEmptyMessageDelayed(attempt + 1, Math.max(backoff, mMinDelayBetweenRequests));
         } else {
 
-            if (track != null && !track.state.isProcessing()) {
+            if (track != null && track.state.isFinished()) {
                 onTrackProcessed(track);
             } else {
                 Log.e(TAG, "Track failed to be prepared " + track +

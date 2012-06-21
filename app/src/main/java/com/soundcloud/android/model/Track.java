@@ -625,6 +625,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
         public boolean isFailed()     { return FAILED == this; }
         public boolean isProcessing() { return PROCESSING == this; }
+        public boolean isFinished()   { return FINISHED == this; }
     }
 
     public static enum Sharing {
