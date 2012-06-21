@@ -257,7 +257,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 if (mRecordStream != null && mPlaybackStream != null) {
                     try {
                         long trimRight = mPlaybackStream.getTrimRight();
-                        if (trimRight > 0 && trimRight < mPlaybackStream.getDuration()) {
+                        if (trimRight > 0) {
                             amplitudeData.cutRight((int) ((trimRight / 1000d) * valuesPerSecond));
                             mRecordStream.setNextRecordingPosition(mPlaybackStream.getEndPos());
                             mPlaybackStream.reopen();
