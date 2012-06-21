@@ -23,8 +23,10 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                UploadService
                SoundCloudApplication
                VorbisEncoder
-               VorbisDecoder
+               VorbisEncoderNative
+               VorbisDecoderNative
                SoundRecorder
+               WavWriter
               )
 
 [:device, :emu].each do |t|
