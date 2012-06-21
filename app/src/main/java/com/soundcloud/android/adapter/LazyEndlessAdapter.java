@@ -28,6 +28,7 @@ import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.view.EmptyCollection;
+import com.soundcloud.android.view.ListLoadingItem;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 
@@ -307,9 +308,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
 
         if (position == super.getCount() && (canAppend() || mState == APPENDING)) {
             if (mPendingView == null) {
-                mPendingView = (convertView != null) ? convertView :
-                            ((LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                                    .inflate(R.layout.list_loading_item,null,false);
+                mPendingView = (convertView != null) ? convertView : new ListLoadingItem(mActivity);
             }
             return mPendingView;
         } else {

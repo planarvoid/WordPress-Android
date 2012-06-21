@@ -27,7 +27,7 @@ public class SectionedListView extends ScListView {
     private int mSectionHeaderViewWidth;
     private int mSectionHeaderViewHeight;
 
-    private SectionedEndlessAdapter adapter;
+    private SectionedEndlessAdapter mAdapter;
 
     public SectionedListView(ScActivity activity) {
         super(activity);
@@ -39,6 +39,16 @@ public class SectionedListView extends ScListView {
                 .inflate(R.layout.sectioned_list_header, (FrameLayout) mSectionHeaderView);
 
         setFadingEdgeLength(0);
+
+        setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) { }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                configureHeaderView(firstVisibleItem);
+            }
+        });
     }
 
     @Override
@@ -65,7 +75,7 @@ public class SectionedListView extends ScListView {
         if (this.getRefreshableView().getHeaderViewsCount() > position || position - getRefreshableView().getHeaderViewsCount() == getBaseAdapter().getCount() - 1){
             state = SectionedAdapter.PINNED_HEADER_GONE;
         } else {
-            state = adapter.getWrappedAdapter().getPinnedHeaderState(position - getRefreshableView().getHeaderViewsCount());
+            state = mAdapter.getWrappedAdapter().getPinnedHeaderState(position - getRefreshableView().getHeaderViewsCount());
         }
 
         final int adjPosition = position - getRefreshableView().getHeaderViewsCount();
@@ -76,7 +86,7 @@ public class SectionedListView extends ScListView {
             }
 
             case SectionedAdapter.PINNED_HEADER_VISIBLE: {
-                adapter.getWrappedAdapter()
+                mAdapter.getWrappedAdapter()
                         .configurePinnedHeader(mSectionHeaderView, adjPosition);
 
                 if (mSectionHeaderView.getTop() != 0) {
@@ -98,7 +108,7 @@ public class SectionedListView extends ScListView {
                     } else {
                         y = 0;
                     }
-                    adapter.getWrappedAdapter()
+                    mAdapter.getWrappedAdapter()
                             .configurePinnedHeader(mSectionHeaderView, adjPosition);
 
                     if (mSectionHeaderView.getTop() != y) {
@@ -126,16 +136,7 @@ public class SectionedListView extends ScListView {
                     + " must use adapter of type " + SectionedEndlessAdapter.class.getSimpleName());
         }
 
-        this.adapter = (SectionedEndlessAdapter) adapter;
+        mAdapter = (SectionedEndlessAdapter) adapter;
         super.setAdapter(adapter, refreshEnabled);
-    }
-
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        super.onScroll(view,firstVisibleItem,visibleItemCount,totalItemCount);
-        if (this instanceof SectionedListView && adapter != null) {
-            adapter.getWrappedAdapter().onScroll(this, firstVisibleItem);
-        }
     }
 }
