@@ -26,7 +26,7 @@ public class VorbisFile extends AudioFile {
     @Override
     public void seek(long pos) throws IOException {
         final int ret = decoder.timeSeek(pos / 1000d);
-        if (ret < 0) throw new IOException("timeSeek returned "+ret);
+        if (ret < 0) throw new IOException("timeSeek("+pos+") returned "+ret);
     }
 
     @Override

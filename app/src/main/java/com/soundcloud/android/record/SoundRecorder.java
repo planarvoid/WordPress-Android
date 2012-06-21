@@ -70,7 +70,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
       NOTIFICATION_STATE, RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
       PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS
     };
-    public static int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
+    public static final int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
 
     public enum State {
         IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING, TRIMMING;
@@ -666,8 +666,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
             while (currentDuration > TrimPreview.MAX_PREVIEW_DURATION && previewQueue.size() > 1){
                 currentDuration -= previewQueue.poll().duration;
             }
-
-
         }
     }
 
@@ -725,7 +723,12 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                         try {
                             mRecordStream.finalizeStream();
                             amplitudeData.store(mRecording.getAmplitudeFile());
-                            mPlaybackStream = mRecordStream.getPlaybackStream();
+                            if (mPlaybackStream == null) {
+                                mPlaybackStream = mRecordStream.getPlaybackStream();
+                            } else {
+                                mPlaybackStream.reopen();
+                                mPlaybackStream.resetBounds();
+                            }
                             saveState();
                             broadcast(RECORD_FINISHED);
                         } catch (IOException e) {
