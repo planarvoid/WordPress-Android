@@ -22,6 +22,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 
 /**
  * This class represents the header of a WAVE format audio file, which usually

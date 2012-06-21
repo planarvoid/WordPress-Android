@@ -16,7 +16,6 @@ public class WavWriter implements AudioWriter {
     public final AudioConfig config;
 
     private @Nullable RandomAccessFile mWriter;
-    private long newPosition;
 
     public WavWriter(File file, AudioConfig config) {
         this.file = file;
@@ -31,7 +30,7 @@ public class WavWriter implements AudioWriter {
             WavHeader wh = config.createHeader();
             wh.write(writer);
         } else {
-            long seekTo = Math.min(newPosition <= 0 ? writer.length() : newPosition, writer.length());
+            long seekTo = writer.length();
             Log.d(TAG, "appending to existing WAV file ("+file.getAbsolutePath()+") at "+seekTo);
             writer.seek(seekTo);
         }
@@ -50,13 +49,34 @@ public class WavWriter implements AudioWriter {
     }
 
     public long finalizeStream() throws IOException {
-        RandomAccessFile writer = mWriter;
-        if (writer == null) return -1;
+        if (mWriter != null) {
+            final long fileLength = mWriter.length();
+            Log.d(TAG, "finalising recording file (length=" + fileLength + ")");
+            fixWavHeader(mWriter);
+            mWriter.close();
+            mWriter = null;
+            return getDuration();
+        } else {
+            return -1;
+        }
+    }
 
+    @Override
+    public void setNewPosition(long pos) throws IOException {
+        // truncate file to new length
+        if (pos >= 0) {
+            RandomAccessFile writer = new RandomAccessFile(file, "rw");
+            writer.setLength(config.msToByte(pos) + WavHeader.LENGTH);
+            fixWavHeader(writer);
+            writer.close();
+        }
+    }
+
+    private boolean fixWavHeader(RandomAccessFile writer) throws IOException {
         final long fileLength = writer.length();
-        Log.d(TAG, "finalising recording file (length=" + fileLength + ")");
         if (fileLength == 0) {
             Log.w(TAG, "file length is zero");
+            return false;
         } else if (fileLength > WavHeader.LENGTH) {
             // remaining bytes
             writer.seek(4);
@@ -64,17 +84,11 @@ public class WavWriter implements AudioWriter {
             // total bytes
             writer.seek(WavHeader.LENGTH - 4);
             writer.writeInt(Integer.reverseBytes((int) (fileLength - WavHeader.LENGTH)));
+            return true;
         } else {
             Log.w(TAG, "data length is zero");
+            return false;
         }
-        writer.close();
-        mWriter = null;
-        return getDuration();
-    }
-
-    @Override
-    public void setNewPosition(long pos) throws IOException {
-        newPosition = pos >= 0 ? config.msToByte(pos) : pos;
     }
 
     /**
