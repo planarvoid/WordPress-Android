@@ -19,7 +19,6 @@ import com.soundcloud.android.utils.CloudUtils;
 import android.content.res.Resources;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -64,7 +63,7 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
         getRefreshableView().setOnItemClickListener(mOnItemClickListener);
 
         setOnFlingListener(this);
-        setmOnConfigureHeaderListener(this);
+        setOnConfigureHeaderListener(this);
         setShowIndicator(false); // we don't want the indicator, it interferes with out timestamps
     }
 

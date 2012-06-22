@@ -8,6 +8,7 @@
     <style name="Theme.ScLight" parent="android:Theme.Light">
 		<item name="android:windowNoTitle">true</item>
         <item name="android:buttonStyle">@style/btn_default</item>
+        <item name="ptrLoadingProgressStyle">@style/ScProgressBarHolo</item>
 	</style>
 
     <style name="Theme.ScNoBackground" parent="Theme.ScLight">

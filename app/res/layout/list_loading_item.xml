@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-       android:id="@+id/track_info_row"
-       android:layout_width="fill_parent"
-       android:layout_height="fill_parent"
-       android:padding="5dip">
-    <ImageView android:id="@+id/list_loading"
-               android:src="@drawable/default_ptr_drawable_2"
-               android:layout_margin="20dip"
-               android:gravity="center_vertical"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_centerVertical="true"
-               android:layout_centerInParent="true"/>
-</merge>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/track_info_row"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:padding="5dip">
+    <ProgressBar android:id="@+id/list_loading"
+                 android:indeterminateOnly="true"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_margin="20dip"
+                 android:gravity="center_vertical"
+                 style="@style/ScProgressBarHolo.Small"
+                 android:layout_centerVertical="true"
+                 android:layout_centerInParent="true"/>
+</RelativeLayout>
