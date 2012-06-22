@@ -30,7 +30,8 @@
     </build>
 
     <modules>
-        <module>app</module>
+	<module>app</module>
+	<module>pull-to-refresh</module>
         <module>tests</module>
         <module>tests-integration</module>
     </modules>
