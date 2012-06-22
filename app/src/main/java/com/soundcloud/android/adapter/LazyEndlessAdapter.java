@@ -28,7 +28,6 @@ import com.soundcloud.android.task.UpdateCollectionTask;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.view.EmptyCollection;
-import com.soundcloud.android.view.ListLoadingItem;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 
