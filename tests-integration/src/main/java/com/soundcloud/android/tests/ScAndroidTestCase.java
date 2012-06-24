@@ -17,7 +17,6 @@ import java.util.Locale;
  * Base test case for resource handling.
  */
 public abstract class ScAndroidTestCase extends AndroidTestCase {
-    public static final String TEST_DIR = "sc-tests";
 
     protected AssetManager testAssets() {
         try {
@@ -43,7 +42,7 @@ public abstract class ScAndroidTestCase extends AndroidTestCase {
 
     protected File externalPath(String name) {
         checkStorage();
-        File file = new File(new File(Environment.getExternalStorageDirectory(), TEST_DIR), name);
+        File file = new File(new File(Environment.getExternalStorageDirectory(), Runner.TEST_DIR), name);
         if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) fail("could not create "+file.getParentFile());
         if (file.exists() && !file.delete()) fail("could not delete " + file);
         return file;
