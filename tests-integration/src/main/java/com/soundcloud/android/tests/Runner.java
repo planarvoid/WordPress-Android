@@ -4,7 +4,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.os.Environment;
-import android.os.StatFs;
 import android.test.InstrumentationTestRunner;
 
 import java.io.File;
@@ -24,9 +23,7 @@ public class Runner extends InstrumentationTestRunner {
             throw new RuntimeException("Could not create "+testDir);
         }
 
-        StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
-
-        final long bytesFree = fs.getAvailableBlocks() * fs.getBlockSize();
+        final long bytesFree = IOUtils.getSpaceLeft(Environment.getExternalStorageDirectory());
         if (bytesFree < MIN_BYTES_FREE) {
             throw new RuntimeException("not enough external storage: ("+bytesFree+"<"+MIN_BYTES_FREE+")");
         }
