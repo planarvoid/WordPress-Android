@@ -4,6 +4,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.os.Environment;
+import android.os.StatFs;
 import android.test.InstrumentationTestRunner;
 
 import java.io.File;
@@ -11,6 +12,7 @@ import java.io.File;
 @SuppressWarnings("UnusedDeclaration")
 public class Runner extends InstrumentationTestRunner {
     public static final String TEST_DIR = "sc-tests";
+    private static final long MIN_BYTES_FREE = (1024*1024)* 30;
 
     @Override
     public void onStart() {
@@ -20,6 +22,13 @@ public class Runner extends InstrumentationTestRunner {
 
         if (!IOUtils.mkdirs(testDir)) {
             throw new RuntimeException("Could not create "+testDir);
+        }
+
+        StatFs fs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
+
+        final long bytesFree = fs.getAvailableBlocks() * fs.getBlockSize();
+        if (bytesFree < MIN_BYTES_FREE) {
+            throw new RuntimeException("not enough external storage: ("+bytesFree+"<"+MIN_BYTES_FREE+")");
         }
         super.onStart();
     }
