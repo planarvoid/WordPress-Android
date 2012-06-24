@@ -24,6 +24,7 @@
                     <target>soundcloud_vorbis_encoder</target>
                     <attachNativeArtifacts>true</attachNativeArtifacts>
                     <clearNativeArtifacts>false</clearNativeArtifacts>
+                    <useHeaderArchives>false</useHeaderArchives>
                  </configuration>
                  <extensions>true</extensions>
                  <executions>

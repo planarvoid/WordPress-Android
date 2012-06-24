@@ -130,6 +130,10 @@ public class SignupTest extends ActivityTestCase<Main> {
         // FakeGallery will provide an image
         solo.sleep(1000);
 
+        assertTrue(solo.waitForActivity("CropImage"));
+        solo.clickOnText("Save");
+        solo.assertActivity(SignupDetails.class);
+
         // make sure add image prompt is gone
         assertFalse(solo.searchText(solo.getString(R.string.add_image), true));
 
