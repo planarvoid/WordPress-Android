@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.os.Environment;
@@ -14,6 +15,7 @@ public class Runner extends InstrumentationTestRunner {
     @Override
     public void onStart() {
         File testDir = new File(Environment.getExternalStorageDirectory(), TEST_DIR);
+        IOUtils.deleteDir(Consts.EXTERNAL_STORAGE_DIRECTORY);
         IOUtils.deleteDir(testDir);
 
         if (!IOUtils.mkdirs(testDir)) {
