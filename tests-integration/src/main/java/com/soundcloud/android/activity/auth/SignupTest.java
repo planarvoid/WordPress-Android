@@ -111,6 +111,9 @@ public class SignupTest extends ActivityTestCase<Main> {
         // FakeCamera will provide an image
         solo.sleep(1000);
 
+        assertTrue(solo.waitForActivity("CropImage"));
+        solo.clickOnText("Save");
+
         // make sure add image prompt is gone
         assertFalse(solo.searchText(solo.getString(R.string.add_image), true));
 
