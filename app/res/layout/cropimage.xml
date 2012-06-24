@@ -5,11 +5,10 @@
         android:layout_height="fill_parent"
         android:orientation="vertical">
 
-    <view
+    <com.soundcloud.android.cropimage.CropImageView
             android:id="@+id/cropimage_image"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            class="com.soundcloud.android.cropimage.CropImageView"
             android:background="#FF333333"/>
 
     <LinearLayout style="@style/rec_button_bar"
