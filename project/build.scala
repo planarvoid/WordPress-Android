@@ -114,6 +114,10 @@ object AndroidBuild extends Build {
       javaSource       in Compile <<= (baseDirectory) (_ / "src" / "main" / "java")
     ) ++ inConfig(Android)(Seq(
       useProguard    := false,
+      // don't extract apk deps into test project. TODO: fix this in the plugin
+      extractApkLibDependencies <<= (update in Compile, sourceManaged, managedJavaPath, resourceManaged, streams) map { (_, _, _, _, _) =>
+        Seq.empty[LibraryProject]
+      },
       proguardInJars := Seq.empty,
       mainResPath    <<= (baseDirectory, resDirectoryName) (_ / _) map (x=>x),
       mainAssetsPath <<= (baseDirectory, assetsDirectoryName) (_ / _),
