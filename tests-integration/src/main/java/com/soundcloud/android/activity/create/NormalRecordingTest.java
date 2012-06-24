@@ -7,6 +7,7 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_R
 import com.soundcloud.android.R;
 import com.soundcloud.android.service.upload.UploadService;
 
+import android.test.suitebuilder.annotation.Suppress;
 import android.widget.EditText;
 
 public class NormalRecordingTest extends RecordingTestCase {
@@ -43,6 +44,7 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.assertActivityFinished();
     }
 
+    @Suppress // autosave is now in place
     public void testRecordAndDiscard() throws Exception {
         record(RECORDING_TIME);
 
@@ -50,6 +52,14 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.assertText(R.string.dialog_reset_recording_message); // "Reset? Recording will be deleted."
         solo.clickOnOK();
         assertState(IDLE_RECORD);
+    }
+
+    public void testRecordAndDelete() throws Exception {
+        record(RECORDING_TIME);
+        solo.clickOnText(R.string.delete); // "Discard"
+        solo.assertText(R.string.dialog_confirm_delete_recording_message); // "Are you sure you want to delete this recording?"
+        solo.clickOnOK();
+        solo.assertActivityFinished();
     }
 
     public void testRecordAndUpload() throws Exception {
