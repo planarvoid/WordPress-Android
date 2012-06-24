@@ -230,7 +230,7 @@ public class CreateWaveView extends View {
                     final int recordStartIndex = (recordedAmplitudeSize >= width) ? gap * 4
                             : Math.round(gap * ((float) lastDrawX) / subData.size()) * 4; // incorporate the scaling
 
-                    if (recordStartIndex < points.length - 4) {
+                    if (recordStartIndex < points.length) {
                         // ArrayIndexOutOfBoundsException
                         // http://builder.soundcloud.com/job/soundcloud-android-record-edit-integration/467/artifact/logcat.txt
                         c.drawLines(points, 0, recordStartIndex, DARK_PAINT);
