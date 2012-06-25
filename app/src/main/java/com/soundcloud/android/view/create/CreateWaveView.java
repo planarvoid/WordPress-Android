@@ -217,7 +217,7 @@ public class CreateWaveView extends View {
         final AmplitudeData subData = mAllAmplitudes.slice(start, recordEndIndexWithTrim - start);
 
         // now figure out how to draw it
-        if (!subData.isEmpty()) {
+        if (subData.size() > 0) {
             // where should the last drawn X-coordinate be
             final int lastDrawX = (totalAmplitudeSize < width) ? (int) (totalAmplitudeSize + (width - totalAmplitudeSize) * interpolatedTime) : width;
             float[] points = getAmplitudePoints(subData, 0, lastDrawX);
@@ -231,16 +231,13 @@ public class CreateWaveView extends View {
                     final int recordStartIndex = (recordedAmplitudeSize >= width) ? gap * 4
                             : Math.round(gap * ((float) lastDrawX) / subData.size()) * 4; // incorporate the scaling
 
-                    if (recordStartIndex < points.length) {
+                    if (recordStartIndex > 0 && recordStartIndex < points.length) {
                         // ArrayIndexOutOfBoundsException
                         // http://builder.soundcloud.com/job/soundcloud-android-record-edit-integration/467/artifact/logcat.txt
-                        try {
-                            c.drawLines(points, 0, recordStartIndex, DARK_PAINT);
-                            c.drawLines(points, recordStartIndex, points.length - recordStartIndex, PLAYED_PAINT);
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            Log.w("CreateWaveView", String.format("CreateWaveView: %d %d %d", recordStartIndex, points.length, gap));
-                            throw e;
-                        }
+                        c.drawLines(points, 0, recordStartIndex, DARK_PAINT);
+                        c.drawLines(points, recordStartIndex, points.length - recordStartIndex, PLAYED_PAINT);
+                    } else {
+                        Log.w("CreateWaveView", String.format("CreateWaveView: %d %d %d", recordStartIndex, points.length, gap));
                     }
                 }
             } else {
