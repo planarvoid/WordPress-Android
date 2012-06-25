@@ -4,7 +4,6 @@ import com.soundcloud.android.utils.IOUtils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +36,7 @@ public class PlaybackStream implements Parcelable {
 
     public void resetBounds() {
         mStartPos = 0;
-        mEndPos   = mPlaybackFile.getDuration();
+        mEndPos   = getTotalDuration();
     }
 
     public long getDuration(){
@@ -56,7 +55,7 @@ public class PlaybackStream implements Parcelable {
         if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal start percent " + newPos);
 
         final long old = mStartPos;
-        mStartPos = (long) (newPos * mPlaybackFile.getDuration());
+        mStartPos = (long) (newPos * getTotalDuration());
         return new TrimPreview(this,old,mStartPos, moveTime);
     }
 
@@ -64,7 +63,7 @@ public class PlaybackStream implements Parcelable {
         if (newPos < 0d || newPos > 1d) throw new IllegalArgumentException("Illegal end percent " + newPos);
 
         final long old = mEndPos;
-        mEndPos = (long) (newPos * mPlaybackFile.getDuration());
+        mEndPos = (long) (newPos * getTotalDuration());
         return new TrimPreview(this, old, mEndPos, moveTime);
     }
 
@@ -104,8 +103,7 @@ public class PlaybackStream implements Parcelable {
         mPlaybackFile.seek(atPosition);
     }
 
-
-    public long getValidPosition(long currentPosition) {
+    private long getValidPosition(long currentPosition) {
         return (currentPosition < mStartPos || currentPosition >= mEndPos) ? mStartPos : currentPosition;
     }
 
@@ -118,13 +116,12 @@ public class PlaybackStream implements Parcelable {
         mCurrentPos = pos;
     }
 
-    public void reopen() {
-        try {
-            mPlaybackFile.reopen();
+    public void reopen() throws IOException {
+        mPlaybackFile.reopen();
+        if (mCurrentPos >= 0) {
             mPlaybackFile.seek(mCurrentPos);
-        } catch (IOException e) {
-            Log.w(PlaybackStream.class.getSimpleName(), e);
         }
+        mEndPos = Math.min(getTotalDuration(), mEndPos);
     }
 
     /**
@@ -138,7 +135,7 @@ public class PlaybackStream implements Parcelable {
      * @return end position in msecs, or -1 for whole file
      */
     public long getEndPos() {
-        return mEndPos == mPlaybackFile.getDuration() ? -1 : mEndPos;
+        return mEndPos == getTotalDuration() ? -1 : mEndPos;
     }
 
     public boolean isOptimized() {
@@ -162,13 +159,20 @@ public class PlaybackStream implements Parcelable {
         mEndPos = end;
     }
 
+    public long getTrimRight() {
+        return getTotalDuration() - mEndPos;
+    }
+
     public boolean isModified() {
         return mStartPos > 0 ||
-               mEndPos < mPlaybackFile.getDuration() ||
+               mEndPos < getTotalDuration() ||
                mFilter != null ||
                mOptimize;
     }
 
+    public long getTotalDuration() {
+        return mPlaybackFile.getDuration();
+    }
 
     @Override
     public int describeContents() {

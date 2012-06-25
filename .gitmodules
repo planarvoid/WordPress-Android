@@ -16,6 +16,9 @@
 [submodule "app/jni/liboggz"]
 	path = app/jni/liboggz
 	url = https://github.com/soundcloud/liboggz.git
+[submodule "app/jni/tremor"]
+	path = app/jni/tremor
+	url = git@github.com:soundcloud/tremor.git
 [submodule "action-bar-sherlock"]
 	path = action-bar-sherlock
 	url = https://github.com/JakeWharton/ActionBarSherlock.git

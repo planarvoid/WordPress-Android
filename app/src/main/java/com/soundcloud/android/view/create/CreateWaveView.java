@@ -70,6 +70,7 @@ public class CreateWaveView extends View {
     public void setMode(int mode, boolean animate) {
         if (mMode != mode){
             mMode = mode;
+            refreshTrim();
             if (mZoomBitmap != null){
                 mZoomBitmap.recycle();
                 mZoomBitmap = null;
@@ -93,7 +94,7 @@ public class CreateWaveView extends View {
         mAnimationStartTime = -1l;
         mMode = CreateWaveDisplay.MODE_REC;
         mIsEditing = false;
-        resetTrim();
+        refreshTrim();
 
         if (mZoomBitmap != null) {
             mZoomBitmap.recycle();
@@ -103,14 +104,14 @@ public class CreateWaveView extends View {
         invalidate();
     }
 
-    public void resetTrim() {
-        mTrimLeft = 0f;
-        mTrimRight = 1f;
-    }
-
-
     public void setIsEditing(boolean isEditing) {
         mIsEditing = isEditing;
+        refreshTrim();
+    }
+
+    private void refreshTrim() {
+        mTrimLeft = SoundRecorder.getInstance(getContext()).getTrimPercentLeft();
+        mTrimRight = SoundRecorder.getInstance(getContext()).getTrimPercentRight();
     }
 
     @Override
@@ -149,7 +150,8 @@ public class CreateWaveView extends View {
         assertAmplitudeHistory();
 
         if (mZoomBitmap != null) {
-            // if the new line would go over the edge, copy the last half of the old bitmap into the first half of the new bitmap
+            // if the new line would go over the edge, copy the last half of the old bitmap
+            // into the first half of the new bitmap
             if (nextBufferX + 1 > mZoomBitmap.getWidth()) {
 
                 final Bitmap old = mZoomBitmap;
@@ -195,7 +197,7 @@ public class CreateWaveView extends View {
         boolean animating = (normalizedTime < 1.0f);
         final int width = getWidth();
         final int totalAmplitudeSize = mAllAmplitudes.size();
-        final int recordedAmplitudeSize = mAllAmplitudes.getWrittenSize();
+        final int recordedAmplitudeSize = mAllAmplitudes.writtenSize();
 
         final int recordEndIndexWithTrim = mIsEditing ? totalAmplitudeSize : (int) (totalAmplitudeSize - recordedAmplitudeSize * (1d - mTrimRight));
         final int recordStartIndexWithTrim = mIsEditing ? mAllAmplitudes.writeIndex : (int) (mAllAmplitudes.writeIndex + mTrimLeft * recordedAmplitudeSize); //
@@ -216,7 +218,6 @@ public class CreateWaveView extends View {
 
         // now figure out how to draw it
         if (subData.size() > 0) {
-
             // where should the last drawn X-coordinate be
             final int lastDrawX = (totalAmplitudeSize < width) ? (int) (totalAmplitudeSize + (width - totalAmplitudeSize) * interpolatedTime) : width;
             float[] points = getAmplitudePoints(subData, 0, lastDrawX);
@@ -230,10 +231,15 @@ public class CreateWaveView extends View {
                     final int recordStartIndex = (recordedAmplitudeSize >= width) ? gap * 4
                             : Math.round(gap * ((float) lastDrawX) / subData.size()) * 4; // incorporate the scaling
 
-                    c.drawLines(points, 0, recordStartIndex, DARK_PAINT);
-                    c.drawLines(points, recordStartIndex, points.length - recordStartIndex, PLAYED_PAINT);
+                    if (recordStartIndex > 0 && recordStartIndex < points.length) {
+                        // ArrayIndexOutOfBoundsException
+                        // http://builder.soundcloud.com/job/soundcloud-android-record-edit-integration/467/artifact/logcat.txt
+                        c.drawLines(points, 0, recordStartIndex, DARK_PAINT);
+                        c.drawLines(points, recordStartIndex, points.length - recordStartIndex, PLAYED_PAINT);
+                    } else {
+                        Log.w("CreateWaveView", String.format("CreateWaveView: %d %d %d", recordStartIndex, points.length, gap));
+                    }
                 }
-
             } else {
 
                 if (!mIsEditing) {

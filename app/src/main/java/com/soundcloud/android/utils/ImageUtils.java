@@ -1,7 +1,7 @@
 package com.soundcloud.android.utils;
 
 
-import com.android.camera.CropImage;
+import com.soundcloud.android.cropimage.CropImage;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -191,6 +191,10 @@ public final class ImageUtils {
             sampleOpt.inSampleSize = opt.inSampleSize;
 
             bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), sampleOpt);
+            if (bitmap == null) {
+                Log.w(TAG, "error decoding "+imageFile);
+                return false;
+            }
 
             Matrix m = new Matrix();
             float scale;

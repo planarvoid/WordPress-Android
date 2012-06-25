@@ -12,7 +12,6 @@ import java.nio.ByteBuffer;
 
 @LargeTest
 public class VorbisDecoderTest extends AudioTestCase {
-    public static final String MED_TEST_OGG = "audio/med_test.ogg";
 
     public void testDecodeToFile() throws Exception {
         File wav = decode(MED_TEST_OGG);
@@ -22,7 +21,7 @@ public class VorbisDecoderTest extends AudioTestCase {
         assertEquals(16, header.getBitsPerSample());
         assertEquals(2, header.getNumChannels());
         assertEquals(44100, header.getSampleRate());
-        assertEquals(3313920, header.getNumBytes());
+        assertEquals(3342640, header.getNumBytes());
 
         checkAudioFile(wav, 18786);
     }
@@ -36,7 +35,7 @@ public class VorbisDecoderTest extends AudioTestCase {
             total += n;
         }
         assertEquals("non-zero return code: "+n, 0, n);
-        assertEquals(3313920, total);
+        assertEquals(3342640, total);
 
         decoder.release();
     }
@@ -51,7 +50,7 @@ public class VorbisDecoderTest extends AudioTestCase {
             total += n;
         }
         assertEquals("non-zero return code: "+n, 0, n);
-        assertEquals(1549920, total);
+        assertEquals(1578640, total);
 
         decoder.release();
     }
@@ -67,7 +66,7 @@ public class VorbisDecoderTest extends AudioTestCase {
             total += n;
         }
         assertEquals("non-zero return code: "+n, 0, n);
-        assertEquals(1549920, total);
+        assertEquals(1578640, total);
 
         decoder.release();
     }
@@ -98,9 +97,9 @@ public class VorbisDecoderTest extends AudioTestCase {
         assertNotNull(info);
         assertEquals(44100, info.sampleRate);
         assertEquals(2, info.channels);
-        assertEquals(828480,  info.numSamples);
-        assertEquals(330819,  info.bitrate, 10);
-        assertEquals(18.78639455782313d, info.duration, 0.001d);
+        assertEquals(835660,  info.numSamples);
+        assertEquals(331249,  info.bitrate, 10);
+        assertEquals(18.949, info.duration, 0.001d);
 
         decoder.release();
     }
@@ -114,10 +113,42 @@ public class VorbisDecoderTest extends AudioTestCase {
 
     public void testRaisesExceptionOnInitialisationError() throws Exception {
         try {
-            new VorbisDecoder(prepareAsset("audio/med_test.wav"));
+            new VorbisDecoder(prepareAsset(MED_WAV));
             fail("decoder did not throw exception with bad data");
         } catch (IOException expected) {
             assertEquals("Error initializing decoder: OV_ENOTVORBIS", expected.getMessage());
+        }
+    }
+
+    public void testShouldDecodeChainedOggFiles() throws Exception {
+        VorbisDecoder dec = new VorbisDecoder(prepareAsset(CHAINED_OGG));
+        VorbisInfo info = dec.getInfo();
+
+        assertEquals(0.993d + 1.269d + 1.16d, info.duration, 0.002);
+
+        double time = 0;
+        // decode the whole thing
+        ByteBuffer bb = ByteBuffer.allocateDirect(4096);
+        int n, total = 0;
+        while ((n = dec.decode(bb, bb.capacity())) > 0) {
+            double newTime = dec.timeTell();
+            assertTrue(newTime > time);
+            assertEquals(time, newTime, 0.05);
+            time = newTime;
+            total += n;
+        }
+        assertEquals(301952, total);
+    }
+
+    public void testTimeTellShouldNotJump() throws Exception {
+        VorbisDecoder dec = new VorbisDecoder(prepareAsset(TRIMMED_RECORDING));
+        ByteBuffer bb = ByteBuffer.allocateDirect(4096);
+        int n;
+        double old = 0;
+        while ((n = dec.decode(bb, bb.capacity())) > 0) {
+            double newTime = dec.timeTell();
+            assertEquals(old, newTime, 0.05);
+            old = newTime;
         }
     }
 

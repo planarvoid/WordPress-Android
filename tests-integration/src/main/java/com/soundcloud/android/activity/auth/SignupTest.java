@@ -8,6 +8,7 @@ import com.soundcloud.android.tests.IntegrationTestHelper;
 import android.test.FlakyTest;
 import android.test.suitebuilder.annotation.Suppress;
 import android.text.Html;
+import android.widget.EditText;
 
 import java.util.UUID;
 
@@ -110,6 +111,9 @@ public class SignupTest extends ActivityTestCase<Main> {
         // FakeCamera will provide an image
         solo.sleep(1000);
 
+        assertTrue(solo.waitForActivity("CropImage"));
+        solo.clickOnText("Save");
+
         // make sure add image prompt is gone
         assertFalse(solo.searchText(solo.getString(R.string.add_image), true));
 
@@ -128,6 +132,10 @@ public class SignupTest extends ActivityTestCase<Main> {
 
         // FakeGallery will provide an image
         solo.sleep(1000);
+
+        assertTrue(solo.waitForActivity("CropImage"));
+        solo.clickOnText("Save");
+        solo.assertActivity(SignupDetails.class);
 
         // make sure add image prompt is gone
         assertFalse(solo.searchText(solo.getString(R.string.add_image), true));
@@ -257,10 +265,12 @@ public class SignupTest extends ActivityTestCase<Main> {
     private void performSignup(String email, String password, String passwordConfirm) {
         solo.clickOnButtonResId(R.string.btn_signup);
         solo.assertText(R.string.authentication_sign_up);
-        solo.clearEditText(0);
-        solo.enterText(0, email);
-        solo.enterText(1, password);
-        solo.enterText(2, passwordConfirm);
+        EditText emailField = (EditText) solo.getView(R.id.txt_email_address);
+
+        solo.clearEditText(emailField);
+        solo.enterText(emailField, email);
+        solo.enterText((EditText) solo.getView(R.id.txt_choose_a_password), password);
+        solo.enterText((EditText) solo.getView(R.id.txt_repeat_your_password), passwordConfirm);
 
         solo.clickOnButtonResId(R.string.btn_signup);
     }

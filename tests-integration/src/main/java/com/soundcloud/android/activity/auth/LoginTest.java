@@ -8,6 +8,7 @@ import com.soundcloud.android.tests.IntegrationTestHelper;
 
 import android.test.suitebuilder.annotation.Suppress;
 import android.webkit.WebView;
+import android.widget.EditText;
 
 public class LoginTest extends ActivityTestCase<Main> {
     public LoginTest() {
@@ -27,9 +28,11 @@ public class LoginTest extends ActivityTestCase<Main> {
         solo.clickOnButtonResId(R.string.btn_login);
         solo.assertText(R.string.authentication_log_in);
 
-        solo.clearEditText(0);
-        solo.enterText(0, IntegrationTestHelper.USERNAME);
-        solo.enterText(1, IntegrationTestHelper.PASSWORD);
+        EditText userField = (EditText) solo.getView(R.id.txt_email_address);
+
+        solo.clearEditText(userField);
+        solo.enterText(userField, IntegrationTestHelper.USERNAME);
+        solo.enterText((EditText) solo.getView(R.id.txt_password), IntegrationTestHelper.PASSWORD);
 
         solo.clickOnButtonResId(R.string.btn_login);
         solo.assertDialogClosed();
@@ -53,9 +56,10 @@ public class LoginTest extends ActivityTestCase<Main> {
         solo.clickOnButtonResId(R.string.btn_login);
         solo.assertText(R.string.authentication_log_in);
 
-        solo.clearEditText(0);
-        solo.enterText(0, IntegrationTestHelper.USERNAME);
-        solo.enterText(1, "wrong-password");
+        EditText userField = (EditText) solo.getView(R.id.txt_email_address);
+        solo.clearEditText(userField);
+        solo.enterText(userField, IntegrationTestHelper.USERNAME);
+        solo.enterText((EditText) solo.getView(R.id.txt_password), "wrong-password");
 
         solo.clickOnButton(solo.getString(R.string.btn_login));
         solo.assertText(R.string.authentication_login_error_password_message);

@@ -196,7 +196,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name="com.android.camera.CropImage" />
+        <activity android:name=".cropimage.CropImage" />
         <activity android:name=".activity.create.UploadMonitor" android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="com.soundcloud.android.actions.upload.monitor"/>

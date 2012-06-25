@@ -80,6 +80,9 @@ public class RecordStream implements Closeable {
         return Uri.fromFile(mWavWriter.file);
     }
 
+    /**
+     * @return recording time in ms
+     */
     public long elapsedTime() {
         return mWavWriter.getDuration();
     }
@@ -101,5 +104,12 @@ public class RecordStream implements Closeable {
     public boolean shouldEncode() {
         return "compressed".equals(PreferenceManager.getDefaultSharedPreferences(SoundCloudApplication.instance)
                 .getString(DevSettings.DEV_RECORDING_TYPE, "compressed"));
+    }
+
+    public void setNextRecordingPosition(long pos) throws IOException {
+        mWavWriter.setNewPosition(pos);
+        if (mEncoder != null) {
+            mEncoder.startNewStream(pos / 1000d);
+        }
     }
 }

@@ -20,9 +20,13 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                SyncAdapterService
                ScContentProvider
                ApiSyncService
-               ATTracker
                UploadService
                SoundCloudApplication
+               VorbisEncoder
+               VorbisEncoderNative
+               VorbisDecoderNative
+               SoundRecorder
+               WavWriter
               )
 
 [:device, :emu].each do |t|
@@ -97,7 +101,7 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
 
     desc "run integration tests"
     task :test do
-      adb['shell', 'am', 'instrument', '-r', '-w', package.to_s+'.tests/android.test.InstrumentationTestRunner']
+      adb['shell', 'am', 'instrument', '-r', '-w', package.to_s+'.tests/com.soundcloud.android.tests.Runner']
     end
 
     desc "runs a single integration test [CLASS=com.soundcloud...]"
@@ -113,6 +117,14 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
     task :screenshots do
       adb["pull /sdcard/Robotium-Screenshots"]
     end
+
+    task :redirect_stdio_true do
+      adb["shell setprop log.redirect-stdio true"]
+    end
+    task :redirect_stdio_false do
+      adb["shell setprop log.redirect-stdio false"]
+    end
+
   end
 end
 

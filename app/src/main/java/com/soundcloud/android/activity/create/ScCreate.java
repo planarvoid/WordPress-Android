@@ -865,7 +865,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                                     @Override
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         track(Click.Record_revert__ok);
-                                        mWaveDisplay.resetTrim();
                                         mRecorder.revertFile();
                                         updateUi(CreateState.IDLE_PLAYBACK, true);
                                     }

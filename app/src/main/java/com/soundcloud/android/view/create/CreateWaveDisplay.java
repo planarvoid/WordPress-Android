@@ -83,8 +83,8 @@ public class CreateWaveDisplay extends TouchLayout {
         if (changed && getWidth() > 0 && mWaveformView != null && mWaveformView.getWidth() > 0) {
             calcualteWaveformRect();
 
-            ((RelativeLayout.LayoutParams) leftHandle.getLayoutParams()).addRule(RelativeLayout.ALIGN_LEFT,mWaveformView.getId());
-            ((RelativeLayout.LayoutParams) rightHandle.getLayoutParams()).addRule(RelativeLayout.ALIGN_RIGHT, mWaveformView.getId());
+            leftHandle.getLayoutParams().addRule(RelativeLayout.ALIGN_LEFT, mWaveformView.getId());
+            rightHandle.getLayoutParams().addRule(RelativeLayout.ALIGN_RIGHT, mWaveformView.getId());
 
             // dimension caching
             waveformWidth = mWaveformView.getWidth();
@@ -312,10 +312,6 @@ public class CreateWaveDisplay extends TouchLayout {
             mMode = MODE_PLAYBACK;
             mWaveformView.setMode(mMode, true);
         }
-    }
-
-    public void resetTrim(){
-        mWaveformView.resetTrim();
     }
 
     public void updateAmplitude(float maxAmplitude, boolean isRecording) {

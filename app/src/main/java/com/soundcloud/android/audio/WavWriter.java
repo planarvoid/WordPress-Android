@@ -1,5 +1,7 @@
 package com.soundcloud.android.audio;
 
+import org.jetbrains.annotations.Nullable;
+
 import android.util.Log;
 
 import java.io.File;
@@ -13,7 +15,7 @@ public class WavWriter implements AudioWriter {
     public final File file;
     public final AudioConfig config;
 
-    private RandomAccessFile mWriter;
+    private @Nullable RandomAccessFile mWriter;
 
     public WavWriter(File file, AudioConfig config) {
         this.file = file;
@@ -28,8 +30,9 @@ public class WavWriter implements AudioWriter {
             WavHeader wh = config.createHeader();
             wh.write(writer);
         } else {
-            Log.d(TAG, "appending to existing WAV file ("+file.getAbsolutePath()+")");
-            writer.seek(writer.length());
+            long seekTo = writer.length();
+            Log.d(TAG, "appending to existing WAV file ("+file.getAbsolutePath()+") at "+seekTo);
+            writer.seek(seekTo);
         }
         return writer;
     }
@@ -46,24 +49,46 @@ public class WavWriter implements AudioWriter {
     }
 
     public long finalizeStream() throws IOException {
-        final long fileLength = mWriter.length();
-        Log.d(TAG, "finalising recording file (length=" + fileLength + ")");
+        if (mWriter != null) {
+            final long fileLength = mWriter.length();
+            Log.d(TAG, "finalising recording file (length=" + fileLength + ")");
+            fixWavHeader(mWriter);
+            mWriter.close();
+            mWriter = null;
+            return getDuration();
+        } else {
+            return -1;
+        }
+    }
+
+    @Override
+    public void setNewPosition(long pos) throws IOException {
+        // truncate file to new length
+        if (pos >= 0) {
+            RandomAccessFile writer = new RandomAccessFile(file, "rw");
+            writer.setLength(config.msToByte(pos) + WavHeader.LENGTH);
+            fixWavHeader(writer);
+            writer.close();
+        }
+    }
+
+    private boolean fixWavHeader(RandomAccessFile writer) throws IOException {
+        final long fileLength = writer.length();
         if (fileLength == 0) {
             Log.w(TAG, "file length is zero");
+            return false;
         } else if (fileLength > WavHeader.LENGTH) {
             // remaining bytes
-            mWriter.seek(4);
-            mWriter.writeInt(Integer.reverseBytes((int) (fileLength - 8)));
+            writer.seek(4);
+            writer.writeInt(Integer.reverseBytes((int) (fileLength - 8)));
             // total bytes
-            mWriter.seek(WavHeader.LENGTH - 4);
-            mWriter.writeInt(Integer.reverseBytes((int) (fileLength - WavHeader.LENGTH)));
+            writer.seek(WavHeader.LENGTH - 4);
+            writer.writeInt(Integer.reverseBytes((int) (fileLength - WavHeader.LENGTH)));
+            return true;
         } else {
             Log.w(TAG, "data length is zero");
+            return false;
         }
-        mWriter.close();
-        mWriter = null;
-
-        return getDuration();
     }
 
     /**
@@ -77,4 +102,5 @@ public class WavWriter implements AudioWriter {
     public void close() throws IOException {
         finalizeStream();
     }
+
 }

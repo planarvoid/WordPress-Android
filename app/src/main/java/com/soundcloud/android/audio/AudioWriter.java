@@ -18,4 +18,11 @@ public interface AudioWriter extends Closeable {
      * @throws IOException
      */
     long finalizeStream() throws IOException;
+
+
+    /**
+     * @param pos the new recording position
+     * @throws IOException
+     */
+    void setNewPosition(long pos) throws IOException;
 }

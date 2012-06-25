@@ -85,7 +85,7 @@ public class PollerTest {
         t.user = new User();
         t.user.id = USER_ID;
         t.id = id;
-        t.state = Track.State.STORING;
+        t.state = Track.State.PROCESSING;
         Uri newUri = t.commitLocally(resolver, SoundCloudApplication.TRACK_CACHE);
         expect(newUri).not.toBeNull();
 
