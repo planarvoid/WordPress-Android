@@ -1,5 +1,21 @@
 package com.soundcloud.android.view;
 
+
+import com.google.android.imageloader.ImageLoader;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.soundcloud.android.R;
+import com.soundcloud.android.activity.ScListActivity;
+import com.soundcloud.android.adapter.EventsAdapterWrapper;
+import com.soundcloud.android.adapter.LazyEndlessAdapter;
+import com.soundcloud.android.adapter.ScBaseAdapter;
+import com.soundcloud.android.model.Activity;
+import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
+import com.soundcloud.android.model.User;
+import com.soundcloud.android.utils.ScTextUtils;
+
 import android.content.res.Resources;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -9,25 +25,11 @@ import android.widget.AdapterView;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ListAdapter;
 
-import com.google.android.imageloader.ImageLoader;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
-import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScListActivity;
-import com.soundcloud.android.adapter.EventsAdapterWrapper;
-import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.Comment;
-import com.soundcloud.android.model.Recording;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
-
 /*
 pull to refresh from : https://github.com/chrisbanes/Android-PullToRefresh/tree/7e918327cad2d217e909147d82882f50c2e3f59a
  */
 
-public class ScListView extends PullToRefreshListView implements AbsListView.OnScrollListener, PullToRefreshBase.OnFlingListener, ImageLoader.LoadBlocker {
+public class ScListView extends PullToRefreshListView implements AbsListView.OnScrollListener, PullToRefreshBase.OnFlingListener, ImageLoader.LoadBlocker, PullToRefreshBase.OnConfigureHeaderListener {
 
     @SuppressWarnings({"UnusedDeclaration"})
     private static final String TAG = "ScListView";
@@ -35,6 +37,7 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
     private boolean mManuallyDetatched;
     private LazyListListener mListener;
     private View mEmptyView;
+    private long mLastUpdated;
 
     public ScListView(ScListActivity activity) {
         super(activity);
@@ -60,6 +63,13 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
         getRefreshableView().setOnItemClickListener(mOnItemClickListener);
 
         setOnFlingListener(this);
+        setOnConfigureHeaderListener(this);
+        setShowIndicator(false); // we don't want the indicator, it interferes with out timestamps
+    }
+
+    public void setLastUpdated(long time) {
+        mLastUpdated = time;
+        onConfigureHeader();
     }
 
     /*
@@ -195,6 +205,20 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
     @Override
     public void onFlingDone() {
         ImageLoader.get(getContext()).unblock(this);
+    }
+
+    @Override
+    public void onConfigureHeader() {
+        if (mLastUpdated > 0) {
+            setLastUpdatedLabel(getResources().getString(R.string.pull_to_refresh_last_updated,
+                    ScTextUtils.getElapsedTimeString(getResources(), mLastUpdated, true)));
+        } else {
+            setLastUpdatedLabel("");
+        }
+    }
+
+    public long getLastUpdated() {
+        return mLastUpdated;
     }
 
     public interface LazyListListener {

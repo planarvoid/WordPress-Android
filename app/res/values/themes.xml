@@ -8,7 +8,8 @@
     <style name="Theme.ScLight" parent="Theme.Sherlock.Light.DarkActionBar">
         <item name="android:buttonStyle">@style/btn_default</item>
         <item name="vpiTabPageIndicatorStyle">@style/Widget.ScTabPageIndicator</item>
-    </style>
+        <item name="ptrLoadingProgressStyle">@style/ScProgressBarHolo</item>
+	</style>
 
     <style name="Theme.ScNoBackground" parent="Theme.ScLight">
 		<item name="android:windowBackground">@null</item>

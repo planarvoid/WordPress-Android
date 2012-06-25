@@ -195,11 +195,6 @@ public class SectionedAdapter extends ScBaseAdapter implements SectionIndexer {
         return PINNED_HEADER_VISIBLE;
     }
 
-    public void onScroll(SectionedListView view, int firstVisibleItem) {
-        view.configureHeaderView(firstVisibleItem);
-    }
-
-
     protected void bindSectionHeader(View view, int position, boolean displaySectionHeader) {
         if (displaySectionHeader) {
             view.findViewById(R.id.listHeader).setVisibility(View.VISIBLE);
