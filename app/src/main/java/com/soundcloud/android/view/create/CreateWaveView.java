@@ -12,6 +12,7 @@ import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -233,8 +234,13 @@ public class CreateWaveView extends View {
                     if (recordStartIndex < points.length) {
                         // ArrayIndexOutOfBoundsException
                         // http://builder.soundcloud.com/job/soundcloud-android-record-edit-integration/467/artifact/logcat.txt
-                        c.drawLines(points, 0, recordStartIndex, DARK_PAINT);
-                        c.drawLines(points, recordStartIndex, points.length - recordStartIndex, PLAYED_PAINT);
+                        try {
+                            c.drawLines(points, 0, recordStartIndex, DARK_PAINT);
+                            c.drawLines(points, recordStartIndex, points.length - recordStartIndex, PLAYED_PAINT);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            Log.w("CreateWaveView", String.format("CreateWaveView: %d %d %d", recordStartIndex, points.length, gap));
+                            throw e;
+                        }
                     }
                 }
             } else {
