@@ -1,5 +1,6 @@
 package com.soundcloud.android.audio;
 
+import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.os.Parcel;
@@ -16,14 +17,14 @@ public class PlaybackStream implements Parcelable {
     private long mEndPos;
 
     private AudioConfig mConfig;
-    private AudioFile mPlaybackFile;
+    private AudioReader mPlaybackFile;
 
     private PlaybackFilter mFilter;
     private boolean mOptimize;
 
-    public PlaybackStream(AudioFile audioFile) throws IOException {
-        mPlaybackFile = audioFile;
-        mConfig = audioFile.getConfig();
+    public PlaybackStream(AudioReader audioReader) throws IOException {
+        mPlaybackFile = audioReader;
+        mConfig = audioReader.getConfig();
         resetBounds();
         mCurrentPos = -1;
     }
@@ -211,7 +212,7 @@ public class PlaybackStream implements Parcelable {
             File file = new File(in.readString());
 
             try {
-                PlaybackStream ps = new PlaybackStream(AudioFile.guess(file));
+                PlaybackStream ps = new PlaybackStream(AudioReader.guess(file));
                 ps.mStartPos = in.readLong();
                 ps.mEndPos   = in.readLong();
                 ps.mOptimize = in.readInt() == 1;

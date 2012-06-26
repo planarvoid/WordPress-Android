@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackStream;
-import com.soundcloud.android.audio.WavFile;
+import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -77,7 +77,7 @@ public class SoundRecorderTest {
         expect(r.getFile().getParentFile().mkdirs()).toBeTrue();
         IOUtils.copy(wavFile, r.getFile());
 
-        recorder.setPlaybackStream(new PlaybackStream(new WavFile(wavFile)));
+        recorder.setPlaybackStream(new PlaybackStream(new WavReader(wavFile)));
 
         // change settings
         recorder.toggleFade();

@@ -7,9 +7,9 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackStream;
-import com.soundcloud.android.audio.VorbisFile;
-import com.soundcloud.android.audio.WavFile;
+import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
@@ -429,7 +429,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         if (!external_upload) {
             String title = map.get(Params.Track.TITLE).toString();
             final String newTitle = title == null ? "unknown" : title;
-            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), VorbisFile.EXTENSION);
+            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), VorbisReader.EXTENSION);
         } else {
             fileName = file.getName();
         }
@@ -509,7 +509,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     private static File encodedFilename(File file) {
-        return new File(file.getParentFile(), file.getName()+"."+VorbisFile.EXTENSION);
+        return new File(file.getParentFile(), file.getName()+"."+ VorbisReader.EXTENSION);
     }
 
     public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
@@ -752,9 +752,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     private PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
         try {
-            PlaybackStream stream = new PlaybackStream(isEncodedFilename(audio_path.getName()) ?
-                    new VorbisFile(audio_path) : new WavFile(audio_path));
-
+            PlaybackStream stream = new PlaybackStream(AudioReader.guess(audio_path));
             if (c != null) {
                 long startPos = c.getLong(c.getColumnIndex(Recordings.TRIM_LEFT));
                 long endPos   = c.getLong(c.getColumnIndex(Recordings.TRIM_RIGHT));

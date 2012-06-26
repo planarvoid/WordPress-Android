@@ -1,4 +1,7 @@
-package com.soundcloud.android.audio;
+package com.soundcloud.android.audio.filter;
+
+import com.soundcloud.android.audio.AudioConfig;
+import com.soundcloud.android.audio.PlaybackFilter;
 
 import android.os.Parcel;
 

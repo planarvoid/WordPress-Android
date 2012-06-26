@@ -2,14 +2,9 @@ package com.soundcloud.android.audio;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.audio.AudioConfig;
-import com.soundcloud.android.audio.PlaybackStream;
-import com.soundcloud.android.audio.TrimPreview;
-import com.soundcloud.android.audio.WavFile;
-import com.soundcloud.android.record.SoundRecorder;
+import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.record.WavHeaderTest;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -97,7 +92,7 @@ public class TrimPreviewTest {
 
     private TrimPreview getTrimPreview(long startPosition, long endPosition, long duration) throws IOException {
         return new TrimPreview(
-                new PlaybackStream(new WavFile(wavFile)),
+                new PlaybackStream(new WavReader(wavFile)),
                 startPosition,
                 endPosition,
                 duration,

@@ -16,13 +16,12 @@
 
 package com.soundcloud.android.audio;
 
-import android.util.Log;
-
 import java.io.DataOutput;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 
 /**
  * This class represents the header of a WAVE format audio file, which usually
@@ -348,5 +347,12 @@ public class WavHeader {
             return AudioConfig.findMatching(mSampleRate, mNumChannels);
         }
         throw new IllegalArgumentException("unknown audioformat: "+toString());
+    }
+
+    public static WavHeader fromFile(File f) throws IOException {
+        FileInputStream fis = new FileInputStream(f);
+        WavHeader h = new WavHeader(fis);
+        fis.close();
+        return h;
     }
 }
