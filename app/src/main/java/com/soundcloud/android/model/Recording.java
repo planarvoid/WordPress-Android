@@ -183,7 +183,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public User getRecipient()           { return recipient; }
     public String getRecipientUsername() { return recipient_username; }
 
-    public PlaybackStream getPlaybackStream() {
+    public @Nullable PlaybackStream getPlaybackStream() {
         if (mPlaybackStream == null) {
             mPlaybackStream = initializePlaybackStream(null);
         }

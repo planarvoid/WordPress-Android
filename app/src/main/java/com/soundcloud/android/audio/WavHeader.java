@@ -19,6 +19,7 @@ package com.soundcloud.android.audio;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -308,7 +309,7 @@ public class WavHeader {
         out.writeShort(Short.reverseBytes((short) 1));
         out.writeShort(Short.reverseBytes(mNumChannels));
         out.writeInt(Integer.reverseBytes(mSampleRate));
-        out.writeInt(Integer.reverseBytes( mNumChannels * mSampleRate * getBytesPerSample()));
+        out.writeInt(Integer.reverseBytes(mNumChannels * mSampleRate * getBytesPerSample()));
         out.writeShort(Short.reverseBytes((short) (mNumChannels * getBytesPerSample())));
         out.writeShort(Short.reverseBytes(mBitsPerSample));
 
@@ -354,5 +355,12 @@ public class WavHeader {
         WavHeader h = new WavHeader(fis);
         fis.close();
         return h;
+    }
+
+    public static void writeHeader(File f) throws IOException {
+        WavHeader h = new WavHeader(WavHeader.FORMAT_PCM, (short)1, 44100, (short)16, 0);
+        OutputStream os = new FileOutputStream(f);
+        h.write(os);
+        os.close();
     }
 }

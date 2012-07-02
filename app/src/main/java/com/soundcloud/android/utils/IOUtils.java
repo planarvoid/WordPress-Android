@@ -7,6 +7,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.annotation.SuppressLint;
@@ -383,7 +384,7 @@ public final class IOUtils {
         }
     }
 
-    public static File appendToFilename(File file, String text) {
+    public static @NotNull File appendToFilename(File file, String text) {
         String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1) {
@@ -404,7 +405,7 @@ public final class IOUtils {
         }
     }
 
-    public static File changeExtension(File file, String ext) {
+    public static @NotNull File changeExtension(File file, String ext) {
         final String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1) {

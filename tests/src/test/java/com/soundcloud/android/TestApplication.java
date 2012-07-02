@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.google.android.imageloader.ImageLoader;
+import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.tracking.Event;
@@ -93,14 +94,15 @@ public class TestApplication extends SoundCloudApplication {
     // object mother
     public static Recording getValidRecording() throws IOException {
         Recording r = new Recording(getTestFile());
-        if (!r.getEncodedFile().createNewFile()) throw new RuntimeException("could not create encoded file");
+        if (!r.getEncodedFile().exists() &&
+            !r.getEncodedFile().createNewFile()) throw new RuntimeException("could not create encoded file");
         fill(r.getEncodedFile());
         return r;
     }
 
     public static File getTestFile() throws IOException {
-        File tmp = File.createTempFile("temp", ".ogg");
-        fill(tmp);
+        File tmp = File.createTempFile("temp", ".wav");
+        WavHeader.writeHeader(tmp);
         return tmp;
     }
 
