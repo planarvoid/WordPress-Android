@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.commonsware.cwac.adapter.AdapterWrapper;
+import com.commonsware.cwac.endless.EndlessAdapter;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -33,11 +34,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class LazyEndlessAdapter extends AdapterWrapper implements DetachableResultReceiver.Receiver, PullToRefreshBase.OnRefreshListener {
+public abstract class LazyEndlessAdapter extends EndlessAdapter implements DetachableResultReceiver.Receiver, PullToRefreshBase.OnRefreshListener {
     protected AsyncTask mAppendTask;
-    protected AsyncTask mRefreshTask;
-    protected UpdateCollectionTask mUpdateCollectionTask;
-
     protected ScListView mListView;
     protected ScListActivity mActivity;
     protected View mPendingView = null;
@@ -87,85 +85,12 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     }
 
     /**
-     * Create an empty view for the list this adapter will control. This is done
-     * here because this adapter will control the visibility of the list
-     */
-    public void configureViews(final ScListView lv) {
-        mListView = lv;
-    }
-
-    public void setEmptyViewText(int id, Object... args) {
-        mEmptyViewText = id;
-        mEmptyViewTextArgs = args;
-    }
-
-    public void setEmptyView(EmptyCollection emptyView) {
-        mEmptyView = emptyView;
-    }
-
-    /**
-     * Set the current text of the adapter, based on if we are currently dealing
-     * with an error
-     */
-    public void applyEmptyView() {
-        final boolean error = mState == ERROR;
-        if (mListView != null) {
-            if (mEmptyView != null && !error){
-                mListView.setCustomEmptyView(mEmptyView);
-            } else {
-                if (mDefaultEmptyView == null){
-                    mDefaultEmptyView = new EmptyCollection(mActivity);
-                }
-                mDefaultEmptyView.setImage(error ? R.drawable.empty_connection : R.drawable.empty_collection);
-
-                if (mEmptyViewTextArgs != null) {
-                    // not I18N safe
-                    mDefaultEmptyView.setMessageText(mActivity.getString(mEmptyViewText, mEmptyViewTextArgs));
-                } else {
-                    mDefaultEmptyView.setMessageText((!error && mEmptyViewText > 0) ? mEmptyViewText : getEmptyTextId());
-                }
-                mListView.setCustomEmptyView(mDefaultEmptyView);
-            }
-        }
-    }
-
-    private int getEmptyTextId() {
-        final Class loadModel = getLoadModel(true);
-        final boolean error = mState == ERROR;
-        if (Track.class.equals(loadModel)) {
-            return error ? R.string.tracklist_error : R.string.tracklist_empty;
-        } else if (User.class.equals(loadModel)) {
-            return error ? R.string.userlist_error : R.string.userlist_empty;
-        } else if (Comment.class.equals(loadModel)) {
-            return error ? R.string.commentslist_error : R.string.tracklist_empty;
-        } else if (Activity.class.equals(loadModel)) {
-            return error ? R.string.tracklist_error : R.string.tracklist_empty;
-        } else {
-            return -1;
-        }
-    }
-
-    /**
      * Get the wrapped adapter (casted)
      */
     @Override
     public ScBaseAdapter getWrappedAdapter() {
         return (ScBaseAdapter) super.getWrappedAdapter();
     }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (position >= getWrappedAdapter().getCount()){
-            return Consts.ITEM_TYPE_LOADING;
-        }
-        return getWrappedAdapter().getItemViewType(position);
-    }
-
-    @Override
-    public int getViewTypeCount() {
-        return getWrappedAdapter().getViewTypeCount() + 1; // + 1 for loading item
-    }
-
 
     public Object saveState(){
         final View firstChild = mListView.getChildAt(mListView.getRefreshableView().getHeaderViewsCount());
@@ -467,6 +392,4 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     public void onRefresh() {
         refresh(true);
     }
-
-    public abstract void onLogout();
 }

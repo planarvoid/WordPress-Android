@@ -8,6 +8,7 @@ import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
+import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
@@ -18,7 +19,10 @@ import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.database.ContentObserver;
 import android.graphics.Color;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -38,7 +42,7 @@ import android.widget.ListAdapter;
 import java.util.List;
 
 public class ScListFragment extends SherlockListFragment
-        implements DetachableResultReceiver.Receiver, android.support.v4.app.LoaderManager.LoaderCallbacks<List<Parcelable>> {
+        implements DetachableResultReceiver.Receiver, LocalCollection.OnChangeListener {
 
     private CollectionLoader mItemLoader;
 
@@ -58,8 +62,18 @@ public class ScListFragment extends SherlockListFragment
 
     private DetachableResultReceiver mDetachableReceiver;
     private Content mContent;
+    private Uri mContentUri;
     private boolean mIsConnected;
     private NetworkConnectivityListener connectivityListener;
+
+    private Boolean mIsSyncable;
+        protected LocalCollection mLocalCollection;
+        private ChangeObserver mChangeObserver;
+        private boolean mContentInvalid, mObservingContent;
+
+        protected String mNextHref;
+
+
     protected static final int CONNECTIVITY_MSG = 0;
     ;
     protected boolean mAppendable = true;
@@ -78,17 +92,27 @@ public class ScListFragment extends SherlockListFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContent = Content.byUri((Uri) getArguments().get("contentUri"));
         setRetainInstance(true);
-    }
 
+        mContentUri = (Uri) getArguments().get("contentUri");
+        mContent = Content.byUri(mContentUri);
+
+        final ContentResolver contentResolver = getActivity().getContentResolver();
+        if (mContentUri != null) {
+            // TODO :  Move off the UI thread.
+            mLocalCollection = LocalCollection.fromContentUri(mContentUri, contentResolver, true);
+            mLocalCollection.startObservingSelf(contentResolver, this);
+            mChangeObserver = new ChangeObserver();
+            mObservingContent = true;
+            contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
+        }
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mBaseAdapter = new ScBaseAdapter(getActivity(), mContent);
         setListAdapter(mBaseAdapter);
-        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -108,6 +132,11 @@ public class ScListFragment extends SherlockListFragment
                 ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
 
         return root;
+    }
+
+    @Override
+    public void onAttach(android.app.Activity activity) {
+        super.onAttach(activity);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
     public void setCustomEmptyCollection(EmptyCollection emptyCollection) {
@@ -154,32 +183,6 @@ public class ScListFragment extends SherlockListFragment
         return mBaseAdapter;
     }
 
-    public void setAppendable(boolean appendable) {
-        if (appendable != mAppendable) {
-            mAppendable = appendable;
-            //getScListView().toggleFooterVisibility(mAppendable);
-        }
-    }
-
-    @Override
-    public Loader<List<Parcelable>> onCreateLoader(int i, Bundle bundle) {
-        mState = LOADING;
-        mItemLoader = new CollectionLoader(getActivity(), mContent.uri);
-        return mItemLoader;
-    }
-
-    @Override
-    public void onLoadFinished(android.support.v4.content.Loader<List<Parcelable>> listLoader, List<Parcelable> data) {
-        setAppendable(data != null && data.size() == Consts.COLLECTION_PAGE_SIZE);
-        mState = mAppendable ? WAITING : DONE;
-        getListAdapter().getData().addAll(data);
-        getListAdapter().notifyDataSetChanged();
-    }
-
-    @Override
-    public void onLoaderReset(android.support.v4.content.Loader<List<Parcelable>> listLoader) {
-        mState = LOADING;
-    }
 
     private Uri getCurrentUri() {
         return mContent.uri.buildUpon().appendQueryParameter("limit", String.valueOf(mPageIndex * Consts.COLLECTION_PAGE_SIZE)).build();
@@ -296,6 +299,97 @@ public class ScListFragment extends SherlockListFragment
                     R.string.tracklist_error);
         } else {
             return "";
+        }
+    }
+
+    public Uri getPlayableUri() {
+            return mContentInvalid ? null : super.getPlayableUri();
+        }
+
+        protected void requestSync() {
+            Intent intent = new Intent(mActivity, ApiSyncService.class)
+                    .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                    .setData(mContent.uri);
+            mActivity.startService(intent);
+        }
+
+        @Override
+        public boolean isRefreshing() {
+            if (mLocalCollection != null) {
+                return mLocalCollection.sync_state == LocalCollection.SyncState.SYNCING
+                        || mLocalCollection.sync_state == LocalCollection.SyncState.PENDING
+                        || super.isRefreshing();
+            } else {
+                return super.isRefreshing();
+            }
+        }
+
+        protected void doneRefreshing() {
+            if (isSyncable()) setListLastUpdated();
+            if (mListView != null) mListView.onRefreshComplete();
+        }
+
+        @Override
+        public void onReceiveResult(int resultCode, Bundle resultData) {
+            switch (resultCode) {
+                case ApiSyncService.STATUS_SYNC_FINISHED:
+                case ApiSyncService.STATUS_SYNC_ERROR: {
+                    if (mContentUri != null && resultData != null &&
+                            !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) {
+                        doneRefreshing(); // nothing changed
+                    }
+                    break;
+                }
+            }
+        }
+
+        private void stopObservingChanges() {
+            if (mObservingContent) {
+                mObservingContent = false;
+
+                if (mChangeObserver != null) {
+                    mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);
+                }
+                if (mLocalCollection != null) {
+                    mLocalCollection.stopObservingSelf();
+                }
+            }
+        }
+
+    public void onDestroy() {
+        stopObservingChanges();
+    }
+
+    @Override
+    public void onLogout() {
+        stopObservingChanges();
+    }
+
+    protected void onContentChanged() {
+        mContentInvalid = true;
+        executeRefreshTask();
+    }
+
+    @Override
+    public void onLocalCollectionChanged() {
+        refreshSyncData();
+    }
+
+    private class ChangeObserver extends ContentObserver {
+        public ChangeObserver() {
+            super(new Handler());
+        }
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return true;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            // even after unregistering, we will still get asynchronous change notifications, so make sure we want them
+            if (mObservingContent) onContentChanged();
         }
     }
 

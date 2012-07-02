@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.ScTextUtils;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -39,16 +40,16 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
     private View mEmptyView;
     private long mLastUpdated;
 
-    public ScListView(ScListActivity activity) {
-        super(activity);
+    public ScListView(Context context) {
+        super(context);
         init();
     }
 
     /**
      * @noinspection UnusedDeclaration
      */
-    public ScListView(ScListActivity activity, AttributeSet attrs) {
-        super(activity, attrs);
+    public ScListView(Context context, AttributeSet attrs) {
+        super(context, attrs);
         init();
     }
 
