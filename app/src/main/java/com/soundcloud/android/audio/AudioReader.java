@@ -54,10 +54,15 @@ public abstract class AudioReader implements Closeable {
 
     public abstract void reopen() throws IOException;
 
-    public @Nullable static AudioReader guess(File file) throws IOException {
-        if (IOUtils.extension(file).equals(WavReader.EXTENSION)) {
+    public static @Nullable AudioReader guess(@Nullable File file) throws IOException {
+        if (file == null) return null;
+
+        final String ext = IOUtils.extension(file);
+        if (ext == null) {
+            return null;
+        } else if (ext.equals(WavReader.EXTENSION)) {
             return new WavReader(file);
-        } else if (IOUtils.extension(file).equals(VorbisReader.EXTENSION)) {
+        } else if (ext.equals(VorbisReader.EXTENSION)) {
             return new VorbisReader(file);
         } else {
             return null;

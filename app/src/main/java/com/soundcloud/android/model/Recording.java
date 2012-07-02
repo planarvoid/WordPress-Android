@@ -10,6 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.reader.VorbisReader;
+import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
@@ -117,7 +118,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         this(f, null);
     }
 
-    public Recording(File f, @Nullable User user) {
+    private Recording(File f, @Nullable User user) {
         if (f == null) throw new IllegalArgumentException("file is null");
         audio_path = f;
         if (user != null) {
@@ -620,8 +621,19 @@ public class Recording extends ScModel implements Comparable<Recording> {
         }
     }
 
-    public static @NotNull Recording create(User user) {
-        File file = new File(SoundRecorder.RECORD_DIR, System.currentTimeMillis() + (user == null ? "" : "_" + user.id));
+    public static @NotNull Recording create() {
+        return create(null);
+    }
+
+    /**
+     * @param user the user this recording is for, or null if there's no recipient
+     * @return a recording initialised with a file path (which will be used for the recording).
+     */
+    public static @NotNull Recording create(@Nullable User user) {
+        File file = new File(SoundRecorder.RECORD_DIR,
+                System.currentTimeMillis()
+                + (user == null ? "" : "_" + user.id)
+                + "."+WavReader.EXTENSION);
         return new Recording(file, user);
     }
 
@@ -750,9 +762,12 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return new Intent(Actions.UPLOAD_CANCEL).putExtra(SoundRecorder.EXTRA_RECORDING, this);
     }
 
-    private PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
+    private @Nullable PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
         try {
-            PlaybackStream stream = new PlaybackStream(AudioReader.guess(audio_path));
+            final AudioReader reader = AudioReader.guess(audio_path);
+            if (reader == null) return null;
+
+            PlaybackStream stream = new PlaybackStream(reader);
             if (c != null) {
                 long startPos = c.getLong(c.getColumnIndex(Recordings.TRIM_LEFT));
                 long endPos   = c.getLong(c.getColumnIndex(Recordings.TRIM_RIGHT));

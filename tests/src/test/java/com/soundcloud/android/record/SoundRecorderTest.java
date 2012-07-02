@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.os.Environment;
-import android.support.v4.content.LocalBroadcastManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,10 +28,8 @@ public class SoundRecorderTest {
     @Before
     public void before() {
         recorder = new SoundRecorder(DefaultTestRunner.application, AudioConfig.DEFAULT);
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(DefaultTestRunner.application);
         IOUtils.deleteDir(SoundRecorder.RECORD_DIR);
     }
-
 
     @Test(expected = IOException.class)
     public void shouldThrowIOExceptionWhenNoSDCardIsPresent() throws Exception {
@@ -94,7 +91,9 @@ public class SoundRecorderTest {
                 saved.toUri());
 
         assert r2 != null;
+        expect(r2).not.toBeNull();
         PlaybackStream ps = r2.getPlaybackStream();
+        expect(ps).not.toBeNull();
         expect(ps.isFading()).toBeTrue();
         expect(ps.isOptimized()).toBeTrue();
         expect(ps.getStartPos()).toEqual(564L);

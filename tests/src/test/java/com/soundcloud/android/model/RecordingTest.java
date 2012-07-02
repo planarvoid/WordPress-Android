@@ -3,10 +3,12 @@ package com.soundcloud.android.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.record.SoundRecorder;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -392,5 +394,11 @@ public class RecordingTest {
     public void testIsRawFilename() throws Exception {
         expect(Recording.isRawFilename("foo.ogg")).toBeFalse();
         expect(Recording.isRawFilename("foo.wav")).toBeTrue();
+    }
+
+    @Test
+    public void shouldCreateRecordingWithWavFileExtensionByDefault() throws Exception {
+        Recording r = Recording.create();
+        expect(IOUtils.extension(r.getFile())).toEqual(WavReader.EXTENSION);
     }
 }

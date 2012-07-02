@@ -2,6 +2,7 @@ package com.soundcloud.android.audio;
 
 import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.NotNull;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -22,7 +23,7 @@ public class PlaybackStream implements Parcelable {
     private PlaybackFilter mFilter;
     private boolean mOptimize;
 
-    public PlaybackStream(AudioReader audioReader) throws IOException {
+    public PlaybackStream(@NotNull AudioReader audioReader) throws IOException {
         mPlaybackFile = audioReader;
         mConfig = audioReader.getConfig();
         resetBounds();

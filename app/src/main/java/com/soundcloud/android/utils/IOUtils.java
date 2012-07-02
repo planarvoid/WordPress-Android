@@ -7,6 +7,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.jetbrains.annotations.Nullable;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
@@ -446,7 +447,7 @@ public final class IOUtils {
         }
     }
 
-    public static String extension(File file) {
+    public static @Nullable String extension(File file) {
         String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1 && lastDot != name.length() -1) {

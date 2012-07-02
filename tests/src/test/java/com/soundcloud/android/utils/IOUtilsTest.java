@@ -53,5 +53,4 @@ public class IOUtilsTest {
         expect(IOUtils.extension(new File("foo."))).toBeNull();
         expect(IOUtils.extension(new File("foo"))).toBeNull();
     }
-
 }

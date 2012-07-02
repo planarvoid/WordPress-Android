@@ -51,8 +51,7 @@ public class UploaderTest {
     }
 
     public void shouldThrowWhenFileIsEmpty() throws Exception {
-        File tmp = File.createTempFile("temp", ".ogg");
-        uploader(new Recording(tmp)).run();
+        uploader(Recording.create()).run();
         expect(actions).toContainExactly(UploadService.TRANSFER_ERROR);
     }
 
