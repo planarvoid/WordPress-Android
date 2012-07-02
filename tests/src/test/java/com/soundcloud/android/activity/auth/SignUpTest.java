@@ -75,7 +75,6 @@ public class SignUpTest {
         expect(SignUp.shouldThrottle()).toBeFalse();
 
         SignUp.writeNewSignupToLog(now);
-        SignUp.writeNewSignupToLog(now);
         expect(SignUp.shouldThrottle()).toBeFalse();
     }
 
