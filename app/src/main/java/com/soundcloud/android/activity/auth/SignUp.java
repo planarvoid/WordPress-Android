@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.auth;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.User;
@@ -19,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -26,16 +28,33 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Arrays;
+
 @Tracking(page = Page.Entry_signup__main)
 public class SignUp extends Activity {
     public static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
+    public static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
 
     private static final int MIN_PASSWORD_LENGTH = 4;
+    public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
+    public static final int THROTTLE_AFTER_ATTEMPT = 3;
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        build();
+
+        if (!shouldThrottle()){
+            build();
+        } else {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
+            finish();
+        }
     }
 
     @Override
@@ -123,6 +142,8 @@ public class SignUp extends Activity {
                 }
 
                 if (user != null) {
+                    writeNewSignupToLog();
+
                     // need to create user account as soon as possible, so the executeRefreshTask logic in
                     // SoundCloudApplication works properly
                     final boolean signedUp = app.addUserAccount(user, app.getToken(), SignupVia.API);
@@ -171,6 +192,59 @@ public class SignUp extends Activity {
         finish();
     }
 
+    static boolean shouldThrottle(){
+        final long[] signupLog = readLog();
+        if (signupLog == null) {
+            return false;
+        }
+
+        int i = signupLog.length - 1;
+        while (i >= 0 && System.currentTimeMillis() - signupLog[i] < THROTTLE_WINDOW && signupLog.length - i <= THROTTLE_AFTER_ATTEMPT){
+            i--;
+        }
+
+        return signupLog.length - i > THROTTLE_AFTER_ATTEMPT;
+    }
+
+    static long[] readLog() {
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(SIGNUP_LOG));
+            return (long[]) in.readObject();
+        } catch (IOException e) {
+            Log.i(SoundCloudApplication.TAG, "Error reading sign up log ", e);
+        } catch (ClassNotFoundException e) {
+            Log.i(SoundCloudApplication.TAG, "Error reading sign up log ", e);
+        }
+        return null;
+    }
+
+    static void writeNewSignupToLog() {
+        writeNewSignupToLog(System.currentTimeMillis());
+    }
+
+    static void writeNewSignupToLog(long timestamp) {
+
+        long[] toWrite, current = readLog();
+        if (current == null) {
+            toWrite = new long[1];
+        } else {
+            toWrite = Arrays.copyOf(current, current.length + 1);
+        }
+
+        toWrite[toWrite.length - 1] = timestamp;
+
+        writeLog(toWrite);
+    }
+
+    static void writeLog(long[] toWrite) {
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SIGNUP_LOG));
+            out.writeObject(toWrite);
+            out.close();
+        } catch (IOException e) {
+            Log.i(SoundCloudApplication.TAG, "Error writing to sign up log ", e);
+        }
+    }
 
     static boolean checkPassword(CharSequence password) {
         return password != null && password.length() >= MIN_PASSWORD_LENGTH;

@@ -5,6 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import static junit.framework.Assert.fail;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
 import org.junit.Before;
@@ -40,8 +41,7 @@ public class StreamStorageTest {
         IOUtils.deleteDir(baseDir);
         storage = new StreamStorage(DefaultTestRunner.application, baseDir, TEST_CHUNK_SIZE, 0);
         item = new StreamItem("https://api.soundcloud.com/tracks/1234/stream", testFile);
-
-        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
+        TestHelper.enableSDCard();
     }
 
     private int setupChunkArray() throws IOException {
@@ -80,7 +80,7 @@ public class StreamStorageTest {
 
     @Test
     public void shouldNotStoreDataWhenSDCardNotAvailable() throws Exception {
-        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_REMOVED);
+        TestHelper.disableSDCard();
         expect(storage.storeMetadata(item)).toBeTrue();
         expect(storage.storeData(item.url, ByteBuffer.wrap(new byte[]{1, 2, 3}), 0)).toBeFalse();
     }
