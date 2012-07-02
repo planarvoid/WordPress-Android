@@ -4,6 +4,7 @@ import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.tests.AudioTestCase;
 
 import android.test.suitebuilder.annotation.LargeTest;
+import android.test.suitebuilder.annotation.Suppress;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -120,6 +121,7 @@ public class VorbisDecoderTest extends AudioTestCase {
         }
     }
 
+    @Suppress
     public void testShouldDecodeChainedOggFiles() throws Exception {
         VorbisDecoder dec = new VorbisDecoder(prepareAsset(CHAINED_OGG));
         VorbisInfo info = dec.getInfo();
@@ -140,6 +142,7 @@ public class VorbisDecoderTest extends AudioTestCase {
         assertEquals(301952, total);
     }
 
+    @Suppress
     public void testTimeTellShouldNotJump() throws Exception {
         VorbisDecoder dec = new VorbisDecoder(prepareAsset(TRIMMED_RECORDING));
         ByteBuffer bb = ByteBuffer.allocateDirect(4096);
