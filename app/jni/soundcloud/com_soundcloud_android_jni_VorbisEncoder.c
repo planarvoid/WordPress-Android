@@ -43,7 +43,10 @@ static void write_og(encoder_state *state);
 static void close_file(encoder_state *state);
 
 jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj, jstring outFile, jstring fileMode, jlong channels, jlong rate, jfloat quality) {
-    LOG_D("init(channels=%ld, rate=%ld, quality=%f)", (long)channels, (long)rate, quality);
+    const char *c_outFile = (*env)->GetStringUTFChars(env, outFile, 0);
+    const char *c_fileMode = (*env)->GetStringUTFChars(env, fileMode, 0);
+
+    LOG_D("init(file=%s, mode=%s, channels=%ld, rate=%ld, quality=%f)", c_outFile, c_fileMode, (long)channels, (long)rate, quality);
     encoder_state *state = malloc(sizeof(encoder_state));
     memset(state, 0, sizeof(*state));
 
@@ -61,12 +64,10 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_init(JNIEnv *env, jobject obj
       return ret;
     }
 
-    const char *c_outFile = (*env)->GetStringUTFChars(env, outFile, 0);
-    const char *c_fileMode = (*env)->GetStringUTFChars(env, fileMode, 0);
 
     state->file = fopen(c_outFile, c_fileMode);
     if (!state->file) {
-        LOG_E("error opening file %s, errno=%d", c_outFile, errno);
+        LOG_E("error opening file %s, error=%s", c_outFile, strerror(errno));
         (*env)->ReleaseStringUTFChars(env, outFile, c_outFile);
         (*env)->ReleaseStringUTFChars(env, fileMode, c_fileMode);
         vorbis_info_clear(&state->vi);
@@ -102,7 +103,7 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_write(JNIEnv* env, jobject ob
         state->file = fopen(state->file_name, "a");
 
         if (!state->file) {
-            LOG_E("error opening %s", state->file_name);
+            LOG_E("error opening %s, (%s)", state->file_name, strerror(errno));
             return -1;
         }
     }

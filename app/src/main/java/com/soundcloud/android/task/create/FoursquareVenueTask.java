@@ -5,7 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soundcloud.android.model.FoursquareVenue;
-import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -43,7 +43,7 @@ public class FoursquareVenueTask extends AsyncTask<Location, Void, List<Foursqua
     @Override
     protected List<FoursquareVenue> doInBackground(Location... locations) {
         Location loc = locations[0];
-        HttpClient client = IOUtils.createHttpClient(CloudAPI.USER_AGENT);
+        HttpClient client = HttpUtils.createHttpClient(CloudAPI.USER_AGENT);
         final String ll = String.format(Locale.ENGLISH, "%.6f,%.6f", loc.getLatitude(), loc.getLongitude());
 
         //http://developer.foursquare.com/docs/venues/search.html
@@ -85,7 +85,7 @@ public class FoursquareVenueTask extends AsyncTask<Location, Void, List<Foursqua
             Log.e(TAG, "error", e);
             return null;
         } finally {
-            IOUtils.closeHttpClient(client);
+            HttpUtils.closeHttpClient(client);
         }
     }
 }

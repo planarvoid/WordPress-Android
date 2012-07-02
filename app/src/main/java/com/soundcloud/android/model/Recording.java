@@ -160,7 +160,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File getEncodedFile() {
-        return encodedFilename(audio_path);
+        return IOUtils.changeExtension(audio_path, VorbisReader.EXTENSION);
     }
 
     public File getProcessedFile() {
@@ -507,10 +507,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
             }
         }
         return null;
-    }
-
-    private static File encodedFilename(File file) {
-        return new File(file.getParentFile(), file.getName()+"."+ VorbisReader.EXTENSION);
     }
 
     public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {

@@ -73,7 +73,7 @@ public class VorbisWriter implements AudioWriter {
 
     private void initializeEncoder() throws EncoderException {
         if (encoder == null) {
-            encoder = new VorbisEncoder(file, "rw", config.channels, config.sampleRate, config.quality);
+            encoder = new VorbisEncoder(file, "w+", config.channels, config.sampleRate, config.quality);
         }
     }
 }

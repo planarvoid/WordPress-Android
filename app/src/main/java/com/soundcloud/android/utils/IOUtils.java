@@ -315,39 +315,6 @@ public final class IOUtils {
         }
     }
 
-    public static void fetchUriToFile(String url, File file, boolean useCache) throws FileNotFoundException {
-        OutputStream os = null;
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setUseCaches(useCache);
-            conn.connect();
-            final int status = conn.getResponseCode();
-            if (status == HttpStatus.SC_OK) {
-                InputStream is = conn.getInputStream();
-                os = new BufferedOutputStream(new FileOutputStream(file));
-                final byte[] buffer = new byte[8192];
-                int n;
-                while ((n = is.read(buffer, 0, buffer.length)) != -1) {
-                    os.write(buffer, 0, n);
-                }
-            } else {
-                throw new FileNotFoundException("HttpStatus: "+status);
-            }
-        } catch (MalformedURLException e) {
-            throw new FileNotFoundException(e.getMessage());
-        } catch (IOException e) {
-            deleteFile(file);
-            throw new FileNotFoundException(e.getMessage());
-        } finally {
-            if (conn != null) conn.disconnect();
-            if (os != null) try {
-                os.close();
-            } catch (IOException ignored) {
-            }
-        }
-    }
-
     /**
      * @param context context
      * @param info current network info
@@ -376,25 +343,6 @@ public final class IOUtils {
         return proxy;
     }
 
-    @SuppressLint("NewApi")
-    public static HttpClient createHttpClient(String userAgent) {
-        if (Build.VERSION.SDK_INT >= 8) {
-            return AndroidHttpClient.newInstance(userAgent);
-        } else {
-            return new DefaultHttpClient();
-        }
-    }
-
-    @SuppressLint("NewApi")
-    public static void closeHttpClient(HttpClient client) {
-        if (client instanceof AndroidHttpClient) {
-            // avoid leak error logging
-            ((AndroidHttpClient) client).close();
-        } else if (client != null) {
-            client.getConnectionManager().shutdown();
-        }
-    }
-
     public static boolean isConnected(Context context) {
         ConnectivityManager mgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info =  mgr == null ? null : mgr.getActiveNetworkInfo();
@@ -406,7 +354,6 @@ public final class IOUtils {
         NetworkInfo info = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         return info != null && info.isConnectedOrConnecting();
     }
-
 
     public static void copy(InputStream is, File out) throws IOException {
         FileOutputStream fos = new FileOutputStream(out);
@@ -448,12 +395,22 @@ public final class IOUtils {
     }
 
     public static @Nullable String extension(File file) {
-        String name = file.getName();
+        final String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1 && lastDot != name.length() -1) {
             return name.substring(lastDot+1, name.length()).toLowerCase();
         } else {
             return null;
+        }
+    }
+
+    public static File changeExtension(File file, String ext) {
+        final String name = file.getName();
+        final int lastDot = name.lastIndexOf('.');
+        if (lastDot != -1) {
+            return new File(file.getParentFile(), name.substring(0, lastDot)+"."+ext);
+        } else {
+            return new File(file.getParentFile(), file.getName()+"."+ext);
         }
     }
 
