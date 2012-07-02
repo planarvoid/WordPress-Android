@@ -237,10 +237,8 @@ public class SoundCloudDB {
         if (offset > 0) {
             b.appendQueryParameter("offset", String.valueOf(offset));
         }
-        if (limit >= 0) {
-            b.appendQueryParameter("limit", String.valueOf(limit));
-        }
-
+        b.appendQueryParameter("limit", String.valueOf(limit));
         return b.build();
+
     }
 }

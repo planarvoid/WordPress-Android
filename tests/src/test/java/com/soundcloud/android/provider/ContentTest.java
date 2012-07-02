@@ -54,7 +54,6 @@ public class ContentTest {
     }
 
     @Test
-    @Ignore
     public void shouldGetLocalIds() throws Exception {
         final int SIZE = 107;
         final long USER_ID = 1L;
