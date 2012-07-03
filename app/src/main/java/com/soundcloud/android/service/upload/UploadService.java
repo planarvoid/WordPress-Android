@@ -57,17 +57,18 @@ public class UploadService extends Service {
     public static final String TRANSFER_CANCELLED = "com.soundcloud.android.service.upload.transfer.cancelled";
     public static final String TRANSFER_SUCCESS   = "com.soundcloud.android.service.upload.transfer.success";
 
-    public static final String PROCESSING_STARTED = "com.soundcloud.android.service.upload.processing_started";
-    public static final String PROCESSING_SUCCESS = "com.soundcloud.android.service.upload.processing_success";
-    public static final String PROCESSING_ERROR = "com.soundcloud.android.service.upload.processing_error";
-    public static final String PROCESSING_CANCELED = "com.soundcloud.android.service.upload.processing_cancelled";
-    public static final String PROCESSING_PROGRESS = "com.soundcloud.android.service.upload.processing_progress";
+    public static final String PROCESSING_STARTED = "com.soundcloud.android.service.upload.processing.started";
+    public static final String PROCESSING_SUCCESS = "com.soundcloud.android.service.upload.processing.success";
+    public static final String PROCESSING_ERROR = "com.soundcloud.android.service.upload.processing.error";
+    public static final String PROCESSING_CANCELED = "com.soundcloud.android.service.upload.processing.cancelled";
+    public static final String PROCESSING_PROGRESS = "com.soundcloud.android.service.upload.processing.progress";
 
-    public static final String RESIZE_STARTED    = "com.soundcloud.android.service.upload.resize_started";
-    public static final String RESIZE_SUCCESS    = "com.soundcloud.android.service.upload.resize_success";
-    public static final String RESIZE_ERROR      = "com.soundcloud.android.service.upload.resize_error";
+    public static final String RESIZE_STARTED    = "com.soundcloud.android.service.upload.resize.started";
+    public static final String RESIZE_SUCCESS    = "com.soundcloud.android.service.upload.resize.success";
+    public static final String RESIZE_ERROR      = "com.soundcloud.android.service.upload.resize.error";
 
-    public static final String TRANSCODING_FAILED = "com.soundcloud.android.service.upload.transcoding_failed";
+    public static final String TRANSCODING_SUCCESS = "com.soundcloud.android.service.upload.transcoding.success";
+    public static final String TRANSCODING_FAILED  = "com.soundcloud.android.service.upload.transcoding.failed";
 
     public static final String[] ALL_ACTIONS = {
         UPLOAD_SUCCESS,
@@ -88,7 +89,8 @@ public class UploadService extends Service {
         RESIZE_SUCCESS,
         RESIZE_ERROR,
 
-        TRANSCODING_FAILED
+        TRANSCODING_FAILED,
+        TRANSCODING_SUCCESS
     };
 
     private static class Upload {

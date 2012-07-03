@@ -114,5 +114,11 @@ public class Poller extends Handler {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Track succesfully prepared by the api: " + track);
         }
+
+        LocalBroadcastManager
+                .getInstance(mApp.getContext())
+                .sendBroadcast(new Intent(UploadService.TRANSCODING_SUCCESS)
+                        .putExtra(UploadService.EXTRA_TRACK, track));
+
     }
 }

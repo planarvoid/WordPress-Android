@@ -1,7 +1,6 @@
 package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.SoundCloudApplication;
@@ -18,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import android.content.BroadcastReceiver;
@@ -35,10 +35,14 @@ public class PollerTest {
     static final long TRACK_ID = 12345L;
     ContentResolver resolver;
 
+    @Mock private BroadcastReceiver receiver;
+
     @Before
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(Robolectric.application);
+        lbm.registerReceiver(receiver, UploadService.getIntentFilter());
     }
 
     @Test
@@ -53,6 +57,12 @@ public class PollerTest {
         TestHelper.addCannedResponses(getClass(), "track_processing.json", "track_finished.json");
         addProcessingTrackAndRunPoll(TRACK_ID);
         expectLocalTracksStreamable(TRACK_ID);
+
+        // assert transcoding success broadcast got sent out
+        ArgumentCaptor<Intent> argument = ArgumentCaptor.forClass(Intent.class);
+        verify(receiver).onReceive(Mockito.any(Context.class), argument.capture());
+        expect(argument.getValue().getAction()).toEqual(UploadService.TRANSCODING_SUCCESS);
+
     }
 
     @Test
@@ -65,19 +75,13 @@ public class PollerTest {
 
     @Test
     public void testPollUploadedFailure() throws Exception {
-
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(Robolectric.application);
-
-        BroadcastReceiver r = mock(BroadcastReceiver.class);
-        lbm.registerReceiver(r, UploadService.getIntentFilter());
-
         TestHelper.addCannedResponses(getClass(), "track_failed.json");
         addProcessingTrackAndRunPoll(TRACK_ID);
         expectLocalTracksNotStreamable(TRACK_ID);
 
         // assert transcoding failed broadcast got sent out
         ArgumentCaptor<Intent> argument = ArgumentCaptor.forClass(Intent.class);
-        verify(r).onReceive(Mockito.any(Context.class), argument.capture());
+        verify(receiver).onReceive(Mockito.any(Context.class), argument.capture());
         expect(argument.getValue().getAction()).toEqual(UploadService.TRANSCODING_FAILED);
     }
 
