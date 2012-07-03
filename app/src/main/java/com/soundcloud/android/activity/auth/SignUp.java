@@ -228,7 +228,8 @@ public class SignUp extends Activity {
         if (current == null) {
             toWrite = new long[1];
         } else {
-            toWrite = Arrays.copyOf(current, current.length + 1);
+            toWrite = new long[current.length + 1];
+            System.arraycopy(current, 0, toWrite, 0, current.length);
         }
 
         toWrite[toWrite.length - 1] = timestamp;
