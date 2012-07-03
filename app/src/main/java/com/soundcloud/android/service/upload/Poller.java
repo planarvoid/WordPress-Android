@@ -112,7 +112,7 @@ public class Poller extends Handler {
         if (mNotifyUri != null) resolver.notifyChange(mNotifyUri, null, false);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Track succesfully prepared by the api: " + track);
+            Log.d(TAG, "Track successfully prepared by the api: " + track);
         }
 
         LocalBroadcastManager
