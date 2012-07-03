@@ -357,8 +357,8 @@ public class WavHeader {
         return h;
     }
 
-    public static void writeHeader(File f) throws IOException {
-        WavHeader h = new WavHeader(WavHeader.FORMAT_PCM, (short)1, 44100, (short)16, 0);
+    public static void writeHeader(File f, int length) throws IOException {
+        WavHeader h = new WavHeader(WavHeader.FORMAT_PCM, (short)1, 44100, (short)16, length);
         OutputStream os = new FileOutputStream(f);
         h.write(os);
         os.close();

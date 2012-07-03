@@ -101,8 +101,19 @@ public class TestApplication extends SoundCloudApplication {
     }
 
     public static File getTestFile() throws IOException {
+        return getTestFile(0);
+    }
+
+    public static File getTestFile(int length) throws IOException {
         File tmp = File.createTempFile("temp", ".wav");
-        WavHeader.writeHeader(tmp);
+        WavHeader.writeHeader(tmp, length);
+        if (length > 0) {
+            FileOutputStream fos = new FileOutputStream(tmp, true);
+            for (int i = 0; i<length; i++) {
+                fos.write(0);
+            }
+            fos.close();
+        }
         return tmp;
     }
 

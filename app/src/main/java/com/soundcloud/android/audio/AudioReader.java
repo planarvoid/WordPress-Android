@@ -1,5 +1,6 @@
 package com.soundcloud.android.audio;
 
+import com.soundcloud.android.audio.reader.EmptyReader;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.utils.IOUtils;
@@ -54,18 +55,18 @@ public abstract class AudioReader implements Closeable {
 
     public abstract void reopen() throws IOException;
 
-    public static @Nullable AudioReader guess(@Nullable File file) throws IOException {
-        if (file == null) return null;
+    public static AudioReader guess(@Nullable File file) throws IOException {
+        if (file == null) return new EmptyReader();
 
         final String ext = IOUtils.extension(file);
         if (ext == null) {
-            return null;
+            return new EmptyReader();
         } else if (ext.equals(WavReader.EXTENSION)) {
             return new WavReader(file);
         } else if (ext.equals(VorbisReader.EXTENSION)) {
             return new VorbisReader(file);
         } else {
-            return null;
+            return new EmptyReader();
         }
     }
 }

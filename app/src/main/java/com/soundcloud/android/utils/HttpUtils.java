@@ -19,7 +19,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class HttpUtils {
+public final class HttpUtils {
+    private HttpUtils() {}
+
     public static void fetchUriToFile(String url, File file, boolean useCache) throws FileNotFoundException {
         OutputStream os = null;
         HttpURLConnection conn = null;
