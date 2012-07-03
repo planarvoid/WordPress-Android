@@ -1,6 +1,8 @@
 package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
@@ -15,10 +17,16 @@ import com.xtremelabs.robolectric.util.Scheduler;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.HandlerThread;
+import android.support.v4.content.LocalBroadcastManager;
 
 
 @RunWith(DefaultTestRunner.class)
@@ -42,7 +50,7 @@ public class PollerTest {
 
     @Test
     public void testPollUploadedProcessSuccess() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "track_storing.json", "track_finished.json");
+        TestHelper.addCannedResponses(getClass(), "track_processing.json", "track_finished.json");
         addProcessingTrackAndRunPoll(TRACK_ID);
         expectLocalTracksStreamable(TRACK_ID);
     }
@@ -57,9 +65,20 @@ public class PollerTest {
 
     @Test
     public void testPollUploadedFailure() throws Exception {
+
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(Robolectric.application);
+
+        BroadcastReceiver r = mock(BroadcastReceiver.class);
+        lbm.registerReceiver(r, UploadService.getIntentFilter());
+
         TestHelper.addCannedResponses(getClass(), "track_failed.json");
         addProcessingTrackAndRunPoll(TRACK_ID);
         expectLocalTracksNotStreamable(TRACK_ID);
+
+        // assert transcoding failed broadcast got sent out
+        ArgumentCaptor<Intent> argument = ArgumentCaptor.forClass(Intent.class);
+        verify(r).onReceive(Mockito.any(Context.class), argument.capture());
+        expect(argument.getValue().getAction()).toEqual(UploadService.TRANSCODING_FAILED);
     }
 
     @Test
@@ -71,7 +90,7 @@ public class PollerTest {
 
     @Test
     public void testPollUploadedProcessTimeoutFailure() throws Exception {
-        TestHelper.addCannedResponses(getClass(), "track_storing.json", "track_storing.json", "track_finished.json");
+        TestHelper.addCannedResponses(getClass(), "track_processing.json", "track_processing.json", "track_finished.json");
         addProcessingTrackAndRunPoll(TRACK_ID, 1l);
         expectLocalTracksNotStreamable(TRACK_ID);
     }

@@ -98,4 +98,10 @@
 
     <string name="resolve_progress">Loading</string>
     <string name="error_loading_url">There was a problem loading that url</string>
+
+
+    <string name="cloud_uploader_notification_transcoding_error_message">There was an error transcoding %s</string>
+    <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoding Error</string>
+    <string name="cloud_uploader_notification_transcoding_error_title">Transcoding Error</string>
+
 </resources>
