@@ -15,7 +15,6 @@ import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchUserTask;
 import com.soundcloud.android.utils.CloudUtils;
-import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -38,7 +37,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -117,7 +115,7 @@ public class ApiSyncer {
 
         final Content c = Content.match(uri);
         final int inserted;
-        Activities activities = null;
+        Activities activities;
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
             final Activity lastActivity = Activities.getLastActivity(c, mResolver);
             Request request = new Request(c.request()).add("limit", Consts.COLLECTION_PAGE_SIZE);
@@ -262,19 +260,11 @@ public class ApiSyncer {
 
     private Result syncMe(Content c) throws IOException {
         Result result = new Result(c.uri);
-        try {
-            User user = new FetchUserTask(mApi, SoundCloudApplication.getUserIdFromContext(mContext))
-                    .execute(c.request())
-                    .get();
+        User user = new FetchUserTask(mApi, SoundCloudApplication.getUserIdFromContext(mContext))
+                .doInBackground(c.request());
 
-            result.change = Result.CHANGED;
-            result.success = user != null;
-        } catch (InterruptedException ignored) {
-        } catch (ExecutionException ignored) {
-            if (ignored.getCause() instanceof IOException) {
-                throw (IOException)ignored.getCause();
-            }
-        }
+        result.change = Result.CHANGED;
+        result.success = user != null;
         return result;
     }
 
@@ -284,7 +274,7 @@ public class ApiSyncer {
                                                        Content content,
                                                        boolean ignoreStored) throws IOException {
 
-        if (additions == null || additions.size() == 0) return new ArrayList<Parcelable>();
+        if (additions == null || additions.isEmpty()) return new ArrayList<Parcelable>();
 
         // copy so we don't modify the original
         additions = new ArrayList<Long>(additions);

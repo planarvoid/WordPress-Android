@@ -57,7 +57,7 @@ public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Re
     }
 
     @Override
-    protected Model doInBackground(Request... request) {
+    public Model doInBackground(Request... request) {
         if (request == null || request.length == 0) throw new IllegalArgumentException("need path to executeAppendTask");
 
         try {

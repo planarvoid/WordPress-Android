@@ -125,8 +125,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         );
 
         mCloudApi.setTokenListener(this);
-        mCloudApi.debugRequests = DEV_MODE || !DALVIK;
-
 
         if (account != null) {
             FollowStatus.initialize(this, getCurrentUserId());
