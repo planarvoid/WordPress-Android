@@ -91,7 +91,7 @@ public class UserBrowser extends ScListActivity implements
     private boolean mUpdateInfo;
 
     private List<Connection> mConnections;
-    private Object mAdapterStates[];
+    private Object[] mAdapterStates;
 
     public enum Tab {
         tracks(Page.Users_sounds, Page.You_sounds),
@@ -100,6 +100,8 @@ public class UserBrowser extends ScListActivity implements
         followings(Page.Users_following, Page.You_following),
         followers(Page.Users_followers, Page.You_followers),
         friend_finder(null, Page.You_find_friends);
+
+        public static final String EXTRA = "userBrowserTag";
 
         public final Page user, you;
 
@@ -190,8 +192,8 @@ public class UserBrowser extends ScListActivity implements
             build();
             if (!isMe()) FollowStatus.get().requestUserFollowings(getApp(), this, false);
 
-            if (intent.hasExtra("userBrowserTag")){
-                mUserlistBrowser.initByTag(intent.getStringExtra("userBrowserTag"));
+            if (intent.hasExtra(Tab.EXTRA)){
+                mUserlistBrowser.initByTag(intent.getStringExtra(Tab.EXTRA));
             } else if (isMe()) {
                 final int initialTab = getApp().getAccountDataInt(User.DataKeys.PROFILE_IDX);
                 if (initialTab == -1) {

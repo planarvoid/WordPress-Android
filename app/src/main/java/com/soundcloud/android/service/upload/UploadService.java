@@ -7,8 +7,8 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.UserBrowser;
-import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.SoundCloudDB;
@@ -43,6 +43,7 @@ public class UploadService extends Service {
     /* package */ static final String TAG = UploadService.class.getSimpleName();
 
     public static final String EXTRA_RECORDING   = "recording";
+    public static final String EXTRA_TRACK       = "track";
     public static final String EXTRA_TRANSFERRED = "transferred";
     public static final String EXTRA_TOTAL       = "total";
     public static final String EXTRA_PROGRESS    = "progress";
@@ -56,15 +57,18 @@ public class UploadService extends Service {
     public static final String TRANSFER_CANCELLED = "com.soundcloud.android.service.upload.transfer.cancelled";
     public static final String TRANSFER_SUCCESS   = "com.soundcloud.android.service.upload.transfer.success";
 
-    public static final String PROCESSING_STARTED = "com.soundcloud.android.service.upload.processing_started";
-    public static final String PROCESSING_SUCCESS = "com.soundcloud.android.service.upload.processing_success";
-    public static final String PROCESSING_ERROR = "com.soundcloud.android.service.upload.processing_error";
-    public static final String PROCESSING_CANCELED = "com.soundcloud.android.service.upload.processing_cancelled";
-    public static final String PROCESSING_PROGRESS = "com.soundcloud.android.service.upload.processing_progress";
+    public static final String PROCESSING_STARTED = "com.soundcloud.android.service.upload.processing.started";
+    public static final String PROCESSING_SUCCESS = "com.soundcloud.android.service.upload.processing.success";
+    public static final String PROCESSING_ERROR = "com.soundcloud.android.service.upload.processing.error";
+    public static final String PROCESSING_CANCELED = "com.soundcloud.android.service.upload.processing.cancelled";
+    public static final String PROCESSING_PROGRESS = "com.soundcloud.android.service.upload.processing.progress";
 
-    public static final String RESIZE_STARTED    = "com.soundcloud.android.service.upload.resize_started";
-    public static final String RESIZE_SUCCESS    = "com.soundcloud.android.service.upload.resize_success";
-    public static final String RESIZE_ERROR      = "com.soundcloud.android.service.upload.resize_error";
+    public static final String RESIZE_STARTED    = "com.soundcloud.android.service.upload.resize.started";
+    public static final String RESIZE_SUCCESS    = "com.soundcloud.android.service.upload.resize.success";
+    public static final String RESIZE_ERROR      = "com.soundcloud.android.service.upload.resize.error";
+
+    public static final String TRANSCODING_SUCCESS = "com.soundcloud.android.service.upload.transcoding.success";
+    public static final String TRANSCODING_FAILED  = "com.soundcloud.android.service.upload.transcoding.failed";
 
     public static final String[] ALL_ACTIONS = {
         UPLOAD_SUCCESS,
@@ -83,7 +87,10 @@ public class UploadService extends Service {
 
         RESIZE_STARTED,
         RESIZE_SUCCESS,
-        RESIZE_ERROR
+        RESIZE_ERROR,
+
+        TRANSCODING_FAILED,
+        TRANSCODING_SUCCESS
     };
 
     private static class Upload {
@@ -273,13 +280,10 @@ public class UploadService extends Service {
                     TRANSFER_CANCELLED.equals(action)) {
 
                 if (TRANSFER_SUCCESS.equals(action)) {
-                    final long track_id = recording.track_id;
-                    if (track_id != Track.NOT_SET) {
-                        new Poller(createLooper("poller_" + track_id, Process.THREAD_PRIORITY_BACKGROUND),
+                        new Poller(createLooper("poller_" + recording.track_id, Process.THREAD_PRIORITY_BACKGROUND),
                                 (AndroidCloudAPI) getApplication(),
-                                track_id,
+                                recording.track_id,
                                 Content.ME_TRACKS.uri).start();
-                    }
 
                     mBroadcastManager.sendBroadcast(new Intent(UPLOAD_SUCCESS)
                             .putExtra(UploadService.EXTRA_RECORDING, recording));
@@ -287,10 +291,26 @@ public class UploadService extends Service {
 
                 // XXX retry on temp. error?
                 uploadDone(recording);
-
+            } else if (TRANSCODING_FAILED.equals(action)) {
+                Track track = intent.getParcelableExtra(EXTRA_TRACK);
+                sendNotification(track, transcodingFailedNotification(track));
             }
         }
     };
+
+    private Notification transcodingFailedNotification(Track track) {
+        String title = getString(R.string.cloud_uploader_notification_transcoding_error_title);
+        String message = getString(R.string.cloud_uploader_notification_transcoding_error_message, track.title);
+        String tickerText = getString(R.string.cloud_uploader_notification_transcoding_error_ticker);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(Actions.MY_PROFILE).putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification notification = new Notification(R.drawable.ic_notification_cloud, tickerText, System.currentTimeMillis());
+        notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
+        notification.setLatestEventInfo(this, title, message , contentIntent);
+        return notification;
+    }
 
     private void uploadDone(Recording recording) {
         mUploads.remove(recording.id);
@@ -307,7 +327,7 @@ public class UploadService extends Service {
         }
     }
 
-    private void sendNotification(Recording r, Notification n){
+    private void sendNotification(ScModel r, Notification n) {
         // ugly way to help uniqueness
         nm.notify((int) (9990000 + r.id), n);
     }
@@ -413,7 +433,7 @@ public class UploadService extends Service {
             message = getString(R.string.cloud_uploader_notification_finished_message, recording.title);
             tickerText = getString(R.string.cloud_uploader_notification_finished_ticker);
             contentIntent = PendingIntent.getActivity(this, 0,
-                    new Intent(Actions.MY_PROFILE).putExtra("userBrowserTag", UserBrowser.Tab.tracks),
+                    new Intent(Actions.MY_PROFILE).putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks),
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
         } else if (!recording.isCanceled()) {

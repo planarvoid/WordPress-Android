@@ -13,7 +13,7 @@ public class VorbisReaderTest extends ScAndroidTestCase {
     public void testDuration() throws Exception {
         File ogg = prepareAsset(MED_TEST_OGG);
         VorbisReader file = new VorbisReader(ogg);
-        assertEquals(18786, file.getDuration());
+        assertEquals(18949, file.getDuration());
     }
 
     public void testSeekAndGetPosion() throws Exception {

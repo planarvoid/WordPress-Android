@@ -438,7 +438,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     public float getTrimPercentRight() {
-        return mPlaybackStream == null || mPlaybackStream.getEndPos() == -1 ? 1.0f : ((float) mPlaybackStream.getEndPos()) / mPlaybackStream.getTotalDuration();
+        return mPlaybackStream == null || mPlaybackStream.getEndPos() == -1 ? 1.0f :
+                ((float) mPlaybackStream.getEndPos()) / mPlaybackStream.getTotalDuration();
     }
 
     public @Nullable Recording saveState() {

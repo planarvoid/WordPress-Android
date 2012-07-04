@@ -63,7 +63,7 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
 
     protected void record(int howlong, String text) {
         solo.assertText(text);
-        assertState(IDLE_RECORD);
+        assertState(IDLE_RECORD, IDLE_PLAYBACK);
         solo.clickOnView(R.id.btn_action);
         solo.sleep(howlong);
         assertState(RECORD);
@@ -90,8 +90,15 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
         assertState(EDIT_PLAYBACK);
     }
 
-    protected void assertState(ScCreate.CreateState state) {
-        assertTrue(waitForState(state, 5000));
+    protected void assertState(ScCreate.CreateState... state) {
+        ScCreate.CreateState reached = null;
+        for (ScCreate.CreateState s : state) {
+            if (waitForState(s, 5000)) {
+                reached = s;
+                break;
+            }
+        }
+        assertNotNull(reached);
     }
 
     protected boolean waitForState(ScCreate.CreateState state, long timeout) {

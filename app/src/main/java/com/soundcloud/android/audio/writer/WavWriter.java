@@ -123,8 +123,8 @@ public class WavWriter implements AudioWriter {
 
     @Override
     public void close() throws IOException {
-        assert !isClosed();
-        finalizeStream();
-        assert isClosed();
+        if (!isClosed())  {
+            finalizeStream();
+        }
     }
 }

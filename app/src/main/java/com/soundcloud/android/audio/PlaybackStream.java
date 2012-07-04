@@ -23,7 +23,7 @@ public class PlaybackStream implements Parcelable {
     private PlaybackFilter mFilter;
     private boolean mOptimize;
 
-    public PlaybackStream(@NotNull AudioReader audioReader) throws IOException {
+    public PlaybackStream(@NotNull AudioReader audioReader) {
         mPlaybackFile = audioReader;
         mConfig = audioReader.getConfig();
         resetBounds();
@@ -167,7 +167,7 @@ public class PlaybackStream implements Parcelable {
 
     public boolean isModified() {
         return mStartPos > 0 ||
-               mEndPos < getTotalDuration() ||
+               (mEndPos > 0 && mEndPos < getTotalDuration()) ||
                mFilter != null ||
                mOptimize;
     }

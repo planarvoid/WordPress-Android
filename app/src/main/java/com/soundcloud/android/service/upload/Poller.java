@@ -12,10 +12,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -85,6 +87,14 @@ public class Poller extends Handler {
             if (track != null && track.state.isFinished()) {
                 onTrackProcessed(track);
             } else {
+                if (track != null && track.state.isFailed()) {
+                    // track failed to transcode
+                    LocalBroadcastManager
+                            .getInstance(mApp.getContext())
+                            .sendBroadcast(new Intent(UploadService.TRANSCODING_FAILED)
+                                    .putExtra(UploadService.EXTRA_TRACK, track));
+                }
+
                 Log.e(TAG, "Track failed to be prepared " + track +
                         (track != null && track.state != null ? ", [state: " + track.state + "]" : ""));
             }
@@ -102,7 +112,13 @@ public class Poller extends Handler {
         if (mNotifyUri != null) resolver.notifyChange(mNotifyUri, null, false);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Track succesfully prepared by the api: " + track);
+            Log.d(TAG, "Track successfully prepared by the api: " + track);
         }
+
+        LocalBroadcastManager
+                .getInstance(mApp.getContext())
+                .sendBroadcast(new Intent(UploadService.TRANSCODING_SUCCESS)
+                        .putExtra(UploadService.EXTRA_TRACK, track));
+
     }
 }

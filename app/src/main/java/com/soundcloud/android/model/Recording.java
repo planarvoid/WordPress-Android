@@ -9,6 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackStream;
+import com.soundcloud.android.audio.reader.EmptyReader;
 import com.soundcloud.android.audio.reader.VorbisReader;
 import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.provider.Content;
@@ -168,7 +169,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File getAmplitudeFile() {
-        return new File(audio_path.getParentFile(), audio_path.getName().concat(".amp"));
+        return IOUtils.changeExtension(audio_path, "amp");
     }
 
     /**
@@ -758,11 +759,9 @@ public class Recording extends ScModel implements Comparable<Recording> {
         return new Intent(Actions.UPLOAD_CANCEL).putExtra(SoundRecorder.EXTRA_RECORDING, this);
     }
 
-    private @Nullable PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
+    private PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
         try {
             final AudioReader reader = AudioReader.guess(audio_path);
-            if (reader == null) return null;
-
             PlaybackStream stream = new PlaybackStream(reader);
             if (c != null) {
                 long startPos = c.getLong(c.getColumnIndex(Recordings.TRIM_LEFT));
@@ -774,11 +773,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
                 stream.setOptimize(optimize);
                 stream.setTrim(startPos, endPos);
             }
-
             return stream;
         } catch (IOException e) {
             Log.w(TAG, "could not initialize playback stream", e);
-            return null;
+            return new PlaybackStream(new EmptyReader());
         }
     }
 }
