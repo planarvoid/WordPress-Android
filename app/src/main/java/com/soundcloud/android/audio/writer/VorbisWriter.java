@@ -45,6 +45,7 @@ public class VorbisWriter implements AudioWriter {
     @Override
     public boolean setNewPosition(long pos) throws IOException {
         initializeEncoder();
+        encoder.pause();
         return encoder.startNewStream(pos  / 1000d);
     }
 
