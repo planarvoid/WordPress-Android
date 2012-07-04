@@ -22,6 +22,7 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                ApiSyncService
                ATTracker
                SoundCloudApplication
+               AndroidCloudAPI
               )
 
 [:device, :emu].each do |t|

@@ -1,7 +1,5 @@
 package com.soundcloud.android;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -16,13 +14,14 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
+import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -52,6 +51,8 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public interface AndroidCloudAPI extends CloudAPI {
+    String TAG = AndroidCloudAPI.class.getSimpleName();
+
     public static final ObjectMapper Mapper = Wrapper.Mapper;
     URI REDIRECT_URI = URI.create("soundcloud://auth");
 
@@ -63,6 +64,11 @@ public interface AndroidCloudAPI extends CloudAPI {
     @SuppressLint("NewApi")
     public static class Wrapper extends ApiWrapper implements AndroidCloudAPI {
         public static final ObjectMapper Mapper;
+        /**
+         * the parameter which we use to tell the API that this is a non-interactive request (e.g. background
+         * syncing. actual parameter name TBD.
+         */
+        public static final String BACKGROUND_PARAMETER = "_behavior[non_interactive]";
 
         static {
             Mapper = createMapper();
@@ -97,6 +103,13 @@ public interface AndroidCloudAPI extends CloudAPI {
                             PreferenceManager.getDefaultSharedPreferences(context).getString(Consts.PrefKeys.DEV_HTTP_PROXY, null);
                     setProxy(TextUtils.isEmpty(proxy) ? null : URI.create(proxy));
                 }
+            }
+        }
+
+        @Override
+        protected void logRequest(Class<? extends HttpRequestBase> reqType, Request request) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, reqType.getSimpleName()+" "+request);
             }
         }
 
@@ -142,6 +155,17 @@ public interface AndroidCloudAPI extends CloudAPI {
 
         @Override public String getUserAgent() {
             return userAgent == null ? super.getUserAgent() : userAgent;
+        }
+
+        /**
+         * @param enabled if true, all requests will be tagged as coming from a background process
+         */
+        public static void setBackgroundMode(boolean enabled) {
+            if (enabled) {
+                ApiWrapper.setDefaultParameter(BACKGROUND_PARAMETER, "1");
+            } else {
+                ApiWrapper.clearDefaultParameters();
+            }
         }
 
         public static ObjectMapper createMapper() {
