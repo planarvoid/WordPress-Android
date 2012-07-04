@@ -15,6 +15,7 @@ public interface AudioWriter extends Closeable {
     AudioConfig getConfig();
 
     /**
+     *
      * @param samples the samples to write
      * @param length how many samples to write from the buffer (needed because direct buffers don't have length
      *               information)

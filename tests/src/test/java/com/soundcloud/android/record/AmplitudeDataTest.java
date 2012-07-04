@@ -85,12 +85,6 @@ public class AmplitudeDataTest {
     }
 
     @Test
-    public void shouldInterpolate() throws Exception {
-        data.add(1, 2, 3, 4, 5);
-        expect(data.getInterpolatedValue(10, 0, 3)).toEqual(5f);
-    }
-
-    @Test
     public void shouldBeIterable() throws Exception {
         final float[] samples = {1, 2, 3, 4, 5};
         data.add(samples);
@@ -116,28 +110,25 @@ public class AmplitudeDataTest {
         AmplitudeData d = new AmplitudeData(2);
         d.add(0, 1, 2, 3, 4);
         expect(d.size()).toEqual(5);
-        d.cutRight(3);
+        d.truncate(3);
+
         expect(d.size()).toEqual(2);
         expect(Arrays.equals(d.get(), new float[] { 0, 1 } )).toBeTrue();
         d.add(2f, 3f);
         expect(Arrays.equals(d.get(), new float[] { 0, 1, 2, 3  } )).toBeTrue();
 
-        d.writeIndex = 1;
-        d.cutRight(1);
+        d.truncate(1);
         expect(Arrays.equals(d.get(), new float[] { 1, 2  } )).toBeTrue();
     }
 
     @Test
     public void shouldParcelAndUnparcelAmplitudeData() throws Exception {
         data.add(1, 2, 3, 4, 5);
-        data.writeIndex = 2;
         Parcel parcel = Parcel.obtain();
 
         data.writeToParcel(parcel, 0);
 
         AmplitudeData unparceled = new AmplitudeData(parcel);
-        expect(data.writtenSize()).toEqual(unparceled.size());
-        expect(Arrays.equals(data.sliceToWritten().get(), unparceled.get())).toBeTrue();
-        expect(unparceled.writeIndex).toEqual(0); // parcels shouldn't save pre-recording data
+        expect(unparceled).toEqual(data);
     }
 }
