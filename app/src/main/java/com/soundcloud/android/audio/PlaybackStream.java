@@ -158,7 +158,7 @@ public class PlaybackStream implements Parcelable {
 
     public void setTrim(long start, long end) {
         mStartPos = start;
-        mEndPos = end;
+        mEndPos = end == -1 ? getTotalDuration() : end;
     }
 
     public long getTrimRight() {
