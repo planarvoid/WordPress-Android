@@ -193,7 +193,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     public RecordStream getRecordStream() {
-
         return mRecordStream;
     }
 

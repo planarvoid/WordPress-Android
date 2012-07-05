@@ -14,12 +14,9 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.util.FloatMath;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
-
-import java.util.Iterator;
 
 public class CreateWaveView extends View {
     private static long ANIMATION_ZOOM_TIME = 400;
@@ -121,8 +118,9 @@ public class CreateWaveView extends View {
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
         boolean animating = (normalizedTime < 1.0f);
 
-        // this represents whatever amplitude data should be on the screen now
-        final DrawData drawData = new DrawData(interpolatedTime, mMode == CreateWaveDisplay.MODE_REC);
+        final MergedAmplitudeData amplitudeData = new MergedAmplitudeData(SoundRecorder.getInstance(getContext()).getRecordStream(), mTrimRight, mTrimLeft);
+        final DrawData drawData = new DrawData(amplitudeData, interpolatedTime, mMode == CreateWaveDisplay.MODE_REC, mIsEditing, getWidth());
+
         if (drawData.size > 0) {
 
             float[] points = getAmplitudePoints(drawData);
@@ -132,7 +130,7 @@ public class CreateWaveView extends View {
                     canvas.drawLines(points, PLAYED_PAINT);
                 } else {
                     // mixed recording / prerecord data
-                    final int recordStartIndex = (drawData.writtenSize >= getWidth()) ? drawData.recIndex * 4
+                    final int recordStartIndex = (amplitudeData.writtenSize >= getWidth()) ? drawData.recIndex * 4
                             : Math.round(drawData.recIndex * ((float) drawData.lastDrawX) / drawData.size) * 4; // incorporate the scaling
 
                     canvas.drawLines(points, 0, recordStartIndex, DARK_PAINT);
@@ -334,13 +332,48 @@ public class CreateWaveView extends View {
     }
 
     /**
-     * This is responsible for figuring exactly what amplitude data should be on screen during a given draw cycle
-     * and will represent a subset of prerecord and record data to display
+     * Merge the amplitudes available from the record stream and set some useful properties
      */
-    class DrawData implements Iterable<Float> {
+    static class MergedAmplitudeData {
 
-        private final AmplitudeData prerecData;
-        private final AmplitudeData recData;
+            private final AmplitudeData mPreRecData;
+            private final AmplitudeData mRecData;
+
+            public final int preRecSize;
+            public final int writtenSize;
+            public final int totalSize;
+
+            public final int recordStartIndexWithTrim;
+            public final int recordEndIndexWithTrim;
+
+            MergedAmplitudeData(RecordStream recordStream, float trimRight, float trimLeft){
+
+                mPreRecData = recordStream.getPreRecordAmplitudeData();
+                mRecData = recordStream.getmAmplitudeData();
+
+                preRecSize = mPreRecData == null ? 0 : mPreRecData.size();
+                writtenSize = mRecData == null ? 0 : mRecData.size();
+                totalSize = preRecSize + writtenSize;
+
+                recordStartIndexWithTrim = (int) (preRecSize + trimLeft * writtenSize);
+                recordEndIndexWithTrim = (int) (totalSize - writtenSize * (1d - trimRight));
+            }
+
+        public float get(int i) {
+            if (i < mPreRecData.size()) {
+                return mPreRecData.get(i);
+            } else {
+                return mRecData.get(i - mPreRecData.size());
+            }
+        }
+    }
+
+    /**
+     * This is a picture of what should be on screen, a subset of the available amplitude data that tells how it should be drawn
+     */
+    static class DrawData {
+
+        private final MergedAmplitudeData mAmpData;
 
         private final int startIndex;
         private final int endIndex;
@@ -348,47 +381,38 @@ public class CreateWaveView extends View {
         public final int size;
         public final int recIndex;
         public final int lastDrawX;
-        public final int writtenSize;
 
-        public DrawData(float interpolatedTime, boolean isZooming) {
+        public DrawData(MergedAmplitudeData mergedAmplitudeData, float interpolatedTime, boolean isZooming, boolean isEditing, int width) {
 
-            final RecordStream recordStream = SoundRecorder.getInstance(getContext()).getRecordStream();
-            this.prerecData = recordStream.getPreRecordAmplitudeData();
-            this.recData = recordStream.getmAmplitudeData();
+            mAmpData = mergedAmplitudeData;
 
-            // cache sizes
-            final int width = getWidth();
-            final int prerecSize = prerecData == null ? 0 : prerecData.size();
-            writtenSize = recData == null ? 0 : recData.size();
-            final int totalSize = prerecSize + writtenSize;
+            // only show trim in recording
+            final int absRecIndex = isEditing ? mAmpData.preRecSize : mergedAmplitudeData.recordStartIndexWithTrim;
 
-            final int recordStartIndexWithTrim = mIsEditing ? prerecSize : (int) (prerecSize + mTrimLeft * writtenSize);
-
-            // figure out where in the amplitude array we should set our first index
             if (isZooming){
-                if (totalSize < width) {
-                    startIndex = (int) (recordStartIndexWithTrim - recordStartIndexWithTrim * interpolatedTime);
-                } else if (writtenSize < width) {
-                    startIndex = recordStartIndexWithTrim - (int) ((width - writtenSize) * interpolatedTime);
+                if (mAmpData.totalSize < width) {
+                    startIndex = (int) (absRecIndex - absRecIndex * interpolatedTime);
+                } else if (mAmpData.writtenSize < width) {
+                    startIndex = absRecIndex - (int) ((width - mAmpData.writtenSize) * interpolatedTime);
                 } else {
-                    startIndex = Math.max(0, recordStartIndexWithTrim + (int) (interpolatedTime * (writtenSize - width)));
+                    startIndex = Math.max(0, absRecIndex + (int) (interpolatedTime * (mAmpData.writtenSize - width)));
                 }
 
             } else {
-                if (totalSize < width) {
+                if (mAmpData.totalSize < width) {
                     // all recorded data will always be on the screen, just interpolated the preview data out
-                    startIndex = Math.max(0, (int) (recordStartIndexWithTrim * interpolatedTime));
+                    startIndex = Math.max(0, (int) (absRecIndex * interpolatedTime));
                 } else {
                     // interpolate all the recorded data on to the screen
-                    final int gap = (totalSize - width) - recordStartIndexWithTrim;
-                    startIndex = (int) Math.max(0, (totalSize - width) - gap * interpolatedTime);
+                    final int gap = (mAmpData.totalSize - width) - absRecIndex;
+                    startIndex = (int) Math.max(0, (mAmpData.totalSize - width) - gap * interpolatedTime);
                 }
             }
 
-            endIndex = mIsEditing ? totalSize : (int) (totalSize - writtenSize * (1d - mTrimRight));
-
-            recIndex = Math.max(0,prerecSize - startIndex);
+            endIndex = isEditing ? mAmpData.totalSize : mergedAmplitudeData.recordEndIndexWithTrim;
             size = endIndex - startIndex;
+
+            recIndex = Math.max(0,mAmpData.preRecSize - startIndex);
 
             if (isZooming){
                 lastDrawX = (size < width) ? (int) (width - (width - size) * interpolatedTime) : width;
@@ -397,18 +421,8 @@ public class CreateWaveView extends View {
             }
         }
 
-        @Override
-        public Iterator<Float> iterator() {
-            return null;
-        }
-
         public float get(int i) {
-            final int adjustedIndex = i+startIndex;
-            if (adjustedIndex < prerecData.size()){
-                return prerecData.get(adjustedIndex);
-            } else {
-                return recData.get(adjustedIndex - prerecData.size());
-            }
+            return mAmpData.get(i+startIndex);
         }
 
         public float getInterpolatedValue(int x, int width) {
@@ -423,17 +437,6 @@ public class CreateWaveView extends View {
                 return v1 + (v2 - v1) * (fIndex - ((int) fIndex));
             }
         }
-
-        @Override
-        public String toString() {
-            return "DrawData{" +
-                    "startIndex=" + startIndex +
-                    ", endIndex=" + endIndex +
-                    ", recIndex=" + recIndex +
-                    ", size=" + size +
-                    '}';
-        }
     }
-
 }
 
