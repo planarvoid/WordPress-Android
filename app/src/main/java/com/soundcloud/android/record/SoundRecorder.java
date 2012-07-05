@@ -5,7 +5,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.audio.AudioConfig;
-import com.soundcloud.android.audio.AudioWriter;
 import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.audio.ScAudioTrack;
@@ -174,7 +173,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         mState = mAudioRecord.getState() != AudioRecord.STATE_INITIALIZED ? State.ERROR : State.IDLE;
 
         if (mRecording != null) {
-            if (deleteRecording) deleteRecording();
+            if (deleteRecording) mRecording.delete(mContext.getContentResolver());
             mRecording = null;
         }
 
@@ -194,13 +193,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     public RecordStream getRecordStream() {
         return mRecordStream;
-    }
-
-    public void deleteRecording() {
-        if (mRecording != null && !mRecording.isSaved()) {
-            mRecording.delete(mContext.getContentResolver());
-            mRecording = null;
-        }
     }
 
     public void setRecording(Recording recording) {
@@ -680,8 +672,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                     } else if (read == 0) {
                         Log.w(TAG, "AudioRecord.read() returned no data");
                     } else {
-
-
                             try {
                                 final int written = mRecordStream.write(buffer, read);
                                 if (written < read) {
