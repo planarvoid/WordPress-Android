@@ -302,7 +302,7 @@ public class Main extends TabActivity implements
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(new Intent(Main.this, ScCreate.class));
+                    startActivity(new Intent(Main.this, ScCreate.class).putExtra("reset",true));
                 }
             });
         }

@@ -156,6 +156,12 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             }
             // don't want to receive the RECORD_START action on config changes, so set it as a normal record intent
             intent.setAction(Actions.RECORD);
+        } else {
+            if (intent.getBooleanExtra("reset", false) && !mRecorder.isActive()){
+                intent.removeExtra("reset");
+                reset();
+            }
+
         }
     }
 
@@ -455,6 +461,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         } else if (mRecorder.isPlaying()) {
             if (mCurrentState != CreateState.EDIT_PLAYBACK) newState = CreateState.PLAYBACK;
             configurePlaybackInfo();
+            mWaveDisplay.gotoPlaybackMode();
             takeAction = true;
         } else {
             if (mRecorder.getRecording() != null) {
