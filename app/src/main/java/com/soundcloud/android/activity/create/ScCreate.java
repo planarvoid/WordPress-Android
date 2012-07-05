@@ -586,29 +586,27 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
             case EDIT:
             case EDIT_PLAYBACK:
+                showView(mButtonBar, false);
 
-                showView(mButtonBar,false);
-
-                if (mHasEditControlGroup){
-                   // portrait
-                   showView(mEditControls, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
-               } else {
-                   showView(mToggleFade, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
-                   showView(mToggleOptimize, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
-                   showView(mPlayEditButton, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
-
-               }
+                if (mHasEditControlGroup) {
+                    // portrait
+                    showView(mEditControls, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+                } else {
+                    showView(mToggleFade, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+                    showView(mPlayEditButton, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+                    //showView(mToggleOptimize, takeAction && (mLastState != CreateState.EDIT && mLastState != CreateState.EDIT_PLAYBACK));
+                }
                 hideView(mPlayButton, false, View.GONE);
                 hideView(mActionButton, false, View.GONE);
                 hideView(mEditButton, false, View.GONE);
 
-                hideView(txtInstructions,false,View.GONE);
-                hideView(txtRecordMessage,false,View.INVISIBLE);
+                hideView(txtInstructions, false, View.GONE);
+                hideView(txtRecordMessage, false, View.INVISIBLE);
 
                 final boolean isPlaying = mCurrentState == CreateState.EDIT_PLAYBACK;
                 setPlayButtonDrawable(isPlaying);
 
-                if (!isPlaying){
+                if (!isPlaying) {
                     configurePlaybackInfo();
                 }
 
