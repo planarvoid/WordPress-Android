@@ -177,12 +177,11 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
             mRecording = null;
         }
 
-        if (mRecordStream != null) {
-            try {
-                mRecordStream.close();
-            } catch (IOException ignored) {
-            }
+        try {
+            mRecordStream.close();
+        } catch (IOException ignored) {
         }
+
         mRecordStream = new RecordStream(mConfig);
 
         if (mPlaybackStream != null) {
@@ -378,10 +377,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
-    public boolean shouldEncode() {
-        return "compressed".equals(PreferenceManager.getDefaultSharedPreferences(mContext)
-                .getString(DevSettings.DEV_RECORDING_TYPE, "compressed"));
-    }
 
     public void onNewStartPosition(double newPos, long moveTime) {
         if (mPlaybackStream != null) {
@@ -694,7 +689,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 mAudioRecord.stop();
                 mAudioManager.abandonMusicFocus(false);
 
-                if (mRecordStream != null && mRecording != null) {
+                if (mRecording != null) {
                     if (mState != SoundRecorder.State.ERROR) {
                         try {
                             mRecordStream.finalizeStream(mRecording.getAmplitudeFile());
@@ -729,5 +724,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
             filter.addAction(action);
         }
         return filter;
+    }
+
+    private boolean shouldEncode() {
+        return "compressed".equals(PreferenceManager.getDefaultSharedPreferences(mContext)
+                .getString(DevSettings.DEV_RECORDING_TYPE, "compressed"));
     }
 }
