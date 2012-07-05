@@ -396,7 +396,7 @@ public class Main extends TabActivity implements
         SEARCH("search", ScSearch.class, R.string.tab_search, R.drawable.ic_tab_search),
         UNKNOWN("unknown", null, -1, -1);
 
-        final String tag;
+        public final String tag;
         final int labelId, drawableId;
         final Class<? extends android.app.Activity> activityClass;
 
