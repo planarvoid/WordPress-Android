@@ -100,11 +100,13 @@ public class UserlistRow extends LazyRow {
     public void display(int position, Parcelable p) {
         mUser = ((IUserlistAdapter) mAdapter).getUserAt(position);
         super.display(position);
-        mUsername.setText(mUser.username);
-        setFollowingStatus(true);
-        setTrackCount();
-        setFollowerCount();
-        mVrStats.setVisibility((mUser.track_count <= 0 || mUser.followers_count <= 0) ? View.GONE : View.VISIBLE);
+        if (mUser != null) {
+            mUsername.setText(mUser.username);
+            setFollowingStatus(true);
+            setTrackCount();
+            setFollowerCount();
+            mVrStats.setVisibility((mUser.track_count <= 0 || mUser.followers_count <= 0) ? View.GONE : View.VISIBLE);
+        }
     }
 
     private void setFollowingStatus(boolean enabled) {

@@ -1,23 +1,20 @@
 package com.soundcloud.android.task;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
-import android.content.ContentResolver;
 import android.net.Uri;
-import android.os.Parcelable;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
+public class ResolveTask extends AsyncApiTask<Uri, Void, Uri>  {
     private WeakReference<ResolveListener> mListener;
 
     public ResolveTask(AndroidCloudAPI api) {
@@ -25,10 +22,27 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
     }
 
     @Override
-    protected HttpResponse doInBackground(Uri... params) {
+    protected Uri doInBackground(Uri... params) {
         final Uri uri = params[0];
+        Uri local = resolveSoundCloudURI(uri, mApi.getEnv());
+        if (local != null) {
+            return local;
+        }
+
         try {
-            return mApi.get(Request.to(Endpoints.RESOLVE).add("url",uri.toString()));
+            HttpResponse resp = mApi.get(Request.to(Endpoints.RESOLVE).add("url",uri.toString()));
+
+            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+                final Header location = resp.getFirstHeader("Location");
+                if (location != null && location.getValue() != null) {
+                    return Uri.parse(location.getValue());
+                } else {
+                    return null;
+                }
+            } else {
+                warn("unexpected status code: "+resp.getStatusLine());
+                return null;
+            }
         } catch (IOException e) {
             warn("error resolving url", e);
             return null;
@@ -40,23 +54,25 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
     }
 
     @Override
-    protected void onPostExecute(HttpResponse response) {
-        ResolveListener listener = mListener != null ? mListener.get() : null;
-        if (listener == null) return;
-        if (response != null) {
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-                final Header location = response.getFirstHeader("Location");
-                if (location != null && location.getValue() != null) {
-                    listener.onUrlResolved(Uri.parse(location.getValue()), null);
-                } else {
-                    listener.onUrlError();
-                }
-            } else {
-                warn("unexpected status code: "+response.getStatusLine());
-                listener.onUrlError();
-            }
+    protected void onPostExecute(Uri uri) {
+        if (uri != null) {
+            onUrlResolved(uri, null);
         } else {
+            onUrlError();
+        }
+    }
+
+    protected void onUrlError() {
+        ResolveListener listener = mListener != null ? mListener.get() : null;
+        if (listener != null) {
             listener.onUrlError();
+        }
+    }
+
+    protected void onUrlResolved(Uri url, @Nullable String action) {
+        ResolveListener listener = mListener != null ? mListener.get() : null;
+        if (listener != null) {
+            listener.onUrlResolved(url, action);
         }
     }
 
@@ -99,27 +115,5 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, HttpResponse>  {
         }
     }
 
-    public static ScModel resolveLocally(ContentResolver resolver, Uri uri) {
-        if (uri != null && "soundcloud".equalsIgnoreCase(uri.getScheme())) {
-            final String specific = uri.getSchemeSpecificPart();
-            final String[] components = specific.split(":", 2);
-            if (components != null && components.length == 2) {
-                final String type = components[0];
-                final String id = components[1];
 
-                if (type != null && id != null) {
-                    try {
-                        long _id = Long.parseLong(id);
-                        if ("tracks".equalsIgnoreCase(type)) {
-                            return SoundCloudDB.getTrackById(resolver, _id);
-                        } else if ("users".equalsIgnoreCase(type)) {
-                            return SoundCloudDB.getUserById(resolver, _id);
-                        }
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
-            }
-        }
-        return null;
-    }
 }

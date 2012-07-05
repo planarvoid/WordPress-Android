@@ -229,4 +229,16 @@ public class SoundCloudDB {
         if (c != null) c.close();
         return ids;
     }
+
+    public static Uri addPagingParams(Uri uri, int offset, int limit) {
+        if (uri == null) return null;
+
+        Uri.Builder b = uri.buildUpon();
+        if (offset > 0) {
+            b.appendQueryParameter("offset", String.valueOf(offset));
+        }
+        b.appendQueryParameter("limit", String.valueOf(limit));
+        return b.build();
+
+    }
 }

@@ -1,6 +1,7 @@
 package com.soundcloud.android.service.sync;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.service.sync.CollectionSyncRequestTest.NON_INTERACTIVE;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
@@ -385,8 +386,8 @@ public class SyncAdapterServiceTest {
 
     @Test
     public void shouldShowNewFetchedFollower() throws Exception {
-        TestHelper.addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addResourceResponse("/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+        TestHelper.addIdResponse("/me/followers/ids?linked_partitioning=1"+NON_INTERACTIVE, 792584, 1255758, 308291);
+        addResourceResponse("/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE+NON_INTERACTIVE, "users.json");
 
         addHttpResponseRule("GET", "/users/12345",
                 new TestHttpResponse(200, readInputStream(getClass().getResourceAsStream("user.json"))));
@@ -416,8 +417,8 @@ public class SyncAdapterServiceTest {
     public void shouldSyncLocalCollections() throws Exception {
         SyncContent.MySounds.setEnabled(Robolectric.application, true);
 
-        TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+        TestHelper.addIdResponse("/me/tracks/ids?linked_partitioning=1"+NON_INTERACTIVE, 1, 2, 3);
+        TestHelper.addCannedResponse(getClass(), "/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3"+NON_INTERACTIVE, "tracks.json");
 
         addCannedActivities(
                 "empty_events.json",

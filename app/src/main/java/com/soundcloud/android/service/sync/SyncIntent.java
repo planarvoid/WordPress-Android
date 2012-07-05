@@ -46,7 +46,7 @@ import java.util.Set;
             syncUris.add(intent.getData());
         }
         for (Uri uri : syncUris) {
-            collectionSyncRequests.add(new CollectionSyncRequest(context, uri, action));
+            collectionSyncRequests.add(new CollectionSyncRequest(context, uri, action, isUIRequest));
         }
         requestsRemaining = new HashSet<CollectionSyncRequest>(collectionSyncRequests);
     }

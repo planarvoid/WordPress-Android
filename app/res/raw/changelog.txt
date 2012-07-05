@@ -1,5 +1,14 @@
 $ 45
   % v current
+  _ 2012-07-05
+  ! Maintentance
+    * Fixed premature end of collection bug
+    * Xhdpi list icon sizes
+    - non-interactive request tagging
+    - signup spam prevention
+
+$ 44
+  % v 2.2.9
   _ 2012-05-25
   ! Maintentance
     * Streaming & battery usage fixes

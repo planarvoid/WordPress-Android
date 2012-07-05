@@ -200,12 +200,14 @@ public abstract class SectionedAdapter extends LazyBaseAdapter implements Sectio
 
 
     protected void bindSectionHeader(View view, int position, boolean displaySectionHeader) {
-        if (displaySectionHeader) {
-            view.findViewById(R.id.listHeader).setVisibility(View.VISIBLE);
-            TextView lSectionTitle = (TextView) view.findViewById(R.id.listHeader);
-            getSections()[getSectionForPosition(position)].applyLabel(lSectionTitle);
-        } else {
-            view.findViewById(R.id.listHeader).setVisibility(View.GONE);
+        if (view != null && view.findViewById(R.id.listHeader) != null) {
+            if (displaySectionHeader) {
+                view.findViewById(R.id.listHeader).setVisibility(View.VISIBLE);
+                TextView lSectionTitle = (TextView) view.findViewById(R.id.listHeader);
+                getSections()[getSectionForPosition(position)].applyLabel(lSectionTitle);
+            } else {
+                view.findViewById(R.id.listHeader).setVisibility(View.GONE);
+            }
         }
     }
 
