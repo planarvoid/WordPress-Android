@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -110,7 +111,7 @@ public class AmplitudeDataTest {
         AmplitudeData d = new AmplitudeData(2);
         d.add(0, 1, 2, 3, 4);
         expect(d.size()).toEqual(5);
-        d.truncate(3);
+        d.truncate(2);
 
         expect(d.size()).toEqual(2);
         expect(Arrays.equals(d.get(), new float[] { 0, 1 } )).toBeTrue();
@@ -118,10 +119,11 @@ public class AmplitudeDataTest {
         expect(Arrays.equals(d.get(), new float[] { 0, 1, 2, 3  } )).toBeTrue();
 
         d.truncate(1);
-        expect(Arrays.equals(d.get(), new float[] { 1, 2  } )).toBeTrue();
+        expect(Arrays.equals(d.get(), new float[] { 0 } )).toBeTrue();
     }
 
     @Test
+    @Ignore
     public void shouldParcelAndUnparcelAmplitudeData() throws Exception {
         data.add(1, 2, 3, 4, 5);
         Parcel parcel = Parcel.obtain();
