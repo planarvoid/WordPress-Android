@@ -114,11 +114,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         mCloudApi = Wrapper.create(this, account == null ? null : getToken(account));
         mCloudApi.setTokenListener(this);
-        mCloudApi.debugRequests = DEV_MODE;
-
-        if (Log.isLoggable(TAG, Log.DEBUG))  {
-            Log.d(TAG, String.format("DEV_MODE: %s BETA_MODE: %s Env: %s", DEV_MODE, BETA_MODE, getEnv()));
-        }
 
         if (account != null) {
             FollowStatus.initialize(this, getCurrentUserId());

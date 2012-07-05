@@ -38,13 +38,13 @@ public class SoundRecorderTest {
 
     @Test(expected = IOException.class)
     public void shouldThrowIOExceptionIfNoSpaceLeft() throws Exception {
-        TestHelper.setSDCardMounted();
+        TestHelper.enableSDCard();
         recorder.startRecording(null);
     }
 
     @Test
     public void shouldStartRecording() throws Exception {
-        TestHelper.setSDCardMounted();
+        TestHelper.enableSDCard();
         ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 100, 10, 10);
         Recording r = recorder.startRecording(null);
         expect(r).not.toBeNull();
@@ -54,7 +54,7 @@ public class SoundRecorderTest {
 
     @Test
     public void shouldSaveState() throws Exception {
-        TestHelper.setSDCardMounted();
+        TestHelper.enableSDCard();
         ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 100, 10, 10);
         Recording r = recorder.startRecording(null);
         expect(r).not.toBeNull();
@@ -66,7 +66,7 @@ public class SoundRecorderTest {
 
     @Test
     public void shouldSaveCurrentPlaybackSettings() throws Exception {
-        TestHelper.setSDCardMounted();
+        TestHelper.enableSDCard();
         ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 100, 10, 10);
         Recording r = recorder.startRecording(null);
         expect(r).not.toBeNull();

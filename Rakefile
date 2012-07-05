@@ -27,6 +27,7 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                VorbisDecoderNative
                SoundRecorder
                WavWriter
+               AndroidCloudAPI
               )
 
 [:device, :emu].each do |t|

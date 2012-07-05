@@ -225,22 +225,27 @@ public enum Content {
     }
 
 
+
     public List<Long> getLocalIds(ContentResolver resolver, long userId) {
+        return getLocalIds(resolver, userId, -1, -1);
+    }
+
+    public List<Long> getLocalIds(ContentResolver resolver, long userId, int startIndex, int limit) {
         return SoundCloudDB.idCursorToList(resolver.query(
-                Content.COLLECTION_ITEMS.uri,
+                SoundCloudDB.addPagingParams(Content.COLLECTION_ITEMS.uri, startIndex, limit),
                 new String[]{DBHelper.CollectionItems.ITEM_ID},
                 DBHelper.CollectionItems.COLLECTION_TYPE + " = ? AND " + DBHelper.CollectionItems.USER_ID + " = ?",
                 new String[]{String.valueOf(collectionType), String.valueOf(userId)},
                 DBHelper.CollectionItems.SORT_ORDER));
     }
 
-    public List<Long> getStoredIds(ContentResolver resolver, Uri localUri) {
-        return SoundCloudDB.idCursorToList(resolver.query(
-                localUri,
-                new String[]{DBHelper.CollectionItems.ITEM_ID},
-                DBHelper.CollectionItems.COLLECTION_TYPE + " = ?",
-                new String[]{String.valueOf(collectionType)},
-                DBHelper.CollectionItems.SORT_ORDER));
+    public boolean isStale(long lastSync) {
+        // do not auto refresh users when the list opens, because users are always changing
+        if (resourceType == User.class) return lastSync <= 0;
+        final long staleTime = (resourceType == Track.class) ? SyncConfig.TRACK_STALE_TIME :
+                (resourceType == Activity.class) ? SyncConfig.ACTIVITY_STALE_TIME :
+                        SyncConfig.DEFAULT_STALE_TIME;
 
+        return System.currentTimeMillis() - lastSync > staleTime;
     }
 }

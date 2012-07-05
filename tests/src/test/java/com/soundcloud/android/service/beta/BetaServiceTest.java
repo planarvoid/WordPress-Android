@@ -29,8 +29,7 @@ public class BetaServiceTest {
     BetaService bs;
     @Before
     public void before() {
-        TestHelper.setSDCardMounted();
-
+        TestHelper.enableSDCard();
         ConnectivityManager cm = (ConnectivityManager)
                 Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
 

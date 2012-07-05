@@ -1,8 +1,6 @@
 package com.soundcloud.android.task;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.SoundCloudApplication.TRACK_CACHE;
-import static com.soundcloud.android.SoundCloudApplication.USER_CACHE;
+import static com.soundcloud.android.SoundCloudApplication.*;
 import static com.soundcloud.android.model.LocalCollection.insertLocalCollection;
 import static com.soundcloud.android.service.sync.ApiSyncer.getAdditionsFromIds;
 
@@ -22,7 +20,6 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
-import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -66,12 +63,6 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
                     ", maxToLoad=" + maxToLoad +
                     '}';
         }
-
-        public Uri getLocalUri() {
-            return contentUri == null ? null :
-                    contentUri.buildUpon().appendQueryParameter("offset", String.valueOf(startIndex))
-                            .appendQueryParameter("limit", String.valueOf(maxToLoad)).build();
-        }
     }
 
     public RemoteCollectionTask(SoundCloudApplication app, LazyEndlessAdapter lazyEndlessAdapter) {
@@ -110,7 +101,7 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
 
         } else if (mParams.contentUri != null) {
 
-            LocalData localData = new LocalData(mApp.getContentResolver(), mParams);
+            LocalData localData = new LocalData(mApp, mParams);
             keepGoing = localData.idList.size() == mParams.maxToLoad;
             try {
                 insertMissingItems(localData.idList);
@@ -172,14 +163,14 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
         LocalCollectionPage localCollectionPage;
         List<Long> idList;
 
-        public LocalData(ContentResolver contentResolver, CollectionParams mParams) {
+        public LocalData(SoundCloudApplication app, CollectionParams mParams) {
             localCollectionPage = null;
-            localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(mParams.contentUri, contentResolver, false);
+            localCollection = com.soundcloud.android.model.LocalCollection.fromContentUri(mParams.contentUri, app.getContentResolver(), false);
             if (localCollection == null) {
-                localCollection = insertLocalCollection(mParams.contentUri, contentResolver);
+                localCollection = insertLocalCollection(mParams.contentUri, app.getContentResolver());
                  idList = new ArrayList<Long>();
             } else {
-                idList = Content.match(mParams.contentUri).getStoredIds(contentResolver, mParams.getLocalUri());
+                idList = Content.match(mParams.contentUri).getLocalIds(app.getContentResolver(), SoundCloudApplication.getUserId(), mParams.startIndex, mParams.maxToLoad);
             }
         }
 
@@ -194,20 +185,23 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
     }
 
     protected List<? extends Parcelable> loadLocalContent(){
-        Cursor itemsCursor = mApp.getContentResolver().query(mParams.getLocalUri(), null, null, null, null);
-            List<Parcelable> items = new ArrayList<Parcelable>();
-            if (itemsCursor != null && itemsCursor.moveToFirst()) {
-                do {
-                    if (Track.class.equals(mParams.loadModel)) {
-                        final Parcelable t = TRACK_CACHE.fromCursor(itemsCursor);
-                        items.add(t);
-                    } else if (User.class.equals(mParams.loadModel)) {
-                        items.add(USER_CACHE.fromCursor(itemsCursor));
-                    } else if (Friend.class.equals(mParams.loadModel)) {
-                        items.add(USER_CACHE.fromCursor(itemsCursor));
-                    }
-                } while (itemsCursor.moveToNext());
-            }
+        Cursor itemsCursor = mApp.getContentResolver().query(
+                SoundCloudDB.addPagingParams(mParams.contentUri, mParams.startIndex, mParams.maxToLoad),
+                null, null, null, null);
+
+        List<Parcelable> items = new ArrayList<Parcelable>();
+        if (itemsCursor != null && itemsCursor.moveToFirst()) {
+            do {
+                if (Track.class.equals(mParams.loadModel)) {
+                    final Parcelable t = TRACK_CACHE.fromCursor(itemsCursor);
+                    items.add(t);
+                } else if (User.class.equals(mParams.loadModel)) {
+                    items.add(USER_CACHE.fromCursor(itemsCursor));
+                } else if (Friend.class.equals(mParams.loadModel)) {
+                    items.add(USER_CACHE.fromCursor(itemsCursor));
+                }
+            } while (itemsCursor.moveToNext());
+        }
         if (itemsCursor != null) itemsCursor.close();
         return items;
     }

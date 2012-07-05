@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -260,19 +259,11 @@ public class ApiSyncer {
 
     private Result syncMe(Content c) throws IOException {
         Result result = new Result(c.uri);
-        try {
-            User user = new FetchUserTask(mApi, SoundCloudApplication.getUserIdFromContext(mContext))
-                    .execute(c.request())
-                    .get();
+        User user = new FetchUserTask(mApi, SoundCloudApplication.getUserIdFromContext(mContext))
+                .doInBackground(c.request());
 
-            result.change = Result.CHANGED;
-            result.success = user != null;
-        } catch (InterruptedException ignored) {
-        } catch (ExecutionException ignored) {
-            if (ignored.getCause() instanceof IOException) {
-                throw (IOException)ignored.getCause();
-            }
-        }
+        result.change = Result.CHANGED;
+        result.success = user != null;
         return result;
     }
 

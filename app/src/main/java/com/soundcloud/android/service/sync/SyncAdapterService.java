@@ -1,5 +1,6 @@
 package com.soundcloud.android.service.sync;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.c2dm.PushEvent;
@@ -61,6 +62,8 @@ public class SyncAdapterService extends Service {
             public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
                 if (DEBUG_CANCEL) DebugUtils.setLogLevels();
 
+                AndroidCloudAPI.Wrapper.setBackgroundMode(true);
+
                 Looper.prepare();
                 looper = Looper.myLooper();
                 if (performSync((SoundCloudApplication) getApplication(), account, extras, syncResult, new Runnable() {
@@ -70,6 +73,7 @@ public class SyncAdapterService extends Service {
                 })) {
                     Looper.loop(); // wait for results to come in
                 }
+                AndroidCloudAPI.Wrapper.setBackgroundMode(false);
             }
 
             @Override
@@ -185,7 +189,6 @@ public class SyncAdapterService extends Service {
                 if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_USER_SYNC, SyncConfig.CLEANUP_DELAY) || manual) {
                     urisToSync.add(Content.ME.uri);
                 }
-
 
                 if (!urisToSync.isEmpty()) {
                     syncIntent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
