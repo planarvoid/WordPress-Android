@@ -3,9 +3,11 @@ package com.soundcloud.android.record;
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.AudioWriter;
+import com.soundcloud.android.audio.writer.EmptyWriter;
 import com.soundcloud.android.audio.writer.MultiAudioWriter;
 import com.soundcloud.android.audio.writer.VorbisWriter;
 import com.soundcloud.android.audio.writer.WavWriter;
+import org.jetbrains.annotations.NotNull;
 
 import android.util.Log;
 
@@ -14,14 +16,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class RecordStream implements AudioWriter {
-
-    private AudioConfig mConfig;
-    private AudioWriter delegate;
-
-    private AmplitudeData mAmplitudeData;
-    private AmplitudeData mPreRecordAmplitudeData;
-
-    private final AmplitudeAnalyzer mAmplitudeAnalyzer;
+    private @NotNull final AudioConfig mConfig;
+    private @NotNull AudioWriter writer;
+    private @NotNull AmplitudeData mAmplitudeData;
+    private @NotNull final AmplitudeData mPreRecordAmplitudeData;
+    private @NotNull final AmplitudeAnalyzer mAmplitudeAnalyzer;
 
     private float mLastAmplitude;
 
@@ -36,6 +35,7 @@ public class RecordStream implements AudioWriter {
 
         mAmplitudeData = new AmplitudeData();
         mPreRecordAmplitudeData = new AmplitudeData();
+        writer = new EmptyWriter(cfg);
     }
 
     /**
@@ -56,64 +56,69 @@ public class RecordStream implements AudioWriter {
         }
     }
 
+    public void setWriter(@NotNull AudioWriter writer) {
+        this.writer = writer;
+    }
 
     public void setWriters(File raw, File encoded) {
-        if (encoded != null && raw == null) delegate = new VorbisWriter(encoded, mConfig);
-        if (raw != null && encoded == null) delegate = new WavWriter(raw, mConfig);
-        else delegate = new MultiAudioWriter(new VorbisWriter(encoded, mConfig), new WavWriter(raw, mConfig));
+        AudioWriter w;
+        if (encoded != null && raw == null)      w = new VorbisWriter(encoded, mConfig);
+        else if (raw != null && encoded == null) w = new WavWriter(raw, mConfig);
+        else w = new MultiAudioWriter(new VorbisWriter(encoded, mConfig), new WavWriter(raw, mConfig));
+        setWriter(w);
     }
 
     @Override
     public AudioConfig getConfig() {
-        return delegate.getConfig();
+        return writer.getConfig();
     }
 
     @Override
     public int write(ByteBuffer samples, int length) throws IOException {
-
         mAmplitudeAnalyzer.updateCurrentMax(samples, length);
+        samples.rewind();
         mLastAmplitude = mAmplitudeAnalyzer.frameAmplitude();
 
-        if (delegate == null){
+        if (writer instanceof EmptyWriter) {
             mPreRecordAmplitudeData.add(mLastAmplitude);
-            return 0;
+            return -1;
         } else {
             mAmplitudeData.add(mLastAmplitude);
-            return delegate.write(samples, length);
+            return writer.write(samples, length);
         }
     }
 
     @Override
     public void finalizeStream() throws IOException {
-        if (delegate != null) delegate.finalizeStream();
+        writer.finalizeStream();
     }
 
     @Override
     public boolean setNewPosition(long pos) throws IOException {
-        return delegate == null ? false : delegate.setNewPosition(pos);
+        return writer.setNewPosition(pos);
     }
 
     @Override
     public boolean isClosed() {
-        return delegate == null ? true : delegate.isClosed();
+        return writer.isClosed();
     }
 
     @Override
     public long getDuration() {
-        return delegate == null ? -1 : delegate.getDuration();
+        return writer.getDuration();
     }
 
     @Override
     public AudioReader getAudioFile() throws IOException {
-        return delegate == null ? null : delegate.getAudioFile();
+        return writer.getAudioFile();
     }
 
     @Override
     public void close() throws IOException {
-        if (delegate != null) delegate.close();
+        writer.close();
     }
 
-    public AmplitudeData getmAmplitudeData() {
+    public AmplitudeData getAmplitudeData() {
         return mAmplitudeData;
     }
 
@@ -131,8 +136,18 @@ public class RecordStream implements AudioWriter {
         mAmplitudeData.store(amplitudeFile);
     }
 
-
     public float getLastAmplitude() {
         return mLastAmplitude;
+    }
+
+    public void reset() {
+        try {
+            close();
+        } catch (IOException ignored) {
+        }
+        writer = new EmptyWriter(mConfig);
+        mAmplitudeData.clear();
+        mPreRecordAmplitudeData.clear();
+        mLastAmplitude = 0f;
     }
 }

@@ -173,12 +173,11 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
     }
 
     public void truncate(int size) {
-        int newSize = size;
-        if (newSize > 0) {
-            float[] newData = new float[newSize];
-            System.arraycopy(data, 0, newData, 0, newSize);
+        if (size > 0) {
+            float[] newData = new float[size];
+            System.arraycopy(data, 0, newData, 0, size);
             data = newData;
-            pos = newSize;
+            pos = size;
         }
     }
 

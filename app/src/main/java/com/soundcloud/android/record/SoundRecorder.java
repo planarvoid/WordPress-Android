@@ -160,6 +160,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
 
         mAudioManager = AudioManagerFactory.createAudioManager(context);
+        mRecordStream = new RecordStream(mConfig);
         reset();
     }
 
@@ -177,12 +178,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
             mRecording = null;
         }
 
-        try {
-            mRecordStream.close();
-        } catch (IOException ignored) {
-        }
-
-        mRecordStream = new RecordStream(mConfig);
+        mRecordStream.reset();
 
         if (mPlaybackStream != null) {
             mPlaybackStream.close();
@@ -669,7 +665,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                     } else {
                             try {
                                 final int written = mRecordStream.write(buffer, read);
-                                if (written < read) {
+                                if (written >= 0 && written < read) {
                                     Log.w(TAG, "partial write "+written);
                                 }
                             } catch (IOException e) {

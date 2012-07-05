@@ -29,9 +29,11 @@ public class MultiAudioWriter implements AudioWriter {
 
     @Override
     public int write(ByteBuffer samples, int length) throws IOException {
+        samples.mark();
         int[] written = new int[writers.length];
         for (int i = 0; i < writers.length; i++) {
             written[i] = writers[i].write(samples, length);
+            samples.reset();
         }
         return written[0];
     }

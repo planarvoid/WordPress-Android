@@ -349,7 +349,7 @@ public class CreateWaveView extends View {
             MergedAmplitudeData(RecordStream recordStream, float trimRight, float trimLeft){
 
                 mPreRecData = recordStream.getPreRecordAmplitudeData();
-                mRecData = recordStream.getmAmplitudeData();
+                mRecData = recordStream.getAmplitudeData();
 
                 preRecSize = mPreRecData == null ? 0 : mPreRecData.size();
                 writtenSize = mRecData == null ? 0 : mRecData.size();
