@@ -14,6 +14,7 @@ import com.soundcloud.android.view.PlayerTrackView;
 import com.soundcloud.android.view.TransportBar;
 import com.soundcloud.android.view.WaveformController;
 import com.soundcloud.android.view.WorkspaceView;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -86,7 +87,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
     public void toggleCommentMode(int playPos) {
         mIsCommenting = !mIsCommenting;
 
-        PlayerTrackView ptv = getTrackView(playPos);
+        final PlayerTrackView ptv = getTrackView(playPos);
         if (ptv != null) {
             ptv.setCommentMode(mIsCommenting);
         }
@@ -279,7 +280,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 mPlayingTrack.full_track_info_loaded = false;
                 mPlayingTrack.comments = null;
                 final PlayerTrackView ptv = getCurrentTrackView();
-                if (ptv != null) getCurrentTrackView().onRefresh();
+                if (ptv != null) ptv.onRefresh();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -347,7 +348,11 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
 
     private final View.OnClickListener mCommentListener = new View.OnClickListener() {
         public void onClick(View v) {
-            toggleCommentMode(getCurrentTrackView().getPlayPosition());
+            final PlayerTrackView playerTrackView = getCurrentTrackView();
+            if (playerTrackView != null) {
+                toggleCommentMode(playerTrackView.getPlayPosition());
+            }
+
         }
     };
 
@@ -612,7 +617,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             // setup initial workspace, reusing them if possible
             int workspaceIndex = 0;
             for (int pos = Math.max(0, mCurrentQueuePosition - 1); pos < Math.min(mCurrentQueuePosition + 2, queueLength); pos++) {
-                PlayerTrackView ptv;
+                final PlayerTrackView ptv;
                 if (mTrackWorkspace.getScreenCount() > workspaceIndex) {
                     ptv = ((PlayerTrackView) mTrackWorkspace.getScreenAt(workspaceIndex));
                 } else {
@@ -630,8 +635,8 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 }
             }
 
-            if (queueLength < mTrackWorkspace.getScreenCount()){
-                while (queueLength < mTrackWorkspace.getScreenCount()){
+            if (queueLength < mTrackWorkspace.getScreenCount()) {
+                while (queueLength < mTrackWorkspace.getScreenCount()) {
                     ((PlayerTrackView) mTrackWorkspace.getLastScreen()).destroy();
                     mTrackWorkspace.removeViewFromBack();
                 }
@@ -640,22 +645,24 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
             mTrackWorkspace.resetScroll();
 
             final int workspacePos = mCurrentQueuePosition > 0 ? 1 : 0;
-            if (!mTrackWorkspace.isInitialized()){
+            if (!mTrackWorkspace.isInitialized()) {
                 mTrackWorkspace.setVisibility(View.VISIBLE);
                 mTrackWorkspace.setSeparator(R.drawable.track_view_seperator);
                 mTrackWorkspace.initWorkspace(workspacePos);
-            } else if (workspacePos != mTrackWorkspace.getCurrentScreen()){
+            } else if (workspacePos != mTrackWorkspace.getCurrentScreen()) {
                 mTrackWorkspace.setCurrentScreenNow(mCurrentQueuePosition > 0 ? 1 : 0, false);
             }
 
-            if (mPlaybackService.isBuffering() && getCurrentTrackView() != null){
-                getCurrentTrackView().onBuffering();
+            PlayerTrackView currentTrackView = getCurrentTrackView();
+            if (mPlaybackService.isBuffering() && currentTrackView != null) {
+                currentTrackView.onBuffering();
             }
 
             if (mIsCommenting) toggleCommentMode(0);
             mTransportBar.setNavEnabled(queueLength > 1);
 
-        } catch (RemoteException ignored) {}
+        } catch (RemoteException ignored) {
+        }
 
 
     }
@@ -664,7 +671,7 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
         if (mPlayingTrack != null) mTransportBar.setFavoriteStatus(mPlayingTrack.user_favorite);
     }
 
-    private PlayerTrackView getCurrentTrackView() {
+    private @Nullable PlayerTrackView getCurrentTrackView() {
         return ((PlayerTrackView) mTrackWorkspace.getScreenAt(mTrackWorkspace.getCurrentScreen()));
     }
 
