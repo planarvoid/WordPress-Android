@@ -6,11 +6,14 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_R
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.service.upload.UploadService;
 
 import android.content.Intent;
 import android.test.suitebuilder.annotation.Suppress;
 import android.widget.EditText;
+
+import java.io.File;
 
 public class NormalRecordingTest extends RecordingTestCase {
 
@@ -19,6 +22,20 @@ public class NormalRecordingTest extends RecordingTestCase {
         playback();
         solo.sleep(RECORDING_TIME + 500);
         assertState(IDLE_PLAYBACK);
+    }
+
+    public void testRecordMakeSureFilesGetWritten() throws Exception {
+        record(RECORDING_TIME);
+        Recording r = getActivity().getRecorder().getRecording();
+
+        File raw = r.getFile();
+        File encoded = r.getEncodedFile();
+
+        assertTrue(raw.exists());
+        assertTrue(encoded.exists());
+
+        assertTrue(raw.length() > 100000);
+        assertTrue(encoded.length() > 20000);
     }
 
     public void testRecordAndEditRevert() throws Exception {
@@ -192,6 +209,10 @@ public class NormalRecordingTest extends RecordingTestCase {
 
 
         solo.clickOnText(name);
+
+        solo.sleep(300);
+
+        solo.assertActivity(ScCreate.class);
 
         record(RECORDING_TIME);
 

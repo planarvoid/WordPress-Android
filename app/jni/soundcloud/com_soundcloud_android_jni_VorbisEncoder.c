@@ -36,7 +36,7 @@ typedef struct {
 static jfieldID encoder_state_field;
 
 static void init_stream(encoder_state *);
-static void write_to_stream(encoder_state *, int length);
+static int write_to_stream(encoder_state *, int length);
 static void close_stream(encoder_state *);
 static struct timespec diff(struct timespec, struct timespec);
 static void write_og(encoder_state *state);
@@ -135,8 +135,9 @@ jint Java_com_soundcloud_android_jni_VorbisEncoder_write(JNIEnv* env, jobject ob
                 (bbuf_in[i*bytesPerSample+(j*2)+1]<<8 | (0x00ff & (int)bbuf_in[i*bytesPerSample+j*2]))/ 32768.f;
         }
     }
-    write_to_stream(state, i);
-    return 0;
+
+    int ret = write_to_stream(state, i);
+    return ret < 0 ? ret : length;
 }
 
 jint Java_com_soundcloud_android_jni_VorbisEncoder_pause(JNIEnv *env, jobject obj) {
@@ -293,10 +294,14 @@ static void close_stream(encoder_state *state) {
     vorbis_dsp_clear(&state->vd);
 }
 
-static void write_to_stream(encoder_state *state, int length) {
-    LOG_D("write_to_stream (%d)", length);
+static int write_to_stream(encoder_state *state, int length) {
+    int ret = vorbis_analysis_wrote(&state->vd, length);
+    if (ret != 0) {
+        LOG_W("vorbis_analysis_wrote returned: %d", ret);
+        return ret;
+    }
 
-    vorbis_analysis_wrote(&state->vd, length);
+    LOG_D("write_to_stream (%d)", length);
     while (vorbis_analysis_blockout(&state->vd, &state->vb) == 1) {
         /* analysis, assume we want to use bitrate management */
         vorbis_analysis(&state->vb, NULL);
@@ -316,6 +321,7 @@ static void write_to_stream(encoder_state *state, int length) {
             }
         }
     }
+    return 0;
 }
 
 /* produces diff between to timestamps */

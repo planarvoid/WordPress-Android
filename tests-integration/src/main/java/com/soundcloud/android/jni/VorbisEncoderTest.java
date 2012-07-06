@@ -12,6 +12,7 @@ import android.test.suitebuilder.annotation.Suppress;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 @LargeTest
 public class VorbisEncoderTest extends AudioTestCase {
@@ -146,6 +147,16 @@ public class VorbisEncoderTest extends AudioTestCase {
         checkAudioFile(out, expectedDuration);
     }
 
+
+    public void testWrite() throws Exception {
+        File out = externalPath("testWrite.ogg");
+        VorbisEncoder enc = new VorbisEncoder(out, "w", 1l, 44100l, 0.5f);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+        int ret = enc.write(buffer, 300);
+        assertEquals(300, ret);
+        enc.pause();
+        enc.release();
+    }
 
     private VorbisEncoder createEncoder(File path, AudioConfig config) throws EncoderException {
         return new VorbisEncoder(path, "w", config.channels, config.sampleRate, config.quality);
