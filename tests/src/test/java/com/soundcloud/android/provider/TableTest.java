@@ -91,15 +91,15 @@ public class TableTest {
     public void shouldAlterColumnsWithoutRenamingColumn() throws Exception {
         SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
 
-        String oldSchema = "CREATE TABLE foo("+
+        String oldSchema = Table.buildCreateString("foo", "(" +
                 "_id INTEGER PRIMARY KEY," +
                 "keep_me VARCHAR(255)," +
-                "drop_me INTEGER);";
+                "drop_me INTEGER);", false);
 
-        String newSchema = "CREATE TABLE foo("+
+        String newSchema = Table.buildCreateString("foo", "(" +
                 "_id INTEGER PRIMARY KEY," +
                 "keep_me VARCHAR(255), " +
-                "new_column INTEGER);";
+                "new_column INTEGER);", false);
 
         db.execSQL(oldSchema);
 
@@ -128,15 +128,15 @@ public class TableTest {
     public void shouldAlterColumnsWithRenamingColumn() throws Exception {
         SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
 
-        String oldSchema = "CREATE TABLE foo(_id INTEGER PRIMARY KEY," +
-                " keep_me VARCHAR(255)," +
-                " drop_me INTEGER," +
-                " rename_me INTEGER); ";
+        String oldSchema =Table.buildCreateString("foo","(_id INTEGER PRIMARY KEY," +
+                        " keep_me VARCHAR(255)," +
+                        " drop_me INTEGER," +
+                        " rename_me INTEGER);",false);
 
-        String newSchema = "CREATE TABLE foo(_id INTEGER PRIMARY KEY," +
-                " keep_me VARCHAR(255)," +
-                " new_column INTEGER," +
-                " renamed INTEGER); ";
+        String newSchema =Table.buildCreateString("foo","(_id INTEGER PRIMARY KEY," +
+                        " keep_me VARCHAR(255)," +
+                        " new_column INTEGER," +
+                        " renamed INTEGER); ",false);
 
         db.execSQL(oldSchema);
 
