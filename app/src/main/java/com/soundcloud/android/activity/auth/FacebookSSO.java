@@ -1,18 +1,25 @@
 package com.soundcloud.android.activity.auth;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.api.CloudAPI;
+import org.jetbrains.annotations.NotNull;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.Signature;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -21,8 +28,14 @@ import android.util.Log;
  * <a href="https://github.com/facebook/facebook-android-sdk/">Facebook Android SDK </a>
  */
 public class FacebookSSO extends AbstractLoginActivity {
-    static final String FB_PERMISSION_EXTRA = "scope";
-    static final String FB_CLIENT_ID_EXTRA = "client_id";
+    private static final String TAG = FacebookSSO.class.getSimpleName();
+
+    /* package */ static final String FB_PERMISSION_EXTRA = "scope";
+    private static final String FB_CLIENT_ID_EXTRA = "client_id";
+    private static final String TOKEN = "access_token";
+    private static final String EXPIRES = "expires_in";
+    private static final String SINGLE_SIGN_ON_DISABLED = "service_disabled";
+
 
     // permissions used by SoundCloud (also backend) - email is required for successful signup
     private static final String[] DEFAULT_PERMISSIONS = {
@@ -34,6 +47,9 @@ public class FacebookSSO extends AbstractLoginActivity {
 
     // intents coming from the Facebook app start with this string (action)
     private static final String COM_FACEBOOK_APPLICATION = "com.facebook.application.";
+    public static final String ACCESS_DENIED = "access_denied";
+    public static final String ACCESS_DENIED_EXCEPTION = "OAuthAccessDeniedException";
+
 
     @Override
     protected void build() {
@@ -57,8 +73,14 @@ public class FacebookSSO extends AbstractLoginActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             try {
-                final String token = getTokenFromIntent(data);
-                loginExtensionGrantype(CloudAPI.FACEBOOK_GRANT_TYPE+token);
+                final Token token = getTokenFromIntent(data);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "got token: "+token);
+                }
+
+                token.store(this);
+
+                loginExtensionGrantype(CloudAPI.FACEBOOK_GRANT_TYPE+token.accessToken);
             } catch (SSOException e) {
                 Log.w(TAG, "error getting Facebook token", e);
 
@@ -74,7 +96,7 @@ public class FacebookSSO extends AbstractLoginActivity {
     }
 
     protected boolean validateAppSignatureForIntent(Intent intent) {
-        return validateAppSignatureForIntent(this, intent);
+        return validateActivityIntent(this, intent);
     }
 
     public static boolean isFacebookView(Context context, Intent intent) {
@@ -115,13 +137,10 @@ public class FacebookSSO extends AbstractLoginActivity {
                 R.string.production_facebook_app_id : R.string.sandbox_facebook_app_id);
     }
 
-    static boolean validateAppSignatureForIntent(Context context, Intent intent) {
-        ResolveInfo resolveInfo =
-                context.getPackageManager().resolveActivity(intent, 0);
-        if (resolveInfo == null) {
-            return false;
-        }
-        String packageName = resolveInfo.activityInfo.packageName;
+
+    private static boolean validateAppSignatureForPackage(Context context,
+                                                   String packageName) {
+
         PackageInfo packageInfo;
         try {
             packageInfo = context.getPackageManager().getPackageInfo(
@@ -138,7 +157,8 @@ public class FacebookSSO extends AbstractLoginActivity {
         return false;
     }
 
-    private static String getTokenFromIntent(Intent data) throws SSOException {
+
+    private static Token getTokenFromIntent(Intent data) throws SSOException {
         // Check OAuth 2.0/2.10 error code.
         String error = data.getStringExtra("error");
         if (error == null) {
@@ -146,11 +166,11 @@ public class FacebookSSO extends AbstractLoginActivity {
         }
 
         if (error != null) { // A Facebook error occurred.
-            if (error.equals("service_disabled")) {
+            if (error.equals(SINGLE_SIGN_ON_DISABLED)) {
 
                 throw new SSOException("SSO disabled");
-            } else if (error.equals("access_denied")
-                    || error.equals("OAuthAccessDeniedException")) {
+            } else if (error.equals(ACCESS_DENIED)
+                    || error.equals(ACCESS_DENIED_EXCEPTION)) {
                 throw new SSOCanceledException();
             } else {
                 String description = data.getStringExtra("error_description");
@@ -160,17 +180,143 @@ public class FacebookSSO extends AbstractLoginActivity {
                 throw new SSOException("Login failed:" + error);
             }
         } else {   // No errors.
-            String token = data.getStringExtra("access_token");
-            String expiresIn = data.getStringExtra("expires_in");
+            String token = data.getStringExtra(TOKEN);
+            String expiresIn = data.getStringExtra(EXPIRES);
 
-            final long expires = (expiresIn != null && !expiresIn.equals("0")) ?
-                    System.currentTimeMillis() + Integer.parseInt(expiresIn) * 1000 : 0;
+            final long expires = !"0".equals(expiresIn) ?
+                    System.currentTimeMillis() + Long.parseLong(expiresIn) * 1000L : 0;
 
             if (token != null && (expires == 0 || System.currentTimeMillis() < expires)) {
-                return token;
+                return new Token(token, expires);
             } else {
                 throw new SSOException("session is not valid");
             }
+        }
+    }
+
+    public static boolean extendAccessTokenIfNeeded(Context context) {
+        if (!isSupported(context)) return false;
+
+        Token token = Token.load(context);
+        return token.isFresh() || extendAccessToken(token, context);
+    }
+
+    private static boolean extendAccessToken(final Token token, final Context context) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "extendAccessToken("+token+")");
+        if (token.accessToken == null) return false;
+
+        Intent intent = new Intent();
+        intent.setClassName("com.facebook.katana",
+                "com.facebook.katana.platform.TokenRefreshService");
+
+        return validateServiceIntent(context, intent) &&
+               context.bindService(intent, new ServiceConnection() {
+
+            private final Messenger messenger = new Messenger(new Handler() {
+                @Override public void handleMessage(Message msg) {
+                    String aToken = msg.getData().getString(TOKEN);
+                    long expiresAt = msg.getData().getLong(EXPIRES) * 1000L;
+
+                    if (aToken != null) {
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "token refresh via service: "+token);
+                        }
+
+                        new Token(aToken, expiresAt).store(context);
+                    } else {
+                        Log.w(TAG, "token is null");
+                    }
+                }
+            });
+            private Messenger sender;
+
+            @Override public void onServiceConnected(ComponentName name, IBinder service) {
+                sender = new Messenger(service);
+                Bundle requestData = new Bundle();
+                requestData.putString(TOKEN, token.accessToken);
+                Message request = Message.obtain();
+                request.setData(requestData);
+                request.replyTo = messenger;
+                try {
+                    sender.send(request);
+                } catch (RemoteException e) {
+                    Log.w(TAG, e);
+                }
+            }
+
+            @Override public void onServiceDisconnected(ComponentName name) {
+                context.unbindService(this);
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
+
+    public static boolean isSupported(Context context) {
+        return FacebookSSO.validateActivityIntent(context, FacebookSSO.getAuthIntent(context));
+    }
+
+    private static boolean validateServiceIntent(Context context, Intent intent) {
+        ResolveInfo resolveInfo =
+                context.getPackageManager().resolveService(intent, 0);
+        return resolveInfo != null &&
+                validateAppSignatureForPackage(context, resolveInfo.serviceInfo.packageName);
+    }
+
+    private static boolean validateActivityIntent(Context context, Intent intent) {
+        ResolveInfo resolveInfo =
+                context.getPackageManager().resolveActivity(intent, 0);
+        return resolveInfo != null
+                && validateAppSignatureForPackage(context, resolveInfo.activityInfo.packageName);
+
+    }
+
+    static class Token {
+        private static final String PREF_KEY    = "facebook-session";
+        private static final String TOKEN_KEY   = "token";
+        private static final String EXPIRES_KEY = "expires";
+        private static final String LAST_REFRESH_KEY = "lastRefresh";
+
+        private static final long REFRESH_TOKEN_BARRIER = 24L * 60L * 60L * 1000L;
+
+        final String accessToken;
+        final long expires;
+        long lastRefresh = System.currentTimeMillis();
+
+        Token(String accessToken, long expires) {
+            this.accessToken = accessToken;
+            this.expires = expires;
+        }
+
+        public boolean store(Context context) {
+            SharedPreferences prefs = context.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE);
+            return prefs.edit()
+                    .putString(TOKEN_KEY, accessToken)
+                    .putLong(EXPIRES_KEY, expires)
+                    .putLong(LAST_REFRESH_KEY, lastRefresh)
+                    .commit();
+        }
+
+        public static @NotNull Token load(Context context) {
+            SharedPreferences prefs = context.getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE);
+            Token token = new Token(prefs.getString(TOKEN_KEY, null), prefs.getLong(EXPIRES_KEY, 0));
+            token.lastRefresh = prefs.getLong(LAST_REFRESH_KEY, 0);
+            return token;
+        }
+
+        public boolean isFresh() {
+            return accessToken != null &&
+                (System.currentTimeMillis() - lastRefresh <= REFRESH_TOKEN_BARRIER);
+        }
+
+        @Override
+        public String toString() {
+            // NB: for security reasons make sure not to log the full access token here
+            return "Token{" +
+                    "accessToken='" +
+                        (accessToken != null ?
+                         accessToken.substring(0, Math.min(accessToken.length(), 10)) + "..." : null)  +
+                    ", expires=" + expires +
+                    ", lastRefresh=" + lastRefresh +
+                    '}';
         }
     }
 
