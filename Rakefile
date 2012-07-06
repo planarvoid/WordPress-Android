@@ -28,6 +28,7 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                SoundRecorder
                WavWriter
                AndroidCloudAPI
+               FacebookSSO
               )
 
 [:device, :emu].each do |t|
