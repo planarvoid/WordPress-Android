@@ -23,6 +23,7 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
                ATTracker
                SoundCloudApplication
                AndroidCloudAPI
+               FacebookSSO
               )
 
 [:device, :emu].each do |t|

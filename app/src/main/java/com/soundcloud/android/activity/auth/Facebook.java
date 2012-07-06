@@ -26,7 +26,7 @@ public class Facebook extends Activity {
     }
 
     /* package */ boolean clientSupportsSSO() {
-        return FacebookSSO.validateAppSignatureForIntent(this, FacebookSSO.getAuthIntent(this));
+        return FacebookSSO.isSupported(this);
     }
 
     /* package */ boolean isSSOEnabled() {
