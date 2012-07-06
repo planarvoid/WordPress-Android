@@ -2,16 +2,12 @@ package com.soundcloud.android.audio;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.record.WavHeaderTest;
+import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.streaming.BufferUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.hardware.Camera;
-
-import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 

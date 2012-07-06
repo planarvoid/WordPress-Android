@@ -1,11 +1,15 @@
 package com.soundcloud.android.fragment;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.commonsware.cwac.endless.EndlessAdapter;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.ScBaseAdapter;
+import com.soundcloud.android.adapter.ScEndlessAdapter;
+import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.LocalCollection;
@@ -14,10 +18,15 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.CollectionLoader;
+import com.soundcloud.android.task.ILazyAdapterTask;
+import com.soundcloud.android.task.RemoteCollectionTask;
+import com.soundcloud.android.task.UpdateCollectionTask;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
+import com.soundcloud.api.Request;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -26,13 +35,12 @@ import android.database.ContentObserver;
 import android.graphics.Color;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,6 +73,9 @@ public class ScListFragment extends SherlockListFragment
     private Uri mContentUri;
     private boolean mIsConnected;
     private NetworkConnectivityListener connectivityListener;
+
+    private AsyncTask<Object, List<? super Parcelable>, Boolean> mRefreshTask;
+    private UpdateCollectionTask mUpdateCollectionTask;
 
     private Boolean mIsSyncable;
         protected LocalCollection mLocalCollection;
@@ -179,7 +190,11 @@ public class ScListFragment extends SherlockListFragment
         getListView().setAdapter(adapter);
     }
 
-    public ScBaseAdapter getListAdapter() {
+    public EndlessAdapter getWrapper() {
+        return mEndlessAdapter;
+    }
+
+    public ScBaseAdapter getBaseAdapter() {
         return mBaseAdapter;
     }
 
@@ -194,32 +209,6 @@ public class ScListFragment extends SherlockListFragment
         return mDetachableReceiver;
     }
 
-
-    @Override
-    public void onReceiveResult(int resultCode, Bundle resultData) {
-        switch (resultCode) {
-            case ApiSyncService.STATUS_APPEND_ERROR: {
-                mState = ERROR;
-                // toggle the footer view to show no more items
-                break;
-            }
-            case ApiSyncService.STATUS_APPEND_FINISHED: {
-                int itemCount = resultData.getInt("itemCount");
-                setAppendable(itemCount == Consts.COLLECTION_PAGE_SIZE);
-                if (itemCount > 0) {
-                    mPageIndex++;
-                    if (mItemLoader != null) {
-
-                        mItemLoader.reset();
-                        mItemLoader.pageIndex = mPageIndex;
-                        mItemLoader.startLoading();
-                    }
-
-                }
-                break;
-            }
-        }
-    }
 
     @Override
     public void onStart() {
@@ -247,7 +236,7 @@ public class ScListFragment extends SherlockListFragment
     protected void onDataConnectionUpdated(boolean isConnected) {
         mIsConnected = isConnected;
         if (isConnected && !isConnected) {
-            if (getListAdapter().needsItems() && getScActivity().getApp().getAccount() != null) {
+            if (getBaseAdapter().needsItems() && getScActivity().getApp().getAccount() != null) {
 
             }
         }
@@ -279,7 +268,7 @@ public class ScListFragment extends SherlockListFragment
     }
 
     private String getEmptyText() {
-        final Class loadModel = getListAdapter().getLoadModel();
+        final Class loadModel = getBaseAdapter().getLoadModel();
         final boolean error = mState == ERROR;
         if (Track.class.equals(loadModel)) {
             return !error ? getResources().getString(
@@ -303,72 +292,187 @@ public class ScListFragment extends SherlockListFragment
     }
 
     public Uri getPlayableUri() {
-            return mContentInvalid ? null : super.getPlayableUri();
+        return mContentInvalid ? null : mContentUri;
+    }
+
+    protected void requestSync() {
+        Intent intent = new Intent(getActivity(), ApiSyncService.class)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .setData(mContent.uri);
+        getActivity().startService(intent);
+    }
+
+    public boolean isRefreshing() {
+        if (mLocalCollection != null) {
+            return mLocalCollection.sync_state == LocalCollection.SyncState.SYNCING
+                    || mLocalCollection.sync_state == LocalCollection.SyncState.PENDING
+                    || isRefreshTaskActive();
+        } else {
+            return isRefreshTaskActive();
         }
+    }
 
-        protected void requestSync() {
-            Intent intent = new Intent(mActivity, ApiSyncService.class)
-                    .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
-                    .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                    .setData(mContent.uri);
-            mActivity.startService(intent);
+    private boolean isRefreshTaskActive() {
+        return (mRefreshTask != null && !AndroidUtils.isTaskFinished((AsyncTask) mRefreshTask));
+    }
+
+    protected void doneRefreshing() {
+        if (isSyncable()) setListLastUpdated();
+        if (mListView != null) mListView.onRefreshComplete();
+    }
+
+    protected boolean isSyncable() {
+        if (mIsSyncable == null) {
+            mIsSyncable = mContent != null && mContent.isSyncable();
         }
+        return mIsSyncable;
+    }
 
-        @Override
-        public boolean isRefreshing() {
-            if (mLocalCollection != null) {
-                return mLocalCollection.sync_state == LocalCollection.SyncState.SYNCING
-                        || mLocalCollection.sync_state == LocalCollection.SyncState.PENDING
-                        || super.isRefreshing();
-            } else {
-                return super.isRefreshing();
-            }
+    public void setListLastUpdated() {
+        if (mListView != null) {
+            if (mLocalCollection.last_sync_success > 0) mListView.setLastUpdated(mLocalCollection.last_sync_success);
         }
-
-        protected void doneRefreshing() {
-            if (isSyncable()) setListLastUpdated();
-            if (mListView != null) mListView.onRefreshComplete();
-        }
-
-        @Override
-        public void onReceiveResult(int resultCode, Bundle resultData) {
-            switch (resultCode) {
-                case ApiSyncService.STATUS_SYNC_FINISHED:
-                case ApiSyncService.STATUS_SYNC_ERROR: {
-                    if (mContentUri != null && resultData != null &&
-                            !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) {
-                        doneRefreshing(); // nothing changed
-                    }
-                    break;
-                }
-            }
-        }
-
-        private void stopObservingChanges() {
-            if (mObservingContent) {
-                mObservingContent = false;
-
-                if (mChangeObserver != null) {
-                    mActivity.getContentResolver().unregisterContentObserver(mChangeObserver);
-                }
-                if (mLocalCollection != null) {
-                    mLocalCollection.stopObservingSelf();
-                }
-            }
-        }
-
-    public void onDestroy() {
-        stopObservingChanges();
     }
 
     @Override
-    public void onLogout() {
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case ApiSyncService.STATUS_SYNC_FINISHED:
+            case ApiSyncService.STATUS_SYNC_ERROR: {
+                if (mContentUri != null && resultData != null &&
+                        !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) {
+                    doneRefreshing(); // nothing changed
+                }
+                break;
+            }
+        }
+    }
+
+    private void stopObservingChanges() {
+        if (mObservingContent) {
+            mObservingContent = false;
+
+            if (mChangeObserver != null) {
+                getActivity().getContentResolver().unregisterContentObserver(mChangeObserver);
+            }
+            if (mLocalCollection != null) {
+                mLocalCollection.stopObservingSelf();
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         stopObservingChanges();
     }
+
+    /*
+    ToDo, broadcast listener
+    @Override
+    public void onLogout() {
+        stopObservingChanges();
+    } */
 
     protected void onContentChanged() {
         mContentInvalid = true;
         executeRefreshTask();
+    }
+
+    public void executeRefreshTask() {
+        mRefreshTask = buildTask();
+        mRefreshTask.execute(getTaskParams(true));
+    }
+
+    @Override
+    protected AsyncTask<Object, List<? super Parcelable>, Boolean> buildTask() {
+        return new RemoteCollectionTask((SoundCloudApplication.fromContext(getActivity()), this);
+    }
+
+
+    protected Object getTaskParams(final boolean refresh) {
+        return new RemoteCollectionTask.CollectionParams() {{
+            loadModel = mContent.resourceType;
+            contentUri = mContentUri;
+            request = buildRequest(refresh);
+            isRefresh = refresh;
+            refreshPageItems = !isSyncable();
+            startIndex = refresh ? 0 : getBaseAdapter().getData().size();
+            maxToLoad = Consts.COLLECTION_PAGE_SIZE;
+        }};
+    }
+
+    protected Request buildRequest(boolean isRefresh) {
+        Request request = getRequest(isRefresh);
+        if (request != null) {
+            request.add("linked_partitioning", "1");
+            request.add("limit", Consts.COLLECTION_PAGE_SIZE);
+        }
+        return request;
+    }
+
+
+    protected Request getRequest(boolean isRefresh) {
+        if (!mContent.hasRequest()) return null;
+        return !(isRefresh) && !TextUtils.isEmpty(mNextHref) ? new Request(mNextHref) : mContent.request();
+    }
+
+    private void refreshSyncData() {
+        if (isSyncable()) {
+            setListLastUpdated();
+
+            if ((mContent != null) && mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
+                refresh(false);
+                // TODO : Causes loop with stale collection and server error
+                // this is to show the user something at the initial load
+                if (mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
+            }
+        }
+    }
+
+    @Override
+    public void refresh(final boolean userRefresh) {
+        if (userRefresh) {
+                    if (getBaseAdapter() instanceof FollowStatus.Listener) {
+                        FollowStatus.get().requestUserFollowings(SoundCloudApplication.fromContext(getActivity()),
+                                (FollowStatus.Listener) getBaseAdapter(), true);
+                    }
+                } else {
+                    reset();
+                }
+
+        if (isSyncable()) {
+            requestSync();
+        } else {
+            clearAppendTask();
+            executeRefreshTask();
+            notifyDataSetChanged();
+        }
+    }
+
+    public void reset() {
+        getBaseAdapter().clearData();
+        mEndlessAdapter.reset();
+            mPageIndex = 0;
+
+
+            clearRefreshTask();
+            clearUpdateTask();
+
+            mState = mAutoAppend ? IDLE : INITIALIZED;
+            notifyDataSetChanged();
+        }
+
+    protected void clearRefreshTask() {
+        if (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
+        mRefreshTask = null;
+    }
+
+    protected void clearUpdateTask() {
+        if (mUpdateCollectionTask != null && !AndroidUtils.isTaskFinished(mUpdateCollectionTask))
+            mUpdateCollectionTask.cancel(true);
+        mUpdateCollectionTask = null;
     }
 
     @Override

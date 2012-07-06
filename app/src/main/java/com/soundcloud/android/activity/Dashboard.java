@@ -7,7 +7,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
@@ -23,10 +22,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
-
-import java.util.ArrayList;
 
 public class Dashboard extends ScListActivity {
     protected ScListView mListView;
@@ -132,7 +128,7 @@ public class Dashboard extends ScListActivity {
         track(Page.You_find_friends, getApp().getLoggedInUser());
         startActivity(new Intent(Actions.MY_PROFILE)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra("userBrowserTag", UserBrowser.Tab.friend_finder.name()));
+                .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.friend_finder.name()));
     }
 
     private void goTo101s() {

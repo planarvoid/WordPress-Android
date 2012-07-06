@@ -1,6 +1,8 @@
 package com.soundcloud.android.audio;
 
-import com.soundcloud.android.jni.DecoderException;
+import com.soundcloud.android.audio.reader.EmptyReader;
+import com.soundcloud.android.audio.reader.VorbisReader;
+import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,8 +11,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public abstract class AudioFile implements Closeable {
-    int EOF = -1;
+/**
+ * Abstraction of audio reading, counterpart of {@link AudioWriter}.
+ */
+public abstract class AudioReader implements Closeable {
+    public static int EOF = -1;
 
     /**
      * @return the audio config associated with this file, or null
@@ -27,7 +32,6 @@ public abstract class AudioFile implements Closeable {
      * @return the duration in milliseconds
      */
     public abstract long getDuration();
-
 
     /**
      * @return the current position in milliseconds
@@ -51,13 +55,18 @@ public abstract class AudioFile implements Closeable {
 
     public abstract void reopen() throws IOException;
 
-    public @Nullable static AudioFile guess(File file) throws IOException {
-        if (IOUtils.extension(file).equals(WavFile.EXTENSION)) {
-            return new WavFile(file);
-        } else if (IOUtils.extension(file).equals(VorbisFile.EXTENSION)) {
-            return new VorbisFile(file);
+    public static AudioReader guess(@Nullable File file) throws IOException {
+        if (file == null) return new EmptyReader();
+
+        final String ext = IOUtils.extension(file);
+        if (ext == null) {
+            return new EmptyReader();
+        } else if (ext.equals(WavReader.EXTENSION)) {
+            return new WavReader(file);
+        } else if (ext.equals(VorbisReader.EXTENSION)) {
+            return new VorbisReader(file);
         } else {
-            return null;
+            return new EmptyReader();
         }
     }
 }

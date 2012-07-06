@@ -2,25 +2,13 @@
 package com.soundcloud.android.adapter;
 
 
-import android.content.Context;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Parcelable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.cache.FollowStatus;
-import com.soundcloud.android.model.Activity;
-import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Playable;
-import com.soundcloud.android.model.Track;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ILazyAdapterTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
@@ -30,11 +18,19 @@ import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
 import com.soundcloud.api.Request;
 
+import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Parcelable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class LazyEndlessAdapter extends EndlessAdapter implements DetachableResultReceiver.Receiver, PullToRefreshBase.OnRefreshListener {
+public abstract class ScEndlessAdapter extends EndlessAdapter implements DetachableResultReceiver.Receiver, PullToRefreshBase.OnRefreshListener {
     protected AsyncTask mAppendTask;
     protected ScListView mListView;
     protected ScListActivity mActivity;
@@ -278,10 +274,7 @@ public abstract class LazyEndlessAdapter extends EndlessAdapter implements Detac
 
     public void reset() {
         resetData();
-        mPageIndex = 0;
         clearAppendTask();
-        clearRefreshTask();
-        clearUpdateTask();
         mKeepGoing = mAutoAppend;
         mState = mAutoAppend ? IDLE : INITIALIZED;
         notifyDataSetChanged();

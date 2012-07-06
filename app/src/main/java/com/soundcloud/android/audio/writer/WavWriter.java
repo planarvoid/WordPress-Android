@@ -1,5 +1,10 @@
-package com.soundcloud.android.audio;
+package com.soundcloud.android.audio.writer;
 
+import com.soundcloud.android.audio.AudioConfig;
+import com.soundcloud.android.audio.AudioReader;
+import com.soundcloud.android.audio.AudioWriter;
+import com.soundcloud.android.audio.WavHeader;
+import com.soundcloud.android.audio.reader.WavReader;
 import org.jetbrains.annotations.Nullable;
 
 import android.util.Log;
@@ -22,7 +27,7 @@ public class WavWriter implements AudioWriter {
         this.config = config;
     }
 
-    private RandomAccessFile initializeWriter(File file, AudioConfig config) throws IOException {
+    private RandomAccessFile initializeWriter() throws IOException {
         RandomAccessFile writer = new RandomAccessFile(file, "rw");
         if (!file.exists() || writer.length() == 0) {
             Log.d(TAG, "creating new WAV file ("+file.getAbsolutePath()+")");
@@ -41,35 +46,48 @@ public class WavWriter implements AudioWriter {
         return config;
     }
 
-    public int write(ByteBuffer buffer, int length) throws IOException {
+    public int write(ByteBuffer samples, int length) throws IOException {
         if (mWriter == null) {
-            mWriter = initializeWriter(file, config);
+            // initialize writer lazily so this can be offloaded easily to a thread
+            mWriter = initializeWriter();
         }
-        return mWriter.getChannel().write(buffer);
+        return mWriter.getChannel().write(samples);
     }
 
-    public long finalizeStream() throws IOException {
+    public void finalizeStream() throws IOException {
         if (mWriter != null) {
             final long fileLength = mWriter.length();
             Log.d(TAG, "finalising recording file (length=" + fileLength + ")");
             fixWavHeader(mWriter);
             mWriter.close();
             mWriter = null;
-            return getDuration();
-        } else {
-            return -1;
         }
     }
 
     @Override
-    public void setNewPosition(long pos) throws IOException {
+    public boolean setNewPosition(long pos) throws IOException {
         // truncate file to new length
         if (pos >= 0) {
-            RandomAccessFile writer = new RandomAccessFile(file, "rw");
-            writer.setLength(config.msToByte(pos) + WavHeader.LENGTH);
-            fixWavHeader(writer);
-            writer.close();
-        }
+            long newPos = config.msToByte(pos) + WavHeader.LENGTH;
+            if (mWriter == null) {
+                mWriter = initializeWriter();
+            }
+            if (newPos < mWriter.length()) {
+
+                Log.d(TAG, "setting new pos " + newPos);
+                mWriter.setLength(newPos);
+                fixWavHeader(mWriter);
+                mWriter.seek(newPos);
+                return true;
+            } else {
+                return false;
+            }
+        } else return false;
+    }
+
+    @Override
+    public boolean isClosed() {
+        return mWriter == null;
     }
 
     private boolean fixWavHeader(RandomAccessFile writer) throws IOException {
@@ -99,8 +117,14 @@ public class WavWriter implements AudioWriter {
     }
 
     @Override
-    public void close() throws IOException {
-        finalizeStream();
+    public AudioReader getAudioFile() throws IOException {
+        return new WavReader(file);
     }
 
+    @Override
+    public void close() throws IOException {
+        if (!isClosed())  {
+            finalizeStream();
+        }
+    }
 }

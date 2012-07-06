@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.PlaybackStream;
-import com.soundcloud.android.audio.WavFile;
+import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.os.Environment;
-import android.support.v4.content.LocalBroadcastManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,10 +28,8 @@ public class SoundRecorderTest {
     @Before
     public void before() {
         recorder = new SoundRecorder(DefaultTestRunner.application, AudioConfig.DEFAULT);
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(DefaultTestRunner.application);
         IOUtils.deleteDir(SoundRecorder.RECORD_DIR);
     }
-
 
     @Test(expected = IOException.class)
     public void shouldThrowIOExceptionWhenNoSDCardIsPresent() throws Exception {
@@ -41,13 +38,13 @@ public class SoundRecorderTest {
 
     @Test(expected = IOException.class)
     public void shouldThrowIOExceptionIfNoSpaceLeft() throws Exception {
-        TestHelper.setSDCardMounted();
+        TestHelper.enableSDCard();
         recorder.startRecording(null);
     }
 
     @Test
     public void shouldStartRecording() throws Exception {
-        TestHelper.setSDCardMounted();
+        TestHelper.enableSDCard();
         ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 100, 10, 10);
         Recording r = recorder.startRecording(null);
         expect(r).not.toBeNull();
@@ -57,7 +54,7 @@ public class SoundRecorderTest {
 
     @Test
     public void shouldSaveState() throws Exception {
-        TestHelper.setSDCardMounted();
+        TestHelper.enableSDCard();
         ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 100, 10, 10);
         Recording r = recorder.startRecording(null);
         expect(r).not.toBeNull();
@@ -69,7 +66,7 @@ public class SoundRecorderTest {
 
     @Test
     public void shouldSaveCurrentPlaybackSettings() throws Exception {
-        TestHelper.setSDCardMounted();
+        TestHelper.enableSDCard();
         ShadowStatFs.registerStats(Environment.getExternalStorageDirectory(), 100, 10, 10);
         Recording r = recorder.startRecording(null);
         expect(r).not.toBeNull();
@@ -77,7 +74,7 @@ public class SoundRecorderTest {
         expect(r.getFile().getParentFile().mkdirs()).toBeTrue();
         IOUtils.copy(wavFile, r.getFile());
 
-        recorder.setPlaybackStream(new PlaybackStream(new WavFile(wavFile)));
+        recorder.setPlaybackStream(new PlaybackStream(new WavReader(wavFile)));
 
         // change settings
         recorder.toggleFade();
@@ -94,7 +91,9 @@ public class SoundRecorderTest {
                 saved.toUri());
 
         assert r2 != null;
+        expect(r2).not.toBeNull();
         PlaybackStream ps = r2.getPlaybackStream();
+        expect(ps).not.toBeNull();
         expect(ps.isFading()).toBeTrue();
         expect(ps.isOptimized()).toBeTrue();
         expect(ps.getStartPos()).toEqual(564L);

@@ -5,10 +5,15 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_P
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_RECORD;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.service.upload.UploadService;
 
+import android.content.Intent;
 import android.test.suitebuilder.annotation.Suppress;
 import android.widget.EditText;
+
+import java.io.File;
 
 public class NormalRecordingTest extends RecordingTestCase {
 
@@ -17,6 +22,20 @@ public class NormalRecordingTest extends RecordingTestCase {
         playback();
         solo.sleep(RECORDING_TIME + 500);
         assertState(IDLE_PLAYBACK);
+    }
+
+    public void testRecordMakeSureFilesGetWritten() throws Exception {
+        record(RECORDING_TIME);
+        Recording r = getActivity().getRecorder().getRecording();
+
+        File raw = r.getFile();
+        File encoded = r.getEncodedFile();
+
+        assertTrue(raw.exists());
+        assertTrue(encoded.exists());
+
+        assertTrue(raw.length() > 100000);
+        assertTrue(encoded.length() > 20000);
     }
 
     public void testRecordAndEditRevert() throws Exception {
@@ -170,5 +189,34 @@ public class NormalRecordingTest extends RecordingTestCase {
 
         solo.assertActivity(ScCreate.class);
         assertState(IDLE_PLAYBACK); // should be old recording
+    }
+
+    public void testRecordAndLoadAndAppend() throws Exception {
+        record(RECORDING_TIME);
+
+        solo.clickOnNext();
+
+        long id = System.currentTimeMillis();
+        final String name = "A test upload " + id;
+        solo.enterText(0, name);
+
+        solo.assertActivity(ScUpload.class);
+
+        solo.finishOpenedActivities();
+
+        Main main = launchActivityWithIntent("com.soundcloud.android",
+            Main.class, new Intent().putExtra(Main.TAB_TAG, Main.Tab.PROFILE.tag));
+
+
+        solo.clickOnText(name);
+
+        solo.sleep(300);
+
+        solo.assertActivity(ScCreate.class);
+
+        record(RECORDING_TIME);
+
+        solo.sleep(5000);
+
     }
 }

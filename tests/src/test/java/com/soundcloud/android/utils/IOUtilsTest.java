@@ -54,4 +54,11 @@ public class IOUtilsTest {
         expect(IOUtils.extension(new File("foo"))).toBeNull();
     }
 
+
+    @Test
+    public void shouldChangeExtension() throws Exception {
+        expect(IOUtils.changeExtension(new File("test.ogg"), "wav").getName()).toEqual("test.wav");
+        expect(IOUtils.changeExtension(new File("test.ogg.baz"), "wav").getName()).toEqual("test.ogg.wav");
+        expect(IOUtils.changeExtension(new File("test"), "wav").getName()).toEqual("test.wav");
+    }
 }

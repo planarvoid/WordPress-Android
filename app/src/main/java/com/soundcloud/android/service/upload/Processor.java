@@ -2,6 +2,7 @@ package com.soundcloud.android.service.upload;
 
 import static com.soundcloud.android.service.upload.UploadService.TAG;
 
+import com.soundcloud.android.audio.PlaybackStream;
 import com.soundcloud.android.jni.EncoderException;
 import com.soundcloud.android.jni.VorbisEncoder;
 import com.soundcloud.android.model.Recording;
@@ -16,6 +17,7 @@ import java.io.File;
 public class Processor implements Runnable {
     private final Recording mRecording;
     private LocalBroadcastManager mBroadcastManager;
+
 
     public Processor(Context context, Recording recording) {
         mRecording = recording;

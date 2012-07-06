@@ -16,13 +16,13 @@
 
 package com.soundcloud.android.audio;
 
-import android.util.Log;
-
 import java.io.DataOutput;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 
 /**
  * This class represents the header of a WAVE format audio file, which usually
@@ -309,7 +309,7 @@ public class WavHeader {
         out.writeShort(Short.reverseBytes((short) 1));
         out.writeShort(Short.reverseBytes(mNumChannels));
         out.writeInt(Integer.reverseBytes(mSampleRate));
-        out.writeInt(Integer.reverseBytes( mNumChannels * mSampleRate * getBytesPerSample()));
+        out.writeInt(Integer.reverseBytes(mNumChannels * mSampleRate * getBytesPerSample()));
         out.writeShort(Short.reverseBytes((short) (mNumChannels * getBytesPerSample())));
         out.writeShort(Short.reverseBytes(mBitsPerSample));
 
@@ -348,5 +348,19 @@ public class WavHeader {
             return AudioConfig.findMatching(mSampleRate, mNumChannels);
         }
         throw new IllegalArgumentException("unknown audioformat: "+toString());
+    }
+
+    public static WavHeader fromFile(File f) throws IOException {
+        FileInputStream fis = new FileInputStream(f);
+        WavHeader h = new WavHeader(fis);
+        fis.close();
+        return h;
+    }
+
+    public static void writeHeader(File f, int length) throws IOException {
+        WavHeader h = new WavHeader(WavHeader.FORMAT_PCM, (short)1, 44100, (short)16, length);
+        OutputStream os = new FileOutputStream(f);
+        h.write(os);
+        os.close();
     }
 }

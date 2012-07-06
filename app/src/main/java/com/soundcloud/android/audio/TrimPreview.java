@@ -1,5 +1,6 @@
 package com.soundcloud.android.audio;
 
+import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.record.SoundRecorder;
 
 public class TrimPreview {

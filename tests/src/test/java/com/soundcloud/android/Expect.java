@@ -12,8 +12,10 @@ import com.pivotallabs.greatexpectations.matchers.SetMatcher;
 import com.pivotallabs.greatexpectations.matchers.StringMatcher;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.robolectric.ContentMatcher;
+import com.soundcloud.android.robolectric.NotificationMatcher;
 import com.soundcloud.android.robolectric.UriMatcher;
 
+import android.app.Notification;
 import android.net.Uri;
 
 @SuppressWarnings({"unchecked", "UnusedDeclaration", "TypeParameterExplicitlyExtendsObject"})
@@ -57,6 +59,11 @@ public class Expect {
 
     public static <T extends Uri, M extends UriMatcher<T, M>> UriMatcher<T, ?> expect(T actual) {
         return wrapped(UriMatcher.class, actual);
+    }
+
+
+    public static <T extends Notification, M extends NotificationMatcher<T, M>> NotificationMatcher<T, ?> expect(T actual) {
+        return wrapped(NotificationMatcher.class, actual);
     }
 
     @SuppressWarnings("UnusedDeclaration")

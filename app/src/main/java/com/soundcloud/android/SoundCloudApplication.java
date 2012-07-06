@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.imageloader.BitmapContentHandler;
 import com.google.android.imageloader.ImageLoader;
 import com.google.android.imageloader.PrefetchHandler;
+import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.c2dm.C2DMReceiver;
 import com.soundcloud.android.cache.Connections;
@@ -114,11 +115,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
 
         mCloudApi = Wrapper.create(this, account == null ? null : getToken(account));
         mCloudApi.setTokenListener(this);
-        mCloudApi.debugRequests = DEV_MODE;
-
-        if (Log.isLoggable(TAG, Log.DEBUG))  {
-            Log.d(TAG, String.format("DEV_MODE: %s BETA_MODE: %s Env: %s", DEV_MODE, BETA_MODE, getEnv()));
-        }
 
         if (account != null) {
             FollowStatus.initialize(this, getCurrentUserId());
@@ -153,6 +149,8 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 new ComponentName(this, WifiMonitor.class),
                 BETA_MODE ? COMPONENT_ENABLED_STATE_ENABLED : COMPONENT_ENABLED_STATE_DISABLED,
                 DONT_KILL_APP);
+
+        FacebookSSO.extendAccessTokenIfNeeded(this);
     }
 
     public synchronized User getLoggedInUser() {

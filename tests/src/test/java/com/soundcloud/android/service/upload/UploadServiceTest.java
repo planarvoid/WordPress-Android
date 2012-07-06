@@ -3,10 +3,14 @@ package com.soundcloud.android.service.upload;
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.TestApplication;
+import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.model.Recording;
+import com.soundcloud.android.model.Track;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.LocalBinder;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
@@ -19,8 +23,10 @@ import org.junit.runner.RunWith;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 
 import java.io.File;
+import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
 public class UploadServiceTest {
@@ -80,7 +86,8 @@ public class UploadServiceTest {
 
     @Test
     public void shouldNotifyAboutUploadSuccess() throws Exception {
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
+        mockSuccessfullTrackCreation();
+
         final Recording upload = TestApplication.getValidRecording();
         upload.what_text = "testing";
 
@@ -91,15 +98,20 @@ public class UploadServiceTest {
 
         expect(m.getAllNotifications().size()).toEqual(1);
         final Notification notification = m.getAllNotifications().get(0);
-        expect(notification.tickerText).toEqual("Upload Finished");
-        expect(shadowOf(notification).getLatestEventInfo().getContentText()).toEqual("testing has been uploaded");
-        expect(shadowOf(notification).getLatestEventInfo().getContentTitle()).toEqual("Upload Finished");
+        expect(notification).toHaveTicker("Upload Finished");
+        expect(notification).toHaveText("testing has been uploaded");
+        expect(notification).toHaveTitle("Upload Finished");
+        expect(notification).toMatchIntent(new Intent(Actions.MY_PROFILE));
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
+
+        Track t = SoundCloudDB.getTrackById(Robolectric.application.getContentResolver(), 12345l);
+        expect(t).not.toBeNull();
+        expect(t.state).toBe(Track.State.FINISHED);
     }
 
     @Test
     public void shouldNotifyMixedResults() throws Exception {
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
+        mockSuccessfullTrackCreation();
 
         final Recording upload = TestApplication.getValidRecording();
         upload.what_text = "testing";
@@ -110,9 +122,10 @@ public class UploadServiceTest {
 
         expect(m.getAllNotifications().size()).toEqual(1);
         Notification notification = m.getAllNotifications().get(0);
-        expect(notification.tickerText).toEqual("Upload Finished");
-        expect(shadowOf(notification).getLatestEventInfo().getContentText()).toEqual("testing has been uploaded");
-        expect(shadowOf(notification).getLatestEventInfo().getContentTitle()).toEqual("Upload Finished");
+        expect(notification).toHaveTicker("Upload Finished");
+        expect(notification).toHaveText("testing has been uploaded");
+        expect(notification).toHaveTitle("Upload Finished");
+        expect(notification).toMatchIntent(new Intent(Actions.MY_PROFILE));
 
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "ohnoez"));
         final Recording upload2 = TestApplication.getValidRecording();
@@ -122,9 +135,10 @@ public class UploadServiceTest {
 
         expect(m.getAllNotifications().size()).toEqual(2);
         notification = m.getAllNotifications().get(1);
-        expect(notification.tickerText).toEqual("Upload Error");
-        expect(shadowOf(notification).getLatestEventInfo().getContentText()).toEqual("There was an error uploading testing 2");
-        expect(shadowOf(notification).getLatestEventInfo().getContentTitle()).toEqual("Upload Error");
+        expect(notification).toHaveTicker("Upload Error");
+        expect(notification).toHaveText("There was an error uploading testing 2");
+        expect(notification).toHaveTitle("Upload Error");
+        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR));
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
     }
 
@@ -141,16 +155,17 @@ public class UploadServiceTest {
 
         expect(m.getAllNotifications().size()).toEqual(1);
         final Notification notification = m.getAllNotifications().get(0);
-        expect(notification.tickerText).toEqual("Upload Error");
-        expect(shadowOf(notification).getLatestEventInfo().getContentText()).toEqual("There was an error uploading testing");
-        expect(shadowOf(notification).getLatestEventInfo().getContentTitle()).toEqual("Upload Error");
+        expect(notification).toHaveTicker("Upload Error");
+        expect(notification).toHaveText("There was an error uploading testing");
+        expect(notification).toHaveTitle("Upload Error");
+        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR));
     }
 
     @Test
     public void shouldUpdateRecordingEntryDuringUploadAndAfterSuccess() throws Exception {
         Recording recording = TestApplication.getValidRecording();
+        mockSuccessfullTrackCreation();
 
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
         getUploadScheduler().pause();
 
         svc.upload(recording);
@@ -179,7 +194,8 @@ public class UploadServiceTest {
     @Test
     public void shouldResizeArtworkIfSpecified() throws Exception {
         // cannot test this - just to execute code path
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
+        mockSuccessfullTrackCreation();
+
         final Recording upload = TestApplication.getValidRecording();
         upload.artwork_path = File.createTempFile("some_artwork", ".png");
 
@@ -195,8 +211,7 @@ public class UploadServiceTest {
     @Test
     public void shouldHoldWifiAndWakelockDuringUpload() throws Exception {
         Recording recording = TestApplication.getValidRecording();
-
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201, "Created"));
+        mockSuccessfullTrackCreation();
 
         getServiceScheduler().pause();
         getMainScheduler().pause();
@@ -247,5 +262,55 @@ public class UploadServiceTest {
         Recording r = SoundCloudDB.getRecordingByUri(svc.getContentResolver(), stuck.toUri());
         expect(r.upload_status).toEqual(Recording.Status.NOT_YET_UPLOADED);
 //        expect(shadowOf(service).isStoppedBySelf()).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotifyIfTranscodingFails() throws Exception {
+        mockFailedTrackCreation();
+        final Recording upload = TestApplication.getValidRecording();
+        upload.what_text = "testing";
+
+        svc.upload(upload);
+
+        ShadowNotificationManager m = shadowOf((NotificationManager)
+                Robolectric.getShadowApplication().getSystemService(Context.NOTIFICATION_SERVICE));
+
+        expect(m.getAllNotifications().size()).toEqual(2);
+        final Notification first = m.getAllNotifications().get(0);
+        final Notification second = m.getAllNotifications().get(1);
+
+        expect(first).toHaveTicker("Transcoding Error");
+        expect(first).toHaveText("There was an error transcoding recording on sunday night");
+        expect(first).toHaveTitle("Transcoding Error");
+        expect(first).toMatchIntent(new Intent(Actions.MY_PROFILE));
+
+        expect(second).toHaveTicker("Upload Finished");
+        expect(second).toHaveText("testing has been uploaded");
+        expect(second).toHaveTitle("Upload Finished");
+        expect(second).toMatchIntent(new Intent(Actions.MY_PROFILE));
+
+        expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
+    }
+
+
+    private void mockSuccessfullTrackCreation() throws IOException {
+        // track upload
+        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201,
+                TestHelper.resource(getClass(), "track_processing.json")));
+
+        // transcoding polling
+        Robolectric.addHttpResponseRule("GET", "/tracks/12345", new TestHttpResponse(200,
+                TestHelper.resource(getClass(), "track_finished.json")));
+    }
+
+
+    private void mockFailedTrackCreation() throws IOException {
+        // track upload
+        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201,
+                TestHelper.resource(getClass(), "track_processing.json")));
+
+        // transcoding polling
+        Robolectric.addHttpResponseRule("GET", "/tracks/12345", new TestHttpResponse(200,
+                TestHelper.resource(getClass(), "track_failed.json")));
     }
 }

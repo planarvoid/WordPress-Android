@@ -111,6 +111,8 @@ public class ApiSyncService extends Service {
             while (mActiveTaskCount < MAX_TASK_LIMIT && !mPendingRequests.isEmpty()) {
                 final CollectionSyncRequest syncRequest = mPendingRequests.poll();
                 mRunningRequests.add(syncRequest);
+
+                // actual execution of the request
                 new ApiTask().executeOnThreadPool(syncRequest);
             }
         }

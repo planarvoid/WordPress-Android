@@ -342,6 +342,7 @@ public class Main extends ScListActivity implements
         }
     }
 
+
     private static void setTabTextStyle(Context context, TabWidget tabWidget, boolean textOnly) {
         // a hacky way of setting the font of the indicator texts
         for (int i = 0; i < tabWidget.getChildCount(); i++) {

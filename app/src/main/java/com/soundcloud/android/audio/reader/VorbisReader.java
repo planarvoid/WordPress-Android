@@ -1,5 +1,7 @@
-package com.soundcloud.android.audio;
+package com.soundcloud.android.audio.reader;
 
+import com.soundcloud.android.audio.AudioConfig;
+import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.jni.DecoderException;
 import com.soundcloud.android.jni.VorbisInfo;
 import com.soundcloud.android.jni.VorbisDecoder;
@@ -8,13 +10,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class VorbisFile extends AudioFile {
+public class VorbisReader extends AudioReader {
     private VorbisDecoder decoder;
     private VorbisInfo info;
 
     public static final String EXTENSION = "ogg";
 
-    public VorbisFile(File file) throws IOException {
+    public VorbisReader(File file) throws IOException {
         decoder = new VorbisDecoder(file);
     }
 

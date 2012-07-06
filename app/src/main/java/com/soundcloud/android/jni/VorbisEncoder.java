@@ -1,6 +1,5 @@
 package com.soundcloud.android.jni;
 
-import com.soundcloud.android.audio.AudioConfig;
 import com.soundcloud.android.audio.WavHeader;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
@@ -48,10 +47,6 @@ public class VorbisEncoder {
         this.quality = quality;
     }
 
-    public VorbisEncoder(File file, String mode, AudioConfig config) throws EncoderException {
-        this(file, mode, config.channels, config.sampleRate, config.quality);
-    }
-
     /**
      * Convenience method to add samples from an inputstream
      * @param is inputstream containing samples
@@ -92,7 +87,7 @@ public class VorbisEncoder {
      * @throws EncoderException if the head could not be moved
      * @throws IllegalStateException if not paused
      */
-    public void startNewStream(double pos) throws IOException {
+    public boolean startNewStream(double pos) throws IOException {
         Log.d(TAG, "startNewStream("+pos+")");
 
         if (getState() == STATE_PAUSED) {
@@ -105,8 +100,9 @@ public class VorbisEncoder {
                 if (!tmp.renameTo(file)) {
                     throw new EncoderException("could not rename file", -1);
                 }
+                return true;
             } else {
-                // next call to write will will just reopen stream and append to end of file
+                return false; // next call to write will will just reopen stream and append to end of file
             }
         } else {
             throw new IllegalStateException("cannot move head when not paused");
@@ -119,7 +115,7 @@ public class VorbisEncoder {
      * Add some samples to the current file.
      * @param samples
      * @param length
-     * @return < 0 in error case
+     * @return number of bytes written, < 0 in error case
      */
     native public int write(ByteBuffer samples, long length);
 
@@ -145,7 +141,7 @@ public class VorbisEncoder {
      * @return the current state ({@link #STATE_READY} = ready to encode,
      * {@link #STATE_PAUSED} = paused, < 0 uninitialised)
      */
-    native int getState();
+    public native int getState();
 
     /**
      * Extract the part of an Ogg file between given start and/or end times.

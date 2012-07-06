@@ -61,17 +61,17 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter implements Local
     }
 
     private void refreshSyncData() {
-        if (isSyncable()) {
-            setListLastUpdated();
+            if (isSyncable()) {
+                setListLastUpdated();
 
-            if ((mContent != null) && mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
-                refresh(false);
-                // TODO : Causes loop with stale collection and server error
-                // this is to show the user something at the initial load
-                if (mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
+                if ((mContent != null) && mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
+                    refresh(false);
+                    // TODO : Causes loop with stale collection and server error
+                    // this is to show the user something at the initial load
+                    if (mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
+                }
             }
         }
-    }
 
     @Override
     public Object[] saveExtraData() {

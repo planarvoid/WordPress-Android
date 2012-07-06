@@ -6,6 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
@@ -607,7 +608,7 @@ public class ScContentProvider extends ContentProvider {
                         if (artworkUri != null) {
                             final File artworkFile = IOUtils.getCacheFile(getContext(), IOUtils.md5(artworkUri));
                             if (!artworkFile.exists()) {
-                                IOUtils.fetchUriToFile(artworkUri, artworkFile, false);
+                                HttpUtils.fetchUriToFile(artworkUri, artworkFile, false);
                             }
                             return ParcelFileDescriptor.open(artworkFile, ParcelFileDescriptor.MODE_READ_ONLY);
                         } else throw new FileNotFoundException();

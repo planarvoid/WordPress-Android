@@ -13,6 +13,7 @@ import com.xtremelabs.robolectric.res.RobolectricPackageManager;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import org.junit.runners.model.InitializationError;
+import org.mockito.MockitoAnnotations;
 
 import android.content.ContentProvider;
 
@@ -48,6 +49,12 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         ContentProvider provider = new ScContentProvider();
         provider.onCreate();
         ShadowContentResolver.registerProvider(ScContentProvider.AUTHORITY, provider);
+    }
+
+    @Override
+    public void prepareTest(Object test) {
+        super.prepareTest(test);
+        MockitoAnnotations.initMocks(test);
     }
 
     @Override

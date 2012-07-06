@@ -2,6 +2,7 @@ package com.soundcloud.android.audio;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.record.SoundRecorderTest;
 import com.soundcloud.android.record.WavHeaderTest;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -23,7 +24,7 @@ public class PlaybackStreamTest {
 
     @Before
     public void before() throws IOException {
-        stream = new PlaybackStream(new WavFile(wavFile));
+        stream = new PlaybackStream(new WavReader(wavFile));
     }
 
     @Test

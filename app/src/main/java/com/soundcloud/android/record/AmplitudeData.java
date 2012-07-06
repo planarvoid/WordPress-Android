@@ -19,8 +19,6 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
     private float[] data;
     private int pos;
 
-    public int writeIndex = -1;
-
     private final int initialCapacity;
 
     public AmplitudeData() {
@@ -44,7 +42,6 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         assert pos <= length;
         data = new float[length];
         source.readFloatArray(data);
-        writeIndex = 0;
     }
 
     public void add(float sample) {
@@ -82,18 +79,10 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
     public void clear() {
         data = new float[initialCapacity];
         pos = 0;
-        writeIndex = -1;
     }
 
     public boolean isEmpty() {
         return size() == 0;
-    }
-
-    public AmplitudeData sliceToWritten() {
-        final int first = Math.max(0, writeIndex);
-        float[] copy = new float[initialCapacity - first];
-        System.arraycopy(data, first, copy, 0, writtenSize());
-        return new AmplitudeData(copy);
     }
 
     public AmplitudeData slice(int start, int size) {
@@ -101,20 +90,6 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
         float[] copy = new float[size];
         System.arraycopy(data, start, copy, 0, size);
         return new AmplitudeData(copy);
-    }
-
-    public float getInterpolatedValue(int x, int firstX, int lastX) {
-        final int size = size();
-        if (size > lastX - firstX) {
-            // scaling down, nearest neighbor is fine
-            return get((int) Math.min(size - 1, ((float) (x - firstX)) / (lastX - firstX) * size));
-        } else {
-            // scaling up, do interpolation
-            final float fIndex = Math.min(size - 1, size * ((float) (x - firstX)) / (lastX - firstX));
-            final float v1 = get((int) FloatMath.floor(fIndex));
-            final float v2 = get((int) FloatMath.ceil(fIndex));
-            return v1 + (v2 - v1) * (fIndex - ((int) fIndex));
-        }
     }
 
     @Override
@@ -147,12 +122,11 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         // parcels shouldn't save pre-recording data
-        int unwanted = Math.max(0, writeIndex);
         dest.writeInt(initialCapacity);
-        dest.writeInt(pos - unwanted);
-        dest.writeInt(data.length - unwanted);
-        dest.writeInt(data.length - unwanted); // required for readFloatArray
-        for (int i = unwanted; i<pos; i++) {
+        dest.writeInt(pos);
+        dest.writeInt(data.length);
+        dest.writeInt(data.length); // required for readFloatArray
+        for (int i = 0; i < pos; i++) {
             dest.writeFloat(data[i]);
         }
     }
@@ -198,28 +172,17 @@ public class AmplitudeData implements Iterable<Float>, Parcelable {
                 '}';
     }
 
-    public void onWritingStarted() {
-        writeIndex = size();
-    }
-
-    public int writtenSize() {
-        return size() - Math.max(0, writeIndex);
-    }
-
-    public void cutRight(int n) {
-        int newSize = writtenSize() - n;
-        if (newSize > 0) {
-            float[] newData = new float[newSize];
-            System.arraycopy(data, Math.max(0, writeIndex), newData, 0, newSize);
+    public void truncate(int size) {
+        if (size > 0) {
+            float[] newData = new float[size];
+            System.arraycopy(data, 0, newData, 0, size);
             data = newData;
-            pos = newSize;
-            writeIndex = 0;
+            pos = size;
         }
     }
 
     public void set(AmplitudeData adata) {
         data = adata.get();
         pos = adata.pos;
-        writeIndex = adata.writeIndex;
     }
 }

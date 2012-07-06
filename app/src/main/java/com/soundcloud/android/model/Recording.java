@@ -7,9 +7,11 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackStream;
-import com.soundcloud.android.audio.VorbisFile;
-import com.soundcloud.android.audio.WavFile;
+import com.soundcloud.android.audio.reader.EmptyReader;
+import com.soundcloud.android.audio.reader.VorbisReader;
+import com.soundcloud.android.audio.reader.WavReader;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
 import com.soundcloud.android.provider.DBHelper.Recordings;
@@ -117,7 +119,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         this(f, null);
     }
 
-    public Recording(File f, @Nullable User user) {
+    private Recording(File f, @Nullable User user) {
         if (f == null) throw new IllegalArgumentException("file is null");
         audio_path = f;
         if (user != null) {
@@ -159,7 +161,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File getEncodedFile() {
-        return encodedFilename(audio_path);
+        return IOUtils.changeExtension(audio_path, VorbisReader.EXTENSION);
     }
 
     public File getProcessedFile() {
@@ -167,7 +169,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     }
 
     public File getAmplitudeFile() {
-        return new File(audio_path.getParentFile(), audio_path.getName().concat(".amp"));
+        return IOUtils.changeExtension(audio_path, "amp");
     }
 
     /**
@@ -429,7 +431,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
         if (!external_upload) {
             String title = map.get(Params.Track.TITLE).toString();
             final String newTitle = title == null ? "unknown" : title;
-            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), VorbisFile.EXTENSION);
+            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), VorbisReader.EXTENSION);
         } else {
             fileName = file.getName();
         }
@@ -506,10 +508,6 @@ public class Recording extends ScModel implements Comparable<Recording> {
             }
         }
         return null;
-    }
-
-    private static File encodedFilename(File file) {
-        return new File(file.getParentFile(), file.getName()+"."+VorbisFile.EXTENSION);
     }
 
     public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
@@ -620,8 +618,19 @@ public class Recording extends ScModel implements Comparable<Recording> {
         }
     }
 
-    public static @NotNull Recording create(User user) {
-        File file = new File(SoundRecorder.RECORD_DIR, System.currentTimeMillis() + (user == null ? "" : "_" + user.id));
+    public static @NotNull Recording create() {
+        return create(null);
+    }
+
+    /**
+     * @param user the user this recording is for, or null if there's no recipient
+     * @return a recording initialised with a file path (which will be used for the recording).
+     */
+    public static @NotNull Recording create(@Nullable User user) {
+        File file = new File(SoundRecorder.RECORD_DIR,
+                System.currentTimeMillis()
+                + (user == null ? "" : "_" + user.id)
+                + "."+WavReader.EXTENSION);
         return new Recording(file, user);
     }
 
@@ -752,9 +761,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     private PlaybackStream initializePlaybackStream(@Nullable Cursor c) {
         try {
-            PlaybackStream stream = new PlaybackStream(isEncodedFilename(audio_path.getName()) ?
-                    new VorbisFile(audio_path) : new WavFile(audio_path));
-
+            final AudioReader reader = AudioReader.guess(audio_path);
+            PlaybackStream stream = new PlaybackStream(reader);
             if (c != null) {
                 long startPos = c.getLong(c.getColumnIndex(Recordings.TRIM_LEFT));
                 long endPos   = c.getLong(c.getColumnIndex(Recordings.TRIM_RIGHT));
@@ -765,11 +773,10 @@ public class Recording extends ScModel implements Comparable<Recording> {
                 stream.setOptimize(optimize);
                 stream.setTrim(startPos, endPos);
             }
-
             return stream;
         } catch (IOException e) {
             Log.w(TAG, "could not initialize playback stream", e);
-            return null;
+            return new PlaybackStream(new EmptyReader());
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.soundcloud.android.audio;
 
+import com.soundcloud.android.audio.filter.FadeFilter;
 import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.NotNull;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -16,14 +18,14 @@ public class PlaybackStream implements Parcelable {
     private long mEndPos;
 
     private AudioConfig mConfig;
-    private AudioFile mPlaybackFile;
+    private AudioReader mPlaybackFile;
 
     private PlaybackFilter mFilter;
     private boolean mOptimize;
 
-    public PlaybackStream(AudioFile audioFile) throws IOException {
-        mPlaybackFile = audioFile;
-        mConfig = audioFile.getConfig();
+    public PlaybackStream(@NotNull AudioReader audioReader) {
+        mPlaybackFile = audioReader;
+        mConfig = audioReader.getConfig();
         resetBounds();
         mCurrentPos = -1;
     }
@@ -156,7 +158,7 @@ public class PlaybackStream implements Parcelable {
 
     public void setTrim(long start, long end) {
         mStartPos = start;
-        mEndPos = end;
+        mEndPos = end == -1 ? getTotalDuration() : end;
     }
 
     public long getTrimRight() {
@@ -165,7 +167,7 @@ public class PlaybackStream implements Parcelable {
 
     public boolean isModified() {
         return mStartPos > 0 ||
-               mEndPos < getTotalDuration() ||
+               (mEndPos > 0 && mEndPos < getTotalDuration()) ||
                mFilter != null ||
                mOptimize;
     }
@@ -211,7 +213,7 @@ public class PlaybackStream implements Parcelable {
             File file = new File(in.readString());
 
             try {
-                PlaybackStream ps = new PlaybackStream(AudioFile.guess(file));
+                PlaybackStream ps = new PlaybackStream(AudioReader.guess(file));
                 ps.mStartPos = in.readLong();
                 ps.mEndPos   = in.readLong();
                 ps.mOptimize = in.readInt() == 1;

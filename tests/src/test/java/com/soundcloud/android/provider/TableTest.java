@@ -29,7 +29,7 @@ public class TableTest {
     public void shouldProvideACreateStringForTables() throws Exception {
         Table table = Table.TRACKS;
         expect(table.view).toBe(false);
-        expect(table.createString).toMatch("CREATE TABLE IF NOT EXISTS " +table.name);
+        expect(table.createString).toMatch("CREATE TABLE IF NOT EXISTS " + table.name);
     }
 
     @Test
@@ -74,18 +74,32 @@ public class TableTest {
     }
 
     @Test
+    public void shouldAddColumnToTracks() throws Exception {
+        SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
+
+        String oldSchema = Table.TRACKS.createString;
+        db.execSQL(oldSchema);
+
+        String newSchema = Table.TRACKS.createString.substring(0, Table.TRACKS.createString.lastIndexOf(")")) + ", new_column INTEGER);";
+        final int colCount = Table.alterColumns(db, Table.TRACKS.name, newSchema, new String[0], new String[0]).size();
+        final List<String> columnNames = Table.getColumnNames(db, Table.TRACKS.name);
+        expect(columnNames).toContain("new_column");
+        expect(columnNames.size()).toEqual(colCount + 1);
+    }
+
+    @Test
     public void shouldAlterColumnsWithoutRenamingColumn() throws Exception {
         SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
 
-        String oldSchema = "CREATE TABLE foo("+
+        String oldSchema = Table.buildCreateString("foo", "(" +
                 "_id INTEGER PRIMARY KEY," +
                 "keep_me VARCHAR(255)," +
-                "drop_me INTEGER);";
+                "drop_me INTEGER);", false);
 
-        String newSchema = "CREATE TABLE foo("+
+        String newSchema = Table.buildCreateString("foo", "(" +
                 "_id INTEGER PRIMARY KEY," +
                 "keep_me VARCHAR(255), " +
-                "new_column INTEGER);";
+                "new_column INTEGER);", false);
 
         db.execSQL(oldSchema);
 
@@ -114,15 +128,15 @@ public class TableTest {
     public void shouldAlterColumnsWithRenamingColumn() throws Exception {
         SQLiteDatabase db = new DBHelper(DefaultTestRunner.application).getWritableDatabase();
 
-        String oldSchema = "CREATE TABLE foo(_id INTEGER PRIMARY KEY," +
-                " keep_me VARCHAR(255)," +
-                " drop_me INTEGER," +
-                " rename_me INTEGER); ";
+        String oldSchema =Table.buildCreateString("foo","(_id INTEGER PRIMARY KEY," +
+                        " keep_me VARCHAR(255)," +
+                        " drop_me INTEGER," +
+                        " rename_me INTEGER);",false);
 
-        String newSchema = "CREATE TABLE foo(_id INTEGER PRIMARY KEY," +
-                " keep_me VARCHAR(255)," +
-                " new_column INTEGER," +
-                " renamed INTEGER); ";
+        String newSchema =Table.buildCreateString("foo","(_id INTEGER PRIMARY KEY," +
+                        " keep_me VARCHAR(255)," +
+                        " new_column INTEGER," +
+                        " renamed INTEGER); ",false);
 
         db.execSQL(oldSchema);
 

@@ -185,8 +185,10 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
           return -1;
        }
 
-       #ifdef TREMOLO
+       #if defined TREMOLO
            LOG_D("using tremolo decoder");
+       #elif defined TREMOR
+           LOG_D("using tremor decoder");
        #else
            LOG_D("using standard vorbis decoder");
        #endif

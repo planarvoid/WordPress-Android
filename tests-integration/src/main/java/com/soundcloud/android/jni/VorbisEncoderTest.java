@@ -12,6 +12,7 @@ import android.test.suitebuilder.annotation.Suppress;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 @LargeTest
 public class VorbisEncoderTest extends AudioTestCase {
@@ -33,7 +34,7 @@ public class VorbisEncoderTest extends AudioTestCase {
     }
 
     public void testRelease() throws Exception {
-        VorbisEncoder enc = new VorbisEncoder(externalPath("test.ogg"), "w", AudioConfig.PCM16_44100_1);
+        VorbisEncoder enc = createEncoder(externalPath("test.ogg"), AudioConfig.PCM16_44100_1);
         assertEquals(0, enc.getState());
         enc.release();
         assertEquals(-1, enc.getState());
@@ -46,7 +47,7 @@ public class VorbisEncoderTest extends AudioTestCase {
 
         final File out = externalPath("test_encode_and_start_new_stream.ogg");
 
-        VorbisEncoder enc = new VorbisEncoder(out, "w", h.getAudioConfig());
+        VorbisEncoder enc = createEncoder(out, h.getAudioConfig());
 
         enc.encodeStream(is);
 
@@ -144,5 +145,20 @@ public class VorbisEncoderTest extends AudioTestCase {
             , VorbisEncoder.validate(out));
 
         checkAudioFile(out, expectedDuration);
+    }
+
+
+    public void testWrite() throws Exception {
+        File out = externalPath("testWrite.ogg");
+        VorbisEncoder enc = new VorbisEncoder(out, "w", 1l, 44100l, 0.5f);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+        int ret = enc.write(buffer, 300);
+        assertEquals(300, ret);
+        enc.pause();
+        enc.release();
+    }
+
+    private VorbisEncoder createEncoder(File path, AudioConfig config) throws EncoderException {
+        return new VorbisEncoder(path, "w", config.channels, config.sampleRate, config.quality);
     }
 }

@@ -29,8 +29,7 @@ public class BetaServiceTest {
     BetaService bs;
     @Before
     public void before() {
-        TestHelper.setSDCardMounted();
-
+        TestHelper.enableSDCard();
         ConnectivityManager cm = (ConnectivityManager)
                 Robolectric.application.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -69,10 +68,9 @@ public class BetaServiceTest {
         Notification n = m.getNotification(Consts.Notifications.BETA_NOTIFY_ID);
 
         expect(n).not.toBeNull();
-        expect(n.tickerText).toEqual("Beta update");
-        expect(shadowOf(n).getLatestEventInfo().getContentTitle()).toEqual("New beta version downloaded");
+        expect(n).toHaveTicker("Beta update");
+        expect(n).toHaveTitle("New beta version downloaded");
     }
-
 
     public static Header[] headers(String... keyValues) {
         Header[] headers = new Header[keyValues.length / 2];

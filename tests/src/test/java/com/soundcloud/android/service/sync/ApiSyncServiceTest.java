@@ -38,6 +38,7 @@ public class ApiSyncServiceTest {
     ContentResolver resolver;
     static final long USER_ID = 100L;
 
+
     @Before public void before() {
         resolver = Robolectric.application.getContentResolver();
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
@@ -60,8 +61,9 @@ public class ApiSyncServiceTest {
             }
         });
 
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+        addIdResponse("/me/tracks/ids?linked_partitioning=1"+ CollectionSyncRequestTest.NON_INTERACTIVE, 1, 2, 3);
+        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3"+ CollectionSyncRequestTest.NON_INTERACTIVE,
+                "tracks.json");
 
         svc.onStart(intent, 0);
 
@@ -133,13 +135,13 @@ public class ApiSyncServiceTest {
 
         Context context = DefaultTestRunner.application;
 
-        svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_FAVORITES.uri, null));
-        svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_FOLLOWINGS.uri, null));
+        svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_FAVORITES.uri, null, false));
+        svc.mRunningRequests.add(new CollectionSyncRequest(context, Content.ME_FOLLOWINGS.uri, null, false));
 
         ApiSyncer.Result result = new ApiSyncer.Result(Content.ME_FAVORITES.uri);
         result.success = true;
 
-        svc.onUriSyncResult(new CollectionSyncRequest(context, Content.ME_FAVORITES.uri, null));
+        svc.onUriSyncResult(new CollectionSyncRequest(context, Content.ME_FAVORITES.uri, null, false));
         expect(svc.mRunningRequests.size()).toBe(1);
     }
 
@@ -147,8 +149,8 @@ public class ApiSyncServiceTest {
     public void shouldSyncTracks() throws Exception {
         ApiSyncService svc = new ApiSyncService();
 
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+        addIdResponse("/me/tracks/ids?linked_partitioning=1"+ CollectionSyncRequestTest.NON_INTERACTIVE, 1, 2, 3);
+        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3"+ CollectionSyncRequestTest.NON_INTERACTIVE, "tracks.json");
 
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri), 1);
         // make sure tracks+users got written
@@ -172,8 +174,9 @@ public class ApiSyncServiceTest {
     public void shouldSyncFollowers() throws Exception {
         ApiSyncService svc = new ApiSyncService();
 
-        addIdResponse("/me/followers/ids?linked_partitioning=1", 792584, 1255758, 308291);
-        addResourceResponse("/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE, "users.json");
+        addIdResponse("/me/followers/ids?linked_partitioning=1"+ CollectionSyncRequestTest.NON_INTERACTIVE, 792584, 1255758, 308291);
+        addResourceResponse("/me/followers?linked_partitioning=1&limit=" + Consts.COLLECTION_PAGE_SIZE+ CollectionSyncRequestTest.NON_INTERACTIVE,
+                "users.json");
 
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_FOLLOWERS.uri), 1);
         // make sure tracks+users got written
@@ -210,8 +213,8 @@ public class ApiSyncServiceTest {
     @Test
     public void shouldNotOverwriteDataFromPreviousSyncRuns() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+        addIdResponse("/me/tracks/ids?linked_partitioning=1"+ CollectionSyncRequestTest.NON_INTERACTIVE, 1, 2, 3);
+        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3"+ CollectionSyncRequestTest.NON_INTERACTIVE, "tracks.json");
 
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri), 1);
         expect(Content.TRACKS).toHaveCount(3);
@@ -237,8 +240,8 @@ public class ApiSyncServiceTest {
         ApiSyncService svc = new ApiSyncService();
         sync(svc, Content.ME_ACTIVITIES, "tracks_activities.json");
 
-        addIdResponse("/me/tracks/ids?linked_partitioning=1", 1, 2, 3);
-        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3", "tracks.json");
+        addIdResponse("/me/tracks/ids?linked_partitioning=1"+ CollectionSyncRequestTest.NON_INTERACTIVE, 1, 2, 3);
+        addResourceResponse("/tracks?linked_partitioning=1&limit=200&ids=1%2C2%2C3"+ CollectionSyncRequestTest.NON_INTERACTIVE, "tracks.json");
 
         svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_TRACKS.uri), 1);
 
@@ -350,7 +353,7 @@ public class ApiSyncServiceTest {
         expect(collection.extra).toEqual("https://api.soundcloud.com/me/activities/tracks?uuid[to]=future-href-incoming-1");
 
         addCannedResponse(SyncAdapterServiceTest.class,
-                "https://api.soundcloud.com/me/activities/tracks?uuid%5Bto%5D=future-href-incoming-1&limit=100",
+                "https://api.soundcloud.com/me/activities/tracks?uuid%5Bto%5D=future-href-incoming-1&limit=100"+ CollectionSyncRequestTest.NON_INTERACTIVE,
                 "empty_events.json");
 
         // next sync request should go this url
