@@ -6,6 +6,7 @@ $ 45
     * Xhdpi list icon sizes
     - non-interactive request tagging
     - signup spam prevention
+    - Refresh FB token
 
 $ 44
   % v 2.2.9
