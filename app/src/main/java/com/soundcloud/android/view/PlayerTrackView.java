@@ -19,6 +19,7 @@ import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -184,7 +185,7 @@ public class PlayerTrackView extends LinearLayout implements
         mPlayer.toggleCommentMode(mPlayPos);
     }
 
-    public void setTrack(Track track, int queuePosition, boolean forceUpdate, boolean priority) {
+    public void setTrack(@Nullable Track track, int queuePosition, boolean forceUpdate, boolean priority) {
         mPlayPos = queuePosition;
 
         if (!forceUpdate && (mTrack != null && track != null && track.id == mTrack.id)) return;

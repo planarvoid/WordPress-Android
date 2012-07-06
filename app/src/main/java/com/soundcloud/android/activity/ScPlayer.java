@@ -624,8 +624,10 @@ public class ScPlayer extends ScActivity implements WorkspaceView.OnScreenChange
                 ptv.setOnScreen(priority);
 
                 final Track track = priority ? mPlayingTrack : getTrackById(mPlaybackService.getTrackIdAt(pos));
-                ptv.setTrack(track, pos, false, priority);
-                workspaceIndex++;
+                if (track != null) {
+                    ptv.setTrack(track, pos, false, priority);
+                    workspaceIndex++;
+                }
             }
 
             if (queueLength < mTrackWorkspace.getScreenCount()){
