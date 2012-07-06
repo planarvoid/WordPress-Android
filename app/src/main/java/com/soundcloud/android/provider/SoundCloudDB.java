@@ -1,11 +1,5 @@
 package com.soundcloud.android.provider;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Parcelable;
-import android.util.Log;
 import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.ScModel;
@@ -13,6 +7,13 @@ import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Parcelable;
+import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -88,7 +89,11 @@ public class SoundCloudDB {
 
 
     public static @Nullable Track getTrackById(ContentResolver resolver, long id) {
-        return getTrackByUri(resolver, Content.TRACKS.forId(id));
+        if (id >= 0) {
+            return getTrackByUri(resolver, Content.TRACKS.forId(id));
+        } else {
+            return null;
+        }
     }
 
     /* package */ static @Nullable Track getTrackByUri(ContentResolver resolver, Uri uri) {
