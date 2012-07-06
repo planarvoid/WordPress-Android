@@ -133,8 +133,9 @@ public enum Table {
 
         final String tmpTable = "bck_"+table;
         db.execSQL("DROP TABLE IF EXISTS "+tmpTable);
+
         // create tmp table with current schema
-        db.execSQL(createString.replace("CREATE TABLE "+table, "CREATE TABLE "+tmpTable));
+        db.execSQL(createString.replace(" "+table+" ", " "+tmpTable+" "));
 
         // get list of columns defined in new schema
         List<String> columns = getColumnNames(db, tmpTable);
