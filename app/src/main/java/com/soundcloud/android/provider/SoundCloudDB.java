@@ -4,6 +4,7 @@ import com.soundcloud.android.model.Origin;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -84,11 +85,15 @@ public class SoundCloudDB {
     }
 
 
-    public static Track getTrackById(ContentResolver resolver, long id) {
-        return getTrackByUri(resolver, Content.TRACKS.forId(id));
+    public static @Nullable Track getTrackById(ContentResolver resolver, long id) {
+        if (id >= 0) {
+            return getTrackByUri(resolver, Content.TRACKS.forId(id));
+        } else {
+            return null;
+        }
     }
 
-    /* package */ static Track getTrackByUri(ContentResolver resolver, Uri uri) {
+    /* package */ static @Nullable Track getTrackByUri(ContentResolver resolver, Uri uri) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -109,7 +114,7 @@ public class SoundCloudDB {
 
 
 
-    public static User getUserById(ContentResolver resolver, long id) {
+    public static @Nullable User getUserById(ContentResolver resolver, long id) {
         if (id >= 0) {
             return getUserByUri(resolver, Content.USERS.forId(id));
         } else {
@@ -117,7 +122,7 @@ public class SoundCloudDB {
         }
     }
 
-    public static User getUserByUri(ContentResolver resolver, Uri uri) {
+    public static @Nullable User getUserByUri(ContentResolver resolver, Uri uri) {
         Cursor cursor = resolver.query(uri, null, null, null, null);
         User user = null;
         if (cursor != null && cursor.getCount() != 0) {
