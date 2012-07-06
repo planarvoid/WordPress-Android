@@ -50,12 +50,16 @@ public enum Table {
         this.name = name;
         this.view = view;
         if (create != null) {
-            createString = "CREATE "+(view ? "VIEW" : "TABLE")+" IF NOT EXISTS "+name+" "+create;
+            createString = buildCreateString(name,create,view);
         } else {
             createString = null;
         }
         id = this.name +"."+BaseColumns._ID;
         this.fields = fields;
+    }
+
+    public static String buildCreateString(String tableName, String columnString, boolean isView){
+        return "CREATE "+(isView ? "VIEW" : "TABLE")+" IF NOT EXISTS "+tableName+" "+columnString;
     }
 
     public String allFields() {
@@ -133,8 +137,9 @@ public enum Table {
 
         final String tmpTable = "bck_"+table;
         db.execSQL("DROP TABLE IF EXISTS "+tmpTable);
+
         // create tmp table with current schema
-        db.execSQL(createString.replace("CREATE TABLE "+table, "CREATE TABLE "+tmpTable));
+        db.execSQL(createString.replace(" "+table+" ", " "+tmpTable+" "));
 
         // get list of columns defined in new schema
         List<String> columns = getColumnNames(db, tmpTable);
