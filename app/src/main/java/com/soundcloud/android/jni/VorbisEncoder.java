@@ -115,7 +115,7 @@ public class VorbisEncoder {
      * Add some samples to the current file.
      * @param samples
      * @param length
-     * @return < 0 in error case
+     * @return number of bytes written, < 0 in error case
      */
     native public int write(ByteBuffer samples, long length);
 
