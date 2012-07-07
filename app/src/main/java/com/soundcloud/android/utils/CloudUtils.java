@@ -289,11 +289,13 @@ public final class CloudUtils {
 
     public static String getAppVersion(Context context, String defaultVersion) {
         try {
-            PackageInfo info = context
-                    .getPackageManager()
-                    .getPackageInfo(context.getPackageName(),
-                    PackageManager.GET_META_DATA);
-            return info.versionName;
+            if (context.getPackageManager() != null) {
+                PackageInfo info = context
+                        .getPackageManager()
+                        .getPackageInfo(context.getPackageName(),
+                        PackageManager.GET_META_DATA);
+                return info.versionName;
+            } else return defaultVersion;
         } catch (PackageManager.NameNotFoundException ignored) {
             return defaultVersion;
         }
@@ -301,11 +303,13 @@ public final class CloudUtils {
 
     public static int getAppVersionCode(Context context, int defaultVersion) {
         try {
-            PackageInfo info = context
-                    .getPackageManager()
-                    .getPackageInfo(context.getPackageName(),
-                    PackageManager.GET_META_DATA);
-            return info.versionCode;
+            if (context.getPackageManager() != null) {
+                PackageInfo info = context
+                        .getPackageManager()
+                        .getPackageInfo(context.getPackageName(),
+                        PackageManager.GET_META_DATA);
+                return info.versionCode;
+            } else return defaultVersion;
         } catch (PackageManager.NameNotFoundException ignored) {
             return defaultVersion;
         }
@@ -313,11 +317,13 @@ public final class CloudUtils {
 
     public static String getPackagename(Context context) {
         try {
-            PackageInfo info = context
-                    .getPackageManager()
-                    .getPackageInfo(context.getPackageName(),
-                    PackageManager.GET_META_DATA);
-            return info.packageName;
+            if (context.getPackageManager() != null) {
+                PackageInfo info = context
+                        .getPackageManager()
+                        .getPackageInfo(context.getPackageName(),
+                        PackageManager.GET_META_DATA);
+                return info.packageName;
+            } else return null;
         } catch (PackageManager.NameNotFoundException ignored) {
             throw new RuntimeException(ignored);
         }

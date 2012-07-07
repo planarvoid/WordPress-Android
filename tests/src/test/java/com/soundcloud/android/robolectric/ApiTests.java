@@ -9,6 +9,7 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
 import com.soundcloud.api.Token;
+import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -26,7 +27,7 @@ public class ApiTests implements Endpoints {
     @Before
     public void setup() {
         mockedApi = mock(AndroidCloudAPI.class);
-        api = new AndroidCloudAPI.Wrapper(null, null, null, null, new Token("1", "2"), Env.SANDBOX);
+        api = new AndroidCloudAPI.Wrapper(Robolectric.application, null, null, null, new Token("1", "2"), Env.SANDBOX);
         when(mockedApi.getMapper()).thenReturn(AndroidCloudAPI.Wrapper.createMapper());
     }
 
