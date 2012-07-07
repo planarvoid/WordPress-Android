@@ -30,6 +30,7 @@ import com.soundcloud.android.tracking.Tracker;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
@@ -354,10 +355,17 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                 R.string.sandbox_client_id);
     }
 
-    private String getClientSecret(boolean production) {
-        return getResources().getString(production ?
-                R.string.client_secret :
-                R.string.sandbox_client_secret);
+    /* package */ String getClientSecret(boolean production) {
+        final long[] prod =
+                new long[] {0x42D31224F5C2C264L, 0x5986B01A2300AFA4L, 0xEDA169985C1BA18DL,
+                            0xA2A0313C7077F81BL, 0xF42A7E5EEB220859L, 0xE593789593AFFA3L,
+                            0xF564A09AA0B465A6L};
+
+        final long[] sandbox =
+                new long[] {0x7FA4855507D9000FL, 0x91C67776A3692339L, 0x24D0C4EF5AF943E8L,
+                            0x7CEC0CF7DDAAE26BL, 0x7EB2854D631380BEL};
+
+        return ScTextUtils.deobfuscate(production ? prod : sandbox);
     }
 
     private Token getToken(Account account) {
