@@ -1,10 +1,10 @@
 <resources>
     <!-- api keys -->
     <string name='client_id'>xce4DwrNEmNzTIcuaAjkA</string>
-    <string name='client_secret'>GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA</string>
+    <!--<string name='client_secret'>GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA</string>-->
 
     <string name='sandbox_client_id'>0000000cRqnBaKamtp2ACbjvFdtJQx13</string>
-    <string name='sandbox_client_secret'>0000000pGDzQNAPHzBH6hBTHphl4Q1e9</string>
+    <!--<string name='sandbox_client_secret'>0000000pGDzQNAPHzBH6hBTHphl4Q1e9</string>-->
 
     <!-- production fb sc app id -->
     <string name='production_facebook_app_id'>19507961798</string>
@@ -13,7 +13,6 @@
     <string name='sandbox_facebook_app_id'>18665667761</string>
 
     <string name="account_type">com.soundcloud.android.account</string>
-
 
     <string name="at_tracking_subdomain">logc252</string>
     <string name="at_tracking_siteid">497388</string>
