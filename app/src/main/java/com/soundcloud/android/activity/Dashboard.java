@@ -1,24 +1,16 @@
 package com.soundcloud.android.activity;
 
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.adapter.EventsAdapterWrapper;
-import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.provider.Content;
-import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
-import com.soundcloud.android.view.ScTabView;
 
-import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,7 +26,6 @@ public class Dashboard extends ScListActivity {
         final Intent intent = getIntent();
         if (redirectToMain(intent)) return;
 
-        ScTabView trackListView;
         EmptyCollection ec = new EmptyCollection(this);
 
         /*
@@ -110,18 +101,12 @@ public class Dashboard extends ScListActivity {
 
         }*/
 
-        trackListView = createList(getIncomingType(),
-                ec,
-                Consts.ListId.LIST_STREAM, false);
 
         mTrackingPage = Page.Stream_main;
 
-        setContentView(trackListView);
+        setContentView(null);
 
-        mPreviousState = (Object[]) getLastCustomNonConfigurationInstance();
-        if (mPreviousState != null) {
-            mListView.getWrapper().restoreState(mPreviousState);
-        }
+
     }
 
     private void goToFriendFinder() {
@@ -152,34 +137,6 @@ public class Dashboard extends ScListActivity {
                 .cancel(Consts.Notifications.DASHBOARD_NOTIFY_STREAM_ID);
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (mListView != null && mListView.getWrapper() != null) {
-            ((EventsAdapterWrapper) mListView.getWrapper()).onPause();
-        }
-    }
-
-    protected ScTabView createList(Content content, EmptyCollection emptyView, int listId, boolean isNews) {
-        ScBaseAdapter adp = new ScBaseAdapter(this, content);
-        EventsAdapterWrapper adpWrap = new EventsAdapterWrapper(this, adp, content);
-
-        final ScTabView view = new ScTabView(this);
-        mListView = view.setLazyListView(buildList(!isNews), adpWrap, listId, true);
-        mListView.getRefreshableView().setFastScrollEnabled(true);
-        adpWrap.setEmptyView(emptyView);
-        return view;
-    }
-
-    @Override
-    public Object onRetainCustomNonConfigurationInstance() {
-        if (mListView != null && mListView.getWrapper() != null) {
-            return mListView.getWrapper().saveState();
-        } else {
-            return null;
-        }
-    }
-
     // legacy action, redirect to Main
     private boolean redirectToMain(Intent intent) {
         if (intent != null && Intent.ACTION_MAIN.equals(intent.getAction())) {
@@ -197,59 +154,6 @@ public class Dashboard extends ScListActivity {
                 R.drawable.ic_menu_incoming);
 
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case Consts.OptionsMenu.FILTER:
-                track(Page.Stream_stream_setting, getApp().getLoggedInUser());
-                track(Click.Stream_main_stream_setting);
-
-                new AlertDialog.Builder(this)
-                        .setTitle(getString(R.string.dashboard_filter_title))
-                        .setNegativeButton(R.string.dashboard_filter_cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                track(Click.Stream_box_stream_cancel);
-                            }
-                        })
-                        .setItems(new String[]{
-                                getString(R.string.dashboard_filter_all),
-                                getString(R.string.dashboard_filter_exclusive)
-                        },
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        final boolean exclusive = which == 1;
-
-                                        SharedPreferencesUtils.apply(PreferenceManager
-                                                .getDefaultSharedPreferences(Dashboard.this)
-                                                .edit()
-                                                .putBoolean(Consts.PrefKeys.EXCLUSIVE_ONLY_KEY, exclusive));
-
-                                        ((EventsAdapterWrapper) mListView.getWrapper()).setContent(exclusive ?
-                                                Content.ME_EXCLUSIVE_STREAM : Content.ME_SOUND_STREAM);
-
-                                        mListView.getWrapper().reset();
-                                        mListView.getRefreshableView().invalidateViews();
-                                        mListView.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                mListView.getWrapper().onRefresh();
-                                            }
-                                        });
-
-                                        track(exclusive ? Click.Stream_box_stream_only_Exclusive
-                                                : Click.Stream_box_stream_all_tracks);
-                                    }
-                                })
-                        .create()
-                        .show();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
 }

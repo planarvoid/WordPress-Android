@@ -1,15 +1,14 @@
 package com.soundcloud.android.view;
 
-import android.content.Context;
-import android.os.Parcelable;
-import android.text.SpannableStringBuilder;
-
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.adapter.ScBaseAdapter;
-import com.soundcloud.android.adapter.SectionedCommentAdapter;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.model.User;
+
+import android.content.Context;
+import android.os.Parcelable;
+import android.text.SpannableStringBuilder;
 
 import java.util.Date;
 
@@ -19,11 +18,6 @@ public class CommentRow extends ActivityRow {
 
     public CommentRow(Context activity, ScBaseAdapter adapter) {
         super(activity, adapter);
-    }
-
-    public CommentRow(Context mActivity, SectionedCommentAdapter sectionedCommentAdapter, Track track) {
-        super(mActivity, sectionedCommentAdapter);
-        mTrack = track;
     }
 
     @Override

@@ -1,11 +1,8 @@
 package com.soundcloud.android.task;
 
-import android.os.AsyncTask;
-import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.Log;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Track;
@@ -18,18 +15,22 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
+import android.os.AsyncTask;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.BaseAdapter;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
 public class UpdateCollectionTask extends AsyncTask<Map<Long, ScModel>, String, Boolean> {
     protected SoundCloudApplication mApp;
     protected Class<?> mLoadModel;
-    protected WeakReference<LazyEndlessAdapter> mAdapterReference;
+    protected WeakReference<BaseAdapter> mAdapterReference;
 
     public UpdateCollectionTask(SoundCloudApplication app,Class<?> loadModel) {
         mApp = app;
@@ -39,15 +40,15 @@ public class UpdateCollectionTask extends AsyncTask<Map<Long, ScModel>, String, 
         }
     }
 
-    public void setAdapter(LazyEndlessAdapter lazyEndlessAdapter) {
-        mAdapterReference = new WeakReference<LazyEndlessAdapter>(lazyEndlessAdapter);
+    public void setAdapter(BaseAdapter lazyEndlessAdapter) {
+        mAdapterReference = new WeakReference<BaseAdapter>(lazyEndlessAdapter);
     }
 
 
 
     @Override
     protected void onProgressUpdate(String... values) {
-        final LazyEndlessAdapter adapter = mAdapterReference.get();
+        final BaseAdapter adapter = mAdapterReference.get();
         if (adapter != null){
             adapter.notifyDataSetChanged();
         }

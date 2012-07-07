@@ -467,10 +467,16 @@
         <item name="android:animationResolution">33</item>
     </style>
 
+    <style name="ScProgressBarHolo.List" parent="android:Widget.ProgressBar">
+        <item name="android:indeterminateDrawable">@drawable/progress_medium_holo</item>
+        <item name="android:animationResolution">33</item>
+    </style>
+
     <style name="ScProgressBarHolo.Small" parent="android:Widget.ProgressBar.Small">
         <item name="android:indeterminateDrawable">@drawable/progress_medium_holo</item>
         <item name="android:animationResolution">33</item>
     </style>
+
 
     <style name="ScProgressBarRound">
         <item name="android:background">@drawable/progress_bar_round_bg</item>

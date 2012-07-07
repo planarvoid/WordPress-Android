@@ -33,7 +33,6 @@ public class ScBaseAdapter extends BaseAdapter implements IScAdapter {
     public static final int NOTIFY_DELAY = 300;
     protected Context mContext;
     protected Content mContent;
-    protected LazyEndlessAdapter mWrapper;
     protected List<Parcelable> mData;
     protected int mPage = 1;
     private QuickAction mQuickActionMenu;
@@ -50,16 +49,8 @@ public class ScBaseAdapter extends BaseAdapter implements IScAdapter {
         mData = new ArrayList<Parcelable>();
 
         if (Track.class.isAssignableFrom(content.resourceType) ){
-            mQuickActionMenu = new QuickTrackMenu((ScListActivity) context, this);
+            mQuickActionMenu = new QuickTrackMenu(context, this);
         }
-    }
-
-    public void setWrapper(LazyEndlessAdapter wrapper) {
-        mWrapper = wrapper;
-    }
-
-    public LazyEndlessAdapter getWrapper() {
-        return mWrapper;
     }
 
     public void setContent(Content content) {

@@ -5,8 +5,6 @@ import static com.soundcloud.android.model.LocalCollection.insertLocalCollection
 import static com.soundcloud.android.service.sync.ApiSyncer.getAdditionsFromIds;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.adapter.LazyEndlessAdapter;
-import com.soundcloud.android.adapter.RemoteCollectionAdapter;
 import com.soundcloud.android.model.CollectionHolder;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.LocalCollectionPage;
@@ -31,12 +29,11 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcelable>, Boolean>
-                                  implements ILazyAdapterTask {
+public class RemoteCollectionTask extends AsyncTask<RemoteCollectionTask.CollectionParams, RemoteCollectionTask.ReturnData, RemoteCollectionTask.ReturnData> {
 
     protected SoundCloudApplication mApp;
     protected CollectionParams mParams;
-    protected WeakReference<LazyEndlessAdapter> mAdapterReference;
+    protected WeakReference<Callback> mCallback;
     public boolean keepGoing;
     /* package */ List<Parcelable> mNewItems = new ArrayList<Parcelable>();
 
@@ -64,35 +61,64 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
         }
     }
 
-    public RemoteCollectionTask(SoundCloudApplication app, LazyEndlessAdapter lazyEndlessAdapter) {
+    public static class ReturnData {
+        public List<Parcelable> newItems;
+        public String nextHref;
+        public int responseCode;
+        public boolean keepGoing;
+        public boolean wasRefresh;
+        public boolean success;
+
+        public ReturnData(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean refresh, boolean success) {
+            this.newItems = newItems;
+            this.nextHref = nextHref;
+            this.responseCode = responseCode;
+            this.keepGoing = keepGoing;
+            this.wasRefresh= refresh;
+            this.success = success;
+        }
+
+        @Override
+        public String toString() {
+            return "ReturnData{" +
+                    "keepGoing=" + keepGoing +
+                    ", newItems=" + newItems +
+                    ", nextHref='" + nextHref + '\'' +
+                    ", responseCode=" + responseCode +
+                    ", wasRefresh=" + wasRefresh +
+                    ", success=" + success +
+                    '}';
+        }
+    }
+
+    public interface Callback {
+        void onPostTaskExecute(ReturnData data);
+    }
+
+    public RemoteCollectionTask(SoundCloudApplication app, Callback callback) {
         mApp = app;
-        setAdapter(lazyEndlessAdapter);
-    }
-
-    public void setAdapter(LazyEndlessAdapter lazyEndlessAdapter) {
-        mAdapterReference = new WeakReference<LazyEndlessAdapter>(lazyEndlessAdapter);
+        mCallback = new WeakReference<Callback>(callback);
     }
 
     @Override
-    protected void onPostExecute(Boolean success) {
-        if (!success) respond();
+    protected void onPostExecute(ReturnData returnData) {
+        respond(returnData);
     }
 
-    @Override
-    protected void onProgressUpdate(List<? super Parcelable>... values) {
-        respond();
+    protected void onProgressUpdate(ReturnData returnData) {
+        respond(returnData);
     }
 
-    protected void respond(){
-        RemoteCollectionAdapter adapter = (RemoteCollectionAdapter) mAdapterReference.get();
-        if (adapter != null) {
-            adapter.onPostTaskExecute(mNewItems, mNextHref, mResponseCode, keepGoing, mParams.isRefresh);
+    protected void respond(ReturnData returnData){
+        Callback callback = mCallback.get();
+        if (callback != null) {
+            callback.onPostTaskExecute(returnData);
         }
     }
 
     @Override
-    protected Boolean doInBackground(Object... params) {
-        mParams = (CollectionParams) params[0];
+    protected ReturnData doInBackground(CollectionParams... params) {
+        mParams = params[0];
         Log.i(TAG, getClass().getSimpleName() + "Loading collection with params: " + mParams);
 
         if (mParams.contentUri == null && mParams.request != null) {
@@ -112,17 +138,20 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
             for (Parcelable p : mNewItems) {
                 ((ScModel) p).resolve(mApp);
             }
-            publishProgress(mNewItems);
-            return true;
+            return buildReturnData(true);
 
         } else {
             // no local content, fail
             keepGoing = false;
-            return false;
+            return buildReturnData(false);
         }
     }
 
-    protected boolean doRemoteLoad() {
+    private ReturnData buildReturnData(boolean success){
+        return new ReturnData(mNewItems, mNextHref, mResponseCode, keepGoing, mParams.isRefresh, success);
+    }
+
+    protected ReturnData doRemoteLoad() {
         try {
             HttpResponse resp = mApp.get(mParams.request);
             mResponseCode = resp.getStatusLine().getStatusCode();
@@ -138,16 +167,13 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
             for (Parcelable p : mNewItems) {
                 ((ScModel) p).resolve(mApp);
             }
-
-            // publish what we have, since we already have the items, we don't have to wait on a db commit
-            publishProgress(mNewItems);
-            return true;
+            return buildReturnData(true);
 
         } catch (IOException e) {
             Log.e(TAG, "error", e);
             keepGoing = false;
         }
-        return false;
+        return buildReturnData(false);
     }
 
     private int insertMissingItems(List<Long> pageIds) throws IOException {
@@ -185,7 +211,7 @@ public class RemoteCollectionTask extends AsyncTask<Object, List<? super Parcela
 
     protected List<? extends Parcelable> loadLocalContent(){
         Cursor itemsCursor = mApp.getContentResolver().query(
-                SoundCloudDB.addPagingParams(mParams.contentUi, mParams.startIndex, mParams.maxToLoad)
+                SoundCloudDB.addPagingParams(mParams.contentUri, mParams.startIndex, mParams.maxToLoad)
                 , null, null, null, null);
             List<Parcelable> items = new ArrayList<Parcelable>();
             if (itemsCursor != null && itemsCursor.moveToFirst()) {

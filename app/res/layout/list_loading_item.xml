@@ -10,7 +10,7 @@
                  android:layout_height="wrap_content"
                  android:layout_margin="20dip"
                  android:gravity="center_vertical"
-                 style="@style/ScProgressBarHolo.Small"
+                 style="@style/ScProgressBarHolo.List"
                  android:layout_centerVertical="true"
                  android:layout_centerInParent="true"/>
 </RelativeLayout>

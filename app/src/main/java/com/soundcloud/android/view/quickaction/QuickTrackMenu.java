@@ -1,13 +1,12 @@
 package com.soundcloud.android.view.quickaction;
 
-import android.content.Intent;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.ScListActivity;
-import com.soundcloud.android.activity.UserBrowser;
 import com.soundcloud.android.adapter.IScAdapter;
 import com.soundcloud.android.adapter.ScBaseAdapter;
 import com.soundcloud.android.model.Track;
@@ -28,24 +27,24 @@ public class QuickTrackMenu extends QuickAction {
     private Drawable mPlayDrawable;
     private Drawable mPauseDrawable;
 
-    private ScListActivity mActivity;
+    private Context mContext;
     private IScAdapter mAdapter;
 
-    public QuickTrackMenu(ScListActivity activity, ScBaseAdapter tracklistAdapter) {
-        super(activity);
+    public QuickTrackMenu(Context context, ScBaseAdapter tracklistAdapter) {
+        super(context);
 
-        mActivity = activity;
+        mContext = context;
         mAdapter = tracklistAdapter;
 
-        mPlayActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_left_states), getPlayDrawable());
+        mPlayActionItem = new ActionItem(mContext, mContext.getResources().getDrawable(R.drawable.bg_submenu_left_states), getPlayDrawable());
         //mPlayActionItem.setTitle("Play");
-        mFavoriteActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), getLikeDrawable());
+        mFavoriteActionItem = new ActionItem(mContext, mContext.getResources().getDrawable(R.drawable.bg_submenu_states), getLikeDrawable());
         //mFavoriteActionItem.setTitle("Favorite");
-        mCommentActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), mActivity.getResources().getDrawable(R.drawable.ic_submenu_comment_states));
+        mCommentActionItem = new ActionItem(mContext, mContext.getResources().getDrawable(R.drawable.bg_submenu_states), mContext.getResources().getDrawable(R.drawable.ic_submenu_comment_states));
         //mCommentActionItem.setTitle("Comment");
-        mShareActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_states), mActivity.getResources().getDrawable(R.drawable.ic_submenu_share_states));
+        mShareActionItem = new ActionItem(mContext, mContext.getResources().getDrawable(R.drawable.bg_submenu_states), mContext.getResources().getDrawable(R.drawable.ic_submenu_share_states));
         //mShareActionItem.setTitle(("Share"));
-        mProfileActionItem = new ActionItem(mActivity, mActivity.getResources().getDrawable(R.drawable.bg_submenu_right_states), mActivity.getResources().getDrawable(R.drawable.avatar_badge));
+        mProfileActionItem = new ActionItem(mContext, mContext.getResources().getDrawable(R.drawable.bg_submenu_right_states), mContext.getResources().getDrawable(R.drawable.avatar_badge));
         //mProfileActionItem.setTitle("Profile");
 
         addActionItem(mPlayActionItem);
@@ -66,9 +65,9 @@ public class QuickTrackMenu extends QuickAction {
         mFavoriteActionItem.setIcon(track.user_favorite ? getLikedDrawable() : getLikeDrawable());
 
         if (!track.hasAvatar() ||
-                ImageUtils.loadImageSubstitute(mActivity, mProfileActionItem.getIconView(), track.user.avatar_url,
-                        Consts.GraphicSize.getListItemGraphicSize(mActivity), null, null) != ImageLoader.BindResult.OK) {
-            mProfileActionItem.getIconView().setImageDrawable(mActivity.getResources().getDrawable(R.drawable.avatar_badge));
+                ImageUtils.loadImageSubstitute(mContext, mProfileActionItem.getIconView(), track.user.avatar_url,
+                        Consts.GraphicSize.getListItemGraphicSize(mContext), null, null) != ImageLoader.BindResult.OK) {
+            mProfileActionItem.getIconView().setImageDrawable(mContext.getResources().getDrawable(R.drawable.avatar_badge));
 
         }
 
@@ -82,9 +81,9 @@ public class QuickTrackMenu extends QuickAction {
                 switch (pos) {
                     case 0:
                         if (CloudPlaybackService.isTrackPlaying(track.id)) {
-                            mActivity.pausePlayback();
+                            mContext.pausePlayback();
                         } else {
-                            mActivity.playTrack(mAdapter.getWrapper().getPlayInfo(itemPosition), false, false);
+                            mContext.playTrack(mAdapter.getWrapper().getPlayInfo(itemPosition), false, false);
                         }
                         break;
 
@@ -99,19 +98,19 @@ public class QuickTrackMenu extends QuickAction {
                         break;
 
                     case 2:
-                        mActivity.playTrack(mAdapter.getWrapper().getPlayInfo(pos), true, true);
+                        mContext.playTrack(mAdapter.getWrapper().getPlayInfo(pos), true, true);
                         break;
                     case 3:
                         Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
                         shareIntent.setType("text/plain");
                         shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, track.title + " by " + track.user.username + " on #SoundCloud");
                         shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, track.permalink_url);
-                        mActivity.startActivity(Intent.createChooser(shareIntent, "Share: " + track.title));
+                        mContext.startActivity(Intent.createChooser(shareIntent, "Share: " + track.title));
                         break;
                     case 4:
-                        Intent intent = new Intent(mActivity, UserBrowser.class);
+                        Intent intent = new Intent(mContext, UserBrowser.class);
                         intent.putExtra("user", track.user);
-                        mActivity.startActivity(intent);
+                        mContext.startActivity(intent);
 
                         break;
                 }
