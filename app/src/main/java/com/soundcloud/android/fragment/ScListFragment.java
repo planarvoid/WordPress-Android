@@ -111,6 +111,7 @@ public class ScListFragment extends SherlockListFragment
             // TODO :  Move off the UI thread.
             mLocalCollection = LocalCollection.fromContentUri(mContentUri, contentResolver, true);
             mLocalCollection.startObservingSelf(contentResolver, this);
+
             mChangeObserver = new ChangeObserver();
             mObservingContent = true;
             contentResolver.registerContentObserver(mContentUri, true, mChangeObserver);
@@ -136,7 +137,10 @@ public class ScListFragment extends SherlockListFragment
 
         mListView = buildList();
         mListView.setOnRefreshListener(this);
-        mListView.setEmptyView(new EmptyCollection(context));
+
+        mEmptyCollection = EmptyCollection.fromContent(context, mContent);
+        mEmptyCollection.setHasSyncedBefore(mLocalCollection.hasSyncedBefore());
+        mListView.setEmptyView(mEmptyCollection);
 
         root.addView(mListView, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -154,49 +158,26 @@ public class ScListFragment extends SherlockListFragment
         super.onAttach(activity);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
-    public void setCustomEmptyCollection(EmptyCollection emptyCollection) {
-        mEmptyCollection = emptyCollection;
-    }
-
-    public void setEmptyViewText(String str) {
-        mEmptyCollectionText = str;
-    }
-
     public ScActivity getScActivity() {
         return (ScActivity) getActivity();
     }
 
-    public ScListView getScListView() {
-        return mListView;
-    }
-
     public ScListView buildList() {
-        return configureList(new ScListView((ScListActivity) getActivity()), false);
+        return configureList(new ScListView(getActivity()));
     }
 
-    public ScListView buildList(boolean longClickable) {
-        return configureList(new ScListView((ScListActivity) getActivity()), longClickable);
-    }
-
-
-    public ScListView configureList(ScListView lv, boolean longClickable) {
+    public ScListView configureList(ScListView lv) {
         //lv.setId(android.R.id.list);
         lv.getRefreshableView().setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         lv.getRefreshableView().setFastScrollEnabled(false);
         lv.getRefreshableView().setDivider(getResources().getDrawable(R.drawable.list_separator));
         lv.getRefreshableView().setDividerHeight(1);
         lv.getRefreshableView().setCacheColorHint(Color.TRANSPARENT);
-        lv.getRefreshableView().setLongClickable(longClickable);
         return lv;
     }
 
     public ScBaseAdapter getBaseAdapter() {
         return mBaseAdapter;
-    }
-
-
-    private Uri getCurrentUri() {
-        return mContent.uri.buildUpon().appendQueryParameter("limit", String.valueOf(mPageIndex * Consts.COLLECTION_PAGE_SIZE)).build();
     }
 
     protected DetachableResultReceiver getReceiver() {
@@ -213,21 +194,6 @@ public class ScListFragment extends SherlockListFragment
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
     }
 
-    private Handler connHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case CONNECTIVITY_MSG:
-                    if (connectivityListener != null) {
-                        final NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
-                        if (networkInfo != null) {
-                            onDataConnectionUpdated(networkInfo.isConnectedOrConnecting());
-                        }
-                    }
-                    break;
-            }
-        }
-    };
 
     protected void onDataConnectionUpdated(boolean isConnected) {
         mIsConnected = isConnected;
@@ -419,6 +385,7 @@ public class ScListFragment extends SherlockListFragment
     @Override
     public void onLocalCollectionChanged() {
         refreshSyncData();
+        mEmptyCollection.setHasSyncedBefore(mLocalCollection.hasSyncedBefore());
     }
 
     protected void addNewItems(List<Parcelable> newItems) {
@@ -494,6 +461,23 @@ public class ScListFragment extends SherlockListFragment
     public void onRefresh() {
         refresh(true);
     }
+
+    private Handler connHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case CONNECTIVITY_MSG:
+                        if (connectivityListener != null) {
+                            final NetworkInfo networkInfo = connectivityListener.getNetworkInfo();
+                            if (networkInfo != null) {
+                                onDataConnectionUpdated(networkInfo.isConnectedOrConnecting());
+                            }
+                        }
+                        break;
+                }
+            }
+        };
+
 
     private class ChangeObserver extends ContentObserver {
         public ChangeObserver() {

@@ -3,6 +3,8 @@
 
     <string name="btn_revert_to_original">Revert to original</string>
 
+    <string name="waiting_for_sync">Waiting for sync...</string>
+
     <string name="fade_toggle_on">Fades on</string>
     <string name="fade_toggle_off">No Fading</string>
 
