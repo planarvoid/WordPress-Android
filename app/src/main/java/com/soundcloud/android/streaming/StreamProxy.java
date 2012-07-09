@@ -351,7 +351,7 @@ public class StreamProxy implements Runnable {
                     channel.write(header);
 
                     // since we already got some data for this track, ready to queue next one
-                    queueNextUrl(nextUrl, 6000);
+                    queueNextUrl(nextUrl, 10000);
                 } else {
                     // subsequent chunks
                     buffer = stream.get(TRANSFER_TIMEOUT, TimeUnit.SECONDS);
