@@ -229,6 +229,10 @@ public class StreamProxy implements Runnable {
     }
 
     private void processRequest(HttpGet request, Socket client) {
+        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
+            logRequest(request);
+        }
+
         final Uri uri = Uri.parse(request.getURI().toString());
         final String streamUrl = uri.getQueryParameter(PARAM_STREAM_URL);
         final String nextUrl = uri.getQueryParameter(PARAM_NEXT_STREAM_URL);
@@ -281,6 +285,12 @@ public class StreamProxy implements Runnable {
         }
     }
 
+    private void logRequest(HttpGet request) {
+        for (Header h : request.getAllHeaders()) {
+            Log.d(LOG_TAG, h.getName()+": "+h.getValue());
+            }
+    }
+
     private void queueNextUrl(String nextUrl, long delay) {
         if (nextUrl != null) {
             loader.preloadDataForUrl(nextUrl, delay);
@@ -329,7 +339,8 @@ public class StreamProxy implements Runnable {
                     // first chunk
                     buffer = stream.get(INITIAL_TIMEOUT, TimeUnit.SECONDS);
                     final long length = stream.item.getContentLength();
-                    headers.put("Content-Length", String.valueOf(length));
+                    // NB: Content-Length is the number of bytes in the body sent, not the total length of the resource
+                    headers.put("Content-Length", String.valueOf(length - offset));
                     headers.put("ETag", stream.item.etag());
 
                     if (startByte != 0) {
@@ -355,7 +366,8 @@ public class StreamProxy implements Runnable {
 
                 offset += channel.write(buffer);
                 if (offset >= stream.item.getContentLength()) {
-                    if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG, "reached end of stream");
+                    if (Log.isLoggable(LOG_TAG, Log.DEBUG)) Log.d(LOG_TAG,
+                            String.format("reached end of stream (%d > %d)", offset, stream.item.getContentLength()));
                     break;
                 }
             } catch (TimeoutException e) {
