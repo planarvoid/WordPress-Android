@@ -99,9 +99,11 @@
     <string name="resolve_progress">Loading</string>
     <string name="error_loading_url">There was a problem loading that url</string>
 
-
     <string name="cloud_uploader_notification_transcoding_error_message">There was an error transcoding %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoding Error</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Transcoding Error</string>
+
+    <!-- error to show when signup scope was revoked on server side -->
+    <string name="signup_scope_revoked">Sorry, sign up is no longer possible with this version of the app. Please check to see if you can upgrade to a more recent version.</string>
 
 </resources>

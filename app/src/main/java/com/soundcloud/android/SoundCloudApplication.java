@@ -345,7 +345,6 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
-
     private Token getToken(Account account) {
         return new Token(getAccessToken(account), getRefreshToken(account), getAccountData(Token.SCOPE));
     }
