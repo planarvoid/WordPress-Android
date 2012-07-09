@@ -104,6 +104,5 @@
     <string name="cloud_uploader_notification_transcoding_error_title">Transcoding Error</string>
 
     <!-- error to show when signup scope was revoked on server side -->
-    <string name="signup_scope_revoked">Sorry, sign up is no longer possible with this version of the app. Please check to see if you can upgrade to a more recent version.</string>
-
+    <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
 </resources>
