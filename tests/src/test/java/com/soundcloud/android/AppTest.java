@@ -19,4 +19,13 @@ public class AppTest {
     public void shouldNotBeDetectedAsDalvik() throws Exception {
         expect(SoundCloudApplication.DALVIK).toBeFalse();
     }
+
+    @Test
+    public void shouldDeobfuscateClientSecret() throws Exception {
+        expect(DefaultTestRunner.application.getClientSecret(false))
+                .toEqual("0000000pGDzQNAPHzBH6hBTHphl4Q1e9");
+
+        expect(DefaultTestRunner.application.getClientSecret(true))
+                .toEqual("GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA");
+    }
 }

@@ -29,7 +29,6 @@ public class TestApplication extends SoundCloudApplication {
         mCloudApi = new Wrapper(null, "id", "secret", null, token, Env.LIVE);
     }
 
-
     @Override
     public Account getAccount() {
         return account;
