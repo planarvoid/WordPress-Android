@@ -7,6 +7,10 @@ Make sure the [Android SDK][] and Maven are installed:
     $ brew install android-sdk  # OSX
     $ mvn -version
 
+Add this line to your .zshrc (or bash or whatever)
+
+    export ANDROID_HOME=/usr/local/Cellar/android-sdk/r20
+
 Clone and build it:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git
