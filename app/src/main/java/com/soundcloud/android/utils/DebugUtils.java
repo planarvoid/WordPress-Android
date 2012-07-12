@@ -10,9 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -25,9 +27,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.Map;
 
 public class DebugUtils {
+
+    @SuppressWarnings("UnusedDeclaration")
+    public static void dumpIntent(Intent intent) {
+        Log.d(TAG, "dumpIntent("+intent+")");
+
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            for (String k : extras.keySet()) {
+                Object value = extras.get(k);
+                map.put(k, value);
+            }
+            Log.d(TAG, "extras: "+map);
+        }
+    }
+
     public static void dumpStack(@NotNull Context context) {
         Map<Thread, StackTraceElement[]> traces = Thread.getAllStackTraces();
         final File debugDir = context.getExternalFilesDir("debug");
