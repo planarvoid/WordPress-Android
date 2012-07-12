@@ -1,6 +1,12 @@
 <resources>
     <!-- api keys -->
-    <string name='client_id'>xce4DwrNEmNzTIcuaAjkA</string>
+
+    <!-- new credential for 2.2.10 -->
+    <string name='client_id'>40ccfee680a844780a41fbe23ea89934</string>
+    <!-- client_secret: 26a5240f7ee0ee2d4fa9956ed80616c2 -->
+
+    <!-- credential used in < 2.2.10 -->
+    <!--<string name='client_id'>xce4DwrNEmNzTIcuaAjkA</string>-->
     <!--<string name='client_secret'>GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA</string>-->
 
     <string name='sandbox_client_id'>0000000cRqnBaKamtp2ACbjvFdtJQx13</string>

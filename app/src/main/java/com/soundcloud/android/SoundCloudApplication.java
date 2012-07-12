@@ -361,11 +361,15 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
                             0xA2A0313C7077F81BL, 0xF42A7E5EEB220859L, 0xE593789593AFFA3L,
                             0xF564A09AA0B465A6L};
 
+        final long[] prod2 =
+                new long[] {0xCFDBF8AB10DCADA3L, 0x6C580A13A4B7801L, 0x607547EC749EBFB4L,
+                            0x300C455E649B39A7L, 0x20A6BAC9576286CBL};
+
         final long[] sandbox =
                 new long[] {0x7FA4855507D9000FL, 0x91C67776A3692339L, 0x24D0C4EF5AF943E8L,
                             0x7CEC0CF7DDAAE26BL, 0x7EB2854D631380BEL};
 
-        return ScTextUtils.deobfuscate(production ? prod : sandbox);
+        return ScTextUtils.deobfuscate(production ? prod2 : sandbox);
     }
 
     private Token getToken(Account account) {
