@@ -11,6 +11,10 @@ Add this line to your .zshrc (or bash or whatever)
 
     export ANDROID_HOME=/usr/local/Cellar/android-sdk/r20
 
+Run
+
+    $ /usr/local/Cellar/android-sdk/r20/tools/android update sdk --no-ui --obsolete --force
+
 Clone and build it:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git
