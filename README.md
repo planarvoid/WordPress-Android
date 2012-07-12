@@ -7,6 +7,16 @@ Make sure the [Android SDK][], [Android NDK][] and Maven are installed:
     $ brew install android-sdk android-ndk # OSX - you'll also need XCode CLI tools
     $ mvn -version
 
+Add thess lines to your .zshrc (or bash or whatever)
+
+    export ANDROID_HOME=/usr/local/Cellar/android-sdk/r20
+    export ANDROID_SDK_ROOT=/usr/local/Cellar/android-sdk/r20
+    export ANDROID_SDK_HOME=/usr/local/Cellar/android-sdk/r20
+
+Run
+
+    $ /usr/local/Cellar/android-sdk/r20/tools/android update sdk --no-ui --obsolete --force
+
 Clone and build it:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git

@@ -243,7 +243,7 @@ public class Main extends TabActivity implements
     }
 
     protected boolean handleViewUrl(Intent intent) {
-        if (!Intent.ACTION_VIEW.equals(intent.getAction()) && !FacebookSSO.isFacebookView(this, intent))
+        if (!Intent.ACTION_VIEW.equals(intent.getAction()) && !FacebookSSO.handleFacebookView(this, intent))
             return false;
         Uri data = intent.getData();
         if (data == null) return false;

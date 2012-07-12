@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
@@ -368,6 +369,7 @@ public class User extends ScModel implements  Refreshable, Origin {
         }
         Activities.clear(null, resolver);
         PlaylistManager.clearState(context);
+        FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
         Search.clearState(resolver, SoundCloudApplication.getUserId());
     }
 
