@@ -7,9 +7,11 @@ Make sure the [Android SDK][] and Maven are installed:
     $ brew install android-sdk  # OSX
     $ mvn -version
 
-Add this line to your .zshrc (or bash or whatever)
+Add thess lines to your .zshrc (or bash or whatever)
 
     export ANDROID_HOME=/usr/local/Cellar/android-sdk/r20
+    export ANDROID_SDK_ROOT=/usr/local/Cellar/android-sdk/r20
+    export ANDROID_SDK_HOME=/usr/local/Cellar/android-sdk/r20
 
 Run
 
