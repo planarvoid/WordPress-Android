@@ -47,7 +47,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldInsertAndQueryRecordings() throws Exception {
-        Recording r = new Recording(new File("/tmp/test"));
+        Recording r = Recording.create();
         r.user_id = USER_ID;
 
         Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
@@ -132,14 +132,12 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldIncludeUsernameForPrivateRecordings() throws Exception {
-        Recording r = new Recording(new File("/tmp/test"));
-        r.user_id = USER_ID;
-        r.private_user_id = USER_ID;
-
         User user = new User();
         user.id = USER_ID;
         user.username = "current user";
 
+        Recording r = Recording.create(user);
+        r.user_id = USER_ID;
         expect(resolver.insert(Content.USERS.uri, user.buildContentValues())).not.toBeNull();
         Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
 
@@ -224,7 +222,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldCreateAndDeleteARecording() throws Exception {
-        Recording r = new Recording(new File("/tmp"));
+        Recording r = Recording.create();
         r.user_id = USER_ID;
         Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
         expect(uri).not.toBeNull();
@@ -393,7 +391,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldEnableSyncing() throws Exception {
-        RobolectricTestRunner.setStaticValue(Build.VERSION.class, "SDK_INT", 8);
+        TestHelper.setSdkVersion(8);
         Account account = new Account("name", "type");
         ScContentProvider.enableSyncing(account, 3600);
 
@@ -409,7 +407,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldDisableSyncing() throws Exception {
-        RobolectricTestRunner.setStaticValue(Build.VERSION.class, "SDK_INT", 8);
+        TestHelper.setSdkVersion(8);
         Account account = new Account("name", "type");
         ScContentProvider.enableSyncing(account, 3600);
         List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, ScContentProvider.AUTHORITY);

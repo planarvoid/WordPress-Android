@@ -1,9 +1,7 @@
 package com.soundcloud.android.robolectric;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
-import static com.xtremelabs.robolectric.Robolectric.newInstanceOf;
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static com.xtremelabs.robolectric.Robolectric.*;
 
 import com.soundcloud.android.provider.Content;
 import com.xtremelabs.robolectric.Robolectric;
@@ -17,6 +15,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
 
@@ -130,6 +129,10 @@ public class TestHelper {
         }
         sb.append("] }");
         Robolectric.addHttpResponseRule(url, new TestHttpResponse(200, sb.toString()));
+    }
+
+    public static void setSdkVersion(int version) {
+        Robolectric.Reflection.setFinalStaticField(Build.VERSION.class, "SDK_INT", version);
     }
 
     public static void enableSDCard(){

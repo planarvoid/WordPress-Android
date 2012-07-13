@@ -91,7 +91,7 @@ public abstract class ScModel implements Parcelable {
         this.id = data.getLong("id");
     }
 
-    @Override // XXX AVOID THIS: slow (reflection)
+    @Override @Deprecated // XXX AVOID THIS: slow (reflection)
     public void writeToParcel(Parcel out, int flags) {
         Bundle data = new Bundle();
         for (Field f : getClass().getDeclaredFields()) {
@@ -116,16 +116,20 @@ public abstract class ScModel implements Parcelable {
     protected static void setBundleFromField(Bundle bundle, String fieldName, Class fieldType, Object fieldValue) {
         if (fieldType == String.class && !TextUtils.isEmpty(String.valueOf(fieldValue)))
             bundle.putString(fieldName, (String) fieldValue);
-        else if (fieldType == Integer.TYPE || fieldType == Integer.class)
+        else if (fieldType.equals(Integer.TYPE) || fieldType.equals(Integer.class))
             bundle.putInt(fieldName, (Integer) fieldValue);
-        else if (fieldType == Long.TYPE || fieldType == Long.class)
+        else if (fieldType.equals(Long.TYPE) || fieldType.equals(Long.class))
             bundle.putLong(fieldName, (Long) fieldValue);
-        else if (fieldType == boolean.class)
+        else if (fieldType.equals(Double.TYPE) || fieldType.equals(Double.class))
+            bundle.putDouble(fieldName, (Double) fieldValue);
+        else if (fieldType.equals(boolean.class))
             bundle.putBoolean(fieldName, (Boolean) fieldValue);
-        else if (fieldType == Date.class)
+        else if (fieldType.equals(Date.class))
             bundle.putLong(fieldName, ((Date) fieldValue).getTime());
         else if (Parcelable.class.isAssignableFrom(fieldType)) {
             bundle.putParcelable(fieldName, (Parcelable) fieldValue);
+        } else if (File.class.isAssignableFrom(fieldType)) {
+            bundle.putString(fieldName, ((File)fieldValue).getAbsolutePath());
         } else {
             Log.i(TAG, "Ignoring " + fieldName + " of type " + fieldType);
         }
@@ -135,17 +139,19 @@ public abstract class ScModel implements Parcelable {
     protected static void setFieldFromBundle(Parcelable p, Field field, Bundle bundle, String key) {
         try {
             if (field != null) {
-                if (field.getType() == String.class) {
+                if (field.getType().equals(String.class)) {
                     field.set(p, bundle.getString(key));
-                } else if (field.getType() == Long.TYPE || field.getType() == Long.class) {
+                } else if (field.getType().equals(Long.TYPE) || field.getType().equals(Long.class)) {
                     field.set(p, bundle.getLong(key));
-                } else if (field.getType() == Integer.TYPE || field.getType() == Integer.class) {
+                } else if (field.getType().equals(Integer.TYPE) || field.getType().equals(Integer.class)) {
                     field.set(p, bundle.getInt(key));
-                } else if (field.getType() == Boolean.TYPE) {
+                } else if (field.getType().equals(Double.TYPE) || field.getType().equals(Double.class)) {
+                    field.set(p, bundle.getDouble(key));
+                } else if (field.getType().equals(Boolean.TYPE)) {
                     field.set(p, bundle.getBoolean(key));
-                } else if (field.getType() == Date.class) {
+                } else if (field.getType().equals(Date.class)) {
                     field.set(p, new Date(bundle.getLong(key)));
-                } else if (field.getType() == File.class) {
+                } else if (field.getType().equals(File.class)) {
                     field.set(p, new File(bundle.getString(key)));
                 } else if (Parcelable.class.isAssignableFrom(field.getType())) {
                     field.set(p, bundle.<Parcelable>getParcelable(key));
@@ -164,15 +170,15 @@ public abstract class ScModel implements Parcelable {
     protected static void setFieldFromCursor(Parcelable p, Field field, Cursor cursor, String key) {
         try {
             if (field != null) {
-                if (field.getType() == String.class) {
+                if (field.getType().equals(String.class)) {
                     field.set(p, cursor.getString(cursor.getColumnIndex(key)));
-                } else if (field.getType() == Long.TYPE || field.getType() == Long.class) {
+                } else if (field.getType().equals(Long.TYPE) || field.getType().equals(Long.class)) {
                     field.set(p, cursor.getLong(cursor.getColumnIndex(key)));
-                } else if (field.getType() == Integer.TYPE || field.getType() == Integer.class) {
+                } else if (field.getType().equals(Integer.TYPE) || field.getType().equals(Integer.class)) {
                     field.set(p, cursor.getInt(cursor.getColumnIndex(key)));
-                } else if (field.getType() == Boolean.TYPE) {
+                } else if (field.getType().equals(Boolean.TYPE)) {
                     field.set(p, cursor.getInt(cursor.getColumnIndex(key)) == 1);
-                } else if (field.getType() == Date.class) {
+                } else if (field.getType().equals(Date.class)) {
                     field.set(p, new Date(cursor.getLong(cursor.getColumnIndex(key))));
                 }
             }
@@ -202,7 +208,7 @@ public abstract class ScModel implements Parcelable {
 
     public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
-        if (id != -1) cv.put(BaseColumns._ID, id);
+        if (id != NOT_SET) cv.put(BaseColumns._ID, id);
         return cv;
     }
 
@@ -210,7 +216,7 @@ public abstract class ScModel implements Parcelable {
      * @return whether this object has been saved to the database.
      */
     public boolean isSaved() {
-        return id >= 0;
+        return id > NOT_SET;
     }
 
     public static class TracklistItemHolder extends CollectionHolder<TracklistItem> {}

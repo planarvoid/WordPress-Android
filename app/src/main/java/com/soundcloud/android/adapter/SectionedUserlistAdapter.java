@@ -1,15 +1,11 @@
 package com.soundcloud.android.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.os.Parcelable;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Friend;
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.UserlistSectionedRow;
 

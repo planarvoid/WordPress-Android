@@ -11,7 +11,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.model.Track;
@@ -74,9 +73,9 @@ public class MyTracklistRow extends TrackInfoBar {
         if (!recording.is_private) {
             mPrivateIndicator.setVisibility(View.GONE);
         } else {
-            if (!TextUtils.isEmpty(recording.private_username)){
+            if (!TextUtils.isEmpty(recording.getRecipientUsername())){
                 mPrivateIndicator.setBackgroundDrawable(getVeryPrivateBgDrawable());
-                mPrivateIndicator.setText(recording.private_username);
+                mPrivateIndicator.setText(recording.getRecipientUsername());
             } else {
                 final int sharedToCount = TextUtils.isEmpty(recording.shared_emails) ? 0
                         : recording.shared_emails.split(",").length;
@@ -106,7 +105,8 @@ public class MyTracklistRow extends TrackInfoBar {
                 options.decodeInSampleSize = ImageUtils.determineResizeOptions(
                         recording.artwork_path,
                         (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE),
-                        (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE)).inSampleSize;
+                        (int) (getContext().getResources().getDisplayMetrics().density * ImageUtils.GRAPHIC_DIMENSIONS_BADGE), false
+                ).inSampleSize;
             } catch (IOException e) {
                 Log.w(TAG, "error", e);
             }

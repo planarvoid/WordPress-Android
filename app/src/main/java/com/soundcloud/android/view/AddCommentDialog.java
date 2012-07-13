@@ -4,13 +4,13 @@ package com.soundcloud.android.view;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.activity.ScPlayer;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.task.AddCommentTask;
 import com.soundcloud.android.tracking.Page;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.MotionEventUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -25,10 +25,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class AddCommentDialog extends Dialog {
-    private ScActivity mActivity;
+    private ScListActivity mActivity;
     private EditText mInput;
 
-    public AddCommentDialog(ScActivity context) {
+    public AddCommentDialog(ScListActivity context) {
         super(context, R.style.Theme_AddCommentDialog);
         mActivity = context;
 
@@ -52,11 +52,11 @@ public class AddCommentDialog extends Dialog {
         if (comment.reply_to_id > 0) {
             mInput.setHint(getContext().getString(R.string.comment_hint_reply,
                     comment.reply_to_username,
-                    CloudUtils.formatTimestamp(comment.timestamp)));
+                    ScTextUtils.formatTimestamp(comment.timestamp)));
         } else {
             mInput.setHint(comment.timestamp == -1 ?
                     getContext().getString(R.string.comment_hint_untimed) :
-                    getContext().getString(R.string.comment_hint_timed, CloudUtils.formatTimestamp(comment.timestamp)));
+                    getContext().getString(R.string.comment_hint_timed, ScTextUtils.formatTimestamp(comment.timestamp)));
         }
 
         findViewById(R.id.doneButton).setOnClickListener(new View.OnClickListener() {

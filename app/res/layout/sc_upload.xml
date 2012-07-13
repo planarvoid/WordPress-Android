@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@drawable/bg_rec"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical">
+              xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
+              android:background="@drawable/bg_rec"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical">
 
     <ScrollView android:id="@+id/ScrollView01"
                 android:layout_weight="1"
@@ -20,7 +21,7 @@
                          android:layout_alignParentTop="true"
                         android:paddingBottom="5dip"/>
 
-            <com.soundcloud.android.view.RecordingMetaData android:id="@+id/metadata_layout"
+            <com.soundcloud.android.view.create.RecordingMetaData android:id="@+id/metadata_layout"
                             android:layout_height="wrap_content"
                             android:layout_width="fill_parent"
                             android:layout_below="@id/share_user_layout"
@@ -71,7 +72,7 @@
                   android:layout_height="fill_parent"
                   android:layout_below="@+id/share_options_separator">
 
-                <com.soundcloud.android.view.ConnectionList
+                <com.soundcloud.android.view.create.ConnectionList
                       android:id="@+id/connectionList"
                       android:layout_width="fill_parent"
                       android:layout_height="wrap_content"/>
@@ -102,13 +103,13 @@
                                           android:layout_centerVertical="true" />
                            </RelativeLayout>
 
-                          <View android:id="@+id/share_access_seperator"
+                          <View android:id="@+id/share_access_separator"
                                 android:background="@color/recordUploadBorder"
                                 android:layout_width="fill_parent"
                                 android:layout_below="@id/btn_add_emails" android:layout_height="1dip"/>
 
-                          <com.soundcloud.android.view.AccessList
-                                  android:layout_below="@id/share_access_seperator"
+                          <com.soundcloud.android.view.create.AccessList
+                                  android:layout_below="@id/share_access_separator"
                                   android:id="@+id/accessList"
                                   android:layout_width="fill_parent"
                                   android:layout_height="fill_parent"/>
@@ -117,39 +118,8 @@
             </com.soundcloud.android.view.SafeViewFlipper>
         </RelativeLayout>
     </ScrollView>
-
-    <RelativeLayout android:id="@+id/control_layout"
-                    android:layout_width="fill_parent"
-                    android:background="@color/playerControlAlphaBackground"
-                    android:layout_height="wrap_content">
-
-        <LinearLayout android:paddingBottom="5dip"
-                      android:orientation="horizontal"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      android:paddingTop="5dip"
-                      android:layout_marginTop="5dip">
-
-            <Button android:id="@+id/btn_cancel"
-                    android:text="@string/record_another_sound"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_marginLeft="10dip"
-                    android:layout_marginRight="15dip"
-                    android:layout_height="fill_parent"/>
-
-            <Button android:id="@+id/btn_upload"
-                    android:text="@string/upload_and_share"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_marginLeft="15dip"
-                    android:layout_marginRight="10dip"
-                    android:layout_height="fill_parent"/>
-        </LinearLayout>
-
-        <View android:layout_width="fill_parent"
-              android:layout_height="5dip"
-              android:background="@drawable/drop_shadow_down"/>
-
-    </RelativeLayout>
+    <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
+                                                   style="@style/rec_button_bar"
+                                                   app:button_background="@drawable/btn_transparent_bg_states"
+                                                   app:separator_color="@color/recButtonBarSeparator"/>
 </LinearLayout>

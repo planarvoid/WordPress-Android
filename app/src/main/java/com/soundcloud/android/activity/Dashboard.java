@@ -28,7 +28,7 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 
-public class Dashboard extends ScActivity {
+public class Dashboard extends ScListActivity {
     protected ScListView mListView;
     private Page mTrackingPage;
     private Main.Tab mCurrentTab;
@@ -79,7 +79,7 @@ public class Dashboard extends ScActivity {
                                 @Override public void onAction() {
                                     startActivity(new Intent(Actions.MY_PROFILE)
                                             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                            .putExtra("userBrowserTag", UserBrowser.Tab.tracks.name()));
+                                            .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.tracks.name()));
                                 }
 
                                 @Override public void onSecondaryAction() {
@@ -127,7 +127,7 @@ public class Dashboard extends ScActivity {
         track(Page.You_find_friends, getApp().getLoggedInUser());
         startActivity(new Intent(Actions.MY_PROFILE)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .putExtra("userBrowserTag", UserBrowser.Tab.friend_finder.name()));
+                .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.friend_finder.name()));
     }
 
     private void goTo101s() {

@@ -6,7 +6,7 @@
       android:versionCode="45">
 
     <supports-screens android:anyDensity="true" />
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="11"/>
+    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10"/>
 
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -36,9 +36,9 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.ScLight"
         android:configChanges="keyboard|keyboardHidden"
-        android:name="SoundCloudApplication"
-        android:debuggable="false">
+        android:name="SoundCloudApplication">
 
+        <!-- activities -->
         <activity android:name=".activity.Main"
                   android:label="@string/app_name"
                   android:launchMode="singleTask"
@@ -100,11 +100,6 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="com.soundcloud.android.action.RECORD"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <intent-filter>
                 <action android:name="com.soundcloud.android.action.MESSAGE"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -153,7 +148,7 @@
         <activity android:name=".activity.auth.FacebookSSO"/>
         <activity android:name=".activity.auth.SuggestedUsers" android:label="@string/app_name" android:configChanges="orientation"/>
 
-        <activity android:name=".activity.Connect"
+        <activity android:name=".activity.auth.Connect"
             android:label="Connect"
             android:configChanges="orientation|keyboardHidden">
 
@@ -177,22 +172,39 @@
                   android:windowSoftInputMode="adjustPan"
                   android:theme="@style/Theme.ScNoBackground" />
 
-        <activity android:name=".activity.Tour" android:screenOrientation="portrait" />
-        <activity android:name=".activity.TrackFavoriters" />
-        <activity android:name=".activity.TrackComments" />
-        <activity android:name=".activity.TracksByTag" />
+        <activity android:name=".activity.auth.Tour" android:screenOrientation="portrait" />
+        <activity android:name=".activity.track.TrackFavoriters" />
+        <activity android:name=".activity.track.TrackComments" />
+        <activity android:name=".activity.track.TracksByTag" />
         <activity android:name=".activity.ScSearch"/>
         <activity android:name=".activity.settings.Settings" android:label="Settings"/>
         <activity android:name=".activity.settings.AccountSettings" />
         <activity android:name=".activity.settings.NotificationSettings" android:label="Notifications Settings" />
         <activity android:name=".activity.UserBrowser" android:label="Profile"/>
-        <activity android:name=".activity.EmailPicker" android:theme="@style/ScDark"/>
-        <activity android:name=".activity.LocationPicker"/>
-        <activity android:name=".activity.EmailConfirm"/>
-        <activity android:name=".activity.ScCreate" android:theme="@style/Theme.ScNoBackground" />
-        <activity android:name=".activity.UploadMonitor" android:launchMode="singleTask" />
-        <activity android:name=".activity.ScUpload" android:windowSoftInputMode="adjustPan" android:theme="@style/Theme.ScNoBackground" >
+        <activity android:name=".activity.create.EmailPicker" android:theme="@style/ScDark"/>
+        <activity android:name=".activity.create.LocationPicker"/>
+        <activity android:name=".activity.auth.EmailConfirm"/>
+        <activity android:name=".activity.create.ScCreate"
+                  android:theme="@style/Theme.ScNoBackground"
+                  android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.RECORD"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.soundcloud.android.action.RECORD_START"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".cropimage.CropImage" />
+        <activity android:name=".activity.create.UploadMonitor" android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.actions.upload.monitor"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
+        <activity android:name=".activity.create.ScUpload" android:windowSoftInputMode="adjustPan" android:theme="@style/Theme.ScNoBackground" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
                 <data android:mimeType="audio/*"/>
@@ -206,13 +218,16 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.About"/>
+        <activity android:name=".activity.settings.About"/>
 
+        <!-- providers -->
         <provider android:name=".provider.ScContentProvider"
                   android:authorities="com.soundcloud.android.provider.ScContentProvider"/>
 
-        <service android:name=".service.sync.ApiSyncService" />
 
+        <!-- services -->
+        <service android:name=".service.sync.ApiSyncService"/>
+        <service android:name=".service.record.SoundRecorderService"/>
         <service android:name=".service.playback.CloudPlaybackService"
                  android:exported="false">
             <intent-filter>
@@ -226,14 +241,15 @@
             </intent-filter>
         </service>
 
-        <service
-            android:name=".service.record.CloudCreateService"
-            android:exported="true">
-            <!-- XXX needs to be exported? -->
+        <service android:name=".service.upload.UploadService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.soundcloud.android.actions.upload"/>
+                <action android:name="com.soundcloud.android.actions.upload.cancel"/>
+            </intent-filter>
         </service>
 
         <service android:name=".service.auth.AuthenticatorService"
-                 android:exported="true">
+                 android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
@@ -242,7 +258,7 @@
                        android:resource="@xml/authenticator"/>
         </service>
 
-        <service android:name=".service.sync.SyncAdapterService" android:exported="true">
+        <service android:name=".service.sync.SyncAdapterService" android:exported="false">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
@@ -252,8 +268,9 @@
                 android:resource="@xml/sync" />
         </service>
 
-        <service android:name=".service.beta.BetaService" android:exported="false"/>
+        <service android:name=".service.beta.BetaService"/>
 
+        <!-- receivers -->
         <receiver android:label="SoundCloud Player"
                   android:name=".service.playback.PlayerAppWidgetProvider">
           <intent-filter>

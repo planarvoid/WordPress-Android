@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
 
     <!-- Standard animations for a non-full-screen window or activity. -->
@@ -6,6 +7,25 @@
     <style name="Animation.AddCommentDialog">
         <item name="android:windowEnterAnimation">@anim/add_comment_enter</item>
         <item name="android:windowExitAnimation">@anim/add_comment_exit</item>
+    </style>
+
+    <style name="notification_progress_bar_label" parent="@android:style/TextAppearance.StatusBar.EventContent">
+        <item name="android:textSize">10sp</item>
+    </style>
+    <style name="notification_progress_bar" parent="@android:style/Widget.ProgressBar.Horizontal">
+        <item name="android:minHeight">3dp</item>
+        <item name="android:maxHeight">3dp</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="notification_progress_bar_processing" parent="notification_progress_bar">
+
+    </style>
+    <style name="notification_progress_bar_uploading" parent="notification_progress_bar">
+
     </style>
 
     <style name="auth_input">
@@ -45,26 +65,31 @@
         <item name="android:clickable">true</item>
     </style>
 
-    <style name="btn_dark" parent="btn_default">
-        <item name="android:background">@drawable/btn_dark</item>
+    <style name="btn_transparent" parent="btn_default">
+        <item name="android:background">@drawable/btn_transparent_bg_states</item>
         <item name="android:textColor">@drawable/txt_btn_dark_states</item>
         <item name="android:shadowColor">#B3000000</item>
     </style>
-    <style name="btn_round_dark" parent="btn_dark">
-        <item name="android:background">@drawable/btn_round_dark</item>
+
+    <style name="btn_transparent_light" parent="btn_default">
+        <item name="android:background">@drawable/btn_transparent_bg_states</item>
+        <item name="android:textColor">@drawable/txt_btn_light_states</item>
     </style>
+
+    <style name="btn_dark" parent="btn_default">
+            <item name="android:background">@drawable/btn_dark</item>
+            <item name="android:textColor">@drawable/txt_btn_dark_states</item>
+            <item name="android:shadowColor">#B3000000</item>
+        </style>
     <style name="btn_orange" parent="btn_default">
         <item name="android:background">@drawable/btn_orange</item>
         <item name="android:textColor">@drawable/txt_btn_orange_states</item>
         <item name="android:shadowColor">#80B21C00</item>
     </style>
-    <style name="btn_blue" parent="btn_dark">
+    <style name="btn_blue" parent="style/btn_transparent">
         <item name="android:background">@drawable/btn_blue</item>
         <item name="android:textColor">@drawable/txt_btn_blue_states</item>
         <item name="android:shadowColor">#803F6BCE</item>
-    </style>
-    <style name="btn_round_blue" parent="btn_blue">
-        <item name="android:background">@drawable/btn_round_blue</item>
     </style>
     <style name="txt_list_pull">
         <item name="android:textStyle">bold</item>
@@ -175,31 +200,43 @@
         <item name="android:shadowRadius">1</item>
     </style>
 
-    <style name="txt_record_instructions">
+    <style name="toggle_blue">
+        <item name="android:textColor">@drawable/txt_toggle_blue_states</item>
+        <item name="android:background">@drawable/toggle_blue_states</item>
+    </style>
+
+    <style name="toggle_record_edit" parent="toggle_blue">
+        <item name="android:layout_width">125dp</item>
+        <item name="android:layout_height">50dp</item>
+    </style>
+
+    <style name="txt_record_dark">
         <item name="android:textColor">#ff000000</item>
-        <item name="android:textSize">28sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:paddingLeft">5dip</item>
-        <item name="android:paddingRight">5dip</item>
         <item name="android:shadowColor">#ff777777</item>
-        <item name="android:shadowDx">1</item>
         <item name="android:shadowDy">1</item>
         <item name="android:shadowRadius">1</item>
     </style>
 
-    <style name="txt_record_counter">
-        <item name="android:textColor">#ffffffff</item>
-        <item name="android:textSize">28sp</item>
-        <item name="android:textStyle">bold</item>
+
+    <style name="txt_record_instructions" parent="txt_record_dark">
+        <item name="android:textSize">44sp</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:paddingRight">5dip</item>
+    </style>
+
+    <style name="txt_record_chrono" parent="txt_record_dark">
+        <item name="android:textSize">32sp</item>
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
     </style>
 
     <style name="txt_record_message">
         <item name="android:textColor">@drawable/txt_list_secondary_states</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/rec_tips_bubble</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:paddingLeft">5dip</item>
-        <item name="android:paddingRight">5dip</item>
+        <item name="android:padding">5dip</item>
     </style>
 
     <style name="txt_connection_footer">
@@ -280,6 +317,15 @@
     <style name="txt_private_message_metadata_message">
         <item name="android:textColor">#ff9e9e9e</item>
         <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="txt_upload_monitor_events">
+        <item name="android:textColor">#ff000000</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="txt_upload_monitor_events_inactive" parent="txt_upload_monitor_events">
+        <item name="android:textColor">#ff9e9e9e</item>
     </style>
 
     <style name="txt_player_time">
@@ -382,6 +428,11 @@
         <item name="android:layout_marginRight">1dip</item>
     </style>
 
+    <style name="rec_button_bar">
+        <item name="android:layout_height">@dimen/button_bar_height</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/btn_bar_rec_bg</item>
+    </style>
 
     <style name="txt_player_drawer_blue" parent="android:Widget.TextView">
         <item name="android:textColor">#2EC9FF</item>
@@ -420,6 +471,12 @@
         <item name="android:maxWidth">76dip</item>
         <item name="android:progressDrawable">@drawable/progress_bar_round</item>
         <item name="android:indeterminateDrawable">@drawable/progress_indeterminate_horizontal</item>
+    </style>
+    <style name="ScProgressBarRoundLeft" parent="ScProgressBarRound">
+        <item name="android:background">@drawable/progress_bar_round_bg_left</item>
+    </style>
+    <style name="ScProgressBarRoundRight" parent="ScProgressBarRound">
+        <item name="android:background">@drawable/progress_bar_round_bg_right</item>
     </style>
 
     <style name="ScSeekBarRound" parent="ScProgressBarRound">
@@ -536,10 +593,8 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-
-
     <style name="txt_empty_collection_message">
-    	<item name="android:textColor">#ff000000</item>
+      <item name="android:textColor">#ff000000</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColorLink">@drawable/txt_dark_states</item>
         <item name="android:layout_marginTop">10dp</item>
@@ -570,11 +625,11 @@
     </style>
 
     <style name="txt_tour_title" parent="txt_tour_start">
-    	<item name="android:textColor">#ffffffff</item>
+      <item name="android:textColor">#ffffffff</item>
         <item name="android:textSize">22sp</item>
     </style>
     <style name="txt_tour_start">
-    	<item name="android:textColor">#ffffffff</item>
+      <item name="android:textColor">#ffffffff</item>
         <item name="android:textSize">24sp</item>
         <item name="android:shadowColor">#dd222222</item>
         <item name="android:shadowDx">0</item>
@@ -584,8 +639,8 @@
         <item name="android:paddingRight">25dp</item>
     </style>
     <style name="txt_tour_start_1" parent="txt_tour_start">
-    	<item name="android:textSize">22sp</item>
-    	<item name="android:textStyle">bold</item>
+      <item name="android:textSize">22sp</item>
+      <item name="android:textStyle">bold</item>
     </style>
     <style name="txt_tour_start_2" parent="txt_tour_start">
         <item name="android:textSize">20sp</item>
@@ -609,50 +664,49 @@
 
     <style name="Animations" />
 
-	<!-- PopDownMenu -->
-	<style name="Animations.PopDownMenu" />
+    <!-- PopDownMenu -->
+    <style name="Animations.PopDownMenu"/>
 
-	<style name="Animations.PopDownMenu.Center">
-		<item name="@android:windowEnterAnimation">@anim/grow_from_top</item>
-		<item name="@android:windowExitAnimation">@anim/shrink_from_bottom</item>
-	</style>
+    <style name="Animations.PopDownMenu.Center">
+        <item name="@android:windowEnterAnimation">@anim/grow_from_top</item>
+        <item name="@android:windowExitAnimation">@anim/shrink_from_bottom</item>
+    </style>
 
-	<style name="Animations.PopDownMenu.Left">
-		<item name="@android:windowEnterAnimation">@anim/grow_from_topleft_to_bottomright</item>
-		<item name="@android:windowExitAnimation">@anim/shrink_from_bottomright_to_topleft</item>
-	</style>
+    <style name="Animations.PopDownMenu.Left">
+        <item name="@android:windowEnterAnimation">@anim/grow_from_topleft_to_bottomright</item>
+        <item name="@android:windowExitAnimation">@anim/shrink_from_bottomright_to_topleft</item>
+    </style>
 
-	<style name="Animations.PopDownMenu.Right">
-		<item name="@android:windowEnterAnimation">@anim/grow_from_topright_to_bottomleft</item>
-		<item name="@android:windowExitAnimation">@anim/shrink_from_bottomleft_to_topright</item>
-	</style>
+    <style name="Animations.PopDownMenu.Right">
+        <item name="@android:windowEnterAnimation">@anim/grow_from_topright_to_bottomleft</item>
+        <item name="@android:windowExitAnimation">@anim/shrink_from_bottomleft_to_topright</item>
+    </style>
 
-	<style name="Animations.PopDownMenu.Reflect">
-		<item name="@android:windowEnterAnimation">@anim/pump_top</item>
-		<item name="@android:windowExitAnimation">@anim/disappear</item>
-	</style>
+    <style name="Animations.PopDownMenu.Reflect">
+        <item name="@android:windowEnterAnimation">@anim/pump_top</item>
+        <item name="@android:windowExitAnimation">@anim/disappear</item>
+    </style>
 
-	<!-- PopUpMenu -->
-	<style name="Animations.PopUpMenu" />
+    <!-- PopUpMenu -->
+    <style name="Animations.PopUpMenu"/>
 
-	<style name="Animations.PopUpMenu.Center">
-		<item name="@android:windowEnterAnimation">@anim/grow_from_bottom</item>
-		<item name="@android:windowExitAnimation">@anim/shrink_from_top</item>
-	</style>
+    <style name="Animations.PopUpMenu.Center">
+        <item name="@android:windowEnterAnimation">@anim/grow_from_bottom</item>
+        <item name="@android:windowExitAnimation">@anim/shrink_from_top</item>
+    </style>
 
-	<style name="Animations.PopUpMenu.Left">
-		<item name="@android:windowEnterAnimation">@anim/grow_from_bottomleft_to_topright</item>
-		<item name="@android:windowExitAnimation">@anim/shrink_from_topright_to_bottomleft</item>
-	</style>
+    <style name="Animations.PopUpMenu.Left">
+        <item name="@android:windowEnterAnimation">@anim/grow_from_bottomleft_to_topright</item>
+        <item name="@android:windowExitAnimation">@anim/shrink_from_topright_to_bottomleft</item>
+    </style>
 
-	<style name="Animations.PopUpMenu.Right">
-		<item name="@android:windowEnterAnimation">@anim/grow_from_bottomright_to_topleft</item>
-		<item name="@android:windowExitAnimation">@anim/shrink_from_topleft_to_bottomright</item>
-	</style>
+    <style name="Animations.PopUpMenu.Right">
+        <item name="@android:windowEnterAnimation">@anim/grow_from_bottomright_to_topleft</item>
+        <item name="@android:windowExitAnimation">@anim/shrink_from_topleft_to_bottomright</item>
+    </style>
 
-	<style name="Animations.PopUpMenu.Reflect">
-		<item name="@android:windowEnterAnimation">@anim/pump_bottom</item>
-		<item name="@android:windowExitAnimation">@anim/disappear</item>
-	</style>
-
+    <style name="Animations.PopUpMenu.Reflect">
+        <item name="@android:windowEnterAnimation">@anim/pump_bottom</item>
+        <item name="@android:windowExitAnimation">@anim/disappear</item>
+    </style>
 </resources>

@@ -1,6 +1,6 @@
 package com.soundcloud.android.adapter;
 
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.api.Request;
 
@@ -16,11 +16,11 @@ public class SectionedEndlessAdapter extends RemoteCollectionAdapter {
     private List<WeakReference<SectionListener>> mListeners;
     private int mSectionIndex = 0;
 
-    public SectionedEndlessAdapter(ScActivity activity, SectionedAdapter wrapped) {
+    public SectionedEndlessAdapter(ScListActivity activity, SectionedAdapter wrapped) {
         this(activity, wrapped, false);
     }
 
-    public SectionedEndlessAdapter(ScActivity activity, SectionedAdapter wrapped, boolean autoAppend) {
+    public SectionedEndlessAdapter(ScListActivity activity, SectionedAdapter wrapped, boolean autoAppend) {
         super(activity, wrapped, null, null, autoAppend);
         mListeners = new ArrayList<WeakReference<SectionListener>>();
     }

@@ -10,7 +10,6 @@ import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.util.Log;
@@ -66,8 +65,8 @@ public abstract class FetchModelTask<Model extends ScModel> extends AsyncTask<Re
 
             if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 Model model = mApi.getMapper().readValue(resp.getEntity().getContent(), mModel);
-                if (mApi instanceof Context && model != null){
-                    updateLocally(((Context) mApi).getContentResolver(), model);
+                if (model != null) {
+                    updateLocally(mApi.getContext().getContentResolver(), model);
                 }
                 return model;
             } else {

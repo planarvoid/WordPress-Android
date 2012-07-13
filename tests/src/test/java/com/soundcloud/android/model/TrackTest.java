@@ -104,6 +104,9 @@ public class TrackTest {
         expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
         t.duration = 1000;
         v = t.buildContentValues();
+        expect(v.get(DBHelper.Tracks.LAST_UPDATED)).toBeNull();
+        t.state = Track.State.FINISHED;
+        v = t.buildContentValues();
         expect(v.get(DBHelper.Tracks.LAST_UPDATED)).not.toBeNull();
     }
 
@@ -167,7 +170,7 @@ public class TrackTest {
     @Test
     public void shouldGenerateShareIntentForPublicTrack() throws Exception {
         Track t = new Track();
-        t.sharing = "public";
+        t.sharing = Track.Sharing.PUBLIC;
         t.title = "A track";
         t.permalink_url = "http://soundcloud.com/foo/bar";
         Intent intent = t.getShareIntent();

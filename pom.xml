@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.soundcloud.android</groupId>
     <artifactId>parent</artifactId>
-    <version>2.2.9</version>
+    <version>2.2.10</version>
     <packaging>pom</packaging>
     <name>SoundCloud for Android</name>
     <description>SoundCloud for Android</description>
@@ -30,6 +30,7 @@
     </build>
 
     <modules>
+        <module>android-cropimage</module>
         <module>app</module>
         <module>tests</module>
         <module>tests-integration</module>

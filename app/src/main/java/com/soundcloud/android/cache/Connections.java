@@ -4,7 +4,8 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.Connection;
-import com.soundcloud.android.task.LoadConnectionsTask;
+import com.soundcloud.android.task.create.LoadConnectionsTask;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -30,7 +31,7 @@ public class Connections extends ParcelCache<Connection> {
         return sInstance;
     }
 
-    public static synchronized void set(Connections connections) {
+    public static synchronized void set(@Nullable Connections connections) {
         sInstance = connections;
     }
 

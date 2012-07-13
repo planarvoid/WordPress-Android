@@ -3,6 +3,7 @@ package com.soundcloud.android;
 import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
 
 import java.io.File;
@@ -36,6 +37,20 @@ public final class Consts {
     public static final int ITEM_TYPE_LOADING = -1;
     public static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
 
+
+    public static interface RequestCodes {
+        int GALLERY_IMAGE_PICK  = 9000;
+        int GALLERY_IMAGE_TAKE  = 9001;
+        int PICK_EMAILS         = 9002;
+        int PICK_VENUE          = 9003;
+        int MAKE_CONNECTION     = 9004;
+        int IMAGE_CROP          = 9005;
+    }
+
+    public static interface SdkSwitches {
+        boolean useRichNotifications = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+        boolean canDetermineActivityBackground = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    }
     public interface SecretCodes {
         String TOGGLE_ERROR_REPORTING = "12345";
     }
@@ -43,23 +58,25 @@ public final class Consts {
     public interface Dialogs {
         int DIALOG_ERROR_LOADING = 1;
         int DIALOG_UNAUTHORIZED = 2;
-        int DIALOG_CANCEL_UPLOAD = 3;
-        int DIALOG_RESET_RECORDING = 5;
+        int DIALOG_DISCARD_RECORDING = 5;
         int DIALOG_UNSAVED_RECORDING = 6;
         int DIALOG_DELETE_RECORDING = 7;
         int DIALOG_ADD_COMMENT = 8;
         int DIALOG_LOGOUT = 9;
+        int DIALOG_INSTALL_PROCESSOR = 10;
+        int DIALOG_REVERT_RECORDING = 11;
     }
 
     public interface OptionsMenu {
         int SETTINGS = 200;
         int VIEW_CURRENT_TRACK = 201;
         int REFRESH = 202;
-        int CANCEL_CURRENT_UPLOAD = 203;
         int STREAM = 204;
         int FRIEND_FINDER = 205;
-        int UPLOAD_FILE = 206;
-        int FILTER = 207;
+        int FILTER = 206;
+        int SELECT_FILE = 207;
+        int PRIVATE_MESSAGE = 208;
+        int PROCESS = 209;
     }
 
     public enum GraphicSize {
@@ -160,10 +177,13 @@ public final class Consts {
     public interface Notifications {
         int RECORD_NOTIFY_ID    = 0;
         int PLAYBACK_NOTIFY_ID  = 1;
-        int UPLOAD_NOTIFY_ID    = 2;
-        int DASHBOARD_NOTIFY_STREAM_ID = 3;
-        int DASHBOARD_NOTIFY_ACTIVITIES_ID = 4;
-        int BETA_NOTIFY_ID    = 5;
+
+        int UPLOADING_NOTIFY_ID = 2;
+        int UPLOADED_NOTIFY_ID  = 3;
+
+        int DASHBOARD_NOTIFY_STREAM_ID = 4;
+        int DASHBOARD_NOTIFY_ACTIVITIES_ID = 5;
+        int BETA_NOTIFY_ID    = 6;
     }
 
     public interface ResourceStaleTimes {
@@ -187,11 +207,9 @@ public final class Consts {
         String NOTIFICATIONS_COMMENTS               = "notificationsComments";
         String NOTIFICATIONS_FREQUENCY              = "notificationsFrequency";
         String VERSION_KEY                          = "changeLogVersionCode";
-        String DEFAULT_REC_QUALITY                  = "defaultRecordingQuality";
         String PLAYBACK_ERROR_REPORTING_ENABLED     = "playbackErrorReportingEnabled";
         String LAST_USER_SYNC                       = "lastUserSync";
 
-        String DEV_DEFAULT_REC_HIGH_QUALITY_TYPE    = "dev.defaultRecordingHighQualityType";
         String DEV_HTTP_PROXY                       = "dev.http.proxy";
         String DEV_ALARM_CLOCK_ENABLED              = "dev.alarmClock.enabled";
         String DEV_ALARM_CLOCK_URI                  = "dev.alarmClock.uri";

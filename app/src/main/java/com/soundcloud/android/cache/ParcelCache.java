@@ -3,7 +3,7 @@ package com.soundcloud.android.cache;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.AndroidCloudAPI;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 
 import android.os.AsyncTask;
 import android.os.Parcel;
@@ -77,7 +77,7 @@ public abstract class ParcelCache<T extends Parcelable> implements Parcelable {
     }
 
     public synchronized void requestUpdate(AndroidCloudAPI api, boolean force, final Listener<T> listener) {
-        if (CloudUtils.isTaskFinished(mTask) &&
+        if (AndroidUtils.isTaskFinished(mTask) &&
             (force || System.currentTimeMillis() - mLastUpdate >= MAX_AGE)) {
             mTask = executeTask(api, new Listener<T>() {
                 @Override

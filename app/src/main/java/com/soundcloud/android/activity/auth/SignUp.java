@@ -9,9 +9,10 @@ import com.soundcloud.android.task.SignupTask;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.api.Token;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -72,7 +73,7 @@ public class SignUp extends Activity {
         final EditText repeatPasswordField = (EditText) findViewById(R.id.txt_repeat_your_password);
         final Button signupBtn = (Button) findViewById(R.id.btn_signup);
 
-        emailField.setText(CloudUtils.suggestEmail(this));
+        emailField.setText(AndroidUtils.suggestEmail(this));
 
         repeatPasswordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @SuppressWarnings({"SimplifiableIfStatement"})
@@ -95,13 +96,13 @@ public class SignUp extends Activity {
                 if (emailField.getText().length() == 0 ||
                         choosePasswordField.getText().length() == 0 ||
                         repeatPasswordField.getText().length() == 0) {
-                    CloudUtils.showToast(SignUp.this, R.string.authentication_error_incomplete_fields);
-                } else if (!CloudUtils.checkEmail(emailField.getText())) {
-                    CloudUtils.showToast(SignUp.this, R.string.authentication_error_invalid_email);
+                    AndroidUtils.showToast(SignUp.this, R.string.authentication_error_incomplete_fields);
+                } else if (!ScTextUtils.isEmail(emailField.getText())) {
+                    AndroidUtils.showToast(SignUp.this, R.string.authentication_error_invalid_email);
                 } else if (!choosePasswordField.getText().toString().equals(repeatPasswordField.getText().toString())) {
-                    CloudUtils.showToast(SignUp.this, R.string.authentication_error_password_mismatch);
+                    AndroidUtils.showToast(SignUp.this, R.string.authentication_error_password_mismatch);
                 } else if (!checkPassword(choosePasswordField.getText())) {
-                    CloudUtils.showToast(SignUp.this, R.string.authentication_error_password_too_short);
+                    AndroidUtils.showToast(SignUp.this, R.string.authentication_error_password_too_short);
                 } else {
                     final String email = emailField.getText().toString();
                     final String password = choosePasswordField.getText().toString();
@@ -129,7 +130,7 @@ public class SignUp extends Activity {
             ProgressDialog progress;
             @Override
             protected void onPreExecute() {
-                progress = CloudUtils.showProgress(SignUp.this,
+                progress = AndroidUtils.showProgress(SignUp.this,
                         R.string.authentication_signup_progress_message);
             }
 
@@ -171,7 +172,7 @@ public class SignUp extends Activity {
         }.execute(email, password);
     }
 
-    private void signupFail(String error) {
+    private void signupFail(@Nullable String error) {
         if (!isFinishing()) {
           new AlertDialog.Builder(this)
                   .setTitle(error != null ? R.string.authentication_signup_failure_title :  R.string.authentication_signup_error_title)

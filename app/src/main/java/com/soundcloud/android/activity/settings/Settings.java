@@ -3,24 +3,18 @@ package com.soundcloud.android.activity.settings;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.About;
-import com.soundcloud.android.activity.Tour;
-import com.soundcloud.android.c2dm.C2DMReceiver;
+import com.soundcloud.android.activity.auth.Tour;
 import com.soundcloud.android.cache.FileCache;
-import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.beta.BetaPreferences;
-import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ChangeLog;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,7 +26,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
@@ -120,7 +113,7 @@ public class Settings extends PreferenceActivity {
         findPreference(LOGOUT).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
-                        if (!CloudUtils.isUserAMonkey()) {
+                        if (!AndroidUtils.isUserAMonkey()) {
                             // don't let the monkey log out
                             safeShowDialog(DIALOG_USER_LOGOUT_CONFIRM);
                         }
@@ -215,9 +208,6 @@ public class Settings extends PreferenceActivity {
                     }
                 });
 
-        SharedPreferencesUtils.listWithLabel((ListPreference) findPreference("defaultRecordingQuality"),
-                R.string.pref_record_quality);
-
         if (!SoundCloudApplication.DEV_MODE) {
             getPreferenceScreen().removePreference(findPreference(DevSettings.PREF_KEY));
         } else {
@@ -293,11 +283,7 @@ public class Settings extends PreferenceActivity {
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                a.sendBroadcast(new Intent(Actions.LOGGING_OUT));
-                                a.sendBroadcast(new Intent(CloudPlaybackService.RESET_ALL));
                                 app.track(Click.Log_out_box_ok);
-                                User.clearLoggedInUserFromStorage(app);
-                                C2DMReceiver.unregister(a);
                                 app.clearSoundCloudAccount(
                                         new Runnable() {
                                             @Override

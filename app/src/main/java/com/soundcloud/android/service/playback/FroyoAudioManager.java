@@ -26,7 +26,7 @@ public class FroyoAudioManager implements IAudioManager {
     }
 
     @Override
-    public int requestMusicFocus(final MusicFocusable focusable) {
+    public boolean requestMusicFocus(final MusicFocusable focusable, int durationHint) {
         if (listener == null) {
             listener = new AudioManager.OnAudioFocusChangeListener() {
                 @Override
@@ -51,24 +51,26 @@ public class FroyoAudioManager implements IAudioManager {
         }
         final int ret = getAudioManager().requestAudioFocus(listener,
                 AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN);
+                durationHint);
 
         if (ret == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             onFocusObtained();
+            return true;
+        } else {
+            return false;
         }
-        return ret;
     }
 
     @Override
-    public int abandonMusicFocus(boolean isTemporary) {
+    public boolean abandonMusicFocus(boolean isTemporary) {
         if (listener != null) {
             final int ret = getAudioManager().abandonAudioFocus(listener);
             if (ret == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 onFocusAbandoned();
             }
-            return ret;
+            return true;
         } else {
-            return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+            return false;
         }
     }
 

@@ -15,7 +15,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
     static final String TAG = "DBHelper";
 
-    public static final int DATABASE_VERSION = 12;
+    public static final int DATABASE_VERSION = 13;
     private static final String DATABASE_NAME = "SoundCloud";
 
     DBHelper(Context context) {
@@ -70,6 +70,9 @@ public class DBHelper extends SQLiteOpenHelper {
                         case 12:
                             success = upgradeTo12(db, oldVersion);
                             break;
+                        case 13:
+                            success = upgradeTo13(db, oldVersion);
+                            break;
                         default:
                             break;
                     }
@@ -104,6 +107,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "last_updated INTEGER," +
             "permalink VARCHAR(255)," +
             "duration INTEGER," +
+            "state VARCHAR(50)," +
             "created_at INTEGER," +
             "tag_list VARCHAR(255)," +
             "track_type VARCHAR(255)," +
@@ -185,6 +189,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "audio_path VARCHAR(255)," +
             "artwork_path VARCHAR(255)," +
             "duration INTEGER," +
+            "description VARCHAR(255)," +
             "four_square_venue_id VARCHAR(255), " +
             "shared_emails text," +
             "shared_ids text, " +
@@ -192,9 +197,12 @@ public class DBHelper extends SQLiteOpenHelper {
             "service_ids VARCHAR(255)," +
             "is_private BOOLEAN," +
             "external_upload BOOLEAN," +
-            "audio_profile INTEGER," +
             "upload_status INTEGER DEFAULT 0," +
-            "upload_error BOOLEAN"+
+            "trim_left INTEGER," +
+            "trim_right INTEGER," +
+            "filters INTEGER," +
+            "optimize INTEGER," +
+            "fading INTEGER" +
             ");";
 
     static final String DATABASE_CREATE_COMMENTS = "("+
@@ -252,6 +260,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "uri VARCHAR(255)," +
             "last_addition INTEGER, " +
             "last_sync INTEGER, " +
+            "last_sync_attempt INTEGER, " +
             "size INTEGER, " +
             "sync_state INTEGER, " +
             "extra VARCHAR(255), " +
@@ -287,6 +296,7 @@ public class DBHelper extends SQLiteOpenHelper {
             ",Tracks." + Tracks.PERMALINK + " as " + TrackView.PERMALINK +
             ",Tracks." + Tracks.CREATED_AT + " as " + TrackView.CREATED_AT +
             ",Tracks." + Tracks.DURATION + " as " + TrackView.DURATION +
+            ",Tracks." + Tracks.STATE + " as " + TrackView.STATE +
             ",Tracks." + Tracks.TAG_LIST + " as " + TrackView.TAG_LIST +
             ",Tracks." + Tracks.TRACK_TYPE + " as " + TrackView.TRACK_TYPE +
             ",Tracks." + Tracks.TITLE + " as " + TrackView.TITLE +
@@ -362,7 +372,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_TRACKS}
+     * {@link DBHelper#DATABASE_CREATE_TRACKS}
      */
     public static final class Tracks extends ResourceTable  {
         public static final String DURATION = "duration";
@@ -385,6 +395,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String SHARED_TO_COUNT = "shared_to_count";
         public static final String SHARING_NOTE_TEXT = "sharing_note_text";
         public static final String USER_ID = "user_id";
+        public static final String STATE = "state";
 
         public static final String[] ALL_FIELDS = {
                 _ID, DURATION, TAG_LIST, TRACK_TYPE, TITLE, PERMALINK_URL, ARTWORK_URL,
@@ -396,7 +407,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_TRACK_METADATA}
+     * {@link DBHelper#DATABASE_CREATE_TRACK_METADATA}
      */
     public static final class TrackMetadata implements BaseColumns {
         public static final String USER_ID    = "user_id";
@@ -414,7 +425,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_COLLECTION_ITEMS}
+     * {@link DBHelper#DATABASE_CREATE_COLLECTION_ITEMS}
      */
     public static final class CollectionItems {
         public static final String ITEM_ID = "item_id";
@@ -426,7 +437,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_USERS}
+     * {@link DBHelper#DATABASE_CREATE_USERS}
      */
     public static final class Users extends ResourceTable  {
         public static final String USERNAME = "username";
@@ -469,32 +480,44 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_RECORDINGS}
+     * {@link DBHelper#DATABASE_CREATE_RECORDINGS}
      */
     public static final class Recordings implements BaseColumns {
-        public static final String USER_ID = "user_id";
-        public static final String TIMESTAMP = "timestamp";
-        public static final String LONGITUDE = "longitude";
-        public static final String LATITUDE = "latitude";
-        public static final String WHAT_TEXT = "what_text";
-        public static final String WHERE_TEXT = "where_text";
-        public static final String AUDIO_PATH = "audio_path";
-        public static final String DURATION = "duration";
-        public static final String ARTWORK_PATH = "artwork_path";
-        public static final String FOUR_SQUARE_VENUE_ID = "four_square_venue_id";
-        public static final String SHARED_EMAILS = "shared_emails";
-        public static final String SHARED_IDS = "shared_ids";
+        public static final String USER_ID         = "user_id";
+        public static final String TIMESTAMP       = "timestamp";
+        public static final String LONGITUDE       = "longitude";
+        public static final String LATITUDE        = "latitude";
+        public static final String WHAT_TEXT       = "what_text";
+        public static final String WHERE_TEXT      = "where_text";
+        public static final String AUDIO_PATH      = "audio_path";
+        public static final String DURATION        = "duration";
+        public static final String DESCRIPTION     = "description";
+        public static final String ARTWORK_PATH    = "artwork_path";
+        public static final String SHARED_EMAILS   = "shared_emails";
+        public static final String SHARED_IDS      = "shared_ids";
         public static final String PRIVATE_USER_ID = "private_user_id";
-        public static final String SERVICE_IDS = "service_ids";
-        public static final String IS_PRIVATE = "is_private";
+        public static final String SERVICE_IDS     = "service_ids";
+        public static final String IS_PRIVATE      = "is_private";
         public static final String EXTERNAL_UPLOAD = "external_upload";
-        public static final String AUDIO_PROFILE = "audio_profile";
-        public static final String UPLOAD_STATUS = "upload_status";
-        public static final String UPLOAD_ERROR = "upload_error";
+        public static final String UPLOAD_STATUS   = "upload_status";
+        public static final String FOUR_SQUARE_VENUE_ID = "four_square_venue_id";
+        public static final String TRIM_LEFT       = "trim_left";
+        public static final String TRIM_RIGHT      = "trim_right";
+        public static final String FILTERS         = "filters";
+        public static final String OPTIMIZE        = "optimize";
+        public static final String FADING          = "fading";
+
+        public static final String[] ALL_FIELDS = {
+                _ID, USER_ID, TIMESTAMP, LONGITUDE, LATITUDE, WHAT_TEXT,
+                WHERE_TEXT, AUDIO_PATH, DURATION, DESCRIPTION, ARTWORK_PATH,
+                SHARED_EMAILS, SHARED_IDS, PRIVATE_USER_ID, SERVICE_IDS, IS_PRIVATE,
+                EXTERNAL_UPLOAD, UPLOAD_STATUS, FOUR_SQUARE_VENUE_ID,
+                TRIM_LEFT, TRIM_RIGHT, FILTERS, OPTIMIZE, FADING
+        };
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_ACTIVITIES}
+     * {@link DBHelper#DATABASE_CREATE_ACTIVITIES}
      */
     public static class Activities implements BaseColumns {
         public static final String TYPE = "type";
@@ -507,7 +530,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_SEARCHES}
+     * {@link DBHelper#DATABASE_CREATE_SEARCHES}
      */
     public static final class Searches implements BaseColumns {
         public static final String USER_ID = "user_id";
@@ -517,19 +540,20 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_COLLECTIONS}
+     * {@link DBHelper#DATABASE_CREATE_COLLECTIONS}
      */
     public static final class Collections implements BaseColumns {
         public static final String URI = "uri";                      // local content provider uri
         public static final String LAST_ADDITION = "last_addition";  // last addition (from API, not used)
         public static final String LAST_SYNC = "last_sync";          // timestamp of last sync
+        public static final String LAST_SYNC_ATTEMPT = "last_sync_attempt";          // timestamp of last sync
         public static final String SIZE = "size";
         public static final String SYNC_STATE = "sync_state";        // are we currently syncing?
         public static final String EXTRA = "extra";                  // general purpose field
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_COLLECTION_PAGES}
+     * {@link DBHelper#DATABASE_CREATE_COLLECTION_PAGES}
      */
     public static final class CollectionPages implements BaseColumns {
         public static final String COLLECTION_ID = "collection_id";
@@ -539,7 +563,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * {@link DBHelper.DATABASE_CREATE_PLAYLIST_ITEMS}
+     * {@link DBHelper#DATABASE_CREATE_PLAYLIST_ITEMS}
      */
     public final static class PlaylistItems implements BaseColumns{
         public static final String PLAYLIST_ID = "playlist_id";
@@ -553,6 +577,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public static final String PERMALINK = Tracks.PERMALINK;
         public static final String CREATED_AT = Tracks.CREATED_AT;
         public static final String DURATION = Tracks.DURATION;
+        public static final String STATE = Tracks.STATE;
         public static final String TAG_LIST = Tracks.TAG_LIST;
         public static final String TRACK_TYPE = Tracks.TRACK_TYPE;
         public static final String TITLE = Tracks.TITLE;
@@ -730,6 +755,19 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return false;
     }
+
+    private static boolean upgradeTo13(SQLiteDatabase db, int oldVersion) {
+            try {
+                Table.TRACKS.alterColumns(db);
+                Table.TRACK_VIEW.recreate(db);
+                Table.COLLECTIONS.alterColumns(db);
+                return true;
+            } catch (SQLException e) {
+                SoundCloudApplication.handleSilentException("error during upgrade13 " +
+                        "(from " + oldVersion + ")", e);
+            }
+            return false;
+        }
 
     public static String getWhereIds(String column, List<Long> idSet){
         StringBuilder sb = new StringBuilder(column + " in (?");

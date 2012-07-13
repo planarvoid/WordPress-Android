@@ -5,8 +5,8 @@ import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.model.User;
-import com.soundcloud.android.robolectric.ApiTests;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.xtremelabs.robolectric.annotation.DisableStrictI18n;
 import com.xtremelabs.robolectric.shadows.ShadowActivity;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
@@ -15,14 +15,14 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(DefaultTestRunner.class)
-public class SignupDetailsTest extends ApiTests {
+public class SignupDetailsTest  {
 
     @Test
     public void testAddUserInfoSuccess() throws Exception {
         SignupDetails info = new SignupDetails();
         User user = new User();
 
-        addPendingHttpResponse(200, resource("user.json"));
+        TestHelper.addCannedResponses(getClass(), "user.json");
         User result = info.addUserInfo(user, "foobaz", null);
 
         expect(result.username).toEqual("foobaz");

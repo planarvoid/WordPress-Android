@@ -1,14 +1,17 @@
 
 package com.soundcloud.android.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.activity.TracksByTag;
+import com.soundcloud.android.activity.track.TracksByTag;
+import com.soundcloud.android.cache.TrackCache;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.provider.DBHelper;
@@ -16,8 +19,8 @@ import com.soundcloud.android.provider.DBHelper.Tracks;
 import com.soundcloud.android.provider.SoundCloudDB;
 import com.soundcloud.android.task.fetch.FetchModelTask;
 import com.soundcloud.android.task.LoadCommentsTask;
-import com.soundcloud.android.utils.CloudUtils;
 import com.soundcloud.android.utils.ImageUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.FlowLayout;
 
 import android.content.ContentResolver;
@@ -32,6 +35,7 @@ import android.text.TextUtils;
 import android.util.FloatMath;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -49,9 +53,9 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     @JsonView(Views.Full.class) public Date created_at;
     @JsonView(Views.Mini.class) public long user_id;
     @JsonView(Views.Full.class) public int duration;
+    @JsonView(Views.Full.class) public State state;
     @JsonView(Views.Full.class) public boolean commentable;
-    @JsonView(Views.Full.class) public String state;
-    @JsonView(Views.Full.class) public String sharing;  //  public | private
+    @JsonView(Views.Full.class) public Sharing sharing;  //  public | private
     @JsonView(Views.Full.class) public String tag_list;
     @JsonView(Views.Mini.class) public String permalink;
     @JsonView(Views.Full.class) public String description;
@@ -170,7 +174,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
     @Override
     public void refreshTimeSinceCreated(Context context) {
-        _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(), created_at.getTime());
+        _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
     }
 
     public void refreshListArtworkUri(Context context) {
@@ -194,8 +198,13 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         return user;
     }
 
+    @JsonIgnore
+    public boolean isStreamable() {
+        return !TextUtils.isEmpty(stream_url) && (state == null || state.isStreamable());
+    }
+
     public boolean isPublic() {
-        return "public".equals(sharing);
+        return sharing == null || sharing.isPublic();
     }
 
     public String getArtwork() {
@@ -243,6 +252,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         }
         permalink = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.PERMALINK));
         duration = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DURATION));
+        state = State.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STATE)));
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(DBHelper.TrackView.CREATED_AT)));
         tag_list = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TAG_LIST));
         track_type = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.TRACK_TYPE));
@@ -254,7 +264,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         download_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_URL));
         streamable = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.STREAMABLE)) == 1;
         stream_url = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.STREAM_URL));
-        sharing = cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.SHARING));
+        sharing = Sharing.fromString(cursor.getString(cursor.getColumnIndex(DBHelper.TrackView.SHARING)));
         playback_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.PLAYBACK_COUNT));
         download_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.DOWNLOAD_COUNT));
         comment_count = cursor.getInt(cursor.getColumnIndex(DBHelper.TrackView.COMMENT_COUNT));
@@ -295,10 +305,6 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         comments = t.comments;
     }
 
-    @JsonIgnore public boolean isStreamable() {
-        return !TextUtils.isEmpty(stream_url);
-    }
-
     public ContentValues buildContentValues(){
         ContentValues cv = super.buildContentValues();
 
@@ -313,6 +319,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
             cv.put(Tracks.USER_ID, user.id);
         }
 
+        if (state != null) cv.put(Tracks.STATE, state.name);
         if (created_at != null) cv.put(Tracks.CREATED_AT, created_at.getTime());
         if (tag_list != null) cv.put(Tracks.TAG_LIST, tag_list);
         if (track_type != null) cv.put(Tracks.TRACK_TYPE, track_type);
@@ -322,7 +329,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         if (downloadable) cv.put(Tracks.DOWNLOADABLE, downloadable);
         if (download_url != null) cv.put(Tracks.DOWNLOAD_URL, download_url);
         if (streamable) cv.put(Tracks.STREAMABLE, streamable);
-        if (sharing != null) cv.put(Tracks.SHARING, sharing);
+        if (sharing != null) cv.put(Tracks.SHARING, sharing.value);
         if (playback_count != -1) cv.put(Tracks.PLAYBACK_COUNT, playback_count);
         if (download_count != -1) cv.put(Tracks.DOWNLOAD_COUNT, download_count);
         if (comment_count != -1) cv.put(Tracks.COMMENT_COUNT, comment_count);
@@ -339,10 +346,10 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     private boolean isCompleteTrack(){
-        return created_at != null && duration > 0;
+        return state != null && created_at != null && duration > 0;
     }
 
-    public void fillTags(FlowLayout ll, final Context context){
+    public void fillTags(ViewGroup view, final Context context){
         TextView txt;
         FlowLayout.LayoutParams flowLP = new FlowLayout.LayoutParams(10, 10);
 
@@ -359,7 +366,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
                     }
                 });
             txt.setText(genre);
-            ll.addView(txt, flowLP);
+            view.addView(txt, flowLP);
         }
         for (final String t : humanTags()) {
             if (!TextUtils.isEmpty(t)) {
@@ -373,7 +380,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
                     }
                 });
                 txt.setText(t);
-                ll.addView(txt, flowLP);
+                view.addView(txt, flowLP);
             }
         }
     }
@@ -467,8 +474,11 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     @Override
     public String toString() {
         return "Track{" +
-                "title='" + title + '\'' +
+                "id="+id+
+                ", title='" + title + '\'' +
                 ", user=" + user +
+                ", duration=" + duration +
+                ", state=" + state +
                 '}';
     }
 
@@ -496,7 +506,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
     }
 
     public Intent getShareIntent() {
-        if (!"public".equals(sharing)) return null;
+        if (sharing == null || !sharing.isPublic()) return null;
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
@@ -506,6 +516,13 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         intent.putExtra(android.content.Intent.EXTRA_TEXT, permalink_url);
 
         return intent;
+    }
+
+    public Uri commitLocally(ContentResolver resolver, TrackCache cache) {
+        last_updated = System.currentTimeMillis();
+        full_track_info_loaded = true;
+        cache.putWithLocalFields(this);
+        return SoundCloudDB.upsertTrack(resolver, this);
     }
 
     public Track updateFrom(Context c, ScModel updatedItem) {
@@ -524,6 +541,7 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
         user_id = tracklistItem.user_id;
         duration = tracklistItem.duration;
         commentable = tracklistItem.commentable;
+        state = tracklistItem.state;
         sharing = tracklistItem.sharing;
         permalink = tracklistItem.permalink;
         streamable = tracklistItem.streamable;
@@ -569,5 +587,74 @@ public class Track extends ScModel implements Origin, Playable, Refreshable {
 
     public static Uri getClientUri(long id) {
         return Uri.parse("soundcloud:tracks:"+id);
+    }
+
+
+
+    public static enum State {
+        UNDEFINED(""),
+        FINISHED("finished"),
+        FAILED("failed"),
+        READY("ready"),
+        PROCESSING("processing");
+
+        private final String name;
+        private State(String name){
+            this.name = name;
+        }
+
+        @JsonValue
+        public String value() {
+            return name;
+        }
+
+        // don't use built in valueOf to create so we can handle nulls and unknowns ourself
+        @JsonCreator
+        public static State fromString(String str) {
+            for (State s : values()) {
+                if (s.name.equalsIgnoreCase(str)) return s;
+            }
+            return UNDEFINED;
+        }
+
+        public boolean isStreamable(){
+            // TODO: we can probably get away without including UNDEFINED in a subsequent release,
+            // as it will get updated lazily on first load
+            return FINISHED == this || UNDEFINED == this;
+        }
+
+        public boolean isFailed()     { return FAILED == this; }
+        public boolean isProcessing() { return PROCESSING == this; }
+        public boolean isFinished()   { return FINISHED == this; }
+    }
+
+    public static enum Sharing {
+        UNDEFINED(""),
+        PUBLIC("public"),
+        PRIVATE("private");
+
+        private final String value;
+
+        private Sharing(String value) {
+            this.value = value;
+        }
+
+        @JsonValue
+        public String value() {
+            return value;
+        }
+
+        // don't use built in valueOf to create so we can handle nulls and unknowns ourself
+        @JsonCreator
+        public static Sharing fromString(String str) {
+            if (!TextUtils.isEmpty(str)) {
+                for (Sharing s : values()) {
+                    if (s.value.equalsIgnoreCase(str)) return s;
+                }
+            }
+            return UNDEFINED;
+        }
+
+        public boolean isPublic() { return PUBLIC == this; }
     }
 }

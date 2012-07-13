@@ -7,9 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.DBHelper;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -87,7 +86,7 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
 
     @Override
     public void refreshTimeSinceCreated(Context context) {
-        _elapsedTime = CloudUtils.getTimeElapsed(context.getResources(),created_at.getTime());
+        _elapsedTime = ScTextUtils.getTimeElapsed(context.getResources(), created_at.getTime());
     }
 
     public Comment getComment() {
@@ -174,7 +173,7 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
         if (created_at != null ? !created_at.equals(activity.created_at) : activity.created_at != null) return false;
         if (origin != null ? !origin.equals(activity.origin) : activity.origin != null) return false;
         if (tags != null ? !tags.equals(activity.tags) : activity.tags != null) return false;
-        if (type != null ? !type.equals(activity.type) : activity.type != null) return false;
+        if (type != null ? type != activity.type : activity.type != null) return false;
         return true;
     }
 
@@ -222,14 +221,6 @@ public class Activity extends ScModel implements Refreshable, Origin, Playable, 
         }
         public final String type;
         public final Class<? extends Origin> typeClass;
-
-        public Class<?> getView(Class<?> defaultView) {
-            if (this == TRACK || this == TRACK_SHARING) {
-                return Views.Full.class;
-            } else {
-                return defaultView;
-            }
-        }
 
         @JsonCreator
         public static Type fromString(String type) {

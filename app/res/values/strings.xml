@@ -1,9 +1,108 @@
 <resources>
+    <string name="menu_select_file">Select File</string>
+
+    <string name="btn_revert_to_original">Revert to original</string>
+
+    <string name="fade_toggle_on">Fades on</string>
+    <string name="fade_toggle_off">No Fading</string>
+
+    <string name="optimize_toggle_on">Optimized</string>
+    <string name="optimize_toggle_off">Not Optimized</string>
+
+    <string name="menu_private_message">Private Message</string>
+
+    <string name="cloud_recorder_notification_ticker">Recording</string>
+
+    <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>
+
+    <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
+
+    <string name="process">Process</string>
+    <string name="dialog_install_processor">Audio processor not installed. Install it?</string>
+
+    <string name="crop_save_text">Save</string>
+    <string name="crop_discard_text">Discard</string>
+    <string name="savingImage">Saving picture\u2026</string>
+
     <string name="playback_error_logging">Playback error logging : %s</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
     <string name="player_track_unavailable">This sound is no longer available</string>
-    <string name="resolve_progress">Loading</string>
 
+    <string name="sound_processed">Processed sound</string>
+    <string name="sound_processed_error">Error processing sound: %s</string>
+    <string name="sound_processed_pick_app">Pick app to process sound</string>
+
+    <string name="uploader_event_processing">Processing</string>
+    <string name="uploader_event_processing_percent">Processing: %d%%</string>
+    <string name="uploader_event_not_yet_uploading">Not yet uploading</string>
+    <string name="uploader_event_uploading">Uploading</string>
+    <string name="uploader_event_uploading_percent">Uploading: %d%%</string>
+    <string name="uploader_event_cancelling">Cancelling</string>
+
+    <string name="uploader_event_processing_failed">Processing failed</string>
+    <string name="uploader_event_uploading_failed">Uploading failed</string>
+    <string name="uploader_event_processing_finished">Processing finished</string>
+    <string name="uploader_event_uploading_finished">Uploading finished</string>
+
+    <string name="cancel">Cancel</string>
+    <string name="retry">Retry</string>
+
+    <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
+
+    <string name="rectip_memories_voice_notes">Record voice notes as handy reminders.</string>
+    <string name="rectip_memories_voice_blog">Use the REC button to create a voice blog – what will you share today?</string>
+    <string name="rectip_memories_what_are_you_doing_right_now">What are you doing right now?</string>
+    <string name="rectip_memories_child_first_words">Capture the moment: a child\’s first words</string>
+    <string name="rectip_memories_sound_your_pet_makes">Capture the moment: the sounds your pet makes</string>
+    <string name="rectip_memories_voice_of_someone_you_care_about">Capture the moment: the voice of someone you care about</string>
+    <string name="rectip_memories_shopping_reminders">Going shopping?  Record reminders so you don\’t forget what to buy.</string>
+    <string name="rectip_memories_great_idea">Had a great idea?  Capture it with the REC button.</string>
+
+    <string name="rectip_social_good_joke">Heard a good joke lately? Share it!</string>
+    <string name="rectip_social_great_conversaion">Enjoying a great conversation?  Why not record it for posterity?</string>
+    <string name="rectip_social_hilarious_moment">Capture a hilarious moment in sound</string>
+
+    <string name="rectip_general_did_you_know">Did you know you can save private recordings if you don\’t want to share them?</string>
+    <string name="rectip_general_best_recording_device">Sometimes the best recording device is the one you have with you.</string>
+    <string name="rectip_general_unmute_yourself">Unmute yourself!</string>
+    <string name="rectip_general_unmute_internet">Unmute the internet.</string>
+    <string name="rectip_general_unmute_the_world">Unmute the world.</string>
+    <string name="rectip_general_express_yourself">Express yourself!</string>
+
+    <string name="rectip_general_professional_minutes_of_meeting">Why not record the minutes of your next meeting?</string>
+    <string name="rectip_general_professional_capture_ideas_for_later">Use the REC button to capture ideas for later.</string>
+    <string name="rectip_general_professional_study_aid">Use the REC button as a study aid: store your notes on the go.</string>
+    <string name="rectip_general_professional_record_interviews_and_meetings">You can use the REC button to record interviews and meetings.</string>
+
+    <string name="rectip_environmental_ocean_waves">Record the sound of the ocean waves at the beach</string>
+    <string name="rectip_environmental_vibrant_rush_hour">Capture the sounds of a vibrant city at rush hour</string>
+    <string name="rectip_environmental_crazy_sound">Heard a crazy sound?  Capture it with the REC button!</string>
+
+    <string name="rectip_music_feel_inspired">Feel inspired? Capture your idea with the REC button.</string>
+    <string name="rectip_music_track_idea">Got an idea for a new track? Save it with the REC button.</string>
+    <string name="rectip_music_tune_stuck">Tune stuck in your head? Capture it with the REC button.</string>
+    <string name="rectip_music_song_lyric_ideas">Ideas for song lyrics? Capture them instantly with the REC button.</string>
+
+    <string name="rectip_events_whats_going_on">What’s going on right now?</string>
+    <string name="rectip_events_current_events_as_they_happen">Record current events as they happen and share them with the world.</string>
+    <string name="rectip_events_something_interesting">Is something interesting happening?  Capture the moment in audio.</string>
+    <string name="rectip_events_citizen_reporter">Citizen Reporter?  Tell the world what\’s happening where you are.</string>
+
+    <string name="rectip_private_happy_birthday">Wish %s a Happy Birthday</string>
+    <string name="rectip_private_record_a_message">Why not record a message for %s?</string>
+    <string name="rectip_private_how_much_they_mean">Tell %s how much they mean to you.</string>
+    <string name="rectip_private_send_reminder">Send %s a reminder</string>
+    <string name="rectip_private_liked_their_sound">Tell %s how much you liked their sound</string>
+    <string name="rectip_private_leave_feedback">Leave some feedback for %s</string>
+
+    <string name="resolve_progress">Loading</string>
     <string name="error_loading_url">There was a problem loading that url</string>
+
+    <string name="cloud_uploader_notification_transcoding_error_message">There was an error transcoding %s</string>
+    <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoding Error</string>
+    <string name="cloud_uploader_notification_transcoding_error_title">Transcoding Error</string>
+
+    <!-- error to show when signup scope was revoked on server side -->
+    <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
 </resources>

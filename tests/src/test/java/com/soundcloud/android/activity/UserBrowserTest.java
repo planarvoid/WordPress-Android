@@ -26,9 +26,7 @@ public class UserBrowserTest {
     @Before
     public void before() {
         DefaultTestRunner.application.setCurrentUserId(USER_ID);
-        DefaultTestRunner.application.onCreate();
         browser = new UserBrowser() {};
-
         // TODO should fix race condition in LazyEndlessAdapter
         ShadowAdapterView.automaticallyUpdateRowViews(false);
     }

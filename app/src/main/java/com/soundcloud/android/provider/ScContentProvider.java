@@ -6,6 +6,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Track;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 
 import android.accounts.Account;
@@ -110,7 +111,7 @@ public class ScContentProvider extends ContentProvider {
 
             case ME_USERID:
                 MatrixCursor c = new MatrixCursor(new String[] { BaseColumns._ID}, 1);
-                c.addRow(new Object[] { SoundCloudApplication.fromContext(getContext()).getCurrentUserId() });
+                c.addRow(new Object[] { SoundCloudApplication.getUserId() });
                 return c;
 
             case USER_TRACKS:
@@ -206,8 +207,17 @@ public class ScContentProvider extends ContentProvider {
                         _sortOrder, null);
                 break;
             case RECORDING:
-                qb.setTables(content.table.name);
+                qb.setTables(content.table.name +
+                                        " LEFT OUTER JOIN "+Table.USERS+
+                                        " ON "+content.table.field(DBHelper.Recordings.PRIVATE_USER_ID)+
+                                        "="+Table.USERS.field(DBHelper.Users._ID));
+
                 qb.appendWhere(Table.RECORDINGS.id + " = "+ uri.getLastPathSegment());
+                query = qb.buildQuery(new String[] { content.table.allFields(), DBHelper.Users.USERNAME },
+                                        selection,
+                                        null,
+                                        null,
+                                        _sortOrder, null);
                 break;
 
             case ME_SOUND_STREAM:
@@ -327,10 +337,14 @@ public class ScContentProvider extends ContentProvider {
                 return result;
 
             case RECORDINGS:
-                id = db.insert(content.table.name, null, values);
-                result = uri.buildUpon().appendPath(String.valueOf(id)).build();
-                getContext().getContentResolver().notifyChange(result, null, false);
-                return result;
+                id = dbInsertWithOnConflict(db, content.table, values, SQLiteDatabase.CONFLICT_REPLACE);
+                if (id >= 0) {
+                    result = uri.buildUpon().appendPath(String.valueOf(id)).build();
+                    getContext().getContentResolver().notifyChange(result, null, false);
+                    return result;
+                } else {
+                    return null;
+                }
 
             case ME_FAVORITES:
                 id = dbInsertWithOnConflict(db, Table.TRACKS, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -594,7 +608,7 @@ public class ScContentProvider extends ContentProvider {
                         if (artworkUri != null) {
                             final File artworkFile = IOUtils.getCacheFile(getContext(), IOUtils.md5(artworkUri));
                             if (!artworkFile.exists()) {
-                                IOUtils.fetchUriToFile(artworkUri, artworkFile, false);
+                                HttpUtils.fetchUriToFile(artworkUri, artworkFile, false);
                             }
                             return ParcelFileDescriptor.open(artworkFile, ParcelFileDescriptor.MODE_READ_ONLY);
                         } else throw new FileNotFoundException();

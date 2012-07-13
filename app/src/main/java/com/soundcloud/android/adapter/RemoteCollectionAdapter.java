@@ -10,15 +10,16 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.model.LocalCollection;
 import com.soundcloud.android.model.Refreshable;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.service.sync.ApiSyncService;
 import com.soundcloud.android.task.RemoteCollectionTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Request;
@@ -30,7 +31,7 @@ import java.util.Map;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-public class RemoteCollectionAdapter extends LazyEndlessAdapter {
+public class RemoteCollectionAdapter extends LazyEndlessAdapter implements LocalCollection.OnChangeListener {
 
     private DetachableResultReceiver mDetachableReceiver;
     private Boolean mIsSyncable;
@@ -40,13 +41,13 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     protected String mNextHref;
 
-    public RemoteCollectionAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
+    public RemoteCollectionAdapter(ScListActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(activity, wrapped, contentUri, request, autoAppend);
 
         if (contentUri != null) {
             // TODO :  Move off the UI thread.
-            mLocalCollection = LocalCollection.fromContentUri(contentUri,activity.getContentResolver(), true);
-            mLocalCollection.startObservingSelf(activity.getContentResolver());
+            mLocalCollection = LocalCollection.fromContentUri(contentUri, activity.getContentResolver(), true);
+            mLocalCollection.startObservingSelf(activity.getContentResolver(), this);
             mChangeObserver = new ChangeObserver();
             mObservingContent = true;
             activity.getContentResolver().registerContentObserver(contentUri, true, mChangeObserver);
@@ -56,12 +57,18 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     @Override
     public void onResume() {
         super.onResume();
+        refreshSyncData();
+    }
+
+    private void refreshSyncData() {
         if (isSyncable()) {
             setListLastUpdated();
-            if (isStale(false)){
+
+            if ((mContent != null) && mLocalCollection.shouldAutoRefresh() && !isRefreshing()) {
                 refresh(false);
+                // TODO : Causes loop with stale collection and server error
                 // this is to show the user something at the initial load
-                if (mLocalCollection.last_sync <= 0) mListView.setRefreshing();
+                if (mLocalCollection.hasSyncedBefore()) mListView.setRefreshing();
             }
         }
     }
@@ -114,18 +121,18 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     @Override
-    protected boolean canShowEmptyView(){
-       return (!isSyncable() || mLocalCollection.last_sync > 0) && super.canShowEmptyView();
+    protected boolean canShowEmptyView() {
+        return (!isSyncable() || mLocalCollection.hasSyncedBefore()) && super.canShowEmptyView();
     }
 
     protected void setNextHref(String nextHref) {
-       mNextHref = nextHref;
+        mNextHref = nextHref;
     }
 
     public boolean onPostTaskExecute(List<Parcelable> newItems, String nextHref, int responseCode, boolean keepGoing, boolean wasRefresh) {
         boolean success = (newItems != null && newItems.size() > 0) || responseCode == HttpStatus.SC_OK;
         if (success) {
-            if (wasRefresh){
+            if (wasRefresh) {
                 reset();
                 if (mListView != null && mContentUri != null) setListLastUpdated();
             }
@@ -138,7 +145,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         }
         mKeepGoing = keepGoing;
 
-        if (wasRefresh && (getData().size() > 0 || !isRefreshing())){
+        if (wasRefresh && (getData().size() > 0 || !isRefreshing())) {
             doneRefreshing();
         }
 
@@ -149,8 +156,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         return success;
     }
 
-    protected void addNewItems(List<Parcelable> newItems){
-        if (newItems == null || newItems.size() == 0)  return;
+    protected void addNewItems(List<Parcelable> newItems) {
+        if (newItems == null || newItems.size() == 0) return;
         for (Parcelable newItem : newItems) {
             getWrappedAdapter().addItem(newItem);
         }
@@ -159,19 +166,19 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     public void setListLastUpdated() {
         if (mListView != null) {
-            if (mLocalCollection.last_sync > 0) mListView.setLastUpdated(mLocalCollection.last_sync);
+            if (mLocalCollection.hasSyncedBefore()) mListView.setLastUpdated(mLocalCollection.last_sync_success);
         }
     }
 
-    protected void checkForStaleItems(List<? extends Parcelable> newItems){
+    protected void checkForStaleItems(List<? extends Parcelable> newItems) {
         if (!(IOUtils.isWifiConnected(mActivity)) || newItems == null || newItems.size() == 0 || !(newItems.get(0) instanceof Refreshable))
             return;
 
         Map<Long, ScModel> toUpdate = new HashMap<Long, ScModel>();
         for (Parcelable newItem : newItems) {
-            if (newItem instanceof Refreshable){
+            if (newItem instanceof Refreshable) {
                 ScModel resource = ((Refreshable) newItem).getRefreshableResource();
-                if (resource!= null){
+                if (resource != null) {
                     if (((Refreshable) newItem).isStale()) {
                         toUpdate.put(resource.id, resource);
                     }
@@ -179,8 +186,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             }
         }
 
-        if (toUpdate.size() > 0){
-            mUpdateCollectionTask =new UpdateCollectionTask(mActivity.getApp(),getRefreshModel());
+        if (toUpdate.size() > 0) {
+            mUpdateCollectionTask = new UpdateCollectionTask(mActivity.getApp(), getRefreshModel());
             mUpdateCollectionTask.setAdapter(this);
             mUpdateCollectionTask.execute(toUpdate);
         }
@@ -188,7 +195,8 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     protected void clearUpdateTask() {
-        if (mUpdateCollectionTask != null && !CloudUtils.isTaskFinished(mUpdateCollectionTask)) mUpdateCollectionTask.cancel(true);
+        if (mUpdateCollectionTask != null && !AndroidUtils.isTaskFinished(mUpdateCollectionTask))
+            mUpdateCollectionTask.cancel(true);
         mUpdateCollectionTask = null;
     }
 
@@ -202,9 +210,9 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
                 mActivity.safeShowDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
                 //noinspection fallthrough
             default:
-                Log.w(TAG, "unexpected responseCode "+responseCode);
+                Log.w(TAG, "unexpected responseCode " + responseCode);
                 mState = ERROR;
-            return false;
+                return false;
         }
     }
 
@@ -214,36 +222,32 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     }
 
     @Override
-    protected Object getTaskParams(final boolean refresh){
+    protected Object getTaskParams(final boolean refresh) {
         return new RemoteCollectionTask.CollectionParams() {{
-                loadModel = getLoadModel(refresh);
-                contentUri = getContentUri(refresh);
-                request = buildRequest(refresh);
-                isRefresh = refresh;
-                refreshPageItems = !isSyncable();
-                startIndex = refresh ? 0 : getData().size();
-                maxToLoad = Consts.COLLECTION_PAGE_SIZE;
-            }};
+            loadModel = getLoadModel(refresh);
+            contentUri = getContentUri(refresh);
+            request = buildRequest(refresh);
+            isRefresh = refresh;
+            refreshPageItems = !isSyncable();
+            startIndex = refresh ? 0 : getData().size();
+            maxToLoad = Consts.COLLECTION_PAGE_SIZE;
+        }};
     }
 
-    protected boolean isStale(boolean refresh){
-        return (getPageIndex(refresh) == 0 && mContent != null && mContent.isStale(mLocalCollection.last_sync));
-    }
-
-    protected boolean isSyncable(){
-        if (mIsSyncable == null){
+    protected boolean isSyncable() {
+        if (mIsSyncable == null) {
             mIsSyncable = mContent != null && mContent.isSyncable();
         }
         return mIsSyncable;
     }
 
-    protected DetachableResultReceiver getReceiver(){
+    protected DetachableResultReceiver getReceiver() {
         if (mDetachableReceiver == null) mDetachableReceiver = new DetachableResultReceiver(new Handler());
         mDetachableReceiver.setReceiver(this);
         return mDetachableReceiver;
     }
 
-    public void restoreResultReceiver(DetachableResultReceiver receiver){
+    public void restoreResultReceiver(DetachableResultReceiver receiver) {
         mDetachableReceiver = receiver;
         mDetachableReceiver.setReceiver(this);
 
@@ -260,15 +264,15 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
 
     protected void requestSync() {
         Intent intent = new Intent(mActivity, ApiSyncService.class)
-            .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
-            .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-            .setData(mContent.uri);
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, getReceiver())
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .setData(mContent.uri);
         mActivity.startService(intent);
     }
 
     @Override
     public boolean isRefreshing() {
-        if (mLocalCollection != null){
+        if (mLocalCollection != null) {
             return mLocalCollection.sync_state == LocalCollection.SyncState.SYNCING
                     || mLocalCollection.sync_state == LocalCollection.SyncState.PENDING
                     || super.isRefreshing();
@@ -277,9 +281,9 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
         }
     }
 
-    protected void doneRefreshing(){
+    protected void doneRefreshing() {
         if (isSyncable()) setListLastUpdated();
-        if  (mListView != null) mListView.onRefreshComplete();
+        if (mListView != null) mListView.onRefreshComplete();
     }
 
     @Override
@@ -288,7 +292,7 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
             case ApiSyncService.STATUS_SYNC_FINISHED:
             case ApiSyncService.STATUS_SYNC_ERROR: {
                 if (mContentUri != null && resultData != null &&
-                        !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()){
+                        !resultData.getBoolean(mContentUri.toString()) && !isRefreshing()) {
                     doneRefreshing(); // nothing changed
                 }
                 break;
@@ -321,7 +325,11 @@ public class RemoteCollectionAdapter extends LazyEndlessAdapter {
     protected void onContentChanged() {
         mContentInvalid = true;
         executeRefreshTask();
+    }
 
+    @Override
+    public void onLocalCollectionChanged() {
+        refreshSyncData();
     }
 
     private class ChangeObserver extends ContentObserver {

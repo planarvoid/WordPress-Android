@@ -6,10 +6,11 @@ import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.task.AsyncApiTask;
 import com.soundcloud.android.task.LoadFollowingsTask;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -51,7 +52,7 @@ public class FollowStatus implements Parcelable {
         return sInstance;
     }
 
-    public synchronized static void set(FollowStatus status) {
+    public synchronized static void set(@Nullable FollowStatus status) {
         sInstance = status;
     }
 
@@ -76,7 +77,7 @@ public class FollowStatus implements Parcelable {
         // add this listener with a weak reference
         listeners.put(listener, null);
 
-        if (CloudUtils.isTaskFinished(mFollowingsTask) &&
+        if (AndroidUtils.isTaskFinished(mFollowingsTask) &&
                 (force || System.currentTimeMillis() - lastUpdate >= MAX_AGE)) {
             mFollowingsTask = new LoadFollowingsTask(api) {
                 @Override

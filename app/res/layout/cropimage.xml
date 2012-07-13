@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+    <com.soundcloud.android.cropimage.CropImageView
+            android:id="@+id/cropimage_image"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#FF333333"/>
+
+    <LinearLayout style="@style/rec_button_bar"
+                  android:background="#66333333"
+                  android:layout_alignParentBottom="true"
+                  android:orientation="vertical">
+
+        <View android:layout_height="1dp"
+              android:layout_width="match_parent"
+              android:background="@color/recButtonBarSeparator"/>
+
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="0dp"
+                      android:layout_weight="1"
+                      android:orientation="horizontal">
+            <Button
+                    android:id="@+id/cropimage_save"
+                    style="@style/btn_transparent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:text="@string/crop_save_text"/>
+            <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/recButtonBarSeparator"/>
+            <Button
+                    android:id="@+id/cropimage_discard"
+                    style="@style/btn_transparent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:text="@string/crop_discard_text"
+                    />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

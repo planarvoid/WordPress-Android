@@ -6,9 +6,9 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.ScContentProvider;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.TestHelper;
 import com.soundcloud.android.service.sync.SyncAdapterService;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -21,11 +21,10 @@ import org.junit.runner.RunWith;
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.os.Build;
 
 @RunWith(DefaultTestRunner.class)
 public class C2DMReceiverTest {
-    @Before public void before() { RobolectricTestRunner.setStaticValue(Build.VERSION.class, "SDK_INT", 8); }
+    @Before public void before() { TestHelper.setSdkVersion(8); }
     @After public void after()   { expect(Robolectric.getFakeHttpLayer().hasPendingResponses()).toBeFalse(); }
 
     @Test
@@ -89,7 +88,7 @@ public class C2DMReceiverTest {
 
     @Test
     public void itShouldntDoAnyThingOnPreGingerbread() throws Exception {
-        RobolectricTestRunner.setStaticValue(Build.VERSION.class, "SDK_INT", 5);
+        TestHelper.setSdkVersion(5);
         C2DMReceiver.register(DefaultTestRunner.application, new User());
         C2DMReceiver.unregister(DefaultTestRunner.application);
     }

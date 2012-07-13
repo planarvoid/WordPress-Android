@@ -7,6 +7,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
@@ -17,6 +19,7 @@ import android.net.NetworkInfo;
 import android.net.Proxy;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
@@ -26,6 +29,8 @@ import android.util.Log;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -103,6 +108,21 @@ public final class IOUtils {
             stream.append(new String(b, 0, n));
         }
         return stream.toString();
+    }
+
+    public static byte[] readInputStreamAsBytes(InputStream in) throws IOException {
+        byte[] b = new byte[BUFFER_SIZE];
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        if (!(in instanceof BufferedInputStream)) {
+            in = new BufferedInputStream(in);
+        }
+        int n;
+        while ((n = in.read(b)) != -1) {
+            bos.write(b, 0, n);
+        }
+        bos.close();
+        in.close();
+        return bos.toByteArray();
     }
 
     public static boolean mkdirs(File d) {
@@ -287,7 +307,7 @@ public final class IOUtils {
             while ((n = f.read(buffer)) != -1) {
                 digest.update(buffer, 0, n);
             }
-            return CloudUtils.hexString(digest.digest());
+            return ScTextUtils.hexString(digest.digest());
         } catch (NoSuchAlgorithmException e) {
             Log.e(TAG, "error", e);
             return "";
@@ -295,40 +315,6 @@ public final class IOUtils {
             throw new RuntimeException(e);
         }
     }
-
-    public static void fetchUriToFile(String url, File file, boolean useCache) throws FileNotFoundException {
-        OutputStream os = null;
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setUseCaches(useCache);
-            conn.connect();
-            final int status = conn.getResponseCode();
-            if (status == HttpStatus.SC_OK) {
-                InputStream is = conn.getInputStream();
-                os = new BufferedOutputStream(new FileOutputStream(file));
-                final byte[] buffer = new byte[8192];
-                int n;
-                while ((n = is.read(buffer, 0, buffer.length)) != -1) {
-                    os.write(buffer, 0, n);
-                }
-            } else {
-                throw new FileNotFoundException("HttpStatus: "+status);
-            }
-        } catch (MalformedURLException e) {
-            throw new FileNotFoundException(e.getMessage());
-        } catch (IOException e) {
-            deleteFile(file);
-            throw new FileNotFoundException(e.getMessage());
-        } finally {
-            if (conn != null) conn.disconnect();
-            if (os != null) try {
-                os.close();
-            } catch (IOException ignored) {
-            }
-        }
-    }
-
 
     /**
      * @param context context
@@ -358,25 +344,6 @@ public final class IOUtils {
         return proxy;
     }
 
-    @SuppressLint("NewApi")
-    public static HttpClient createHttpClient(String userAgent) {
-        if (Build.VERSION.SDK_INT >= 8) {
-            return AndroidHttpClient.newInstance(userAgent);
-        } else {
-            return new DefaultHttpClient();
-        }
-    }
-
-    @SuppressLint("NewApi")
-    public static void closeHttpClient(HttpClient client) {
-        if (client instanceof AndroidHttpClient) {
-            // avoid leak error logging
-            ((AndroidHttpClient) client).close();
-        } else if (client != null) {
-            client.getConnectionManager().shutdown();
-        }
-    }
-
     public static boolean isConnected(Context context) {
         ConnectivityManager mgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info =  mgr == null ? null : mgr.getActiveNetworkInfo();
@@ -387,5 +354,79 @@ public final class IOUtils {
         ConnectivityManager mgr = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = mgr == null ? null : mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         return info != null && info.isConnectedOrConnecting();
+    }
+
+    public static void copy(InputStream is, File out) throws IOException {
+        FileOutputStream fos = new FileOutputStream(out);
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int n;
+        while ((n = is.read(buffer)) != -1) {
+            fos.write(buffer, 0, n);
+        }
+        fos.close();
+    }
+
+    public static void copy(File in, File out) throws IOException {
+        final FileInputStream is = new FileInputStream(in);
+        try {
+            copy(is, out);
+        } finally {
+            is.close();
+        }
+    }
+
+    public static void close(Closeable file) {
+        if (file != null) {
+            try {
+                file.close();
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    public static @NotNull File appendToFilename(File file, String text) {
+        String name = file.getName();
+        final int lastDot = name.lastIndexOf('.');
+        if (lastDot != -1) {
+            String ext = name.substring(lastDot, name.length());
+            return new File(file.getParentFile(), name.substring(0, lastDot)+text+ext);
+        } else {
+            return new File(file.getParentFile(), file.getName()+text);
+        }
+    }
+
+    public static @Nullable String extension(File file) {
+        final String name = file.getName();
+        final int lastDot = name.lastIndexOf('.');
+        if (lastDot != -1 && lastDot != name.length() -1) {
+            return name.substring(lastDot+1, name.length()).toLowerCase();
+        } else {
+            return null;
+        }
+    }
+
+    public static @NotNull File changeExtension(File file, String ext) {
+        final String name = file.getName();
+        final int lastDot = name.lastIndexOf('.');
+        if (lastDot != -1) {
+            return new File(file.getParentFile(), name.substring(0, lastDot)+"."+ext);
+        } else {
+            return new File(file.getParentFile(), file.getName()+"."+ext);
+        }
+    }
+
+    /**
+     * some phones have really low transfer rates when the screen is turned off, so request a full
+     * performance lock on newer devices
+     *
+     * @see <a href="http://code.google.com/p/android/issues/detail?id=9781">http://code.google.com/p/android/issues/detail?id=9781</a>
+     */
+    public static WifiManager.WifiLock createHiPerfWifiLock(Context context, String tag) {
+        return ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
+                .createWifiLock(
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD ?
+                        WifiManager.WIFI_MODE_FULL_HIGH_PERF : WifiManager.WIFI_MODE_FULL,
+                        tag
+                );
     }
 }

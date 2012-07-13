@@ -1,16 +1,13 @@
 
 package com.soundcloud.android.model;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import android.content.Context;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.auth.FacebookSSO;
 import com.soundcloud.android.activity.auth.SignupVia;
 import com.soundcloud.android.json.Views;
 import com.soundcloud.android.provider.Content;
@@ -21,19 +18,20 @@ import com.soundcloud.android.utils.ImageUtils;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.EnumSet;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Model
 public class User extends ScModel implements  Refreshable, Origin {
-
     @JsonView(Views.Mini.class) public String username;
     @JsonView(Views.Mini.class) public String uri;
     @JsonView(Views.Mini.class) public String avatar_url;
@@ -43,6 +41,8 @@ public class User extends ScModel implements  Refreshable, Origin {
     public String description;
     public String city;
     public String country;
+
+
 
     public String plan;      // free|lite|solo|pro|pro plus
 
@@ -117,32 +117,6 @@ public class User extends ScModel implements  Refreshable, Origin {
 
     public User(UserlistItem userlistItem) {
         updateFromUserlistItem(userlistItem);
-    }
-
-    public void updateFromDb(ContentResolver contentResolver, Long currentUserId) {
-        // XXX
-        Cursor cursor = contentResolver.query(Content.USERS.forId(id), null, null, null, null);
-        if (cursor != null) {
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                String[] keys = cursor.getColumnNames();
-                for (String key : keys) {
-                    if (key.equals("_id")) {
-                        id = cursor.getLong(cursor.getColumnIndex(key));
-                    } else {
-                        try {
-                            setFieldFromCursor(this, User.class.getDeclaredField(key), cursor,
-                                    key);
-                        } catch (SecurityException e) {
-                            Log.e(TAG, "error", e);
-                        } catch (NoSuchFieldException e) {
-                            Log.e(TAG, "error", e);
-                        }
-                    }
-                }
-            }
-            cursor.close();
-        }
     }
 
     public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
@@ -279,6 +253,8 @@ public class User extends ScModel implements  Refreshable, Origin {
         String LAST_OWN_NOTIFIED_ITEM = "last_own_notified_timestamp";
 
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
+        String SEEN_CREATE_AUTOSAVE           = "seenCreateAutoSave";
+
     }
 
     @Override
@@ -380,8 +356,8 @@ public class User extends ScModel implements  Refreshable, Origin {
         return Plan.fromApi(plan);
     }
 
-    public static void clearLoggedInUserFromStorage(SoundCloudApplication app) {
-        final ContentResolver resolver = app.getContentResolver();
+    public static void clearLoggedInUserFromStorage(Context context) {
+        final ContentResolver resolver = context.getContentResolver();
         // TODO move to model
         for (Content c : EnumSet.of(
                 Content.ME_TRACKS,
@@ -392,7 +368,64 @@ public class User extends ScModel implements  Refreshable, Origin {
                 DBHelper.Collections.URI + " = ?", new String[]{ c.uri.toString() });
         }
         Activities.clear(null, resolver);
-        PlaylistManager.clearState(app);
-        Search.clearState(resolver, app.getCurrentUserId());
+        PlaylistManager.clearState(context);
+        FacebookSSO.FBToken.clear(SoundCloudApplication.instance);
+        Search.clearState(resolver, SoundCloudApplication.getUserId());
+    }
+
+    @Override
+    protected void readFromParcel(Parcel in) {
+        // TODO replace with generated file
+        User model = this;
+        Bundle bundle = in.readBundle(model.getClass().getClassLoader());
+        model.username = bundle.getString("username");
+        model.uri = bundle.getString("uri");
+        model.avatar_url = bundle.getString("avatar_url");
+        model.permalink = bundle.getString("permalink");
+        model.permalink_url = bundle.getString("permalink_url");
+        model.full_name = bundle.getString("full_name");
+        model.description = bundle.getString("description");
+        model.city = bundle.getString("city");
+        model.country = bundle.getString("country");
+        model.plan = bundle.getString("plan");
+        model.website = bundle.getString("website");
+        model.website_title = bundle.getString("website_title");
+        model.myspace_name = bundle.getString("myspace_name");
+        model.discogs_name = bundle.getString("discogs_name");
+        model.track_count = bundle.getInt("track_count");
+        model.followers_count = bundle.getInt("followers_count");
+        model.followings_count = bundle.getInt("followings_count");
+        model.public_favorites_count = bundle.getInt("public_favorites_count");
+        model.private_tracks_count = bundle.getInt("private_tracks_count");
+        model.id = bundle.getLong("id");
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        // TODO replace with generated file
+        Bundle bundle = new Bundle();
+        User model = this;
+        bundle.putString("username", model.username);
+        bundle.putString("uri", model.uri);
+        bundle.putString("avatar_url", model.avatar_url);
+        bundle.putString("permalink", model.permalink);
+        bundle.putString("permalink_url", model.permalink_url);
+        bundle.putString("full_name", model.full_name);
+        bundle.putString("description", model.description);
+        bundle.putString("city", model.city);
+        bundle.putString("country", model.country);
+        bundle.putString("plan", model.plan);
+        bundle.putString("website", model.website);
+        bundle.putString("website_title", model.website_title);
+        bundle.putString("myspace_name", model.myspace_name);
+        bundle.putString("discogs_name", model.discogs_name);
+        bundle.putInt("track_count", model.track_count);
+        bundle.putInt("followers_count", model.followers_count);
+        bundle.putInt("followings_count", model.followings_count);
+        bundle.putInt("public_favorites_count", model.public_favorites_count);
+        bundle.putInt("private_tracks_count", model.private_tracks_count);
+        bundle.putLong("id", model.id);
+
+        out.writeBundle(bundle);
     }
 }

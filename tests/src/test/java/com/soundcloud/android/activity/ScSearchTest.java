@@ -25,8 +25,6 @@ public class ScSearchTest {
         // followings
         TestHelper.addResponseRule("/me/followings/ids", 404);
         search.onCreate(null);
-
-        Robolectric.application.onCreate();
     }
 
     @Test @DisableStrictI18n

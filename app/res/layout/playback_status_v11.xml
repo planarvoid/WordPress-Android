@@ -5,8 +5,8 @@
         android:layout_height="match_parent"
         android:orientation="horizontal">
     <FrameLayout android:layout_gravity="left"
-                 android:layout_width="65dip"
-                 android:layout_height="65dip">
+                 android:layout_width="@dimen/notification_image_width"
+                 android:layout_height="@dimen/notification_image_height">
         <ImageView
                 android:id="@+id/status_icon"
                 android:scaleType="center"

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,7 @@ import com.commonsware.cwac.adapter.AdapterWrapper;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.cache.FollowStatus;
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
@@ -25,7 +24,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.provider.Content;
 import com.soundcloud.android.task.ILazyAdapterTask;
 import com.soundcloud.android.task.UpdateCollectionTask;
-import com.soundcloud.android.utils.CloudUtils;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DetachableResultReceiver;
 import com.soundcloud.android.view.EmptyCollection;
 import com.soundcloud.android.view.ScListView;
@@ -41,7 +40,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     protected UpdateCollectionTask mUpdateCollectionTask;
 
     protected ScListView mListView;
-    protected ScActivity mActivity;
+    protected ScListActivity mActivity;
     protected View mPendingView = null;
 
     protected Content mContent;
@@ -65,7 +64,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     int ERROR           = 4; // idle with error, no more appends
 
 
-    public LazyEndlessAdapter(ScActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
+    public LazyEndlessAdapter(ScListActivity activity, LazyBaseAdapter wrapped, Uri contentUri, Request request, boolean autoAppend) {
         super(wrapped);
 
         mActivity = activity;
@@ -80,6 +79,10 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         if (mAutoAppend && mState == INITIALIZED) {
             mState = IDLE;
             mKeepGoing = true;
+        } else {
+            for (Parcelable p : getData()) {
+                if (p instanceof Playable) ((Playable) p).refreshTimeSinceCreated(mActivity);
+            }
         }
         notifyDataSetChanged();
     }
@@ -268,8 +271,8 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
         return getWrappedAdapter().getData();
     }
 
-    public ScActivity.PlayInfo getPlayInfo(final int position) {
-        ScActivity.PlayInfo info = new ScActivity.PlayInfo();
+    public Playable.PlayInfo getPlayInfo(final int position) {
+        Playable.PlayInfo info = new Playable.PlayInfo();
         info.uri = getPlayableUri();
         info.position = position - getWrappedAdapter().positionOffset();
 
@@ -370,18 +373,18 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     }
 
     protected void clearAppendTask() {
-        if (mAppendTask != null && !CloudUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
+        if (mAppendTask != null && !AndroidUtils.isTaskFinished(mAppendTask)) mAppendTask.cancel(true);
         mAppendTask = null;
         mPendingView = null;
     }
 
     protected void clearRefreshTask() {
-        if (mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
+        if (mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask)) mRefreshTask.cancel(true);
         mRefreshTask = null;
     }
 
     protected void clearUpdateTask() {
-        if (mUpdateCollectionTask != null && !CloudUtils.isTaskFinished(mUpdateCollectionTask)) mUpdateCollectionTask.cancel(true);
+        if (mUpdateCollectionTask != null && !AndroidUtils.isTaskFinished(mUpdateCollectionTask)) mUpdateCollectionTask.cancel(true);
         mUpdateCollectionTask = null;
     }
 
@@ -400,7 +403,7 @@ public abstract class LazyEndlessAdapter extends AdapterWrapper implements Detac
     }
 
     public boolean isRefreshing() {
-        return mRefreshTask != null && !CloudUtils.isTaskFinished(mRefreshTask);
+        return mRefreshTask != null && !AndroidUtils.isTaskFinished(mRefreshTask);
     }
 
     public boolean isEmpty(){

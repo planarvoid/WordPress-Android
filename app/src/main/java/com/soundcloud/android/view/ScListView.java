@@ -2,11 +2,7 @@ package com.soundcloud.android.view;
 
 import android.content.res.Resources;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -17,7 +13,7 @@ import com.google.android.imageloader.ImageLoader;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.activity.ScActivity;
+import com.soundcloud.android.activity.ScListActivity;
 import com.soundcloud.android.adapter.EventsAdapterWrapper;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
@@ -41,7 +37,7 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
     private LazyListListener mListener;
     private View mEmptyView;
 
-    public ScListView(ScActivity activity) {
+    public ScListView(ScListActivity activity) {
         super(activity);
         init();
     }
@@ -49,7 +45,7 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
     /**
      * @noinspection UnusedDeclaration
      */
-    public ScListView(ScActivity activity, AttributeSet attrs) {
+    public ScListView(ScListActivity activity, AttributeSet attrs) {
         super(activity, attrs);
         init();
     }

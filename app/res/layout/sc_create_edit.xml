@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="@drawable/bg_rec">
+
+
+    <RelativeLayout android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:paddingBottom="5dip"
+                    android:layout_alignParentBottom="true"
+                    android:id="@+id/bottom_bar">
+
+        <LinearLayout android:id="@+id/file_layout"
+                      android:paddingBottom="5dip"
+                      android:orientation="horizontal"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_alignParentBottom="false"
+                      android:layout_centerInParent="true">
+
+            <Button android:id="@+id/btn_stop"
+                    style="@style/btn_transparent"
+                    android:text="stop"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:padding="15dip"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dip"
+                    android:layout_marginRight="10dip"/>
+
+            <Button android:id="@+id/btn_play"
+                    style="@style/btn_transparent"
+                    android:text="play"
+                    android:padding="15dip"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dip"
+                    android:layout_marginRight="10dip"/>
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

@@ -15,6 +15,7 @@ import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHeader;
+import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -256,6 +257,7 @@ public class StreamLoaderTest {
             super(null, basedir, chunkSize, 0);
         }
 
+        @NotNull
         @Override
         public StreamItem getMetadata(String url) {
             if (!_metadata.containsKey(url)) {

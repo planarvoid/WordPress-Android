@@ -34,9 +34,16 @@ public enum Click implements Event {
     Record_discard_cancel("Record", "discard:cancel", Type.action, Level2.Record),
     Record_delete        ("Record", "delete",         Type.action, Level2.Record),
 
+    Record_revert("Record", "revert", Type.action, Level2.Record),
+    Record_revert__ok("Record", "revert::ok", Type.action, Level2.Record),
+    Record_revert_cancel("Record", "revert:cancel", Type.action, Level2.Record),
+
     Record_play          ("Record", "play",           Type.action, Level2.Record),
     Record_play_stop     ("Record", "play_stop",      Type.action, Level2.Record),
     Record_next          ("Record", "next",           Type.navigation, Level2.Record), // record another sound
+    Record_save          ("Record", "save",           Type.navigation, Level2.Record), // TODO
+
+    Record_edit          ("Record", "edit",         Type.navigation, Level2.Record),
 
     Record_details_add_image       ("Record_details", "add_image",        Type.action,     Level2.Record),
     Record_details_new_image       ("Record_details", "new_image",        Type.action,     Level2.Record),
@@ -65,6 +72,7 @@ public enum Click implements Event {
     public final String chapter, name;
     public final Type type;
     public final Level2 level2;
+
 
     Click(String chapter, String name, Type type, Level2 level2) {
         this.chapter = chapter;

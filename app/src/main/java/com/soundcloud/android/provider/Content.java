@@ -3,7 +3,7 @@ package com.soundcloud.android.provider;
 import static com.soundcloud.android.provider.ScContentProvider.CollectionItemTypes.*;
 
 import android.util.SparseArray;
-import android.util.SparseIntArray;
+
 import com.soundcloud.android.model.Activity;
 import com.soundcloud.android.model.Comment;
 import com.soundcloud.android.model.Friend;
@@ -13,6 +13,7 @@ import com.soundcloud.android.model.User;
 import com.soundcloud.android.service.sync.SyncConfig;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import org.jetbrains.annotations.Nullable;
 
 import android.app.SearchManager;
 import android.content.ContentResolver;
@@ -106,18 +107,17 @@ public enum Content {
 
     //Android global search
     ANDROID_SEARCH_SUGGEST(SearchManager.SUGGEST_URI_PATH_QUERY, null, 10000, null, -1, null),
-    ANDROID_SEARCH_SUGGEST_PATH(SearchManager.SUGGEST_URI_PATH_QUERY+"/*", null, 10001, null, -1, null),
+    ANDROID_SEARCH_SUGGEST_PATH(SearchManager.SUGGEST_URI_PATH_QUERY + "/*", null, 10001, null, -1, null),
     ANDROID_SEARCH_REFRESH(SearchManager.SUGGEST_URI_PATH_SHORTCUT, null, 10002, null, -1, null),
-    ANDROID_SEARCH_REFRESH_PATH(SearchManager.SUGGEST_URI_PATH_SHORTCUT+"/*", null, 10003, null, -1, null),
+    ANDROID_SEARCH_REFRESH_PATH(SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/*", null, 10003, null, -1, null),
 
-    UNKNOWN(null, null, -1, null, -1, null)
-    ;
+    UNKNOWN(null, null, -1, null, -1, null);
 
 
     Content(String uri, String remoteUri, int id, Class<? extends Parcelable> resourceType,
             int collectionType,
             Table table) {
-        this.uriPath =  uri;
+        this.uriPath = uri;
         this.uri = Uri.parse("content://" + ScContentProvider.AUTHORITY + "/" + uriPath);
         this.id = id;
         this.resourceType = resourceType;
@@ -128,7 +128,9 @@ public enum Content {
 
     public final int collectionType;
     public final int id;
-    public final Class<? extends Parcelable> resourceType;
+    public final
+    @Nullable
+    Class<? extends Parcelable> resourceType;
     public final Uri uri;
     public final String uriPath;
     public final String remoteUri;
@@ -139,12 +141,12 @@ public enum Content {
     static final private Map<Uri, Content> sUris = new HashMap<Uri, Content>();
 
     public static final int SYNCABLE_CEILING = 150;
-    public static final int MINE_CEILING     = 200;
+    public static final int MINE_CEILING = 200;
 
     public static final EnumSet<Content> ACTIVITIES = EnumSet.of(
-        Content.ME_ACTIVITIES,
-        Content.ME_SOUND_STREAM,
-        Content.ME_EXCLUSIVE_STREAM
+            Content.ME_ACTIVITIES,
+            Content.ME_SOUND_STREAM,
+            Content.ME_EXCLUSIVE_STREAM
     );
 
     static {
@@ -177,8 +179,8 @@ public enum Content {
         if (args.length % 2 != 0) throw new IllegalArgumentException("need even params");
 
         Uri.Builder builder = buildUpon();
-        for (int i=0; i<args.length; i+=2) {
-            builder.appendQueryParameter(args[i], args[i+1]);
+        for (int i = 0; i < args.length; i += 2) {
+            builder.appendQueryParameter(args[i], args[i + 1]);
         }
         return builder.build();
     }
@@ -195,7 +197,7 @@ public enum Content {
         if (remoteUri != null) {
             return Request.to(remoteUri);
         } else {
-            throw new IllegalArgumentException("no remoteuri defined for content"+this);
+            throw new IllegalArgumentException("no remoteuri defined for content" + this);
         }
     }
 

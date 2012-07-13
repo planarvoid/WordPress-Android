@@ -20,7 +20,7 @@
                   android:layout_centerVertical="true"
                   android:keepScreenOn="true"
                   android:layout_alignParentLeft="true"
-                  style="@style/txt_record_counter"/>
+                  style="@style/txt_record_chrono"/>
         <FrameLayout android:id="@+id/gauge_holder"
                      android:layout_width="0dp"
                      android:layout_centerVertical="true"

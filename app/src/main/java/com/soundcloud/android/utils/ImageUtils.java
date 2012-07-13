@@ -1,11 +1,10 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.soundcloud.android.cropimage.CropImage;
 import com.google.android.imageloader.ImageLoader;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.tracking.Click;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -46,64 +45,64 @@ import java.lang.ref.WeakReference;
 import java.util.EnumSet;
 
 public final class ImageUtils {
+    private static final String TAG = ImageUtils.class.getSimpleName();
     public static final int GRAPHIC_DIMENSIONS_BADGE = 47;
+    public static final int RECOMMENDED_IMAGE_SIZE = 2048;
 
     private ImageUtils() {}
 
 
-    public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
-            int targetHeight) throws IOException {
-        return determineResizeOptions(imageUri, targetHeight, targetHeight, false);
+    public static BitmapFactory.Options decode(File imageFile) throws IOException {
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;  /* don't allocate bitmap */
+        InputStream is = new FileInputStream(imageFile);
+        /* output ignored */ BitmapFactory.decodeStream(is, null, options);
+        is.close();
+        return options;
     }
 
-    public static BitmapFactory.Options determineResizeOptions(File imageUri, int targetWidth,
-                                                               int targetHeight, boolean crop) throws IOException {
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        if (targetWidth == 0 || targetHeight == 0) return options; // some devices report 0
+    public static BitmapFactory.Options determineResizeOptions(File imageFile,
+                                                               int targetWidth,
+                                                               int targetHeight,
+                                                               boolean crop) throws IOException {
 
-        options.inJustDecodeBounds = true;
-        InputStream is = new FileInputStream(imageUri);
-        BitmapFactory.decodeStream(is, null, options);
-        is.close();
+        if (targetWidth == 0 || targetHeight == 0) return new BitmapFactory.Options(); // some devices report 0
+        BitmapFactory.Options options = decode(imageFile);
 
-        int height = options.outHeight;
-        int width = options.outWidth;
+        final int height = options.outHeight;
+        final int width = options.outWidth;
 
-        if (crop){
-        if (height > targetHeight || width > targetWidth) {
-            if (targetHeight / height < targetWidth / width) {
-                options.inSampleSize = Math.round(height / targetHeight);
-            } else {
-                options.inSampleSize = Math.round(width / targetWidth);
+        if (crop) {
+            if (height > targetHeight || width > targetWidth) {
+                if (targetHeight / height < targetWidth / width) {
+                    options.inSampleSize = Math.round((float)height / (float)targetHeight);
+                } else {
+                    options.inSampleSize = Math.round((float)width / (float)targetWidth);
+                }
+
             }
-
-        }
-        } else  if (targetHeight / height > targetWidth / width) {
-            options.inSampleSize = Math.round(height / targetHeight);
+        } else if (targetHeight / height > targetWidth / width) {
+            options.inSampleSize = Math.round((float)height / (float)targetHeight);
         } else {
-            options.inSampleSize = Math.round(width / targetWidth);
+            options.inSampleSize = Math.round((float)width / (float)targetWidth);
         }
         return options;
     }
 
-    public static int getExifRotation(String filepath){
-        ExifInterface exif;
+    public static int getExifRotation(File imageFile){
         try {
-            exif = new ExifInterface(filepath);
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
-            if (orientation != -1) {
-                // We only recognize a subset of orientation tag values.
-                switch (orientation) {
-                    case ExifInterface.ORIENTATION_ROTATE_90: return 90;
-                    case ExifInterface.ORIENTATION_ROTATE_180: return 180;
-                    case ExifInterface.ORIENTATION_ROTATE_270: return 270;
-                    default: return 0;
-                }
+            ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+            // We only recognize a subset of orientation tag values.
+            switch (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)) {
+                case ExifInterface.ORIENTATION_ROTATE_90:  return 90;
+                case ExifInterface.ORIENTATION_ROTATE_180: return 180;
+                case ExifInterface.ORIENTATION_ROTATE_270: return 270;
+                default: return ExifInterface.ORIENTATION_UNDEFINED;
             }
         } catch (IOException e) {
             Log.e(TAG, "error", e);
+            return -1;
         }
-        return -1;
     }
 
     public static void clearBitmap(Bitmap bmp) {
@@ -143,15 +142,59 @@ public final class ImageUtils {
         return BitmapFactory.decodeStream(input);
     }
 
-    public static boolean setImage(File imageFile, ImageView imageView, int viewWidth, int viewHeight) {
+    public static Bitmap getConfiguredBitmap(File imageFile, int minWidth, int minHeight) {
         Bitmap bitmap;
         try {
-            BitmapFactory.Options opt = determineResizeOptions(imageFile, viewWidth, viewHeight);
+            BitmapFactory.Options opt = determineResizeOptions(imageFile, minWidth, minHeight, false);
 
             BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
             sampleOpt.inSampleSize = opt.inSampleSize;
 
             bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), sampleOpt);
+
+            Matrix m = new Matrix();
+            float scale;
+            float dx = 0, dy = 0;
+
+            // assumes height and width are the same
+            if (bitmap.getWidth() > bitmap.getHeight()) {
+                scale = (float) minHeight / (float) bitmap.getHeight();
+                dx = (minWidth - bitmap.getWidth() * scale) * 0.5f;
+            } else {
+                scale = (float) minWidth / (float) bitmap.getWidth();
+                dy = (minHeight - bitmap.getHeight() * scale) * 0.5f;
+            }
+
+            m.setScale(scale, scale);
+            m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
+            int exifRotation = getExifRotation(imageFile);
+            if (exifRotation != 0) {
+                m.postRotate(exifRotation, minWidth / 2, minHeight / 2);
+            }
+
+            return (m.isIdentity()) ? bitmap : Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
+
+        } catch (IOException e) {
+            Log.e(TAG, "error", e);
+        } catch (OutOfMemoryError e) {
+            Log.e(TAG, "error", e);
+        }
+        return null;
+    }
+
+    public static boolean setImage(File imageFile, ImageView imageView, int viewWidth, int viewHeight) {
+        Bitmap bitmap;
+        try {
+            BitmapFactory.Options opt = determineResizeOptions(imageFile, viewWidth, viewHeight, false);
+
+            BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
+            sampleOpt.inSampleSize = opt.inSampleSize;
+
+            bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), sampleOpt);
+            if (bitmap == null) {
+                Log.w(TAG, "error decoding "+imageFile);
+                return false;
+            }
 
             Matrix m = new Matrix();
             float scale;
@@ -168,7 +211,7 @@ public final class ImageUtils {
 
             m.setScale(scale, scale);
             m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
-            int exifRotation = getExifRotation(imageFile.getAbsolutePath());
+            int exifRotation = getExifRotation(imageFile);
             if (exifRotation != 0) {
                 m.postRotate(exifRotation, viewWidth / 2, viewHeight / 2);
             }
@@ -185,30 +228,53 @@ public final class ImageUtils {
         }
     }
 
-    public static boolean resizeImageFile(File inputFile, File outputFile, int width, int height)
-            throws IOException {
-        BitmapFactory.Options options = determineResizeOptions(inputFile, width, height);
-        int sampleSize = options.inSampleSize;
-        int degree = 0;
-        ExifInterface exif = new ExifInterface(inputFile.getAbsolutePath());
-        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
-        if (orientation != -1) {
-            // We only recognize a subset of orientation tag values.
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    degree = 90;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    degree = 180;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    degree = 270;
-                    break;
-                default:
-                    degree = 0;
-                    break;
+    public static boolean setImageRemoteView(File imageFile, ImageView imageView, int viewWidth, int viewHeight) {
+            Bitmap bitmap;
+            try {
+                BitmapFactory.Options opt = determineResizeOptions(imageFile, viewWidth, viewHeight, false);
+
+                BitmapFactory.Options sampleOpt = new BitmapFactory.Options();
+                sampleOpt.inSampleSize = opt.inSampleSize;
+
+                bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), sampleOpt);
+
+                Matrix m = new Matrix();
+                float scale;
+                float dx = 0, dy = 0;
+
+                // assumes height and width are the same
+                if (bitmap.getWidth() > bitmap.getHeight()) {
+                    scale = (float) viewHeight / (float) bitmap.getHeight();
+                    dx = (viewWidth - bitmap.getWidth() * scale) * 0.5f;
+                } else {
+                    scale = (float) viewWidth / (float) bitmap.getWidth();
+                    dy = (viewHeight - bitmap.getHeight() * scale) * 0.5f;
+                }
+
+                m.setScale(scale, scale);
+                m.postTranslate((int) (dx + 0.5f), (int) (dy + 0.5f));
+                int exifRotation = getExifRotation(imageFile);
+                if (exifRotation != 0) {
+                    m.postRotate(exifRotation, viewWidth / 2, viewHeight / 2);
+                }
+
+                imageView.setScaleType(ImageView.ScaleType.MATRIX);
+                imageView.setImageMatrix(m);
+
+                imageView.setImageBitmap(bitmap);
+                imageView.setVisibility(View.VISIBLE);
+                return true;
+            } catch (IOException e) {
+                Log.e(TAG, "error", e);
+                return false;
             }
         }
+
+    public static boolean resizeImageFile(File inputFile, File outputFile, int width, int height) throws IOException {
+        BitmapFactory.Options options = determineResizeOptions(inputFile, width, height, false);
+
+        final int sampleSize = options.inSampleSize;
+        final int degree = getExifRotation(inputFile);
 
         if (sampleSize > 1 || degree > 0) {
             InputStream is = new FileInputStream(inputFile);
@@ -230,15 +296,21 @@ public final class ImageUtils {
             if (bitmap == null) throw new IOException("error decoding bitmap (bitmap == null)");
 
             FileOutputStream out = new FileOutputStream(outputFile);
-            final boolean success = bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+            final boolean success = bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
             out.close();
-            ImageUtils.clearBitmap(bitmap);
+            clearBitmap(bitmap);
+
+            if (!success) {
+                Log.w(TAG, "bitmap.compress returned false");
+            }
             return success;
         } else {
+            Log.w(TAG, String.format("not resizing: sampleSize %d, degree %d", sampleSize, degree));
             return false;
         }
     }
 
+    @SuppressWarnings("UnnecessaryLocalVariable")
     public static void drawBubbleOnCanvas(Canvas c,
                                           Paint bgPaint,
                                           Paint linePaint,
@@ -294,6 +366,7 @@ public final class ImageUtils {
 
         ctx.lineTo(Hx, Hy);
         ctx.lineTo(Ix, Iy);
+        //noinspection PointlessArithmeticExpression
         ctx.arcTo(new RectF(Ax - arc, Ay, Ix + arc, Iy), 180, 90); //F-A arc
         c.drawPath(ctx, bgPaint);
 
@@ -302,6 +375,7 @@ public final class ImageUtils {
         }
     }
 
+    @SuppressWarnings("UnnecessaryLocalVariable")
     public static void drawSquareBubbleOnCanvas(Canvas c, Paint bgPaint, Paint linePaint, int width, int height, int arrowWidth, int arrowHeight, int arrowOffset){
 
         /*
@@ -370,9 +444,6 @@ public final class ImageUtils {
      * Shows a dialog with the choice to take a new picture or select one from the gallery.
      */
     public static abstract  class ImagePickListener implements View.OnClickListener {
-        public static final int GALLERY_IMAGE_PICK = 9000;
-        public static final int GALLERY_IMAGE_TAKE = 9001;
-
         private final Activity mActivity;
 
         public ImagePickListener(Activity activity) {
@@ -398,9 +469,9 @@ public final class ImageUtils {
                                 Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                                     .putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
                                 try {
-                                    mActivity.startActivityForResult(i, GALLERY_IMAGE_TAKE);
+                                    mActivity.startActivityForResult(i, Consts.RequestCodes.GALLERY_IMAGE_TAKE);
                                 } catch (ActivityNotFoundException e) {
-                                    CloudUtils.showToast(mActivity, R.string.take_new_picture_error);
+                                    AndroidUtils.showToast(mActivity, R.string.take_new_picture_error);
                                 }
                             }
                         }
@@ -408,12 +479,11 @@ public final class ImageUtils {
                         @Override
                         public void onClick(DialogInterface dialog, int whichButton) {
                             onExistingImage();
-                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                            intent.setType("image/*");
+                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
                             try {
-                                mActivity.startActivityForResult(intent, GALLERY_IMAGE_PICK);
+                                mActivity.startActivityForResult(intent, Consts.RequestCodes.GALLERY_IMAGE_PICK);
                             } catch (ActivityNotFoundException e) {
-                                CloudUtils.showToast(mActivity, R.string.use_existing_image_error);
+                                AndroidUtils.showToast(mActivity, R.string.use_existing_image_error);
                             }
                         }
             })
@@ -462,7 +532,7 @@ public final class ImageUtils {
 
         Bitmap targetBitmap = imageLoader.getBitmap(targetUri,null,new ImageLoader.Options(false));
         if (targetBitmap != null){
-            return imageLoader.getBitmap(uri,callback,options);
+            return imageLoader.getBitmap(uri, callback, options);
         } else {
             for (Consts.GraphicSize gs : EnumSet.allOf(Consts.GraphicSize.class)) {
                 final Bitmap tempBitmap = imageLoader.getBitmap(gs.formatUri(uri),null,new ImageLoader.Options(false));
@@ -471,13 +541,34 @@ public final class ImageUtils {
                         callback.onImageLoaded(tempBitmap, uri);
                     }
                     // get the normal one anyway, will be handled by the callback
-                    imageLoader.getBitmap(targetUri,callback,options);
+                    imageLoader.getBitmap(targetUri, callback, options);
                     return tempBitmap;
                 }
             }
-            return imageLoader.getBitmap(targetUri,callback,options);
+            return imageLoader.getBitmap(targetUri, callback, options);
         }
     }
 
+    public static void sendCropIntent(Activity activity, Uri imageUri) {
+        sendCropIntent(activity, imageUri, imageUri, RECOMMENDED_IMAGE_SIZE, RECOMMENDED_IMAGE_SIZE);
+    }
 
+    public static void sendCropIntent(Activity activity, Uri inputUri, Uri outputUri) {
+        sendCropIntent(activity, inputUri, outputUri, RECOMMENDED_IMAGE_SIZE, RECOMMENDED_IMAGE_SIZE);
+    }
+
+    public static void sendCropIntent(Activity activity, Uri inputUri, Uri outputUri, int width, int height) {
+        Intent intent = new Intent(activity, CropImage.class)
+                .setData(inputUri)
+                .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
+                .putExtra("crop", "true")
+                .putExtra("aspectX", 1)
+                .putExtra("aspectY", 1)
+                .putExtra("outputX", width)
+                .putExtra("outputY", width)
+                .putExtra("exifRotation", ImageUtils.getExifRotation(IOUtils.getFromMediaUri(activity.getContentResolver(), inputUri)))
+                .putExtra("noFaceDetection", true);
+
+        activity.startActivityForResult(intent, Consts.RequestCodes.IMAGE_CROP);
+    }
 }

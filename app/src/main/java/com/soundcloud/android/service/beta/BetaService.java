@@ -1,12 +1,13 @@
 package com.soundcloud.android.service.beta;
 
-import static com.soundcloud.android.utils.CloudUtils.getAppVersionCode;
-import static com.soundcloud.android.utils.CloudUtils.getElapsedTimeString;
+import static com.soundcloud.android.utils.AndroidUtils.getAppVersionCode;
+import static com.soundcloud.android.utils.ScTextUtils.getElapsedTimeString;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.settings.Settings;
+import com.soundcloud.android.utils.HttpUtils;
 import com.soundcloud.android.utils.IOUtils;
 import org.apache.http.client.HttpClient;
 
@@ -85,7 +86,7 @@ public class BetaService extends Service {
                 skip(null, "Wifi is disabled", intent);
             } else {
                 sRunning = true;
-                mClient = IOUtils.createHttpClient(USER_AGENT);
+                mClient = HttpUtils.createHttpClient(USER_AGENT);
 
                 checkForUpdates(intent);
             }
@@ -103,7 +104,7 @@ public class BetaService extends Service {
         sRunning = false;
 
         releaseLocks();
-        IOUtils.closeHttpClient(mClient);
+        HttpUtils.closeHttpClient(mClient);
     }
 
     /* package */ void checkForUpdates(final Intent intent) {
