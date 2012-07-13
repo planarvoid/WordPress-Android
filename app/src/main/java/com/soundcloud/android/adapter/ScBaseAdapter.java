@@ -100,6 +100,7 @@ public class ScBaseAdapter extends BaseAdapter implements IScAdapter {
     protected LazyRow createRow(int position){
         switch (mContent){
             case TRACK:
+            case ME_TRACKS:
             case ME_SOUND_STREAM:
             case ME_EXCLUSIVE_STREAM:
             case ME_FAVORITES:

@@ -9,6 +9,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AbsListView;
@@ -46,7 +47,8 @@ public class ScListView extends PullToRefreshListView implements AbsListView.OnS
         getRefreshableView().setSelector(R.drawable.list_selector_background);
         getRefreshableView().setLongClickable(false);
         getRefreshableView().setScrollingCacheEnabled(false);
-
+        getRefreshableView().setBackgroundColor(Color.WHITE);
+        getRefreshableView().setCacheColorHint(Color.WHITE);
         setOnFlingListener(this);
         setOnConfigureHeaderListener(this);
         setShowIndicator(false); // we don't want the indicator, it interferes with out timestamps

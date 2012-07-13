@@ -506,7 +506,6 @@ public class ScListFragment extends SherlockListFragment
 
         @Override
         protected boolean cacheInBackground() throws Exception {
-            Thread.sleep(3000);
             if (this != mEndlessAdapter) return false;
             lastReturn = new RemoteCollectionTask(SoundCloudApplication.fromContext(getContext()),null).execute(getTaskParams(false)).get();
             return lastReturn.keepGoing;

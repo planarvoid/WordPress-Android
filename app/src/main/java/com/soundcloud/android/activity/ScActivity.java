@@ -1,11 +1,12 @@
 package com.soundcloud.android.activity;
 
-import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.imageloader.ImageLoader;
+import com.js.flyInMenu.view.RootView;
+import com.js.flyInMenu.view.SimpleListMenu;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -23,13 +24,16 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
@@ -39,6 +43,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     private Boolean mIsConnected;
     protected NetworkConnectivityListener connectivityListener;
     private long mCurrentUserId;
+    private RootView mRootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +54,59 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
         // Volume mode should always be music in this app
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        mRootView = new RootView(this);
+        super.setContentView(mRootView);
+        mRootView.setMenu(R.menu.main_nav, new SimpleListMenu.OnMenuItemClickListener() {
+            @Override
+            public void onMenuItemClicked(int id) {
+                switch (id) {
+                    case R.id.nav_stream:
+                        break;
+                    case R.id.nav_activity:
+                        break;
+                    case R.id.nav_you:
+                        break;
+                }
+            }
+        });
+
+
+        getActionBar().setHomeButtonEnabled(true);
+        if (savedInstanceState == null) {
+            handleIntent(getIntent());
+        }
+    }
+
+    @Override
+    public void setContentView(int id) {
+        mRootView.setContent(View.inflate(this,id,new FrameLayout(this)));
+
+    }
+
+    @Override
+    public void setContentView(View layout) {
+        layout.setBackgroundColor(Color.WHITE);
+        mRootView.setContent(layout);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent.hasExtra(RootView.EXTRA_MENU_STATE)) {
+            overridePendingTransition(0, 0);
+            mRootView.restoreHierarchyState(intent.getExtras().getSparseParcelableArray(RootView.EXTRA_MENU_STATE));
+        }
+    }
+
+    private void startNavActivity(Class activity) {
+        startActivity(new Intent(ScActivity.this, activity)
+                .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                .putExtras(mRootView.getMenuBundle()));
     }
 
     @Override
@@ -73,6 +131,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     @Override
     protected void onResume() {
         super.onResume();
+        mRootView.onResume();
         if (getApp().getAccount() == null) {
             pausePlayback();
             finish();
@@ -147,18 +206,18 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                             }
                         }).setPositiveButton(
                                 android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        removeDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
-                                    }
-                                }).create();
+                            public void onClick(DialogInterface dialog, int which) {
+                                removeDialog(Consts.Dialogs.DIALOG_UNAUTHORIZED);
+                            }
+                        }).create();
             case Consts.Dialogs.DIALOG_ERROR_LOADING:
                 return new AlertDialog.Builder(this).setTitle(R.string.error_loading_title)
                         .setMessage(R.string.error_loading_message).setPositiveButton(
                                 android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        removeDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
-                                    }
-                                }).create();
+                            public void onClick(DialogInterface dialog, int which) {
+                                removeDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
+                            }
+                        }).create();
             case Consts.Dialogs.DIALOG_LOGOUT:
                 return Settings.createLogoutDialog(this);
 
@@ -197,12 +256,10 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(this, Dashboard.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                mRootView.animateToggle();
                 return true;
             case R.id.menu_record:
-                intent = new Intent(this, ScCreate.class);
+                Intent intent = new Intent(this, ScCreate.class);
                 startActivity(intent);
                 return true;
             case R.id.menu_search:
@@ -227,8 +284,8 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
                 return true;
             case Consts.OptionsMenu.FRIEND_FINDER:
                 intent = new Intent(Actions.MY_PROFILE)
-                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.friend_finder.name());
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        .putExtra(UserBrowser.Tab.EXTRA, UserBrowser.Tab.friend_finder.name());
                 startActivity(intent);
                 return true;
             default:
@@ -258,7 +315,7 @@ public abstract class ScActivity extends SherlockFragmentActivity implements Tra
 
                             // announce potential proxy change
                             sendBroadcast(new Intent(Actions.CHANGE_PROXY_ACTION)
-                                            .putExtra(Actions.EXTRA_PROXY, IOUtils.getProxy(ctxt, networkInfo)));
+                                    .putExtra(Actions.EXTRA_PROXY, IOUtils.getProxy(ctxt, networkInfo)));
                         }
                         ctxt.onDataConnectionChanged(connected);
                     }

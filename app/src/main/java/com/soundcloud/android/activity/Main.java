@@ -41,6 +41,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -88,6 +89,7 @@ public class Main extends ScListActivity implements
 
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setAdapter(mAdapter);
+        mPager.setBackgroundColor(Color.WHITE);
 
         mIndicator = (TabPageIndicator) findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
@@ -126,8 +128,8 @@ public class Main extends ScListActivity implements
     }
 
     class MainFragmentAdapter extends FragmentPagerAdapter {
-        protected final Content[] contents = new Content[]{Content.ME_FAVORITES};
-        protected final int[] titleIds = new int[]{R.string.tab_title_my_likes};
+        protected final Content[] contents = new Content[]{Content.ME_TRACKS, Content.ME_FAVORITES};
+        protected final int[] titleIds = new int[]{R.string.tab_title_my_sounds,R.string.tab_title_my_likes};
 
         public MainFragmentAdapter(FragmentManager fm) {
             super(fm);
