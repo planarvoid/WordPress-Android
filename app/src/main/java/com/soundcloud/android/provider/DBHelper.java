@@ -761,6 +761,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 Table.TRACKS.alterColumns(db);
                 Table.TRACK_VIEW.recreate(db);
                 Table.COLLECTIONS.alterColumns(db);
+                Table.RECORDINGS.alterColumns(db);
                 return true;
             } catch (SQLException e) {
                 SoundCloudApplication.handleSilentException("error during upgrade13 " +
