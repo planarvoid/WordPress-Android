@@ -17,10 +17,12 @@ public class AppTest {
 
     @Test
     public void shouldDeobfuscateClientSecret() throws Exception {
-        expect(AndroidCloudAPI.Wrapper.getClientSecret(Env.SANDBOX))
-                .toEqual("0000000pGDzQNAPHzBH6hBTHphl4Q1e9");
+        // live
+        expect(DefaultTestRunner.application.getClientSecret(true))
+                .toEqual("26a5240f7ee0ee2d4fa9956ed80616c2");
 
-        expect(AndroidCloudAPI.Wrapper.getClientSecret(Env.LIVE))
-                .toEqual("GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA");
+        // sandbox
+        expect(DefaultTestRunner.application.getClientSecret(false))
+                .toEqual("0000000pGDzQNAPHzBH6hBTHphl4Q1e9");
     }
 }
