@@ -346,6 +346,12 @@ public class SoundCloudApplication extends Application implements AndroidCloudAP
         }
     }
 
+    private String getClientId(boolean production) {
+        return getResources().getString(production ?
+                R.string.client_id :
+                R.string.sandbox_client_id);
+    }
+
     private Token getToken(Account account) {
         return new Token(getAccessToken(account), getRefreshToken(account), getAccountData(Token.SCOPE));
     }
