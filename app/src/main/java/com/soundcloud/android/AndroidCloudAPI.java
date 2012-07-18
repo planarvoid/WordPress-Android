@@ -91,20 +91,24 @@ public interface AndroidCloudAPI extends CloudAPI {
         public static Wrapper create(Context context, @Nullable Token initialToken) {
             final Env env = AndroidUtils.isRunOnBuilder(context) ? Env.SANDBOX : Env.LIVE;
             String clientId = context.getString(env == Env.LIVE ? R.string.client_id : R.string.sandbox_client_id);
-            return new Wrapper(context, clientId, getClientSecret(env), REDIRECT_URI, initialToken, env);
+            return new Wrapper(context, clientId, getClientSecret(env == Env.LIVE), REDIRECT_URI, initialToken, env);
         }
 
-        /* package */ static String getClientSecret(Env env) {
+        /* package */ static String getClientSecret(boolean production) {
             final long[] prod =
-                    new long[] {0x42D31224F5C2C264L, 0x5986B01A2300AFA4L, 0xEDA169985C1BA18DL,
+                    new long[]{0x42D31224F5C2C264L, 0x5986B01A2300AFA4L, 0xEDA169985C1BA18DL,
                             0xA2A0313C7077F81BL, 0xF42A7E5EEB220859L, 0xE593789593AFFA3L,
                             0xF564A09AA0B465A6L};
 
+            final long[] prod2 =
+                    new long[]{0xCFDBF8AB10DCADA3L, 0x6C580A13A4B7801L, 0x607547EC749EBFB4L,
+                            0x300C455E649B39A7L, 0x20A6BAC9576286CBL};
+
             final long[] sandbox =
-                    new long[] {0x7FA4855507D9000FL, 0x91C67776A3692339L, 0x24D0C4EF5AF943E8L,
+                    new long[]{0x7FA4855507D9000FL, 0x91C67776A3692339L, 0x24D0C4EF5AF943E8L,
                             0x7CEC0CF7DDAAE26BL, 0x7EB2854D631380BEL};
 
-            return ScTextUtils.deobfuscate(env == Env.LIVE ? prod : sandbox);
+            return ScTextUtils.deobfuscate(production ? prod2 : sandbox);
         }
 
         public Wrapper(Context context, String clientId, String clientSecret, URI redirectUri, Token token, Env env) {
