@@ -61,11 +61,18 @@ public class RecordStreamTest {
 
     @Test
     public void shouldCreateAmplitudeFile() throws Exception {
+
         File wavFile = new File(SoundRecorderTest.class.getResource(WavHeaderTest.PCM16_8000_1_WAV).getFile());
-        RecordStream rs = new RecordStream(AudioConfig.DEFAULT,wavFile,null,null);
-        rs.regenerateAmplitudeData(null, null);
-        expect(rs.getAmplitudeData().isEmpty()).toBeFalse();
-        expect(rs.getAmplitudeData().size()).toEqual(31);
+        final RecordStream rs = new RecordStream(AudioConfig.DEFAULT,wavFile,null,null);
+        rs.regenerateAmplitudeData(null, new RecordStream.onAmplitudeGenerationListener() {
+            @Override
+            public void onGenerationFinished(boolean success) {
+                expect(success).toBeTrue();
+                expect(rs.getAmplitudeData().isEmpty()).toBeFalse();
+                expect(rs.getAmplitudeData().size()).toEqual(31);
+            }
+        });
+
     }
 
 

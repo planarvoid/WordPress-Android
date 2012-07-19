@@ -73,7 +73,7 @@ public class RecordStream implements AudioWriter {
     }
 
     public void regenerateAmplitudeData(final File outFile, onAmplitudeGenerationListener onAmplitudeListener) {
-        Log.i(SoundRecorder.TAG,"Regenerating amplitude file at " + outFile.getPath());
+        Log.i(SoundRecorder.TAG,"Regenerating amplitude file to " + (outFile == null ? "<null>" : outFile.getPath()));
         final WeakReference<onAmplitudeGenerationListener> listenerWeakReference = new WeakReference<onAmplitudeGenerationListener>(onAmplitudeListener);
         new Thread(new Runnable() {
             @Override
