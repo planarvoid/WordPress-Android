@@ -113,7 +113,7 @@ public class UploadService extends Service {
 
         public boolean needsProcessing() {
             return needsEncoding() ||
-                   (recording.getPlaybackStream().isModified() && !recording.getProcessedFile().exists());
+                   (recording.getPlaybackStream().isModified() && (!recording.getProcessedFile().exists() || recording.getProcessedFile().length() == 0));
         }
 
 
