@@ -74,7 +74,11 @@ public class MultiAudioWriter implements AudioWriter {
 
     @Override
     public AudioReader getAudioFile() throws IOException {
-        return writers[0].getAudioFile();
+        for (AudioWriter w : writers) {
+            final AudioReader audioFile = w.getAudioFile();
+            if (audioFile != null) return audioFile;
+        }
+        return null;
     }
 
     @Override

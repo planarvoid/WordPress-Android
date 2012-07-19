@@ -41,6 +41,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -67,7 +69,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private RecordMessageView txtRecordMessage;
     private Chronometer mChrono;
 
-    private ViewGroup mEditControls;
+    private ViewGroup mEditControls, mGaugeHolder;
     private ImageButton mActionButton;
     private CreateWaveDisplay mWaveDisplay;
     private View mPlayButton, mEditButton, mPlayEditButton;
@@ -77,9 +79,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private boolean mActive, mHasEditControlGroup;
     private List<Recording> mUnsavedRecordings;
+    private ProgressBar mGeneratingWaveformProgressBar;
 
 
     public enum CreateState {
+        GENERATING_WAVEFORM,
         IDLE_RECORD,
         RECORD,
         IDLE_PLAYBACK,
@@ -134,7 +138,9 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         mWaveDisplay = new CreateWaveDisplay(this);
         mWaveDisplay.setTrimListener(this);
-        ((ViewGroup) findViewById(R.id.gauge_holder)).addView(mWaveDisplay);
+
+        mGaugeHolder = ((ViewGroup) findViewById(R.id.gauge_holder));
+        mGaugeHolder.addView(mWaveDisplay);
 
         updateUi(CreateState.IDLE_RECORD, false);
         handleIntent();
@@ -458,16 +464,22 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         if (mRecorder.isRecording()) {
             newState = CreateState.RECORD;
+
         } else if (mRecorder.isPlaying()) {
             if (mCurrentState != CreateState.EDIT_PLAYBACK) newState = CreateState.PLAYBACK;
             configurePlaybackInfo();
             mWaveDisplay.gotoPlaybackMode();
             takeAction = true;
+
         } else {
             if (mRecorder.getRecording() != null) {
-                if (mCurrentState != CreateState.EDIT) newState = CreateState.IDLE_PLAYBACK;
-                configurePlaybackInfo();
-                mWaveDisplay.gotoPlaybackMode();
+                if (mRecorder.isGeneratingWaveform()){
+                    newState = CreateState.GENERATING_WAVEFORM;
+                } else {
+                    if (mCurrentState != CreateState.EDIT) newState = CreateState.IDLE_PLAYBACK;
+                    configurePlaybackInfo();
+                    mWaveDisplay.gotoPlaybackMode();
+                }
             } else {
                 newState = CreateState.IDLE_RECORD;
                 takeAction = true;
@@ -494,6 +506,29 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private void updateUi(CreateState newState, boolean takeAction) {
         if (newState != null) mCurrentState = newState;
         switch (mCurrentState) {
+            case GENERATING_WAVEFORM:
+                hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
+                hideView(mButtonBar, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
+                hideEditControls();
+                hideView(txtInstructions, false, View.GONE);
+                hideView(mChrono, false, View.GONE);
+                hideView(mActionButton, false, View.GONE);
+                mActionButton.setClickable(false);
+                mActionButton.setImageResource(R.drawable.btn_rec_deactivated);
+
+                showView(txtRecordMessage, takeAction && mLastState != CreateState.IDLE_RECORD);
+                txtRecordMessage.setMessage(R.string.create_regenerating_waveform_message);
+
+                if (mGeneratingWaveformProgressBar == null){
+                    mGeneratingWaveformProgressBar = new ProgressBar(this, null, android.R.attr.progressBarStyle);
+                    mGeneratingWaveformProgressBar.setIndeterminate(true);
+                    RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    lp.addRule(RelativeLayout.CENTER_IN_PARENT, 1);
+                    mGaugeHolder.addView(mGeneratingWaveformProgressBar, lp);
+                }
+                break;
+
             case IDLE_RECORD:
 
                 setPlayButtonDrawable(false);
@@ -636,6 +671,11 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
         mLastState = mCurrentState;
         mActionButton.setEnabled(true);
+
+        if (mCurrentState != CreateState.GENERATING_WAVEFORM && mGeneratingWaveformProgressBar != null){
+            if (mGeneratingWaveformProgressBar.getParent() == mGaugeHolder) mGaugeHolder.removeView(mGeneratingWaveformProgressBar);
+            mGeneratingWaveformProgressBar = null;
+        }
     }
 
     private void configureButtonBar(boolean isEditing) {
@@ -802,6 +842,10 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             } else if (Intent.ACTION_MEDIA_MOUNTED.equals(action) || Intent.ACTION_MEDIA_REMOVED.equals(action)){
                 // for messaging and action button activation
                 if (mCurrentState == CreateState.IDLE_RECORD) updateUi(CreateState.IDLE_RECORD,false);
+
+            } else if (SoundRecorder.WAVEFORM_GENERATED.equals(action)) {
+                // we are now free to play back
+                if (mCurrentState == CreateState.GENERATING_WAVEFORM) updateUi(CreateState.IDLE_PLAYBACK, true);
             }
         }
     };

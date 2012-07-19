@@ -14,8 +14,10 @@
     <string name="cloud_recorder_notification_ticker">Recording</string>
 
     <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>
+    <string name="create_regenerating_waveform_message">Regenerating waveform, please wait.</string>
 
     <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
+
 
     <string name="process">Process</string>
     <string name="dialog_install_processor">Audio processor not installed. Install it?</string>

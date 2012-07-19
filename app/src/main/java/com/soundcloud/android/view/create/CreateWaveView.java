@@ -114,11 +114,14 @@ public class CreateWaveView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
 
+        final SoundRecorder recorder = SoundRecorder.getInstance(getContext());
+        if (recorder.isGeneratingWaveform()) return;
+
         float normalizedTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - mAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         float interpolatedTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedTime);
         boolean animating = (normalizedTime < 1.0f);
 
-        final MergedAmplitudeData amplitudeData = new MergedAmplitudeData(SoundRecorder.getInstance(getContext()).getRecordStream(), mTrimRight, mTrimLeft);
+        final MergedAmplitudeData amplitudeData = new MergedAmplitudeData(recorder.getRecordStream(), mTrimRight, mTrimLeft);
         final DrawData drawData = new DrawData(amplitudeData, interpolatedTime, mMode == CreateWaveDisplay.MODE_REC, mIsEditing, getWidth());
 
         if (drawData.size > 0) {
