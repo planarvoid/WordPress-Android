@@ -218,6 +218,15 @@
         <item name="android:shadowRadius">1</item>
     </style>
 
+    <style name="txt_record_title">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:background">@drawable/tour_bar_top_bg</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:gravity">center</item>
+    </style>
 
     <style name="txt_record_instructions" parent="txt_record_dark">
         <item name="android:textSize">44sp</item>
@@ -709,4 +718,5 @@
         <item name="@android:windowEnterAnimation">@anim/pump_bottom</item>
         <item name="@android:windowExitAnimation">@anim/disappear</item>
     </style>
+
 </resources>

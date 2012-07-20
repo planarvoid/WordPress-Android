@@ -50,6 +50,14 @@
     <string name="cancel">Cancel</string>
     <string name="retry">Retry</string>
 
+    <string name="rec_title_generating_waveform">Please Wait...</string>
+    <string name="rec_title_idle_rec">Record</string>
+    <string name="rec_title_recording">Recording</string>
+    <string name="rec_title_idle_play">Pause</string>
+    <string name="rec_title_playing">Pause</string>
+    <string name="rec_title_idle_edit">Edit</string>
+    <string name="rec_title_editing">Edit</string>
+
     <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
 
     <string name="rectip_memories_voice_notes">Record voice notes as handy reminders.</string>

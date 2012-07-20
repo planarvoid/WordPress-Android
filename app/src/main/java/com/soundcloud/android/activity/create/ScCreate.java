@@ -65,7 +65,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
     private SoundRecorder mRecorder;
     private CreateState mLastState, mCurrentState;
 
-    private TextView txtInstructions;
+    private TextView txtInstructions,txtTitle;
     private RecordMessageView txtRecordMessage;
     private Chronometer mChrono;
 
@@ -106,6 +106,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         setContentView(R.layout.sc_create);
 
         mRecorder = SoundRecorder.getInstance(this);
+        txtTitle = (TextView) findViewById(R.id.txt_title);
         txtInstructions = (TextView) findViewById(R.id.txt_instructions);
         Recording recording = null;
         mRecipient = getIntent().getParcelableExtra(EXTRA_PRIVATE_MESSAGE_RECIPIENT);
@@ -507,6 +508,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
         if (newState != null) mCurrentState = newState;
         switch (mCurrentState) {
             case GENERATING_WAVEFORM:
+                txtTitle.setText(R.string.rec_title_generating_waveform);
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mButtonBar, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
@@ -530,7 +532,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 break;
 
             case IDLE_RECORD:
-
+                txtTitle.setText(R.string.rec_title_idle_rec);
                 setPlayButtonDrawable(false);
                 if (!IOUtils.isSDCardAvailable()){
 
@@ -563,6 +565,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 break;
 
             case RECORD:
+                txtTitle.setText(R.string.rec_title_recording);
                 hideView(mPlayButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mEditButton, takeAction && mLastState != CreateState.IDLE_RECORD, View.GONE);
                 hideView(mButtonBar, takeAction && mLastState != CreateState.IDLE_RECORD, View.INVISIBLE);
@@ -579,6 +582,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 break;
 
             case IDLE_PLAYBACK:
+                txtTitle.setText(R.string.rec_title_idle_play);
                 if (takeAction) {
                     switch (mLastState) {
                         case PLAYBACK:
@@ -610,6 +614,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
                 break;
 
             case PLAYBACK:
+                txtTitle.setText(R.string.rec_title_playing);
                 showView(mActionButton,false);
                 showView(mPlayButton,false);
                 showView(mEditButton,false);
@@ -628,6 +633,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
             case EDIT:
             case EDIT_PLAYBACK:
+                txtTitle.setText(R.string.rec_title_editing);
                 showView(mButtonBar, false);
 
                 if (mHasEditControlGroup) {
