@@ -3,8 +3,8 @@
 
     <string name="btn_revert_to_original">Revert to original</string>
 
-    <string name="fade_toggle_on">Fades on</string>
-    <string name="fade_toggle_off">No Fading</string>
+    <string name="fade_toggle_on">Fade in/out</string>
+    <string name="fade_toggle_off">No Fade in/out</string>
 
     <string name="optimize_toggle_on">Optimized</string>
     <string name="optimize_toggle_off">Not Optimized</string>
