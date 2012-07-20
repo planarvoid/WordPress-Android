@@ -344,7 +344,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
                 }
             }
-        }), R.string.btn_next);
+        }), R.string.btn_publish);
         return buttonBar;
     }
 
@@ -686,7 +686,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private void configureButtonBar(boolean isEditing) {
         mButtonBar.setTextById(MenuItems.RESET, isEditing ? R.string.btn_revert_to_original : R.string.reset);
-        mButtonBar.setTextById(MenuItems.SAVE, isEditing ? R.string.btn_save : R.string.btn_next);
+        mButtonBar.setTextById(MenuItems.SAVE, isEditing ? R.string.btn_apply : R.string.btn_publish);
 
         final boolean showDelete = !isEditing && mRecorder.isSaved();
         mButtonBar.toggleVisibility(MenuItems.RESET, !showDelete, false);

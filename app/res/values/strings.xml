@@ -18,6 +18,8 @@
 
     <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
 
+    <string name="btn_publish">Publish</string>
+    <string name="btn_apply">Apply</string>
 
     <string name="process">Process</string>
     <string name="dialog_install_processor">Audio processor not installed. Install it?</string>
