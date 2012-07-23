@@ -13,6 +13,10 @@
 
     <issue id="ViewConstructor" severity="ignore"/>
     <issue id="TypographyEllipsis" severity="ignore"/>
+    <issue id="NewApi" severity="error"/>
+
+    <!-- change before release -->
+    <issue id="MissingTranslation" severity="warning"/>
 
     <!-- should probably re-enable later once more important things are fixed -->
     <issue id="ContentDescription" severity="ignore"/>
