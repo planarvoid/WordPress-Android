@@ -30,9 +30,12 @@
     <color name="recordUploadBorder">#ff525252</color>
     <color name="recordListItemBackground">#ff999999</color>
 
-    <color name="btnTransparentPressedStart">#ff6600</color>
-    <color name="btnTransparentPressedEnd">#ff3300</color>
+    <color name="btnDarkFlatStart">#222222</color>
+    <color name="btnDarkFlatEnd">#333333</color>
+    <color name="btnOrangePressedStart">#ff6600</color>
+    <color name="btnOrangePressedEnd">#ff3300</color>
     <color name="btnTransparentSelectedStroke">#80ffffff</color>
+    <color name="btnDarkFlatSelectedStroke">#80ffffff</color>
     <color name="recButtonBarSeparator">#ff000000</color>
 
     <color name="recButtonBarBgStart">#333333</color>

@@ -10,13 +10,13 @@
     </item>
     <item android:state_selected="true">
         <shape>
-            <solid android:color="@color/transparent"/>
-            <stroke android:width="1dp" android:color="@color/btnTransparentSelectedStroke"/>
+            <solid android:color="#242424" />
+            <stroke android:width="1dp" android:color="@color/btnDarkFlatSelectedStroke"/>
         </shape>
     </item>
     <item>
         <shape>
-            <solid android:color="@color/transparent"/>
+            <solid android:color="#242424" />
         </shape>
     </item>
 </selector>

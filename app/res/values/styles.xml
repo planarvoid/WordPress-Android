@@ -218,11 +218,24 @@
         <item name="android:shadowRadius">1</item>
     </style>
 
+    <style name="txt_record_saved_message">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/listTxtSecondary</item>
+        <item name="android:background">@drawable/btn_dark_flat_bg_states</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:paddingRight">18dp</item>
+        <item name="android:paddingLeft">18dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:drawableRight">@android:drawable/arrow_up_float</item>
+    </style>
+
     <style name="txt_record_title">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">#ffffffff</item>
-        <item name="android:background">@drawable/tour_bar_top_bg</item>
         <item name="android:textSize">20sp</item>
         <item name="android:padding">5dp</item>
         <item name="android:gravity">center</item>

@@ -24,6 +24,9 @@
     <string name="process">Process</string>
     <string name="dialog_install_processor">Audio processor not installed. Install it?</string>
 
+    <string name="rec_your_sound_is_saved_locally_at">Your sound is saved locally</string>
+
+
     <string name="crop_save_text">Save</string>
     <string name="crop_discard_text">Discard</string>
     <string name="savingImage">Saving picture\u2026</string>

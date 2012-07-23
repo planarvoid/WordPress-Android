@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+    <LinearLayout android:orientation="vertical"
+                  android:id="@+id/saved_message_layout"
+                  android:visibility="invisible"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_below="@+id/title_layout">
+        <View android:layout_width="fill_parent"
+              android:layout_height="1dp"
+              android:background="#464646"/>
+        <TextView android:id="@+id/txt_saved_message"
+                  style="@style/txt_record_saved_message"
+                  android:text="@string/rec_your_sound_is_saved_locally_at"/>
+        <View android:layout_width="fill_parent"
+              android:layout_height="1dp"
+              android:background="#464646"/>
+    </LinearLayout>
+    <RelativeLayout android:layout_width="fill_parent"
+                    android:id="@id/title_layout"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/btn_bar_rec_bg">
+        <TextView android:id="@+id/txt_title"
+                  android:layout_centerVertical="true"
+                  style="@style/txt_record_title"/>
+        <ImageButton android:id="@+id/btn_you"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_alignParentRight="true"
+                     android:layout_centerVertical="true"
+                     android:padding="5dp"
+                     android:layout_margin="5dp"
+                     android:src="@drawable/ic_tab_you"
+                     android:background="@drawable/btn_transparent_roundrect_bg_states"/>
+    </RelativeLayout>
+</RelativeLayout>
