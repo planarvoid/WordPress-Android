@@ -53,8 +53,7 @@ public class RecordEditTest extends RecordingTestCase {
         solo.clickOnText(R.string.upload_and_share);
 
         assertTrue("did not get upload notification", waitForIntent(UploadService.UPLOAD_SUCCESS, 10000));
-        assertTrue("did not get transcoding notification", waitForIntent(UploadService.TRANSCODING_SUCCESS, 30000));
-
+//        assertTrue("did not get transcoding notification", waitForIntent(UploadService.TRANSCODING_SUCCESS, 30000));
         solo.sleep(1000);
     }
 
