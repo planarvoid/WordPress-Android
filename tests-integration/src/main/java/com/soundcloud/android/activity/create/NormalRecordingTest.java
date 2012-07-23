@@ -35,7 +35,7 @@ public class NormalRecordingTest extends RecordingTestCase {
         assertTrue(encoded.exists());
 
         assertTrue(raw.length() > 100000);
-        assertTrue(encoded.length() > 20000);
+        assertTrue("encoded length "+encoded.length(), encoded.length() > 20000);
     }
 
     public void testRecordAndEditRevert() throws Exception {
