@@ -13,6 +13,8 @@ import android.widget.EditText;
 import java.util.UUID;
 
 public class SignupTest extends ActivityTestCase<Main> {
+
+
     public SignupTest() {
         super(Main.class);
     }
@@ -21,6 +23,17 @@ public class SignupTest extends ActivityTestCase<Main> {
     public void setUp() throws Exception {
         IntegrationTestHelper.logOut(getInstrumentation());
         super.setUp();
+
+        final String[] NOT_INSTALLED = {
+                "com.android.camera",  // Camera.apk
+                "com.android.gallery", // Gallery.apk
+                "com.cooliris.media"   // Gallery3D.apk
+        };
+        if (EMULATOR) {
+            for (String pkg : NOT_INSTALLED) {
+                assertPackageNotInstalled(pkg);
+            }
+        }
     }
 
     public void testSignup() throws Exception {
