@@ -348,14 +348,9 @@ public class StreamStorage {
     /* package */ void calculateFileMetrics() {
         mUsedSpace = getUsedSpace();
         long spaceLeft = getSpaceLeft();
-        int percentageOfExternal;
-        try {
-            percentageOfExternal = Integer.parseInt(PreferenceManager
-                    .getDefaultSharedPreferences(mContext)
-                    .getString(Settings.STREAM_CACHE_SIZE, Integer.toString(DEFAULT_PCT_OF_FREE_SPACE)));
-        } catch (NumberFormatException e) {
-            percentageOfExternal = DEFAULT_PCT_OF_FREE_SPACE;
-        }
+        int percentageOfExternal = PreferenceManager
+                .getDefaultSharedPreferences(mContext)
+                .getInt(Settings.STREAM_CACHE_SIZE, DEFAULT_PCT_OF_FREE_SPACE);
 
         if (percentageOfExternal < 0)
             percentageOfExternal = 0;

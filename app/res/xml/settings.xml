@@ -35,12 +35,13 @@
                 android:summary="@string/pref_clear_cache_desc"
                 />
 
-        <EditTextPreference
+        <com.soundcloud.android.activity.preference.SeekBarPreference
                 android:key="streamCacheSize"
                 android:title="@string/pref_stream_cache_size"
                 android:summary="@string/pref_stream_cache_size_desc"
                 android:inputType="number"
                 android:defaultValue="10"
+                android:text="%"
                 />
 
         <Preference
