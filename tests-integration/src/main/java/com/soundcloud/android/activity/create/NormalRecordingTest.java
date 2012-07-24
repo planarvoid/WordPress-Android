@@ -4,12 +4,14 @@ package com.soundcloud.android.activity.create;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_PLAYBACK;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_RECORD;
 
+import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Main;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.service.upload.UploadService;
 
 import android.content.Intent;
+import android.os.Build;
 import android.test.suitebuilder.annotation.Suppress;
 import android.widget.EditText;
 
@@ -88,6 +90,31 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.assertActivity(ScUpload.class);
 
         solo.enterText(0, "A test upload");
+        solo.clickOnButtonResId(R.string.sc_upload_private);
+        solo.clickOnText(R.string.upload_and_share);
+
+        assertTrue("did not get upload notification", waitForIntent(UploadService.UPLOAD_SUCCESS, 10000));
+        solo.assertActivityFinished();
+    }
+
+
+    public void testRecordAndUploadWithLocation() throws Exception {
+        record(RECORDING_TIME);
+
+        solo.clickOnPublish();
+        solo.assertActivity(ScUpload.class);
+
+        solo.enterTextId(R.id.what, "A test upload");
+
+        solo.clickOnView(R.id.where);
+        solo.assertActivity(LocationPicker.class);
+
+        solo.clickOnView(R.id.where);
+        solo.enterTextId(R.id.where, "Model "+Build.MODEL);
+        solo.sendKey(Solo.ENTER);
+
+        solo.assertActivity(ScUpload.class);
+
         solo.clickOnButtonResId(R.string.sc_upload_private);
         solo.clickOnText(R.string.upload_and_share);
 

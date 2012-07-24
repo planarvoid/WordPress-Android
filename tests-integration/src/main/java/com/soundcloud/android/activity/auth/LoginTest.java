@@ -69,7 +69,7 @@ public class LoginTest extends ActivityTestCase<Main> {
     public void testLoginAndLogout() throws Exception {
         testLogin();
         solo.logoutViaSettings();
-        assertTrue(solo.getCurrentActivity() instanceof Start);
+        solo.assertActivity(Start.class);
     }
 
     public void testRecoverPassword() throws Exception {
