@@ -5,7 +5,7 @@
               android:layout_height="fill_parent"
               android:orientation="vertical"
               android:background="@drawable/bg_rec">
-    <include layout="@layout/rec_title" />
+    <include layout="@layout/rec_header" />
 
     <RelativeLayout android:layout_width="fill_parent"
                     android:layout_height="0dp"
