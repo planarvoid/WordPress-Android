@@ -17,7 +17,7 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
     private Context mContext;
 
     private String mDialogMessage, mSuffix;
-    private int mDefault, mMax, mValue = 0;
+    private int mDefault, mMaxValue, mValue = 0;
 
     public SeekBarPreference(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -26,7 +26,7 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
         mDialogMessage = attributeSet.getAttributeValue(androidns, "dialogMessage");
         mSuffix        = attributeSet.getAttributeValue(androidns, "text");
         mDefault       = attributeSet.getAttributeIntValue(androidns, "defaultValue", 50);
-        mMax           = attributeSet.getAttributeIntValue(androidns, "max", 100);
+        mMaxValue      = attributeSet.getAttributeIntValue(androidns, "max", 100);
     }
 
     protected View onCreateDialogView() {
@@ -44,7 +44,7 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
         mValueText.setGravity(Gravity.CENTER_HORIZONTAL);
         mValueText.setTextSize(32);
         params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.FILL_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         layout.addView(mValueText, params);
 
@@ -55,7 +55,7 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
         if (shouldPersist())
             mValue = getPersistedInt(mDefault);
 
-        mSeekBar.setMax(mMax);
+        mSeekBar.setMax(mMaxValue);
         mSeekBar.setProgress(mValue);
 
         return layout;
@@ -75,20 +75,23 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
     {
         String t = String.valueOf(value);
         mValueText.setText(mSuffix == null ? t : t.concat(mSuffix));
+
         if (shouldPersist())
             persistInt(value);
-        callChangeListener(new Integer(value));
+
+        callChangeListener(value);
     }
     public void onStartTrackingTouch(SeekBar seek) {}
     public void onStopTrackingTouch(SeekBar seek) {}
 
-    public void setMax(int max) { mMax = max; }
-    public int getMax() { return mMax; }
+    public void setMax(int max) { mMaxValue = max; }
+    public int getMax() { return mMaxValue; }
 
     public void setProgress(int progress) {
         mValue = progress;
         if (mSeekBar != null)
             mSeekBar.setProgress(progress);
     }
+
     public int getProgress() { return mValue; }
 }
