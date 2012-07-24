@@ -11,7 +11,7 @@ import android.widget.TextView;
  */
 
 public class Chronometer extends TextView {
-    private long mDurationSec, mProgressSec;
+    private long mDurationSec = -1l, mProgressSec = -1l;
     private String mDurationString;
 
     private int mode;
