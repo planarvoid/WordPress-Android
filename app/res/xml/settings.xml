@@ -35,6 +35,14 @@
                 android:summary="@string/pref_clear_cache_desc"
                 />
 
+        <EditTextPreference
+                android:key="streamCacheSize"
+                android:title="@string/pref_stream_cache_size"
+                android:summary="@string/pref_stream_cache_size_desc"
+                android:inputType="number"
+                android:defaultValue="200"
+                />
+
         <Preference
                 android:key="clearStreamCache"
                 android:title="@string/pref_clear_stream_cache"
