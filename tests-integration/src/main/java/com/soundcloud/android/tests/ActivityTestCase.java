@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests;
 
 import android.app.Activity;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
@@ -30,6 +32,16 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
             solo.finishOpenedActivities();
         }
         super.tearDown();
+    }
+
+
+    protected void assertPackageNotInstalled(String pkg) {
+        try {
+            PackageInfo i = getInstrumentation().getTargetContext().getPackageManager().getPackageInfo(pkg, 0);
+            fail("package "+i+ " should not be installed");
+        } catch (PackageManager.NameNotFoundException e) {
+            // good
+        }
     }
 
     @Override

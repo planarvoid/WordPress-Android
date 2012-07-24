@@ -127,6 +127,10 @@ DEFAULT_LEVELS = %w(CloudPlaybackService
       adb["shell setprop log.redirect-stdio false"]
     end
 
+    task :remove_camera do
+      adb["remount"]
+      adb["shell rm -r /system/app/Gallery*apk /system/app/Camera.apk"]
+    end
   end
 end
 

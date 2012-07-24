@@ -39,6 +39,10 @@ public class Han extends Solo {
         clickOnButtonResId(R.string.btn_next);
     }
 
+    public void clickOnPublish() {
+        clickOnButtonResId(R.string.btn_publish);
+    }
+
     public void clickOnText(int resId) {
         clickOnText(getString(resId));
     }
@@ -75,8 +79,10 @@ public class Han extends Solo {
 
     @SuppressWarnings("unchecked")
     public <T extends Activity> T assertActivity(Class<T> a) {
-        assertTrue(waitForActivity(a.getSimpleName()));
-        return (T) getCurrentActivity();
+        final boolean found = waitForActivity(a.getSimpleName(), 5000);
+        Activity activity = getCurrentActivity();
+        assertTrue("Got "+activity.getClass().getSimpleName() +", expected "+a.getSimpleName(), found);
+        return (T) activity;
     }
 
     public void assertActivityFinished() {
