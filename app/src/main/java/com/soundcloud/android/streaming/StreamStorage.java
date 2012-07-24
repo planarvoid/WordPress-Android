@@ -4,6 +4,7 @@ import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
@@ -36,9 +37,9 @@ import java.util.Set;
 public class StreamStorage {
     static final String LOG_TAG = StreamStorage.class.getSimpleName();
 
-    public static final int DEFAULT_CHUNK_SIZE = 128 * 1024;     // 128k
-    public static final int STREAM_CACHE_SIZE  = 200* 1024 * 1024; // 200 MB
-    public static final double MAX_PCT_OF_FREE_SPACE = 0.1d; // use 10% of sd card
+    public static final int DEFAULT_CHUNK_SIZE = 128 * 1024; // 128k
+    public static final int DEFAULT_STREAM_CACHE_SIZE = 200; // MB
+    public static final int DEFAULT_PCT_OF_FREE_SPACE = 10;  // use 10% of sd card
 
     private static final int CLEANUP_INTERVAL = 20;
 
@@ -345,9 +346,24 @@ public class StreamStorage {
     }
 
     /* package */ void calculateFileMetrics() {
-        long spaceLeft = getSpaceLeft();
         mUsedSpace = getUsedSpace();
-        mUsableSpace = IOUtils.getUsableSpace(mUsedSpace, spaceLeft, STREAM_CACHE_SIZE, MAX_PCT_OF_FREE_SPACE);
+        long spaceLeft = getSpaceLeft();
+        int percentageOfExternal;
+        try {
+            percentageOfExternal = Integer.parseInt(PreferenceManager
+                    .getDefaultSharedPreferences(mContext)
+                    .getString(Settings.STREAM_CACHE_SIZE, Integer.toString(DEFAULT_PCT_OF_FREE_SPACE)));
+        } catch (NumberFormatException e) {
+            percentageOfExternal = DEFAULT_PCT_OF_FREE_SPACE;
+        }
+
+        if (percentageOfExternal < 0)
+            percentageOfExternal = 0;
+
+        if (percentageOfExternal > 100)
+            percentageOfExternal = 100;
+
+        mUsableSpace = IOUtils.getUsableSpace(mUsedSpace, spaceLeft, DEFAULT_STREAM_CACHE_SIZE, percentageOfExternal / 100.0);
         if (Log.isLoggable(LOG_TAG, Log.DEBUG))
             Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable for caching",
                     mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
