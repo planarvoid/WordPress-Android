@@ -38,7 +38,7 @@ public class StreamStorage {
     static final String LOG_TAG = StreamStorage.class.getSimpleName();
 
     public static final int DEFAULT_CHUNK_SIZE = 128 * 1024; // 128k
-    public static final int DEFAULT_STREAM_CACHE_SIZE = 200; // MB
+    public static final int MAX_STREAM_CACHE_SIZE = 200; // MB
     public static final int DEFAULT_PCT_OF_FREE_SPACE = 10;  // use 10% of sd card
 
     private static final int CLEANUP_INTERVAL = 20;
@@ -358,7 +358,7 @@ public class StreamStorage {
         if (percentageOfExternal > 100)
             percentageOfExternal = 100;
 
-        mUsableSpace = IOUtils.getUsableSpace(mUsedSpace, spaceLeft, DEFAULT_STREAM_CACHE_SIZE, percentageOfExternal / 100.0);
+        mUsableSpace = IOUtils.getUsableSpace(mUsedSpace, spaceLeft, MAX_STREAM_CACHE_SIZE, percentageOfExternal / 100.0);
         if (Log.isLoggable(LOG_TAG, Log.DEBUG))
             Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable for caching",
                     mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
