@@ -24,13 +24,14 @@ public class SignupTest extends ActivityTestCase<Main> {
         IntegrationTestHelper.logOut(getInstrumentation());
         super.setUp();
 
-        final String[] NOT_INSTALLED = {
-                "com.android.camera",  // Camera.apk
-                "com.android.gallery", // Gallery.apk
-                "com.cooliris.media"   // Gallery3D.apk
-        };
         if (EMULATOR) {
-            for (String pkg : NOT_INSTALLED) {
+            final String[] notInstalled = {
+                    "com.android.camera",  // Camera.apk
+                    "com.android.gallery", // Gallery.apk
+                    "com.cooliris.media"   // Gallery3D.apk
+            };
+
+            for (String pkg : notInstalled) {
                 assertPackageNotInstalled(pkg);
             }
         }
@@ -119,20 +120,21 @@ public class SignupTest extends ActivityTestCase<Main> {
         solo.clickOnText(R.string.add_image);
         solo.assertText(R.string.image_where); // How would you like to add an image?
 
-        solo.clickOnText(R.string.take_new_picture);
+        if (EMULATOR) {
+            solo.clickOnText(R.string.take_new_picture);
+            // FakeCamera will provide an image
+            solo.sleep(1000);
 
-        // FakeCamera will provide an image
-        solo.sleep(1000);
+            assertTrue(solo.waitForActivity("CropImage"));
+            solo.clickOnText("Save");
 
-        assertTrue(solo.waitForActivity("CropImage"));
-        solo.clickOnText("Save");
+            // make sure add image prompt is gone
+            assertFalse(solo.searchText(solo.getString(R.string.add_image), true));
 
-        // make sure add image prompt is gone
-        assertFalse(solo.searchText(solo.getString(R.string.add_image), true));
-
-        // clear image
-        solo.clickLongOnView(R.id.artwork);
-        solo.assertText(R.string.add_image);
+            // clear image
+            solo.clickLongOnView(R.id.artwork);
+            solo.assertText(R.string.add_image);
+        }
     }
 
     public void testSignupWithExistingPhoto() throws Exception {
@@ -141,21 +143,23 @@ public class SignupTest extends ActivityTestCase<Main> {
         solo.clickOnText(R.string.add_image);
         solo.assertText(R.string.image_where); // How would you like to add an image?
 
-        solo.clickOnText(R.string.use_existing_image);
+        if (EMULATOR) {
+            solo.clickOnText(R.string.use_existing_image);
 
-        // FakeGallery will provide an image
-        solo.sleep(1000);
+            // FakeGallery will provide an image
+            solo.sleep(1000);
 
-        assertTrue(solo.waitForActivity("CropImage"));
-        solo.clickOnText("Save");
-        solo.assertActivity(SignupDetails.class);
+            assertTrue(solo.waitForActivity("CropImage"));
+            solo.clickOnText("Save");
+            solo.assertActivity(SignupDetails.class);
 
-        // make sure add image prompt is gone
-        assertFalse(solo.searchText(solo.getString(R.string.add_image), true));
+            // make sure add image prompt is gone
+            assertFalse(solo.searchText(solo.getString(R.string.add_image), true));
 
-        // clear image
-        solo.clickLongOnView(R.id.artwork);
-        solo.assertText(R.string.add_image);
+            // clear image
+            solo.clickLongOnView(R.id.artwork);
+            solo.assertText(R.string.add_image);
+        }
     }
 
     public void testSignupWithNonMatchingPasswords() throws Exception {
