@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -34,6 +36,19 @@ public abstract class ActivityTestCase<T extends Activity> extends ActivityInstr
         super.tearDown();
     }
 
+
+    @SuppressWarnings("UnusedDeclaration")
+    protected void killSelf() {
+        ActivityManager activityManager = (ActivityManager)
+                getInstrumentation().getTargetContext().getSystemService(Context.ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningAppProcessInfo pi : activityManager.getRunningAppProcesses()) {
+            if ("com.soundcloud.android".equals(pi.processName)) {
+                Log.d(getClass().getSimpleName(), "killSelf:"+pi.processName+","+pi.pid);
+                android.os.Process.killProcess(pi.pid);
+            }
+        }
+    }
 
     protected void assertPackageNotInstalled(String pkg) {
         try {
