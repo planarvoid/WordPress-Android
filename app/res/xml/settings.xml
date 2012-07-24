@@ -40,7 +40,7 @@
                 android:title="@string/pref_stream_cache_size"
                 android:summary="@string/pref_stream_cache_size_desc"
                 android:inputType="number"
-                android:defaultValue="200"
+                android:defaultValue="10"
                 />
 
         <Preference
