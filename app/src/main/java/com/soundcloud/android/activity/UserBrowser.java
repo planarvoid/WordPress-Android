@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.activity.create.ScCreate;
+import com.soundcloud.android.activity.create.ScUpload;
 import com.soundcloud.android.adapter.LazyBaseAdapter;
 import com.soundcloud.android.adapter.LazyEndlessAdapter;
 import com.soundcloud.android.adapter.MyTracksAdapter;
@@ -784,7 +785,10 @@ public class UserBrowser extends ScListActivity implements
                 .create()
                 .show();
         } else {
-            startActivity(new Intent(UserBrowser.this, ScCreate.class).setData(recording.toUri()));
+            startActivity(new Intent(UserBrowser.this,
+                    (recording.external_upload ? ScUpload.class : ScCreate.class)).
+                    setData(recording.toUri()));
+
         }
     }
 
