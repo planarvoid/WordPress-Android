@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
+import com.soundcloud.android.tests.Runner;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -49,6 +50,9 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
                 getActivity().reset();
             }
         });
+
+        Runner.checkFreeSpace();
+
         super.setUp();
     }
 
