@@ -3,6 +3,7 @@ package com.soundcloud.android.activity.create;
 
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_PLAYBACK;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.IDLE_RECORD;
+import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD;
 
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
@@ -63,16 +64,6 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.clickOnOK();
         solo.sleep(1000);
         solo.assertActivityFinished();
-    }
-
-    @Suppress // autosave is now in place
-    public void testRecordAndDiscard() throws Exception {
-        record(RECORDING_TIME);
-
-        solo.clickOnText(R.string.reset); // "Discard"
-        solo.assertText(R.string.dialog_reset_recording_message); // "Reset? Recording will be deleted."
-        solo.clickOnOK();
-        assertState(IDLE_RECORD);
     }
 
     public void testRecordAndDelete() throws Exception {
@@ -216,6 +207,35 @@ public class NormalRecordingTest extends RecordingTestCase {
 
         solo.assertActivity(ScCreate.class);
         assertState(IDLE_PLAYBACK); // should be old recording
+    }
+
+
+    public void testRecordAndRunningOutOfStorageSpace() throws Exception {
+        File filler = fillUpSpace(1024*1024);
+        try {
+            assertState(IDLE_RECORD, IDLE_PLAYBACK);
+            long remaining = getActivity().getRecorder().timeRemaining();
+            // countdown starts for last 5 minutes of recording time
+            assertTrue("remaining time over 5 mins: "+remaining, remaining < 300);
+
+            solo.clickOnView(R.id.btn_action);
+            solo.sleep(1000);
+
+            while (getActivity().getRecorder().timeRemaining() > 10) {
+                assertState(RECORD);
+                solo.sleep(100);
+                solo.assertVisibleText("(?:\\d+|One) (?:minute|second)s? available", 100);
+            }
+
+            solo.assertText(R.string.record_storage_is_full);
+            assertEquals(0, getActivity().getRecorder().timeRemaining());
+            // out of space, assert player paused
+            assertState(IDLE_PLAYBACK);
+        } finally {
+            if (filler != null) {
+                filler.delete();
+            }
+        }
     }
 
     @Suppress

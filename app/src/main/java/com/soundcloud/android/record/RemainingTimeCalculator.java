@@ -20,22 +20,21 @@ import android.os.StatFs;
  */
 
 public class RemainingTimeCalculator {
-    public static final int UNKNOWN_LIMIT   = 0;
-    public static final int FILE_SIZE_LIMIT = 1;
-    public static final int DISK_SPACE_LIMIT = 2;
+    private static final int KEEP_BLOCKS = 3;
 
-    // which of the two limits we will hit (or have fit) first
-    private int mCurrentLowerLimit = UNKNOWN_LIMIT;
-
-    private File mSDCardDirectory;
+    private final File mSDCardDirectory;
 
     // State for tracking file size of recording.
-    private File mRecordingFile;
-
-    private long mMaxBytes;
+    private File mEncodedFile;
 
     // Rate at which the file grows
     private final int mBytesPerSecond;
+
+    // An estimate of current bytes per second for the encoded file
+    private int mEncodedBytesPerSecond;
+    private long mEncodedBytesPerSecondTotal;
+
+    private int mNumDatapoints;
 
     // time at which number of free blocks last changed
     private long mBlocksChangedTime;
@@ -55,38 +54,33 @@ public class RemainingTimeCalculator {
     }
 
     /**
-     * If called, the calculator will return the minimum of two estimates: how
-     * long until we run out of disk space and how long until the file reaches
-     * the specified size.
-     *
+     * If called, the calculator take an additional encoded file into account when giving the remaining
+     * time estimate, based on file growth of the encoded file.
      * @param file the file to watch
-     * @param maxBytes the limit
      */
-
-    public void setFileSizeLimit(File file, long maxBytes) {
-        mRecordingFile = file;
-        mMaxBytes = maxBytes;
+    public void setEncodedFile(File file) {
+        mEncodedFile = file;
     }
 
     /**
      * Resets the interpolation.
      */
     public void reset() {
-        mCurrentLowerLimit = UNKNOWN_LIMIT;
-        mBlocksChangedTime = -1;
-        mFileSizeChangedTime = -1;
+        mEncodedFile = null;
+        mBlocksChangedTime = mFileSizeChangedTime = -1;
+        mEncodedBytesPerSecondTotal = mEncodedBytesPerSecond = mNumDatapoints = 0;
     }
 
     /**
      * Returns how long (in seconds) we can continue recording.
      */
     public long timeRemaining() {
-        // Calculate how long we can record based on free disk space
 
+        // Calculate how long we can record based on free disk space
         StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
-        long blocks = fs.getAvailableBlocks();
-        long blockSize = fs.getBlockSize();
-        long now = System.currentTimeMillis();
+        final long blocks = Math.max(0, fs.getAvailableBlocks() - KEEP_BLOCKS);
+        final long blockSize = fs.getBlockSize();
+        final long now = System.currentTimeMillis();
 
         if (mBlocksChangedTime == -1 || blocks != mLastBlocks) {
             mBlocksChangedTime = now;
@@ -99,51 +93,42 @@ public class RemainingTimeCalculator {
          * might get nibbled when we close and flush the file, but we won't run
          * out of disk.
          */
+        if (mEncodedFile != null) {
+            // If we have a recording file set, add an estimate of bytes per second
+            mEncodedFile = new File(mEncodedFile.getAbsolutePath());
+            long fileSize = mEncodedFile.length();
+            if (mFileSizeChangedTime == -1 || fileSize > mLastFileSize) {
+
+                long growth = fileSize - mLastFileSize;
+                long timePassed = now - mFileSizeChangedTime;
+                mFileSizeChangedTime = now;
+                mLastFileSize = fileSize;
+
+                final int bps = (int) (growth / (timePassed / 1000d));
+
+                mEncodedBytesPerSecondTotal += bps;
+                mEncodedBytesPerSecond = (int) (mEncodedBytesPerSecondTotal / (double) ++mNumDatapoints);
+
+                // moving average of last 5 values
+                if (mNumDatapoints % 5 == 0) {
+                    mEncodedBytesPerSecondTotal = 0;
+                    mNumDatapoints  = 0;
+                }
+            }
+        }
 
         // at mBlocksChangedTime we had this much time
-        long result = mLastBlocks * blockSize / mBytesPerSecond;
+        final long totalBytesPerSecond = mBytesPerSecond + mEncodedBytesPerSecond;
+        long result = (mLastBlocks * blockSize) / totalBytesPerSecond;
         // so now we have this much time
         result -= (now - mBlocksChangedTime) / 1000;
 
-        if (mRecordingFile == null) {
-            mCurrentLowerLimit = DISK_SPACE_LIMIT;
-            return result;
-        }
-
-        // If we have a recording file set, we calculate a second estimate
-        // based on how long it will take us to reach mMaxBytes.
-
-        mRecordingFile = new File(mRecordingFile.getAbsolutePath());
-        long fileSize = mRecordingFile.length();
-        if (mFileSizeChangedTime == -1 || fileSize != mLastFileSize) {
-            mFileSizeChangedTime = now;
-            mLastFileSize = fileSize;
-        }
-
-        long result2 = (mMaxBytes - fileSize) / mBytesPerSecond;
-        result2 -= (now - mFileSizeChangedTime) / 1000;
-        result2 -= 1; // just for safety
-
-        mCurrentLowerLimit = result < result2 ? DISK_SPACE_LIMIT : FILE_SIZE_LIMIT;
-
-        return Math.min(result, result2);
+        return result;
     }
 
-    /**
-     * Indicates which limit we will hit (or have hit) first, by returning one
-     * of FILE_SIZE_LIMIT or DISK_SPACE_LIMIT or UNKNOWN_LIMIT. We need this to
-     * display the correct message to the user when we hit one of the limits.
-     */
-    public int currentLowerLimit() {
-        return mCurrentLowerLimit;
-    }
-
-    /**
-     * Is there any point of trying to start recording?
-     */
     public boolean isDiskSpaceAvailable() {
         StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
-        // keep one free block
-        return fs.getAvailableBlocks() > 1;
+        // keep some free block
+        return fs.getAvailableBlocks() > KEEP_BLOCKS;
     }
 }
