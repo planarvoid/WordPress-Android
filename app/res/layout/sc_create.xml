@@ -106,21 +106,23 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <RelativeLayout android:layout_height="wrap_content"
-                    android:layout_width="fill_parent"
+    <RelativeLayout android:layout_width="fill_parent"
+                    android:layout_height="80dp"
                     android:layout_alignParentBottom="true"
-            android:id="@id/footer_layout">
+                    android:id="@id/footer_layout">
         <com.soundcloud.android.view.create.RecordMessageView android:id="@+id/txt_record_message"
                                                               android:layout_width="match_parent"
                                                               android:layout_margin="5dp"
+                                                              android:padding="10dp"
                                                               style="@style/txt_record_message"
+                                                              android:layout_alignBottom="@+id/bottom_bar"
                                                               android:gravity="center"
                                                               android:lines="2"
                                                               android:layout_height="wrap_content"/>
-        <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
-                                               android:layout_alignBottom="@id/txt_record_message"
+        <com.soundcloud.android.view.ButtonBar android:id="@id/bottom_bar"
                                                android:layout_width="fill_parent"
-                                               android:layout_height="60dp"
+                                               android:layout_height="match_parent"
+                                               android:layout_marginTop="20dp"
                                                style="@style/rec_button_bar"
                                                app:button_background="@drawable/btn_transparent_bg_states"
                                                app:separator_color="@color/recButtonBarSeparator"/>
