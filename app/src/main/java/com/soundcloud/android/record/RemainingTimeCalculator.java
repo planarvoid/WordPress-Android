@@ -20,7 +20,8 @@ import android.os.StatFs;
  */
 
 public class RemainingTimeCalculator {
-    private static final int KEEP_BLOCKS = 3;
+    // need to keep some space for amplitude data etc which gets written after audio files
+    private static final int KEEP_BLOCKS = 100;
 
     private final File mSDCardDirectory;
 
