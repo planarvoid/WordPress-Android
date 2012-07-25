@@ -65,7 +65,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     public static final String EXTRA_AMPLITUDE   = "amplitude";
     public static final String EXTRA_ELAPSEDTIME = "elapsedTime";
     public static final String EXTRA_DURATION    = "duration";
-    public static final String EXTRA_RECORDING   = "recording";
+    public static final String EXTRA_RECORDING   = Recording.EXTRA;
 
     public static final String[] ALL_ACTIONS = {
       NOTIFICATION_STATE, RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,

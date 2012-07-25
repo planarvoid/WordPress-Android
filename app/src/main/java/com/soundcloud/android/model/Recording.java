@@ -36,7 +36,6 @@ import android.database.Cursor;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -59,6 +58,7 @@ import java.util.regex.Pattern;
 public class Recording extends ScModel implements Comparable<Recording> {
 
     public static final File IMAGE_DIR = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
+    public static final String EXTRA = "recording";
 
     // basic properties
     public long user_id;
@@ -529,7 +529,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public static Recording checkForUnusedPrivateRecording(File directory, User user) {
         if (user == null) return null;
-        for (File f : directory.listFiles(new RecordingFilter(null))) {
+        for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(null))) {
             if (Recording.getUserIdFromFile(f) == user.id) {
                 Recording r = new Recording(f);
                 r.recipient = user;
@@ -542,7 +542,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
         MediaPlayer mp = null;
         List<Recording> unsaved = new ArrayList<Recording>();
-        for (File f : directory.listFiles(new RecordingFilter(ignore))) {
+        for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore))) {
             if (getUserIdFromFile(f) != -1) continue; // ignore current file
             Recording r = SoundCloudDB.getRecordingByPath(resolver, f);
             if (r == null) {
@@ -596,8 +596,8 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static Recording fromIntent(Intent intent, ContentResolver resolver, long userId) {
         final String action = intent.getAction();
 
-        if (intent.hasExtra(SoundRecorder.EXTRA_RECORDING))  {
-            return intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
+        if (intent.hasExtra(EXTRA))  {
+            return intent.getParcelableExtra(EXTRA);
             // 3rd party sharing?
         } else if (intent.hasExtra(Intent.EXTRA_STREAM) &&
                 (Intent.ACTION_SEND.equals(action) ||
@@ -699,6 +699,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     };
 
     public Recording(Parcel in) {
+
         Bundle data = in.readBundle(getClass().getClassLoader());
         id = data.getLong("id");
         user_id = data.getLong("user_id");

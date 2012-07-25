@@ -54,7 +54,6 @@ public class RecordStream implements AudioWriter {
      */
     public RecordStream(AudioConfig cfg, File raw, File encoded, File amplitudeFile) {
         this(cfg);
-
         setWriters(raw, encoded);
         try {
             if (amplitudeFile != null && amplitudeFile.exists()){
@@ -69,7 +68,7 @@ public class RecordStream implements AudioWriter {
 
     public boolean hasValidAmplitudeData(){
         final long requiredSize = (int) (SoundRecorder.PIXELS_PER_SECOND * SoundCloudApplication.instance.getResources().getDisplayMetrics().density) * getDuration();
-        return mAmplitudeData.size() * 1000 > requiredSize;
+        return mAmplitudeData.size() >= (int) requiredSize / 1000;
     }
 
     public void regenerateAmplitudeData(final File outFile, onAmplitudeGenerationListener onAmplitudeListener) {

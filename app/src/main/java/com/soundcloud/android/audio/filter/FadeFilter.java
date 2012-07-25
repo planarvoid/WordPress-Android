@@ -97,9 +97,9 @@ public class FadeFilter implements PlaybackFilter {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(mFadeType);
+        dest.writeInt(mFadeType);
         dest.writeLong(mFadeSize);
-        dest.writeLong(mFadeExpCurve);
+        dest.writeInt(mFadeExpCurve);
 
     }
 

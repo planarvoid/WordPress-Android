@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
+import com.soundcloud.android.tests.Runner;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,6 +50,9 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
                 getActivity().reset();
             }
         });
+
+        Runner.checkFreeSpace();
+
         super.setUp();
     }
 
@@ -98,7 +103,9 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
                 break;
             }
         }
-        assertNotNull(reached);
+        assertNotNull(
+                "state "+ Arrays.toString(state) + " not reached, current = "+ getActivity().getState(),
+                reached);
     }
 
     protected boolean waitForState(ScCreate.CreateState state, long timeout) {
