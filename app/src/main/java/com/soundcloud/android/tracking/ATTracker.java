@@ -2,10 +2,14 @@ package com.soundcloud.android.tracking;
 
 import static com.soundcloud.android.utils.NetworkConnectivityListener.State;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import com.at.ATParams;
 import com.at.ATTag;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.model.Plan;
 import com.soundcloud.android.model.User;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
@@ -40,6 +44,7 @@ public class ATTracker {
     private static final String CUSTOM_FB_SIGNUP   = "6";
 
     private final ArrayList<ATParams> mQueue = new ArrayList<ATParams>();
+    private boolean mIsEnabled;
     private boolean mQueueFlushing;
     private ATParams[] mEvents; // temporary working set, held globally to avoid pointless repeated allocations
 
@@ -74,9 +79,24 @@ public class ATTracker {
         NetworkConnectivityListener connectivity = new NetworkConnectivityListener();
         connectivity.registerHandler(handler, 0);
         connectivity.startListening(context);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        mIsEnabled = preferences.getBoolean(Settings.ANALYTICS, true);
+
+        preferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+                 if (s.equals(Settings.ANALYTICS)) {
+                     mIsEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS, true);
+                 }
+            }
+        });
+
     }
 
     public void track(Event event, Object... args) {
+        if (!mIsEnabled) { return; }
+
         if (event != null) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "track event "+event);
             enqueue(event.atParams(args));
