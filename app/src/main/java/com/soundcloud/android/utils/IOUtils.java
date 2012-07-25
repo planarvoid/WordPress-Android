@@ -4,13 +4,9 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Consts;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -18,7 +14,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Proxy;
 import android.net.Uri;
-import android.net.http.AndroidHttpClient;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
@@ -27,7 +22,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -38,10 +32,6 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -51,16 +41,25 @@ public final class IOUtils {
 
     private IOUtils() {}
 
+    public static @NotNull File[] nullSafeListFiles(File f, @Nullable FilenameFilter filter) {
+        if (f == null) return new File[0];
+        File[] files;
+        if (filter != null) {
+            files = f.listFiles(filter);
+        } else {
+            files = f.listFiles();
+        }
+        return files == null ? new File[0] : files;
+    }
+
     public static long getDirSize(File dir) {
         long result = 0;
-        File[] fileList = dir.listFiles();
-        if (fileList != null) {
-            for (File aFileList : fileList) {
-                if (aFileList.isDirectory()) {
-                    result += getDirSize(aFileList);
-                } else {
-                    result += aFileList.length();
-                }
+        File[] fileList = nullSafeListFiles(dir, null);
+        for (File aFileList : fileList) {
+            if (aFileList.isDirectory()) {
+                result += getDirSize(aFileList);
+            } else {
+                result += aFileList.length();
             }
         }
         return result;
@@ -146,18 +145,15 @@ public final class IOUtils {
 
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
-            File[] children = dir.listFiles();
-            if (children != null) {
-                for (File f : children) {
-                    boolean success;
-                    if (f.isDirectory()) {
-                         success = deleteDir(f);
-                    } else {
-                        success = deleteFile(f);
-                    }
-                    if (!success) {
-                        return false;
-                    }
+            for (File f : nullSafeListFiles(dir, null)) {
+                boolean success;
+                if (f.isDirectory()) {
+                     success = deleteDir(f);
+                } else {
+                    success = deleteFile(f);
+                }
+                if (!success) {
+                    return false;
                 }
             }
             // The directory is now empty so delete it
@@ -169,7 +165,7 @@ public final class IOUtils {
     public static File ensureUpdatedDirectory(File newDir, File deprecatedDir) {
         mkdirs(newDir);
         if (deprecatedDir.exists()) {
-            for (File f : deprecatedDir.listFiles()) {
+            for (File f : nullSafeListFiles(deprecatedDir, null)) {
                 if (!f.renameTo(new File(newDir, f.getName()))) {
                     Log.w(TAG, "could not rename "+f);
                 }
@@ -192,13 +188,13 @@ public final class IOUtils {
 
     public static boolean fileExistsCaseSensitive(final File f) {
         if (f != null && f.exists() && f.getParentFile() != null) {
-            File[] files = f.getParentFile().listFiles(new FilenameFilter() {
+            File[] files = nullSafeListFiles(f.getParentFile(), new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
                     return name.equals(f.getName());
                 }
             });
-            return files != null && files.length > 0;
+            return files.length > 0;
         } else return false;
     }
 

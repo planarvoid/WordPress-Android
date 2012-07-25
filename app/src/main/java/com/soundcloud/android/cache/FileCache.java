@@ -147,7 +147,7 @@ public class FileCache extends FileResponseCache {
 
         private void deletePlain(File... dirs) {
             List<File> allFiles = new ArrayList<File>();
-            for (File dir : dirs) if (dir.isDirectory()) allFiles.addAll(Arrays.asList(dir.listFiles()));
+            for (File dir : dirs) if (dir.isDirectory()) allFiles.addAll(Arrays.asList(IOUtils.nullSafeListFiles(dir, null)));
 
             for (int i=0; i < allFiles.size(); i++) {
                 File f = allFiles.get(i);
@@ -170,26 +170,22 @@ public class FileCache extends FileResponseCache {
 
             long toTrim = dirSize - maxCacheSize;
 
-            final File[] files = cache.dir.listFiles();
-            if (files != null) {
-                Arrays.sort(files, new FiletimeComparator(true));
+            final File[] files = IOUtils.nullSafeListFiles(cache.dir, null);
+            Arrays.sort(files, new FiletimeComparator(true));
 
-                int i = 0;
-                while (toTrim > 0 && i < files.length){
-                    final File file = files[i];
-                    final long filesize = file.length();
-                    if (!file.delete()) {
-                        Log.w(TAG, "could not delete file " + file);
-                    } else {
-                        toTrim -= filesize;
-                    }
-                    publishProgress(i, files.length);
-                    i++;
+            int i = 0;
+            while (toTrim > 0 && i < files.length){
+                final File file = files[i];
+                final long filesize = file.length();
+                if (!file.delete()) {
+                    Log.w(TAG, "could not delete file " + file);
+                } else {
+                    toTrim -= filesize;
                 }
-                return true;
-            } else {
-                return false;
+                publishProgress(i, files.length);
+                i++;
             }
+            return true;
         }
     }
 }

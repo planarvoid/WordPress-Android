@@ -529,7 +529,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
 
     public static Recording checkForUnusedPrivateRecording(File directory, User user) {
         if (user == null) return null;
-        for (File f : directory.listFiles(new RecordingFilter(null))) {
+        for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(null))) {
             if (Recording.getUserIdFromFile(f) == user.id) {
                 Recording r = new Recording(f);
                 r.recipient = user;
@@ -542,7 +542,7 @@ public class Recording extends ScModel implements Comparable<Recording> {
     public static List<Recording> getUnsavedRecordings(ContentResolver resolver, File directory, Recording ignore, long userId) {
         MediaPlayer mp = null;
         List<Recording> unsaved = new ArrayList<Recording>();
-        for (File f : directory.listFiles(new RecordingFilter(ignore))) {
+        for (File f : IOUtils.nullSafeListFiles(directory, new RecordingFilter(ignore))) {
             if (getUserIdFromFile(f) != -1) continue; // ignore current file
             Recording r = SoundCloudDB.getRecordingByPath(resolver, f);
             if (r == null) {
