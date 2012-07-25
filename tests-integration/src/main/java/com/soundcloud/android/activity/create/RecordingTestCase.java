@@ -14,6 +14,7 @@ import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -98,7 +99,9 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
                 break;
             }
         }
-        assertNotNull(reached);
+        assertNotNull(
+                "state "+ Arrays.toString(state) + " not reached, current = "+ getActivity().getState(),
+                reached);
     }
 
     protected boolean waitForState(ScCreate.CreateState state, long timeout) {
