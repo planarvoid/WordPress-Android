@@ -440,7 +440,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
      * @return the remaining recording time, in seconds
      */
     public long timeRemaining() {
-        return mRemainingTime;
+        return mRemainingTimeCalculator.timeRemaining();
     }
 
     public float getTrimPercentLeft() {
