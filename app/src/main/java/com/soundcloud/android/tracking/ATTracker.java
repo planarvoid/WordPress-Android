@@ -28,7 +28,7 @@ import java.util.Arrays;
  *  Improving Google Analytics performance on Android
  * </a>, adapted for ATInternet.
  */
-public class ATTracker {
+public class ATTracker implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = ATTracker.class.getSimpleName();
 
     // identified visitors
@@ -81,17 +81,8 @@ public class ATTracker {
         connectivity.startListening(context);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.registerOnSharedPreferenceChangeListener(this);
         mIsEnabled = preferences.getBoolean(Settings.ANALYTICS, true);
-
-        preferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                 if (s.equals(Settings.ANALYTICS)) {
-                     mIsEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS, true);
-                 }
-            }
-        });
-
     }
 
     public void track(Event event, Object... args) {
@@ -140,6 +131,13 @@ public class ATTracker {
     private static void setCustom(ATParams event, String name, int value) {
         if (value >= 0) {
             event.setCustomCritera(name, String.valueOf(value));
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (s.equals(Settings.ANALYTICS)) {
+            mIsEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS, true);
         }
     }
 
