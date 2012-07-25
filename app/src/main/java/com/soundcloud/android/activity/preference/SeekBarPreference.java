@@ -9,6 +9,11 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+/* Based on the SeekBarPreference by Matthew Wiggins
+ * Released under the APACHE 2.0 license
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
 public class SeekBarPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener {
     private static final String androidns="http://schemas.android.com/apk/res/android";
 
