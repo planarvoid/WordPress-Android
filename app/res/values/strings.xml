@@ -26,6 +26,10 @@
 
     <string name="rec_your_sound_is_saved_locally_at">Your sound is saved locally</string>
 
+    <string name="pref_analytics">Analytics</string>
+    <string name="pref_analytics_desc">Enabling analytics allows us to collect data about your use of this app which helps us improve the app. See our Privacy Policy for more details.</string>
+    <string name="pref_crashlogs">Crashlogs</string>
+    <string name="pref_crashlogs_desc">Enabling Crashlogs helps us improve the app significantly. We don\'t collect any personal data. See our Privacy Policy for more details.</string>
 
     <string name="crop_save_text">Save</string>
     <string name="crop_discard_text">Discard</string>

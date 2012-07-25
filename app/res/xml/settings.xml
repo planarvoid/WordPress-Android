@@ -19,6 +19,20 @@
                 android:title="@string/pref_revoke_access"
                 android:summary="@string/pref_revoke_desc"
                 android:key="logout"/>
+
+        <CheckBoxPreference
+                android:key="analytics"
+                android:title="@string/pref_analytics"
+                android:summary="@string/pref_analytics_desc"
+                android:defaultValue="true"
+                />
+
+        <CheckBoxPreference
+                android:key="crashlogs"
+                android:title="@string/pref_crashlogs"
+                android:summary="@string/pref_crashlogs_desc"
+                android:defaultValue="true"
+                />
     </PreferenceCategory>
 
     <PreferenceCategory
