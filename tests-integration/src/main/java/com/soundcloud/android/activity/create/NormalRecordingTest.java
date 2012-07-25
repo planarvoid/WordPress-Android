@@ -61,7 +61,7 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.clickOnText(R.string.delete);
         solo.assertText(R.string.dialog_confirm_delete_recording_message);
         solo.clickOnOK();
-        solo.sleep(500);
+        solo.sleep(1000);
         solo.assertActivityFinished();
     }
 
