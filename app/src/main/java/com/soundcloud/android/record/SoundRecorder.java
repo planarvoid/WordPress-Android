@@ -36,7 +36,7 @@ import java.util.EnumSet;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class SoundRecorder implements IAudioManager.MusicFocusable {
+public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream.onAmplitudeGenerationListener {
     /* package */ static final String TAG = SoundRecorder.class.getSimpleName();
 
     public static final int PIXELS_PER_SECOND = 30;
@@ -57,6 +57,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     public static final String PLAYBACK_COMPLETE = "com.soundcloud.android.playbackcomplete";
     public static final String PLAYBACK_PROGRESS = "com.soundcloud.android.playbackprogress";
     public static final String PLAYBACK_ERROR    = "com.soundcloud.android.playbackerror";
+    public static final String WAVEFORM_GENERATED    = "com.soundcloud.android.waveformgenerated";
 
     public static final String EXTRA_SHOULD_NOTIFY = "shouldUseNotifications";
     public static final String EXTRA_POSITION    = "position";
@@ -68,41 +69,42 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
     public static final String[] ALL_ACTIONS = {
       NOTIFICATION_STATE, RECORD_STARTED, RECORD_ERROR, RECORD_SAMPLE, RECORD_PROGRESS, RECORD_FINISHED,
-      PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS
+      PLAYBACK_STARTED, PLAYBACK_STOPPED, PLAYBACK_COMPLETE, PLAYBACK_PROGRESS, PLAYBACK_PROGRESS, WAVEFORM_GENERATED
     };
     public static final int MAX_PLAYBACK_RATE = AudioTrack.getNativeOutputSampleRate(AudioTrack.MODE_STREAM);
 
     public enum State {
-        IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING, TRIMMING;
+        IDLE, READING, RECORDING, ERROR, STOPPING, PLAYING, SEEKING, TRIMMING, GENERATING_WAVEFORM;
 
         public static final EnumSet<State> ACTIVE = EnumSet.of(RECORDING, PLAYING, SEEKING, TRIMMING);
-        public static final EnumSet<State> PLAYBACK = EnumSet.of(PLAYING, SEEKING);
 
+        public static final EnumSet<State> PLAYBACK = EnumSet.of(PLAYING, SEEKING);
         public boolean isActive() { return ACTIVE.contains(this); }
+
         public boolean isPlaying() { return PLAYBACK.contains(this); }
         public boolean isTrimming() { return this == TRIMMING; }
         public boolean isRecording() { return this == RECORDING; }
+        public boolean isGeneratingWaveform() { return this == GENERATING_WAVEFORM; }
     }
-
     private final Context mContext;
-    private volatile @NotNull State mState;
 
+    private volatile @NotNull State mState;
     private final AudioRecord mAudioRecord;
+
     private final ScAudioTrack mAudioTrack;
     private final RemainingTimeCalculator mRemainingTimeCalculator;
-
     private final int valuesPerSecond;
 
     private @Nullable Recording mRecording;
+
     private @NotNull RecordStream mRecordStream;
     private @Nullable PlaybackStream mPlaybackStream;
     private PlayerThread mPlaybackThread;
     /*package*/ @Nullable ReaderThread mReaderThread;
-
     final private AudioConfig mConfig;
+
     final private ByteBuffer buffer;
     final private int bufferReadSize;
-
     private final IAudioManager mAudioManager;
 
     private boolean mShouldUseNotifications = true;
@@ -178,6 +180,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
             mRecording = null;
         }
 
+
         mRecordStream.reset();
 
         if (mPlaybackStream != null) {
@@ -191,12 +194,32 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     }
 
     public void setRecording(Recording recording) {
-        mRecording = recording;
-        mRecordStream = new RecordStream(mConfig, recording.getFile(),
-                shouldEncode() ? recording.getEncodedFile() : null,
-                mRecording.getAmplitudeFile());
+        if (recording != mRecording) {
+            mRecording = recording;
+            mRecordStream = new RecordStream(mConfig, recording.getFile(),
+                    shouldEncode() ? recording.getEncodedFile() : null,
+                    mRecording.getAmplitudeFile());
 
-        mPlaybackStream = recording.getPlaybackStream();
+            if (!mRecordStream.hasValidAmplitudeData()) {
+                mState = State.GENERATING_WAVEFORM;
+                mRecordStream.regenerateAmplitudeData(mRecording.getAmplitudeFile(), this);
+            }
+
+            mPlaybackStream = recording.getPlaybackStream();
+        }
+    }
+
+    public boolean isGeneratingWaveform(){
+        return mState.isGeneratingWaveform();
+    }
+
+    @Override
+    public void onGenerationFinished(boolean success) {
+        // we might have been reset, so make sure we are still waiting
+        if (mState == State.GENERATING_WAVEFORM){
+            mState = State.IDLE;
+            broadcast(WAVEFORM_GENERATED);
+        }
     }
 
     public boolean isActive() {

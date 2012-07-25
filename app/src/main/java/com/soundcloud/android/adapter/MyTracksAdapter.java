@@ -9,6 +9,7 @@ import com.soundcloud.android.view.LazyRow;
 import com.soundcloud.android.view.MyTracklistRow;
 import com.soundcloud.android.view.TrackInfoBar;
 
+import android.content.ContentValues;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
@@ -81,7 +82,12 @@ public class MyTracksAdapter extends TracklistAdapter {
             mCursor.close();
             mCursor = null;
         }
+
+        // updated recording functionality requires special handling of old recordings
+        Recording.migrateRecordings(mRecordingData,mContext.getContentResolver());
     }
+
+
 
     private List<Recording> loadRecordings(Cursor cursor) {
         List<Recording> recordings = new ArrayList<Recording>();

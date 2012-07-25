@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
@@ -56,6 +57,22 @@ public class RecordStreamTest {
         expect(rs.getAmplitudeData().isEmpty()).toBeTrue();
         expect(rs.getPreRecordAmplitudeData().isEmpty()).toBeTrue();
         expect(rs.getLastAmplitude()).toEqual(0f);
+    }
+
+    @Test
+    public void shouldCreateAmplitudeFile() throws Exception {
+
+        File wavFile = new File(SoundRecorderTest.class.getResource(WavHeaderTest.PCM16_8000_1_WAV).getFile());
+        final RecordStream rs = new RecordStream(AudioConfig.DEFAULT,wavFile,null,null);
+        rs.regenerateAmplitudeData(null, new RecordStream.onAmplitudeGenerationListener() {
+            @Override
+            public void onGenerationFinished(boolean success) {
+                expect(success).toBeTrue();
+                expect(rs.getAmplitudeData().isEmpty()).toBeFalse();
+                expect(rs.getAmplitudeData().size()).toEqual(31);
+            }
+        });
+
     }
 
 

@@ -530,6 +530,7 @@ public class ScContentProvider extends ContentProvider {
         switch (content) {
             case TRACKS:
             case USERS:
+            case RECORDINGS:
                 content.table.upsert(db, values);
                 if (values.length != 0) getContext().getContentResolver().notifyChange(uri, null, false);
                 return values.length;

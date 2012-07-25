@@ -30,7 +30,8 @@ public class PrivateRecordingTest extends RecordingTestCase {
 
     public void testUploadPrivateMessage() {
         record(RECORDING_TIME, solo.getString(R.string.private_message_title, recipient.username));
-        solo.clickOnButtonResId(R.string.btn_next);
+
+        solo.clickOnPublish();
         solo.assertActivity(ScUpload.class);
 
         solo.assertText(R.string.private_message_upload_title); // "Your sound message got saved."

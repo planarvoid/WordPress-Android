@@ -3,8 +3,8 @@
 
     <string name="btn_revert_to_original">Revert to original</string>
 
-    <string name="fade_toggle_on">Fades on</string>
-    <string name="fade_toggle_off">No Fading</string>
+    <string name="fade_toggle_on">Fade in/out</string>
+    <string name="fade_toggle_off">No Fade in/out</string>
 
     <string name="optimize_toggle_on">Optimized</string>
     <string name="optimize_toggle_off">Not Optimized</string>
@@ -14,11 +14,18 @@
     <string name="cloud_recorder_notification_ticker">Recording</string>
 
     <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>
+    <string name="create_regenerating_waveform_message">Regenerating waveform, please wait.</string>
 
     <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
 
+    <string name="btn_publish">Publish</string>
+    <string name="btn_apply">Apply</string>
+
     <string name="process">Process</string>
     <string name="dialog_install_processor">Audio processor not installed. Install it?</string>
+
+    <string name="rec_your_sound_is_saved_locally_at">Your sound is saved locally</string>
+
 
     <string name="crop_save_text">Save</string>
     <string name="crop_discard_text">Discard</string>
@@ -47,6 +54,14 @@
 
     <string name="cancel">Cancel</string>
     <string name="retry">Retry</string>
+
+    <string name="rec_title_generating_waveform">Please Wait...</string>
+    <string name="rec_title_idle_rec">Record</string>
+    <string name="rec_title_recording">Recording</string>
+    <string name="rec_title_idle_play">Pause</string>
+    <string name="rec_title_playing">Pause</string>
+    <string name="rec_title_idle_edit">Edit</string>
+    <string name="rec_title_editing">Edit</string>
 
     <string name="rectip_default">Why don\'t you record the sounds of your street?.</string>
 
