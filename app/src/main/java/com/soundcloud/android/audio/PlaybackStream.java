@@ -166,10 +166,9 @@ public class PlaybackStream implements Parcelable {
     }
 
     public boolean isModified() {
+        // TODO, this should include the filter in final version
         return mStartPos > 0 ||
-               (mEndPos > 0 && mEndPos < getTotalDuration()) ||
-               mFilter != null ||
-               mOptimize;
+                (mEndPos > 0 && mEndPos < getTotalDuration()) /*|| mFilter != null || mOptimize*/;
     }
 
     public long getTotalDuration() {

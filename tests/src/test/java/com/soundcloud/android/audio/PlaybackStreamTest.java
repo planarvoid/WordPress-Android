@@ -73,8 +73,11 @@ public class PlaybackStreamTest {
         stream.reset();
         expect(stream.isModified()).toBeFalse();
 
+        /*
+        TODO : re-enable once we add fading to processing
         stream.setFading(true);
         expect(stream.isModified()).toBeTrue();
+        */
 
         stream.reset();
         expect(stream.isModified()).toBeFalse();
