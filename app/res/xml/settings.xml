@@ -21,7 +21,7 @@
                 android:key="logout"/>
 
         <CheckBoxPreference
-                android:key="analytics"
+                android:key="acra.enable"
                 android:title="@string/pref_analytics"
                 android:summary="@string/pref_analytics_desc"
                 android:defaultValue="true"
