@@ -41,12 +41,12 @@ public class PlaybackStreamTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetInvalidStartPosition() throws Exception {
-        stream.setStartPositionByPercent(-1d, 1);
+        stream.setStartPositionByPercent(-1f, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetInvalidEndPosition() throws Exception {
-        stream.setEndPositionByPercent(2d, 1);
+        stream.setEndPositionByPercent(2f, 1);
     }
 
     @Test
