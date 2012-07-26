@@ -42,6 +42,6 @@ public class PrivateRecordingTest extends RecordingTestCase {
         solo.enterText(0, "Hallo Hans");
 
         solo.clickOnText(R.string.private_message_btn_send);
-        assertTrue(waitForIntent(UploadService.UPLOAD_SUCCESS, 10000));
+        assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
     }
 }

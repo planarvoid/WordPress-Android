@@ -753,7 +753,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     private boolean shouldEncode() {
-        return "compressed".equals(PreferenceManager.getDefaultSharedPreferences(mContext)
-                .getString(DevSettings.DEV_RECORDING_TYPE, "compressed"));
+        return !DevSettings.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(mContext)
+                .getString(DevSettings.DEV_RECORDING_TYPE, null));
     }
 }
