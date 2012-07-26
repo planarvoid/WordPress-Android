@@ -204,11 +204,11 @@ public class StreamStorage {
             SharedPreferencesUtils.apply(prefs.edit().putInt(Consts.PrefKeys.STREAMING_WRITES_SINCE_CLEANUP, currentCount));
 
             if (currentCount >= mCleanupInterval) {
-                calculateFileMetrics();
+                mUsedSpace = calculateFileMetrics();
                 if (cleanup()) {
                     if (SoundCloudApplication.DEV_MODE) {
                         // print file stats again
-                        calculateFileMetrics();
+                        mUsedSpace = calculateFileMetrics();
                     }
                 }
             }
@@ -344,8 +344,8 @@ public class StreamStorage {
         }
     }
 
-    /* package */ void calculateFileMetrics() {
-        mUsedSpace      = getUsedSpace();
+    /* package */ long calculateFileMetrics() {
+        long result     = getUsedSpace();
         long spaceLeft  = getSpaceLeft();
         long totalSpace = getTotalSpace();
 
@@ -361,10 +361,13 @@ public class StreamStorage {
             percentageOfExternal = 100;
         }
 
-        mUsableSpace = IOUtils.getUsableSpace(mUsedSpace, spaceLeft, totalSpace, percentageOfExternal / 100.0);
+        result = IOUtils.getUsableSpace(result, spaceLeft, totalSpace, percentageOfExternal / 100.0);
+
         if (Log.isLoggable(LOG_TAG, Log.DEBUG))
             Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable for caching",
-                    mUsedSpace/(1024d*1024d), spaceLeft /(1024d*1024d), mUsableSpace/(1024d*1024d)));
+                    result/(1024d*1024d), spaceLeft /(1024d*1024d), result/(1024d*1024d)));
+
+        return result;
     }
 
     private synchronized boolean cleanup() {
