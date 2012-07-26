@@ -36,7 +36,7 @@ public class PlaybackStreamTest {
     @Test
     public void testSetEndPosition() throws Exception {
         stream.setEndPositionByPercent(.9f, 1);
-        expect(stream.getEndPos()).toEqual(4994l);
+        expect(stream.getEndPos()).toEqual(4995l);
     }
 
     @Test(expected = IllegalArgumentException.class)
