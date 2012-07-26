@@ -86,9 +86,7 @@ public class ATTracker implements SharedPreferences.OnSharedPreferenceChangeList
     }
 
     public void track(Event event, Object... args) {
-        if (!mIsEnabled) { return; }
-
-        if (event != null) {
+        if (mIsEnabled && event != null) {
             if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "track event "+event);
             enqueue(event.atParams(args));
         }
@@ -136,7 +134,7 @@ public class ATTracker implements SharedPreferences.OnSharedPreferenceChangeList
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if (s.equals(Settings.ANALYTICS)) {
+        if (Settings.ANALYTICS.equals(s)) {
             mIsEnabled = sharedPreferences.getBoolean(Settings.ANALYTICS, true);
         }
     }
