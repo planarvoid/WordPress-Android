@@ -739,7 +739,6 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
 
     private void startRecording() {
         mRecordErrorMessage = null;
-        mWaveDisplay.gotoRecordMode();
 
         try {
             mRecorder.startRecording(mRecipient);
@@ -747,6 +746,7 @@ public class ScCreate extends ScActivity implements CreateWaveDisplay.Listener {
             onRecordingError(e.getMessage());
             updateUi(CreateState.IDLE_RECORD, true);
         }
+        mWaveDisplay.gotoRecordMode();
     }
 
     private long updateTimeRemaining(long t) {
