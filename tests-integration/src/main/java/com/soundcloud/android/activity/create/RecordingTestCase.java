@@ -3,18 +3,22 @@ package com.soundcloud.android.activity.create;
 import static com.soundcloud.android.activity.create.ScCreate.CreateState.*;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
 import com.soundcloud.android.tests.Runner;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.api.Env;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 
 import java.io.File;
@@ -31,6 +35,8 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
 
     protected LocalBroadcastManager lbm;
     protected List<Intent> intents;
+    protected Env env;
+
 
     final private  BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -58,7 +64,7 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
         });
 
         Runner.checkFreeSpace();
-
+        env = getActivity().getApp().getEnv();
         super.setUp();
     }
 
@@ -132,13 +138,17 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
         final long endTime = startTime + timeout;
         while (SystemClock.uptimeMillis() < endTime) {
             solo.sleep(100);
-            for (Intent intent : intents) {
+            for (Intent intent : new ArrayList<Intent>(intents)) {
                 if (action.equals(intent.getAction())) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    protected void assertIntentAction(String action, long timeout) {
+        assertTrue("did not get intent action "+action, waitForIntent(action, timeout));
     }
 
     protected @Nullable File fillUpSpace(long whatsLeft) throws IOException {
@@ -154,5 +164,16 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
             file.close();
             return filler;
         } else return null;
+    }
+
+    protected void setRecordingType(@Nullable String type) throws Exception {
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(getInstrumentation().getTargetContext());
+
+        if (type == null) {
+            prefs.edit().remove(DevSettings.DEV_RECORDING_TYPE).commit();
+        } else {
+            prefs.edit().putString(DevSettings.DEV_RECORDING_TYPE, type).commit();
+        }
     }
 }

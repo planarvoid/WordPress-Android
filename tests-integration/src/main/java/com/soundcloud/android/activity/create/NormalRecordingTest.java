@@ -8,8 +8,10 @@ import static com.soundcloud.android.activity.create.ScCreate.CreateState.RECORD
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activity.Main;
+import com.soundcloud.android.activity.settings.DevSettings;
 import com.soundcloud.android.model.Recording;
 import com.soundcloud.android.service.upload.UploadService;
+import com.soundcloud.api.Env;
 
 import android.content.Intent;
 import android.os.Build;
@@ -84,7 +86,7 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.clickOnButtonResId(R.string.sc_upload_private);
         solo.clickOnText(R.string.upload_and_share);
 
-        assertTrue("did not get upload notification", waitForIntent(UploadService.UPLOAD_SUCCESS, 10000));
+        assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
         solo.assertActivityFinished();
     }
 
@@ -109,8 +111,38 @@ public class NormalRecordingTest extends RecordingTestCase {
         solo.clickOnButtonResId(R.string.sc_upload_private);
         solo.clickOnText(R.string.upload_and_share);
 
-        assertTrue("did not get upload notification", waitForIntent(UploadService.UPLOAD_SUCCESS, 10000));
+        assertIntentAction(UploadService.UPLOAD_SUCCESS, 10000);
         solo.assertActivityFinished();
+    }
+
+    public void testRecordAndUploadRaw() throws Exception {
+        setRecordingType(DevSettings.DEV_RECORDING_TYPE_RAW);
+        try {
+            record(RECORDING_TIME);
+
+            assertTrue("raw file does not exist", getActivity().getRecorder().getRecording().getFile().exists());
+            assertFalse("encoded file exists", getActivity().getRecorder().getRecording().getEncodedFile().exists());
+
+            solo.clickOnPublish();
+            solo.assertActivity(ScUpload.class);
+
+            solo.enterText(0, "A test upload");
+            solo.clickOnButtonResId(R.string.sc_upload_private);
+            solo.clickOnText(R.string.upload_and_share);
+
+            assertIntentAction(UploadService.PROCESSING_STARTED,  2000);
+            assertIntentAction(UploadService.PROCESSING_PROGRESS, 5000);
+            assertIntentAction(UploadService.PROCESSING_SUCCESS, 20000);
+
+            assertIntentAction(UploadService.UPLOAD_SUCCESS, 30000);
+
+            if (env == Env.LIVE) {
+                assertIntentAction(UploadService.TRANSCODING_SUCCESS, 30000);
+            }
+            solo.assertActivityFinished();
+        } finally {
+            setRecordingType(null);
+        }
     }
 
     public void testRecordAndSharePrivatelyToEmailAddress() throws Exception {
