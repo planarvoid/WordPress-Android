@@ -1,8 +1,6 @@
 package com.soundcloud.android.service.beta;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import org.junit.Test;
@@ -79,10 +77,10 @@ public class BetaTest {
     @Test
     public void shouldTestUpdate() throws Exception {
 
-        assertTrue(Beta.isUptodate(10, "foo", 10, "foo"));
-        assertTrue(Beta.isUptodate(15, "foo", 10, "foo"));
-        assertFalse(Beta.isUptodate(9, "foo", 10, "foo"));
+        expect(Beta.isUptodate(10, "foo", 10, "foo")).toBeTrue();
+        expect(Beta.isUptodate(15, "foo", 10, "foo")).toBeTrue();
+        expect(Beta.isUptodate(9, "foo", 10, "foo")).toBeFalse();
 
-        assertFalse(Beta.isUptodate(10, "foo-1", 10, "foo-2"));
+        expect(Beta.isUptodate(10, "foo-1", 10, "foo-2")).toBeFalse();
     }
 }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.activity.auth;
 
+import com.soundcloud.android.AndroidCloudAPI;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -10,13 +11,16 @@ import com.soundcloud.android.tracking.Click;
 import com.soundcloud.android.tracking.Page;
 import com.soundcloud.android.tracking.Tracking;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -35,12 +39,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Arrays;
 
 @Tracking(page = Page.Entry_signup__main)
 public class SignUp extends Activity {
-    public static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
-    public static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
+    private static final Uri TERMS_OF_USE_URL = Uri.parse("http://m.soundcloud.com/terms-of-use");
+    private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
 
     private static final int MIN_PASSWORD_LENGTH = 4;
     public static final int THROTTLE_WINDOW = 60 * 60 * 1000;
@@ -50,7 +53,7 @@ public class SignUp extends Activity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        if (!shouldThrottle()){
+        if (!shouldThrottle(this)){
             build();
         } else {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://m.soundcloud.com")));
@@ -193,38 +196,42 @@ public class SignUp extends Activity {
         finish();
     }
 
-    static boolean shouldThrottle(){
+    static boolean shouldThrottle(Context context) {
+        AndroidCloudAPI api = (AndroidCloudAPI) context.getApplicationContext();
+        // don't throttle sandbox requests - we need it for integration testing
+        if (api.getEnv() ==  Env.SANDBOX) return false;
+
         final long[] signupLog = readLog();
         if (signupLog == null) {
             return false;
+        } else {
+            int i = signupLog.length - 1;
+            while (i >= 0 &&
+                    System.currentTimeMillis() - signupLog[i] < THROTTLE_WINDOW &&
+                    signupLog.length - i <= THROTTLE_AFTER_ATTEMPT) {
+                i--;
+            }
+            return signupLog.length - i > THROTTLE_AFTER_ATTEMPT;
         }
-
-        int i = signupLog.length - 1;
-        while (i >= 0 && System.currentTimeMillis() - signupLog[i] < THROTTLE_WINDOW && signupLog.length - i <= THROTTLE_AFTER_ATTEMPT){
-            i--;
-        }
-
-        return signupLog.length - i > THROTTLE_AFTER_ATTEMPT;
     }
 
-    static long[] readLog() {
+    @Nullable static long[] readLog() {
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(SIGNUP_LOG));
             return (long[]) in.readObject();
         } catch (IOException e) {
-            Log.i(SoundCloudApplication.TAG, "Error reading sign up log ", e);
+            Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
         } catch (ClassNotFoundException e) {
-            Log.i(SoundCloudApplication.TAG, "Error reading sign up log ", e);
+            Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
         }
         return null;
     }
 
-    static void writeNewSignupToLog() {
-        writeNewSignupToLog(System.currentTimeMillis());
+    static boolean writeNewSignupToLog() {
+        return writeNewSignupToLog(System.currentTimeMillis());
     }
 
-    static void writeNewSignupToLog(long timestamp) {
-
+    static boolean writeNewSignupToLog(long timestamp) {
         long[] toWrite, current = readLog();
         if (current == null) {
             toWrite = new long[1];
@@ -232,19 +239,21 @@ public class SignUp extends Activity {
             toWrite = new long[current.length + 1];
             System.arraycopy(current, 0, toWrite, 0, current.length);
         }
-
         toWrite[toWrite.length - 1] = timestamp;
-
-        writeLog(toWrite);
+        return writeLog(toWrite);
     }
 
-    static void writeLog(long[] toWrite) {
+    static boolean writeLog(long[] toWrite) {
         try {
+            IOUtils.mkdirs(SIGNUP_LOG.getParentFile());
+
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SIGNUP_LOG));
             out.writeObject(toWrite);
             out.close();
+            return true;
         } catch (IOException e) {
-            Log.i(SoundCloudApplication.TAG, "Error writing to sign up log ", e);
+            Log.w(SoundCloudApplication.TAG, "Error writing to sign up log ", e);
+            return false;
         }
     }
 

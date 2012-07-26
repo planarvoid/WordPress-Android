@@ -417,11 +417,11 @@ public class StreamStorage {
 
     private List<File> allFiles(Comparator<File> comparator) {
         final List<File> files = new ArrayList<File>();
-        File[] chunks = mIncompleteDir.listFiles(extension(CHUNKS_EXTENSION));
-        if (chunks != null) files.addAll(Arrays.asList(chunks));
+        File[] chunks = IOUtils.nullSafeListFiles(mIncompleteDir, extension(CHUNKS_EXTENSION));
+        if (chunks.length > 0) files.addAll(Arrays.asList(chunks));
 
-        File[] complete = mCompleteDir.listFiles();
-        if (complete != null) files.addAll(Arrays.asList(complete));
+        File[] complete = IOUtils.nullSafeListFiles(mCompleteDir, null);
+        if (complete.length > 0) files.addAll(Arrays.asList(complete));
 
         if (comparator != null) {
             Collections.sort(files, comparator);
@@ -432,13 +432,13 @@ public class StreamStorage {
 
     /* package */ long getUsedSpace() {
         long currentlyUsedSpace = 0;
-        File[] complete = mCompleteDir.listFiles();
-        if (complete != null) for (File f : complete) {
+        File[] complete = IOUtils.nullSafeListFiles(mCompleteDir, null);
+        for (File f : complete) {
             currentlyUsedSpace += f.length();
         }
 
-        File[] incomplete = mIncompleteDir.listFiles();
-        if (incomplete != null) for (File f : incomplete) {
+        File[] incomplete = IOUtils.nullSafeListFiles(mIncompleteDir, null);
+        for (File f : incomplete) {
             currentlyUsedSpace += f.length();
         }
         return currentlyUsedSpace;

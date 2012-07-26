@@ -23,9 +23,8 @@
 
         <Button android:id="@+id/search"
                 android:text="@string/search"
-                android:width="50dip"
-                android:layout_width="70dip"
-                android:layout_height="40dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_alignBottom="@+id/query"
                 android:layout_alignTop="@+id/query"

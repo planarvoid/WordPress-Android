@@ -6,14 +6,22 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.service.upload.UploadService;
 import com.soundcloud.android.tests.ActivityTestCase;
 import com.soundcloud.android.tests.IntegrationTestHelper;
+import com.soundcloud.android.tests.Runner;
+import com.soundcloud.android.utils.IOUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,6 +56,9 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
                 getActivity().reset();
             }
         });
+
+        Runner.checkFreeSpace();
+
         super.setUp();
     }
 
@@ -98,7 +109,9 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
                 break;
             }
         }
-        assertNotNull(reached);
+        assertNotNull(
+                "state "+ Arrays.toString(state) + " not reached, current = "+ getActivity().getState(),
+                reached);
     }
 
     protected boolean waitForState(ScCreate.CreateState state, long timeout) {
@@ -126,5 +139,20 @@ public abstract class RecordingTestCase extends ActivityTestCase<ScCreate> {
             }
         }
         return false;
+    }
+
+    protected @Nullable File fillUpSpace(long whatsLeft) throws IOException {
+        File dir = Environment.getExternalStorageDirectory();
+        long currentLeft = IOUtils.getSpaceLeft(dir);
+        if (currentLeft > whatsLeft) {
+            long fSize = currentLeft - whatsLeft;
+            final File filler = new File(dir, "filler");
+            RandomAccessFile file = new RandomAccessFile(filler, "rw");
+            file.setLength(fSize);
+            file.seek(fSize -1);
+            file.write(42);
+            file.close();
+            return filler;
+        } else return null;
     }
 }

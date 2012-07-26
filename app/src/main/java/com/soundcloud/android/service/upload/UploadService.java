@@ -42,7 +42,7 @@ import java.util.Map;
 public class UploadService extends Service {
     /* package */ static final String TAG = UploadService.class.getSimpleName();
 
-    public static final String EXTRA_RECORDING   = "recording";
+    public static final String EXTRA_RECORDING   = Recording.EXTRA;
     public static final String EXTRA_TRACK       = "track";
     public static final String EXTRA_TRANSFERRED = "transferred";
     public static final String EXTRA_TOTAL       = "total";
@@ -113,7 +113,8 @@ public class UploadService extends Service {
 
         public boolean needsProcessing() {
             return needsEncoding() ||
-                   (recording.getPlaybackStream().isModified() && !recording.getProcessedFile().exists());
+                   (recording.getPlaybackStream() != null && recording.getPlaybackStream().isModified() &&
+                           (!recording.getProcessedFile().exists() || recording.getProcessedFile().length() == 0));
         }
 
 

@@ -2,6 +2,7 @@ package com.soundcloud.android.tests;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 import com.jayway.android.robotium.solo.Solo;
 import com.soundcloud.android.R;
@@ -11,6 +12,7 @@ import android.app.Instrumentation;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.widget.EditText;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -39,6 +41,10 @@ public class Han extends Solo {
         clickOnButtonResId(R.string.btn_next);
     }
 
+    public void clickOnPublish() {
+        clickOnButtonResId(R.string.btn_publish);
+    }
+
     public void clickOnText(int resId) {
         clickOnText(getString(resId));
     }
@@ -60,12 +66,16 @@ public class Han extends Solo {
         assertTrue(waitForText(Pattern.quote(getString(resId, args))));
     }
 
-    public void assertVisibleText(int resId, Object... args) {
+    public void assertVisibleTextId(int resId, Object... args) {
         assertTrue(waitForText(Pattern.quote(getString(resId, args)), 0, DEFAULT_TIMEOUT, false, true));
     }
 
+    public void assertVisibleText(String text, long timeout ) {
+        assertTrue(waitForText(text, 0, timeout, false, true));
+    }
+
     public void assertText(String text) {
-        assertTrue(waitForText(text));
+        assertTrue("text "+text+" not found", waitForText(text));
     }
 
     public void assertNoText(int resId, Object... args) {
@@ -75,8 +85,12 @@ public class Han extends Solo {
 
     @SuppressWarnings("unchecked")
     public <T extends Activity> T assertActivity(Class<T> a) {
-        assertTrue(waitForActivity(a.getSimpleName()));
-        return (T) getCurrentActivity();
+        final boolean found = waitForActivity(a.getSimpleName(), 5000);
+        Activity activity = getCurrentActivity();
+        if (!found && !a.isAssignableFrom(activity.getClass())) {
+            fail("Got " + activity.getClass().getSimpleName() + ", expected " + a.getSimpleName());
+        }
+        return (T) activity;
     }
 
     public void assertActivityFinished() {
@@ -85,7 +99,7 @@ public class Han extends Solo {
 
     public void assertDialogClosed() {
         // TODO: replace with more intelligent checks
-        //assertTrue(waitForDialogToClose(DEFAULT_TIMEOUTe));
+        //assertTrue(waitForDialogToClose(DEFAULT_TIMEOUT));
     }
 
     public void clickOnButtonResId(int resId) {
@@ -104,6 +118,13 @@ public class Han extends Solo {
     public void swipeRight() {
         swipe(Solo.RIGHT);
         sleep(SWIPE_SLEEP);
+    }
+
+    public void enterTextId(int resId, String text) {
+        View v = getCurrentActivity().findViewById(resId);
+        if (v instanceof EditText) {
+            enterText((EditText) v, text);
+        } else fail("could not find edit text with id "+resId);
     }
 
     public void swipe(int side) {

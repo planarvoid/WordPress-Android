@@ -63,7 +63,7 @@ public class VorbisWriter implements AudioWriter {
 
     @Override
     public AudioReader getAudioFile() throws IOException {
-        return new VorbisReader(encoder.file);
+        return encoder == null ? null : new VorbisReader(encoder.file);
     }
 
     @Override

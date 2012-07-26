@@ -11,15 +11,14 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.activity.settings.Settings;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.TestHelper;
+import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.xtremelabs.robolectric.shadows.ShadowEnvironment;
-import com.xtremelabs.robolectric.shadows.ShadowPreference;
+
 import com.xtremelabs.robolectric.shadows.ShadowStatFs;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.os.Environment;
 
 import java.io.File;
 import java.io.FileInputStream;

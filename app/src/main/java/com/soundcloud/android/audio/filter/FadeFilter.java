@@ -1,11 +1,17 @@
 package com.soundcloud.android.audio.filter;
 
 import com.soundcloud.android.audio.AudioConfig;
+import com.soundcloud.android.audio.AudioReader;
 import com.soundcloud.android.audio.PlaybackFilter;
+import com.soundcloud.android.audio.PlaybackStream;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class FadeFilter implements PlaybackFilter {
 
@@ -91,5 +97,19 @@ public class FadeFilter implements PlaybackFilter {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(mFadeType);
+        dest.writeLong(mFadeSize);
+        dest.writeInt(mFadeExpCurve);
+
     }
+
+    public static final Parcelable.Creator<FadeFilter> CREATOR = new Parcelable.Creator<FadeFilter>() {
+        public FadeFilter createFromParcel(Parcel in) {
+            return new FadeFilter(in.readInt(), in.readLong(), in.readInt());
+        }
+
+        public FadeFilter[] newArray(int size) {
+            return new FadeFilter[size];
+        }
+    };
 }
