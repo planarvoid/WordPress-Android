@@ -43,6 +43,7 @@ public class Settings extends PreferenceActivity {
     public static final String LOGOUT = "logout";
     public static final String HELP = "help";
     public static final String CLEAR_CACHE = "clearCache";
+    public static final String STREAM_CACHE_SIZE = "streamCacheSize";
     public static final String CLEAR_STREAM_CACHE = "clearStreamCache";
     public static final String WIRELESS = "wireless";
     public static final String ABOUT = "about";

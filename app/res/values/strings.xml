@@ -11,6 +11,11 @@
 
     <string name="menu_private_message">Private Message</string>
 
+    <string name="pref_stream_cache_size">Stream Cache Size</string>
+    <string name="pref_stream_cache_size_desc">The size of the stream cache in percent</string>
+    <string name="cache_trimming">Trimming cache</string>
+    <string name="cache_trimming_message">Trimming the cache</string>
+
     <string name="cloud_recorder_notification_ticker">Recording</string>
 
     <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>
